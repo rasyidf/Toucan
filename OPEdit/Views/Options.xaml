@@ -56,7 +56,7 @@
                             <TextBlock Text="Flat Json" />
                         </RadioButton>
                         <RadioButton x:Name="NamespaceRadio" GroupName="SaveStyle">
-                            <TextBlock>Namespace-Json (Much Slower)</TextBlock>
+                            <TextBlock Text="Namespaced Json " />
                         </RadioButton>
                     </StackPanel>
                 </ui:Card>
@@ -68,7 +68,7 @@
                 </ui:Card>
                 <ui:Card Margin="0,8,8,0">
                     <StackPanel>
-                        <TextBlock Margin="0,0,8,16">Truncate Paging After</TextBlock>
+                        <TextBlock Margin="0,0,8,16" Text="Pagination Limit" />
                         <TextBox x:Name="TruncateSizeText" />
                     </StackPanel>
                 </ui:Card>

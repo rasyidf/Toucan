@@ -14,6 +14,15 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Platforms>AnyCPU;x64</Platforms>
     <NeutralLanguage>en</NeutralLanguage>
+    <Title>OP Editor</Title>
+    <Company>rasyid.dev</Company>
+    <Copyright>Copyright © Rasyidf 2023</Copyright>
+    <PackageProjectUrl>https://github.com/rasyidf/OPEditor</PackageProjectUrl>
+    <PackageIcon>logo.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/rasyidf/OPEditor</RepositoryUrl>
+    <AssemblyVersion>0.1.1.0</AssemblyVersion>
+    <FileVersion>0.1.1.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\Images\WindowIcon.ico" />
@@ -27,6 +36,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Images\ns.png" />
@@ -47,5 +60,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OPEdit.Core\OPEdit.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Assets\Images\logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 </Project>

@@ -9,6 +9,8 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Width="1100"
     Height="650"
+    MinWidth="800"
+    MinHeight="600"
     d:Background="#0a0a0a"
     d:DataContext="{d:DesignInstance local:MainWindow,
                                      IsDesignTimeCreatable=True}"
@@ -49,24 +51,14 @@
             Grid.Row="0"
             Grid.Column="0"
             Grid.ColumnSpan="3"
-            Icon="/Views/WindowIcon.ico">
-            <ui:TitleBar.Tray>
-                <ui:NotifyIcon
-                    FocusOnLeftClick="True"
-                    MenuOnRightClick="True"
-                    TooltipText="Wpf.Ui.Demo.Simple">
-                    <ui:NotifyIcon.Menu>
-                        <ContextMenu ItemsSource="{Binding ViewModel.TrayMenuItems, Mode=OneWay}" />
-                    </ui:NotifyIcon.Menu>
-                </ui:NotifyIcon>
-            </ui:TitleBar.Tray>
-
-        </ui:TitleBar>
+            Icon="/Views/WindowIcon.ico" />
 
         <Menu
             Grid.Row="0"
             Grid.ColumnSpan="3"
-            Margin="51,0,435,0"
+            Width="auto"
+            Margin="51,0,0,0"
+            HorizontalAlignment="Left"
             Background="Transparent"
             DockPanel.Dock="Top">
             <ui:MenuItem AutomationProperties.AccessKey="F" Header="_File">
