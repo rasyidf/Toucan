@@ -46,7 +46,7 @@
 
         </Grid.RowDefinitions>
         <ui:TitleBar
-            Title="Logee i18n Resource Editor - Internal Tools - @rasyidf"
+            Title="OP Editor - by @rasyidf"
             Grid.Row="0"
             Grid.Column="0"
             Grid.ColumnSpan="3"

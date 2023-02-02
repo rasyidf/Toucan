@@ -1,14 +1,14 @@
-<div>
-<img width="32" height="32" src="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png" />
-<span style="font-size:24;">OP Editor</span>
+<div style="display:flex;margin:2px;place-items:center;">
+<img width="32" height="32" src="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png" style="margin-top: 2px"/>
+<span style="font-size:24px;line-height: 8px;font-weight:600; margin-left:6px;">OP Editor</span>
 </div>
 
 A JSON Language Resource or i18n Editor for Windows, the name is based on parody of PO Editor. It helps make translation easier.
 
 ![image](https://user-images.githubusercontent.com/28984914/216422347-3274a074-1ab7-48c6-8014-c3305597aba9.png)
 
-
 ## Features
+
 1. JSON language resource editing
 2. Support for translation of multiple languages
 3. User-friendly interface
@@ -16,8 +16,8 @@ A JSON Language Resource or i18n Editor for Windows, the name is based on parody
 5. Translation suggestions using AI [TODO]
 6. Translation memory for frequently used phrases [TODO]
 7. Import/Export options for language resources [TODO]
-9. Version control for language resources [TODO]
-10. Integrations with popular translation platforms [TODO]
+8. Version control for language resources [TODO]
+9. Integrations with popular translation platforms [TODO]
 
 ## How to use
 
