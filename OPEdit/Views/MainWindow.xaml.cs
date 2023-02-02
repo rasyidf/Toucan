@@ -72,7 +72,7 @@ namespace OPEditor
             CommandBindings.Add(new CommandBinding(renameCommand, RenameItem));
 
             RoutedCommand newCommand = new();
-            newCommand.InputGestures.Add(new KeyGesture(Key.A, ModifierKeys.Control));
+            newCommand.InputGestures.Add(new KeyGesture(Key.I, ModifierKeys.Control));
             CommandBindings.Add(new CommandBinding(newCommand, NewItem));
 
             RoutedCommand newLanguageCommand = new();

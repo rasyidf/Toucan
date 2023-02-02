@@ -7,7 +7,6 @@
     xmlns:local="clr-namespace:OPEditor"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    Title="Json Translation Editor"
     Width="1100"
     Height="650"
     d:Background="#0a0a0a"
@@ -46,7 +45,7 @@
 
         </Grid.RowDefinitions>
         <ui:TitleBar
-            Title="OP Editor - by @rasyidf"
+            Title=""
             Grid.Row="0"
             Grid.Column="0"
             Grid.ColumnSpan="3"
@@ -64,33 +63,58 @@
 
         </ui:TitleBar>
 
-        <DockPanel Grid.Row="1" Grid.ColumnSpan="3">
-            <Menu Background="Transparent" DockPanel.Dock="Top">
-                <ui:MenuItem AutomationProperties.AccessKey="F" Header="_File">
-                    <ui:MenuItem
-                        Width="100"
-                        Click="NewFolder"
-                        Header="New" />
-                    <ui:MenuItem Click="OpenFolder" Header="_Open" />
-                    <ui:MenuItem Click="Save" Header="_Save" />
-                    <ui:MenuItem Click="SaveTo" Header="_Save To" />
-                    <Separator />
-                    <ui:MenuItem Header="_Exit" />
-                </ui:MenuItem>
-                <ui:MenuItem Name="itemMenu" Header="_Item">
-                    <ui:MenuItem
-                        Width="100"
-                        Click="NewItem"
-                        Header="_New" />
-                    <ui:MenuItem Click="RenameItem" Header="_Rename" />
-                    <Separator />
-                    <ui:MenuItem Click="DeleteItem" Header="_Delete" />
-                </ui:MenuItem>
-
+        <Menu
+            Grid.Row="0"
+            Grid.ColumnSpan="3"
+            Margin="51,0,435,0"
+            Background="Transparent"
+            DockPanel.Dock="Top">
+            <ui:MenuItem AutomationProperties.AccessKey="F" Header="_File">
+                <ui:MenuItem
+                    Width="150"
+                    Click="NewFolder"
+                    Header="_New"
+                    InputGestureText="Ctrl+N" />
+                <ui:MenuItem
+                    Click="OpenFolder"
+                    Header="_Open"
+                    InputGestureText="Ctrl+O" />
+                <ui:MenuItem
+                    Click="Save"
+                    Header="_Save"
+                    InputGestureText="Ctrl+S" />
+                <ui:MenuItem
+                    Click="SaveTo"
+                    Header="Save _As"
+                    InputGestureText="Ctrl+A" />
+                <Separator />
                 <ui:MenuItem Click="ShowPreferences" Header="Preferences" />
+                <Separator />
+                <ui:MenuItem Header="_Exit" InputGestureText="Alt+F4" />
+            </ui:MenuItem>
+            <ui:MenuItem Name="itemMenu" Header="_Item">
+                <ui:MenuItem
+                    Width="150"
+                    Click="NewItem"
+                    Header="_New"
+                    InputGestureText="Ctrl+I" />
+                <ui:MenuItem Click="RenameItem" Header="_Rename" />
+                <Separator />
+                <ui:MenuItem Click="DeleteItem" Header="_Delete" />
+            </ui:MenuItem>
+            <ui:MenuItem Header="Languages">
+                <ui:MenuItem
+                    Width="190"
+                    Click="NewLanguage"
+                    Header="Add Language"
+                    InputGestureText="Ctrl+L" />
+            </ui:MenuItem>
 
-            </Menu>
-        </DockPanel>
+            <ui:MenuItem Header="Help">
+                <ui:MenuItem Width="150" Header="About" />
+            </ui:MenuItem>
+
+        </Menu>
         <Grid
             Grid.Row="2"
             Grid.RowSpan="2"
@@ -114,7 +138,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="5" />
-                <RowDefinition Height="150" />
+                <RowDefinition Height="280" />
             </Grid.RowDefinitions>
             <GridSplitter
                 Grid.Row="1"
@@ -123,65 +147,113 @@
                 HorizontalAlignment="Stretch"
                 Background="#1E909090" />
 
+            <Grid Margin="0,10,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="42" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Grid.Row="0"
+                    Margin="10,10,0,0"
+                    FontWeight="SemiBold"
+                    Text="Resources" />
+                <ui:Button
+                    Grid.Column="1"
+                    Height="32"
+                    Margin="10,0,10,0"
+                    HorizontalAlignment="Stretch"
+                    Click="NewItem">
+                    Add Item
+                </ui:Button>
+                <TreeView
+                    x:Name="TreeNamespace"
+                    Grid.Row="1"
+                    Grid.ColumnSpan="2"
+                    ItemTemplate="{StaticResource NameTemplate}"
+                    ItemsSource="{Binding CurrentTreeItems}" />
+            </Grid>
 
 
-            <TreeView
-                x:Name="TreeNamespace"
-                Margin="0,10,0,0"
-                ItemTemplate="{StaticResource NameTemplate}"
-                ItemsSource="{Binding CurrentTreeItems}" />
+            <Grid Grid.Row="3" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="42" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="140" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Grid.Row="0"
+                    Margin="10,10,0,0"
+                    FontWeight="SemiBold"
+                    Text="Languages" />
+                <ui:Button
+                    Grid.Column="1"
+                    Width="130"
+                    Height="32"
+                    Margin="0,0,5,0"
+                    HorizontalAlignment="Right"
+                    Click="NewLanguage">
+                    Add Language
+                </ui:Button>
 
+                <ui:DynamicScrollViewer
+                    Grid.Row="1"
+                    Grid.ColumnSpan="2"
+                    HorizontalContentAlignment="Stretch"
+                    UseLayoutRounding="True">
+                    <ItemsControl
+                        x:Name="summaryControl"
+                        Width="auto"
+                        Margin="4,4,4,4">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ui:Card Margin="4">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="1*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Language, Mode=OneWay, Converter={StaticResource LanguageConverter}}" />
+                                            <TextBlock
+                                                Grid.Column="1"
+                                                Text="{Binding Stats, Mode=OneWay}"
+                                                TextAlignment="Right" />
+                                        </Grid>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1*" />
+                                                <ColumnDefinition Width="24" />
+                                                <ColumnDefinition Width="12" />
+                                            </Grid.ColumnDefinitions>
+                                            <ProgressBar
+                                                Margin="0,4"
+                                                Maximum="1"
+                                                Value="{Binding Percentage, Mode=OneWay}" />
 
-            <ui:DynamicScrollViewer
-                Grid.Row="3"
-                Grid.Column="0"
-                HorizontalContentAlignment="Stretch"
-                UseLayoutRounding="True">
-                <ItemsControl
-                    x:Name="summaryControl"
-                    Width="auto"
-                    Margin="4,4,4,4">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <ui:Card Margin="4">
-                                <StackPanel>
-                                    <Grid Margin="0,0,0,8">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="auto" />
-                                            <ColumnDefinition Width="1*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="{Binding Language, Mode=OneWay, Converter={StaticResource LanguageConverter}}" />
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            Text="{Binding Stats, Mode=OneWay}"
-                                            TextAlignment="Right" />
-                                    </Grid>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="1*" />
-                                            <ColumnDefinition Width="24" />
-                                            <ColumnDefinition Width="12" />
-                                        </Grid.ColumnDefinitions>
-                                        <ProgressBar
-                                            Margin="0,4"
-                                            Maximum="1"
-                                            Value="{Binding Percentage, Mode=OneWay}" />
+                                            <TextBlock
+                                                Grid.Column="1"
+                                                Text="{Binding Percentage, Mode=OneWay}"
+                                                TextAlignment="Right" />
+                                            <TextBlock
+                                                Grid.Column="2"
+                                                Text="%"
+                                                TextAlignment="Center" />
+                                        </Grid>
+                                    </StackPanel>
+                                </ui:Card>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ui:DynamicScrollViewer>
+            </Grid>
 
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            Text="{Binding Percentage, Mode=OneWay}"
-                                            TextAlignment="Right" />
-                                        <TextBlock
-                                            Grid.Column="2"
-                                            Text="%"
-                                            TextAlignment="Center" />
-                                    </Grid>
-                                </StackPanel>
-                            </ui:Card>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ui:DynamicScrollViewer>
         </Grid>
 
         <GridSplitter
@@ -195,8 +267,9 @@
             x:Name="SearchFilterTextbox"
             Grid.Column="2"
             Height="40"
-            Margin="125,0,215,0"
-            Icon="Search16" />
+            Margin="160,0,180,0"
+            Icon="Search16"
+            PlaceholderText="OP Editor" />
         <ui:DynamicScrollViewer
             x:Name="ContentScroller"
             Grid.Row="2"

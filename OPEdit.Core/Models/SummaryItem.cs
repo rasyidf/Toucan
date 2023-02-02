@@ -8,7 +8,7 @@ public class SummaryItem
     public DateTime Updated { get; } = DateTime.Now;
     public double Potential { get; set; }
 
-    public string Stats => Missing > 0 ? $"(missing {Missing} of {Potential})"
+    public string Stats => Missing > 0 ? $"{Missing}/{Potential}"
         : $"OK!";
 
 }
