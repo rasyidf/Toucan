@@ -1,6 +1,12 @@
-# OP Editor
+<div>
+<img width="32" height="32" src="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png" />
+<span style="font-size:24;">OP Editor</span>
+</div>
 
 A JSON Language Resource or i18n Editor for Windows, the name is based on parody of PO Editor. It helps make translation easier.
+
+![image](https://user-images.githubusercontent.com/28984914/216422347-3274a074-1ab7-48c6-8014-c3305597aba9.png)
+
 
 ## Features
 1. JSON language resource editing
