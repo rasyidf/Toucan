@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
 
 using MahApps.Metro.Controls;
+using Wpf.Ui.Controls;
 
 namespace OPEdit.Contracts.Services;
 
@@ -10,9 +11,9 @@ public interface IRightPaneService
 
     event EventHandler PaneClosed;
 
-    void OpenInRightPane(string pageKey, object parameter = null);
+    void OpenDialog(string pageKey, object parameter = null);
 
-    void Initialize(Frame rightPaneFrame, SplitView splitView);
+    void Initialize(Frame rightPaneFrame, Dialog splitView);
 
     void CleanUp();
 }

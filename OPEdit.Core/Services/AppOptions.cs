@@ -20,7 +20,7 @@ public class AppOptions
     static readonly string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDoc‌​uments), "OPEditor");
 
 
-    public static AppOptions FromDisk()
+    public static AppOptions LoadFromDisk()
     {
         if (File.Exists(Path.Combine(path, "settings.json")))
         {

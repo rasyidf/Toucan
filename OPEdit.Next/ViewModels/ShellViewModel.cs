@@ -78,5 +78,5 @@ public class ShellViewModel : ObservableObject
         => _navigationService.NavigateTo(typeof(ProjectViewModel).FullName, null, true);
 
     private void OnMenuFileSettings()
-        => _rightPaneService.OpenInRightPane(typeof(SettingsViewModel).FullName);
+        => _rightPaneService.OpenDialog(typeof(SettingsViewModel).FullName);
 }

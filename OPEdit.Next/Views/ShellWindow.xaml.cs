@@ -28,6 +28,6 @@ public partial class ShellWindow : UiWindow, IShellWindow
     public void CloseWindow()
         => Close();
 
-    public SplitView GetSplitView()
+    public Dialog GetSplitView()
         => splitView;
 }

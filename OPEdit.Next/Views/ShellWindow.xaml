@@ -1,0 +1,110 @@
+﻿<ui:UiWindow
+    x:Class="OPEdit.Views.ShellWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:properties="clr-namespace:OPEdit.Properties"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="{x:Static properties:Resources.AppDisplayName}"
+    MinWidth="500"
+    MinHeight="350"
+    d:Background="#0a0a0a"
+    d:Foreground="#fafafa"
+    ExtendsContentIntoTitleBar="True"
+    WindowBackdropType="Mica"
+    WindowCornerPreference="Round"
+    mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Unloaded">
+            <i:InvokeCommandAction Command="{Binding UnloadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <ui:TitleBar
+            Title="{x:Static properties:Resources.AppDisplayName}"
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="3">
+            <ui:TitleBar.Tray>
+                <ui:NotifyIcon
+                    FocusOnLeftClick="True"
+                    MenuOnRightClick="True"
+                    TooltipText="Wpf.Ui.Demo.Simple">
+                    <ui:NotifyIcon.Menu>
+                        <ContextMenu ItemsSource="{Binding ViewModel.TrayMenuItems, Mode=OneWay}" />
+                    </ui:NotifyIcon.Menu>
+                </ui:NotifyIcon>
+            </ui:TitleBar.Tray>
+
+        </ui:TitleBar>
+        <ui:Dialog x:Name="splitView">
+            <Frame
+                x:Name="rightPaneFrame"
+                Focusable="False"
+                NavigationUIVisibility="Hidden" />
+        </ui:Dialog>
+        <Grid Grid.Row="1" Focusable="False">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="42" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Menu
+                Grid.Row="0"
+                Grid.Column="0"
+                Background="{x:Null}"
+                Focusable="False">
+                <ui:MenuItem AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource Self}}" Header="{x:Static properties:Resources.ShellMenuFileHeader}">
+
+                    <ui:NavigationSeparator />
+                    <ui:MenuItem
+                        AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource Self}}"
+                        Command="{Binding MenuFileExitCommand}"
+                        Header="{x:Static properties:Resources.ShellMenuItemFileExitHeader}" />
+                </ui:MenuItem>
+                <ui:MenuItem AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource Self}}" Header="{x:Static properties:Resources.ShellMenuViewsHeader}">
+                    <!--  TODO: Review the MenuItem headers in Resources.resx file for all of your views and place '_' before the letter that you want to use for menu keyboard usage  -->
+                    <ui:MenuItem
+                        Width="120"
+                        AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource Self}}"
+                        Command="{Binding MenuViewsHomeCommand}"
+                        Header="{x:Static properties:Resources.ShellMenuItemViewsHomePageHeader}" />
+                    <ui:MenuItem
+                        AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource Self}}"
+                        Command="{Binding MenuViewsProjectCommand}"
+                        Header="{x:Static properties:Resources.ShellMenuItemViewsProjectPageHeader}" />
+                </ui:MenuItem>
+            </Menu>
+            <ui:Button
+                Grid.Row="0"
+                Grid.Column="1"
+                AutomationProperties.Name="Settings"
+                Background="{x:Null}"
+                BorderBrush="{x:Null}"
+                Command="{Binding MenuFileSettingsCommand}">
+                <ui:SymbolIcon Symbol="Settings24" />
+            </ui:Button>
+            <Frame
+                x:Name="shellFrame"
+                Grid.Row="1"
+                Grid.ColumnSpan="2"
+                Focusable="False"
+                NavigationUIVisibility="Hidden" />
+        </Grid>
+    </Grid>
+
+</ui:UiWindow>

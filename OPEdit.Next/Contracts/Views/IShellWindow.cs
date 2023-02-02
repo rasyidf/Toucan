@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
 
 using MahApps.Metro.Controls;
+using Wpf.Ui.Controls;
 
 namespace OPEdit.Contracts.Views;
 
@@ -14,5 +15,5 @@ public interface IShellWindow
 
     Frame GetRightPaneFrame();
 
-    SplitView GetSplitView();
+    Dialog GetSplitView();
 }

@@ -11,9 +11,13 @@
     Width="1100"
     Height="650"
     d:Background="#0a0a0a"
+    d:DataContext="{d:DesignInstance local:MainWindow,
+                                     IsDesignTimeCreatable=True}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     d:Foreground="white"
+    ui:Design.Background="#0a0a0a"
+    ui:Design.Foreground="white"
     ExtendsContentIntoTitleBar="True"
     Loaded="Window_Loaded"
     WindowBackdropType="Mica"
@@ -62,7 +66,7 @@
 
         <DockPanel Grid.Row="1" Grid.ColumnSpan="3">
             <Menu Background="Transparent" DockPanel.Dock="Top">
-                <ui:MenuItem Header="_File">
+                <ui:MenuItem AutomationProperties.AccessKey="F" Header="_File">
                     <ui:MenuItem
                         Width="100"
                         Click="NewFolder"
@@ -128,7 +132,7 @@
                 ItemsSource="{Binding CurrentTreeItems}" />
 
 
-            <ScrollViewer
+            <ui:DynamicScrollViewer
                 Grid.Row="3"
                 Grid.Column="0"
                 HorizontalContentAlignment="Stretch"
@@ -136,7 +140,7 @@
                 <ItemsControl
                     x:Name="summaryControl"
                     Width="auto"
-                    Margin="12,4,0,4">
+                    Margin="4,4,4,4">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <ui:Card Margin="4">
@@ -177,7 +181,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </ScrollViewer>
+            </ui:DynamicScrollViewer>
         </Grid>
 
         <GridSplitter
@@ -193,7 +197,7 @@
             Height="40"
             Margin="125,0,215,0"
             Icon="Search16" />
-        <ScrollViewer
+        <ui:DynamicScrollViewer
             x:Name="ContentScroller"
             Grid.Row="2"
             Grid.Column="2">
@@ -262,7 +266,7 @@
             </StackPanel>
 
 
-        </ScrollViewer>
+        </ui:DynamicScrollViewer>
 
         <Grid
             Grid.Row="3"

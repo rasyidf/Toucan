@@ -5,6 +5,7 @@ using MahApps.Metro.Controls;
 
 using OPEdit.Contracts.Services;
 using OPEdit.Contracts.ViewModels;
+using Wpf.Ui.Controls;
 
 namespace OPEdit.Services;
 
@@ -13,7 +14,7 @@ public class RightPaneService : IRightPaneService
     private readonly IPageService _pageService;
     private Frame _frame;
     private object _lastParameterUsed;
-    private SplitView _splitView;
+    private Dialog _dialogView;
 
     public event EventHandler PaneOpened;
 
@@ -24,21 +25,21 @@ public class RightPaneService : IRightPaneService
         _pageService = pageService;
     }
 
-    public void Initialize(Frame rightPaneFrame, SplitView splitView)
+    public void Initialize(Frame rightPaneFrame, Dialog splitView)
     {
         _frame = rightPaneFrame;
-        _splitView = splitView;
+        _dialogView = splitView;
         _frame.Navigated += OnNavigated;
-        _splitView.PaneClosed += OnPaneClosed;
+        _dialogView.Closed += OnPaneClosed;
     }
 
     public void CleanUp()
     {
         _frame.Navigated -= OnNavigated;
-        _splitView.PaneClosed -= OnPaneClosed;
+        _dialogView.Closed -= OnPaneClosed;
     }
 
-    public void OpenInRightPane(string pageKey, object parameter = null)
+    public void OpenDialog(string pageKey, object parameter = null)
     {
         var pageType = _pageService.GetPageType(pageKey);
         if (_frame.Content?.GetType() != pageType || (parameter != null && !parameter.Equals(_lastParameterUsed)))
@@ -56,8 +57,8 @@ public class RightPaneService : IRightPaneService
             }
         }
 
-        _splitView.IsPaneOpen = true;
-        PaneOpened?.Invoke(_splitView, EventArgs.Empty);
+        _dialogView.ShowAndWaitAsync();
+        PaneOpened?.Invoke(_dialogView, EventArgs.Empty);
     }
 
     private void OnNavigated(object sender, NavigationEventArgs e)
