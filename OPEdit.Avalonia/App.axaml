@@ -1,13 +1,10 @@
 <Application
-    x:Class="OPEditor.Avalonia.App"
+    x:Class="OPEdit.Avalonia.App"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:OPEditor.Avalonia">
-    <Application.DataTemplates>
-        <local:ViewLocator />
-    </Application.DataTemplates>
+    xmlns:local="using:OPEdit.Avalonia">
 
     <Application.Styles>
-        <FluentTheme Mode="Light" />
+        <FluentTheme />
     </Application.Styles>
 </Application>

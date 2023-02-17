@@ -1,11 +1,11 @@
 <Window
-    x:Class="OPEditor.Avalonia.Views.MainWindow"
+    x:Class="OPEdit.Avalonia.Views.MainWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="using:OPEditor.Avalonia.ViewModels"
-    Title="OPEditor.Avalonia"
+    xmlns:rxui="using:Avalonia.ReactiveUI"
+    Title="OPEdit.Avalonia"
     HorizontalContentAlignment="Stretch"
     VerticalContentAlignment="Stretch"
     d:DesignHeight="450"
@@ -13,14 +13,14 @@
     Icon="/Assets/avalonia-logo.ico"
     mc:Ignorable="d">
 
-    <Design.DataContext>
-        <vm:MainWindowViewModel />
-    </Design.DataContext>
-    <Grid ColumnDefinitions="120,*" RowDefinitions="24,*">
+    <Grid
+        ColumnDefinitions="120,*"
+        DataContext="{Binding RoutedViewHost}"
+        RowDefinitions="24,*">
         <Menu Grid.ColumnSpan="2" Height="32">
             <MenuItem Header="_File">
-                <MenuItem Header="_New" />
-                <MenuItem Header="_Open" />
+                <MenuItem Command="{Binding ShowStart}" Header="_New" />
+                <MenuItem Command="{Binding ShowEditor}" Header="_Open" />
                 <MenuItem Header="_Save" />
                 <MenuItem Header="_Save To" />
                 <Separator />
@@ -34,13 +34,9 @@
             </MenuItem>
 
             <MenuItem Header="Preferences" />
-
         </Menu>
-        <Grid Grid.Row="1">
-            <TreeView>
-                <TreeViewItem Header="Hehe" />
-            </TreeView>
-        </Grid>
+        <rxui:RoutedViewHost Grid.Row="1" Router="{Binding Router}" />
+
     </Grid>
 
 </Window>

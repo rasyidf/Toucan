@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace OPEditor.Properties; 
+namespace OPEdit.Properties; 
 
 
 [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

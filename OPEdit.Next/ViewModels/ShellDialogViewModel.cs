@@ -5,11 +5,11 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace OPEdit.ViewModels;
 
-public class ShellDialogViewModel : ObservableObject
+public partial class ShellDialogViewModel : ObservableObject
 {
-    private ICommand _closeCommand;
 
-    public ICommand CloseCommand => _closeCommand ?? (_closeCommand = new RelayCommand(OnClose));
+    [ObservableProperty]
+    private string title;
 
     public Action<bool?> SetResult { get; set; }
 
@@ -17,7 +17,8 @@ public class ShellDialogViewModel : ObservableObject
     {
     }
 
-    private void OnClose()
+    [RelayCommand]
+    private void Close()
     {
         bool result = true;
         SetResult(result);

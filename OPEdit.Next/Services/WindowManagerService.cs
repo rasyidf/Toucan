@@ -53,7 +53,7 @@ public class WindowManagerService : IWindowManagerService
         }
     }
 
-    public bool? OpenInDialog(string key, object parameter = null)
+    public bool? OpenInDialog(string key,  object parameter = null)
     {
         var shellWindow = _serviceProvider.GetService(typeof(IShellDialogWindow)) as Window;
         var frame = ((IShellDialogWindow)shellWindow).GetDialogFrame();

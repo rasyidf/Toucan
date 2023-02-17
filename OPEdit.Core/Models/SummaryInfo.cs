@@ -1,4 +1,4 @@
-﻿using OPEditor.Extensions;
+﻿using OPEdit.Extensions;
 namespace OPEdit.Core.Models;
 
 public class SummaryInfo

@@ -8,19 +8,12 @@ using System.Windows.Data;
 
 namespace OPEdit.Converters
 {
-    internal class LanguageNameConverter : IValueConverter
+    internal class TreeItemtoListItemConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            try
-            {
-                var cult = new CultureInfo(value?.ToString() ?? ""); 
-                return cult.EnglishName;
-            }
-            catch (Exception)
-            {
-                return $"{value} - unsupported";
-            }
+             
+            return value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

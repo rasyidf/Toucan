@@ -1,11 +1,12 @@
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace OPEditor.Avalonia.ViewModels
+namespace OPEdit.Avalonia.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase
+    internal class MainWindowViewModel : ReactiveObject
     {
-        public string Greeting => "Welcome to Avalonia!";
+        public RoutedViewHostPageViewModel RoutedViewHost { get; } = new();
     }
 }

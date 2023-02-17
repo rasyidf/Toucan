@@ -4,7 +4,7 @@ using System;
 using System.Windows;
 using Wpf.Ui.Controls.Window;
 
-namespace OPEditor
+namespace OPEdit
 {
     /// <summary>
     /// Interaction logic for Options.xaml
@@ -19,11 +19,7 @@ namespace OPEditor
 
             InitializeComponent();
 
-
-            if (Config.SaveStyle == SaveStyles.Json)
-                JsonRadio.IsChecked = true;
-            else
-                NamespaceRadio.IsChecked = true;
+            SaveStyleCombobox.SelectedIndex = (int)Config.SaveStyle;
 
             PageSizeText.Text = importOptions.PageSize.ToString();
             TruncateSizeText.Text = importOptions.TruncateResultsOver.ToString();
@@ -32,18 +28,13 @@ namespace OPEditor
 
         private void SaveOptions(object sender, RoutedEventArgs e)
         {
-            AppOptions newOptions = new();
-            if (JsonRadio.IsChecked.GetValueOrDefault())
+            AppOptions newOptions = new()
             {
-                newOptions.SaveStyle = SaveStyles.Json;
-            }
-            else
-                newOptions.SaveStyle = SaveStyles.Namespaced;
-
-            newOptions.PageSize = Convert.ToInt32(PageSizeText.Text);
-            newOptions.TruncateResultsOver = Convert.ToInt32(TruncateSizeText.Text);
-
-            newOptions.DefaultPath = Config.DefaultPath;
+                SaveStyle = (SaveStyles)SaveStyleCombobox.SelectedIndex,
+                PageSize = Convert.ToInt32(PageSizeText.Text),
+                TruncateResultsOver = Convert.ToInt32(TruncateSizeText.Text),
+                DefaultPath = Config.DefaultPath
+            };
             Config = newOptions;
             newOptions.ToDisk();
             DialogResult = true;

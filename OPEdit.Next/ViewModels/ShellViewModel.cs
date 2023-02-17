@@ -16,7 +16,7 @@ namespace OPEdit.ViewModels;
 public class ShellViewModel : ObservableObject
 {
     private readonly INavigationService _navigationService;
-    private readonly IRightPaneService _rightPaneService;
+    private readonly IWindowManagerService _windowsManagerService;
 
     private RelayCommand _goBackCommand;
     private ICommand _menuFileSettingsCommand;
@@ -26,20 +26,20 @@ public class ShellViewModel : ObservableObject
     private ICommand _loadedCommand;
     private ICommand _unloadedCommand;
 
-    public RelayCommand GoBackCommand => _goBackCommand ?? (_goBackCommand = new RelayCommand(OnGoBack, CanGoBack));
+    public RelayCommand GoBackCommand => _goBackCommand ??= new RelayCommand(OnGoBack, CanGoBack);
 
-    public ICommand MenuFileSettingsCommand => _menuFileSettingsCommand ?? (_menuFileSettingsCommand = new RelayCommand(OnMenuFileSettings));
+    public ICommand MenuFileSettingsCommand => _menuFileSettingsCommand ??= new RelayCommand(OnMenuFileSettings);
 
-    public ICommand MenuFileExitCommand => _menuFileExitCommand ?? (_menuFileExitCommand = new RelayCommand(OnMenuFileExit));
+    public ICommand MenuFileExitCommand => _menuFileExitCommand ??= new RelayCommand(OnMenuFileExit);
 
-    public ICommand LoadedCommand => _loadedCommand ?? (_loadedCommand = new RelayCommand(OnLoaded));
+    public ICommand LoadedCommand => _loadedCommand ??= new RelayCommand(OnLoaded);
 
-    public ICommand UnloadedCommand => _unloadedCommand ?? (_unloadedCommand = new RelayCommand(OnUnloaded));
+    public ICommand UnloadedCommand => _unloadedCommand ??= new RelayCommand(OnUnloaded);
 
-    public ShellViewModel(INavigationService navigationService, IRightPaneService rightPaneService)
+    public ShellViewModel(INavigationService navigationService, IWindowManagerService winmanSvc)
     {
         _navigationService = navigationService;
-        _rightPaneService = rightPaneService;
+        _windowsManagerService = winmanSvc;
     }
 
     private void OnLoaded()
@@ -48,8 +48,7 @@ public class ShellViewModel : ObservableObject
     }
 
     private void OnUnloaded()
-    {
-        _rightPaneService.CleanUp();
+    { 
         _navigationService.Navigated -= OnNavigated;
     }
 
@@ -67,16 +66,16 @@ public class ShellViewModel : ObservableObject
     private void OnMenuFileExit()
         => Application.Current.Shutdown();
 
-    public ICommand MenuViewsHomeCommand => _menuViewsHomeCommand ?? (_menuViewsHomeCommand = new RelayCommand(OnMenuViewsHome));
+    public ICommand MenuViewsHomeCommand => _menuViewsHomeCommand ??= new RelayCommand(OnMenuViewsHome);
 
     private void OnMenuViewsHome()
         => _navigationService.NavigateTo(typeof(HomeViewModel).FullName, null, true);
 
-    public ICommand MenuViewsProjectCommand => _menuViewsProjectCommand ?? (_menuViewsProjectCommand = new RelayCommand(OnMenuViewsProject));
+    public ICommand MenuViewsProjectCommand => _menuViewsProjectCommand ??= new RelayCommand(OnMenuViewsProject);
 
     private void OnMenuViewsProject()
         => _navigationService.NavigateTo(typeof(ProjectViewModel).FullName, null, true);
 
     private void OnMenuFileSettings()
-        => _rightPaneService.OpenDialog(typeof(SettingsViewModel).FullName);
+       => _windowsManagerService.OpenInDialog(typeof(SettingsViewModel).FullName);
 }

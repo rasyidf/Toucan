@@ -1,9 +1,9 @@
 ﻿<ui:FluentWindow
-    x:Class="OPEditor.Options"
+    x:Class="OPEdit.Options"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:OPEditor"
+    xmlns:local="clr-namespace:OPEdit"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="Options"
@@ -49,29 +49,25 @@
             Grid.Row="1"
             Margin="16,0,0,0">
             <StackPanel>
-                <ui:Card Margin="0,8,8,0">
-                    <StackPanel>
-                        <TextBlock Margin="0,0,8,16">Save Style</TextBlock>
-                        <RadioButton x:Name="JsonRadio" GroupName="SaveStyle">
-                            <TextBlock Text="Flat Json" />
-                        </RadioButton>
-                        <RadioButton x:Name="NamespaceRadio" GroupName="SaveStyle">
-                            <TextBlock Text="Namespaced Json " />
-                        </RadioButton>
-                    </StackPanel>
-                </ui:Card>
-                <ui:Card Margin="0,8,8,0">
-                    <StackPanel>
-                        <TextBlock Margin="0,0,8,16">Page Size</TextBlock>
-                        <TextBox x:Name="PageSizeText" />
-                    </StackPanel>
-                </ui:Card>
-                <ui:Card Margin="0,8,8,0">
-                    <StackPanel>
-                        <TextBlock Margin="0,0,8,16" Text="Pagination Limit" />
-                        <TextBox x:Name="TruncateSizeText" />
-                    </StackPanel>
-                </ui:Card>
+                <ui:CardControl Margin="8" Header="Save Style">
+                    <ComboBox x:Name="SaveStyleCombobox" Width="220">
+                        <ComboBoxItem>Flat Json (.json)</ComboBoxItem>
+                        <ComboBoxItem>Namespaced Json (.json)</ComboBoxItem>
+                        <Separator />
+                        <ComboBoxItem>Generic Yaml (.yaml)</ComboBoxItem>
+                        <ComboBoxItem>JAVA (.properties)</ComboBoxItem>
+                        <ComboBoxItem>Flutter (.arb)</ComboBoxItem>
+                        <ComboBoxItem IsEnabled="False">Comma Separated Value (.csv)</ComboBoxItem>
+                    </ComboBox>
+
+                </ui:CardControl>
+                <ui:CardControl Margin="8" Header="Page Size">
+                    <TextBox x:Name="PageSizeText" Width="220" />
+                </ui:CardControl>
+                <ui:CardControl Margin="8" Header="Pagination Limit">
+                    <TextBox x:Name="TruncateSizeText" Width="220" />
+                </ui:CardControl>
+
             </StackPanel>
         </ScrollViewer>
 

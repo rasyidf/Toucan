@@ -1,23 +1,33 @@
-﻿using Ookii.Dialogs.Wpf;
+﻿using Google.Cloud.Translation.V2;
+using Ookii.Dialogs.Wpf;
 using OPEdit.Core.Models;
 using OPEdit.Core.Services;
-using OPEditor.Extensions;
+using OPEdit.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls.Window;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
-namespace OPEditor
+namespace OPEdit
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : FluentWindow
     {
-
+        private static HttpClient sharedClient = new()
+        {
+            BaseAddress = new Uri("https://libretranslate.com"),
+        };
         //private List<LanguageSetting> allSettings;
         //private NsTreeItem selectedNode;
         //private readonly SummaryInfo summaryInfo = new();
@@ -40,6 +50,7 @@ namespace OPEditor
             InitializeComponent();
 
             ViewModel.AppOptions = AppOptions.LoadFromDisk();
+            ViewModel.CurrentPath = ViewModel.AppOptions.DefaultPath;
 
             if (!string.IsNullOrEmpty(startupPath))
             {
@@ -49,11 +60,16 @@ namespace OPEditor
                 ViewModel.AppOptions.ToDisk();
             }
 
-            ViewModel.CurrentPath = ViewModel.AppOptions.DefaultPath;
+           
 
             ViewModel.PagingController.UpdatePageSize(ViewModel.AppOptions.PageSize);
 
 
+            RegisterCommands();
+
+        }
+        private void RegisterCommands()
+        {
             RoutedCommand saveCommand = new();
             saveCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
             CommandBindings.Add(new CommandBinding(saveCommand, Save));
@@ -91,7 +107,6 @@ namespace OPEditor
             previousPageCommand.InputGestures.Add(new KeyGesture(Key.Left, ModifierKeys.Alt));
             CommandBindings.Add(new CommandBinding(previousPageCommand, PreviousPage));
 
-
         }
 
         private void TreeNamespace_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -99,11 +114,9 @@ namespace OPEditor
             ViewModel.SelectedNode = (NsTreeItem)e.NewValue;
             if (ViewModel.SelectedNode == null)
             {
-                itemMenu.IsEnabled = false;
                 return;
             }
             ViewModel.SelectedNode.IsExpanded = true;
-            itemMenu.IsEnabled = true;
 
 
             string clickedNamespace = ViewModel.SelectedNode.Namespace;
@@ -119,13 +132,12 @@ namespace OPEditor
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            this.TreeNamespace.SelectedItemChanged += TreeNamespace_SelectedItemChanged;
-            SearchFilterTextbox.TextChanged += SearchFilterTextbox_TextChanged;
+        { 
             if (!string.IsNullOrWhiteSpace(ViewModel.CurrentPath))
             {
                 LoadFolder(ViewModel.CurrentPath);
             }
+            SearchFilterTextbox.TextChanged += SearchFilterTextbox_TextChanged;
 
             Watcher.Watch(this, WindowBackdropType.Acrylic, true);
         }
@@ -137,7 +149,7 @@ namespace OPEditor
             ViewModel.AllSettings = new ProjectHelper().Load(path).ToList();
             AddMissingTranslations();
             RefreshTree();
-            UpdateSummaryInfo(); 
+            UpdateSummaryInfo();
         }
 
         private void RefreshTree(string selectNamespace = "")
@@ -150,18 +162,17 @@ namespace OPEditor
                 ViewModel.CurrentTreeItems.Add(node);
             }
 
-            TreeNamespace.ItemsSource = null;
-            TreeNamespace.ItemsSource = ViewModel.CurrentTreeItems;
+            resourcesView.TreeNamespace.ItemsSource = null;
+            resourcesView.TreeNamespace.ItemsSource = ViewModel.CurrentTreeItems;
 
-            itemMenu.IsEnabled = false;
 
         }
 
         private void UpdateSummaryInfo()
         {
             ViewModel.SummaryInfo.Update(ViewModel.AllSettings);
-            summaryControl.ItemsSource = null;
-            summaryControl.ItemsSource = ViewModel.SummaryInfo.Details;
+            languagesView.summaryControl.ItemsSource = null;
+            languagesView.summaryControl.ItemsSource = ViewModel.SummaryInfo.Details;
         }
 
         private void Search(string ns, bool alwaysPaging = false)
@@ -203,15 +214,15 @@ namespace OPEditor
             }
 
             ViewModel.PagingController.SwapData(languageGroups, isPartial);
-            languageGroupContainer.ItemsSource = ViewModel.PagingController.PageData;
-            pagingMessage.Text = ViewModel.PagingController.PageMessage;
-            partialPagingButton.Visibility = isPartial ? Visibility.Visible : Visibility.Hidden;
+            translationDetailsView.languageGroupContainer.ItemsSource = ViewModel.PagingController.PageData;
+            translationDetailsView.pagingMessage.Text = ViewModel.PagingController.PageMessage;
+            translationDetailsView.partialPagingButton.Visibility = isPartial ? Visibility.Visible : Visibility.Hidden;
             if (isPartial)
-                partialPagingButton.Content = "Load " + settingCount / 3;
+                translationDetailsView.partialPagingButton.Content = "Load " + settingCount / 3;
 
-            ContentScroller.ScrollToTop();
+            translationDetailsView.ContentScroller.ScrollToTop();
 
-            pagingButtons.Visibility = ViewModel.PagingController.HasPages ? Visibility.Visible : Visibility.Hidden;
+            translationDetailsView.pagingButtons.Visibility = ViewModel.PagingController.HasPages ? Visibility.Visible : Visibility.Hidden;
         }
 
         private void ShowAll(object sender, RoutedEventArgs e)
@@ -237,14 +248,7 @@ namespace OPEditor
             }
 
         }
-
-        private void LanguageValue_KeyUp(object sender, KeyEventArgs e)
-        {
-            TextBox txtBox = (TextBox)sender;
-            LanguageSetting setting = (LanguageSetting)txtBox.Tag;
-            setting.Value = txtBox.Text;
-            UpdateSummaryInfo();
-        }
+         
         private void NewFolder(object sender, RoutedEventArgs e)
         {
             VistaFolderBrowserDialog dialog = new()
@@ -312,10 +316,10 @@ namespace OPEditor
         }
         private void NewItem(object sender, RoutedEventArgs e)
         {
-            NsTreeItem node = (NsTreeItem)TreeNamespace.SelectedItem;
+            NsTreeItem node = (NsTreeItem)resourcesView.TreeNamespace.SelectedItem;
             string ns = node == null ? string.Empty : node.Namespace;
 
-            Prompt dialog = new("New Translation", "Enter the translation name below.", ns) { Owner = this };
+            Prompt dialog = new("New Translation", "Please enter an ID for the translatiom\r\nUse '.' to create hierarchical IDs, e.g. dashboard.title.label.", ns) { Owner = this };
             if (dialog.ShowDialog() != true)
                 return;
 
@@ -359,11 +363,11 @@ namespace OPEditor
             AddMissingTranslations();
             UpdateSummaryInfo();
             RefreshTree();
-            languageGroupContainer.ItemsSource = null;
+            translationDetailsView.languageGroupContainer.ItemsSource = null;
         }
         private void RenameItem(object sender, RoutedEventArgs e)
         {
-            NsTreeItem node = (NsTreeItem)TreeNamespace.SelectedItem;
+            NsTreeItem node = (NsTreeItem)resourcesView.TreeNamespace.SelectedItem;
 
             if (node == null)
                 return;
@@ -394,7 +398,7 @@ namespace OPEditor
         }
         private void DeleteItem(object sender, RoutedEventArgs e)
         {
-            NsTreeItem node = (NsTreeItem)TreeNamespace.SelectedItem;
+            NsTreeItem node = (NsTreeItem)resourcesView.TreeNamespace.SelectedItem;
 
             if (node == null)
                 return;
@@ -419,7 +423,7 @@ namespace OPEditor
 
             RefreshTree();
         }
- 
+
         private void ShowPreferences(object sender, RoutedEventArgs e)
         {
             Options optionsHwnd = new(ViewModel.AppOptions) { Owner = this };
@@ -466,10 +470,94 @@ namespace OPEditor
 
         private void PagedUpdates()
         {
-            languageGroupContainer.ItemsSource = ViewModel.PagingController.PageData;
-            pagingMessage.Text = ViewModel.PagingController.PageMessage;
-            ContentScroller.ScrollToTop();
+            translationDetailsView.languageGroupContainer.ItemsSource = ViewModel.PagingController.PageData;
+            translationDetailsView.pagingMessage.Text = ViewModel.PagingController.PageMessage;
+            translationDetailsView.ContentScroller.ScrollToTop();
         }
 
+        static async Task<string> PostAsync(HttpClient httpClient)
+        {
+            using StringContent jsonContent = new(
+                JsonSerializer.Serialize(new
+                {
+                    q = "Hello!",
+                    source = "en",
+                    target = "es"
+                }),
+                Encoding.UTF8,
+                "application/json");
+
+            using HttpResponseMessage response = await httpClient.PostAsync(
+                "translate",
+                jsonContent);
+
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            return jsonResponse;
+            // Expected output:
+            //   POST https://jsonplaceholder.typicode.com/todos HTTP/1.1
+            //   {
+            //     "userId": 77,
+            //     "id": 201,
+            //     "title": "write code sample",
+            //     "completed": false
+            //   }
+        }
+
+        async Task<String> Translate(string text, string from, string to)
+        { 
+            var a = await PostAsync(sharedClient);
+            MessageBox.Show(a);
+            return "";
+        }
+        void PreTranslate(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.SummaryInfo != null)
+            {
+                var Details = ViewModel.SummaryInfo.Details;
+                var AllSet = ViewModel.AllSettings;
+                // Scan the completed data
+                var Aset = AllSet.FindAll(x => x.Language == Details[0].Language);
+                var Bset = AllSet.FindAll(x => x.Language == Details[1].Language);
+                var isAfull = Details[0].Missing == 0;
+                var isBfull = Details[1].Missing == 0;
+
+                // Get Only 
+                if (!isAfull) {
+                    var AAset = Aset.FindAll(x => string.IsNullOrEmpty(x.Value));
+                    // find corresponding Bset by AASet
+                    var ABset = AAset.Select(x => Bset.Find(v => v.Namespace == x.Namespace));
+
+                    IEnumerable<string> ACSet = ABset.Select(x => x?.Value);
+
+                    TranslationClient client = TranslationClient.Create();
+                    var ADSet = client.TranslateText(ACSet, Details[0].Language, Details[1].Language);
+
+                    MessageBox.Show("Hehe", "Hehe");
+                }
+
+                if (!isBfull)
+                {
+                    var BAset = Bset.FindAll(x => string.IsNullOrEmpty(x.Value)); 
+                    // find corresponding Bset by AASet
+                    var BBset = BAset.Select(x => Bset.Find(v => v.Namespace == x.Namespace));
+
+                    var BCSet = BBset.Select(x => x?.Value);
+
+                    TranslationClient client = TranslationClient.Create();
+                    var BDSet = client.TranslateText(BCSet, Details[0].Language, Details[1].Language);
+
+                    MessageBox.Show("Hehe", "Hehe");
+
+                }
+            }
+            
+        }
+
+        private void UpdateLanguageValue(object sender, RoutedEventArgs e)
+        { 
+            UpdateSummaryInfo();
+        }
     }
 }

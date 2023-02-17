@@ -36,12 +36,40 @@ public class ThemeSelectorService : IThemeSelectorService
         {
             ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncAll;
             ThemeManager.Current.SyncTheme();
+            Wpf.Ui.Appearance.Theme.Apply(
+              Wpf.Ui.Appearance.ThemeType.Unknown,     // Theme type
+              Wpf.Ui.Controls.Window.WindowBackdropType.Mica, // Background type
+              true                                   // Whether to change accents automatically
+            );
         }
         else
         {
             ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncWithHighContrast;
             ThemeManager.Current.SyncTheme();
             ThemeManager.Current.ChangeTheme(Application.Current, $"{theme}.Blue", SystemParameters.HighContrast);
+           try { 
+            if (SystemParameters.HighContrast)
+            {
+                Wpf.Ui.Appearance.Theme.Apply(
+                Wpf.Ui.Appearance.ThemeType.HighContrast,
+                Wpf.Ui.Controls.Window.WindowBackdropType.Mica,
+                true
+            );
+            }
+            else
+            {
+                Wpf.Ui.Appearance.Theme.Apply(
+                    theme == AppTheme.Dark
+                    ? Wpf.Ui.Appearance.ThemeType.Dark
+                    : Wpf.Ui.Appearance.ThemeType.Light,
+                     Wpf.Ui.Controls.Window.WindowBackdropType.Mica,
+                     true
+                   );
+            }
+            } catch (Exception _)
+            {
+
+            }
         }
 
         Application.Current.Properties["Theme"] = theme.ToString();

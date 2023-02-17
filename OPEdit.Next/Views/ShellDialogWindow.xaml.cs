@@ -4,10 +4,11 @@ using MahApps.Metro.Controls;
 
 using OPEdit.Contracts.Views;
 using OPEdit.ViewModels;
+using Wpf.Ui.Controls.Window;
 
 namespace OPEdit.Views;
 
-public partial class ShellDialogWindow : MetroWindow, IShellDialogWindow
+public partial class ShellDialogWindow : FluentWindow, IShellDialogWindow
 {
     public ShellDialogWindow(ShellDialogViewModel viewModel)
     {

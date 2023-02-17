@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OPEdit.Core.Models;
 
-namespace OPEditor.Extensions;
+namespace OPEdit.Extensions;
 
 public static class LanguageSettingExtensions
 {

@@ -12,8 +12,5 @@ public interface IShellWindow
     void ShowWindow();
 
     void CloseWindow();
-
-    Frame GetRightPaneFrame();
-
-    Dialog GetSplitView();
+     
 }
