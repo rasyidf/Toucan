@@ -28,6 +28,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\Images\WindowIcon.ico" />
+    <None Remove="Views\logo.png" />
     <None Remove="Views\WindowIcon.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +47,7 @@
   <ItemGroup>
     <Resource Include="Assets\Images\ns.png" />
     <Resource Include="Assets\Images\translation.png" />
+    <Resource Include="Views\logo.png" />
     <Resource Include="Views\WindowIcon.ico" />
   </ItemGroup>
   <ItemGroup>

@@ -1,107 +1,93 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OPEdit.Core.Contracts;
 using OPEdit.Core.Models;
-using OPEdit.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Text; 
 
-namespace OPEdit.Core.Services;
-
-public class ProjectHelper
+namespace OPEdit.Core.Extensions; 
+public class JsonParser : IParser
 {
-
-    public static void CreateLanguage(string folder, string language)
+    private string Language;
+    public JsonParser(string language)
     {
-        File.WriteAllText($"{folder}/{language}.json", /*lang=json,strict*/ "{ \"app\": \"\" }");
+        Language = language;
     }
-
-    public List<LanguageSetting> Load(string folder)
+    public IParser SetLanguage(string language)
     {
-        string[] files = Directory.GetFiles(folder, "*.json");
-        List<LanguageSetting> settings = new();
+        Language = language;
+        return this;
+    }
+    public async IAsyncEnumerable<TranslationItem> Parse(string content)
+    {
 
-        foreach (string filePath in files)
+        dynamic myObj = JsonConvert.DeserializeObject(content) ?? new object();
+        var walkItems = new Queue<JToken>();
+
+        foreach (dynamic item in myObj.Children())
         {
-            List<LanguageSetting> newFiles = new();
-            string file = Path.GetFileName(filePath);
-            string language = file.Replace(".json", "");
-
-            string content = string.Join(Environment.NewLine, File.ReadAllLines(filePath));
-            FromNestMethod(newFiles, language, content);
-            if (!newFiles.Any())
-                newFiles.AddRange(new LanguageSetting[] { new LanguageSetting() { Language = language } });
-            settings.AddRange(newFiles);
+            walkItems.Enqueue(item);
         }
-        //GenerateLargeTestData(settings, settings.ToLanguages().ToList());
-        return settings;
-    }
 
-    private void FromNestMethod(List<LanguageSetting> settings, string language, string content)
-    {
-        List<LanguageSetting> languageSettings = new();
-        try
+        while (walkItems.TryDequeue(out var item))
         {
-            dynamic myObj = JsonConvert.DeserializeObject(content) ?? new object();
-            foreach (JProperty jproperty in myObj)
+            if (item.Children().Any())
             {
-                ProcessSettings(language, languageSettings, jproperty);
+                foreach (JToken i in item.Children())
+                {
+                    walkItems.Enqueue(i);
+                }
+            }
+            else
+            {
+                if (item.Type == JTokenType.Object && !item.Any())
+                {
+                    Console.WriteLine($"Skipped: {item.Path}");
+                }
+                else
+                {
+                    yield return new TranslationItem
+                    {
+                        Namespace = CleanPath(item.Path),
+                        Value = item.Value<string>() ?? "",
+                        Language = Language
+                    };
+                }
             }
         }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-        settings.AddRange(languageSettings);
-    }
 
-    private void ProcessSettings(string language, List<LanguageSetting> list, JToken property)
-    {
-        if (property.Children().Any())
-        {
-            foreach (JToken childProperty in property.Children())
-            {
-                ProcessSettings(language, list, childProperty);
-            }
-        }
-        else
-        {
-            list.Add(new LanguageSetting() { Namespace = CleanPath(property.Path), Value = property.ToObject<string>(), Language = language });
-        }
     }
 
     private static string CleanPath(string path)
     {
         string newPath = path;
-        if (newPath.StartsWith("['"))
+        if (newPath.StartsWith("['", StringComparison.InvariantCulture))
         {
-            newPath = newPath.Substring(2);
+            newPath = newPath[2..];
         }
-        if (newPath.EndsWith("']"))
+        if (newPath.EndsWith("']", StringComparison.InvariantCulture))
         {
-            newPath = newPath.Substring(0, newPath.Length - 2);
+            newPath = newPath[..^2];
         }
 
         return newPath;
     }
 
-
-    public static void SaveNsJson(string path, List<NsTreeItem> items, List<string> languages)
+    public static void SaveNs(string path, List<NsTreeItem> items, List<string> languages)
     {
 
         foreach (string language in languages)
         {
             Dictionary<string, dynamic> dyn = new();
 
-            for (int i = 0; i < items.Count; i++)
+            for (int i = 0; i < items?.Count; i++)
             {
-                items[i].ToJson(dyn, language);
+                NsTreeItem v = items[i];
+                v.ToJson(dyn, language);
             }
-
-            //cleanup empty
-
 
             string newFilePath = Path.Combine(path, language + ".json");
             string json = JsonConvert.SerializeObject(dyn, Formatting.Indented, new JsonSerializerSettings
@@ -114,15 +100,15 @@ public class ProjectHelper
     }
 
 
-    public static void SaveJson(string path, Dictionary<string, IEnumerable<LanguageSetting>> languageSettings)
+    public static void Save(string path, Dictionary<string, IEnumerable<TranslationItem>> TranslationItems)
     {
 
-        foreach (KeyValuePair<string, IEnumerable<LanguageSetting>> languageSetting in languageSettings)
+        foreach (KeyValuePair<string, IEnumerable<TranslationItem>> TranslationItem in TranslationItems)
         {
-            string newFilePath = Path.Combine(path, languageSetting.Key + ".json");
+            string newFilePath = Path.Combine(path, TranslationItem.Key + ".json");
             StringBuilder contentBuilder = new("{\n");
             int counter = 0;
-            foreach (LanguageSetting setting in languageSetting.Value.NoEmpty().OrderBy(o => o.Namespace))
+            foreach (TranslationItem setting in TranslationItem.Value.Where(x => !string.IsNullOrEmpty(x.Value)).OrderBy(o => o.Namespace))
             {
                 counter++;
                 contentBuilder.AppendLine((counter == 1 ? "" : ",") + "\t\"" + setting.Namespace + "\" : \"" + setting.Value + "\"");
@@ -133,5 +119,4 @@ public class ProjectHelper
         }
     }
 }
-
 

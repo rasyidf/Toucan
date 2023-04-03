@@ -1,13 +1,13 @@
 ﻿using OPEdit.Extensions;
 namespace OPEdit.Core.Models;
 
-public class SummaryInfo
+public class SummaryInfoViewModel
 {
     public double Languages { get; private set; }
     public double Translations { get; private set; }
     public List<SummaryItem> Details { get; private set; } = new List<SummaryItem>();
 
-    public void Update(IEnumerable<LanguageSetting> settings)
+    public void Update(IEnumerable<TranslationItem> settings)
     {
 
         var allNamespace = settings.ToNamespaces().ToList();

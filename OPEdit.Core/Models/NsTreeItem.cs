@@ -45,7 +45,7 @@ public class NsTreeItem
         set { _storage = value.ToList(); }
     }
 
-    public IEnumerable<LanguageSetting> Settings { get; set; }
+    public IEnumerable<TranslationItem> Settings { get; set; }
 
     public bool HasItems => _storage == null ? false : _storage.Count > 0;
     public bool HasParent => Parent != null;
@@ -84,7 +84,7 @@ public class NsTreeItem
         return $"{Name} | {Namespace} | Items: {(_storage == null ? 0 : _storage.Count)}";
     }
 
-    public List<LanguageSetting> HeldSetttings;
+    public List<TranslationItem> HeldSetttings;
 
     public void AddChild(NsTreeItem child)
     {

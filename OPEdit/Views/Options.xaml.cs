@@ -1,6 +1,7 @@
 ﻿using OPEdit.Core.Models;
 using OPEdit.Core.Services;
 using System;
+using System.Globalization;
 using System.Windows;
 using Wpf.Ui.Controls.Window;
 
@@ -21,8 +22,8 @@ namespace OPEdit
 
             SaveStyleCombobox.SelectedIndex = (int)Config.SaveStyle;
 
-            PageSizeText.Text = importOptions.PageSize.ToString();
-            TruncateSizeText.Text = importOptions.TruncateResultsOver.ToString();
+            PageSizeText.Text = importOptions?.PageSize.ToString(CultureInfo.InvariantCulture);
+            TruncateSizeText.Text = importOptions?.TruncateResultsOver.ToString(CultureInfo.InvariantCulture);
 
         }
 

@@ -1,0 +1,83 @@
+﻿<ui:FluentWindow
+    x:Class="OPEdit.LanguagePrompt"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:OPEdit"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" xmlns:vm="clr-namespace:OPEdit.ViewModels"
+    Width="450"
+    Height="208"
+    MinWidth="250"
+    MinHeight="200"
+    MaxWidth="600"
+    MaxHeight="200"
+    d:Background="#FF121111"
+    d:Foreground="#fafafa"
+    WindowStartupLocation="CenterOwner"
+    mc:Ignorable="d">
+    <Window.DataContext>
+        <vm:LanguagePromptViewModel/>
+    </Window.DataContext>
+    <Window.Resources>
+        <ControlTemplate x:Key="ComboBoxValidationErrorTemplate">
+            <StackPanel Orientation="Vertical">
+                <Border BorderBrush="Red" BorderThickness="1" CornerRadius="6">
+                    <AdornedElementPlaceholder />
+                </Border>
+                <TextBlock Text="{Binding [0].ErrorContent}" Foreground="Red" Margin="5,0,0,0" />
+            </StackPanel>
+        </ControlTemplate>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="16*" />
+            <ColumnDefinition Width="9*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="titleBar" Height="auto" />
+            <RowDefinition x:Name="contentRow" Height="*" />
+        </Grid.RowDefinitions>
+        <ui:TitleBar
+            x:Name="titleBarPrompt"
+            Title="Add Language"
+            Grid.ColumnSpan="2"
+            VerticalAlignment="Center"
+            ShowMaximize="false"
+            ShowMinimize="false" />
+        <Grid
+            Grid.Row="1"
+            Grid.ColumnSpan="2"
+            Margin="0,2,0,0">
+            <TextBlock
+                x:Name="messageLabel"
+                Height="34"
+                Margin="16,0,16,0"
+                VerticalAlignment="Top"
+                d:Text="Input" />
+            <ComboBox x:Name="ResponseLanguage"
+                  ItemsSource="{Binding CultureList}" 
+                    Margin="16,45,16,0"  SelectedValue="{Binding Language, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
+                    Validation.ErrorTemplate="{StaticResource ComboBoxValidationErrorTemplate}" VerticalAlignment="Top">
+                <ComboBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel VirtualizationMode="Recycling" />
+                    </ItemsPanelTemplate>
+                </ComboBox.ItemsPanel>
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Language}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <ui:Button
+                Width="70"
+                Height="32"
+                Margin="0,0,16,10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Click="OKButton_Click"
+                Content="OK" />
+        </Grid>
+    </Grid>
+</ui:FluentWindow>

@@ -7,44 +7,44 @@ using OPEdit.Core.Models;
 
 namespace OPEdit.Core.Extensions;
 
-public static class LanguageSettingExtensions
+public static class TranslationItemExtensions
 {
 
-    public static IEnumerable<LanguageSetting> ForParse(this IEnumerable<LanguageSetting> settings)
+    public static IEnumerable<TranslationItem> ForParse(this IEnumerable<TranslationItem> settings)
     {
         return settings.Where(o => !string.IsNullOrWhiteSpace(o.Namespace));
     }
-    public static IEnumerable<LanguageSetting> NoEmpty(this IEnumerable<LanguageSetting> settings)
+    public static IEnumerable<TranslationItem> NoEmpty(this IEnumerable<TranslationItem> settings)
     {
         return settings.ForParse().Where(o => !string.IsNullOrWhiteSpace(o.Value));
     }
-    public static IEnumerable<LanguageSetting> ExcludeLanguage(this IEnumerable<LanguageSetting> settings, string language)
+    public static IEnumerable<TranslationItem> ExcludeLanguage(this IEnumerable<TranslationItem> settings, string language)
     {
         return settings.Where(o => o.Language != language);
     }
-    public static IEnumerable<LanguageSetting> OnlyLanguage(this IEnumerable<LanguageSetting> settings, string language)
+    public static IEnumerable<TranslationItem> OnlyLanguage(this IEnumerable<TranslationItem> settings, string language)
     {
         return settings.Where(o => o.Language == language);
     }
 
-    public static IEnumerable<string> ToNamespaces(this IEnumerable<LanguageSetting> settings)
+    public static IEnumerable<string> ToNamespaces(this IEnumerable<TranslationItem> settings)
     {
         return settings.ForParse().Select(o => o.Namespace).Distinct();
     }
-    public static IEnumerable<string> ToNamespaces(this IEnumerable<LanguageSetting> settings, string language)
+    public static IEnumerable<string> ToNamespaces(this IEnumerable<TranslationItem> settings, string language)
     {
         return settings.NoEmpty().Where(o => o.Language == language).Select(o => o.Namespace).Distinct();
     }
 
-    public static IEnumerable<string> ToLanguages(this IEnumerable<LanguageSetting> settings)
+    public static IEnumerable<string> ToLanguages(this IEnumerable<TranslationItem> settings)
     {
         return settings.Select(o => o.Language).Distinct();
     }
 
-    public static Dictionary<string, IEnumerable<LanguageSetting>> ToLanguageDictionary(this IEnumerable<LanguageSetting> settings)
+    public static Dictionary<string, IEnumerable<TranslationItem>> ToLanguageDictionary(this IEnumerable<TranslationItem> settings)
     {
         var seperatedByLanguage = settings.GroupBy(o => o.Language).Select(o => new { Language = o.Key, Settings = o.Select(p => p) });
-        var dictionary = new Dictionary<string, IEnumerable<LanguageSetting>>();
+        var dictionary = new Dictionary<string, IEnumerable<TranslationItem>>();
 
         foreach (var matches in seperatedByLanguage)
         {
@@ -53,7 +53,7 @@ public static class LanguageSettingExtensions
         return dictionary;
     }
 
-    public static IEnumerable<NsTreeItem> ToNsTree(this IEnumerable<LanguageSetting> settings)
+    public static IEnumerable<NsTreeItem> ToNsTree(this IEnumerable<TranslationItem> settings)
     {
         var namespaces = settings.Select(o => o.Namespace.Split('.')[0]).Distinct().OrderBy(o => o).ToList();
         var root = new NsTreeItem() { Name = "root" };
@@ -75,7 +75,7 @@ public static class LanguageSettingExtensions
         return nodes;
     }
 
-    public static void ProcessNs(this IEnumerable<LanguageSetting> allSettings, NsTreeItem node, string ns, int depth = 1, int customDepth = 0)
+    public static void ProcessNs(this IEnumerable<TranslationItem> AllTranslation, NsTreeItem node, string ns, int depth = 1, int customDepth = 0)
     {
         if (customDepth == 0)
             customDepth = 1;
@@ -89,16 +89,16 @@ public static class LanguageSettingExtensions
             node.AddChild(thisNode);
         }
 
-        var namespaces = allSettings.Where(o => o.Namespace.StartsWith(ns + ".")).Select(o => o.Namespace.Substring(ns.Length + 1).Split('.')[0]).Distinct().OrderBy(o => o).ToList();
+        var namespaces = AllTranslation.Where(o => o.Namespace.StartsWith(ns + ".")).Select(o => o.Namespace[(ns.Length + 1)..].Split('.')[0]).Distinct().OrderBy(o => o).ToList();
 
         if (!namespaces.Any())
         {
             thisNode.ImagePath = "Assets/Images/translation.png";
-            thisNode.Settings = allSettings.Where(o => o.Namespace == thisNode.Namespace);
+            thisNode.Settings = AllTranslation.Where(o => o.Namespace == thisNode.Namespace);
             return;
         }
 
-        var applicableSettings = allSettings.Where(o => o.Namespace.StartsWith(ns + ".")).ToList();
+        var applicableSettings = AllTranslation.Where(o => o.Namespace.StartsWith(ns + ".")).ToList();
 
         if (depth > customDepth)
         {

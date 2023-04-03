@@ -14,14 +14,15 @@
     mc:Ignorable="d">
     <Page.Resources>
         <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" EnumType="models:AppTheme" />
+        <converters:BooleanToThemeConverter x:Key="BooleanToEnumConverter" />
     </Page.Resources>
     <ScrollViewer>
         <Grid Margin="{StaticResource SmallTopBottomMargin}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="48" />
+                <RowDefinition Height="36" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBlock Style="{StaticResource PageTitleStyle}" Text="{x:Static properties:Resources.SettingsPageTitle}" />
+            <TextBlock Style="{StaticResource PageTitleStyle}" Text="{x:Static properties:Resources.SettingsPageTitle}" Margin="24,-3,0,0" VerticalAlignment="Top" />
             <StackPanel
                 x:Name="ContentArea"
                 Grid.Row="1"
@@ -29,12 +30,17 @@
 
                 <TextBlock
                     Margin="{StaticResource SmallTopMargin}"
-                    Style="{StaticResource SubtitleTextStyle}"
-                    Text="{x:Static properties:Resources.SettingsPagePersonalizationTitle}" />
+                    Style="{StaticResource SubtitleTextStyle}" />
                 <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
-                    <ui:CardExpander Header="Theme">
+                    <ui:CardExpander Header="Theme" IsExpanded="True">
                         <ui:CardControl Header="Dark Mode" Icon="DarkTheme20">
-                            <ui:ToggleSwitch />
+                            <ui:ToggleSwitch IsChecked="{Binding Theme, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark}" >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Checked">
+                                        <i:InvokeCommandAction Command="{Binding SetThemeCommand}" CommandParameter="{Binding IsChecked, Converter={StaticResource BooleanToEnumConverter}, ConverterParameter=Dark}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ui:ToggleSwitch>
                         </ui:CardControl>
                     </ui:CardExpander>
                     <TextBlock Style="{StaticResource BodyTextStyle}" Text="{x:Static properties:Resources.SettingsPageChooseThemeText}" />

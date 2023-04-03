@@ -1,8 +1,10 @@
-﻿using Google.Cloud.Translation.V2;
+﻿using Google.Api.Gax;
+using Google.Cloud.Translation.V2;
 using Ookii.Dialogs.Wpf;
 using OPEdit.Core.Models;
 using OPEdit.Core.Services;
 using OPEdit.Extensions;
+using OPEdit.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +17,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls.Window;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace OPEdit
 {
@@ -28,21 +29,13 @@ namespace OPEdit
         {
             BaseAddress = new Uri("https://libretranslate.com"),
         };
-        //private List<LanguageSetting> allSettings;
-        //private NsTreeItem selectedNode;
-        //private readonly SummaryInfo summaryInfo = new();
-        //private readonly PagingController<LanguageGroup> pagingController = new(30, new List<LanguageGroup>());
-        //public List<NsTreeItem> currentTreeItems = new();
 
-        //private AppOptions appOptions;
-        //private string currentPath { get; set; }
-
-        public ViewModels.MainWindowViewModel ViewModel
+        public MainWindowViewModel ViewModel
         {
             get;
         }
 
-        public MainWindow(string startupPath, ViewModels.MainWindowViewModel viewModel)
+        public MainWindow(string startupPath, MainWindowViewModel viewModel)
         {
             ViewModel = viewModel;
             DataContext = this;
@@ -60,7 +53,7 @@ namespace OPEdit
                 ViewModel.AppOptions.ToDisk();
             }
 
-           
+
 
             ViewModel.PagingController.UpdatePageSize(ViewModel.AppOptions.PageSize);
 
@@ -87,25 +80,25 @@ namespace OPEdit
             renameCommand.InputGestures.Add(new KeyGesture(Key.F2, ModifierKeys.None));
             CommandBindings.Add(new CommandBinding(renameCommand, RenameItem));
 
-            RoutedCommand newCommand = new();
-            newCommand.InputGestures.Add(new KeyGesture(Key.I, ModifierKeys.Control));
-            CommandBindings.Add(new CommandBinding(newCommand, NewItem));
+            //RoutedCommand newCommand = new();
+            //newCommand.InputGestures.Add(new KeyGesture(Key.I, ModifierKeys.Control));
+            //CommandBindings.Add(new CommandBinding(newCommand, NewItem));
 
-            RoutedCommand newLanguageCommand = new();
-            newLanguageCommand.InputGestures.Add(new KeyGesture(Key.L, ModifierKeys.Control));
-            CommandBindings.Add(new CommandBinding(newLanguageCommand, NewLanguage));
+            //RoutedCommand newLanguageCommand = new();
+            //newLanguageCommand.InputGestures.Add(new KeyGesture(Key.L, ModifierKeys.Control));
+            //CommandBindings.Add(new CommandBinding(newLanguageCommand, NewLanguage));
 
-            RoutedCommand openFolderCommand = new();
-            openFolderCommand.InputGestures.Add(new KeyGesture(Key.O, ModifierKeys.Control));
-            CommandBindings.Add(new CommandBinding(openFolderCommand, OpenFolder));
+            //RoutedCommand openFolderCommand = new();
+            //openFolderCommand.InputGestures.Add(new KeyGesture(Key.O, ModifierKeys.Control));
+            //CommandBindings.Add(new CommandBinding(openFolderCommand, OpenFolder));
 
-            RoutedCommand nextPageCommand = new();
-            nextPageCommand.InputGestures.Add(new KeyGesture(Key.Right, ModifierKeys.Alt));
-            CommandBindings.Add(new CommandBinding(nextPageCommand, NextPage));
+            //RoutedCommand nextPageCommand = new();
+            //nextPageCommand.InputGestures.Add(new KeyGesture(Key.Right, ModifierKeys.Alt));
+            //CommandBindings.Add(new CommandBinding(nextPageCommand, NextPage));
 
-            RoutedCommand previousPageCommand = new();
-            previousPageCommand.InputGestures.Add(new KeyGesture(Key.Left, ModifierKeys.Alt));
-            CommandBindings.Add(new CommandBinding(previousPageCommand, PreviousPage));
+            //RoutedCommand previousPageCommand = new();
+            //previousPageCommand.InputGestures.Add(new KeyGesture(Key.Left, ModifierKeys.Alt));
+            //CommandBindings.Add(new CommandBinding(previousPageCommand, PreviousPage));
 
         }
 
@@ -132,22 +125,26 @@ namespace OPEdit
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
-        { 
-            if (!string.IsNullOrWhiteSpace(ViewModel.CurrentPath))
-            {
-                LoadFolder(ViewModel.CurrentPath);
-            }
+        {
+            OpenRecent(sender, e);
+
             SearchFilterTextbox.TextChanged += SearchFilterTextbox_TextChanged;
 
             Watcher.Watch(this, WindowBackdropType.Acrylic, true);
         }
 
 
+        private void SearchFilterTextbox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Search(SearchFilterTextbox.Text);
+        }
+
 
         private void LoadFolder(string path)
         {
-            ViewModel.AllSettings = new ProjectHelper().Load(path).ToList();
+            ViewModel.AllTranslation = ProjectHelper.Load(path);
             AddMissingTranslations();
+
             RefreshTree();
             UpdateSummaryInfo();
         }
@@ -155,7 +152,7 @@ namespace OPEdit
         private void RefreshTree(string selectNamespace = "")
         {
 
-            IEnumerable<NsTreeItem> nodes = ViewModel.AllSettings.ForParse().ToNsTree();
+            IEnumerable<NsTreeItem> nodes = ViewModel.AllTranslation.ForParse().ToNsTree();
             ViewModel.CurrentTreeItems.Clear();
             foreach (NsTreeItem node in nodes)
             {
@@ -170,7 +167,7 @@ namespace OPEdit
 
         private void UpdateSummaryInfo()
         {
-            ViewModel.SummaryInfo.Update(ViewModel.AllSettings);
+            ViewModel.SummaryInfo.Update(ViewModel.AllTranslation);
             languagesView.summaryControl.ItemsSource = null;
             languagesView.summaryControl.ItemsSource = ViewModel.SummaryInfo.Details;
         }
@@ -179,13 +176,17 @@ namespace OPEdit
         {
 
             bool isPartial = false;
-            IEnumerable<LanguageSetting> matchedSettings = ViewModel.AllSettings.ForParse();
+            IEnumerable<TranslationItem> matchedSettings = ViewModel.AllTranslation.ForParse();
 
 
             int settingCount = 0;
-            if (ns.EndsWith("."))
+            if (!ns.EndsWith(".", StringComparison.InvariantCultureIgnoreCase))
             {
-                List<LanguageSetting> settings = matchedSettings.Where(o => o.Namespace.StartsWith(ns)).ToList();
+                matchedSettings = matchedSettings.Where(o => o.Namespace == ns).ToList();
+            }
+            else
+            {
+                List<TranslationItem> settings = matchedSettings.Where(o => o.Namespace.StartsWith(ns)).ToList();
 
                 if (!alwaysPaging && (settings.Count / 3 > ViewModel.AppOptions.TruncateResultsOver))
                 {
@@ -196,13 +197,9 @@ namespace OPEdit
                 else
                     matchedSettings = settings.ToList();
             }
-            else
-            {
-                matchedSettings = matchedSettings.Where(o => o.Namespace == ns).ToList();
-            }
 
             List<string> namespaces = matchedSettings.ToNamespaces().ToList();
-            List<string> languages = ViewModel.AllSettings.ToLanguages().ToList();
+            List<string> languages = ViewModel.AllTranslation.ToLanguages().ToList();
 
 
             List<LanguageGroup> languageGroups = new();
@@ -218,7 +215,7 @@ namespace OPEdit
             translationDetailsView.pagingMessage.Text = ViewModel.PagingController.PageMessage;
             translationDetailsView.partialPagingButton.Visibility = isPartial ? Visibility.Visible : Visibility.Hidden;
             if (isPartial)
-                translationDetailsView.partialPagingButton.Content = "Load " + settingCount / 3;
+                translationDetailsView.partialPagingButton.Content = "LoadAsync " + settingCount / 3;
 
             translationDetailsView.ContentScroller.ScrollToTop();
 
@@ -229,26 +226,19 @@ namespace OPEdit
         {
             Search(SearchFilterTextbox.Text, true);
         }
-
-
-        private void SearchFilterTextbox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            Search(SearchFilterTextbox.Text);
-        }
-
         private void AddMissingTranslations()
         {
-            List<string> namespaces = ViewModel.AllSettings.ToNamespaces().ToList();
-            List<string> allLanguages = ViewModel.AllSettings.ToLanguages().ToList();
+            List<string> namespaces = ViewModel.AllTranslation.ToNamespaces().ToList();
+            List<string> allLanguages = ViewModel.AllTranslation.ToLanguages().ToList();
 
             foreach (string language in allLanguages)
             {
-                IEnumerable<string> languageNamespaces = ViewModel.AllSettings.OnlyLanguage(language).ToNamespaces();
-                ViewModel.AllSettings.AddRange(namespaces.Except(languageNamespaces).Select(o => new LanguageSetting() { Namespace = o, Value = string.Empty, Language = language }));
+                IEnumerable<string> languageNamespaces = ViewModel.AllTranslation.OnlyLanguage(language).ToNamespaces();
+                ViewModel.AllTranslation.AddRange(namespaces.Except(languageNamespaces).Select(o => new TranslationItem() { Namespace = o, Value = string.Empty, Language = language }));
             }
 
         }
-         
+
         private void NewFolder(object sender, RoutedEventArgs e)
         {
             VistaFolderBrowserDialog dialog = new()
@@ -286,10 +276,10 @@ namespace OPEdit
             switch (ViewModel.AppOptions.SaveStyle)
             {
                 case SaveStyles.Json:
-                    ProjectHelper.SaveJson(ViewModel.CurrentPath, ViewModel.AllSettings.ToLanguageDictionary());
+                    ProjectHelper.SaveJson(ViewModel.CurrentPath, ViewModel.AllTranslation.ToLanguageDictionary());
                     break;
                 case SaveStyles.Namespaced:
-                    ProjectHelper.SaveNsJson(ViewModel.CurrentPath, ViewModel.CurrentTreeItems.ToList(), ViewModel.AllSettings.ToLanguages().ToList());
+                    ProjectHelper.SaveNsJson(ViewModel.CurrentPath, ViewModel.CurrentTreeItems.ToList(), ViewModel.AllTranslation.ToLanguages().ToList());
                     break;
             }
 
@@ -326,17 +316,17 @@ namespace OPEdit
             if (string.IsNullOrWhiteSpace(dialog.ResponseText))
                 return;
 
-            if (ViewModel.AllSettings.NoEmpty().Any(setting => setting.Namespace.Contains(dialog.ResponseText)))
+            if (ViewModel.AllTranslation.NoEmpty().Any(setting => setting.Namespace.Contains(dialog.ResponseText)))
             {
                 MessageBox.Show("Duplicate name");
                 return;
             }
 
-            List<string> languages = ViewModel.AllSettings.ToLanguages().ToList();
+            List<string> languages = ViewModel.AllTranslation.ToLanguages().ToList();
             foreach (string language in languages)
             {
                 string val = string.Empty;
-                ViewModel.AllSettings.Add(new LanguageSetting() { Namespace = dialog.ResponseText, Value = val, Language = language });
+                ViewModel.AllTranslation.Add(new TranslationItem() { Namespace = dialog.ResponseText, Value = val, Language = language });
             }
             RefreshTree(dialog.ResponseText);
             UpdateSummaryInfo();
@@ -344,22 +334,22 @@ namespace OPEdit
         private void NewLanguage(object sender, RoutedEventArgs e)
         {
 
-            Prompt dialog = new("New Language", "Enter the translation language name below.") { Owner = this };
+            LanguagePrompt dialog = new("New Language", "Enter the translation language name below.", ViewModel.AllTranslation) { Owner = this };
             if (dialog.ShowDialog() != true)
                 return;
 
             if (string.IsNullOrWhiteSpace(dialog.ResponseText))
                 return;
 
-            if (ViewModel.AllSettings.Any(setting => setting.Language == dialog.ResponseText))
+            if (ViewModel.AllTranslation.Any(setting => setting.Language == dialog.ResponseText))
             {
                 MessageBox.Show("Duplicate language");
                 return;
             }
 
-            LanguageSetting newSetting = new() { Namespace = "", Value = "", Language = dialog.ResponseText };
+            TranslationItem newSetting = new() { Namespace = "", Value = "", Language = dialog.ResponseText };
 
-            ViewModel.AllSettings.Add(newSetting);
+            ViewModel.AllTranslation.Add(newSetting);
             AddMissingTranslations();
             UpdateSummaryInfo();
             RefreshTree();
@@ -388,7 +378,7 @@ namespace OPEdit
 
             string newNs = ns[..ns.LastIndexOf(node.Name)] + dialog.ResponseText.Trim();
 
-            ViewModel.AllSettings.ForParse().ToList().ForEach((item) =>
+            ViewModel.AllTranslation.ForParse().ToList().ForEach((item) =>
             {
                 if (item.Namespace.StartsWith(ns))
                     item.Namespace = item.Namespace.Replace(ns, newNs);
@@ -419,10 +409,11 @@ namespace OPEdit
                 //   node.Parent.IsSelected = true;
             }
 
-            ViewModel.AllSettings.RemoveAll(o => o?.Namespace?.StartsWith(ns) ?? false);
+            ViewModel.AllTranslation.RemoveAll(o => o?.Namespace?.StartsWith(ns) ?? false);
 
             RefreshTree();
         }
+
 
         private void ShowPreferences(object sender, RoutedEventArgs e)
         {
@@ -435,6 +426,8 @@ namespace OPEdit
             ViewModel.PagingController.UpdatePageSize(ViewModel.AppOptions.PageSize);
 
         }
+
+
 
         private void NextPage(object sender, RoutedEventArgs e)
         {
@@ -475,6 +468,7 @@ namespace OPEdit
             translationDetailsView.ContentScroller.ScrollToTop();
         }
 
+
         static async Task<string> PostAsync(HttpClient httpClient)
         {
             using StringContent jsonContent = new(
@@ -506,7 +500,7 @@ namespace OPEdit
         }
 
         async Task<String> Translate(string text, string from, string to)
-        { 
+        {
             var a = await PostAsync(sharedClient);
             MessageBox.Show(a);
             return "";
@@ -516,7 +510,7 @@ namespace OPEdit
             if (ViewModel.SummaryInfo != null)
             {
                 var Details = ViewModel.SummaryInfo.Details;
-                var AllSet = ViewModel.AllSettings;
+                var AllSet = ViewModel.AllTranslation;
                 // Scan the completed data
                 var Aset = AllSet.FindAll(x => x.Language == Details[0].Language);
                 var Bset = AllSet.FindAll(x => x.Language == Details[1].Language);
@@ -524,7 +518,8 @@ namespace OPEdit
                 var isBfull = Details[1].Missing == 0;
 
                 // Get Only 
-                if (!isAfull) {
+                if (!isAfull)
+                {
                     var AAset = Aset.FindAll(x => string.IsNullOrEmpty(x.Value));
                     // find corresponding Bset by AASet
                     var ABset = AAset.Select(x => Bset.Find(v => v.Namespace == x.Namespace));
@@ -539,7 +534,7 @@ namespace OPEdit
 
                 if (!isBfull)
                 {
-                    var BAset = Bset.FindAll(x => string.IsNullOrEmpty(x.Value)); 
+                    var BAset = Bset.FindAll(x => string.IsNullOrEmpty(x.Value));
                     // find corresponding Bset by AASet
                     var BBset = BAset.Select(x => Bset.Find(v => v.Namespace == x.Namespace));
 
@@ -552,12 +547,29 @@ namespace OPEdit
 
                 }
             }
-            
+
         }
 
         private void UpdateLanguageValue(object sender, RoutedEventArgs e)
-        { 
+        {
             UpdateSummaryInfo();
+        }
+
+        private void CloseProject(object sender, RoutedEventArgs e)
+        {
+            ViewModel.AllTranslation = new List<TranslationItem>();
+            ViewModel.CurrentPath = "";
+
+            RefreshTree();
+            UpdateSummaryInfo();
+        }
+
+        private void OpenRecent(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(ViewModel.CurrentPath))
+            {
+                LoadFolder(ViewModel.CurrentPath);
+            }
         }
     }
 }

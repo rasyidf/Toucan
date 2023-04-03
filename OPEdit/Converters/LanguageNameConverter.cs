@@ -17,7 +17,7 @@ namespace OPEdit.Converters
                 var cult = new CultureInfo(value?.ToString() ?? ""); 
                 return cult.EnglishName;
             }
-            catch (Exception)
+            catch (CultureNotFoundException)
             {
                 return $"{value} - unsupported";
             }

@@ -11,30 +11,38 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using OPEdit.Views;
+using Google.Cloud.Translation.V2;
+using System.Collections.ObjectModel;
+using System.Drawing.Drawing2D;
 
 namespace OPEdit.ViewModels
 {
     public partial class MainWindowViewModel : ObservableObject
     {
         [ObservableProperty]
-        public List<LanguageSetting> allSettings;
+        private List<TranslationItem> allTranslation;
 
         [ObservableProperty]
-        public NsTreeItem selectedNode;
+        private NsTreeItem selectedNode;
 
         [ObservableProperty]
-        public SummaryInfo summaryInfo = new();
+        private SummaryInfoViewModel summaryInfo = new();
         [ObservableProperty]
-        public PagingController<LanguageGroup> pagingController = new(30, new List<LanguageGroup>());
+        private PagingController<LanguageGroup> pagingController = new(30, new List<LanguageGroup>());
 
         [ObservableProperty]
-        public List<NsTreeItem> currentTreeItems = new();
+        private List<NsTreeItem> currentTreeItems = new();
 
         [ObservableProperty]
-        public AppOptions appOptions;
+        private AppOptions appOptions;
 
         [ObservableProperty]
-        public string currentPath;
+        private string currentPath;
+
+
+        public IEnumerable<LanguageGroup> PageData { get; private set; }
+        public string PageMessage { get; private set; }
 
         [RelayCommand]
         internal void HelpHomepage()
@@ -46,10 +54,46 @@ namespace OPEdit.ViewModels
         [RelayCommand]
         internal void HelpAbout()
         {
-            MessageBox.Show("OP Editor \r\nVersion : 0.1", "About OP Editor");
+            AboutDialog ad = new(App.Current.MainWindow);
+            ad.ShowDialog();
         }
 
-        private void OpenUrl(string url)
+
+        [RelayCommand]
+        private void NextPage()
+        {
+            PagingController.NextPage();
+            PagedUpdates();
+        }
+
+        [RelayCommand]
+        private void PreviousPage()
+        {
+            PagingController.PreviousPage();
+            PagedUpdates();
+        }
+
+        [RelayCommand]
+        private void FirstPage()
+        {
+            PagingController.MoveFirst();
+            PagedUpdates();
+        }
+
+        [RelayCommand]
+        private void LastPage()
+        {
+            PagingController.LastPage();
+            PagedUpdates();
+        }
+
+        private void PagedUpdates()
+        {
+            PageData = PagingController.PageData;
+            PageMessage = PagingController.PageMessage;
+        }
+
+        private static void OpenUrl(string url)
         {
             try
             {
@@ -60,7 +104,7 @@ namespace OPEdit.ViewModels
                 // hack because of this: https://github.com/dotnet/corefx/issues/10361
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    url = url.Replace("&", "^&");
+                    url = url.Replace("&", "^&", StringComparison.InvariantCulture);
                     Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))

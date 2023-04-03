@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OPEdit.Core.Models;
 
-public class LanguageSetting
+public class TranslationItem
 {
     public string Language { get; set; }
     public string Namespace { get; set; }

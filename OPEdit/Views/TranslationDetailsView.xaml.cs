@@ -63,7 +63,7 @@ namespace OPEdit.Views
         private void LanguageValue_KeyUp(object sender, KeyEventArgs e)
         {
             TextBox txtBox = (TextBox)sender;
-            LanguageSetting setting = (LanguageSetting)txtBox.Tag;
+            TranslationItem setting = (TranslationItem)txtBox.Tag;
             setting.Value = txtBox.Text;
         }
     }

@@ -59,6 +59,7 @@ public class SettingsViewModel : ObservableObject, INavigationAware
 
     private void OnSetTheme(string themeName)
     {
+        if (string.IsNullOrWhiteSpace(themeName)) {  return; }
         var theme = (AppTheme)Enum.Parse(typeof(AppTheme), themeName);
         _themeSelectorService.SetTheme(theme);
     }

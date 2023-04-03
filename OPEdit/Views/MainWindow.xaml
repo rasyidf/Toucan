@@ -26,9 +26,8 @@
     WindowStartupLocation="CenterScreen"
     WindowStyle="SingleBorderWindow"
     mc:Ignorable="d">
-
-
-
+ 
+    
     <Window.Resources>
         <converters:LanguageNameConverter x:Key="LanguageConverter" />
     </Window.Resources>
@@ -77,19 +76,20 @@
                     Header="_Open project"
                     InputGestureText="Ctrl+O"
                     SymbolIcon="Folder20" />
-                <ui:MenuItem Header="_Open recent" InputGestureText="Ctrl+R" />
+                <ui:MenuItem Header="_Open recent" Click="OpenRecent" IsEnabled="true" InputGestureText="Ctrl+R" />
                 <Separator />
                 <ui:MenuItem
                     Click="Save"
                     Header="_Save project"
                     InputGestureText="Ctrl+S"
-                    SymbolIcon="Save20" />
+                    SymbolIcon="Save20" 
+                    />
                 <ui:MenuItem
                     Click="SaveTo"
                     Header="Save _As"
                     InputGestureText="F12"
                     SymbolIcon="SaveArrowRight20" />
-                <ui:MenuItem Header="Close" InputGestureText="Ctrl+F4" />
+                <ui:MenuItem Header="Close" InputGestureText="Ctrl+F4" Click="CloseProject" />
                 <Separator />
                 <ui:MenuItem Header="Import..." SymbolIcon="ArrowExportLtr20" />
                 <ui:MenuItem Header="Export..." SymbolIcon="ArrowImport20" />
@@ -190,9 +190,9 @@
             <GridSplitter
                 Grid.Row="1"
                 Grid.Column="0"
-                Height="2"
+                Height="3"
                 HorizontalAlignment="Stretch"
-                Background="#19F0F0F0" />
+                Background="#10000000" />
             <views:ResourcesView
                 x:Name="resourcesView"
                 DataContext="{Binding ViewModel}"
@@ -211,9 +211,10 @@
         <GridSplitter
             Grid.Row="1"
             Grid.Column="1"
-            Margin="0,2,0,0"
+            Width="3"
+            Margin="0,3,0,0"
             HorizontalAlignment="Stretch"
-            Background="#19F0F0F0" />
+            Background="#10000000" />
         <ui:TextBox
             x:Name="SearchFilterTextbox"
             Grid.Column="2"
@@ -222,7 +223,7 @@
             MinWidth="200"
             HorizontalAlignment="Center"
             Icon="Search16"
-            PlaceholderText="OP Editor" />
+            PlaceholderText="OP Editor" Background="#0F020202" />
 
         <views:TranslationDetailsView
             x:Name="translationDetailsView"
@@ -230,7 +231,7 @@
             Grid.RowSpan="1"
             Grid.Column="2"
             Margin="0,2,0,0"
-            DataContext="{Binding ViewModel}"
+            DataContext="{Binding ViewModel}" 
             FirstPageClick="FirstPage"
             LastPageClick="LastPage"
             NextPageClick="NextPage"
@@ -243,7 +244,7 @@
             Background="#0CFFFFFF">
             <ResizeGrip>
                 <ResizeGrip.Background>
-                    <SolidColorBrush Opacity="0.68" />
+                    <SolidColorBrush Opacity="0.28" />
                 </ResizeGrip.Background>
             </ResizeGrip>
             <TextBlock

@@ -20,11 +20,8 @@ public class ThemeSelectorService : IThemeSelectorService
 
     public void InitializeTheme()
     {
-        // TODO: Mahapps.Metro supports syncronization with high contrast but you have to provide custom high contrast themes
-        // We've added basic high contrast dictionaries for Dark and Light themes
-        // Please complete these themes following the docs on https://mahapps.com/docs/themes/thememanager#creating-custom-themes
-        ThemeManager.Current.AddLibraryTheme(new LibraryTheme(new Uri(HcDarkTheme), MahAppsLibraryThemeProvider.DefaultInstance));
-        ThemeManager.Current.AddLibraryTheme(new LibraryTheme(new Uri(HcLightTheme), MahAppsLibraryThemeProvider.DefaultInstance));
+        //ThemeManager.Current.AddLibraryTheme(new LibraryTheme(new Uri(HcDarkTheme), MahAppsLibraryThemeProvider.DefaultInstance));
+        //ThemeManager.Current.AddLibraryTheme(new LibraryTheme(new Uri(HcLightTheme), MahAppsLibraryThemeProvider.DefaultInstance));
 
         var theme = GetCurrentTheme();
         SetTheme(theme);
@@ -34,8 +31,8 @@ public class ThemeSelectorService : IThemeSelectorService
     {
         if (theme == AppTheme.Default)
         {
-            ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncAll;
-            ThemeManager.Current.SyncTheme();
+            //ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncAll;
+            //ThemeManager.Current.SyncTheme();
             Wpf.Ui.Appearance.Theme.Apply(
               Wpf.Ui.Appearance.ThemeType.Unknown,     // Theme type
               Wpf.Ui.Controls.Window.WindowBackdropType.Mica, // Background type
@@ -44,15 +41,16 @@ public class ThemeSelectorService : IThemeSelectorService
         }
         else
         {
-            ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncWithHighContrast;
-            ThemeManager.Current.SyncTheme();
-            ThemeManager.Current.ChangeTheme(Application.Current, $"{theme}.Blue", SystemParameters.HighContrast);
+        //    ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncWithHighContrast;
+        //    ThemeManager.Current.SyncTheme();
+        //    ThemeManager.Current.ChangeTheme(Application.Current, $"{theme}.Blue", SystemParameters.HighContrast);
            try { 
             if (SystemParameters.HighContrast)
             {
                 Wpf.Ui.Appearance.Theme.Apply(
                 Wpf.Ui.Appearance.ThemeType.HighContrast,
                 Wpf.Ui.Controls.Window.WindowBackdropType.Mica,
+                     true,
                 true
             );
             }
@@ -63,6 +61,7 @@ public class ThemeSelectorService : IThemeSelectorService
                     ? Wpf.Ui.Appearance.ThemeType.Dark
                     : Wpf.Ui.Appearance.ThemeType.Light,
                      Wpf.Ui.Controls.Window.WindowBackdropType.Mica,
+                     true,
                      true
                    );
             }
