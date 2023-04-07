@@ -18,7 +18,7 @@ public class LanguageGroup
         Namespace = ns;
         this.languages = languages;
     }
-    public void LoadSettings(IEnumerable<TranslationItem> settings)
+    public void LoadTranslations(IEnumerable<TranslationItem> settings)
     {
         Translations = settings.ForParse().Distinct().OrderBy(o => o.Language).ToList();
     }

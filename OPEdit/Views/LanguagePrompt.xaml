@@ -15,6 +15,10 @@
     d:Background="#FF121111"
     d:Foreground="#fafafa"
     WindowStartupLocation="CenterOwner"
+    WindowBackdropType="Tabbed"
+    WindowCornerPreference="Round" 
+    WindowStyle="SingleBorderWindow"
+    ExtendsContentIntoTitleBar="True" 
     mc:Ignorable="d">
     <Window.DataContext>
         <vm:LanguagePromptViewModel/>

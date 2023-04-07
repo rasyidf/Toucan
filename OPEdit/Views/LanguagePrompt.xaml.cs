@@ -8,53 +8,48 @@ using OPEdit.ViewModels;
 using OPEdit.Core.Models;
 using OPEdit.Core;
 
-namespace OPEdit
+namespace OPEdit;
+
+/// <summary>
+/// Interaction logic for PromptDialog.xaml
+/// </summary>
+partial class LanguagePrompt : FluentWindow
 {
-    /// <summary>
-    /// Interaction logic for Prompt.xaml
-    /// </summary>
-    partial class LanguagePrompt : FluentWindow
+    public List<TranslationItem> LanguageList { get; set; }
+
+    public LanguagePromptViewModel ViewModel { get; }
+
+    public LanguagePrompt(string title, string message, List<TranslationItem> languageList)
     {
+        InitializeComponent();
+        titleBarPrompt.Title = title;
+        messageLabel.Text = message;
+        ResponseLanguage.Focus();
 
-        public List<TranslationItem> LanguageList { get; set; }
+        RoutedCommand saveCommand = new();
+        saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
+        CommandBindings.Add(new CommandBinding(saveCommand, OKButton_Click));
 
-        public LanguagePromptViewModel ViewModel
-        {
-            get;
-        }
+        RoutedCommand refreshCommand = new();
+        refreshCommand.InputGestures.Add(new KeyGesture(Key.Escape, ModifierKeys.None));
+        CommandBindings.Add(new CommandBinding(refreshCommand, CancelDialog));
 
-        public LanguagePrompt(string title, string message, List<TranslationItem> languageList)
-        {
-            InitializeComponent();
-            titleBarPrompt.Title = title;
-            messageLabel.Text = message; 
-            ResponseLanguage.Focus();
+        ViewModel = new LanguagePromptViewModel();
+        LanguageList = languageList;
+    }
 
-            RoutedCommand saveCommand = new();
-            saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
-            CommandBindings.Add(new CommandBinding(saveCommand, OKButton_Click));
+    public string ResponseText
+    {
+        get { return (ResponseLanguage?.SelectedValue as LanguageModel)?.Language; }
+        set { ResponseLanguage.SelectedItem = value; }
+    }
 
-            RoutedCommand refreshCommand = new();
-            refreshCommand.InputGestures.Add(new KeyGesture(Key.Escape, ModifierKeys.None));
-            CommandBindings.Add(new CommandBinding(refreshCommand, CancelDialog)); 
-
-            ViewModel = new LanguagePromptViewModel();
-            LanguageList = languageList;
-        }
-
-        public string ResponseText
-        {
-            get { return (ResponseLanguage?.SelectedValue as LanguageModel)?.Language; }
-            set { ResponseLanguage.SelectedItem = value; }
-        }
-       
-        private void CancelDialog(object sender, System.Windows.RoutedEventArgs e)
-        {
-            DialogResult = false;
-        }
-        private void OKButton_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            DialogResult = true;
-        }
+    private void CancelDialog(object sender, System.Windows.RoutedEventArgs e)
+    {
+        DialogResult = false;
+    }
+    private void OKButton_Click(object sender, System.Windows.RoutedEventArgs e)
+    {
+        DialogResult = true;
     }
 }

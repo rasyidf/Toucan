@@ -21,7 +21,7 @@
     ui:Design.Foreground="white"
     ExtendsContentIntoTitleBar="True"
     Loaded="Window_Loaded"
-    WindowBackdropType="Mica"
+    WindowBackdropType="Tabbed"
     WindowCornerPreference="Round"
     WindowStartupLocation="CenterScreen"
     WindowStyle="SingleBorderWindow"
@@ -91,8 +91,8 @@
                     SymbolIcon="SaveArrowRight20" />
                 <ui:MenuItem Header="Close" InputGestureText="Ctrl+F4" Click="CloseProject" />
                 <Separator />
-                <ui:MenuItem Header="Import..." SymbolIcon="ArrowExportLtr20" />
-                <ui:MenuItem Header="Export..." SymbolIcon="ArrowImport20" />
+                <ui:MenuItem IsEnabled="False" Header="Import..." SymbolIcon="ArrowExportLtr20" />
+                <ui:MenuItem IsEnabled="False" Header="Export..." SymbolIcon="ArrowImport20" />
                 <Separator />
                 <ui:MenuItem
                     Click="ShowPreferences"
@@ -114,43 +114,43 @@
                     InputGestureText="Ctrl+I" />
                 <ui:MenuItem
                     Click="RenameItem"
-                    Header="_Rename"
+                     Header="_Rename"
                     InputGestureText="F2" />
                 <ui:MenuItem
                     Click="DeleteItem"
-                    Header="_Remove IDs"
+                   IsEnabled="False"  Header="_Remove IDs"
                     InputGestureText="Del" />
                 <Separator />
-                <ui:MenuItem Header="_Pre-Translate..." />
-                <ui:MenuItem Header="_Fill empty translations..." />
-                <ui:MenuItem Header="_Delete unused translations..." />
+                <ui:MenuItem IsEnabled="False" Header="_Pre-Translate..." />
+                <ui:MenuItem IsEnabled="False" Header="_Fill empty translations..." />
+                <ui:MenuItem IsEnabled="False" Header="_Delete unused translations..." />
 
                 <Separator />
                 <ui:MenuItem Header="Convert case">
-                    <ui:MenuItem Header="_lowercase" />
-                    <ui:MenuItem Header="_UPPERCASE" />
-                    <ui:MenuItem Header="_Sentence case" />
-                    <ui:MenuItem Header="_Title Case" />
+                    <ui:MenuItem IsEnabled="False" Header="_lowercase" />
+                    <ui:MenuItem IsEnabled="False" Header="_UPPERCASE" />
+                    <ui:MenuItem IsEnabled="False" Header="_Sentence case" />
+                    <ui:MenuItem IsEnabled="False" Header="_Title Case" />
                 </ui:MenuItem>
                 <ui:MenuItem Header="Remove whitespaces">
-                    <ui:MenuItem Header="_Trim" />
-                    <ui:MenuItem Header="Trim _line by line" />
+                    <ui:MenuItem IsEnabled="False" Header="_Trim" />
+                    <ui:MenuItem IsEnabled="False" Header="Trim _line by line" />
                     <Separator />
-                    <ui:MenuItem Header="_Simplify" />
+                    <ui:MenuItem IsEnabled="False" Header="_Simplify" />
 
                 </ui:MenuItem>
                 <Separator />
-                <ui:MenuItem Header="Cut" SymbolIcon="Cut20" />
-                <ui:MenuItem Header="Copy" SymbolIcon="Copy20" />
-                <ui:MenuItem Header="Paste" SymbolIcon="ClipboardPaste20" />
+                <ui:MenuItem IsEnabled="False" Header="Cut" SymbolIcon="Cut20" />
+                <ui:MenuItem IsEnabled="False" Header="Copy" SymbolIcon="Copy20" />
+                <ui:MenuItem IsEnabled="False" Header="Paste" SymbolIcon="ClipboardPaste20" />
             </ui:MenuItem>
             <ui:MenuItem Header="Find">
-                <ui:MenuItem Header="Find" SymbolIcon="Search20" />
-                <ui:MenuItem Header="Find Next" SymbolIcon="SlideSearch20" />
-                <ui:MenuItem Header="Set Filter" SymbolIcon="Filter20" />
-                <ui:MenuItem Header="Filter By ID" SymbolIcon="FilterSync20" />
-                <ui:MenuItem Header="Show untranslated" SymbolIcon="PhotoFilter20" />
-                <ui:MenuItem Header="Clear" SymbolIcon="FilterDismiss20" />
+                <ui:MenuItem IsEnabled="False" Header="Find" SymbolIcon="Search20" />
+                <ui:MenuItem IsEnabled="False" Header="Find Next" SymbolIcon="SlideSearch20" />
+                <ui:MenuItem IsEnabled="False" Header="Set Filter" SymbolIcon="Filter20" />
+                <ui:MenuItem IsEnabled="False" Header="Filter By ID" SymbolIcon="FilterSync20" />
+                <ui:MenuItem IsEnabled="False" Header="Show untranslated" SymbolIcon="PhotoFilter20" />
+                <ui:MenuItem IsEnabled="False" Header="Clear" SymbolIcon="FilterDismiss20" />
             </ui:MenuItem>
             <ui:MenuItem Header="Views">
                 <ui:MenuItem Header="Tree View" SymbolIcon="TextBulletListTree20" />
@@ -158,7 +158,6 @@
                 <Separator />
                 <ui:MenuItem Header="Show machine translations" />
                 <ui:MenuItem Header="Show thesaurus" />
-                <ui:MenuItem Header="Show source code" />
                 <Separator />
                 <ui:MenuItem Header="Statistics" />
             </ui:MenuItem>
@@ -192,7 +191,7 @@
                 Grid.Column="0"
                 Height="3"
                 HorizontalAlignment="Stretch"
-                Background="#10000000" />
+                Background="#0CFFFFFF" />
             <views:ResourcesView
                 x:Name="resourcesView"
                 DataContext="{Binding ViewModel}"
@@ -212,19 +211,22 @@
             Grid.Row="1"
             Grid.Column="1"
             Width="3"
-            Margin="0,3,0,0"
+            Margin="0,16,-3,0"
             HorizontalAlignment="Stretch"
-            Background="#10000000" />
+            Background="#01FFFFFF" />
         <ui:TextBox
             x:Name="SearchFilterTextbox"
             Grid.Column="2"
             Width="205"
             Height="40"
             MinWidth="200"
+            Padding="0,6,0,8"
             HorizontalAlignment="Center"
             Icon="Search16"
-            PlaceholderText="OP Editor" Background="#0F020202" />
-
+            IconPlacement="Right"
+            TextChanged="SearchFilterTextbox_TextChanged"
+            PlaceholderText="  Toucan" Background="#0F020202" />
+        
         <views:TranslationDetailsView
             x:Name="translationDetailsView"
             Grid.Row="1"

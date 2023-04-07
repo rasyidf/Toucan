@@ -6,25 +6,24 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace OPEdit
+namespace OPEdit;
+
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
+public partial class App : Application
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
+
+    private void Application_Startup(object sender, StartupEventArgs e)
     {
+        string startupPath = "";
 
-        private void Application_Startup(object sender, StartupEventArgs e)
+        if (e.Args.Length == 1)
         {
-            string startupPath = "";
-
-            if (e.Args.Length == 1)
-            {
-                startupPath = e.Args[0];
-            }
-            MainWindow wnd = new(startupPath, new ViewModels.MainWindowViewModel());
-            wnd.Show();
-
+            startupPath = e.Args[0];
         }
+        MainWindow wnd = new(startupPath, new ViewModels.MainWindowViewModel());
+        wnd.Show();
+
     }
 }

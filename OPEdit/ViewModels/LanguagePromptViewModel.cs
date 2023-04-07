@@ -9,29 +9,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OPEdit.ViewModels
+namespace OPEdit.ViewModels;
+
+
+
+public partial class LanguagePromptViewModel : ObservableObject
 {
-   
+    [ObservableProperty]
+    private ObservableCollection<LanguageModel> _cultureList;
 
-    public partial class LanguagePromptViewModel : ObservableObject
+    [ObservableProperty]
+    private LanguageModel language;
+
+    public LanguagePromptViewModel()
     {
-        [ObservableProperty]
-        private ObservableCollection<LanguageModel> _cultureList;
-
-        [ObservableProperty]
-        private LanguageModel language;
-
-        public LanguagePromptViewModel()
-        {
-            CultureList = new(
-                CultureInfo.GetCultures(CultureTypes.AllCultures)
-                .OrderBy(c => c.DisplayName)
-                .Select(c => new LanguageModel { Culture = c, Language = c.DisplayName })
-                .ToList()
-               );
-        }
-
+        CultureList = new(
+            CultureInfo.GetCultures(CultureTypes.AllCultures)
+            .OrderBy(c => c.DisplayName)
+            .Select(c => new LanguageModel { Culture = c, Language = c.DisplayName })
+            .ToList()
+           );
     }
-
 
 }

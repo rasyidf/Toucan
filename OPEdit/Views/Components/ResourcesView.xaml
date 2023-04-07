@@ -20,8 +20,8 @@
             ItemTemplate="{StaticResource ChildTemplate}"
             ItemsSource="{Binding Path=Items}">
             <TextBlock
-                x:Name="textBlock"
-                FontWeight="Normal"
+                Padding="0,1,0,2"
+                x:Name="textBlock" 
                 Text="{Binding Path=Name}" />
         </HierarchicalDataTemplate>
         <converters:TreeItemtoListItemConverter x:Key="TreeItemsFlatten" />
@@ -47,6 +47,7 @@
             x:Name="button"
             Grid.Column="1"
             Margin="0,0,8,0"
+            Padding="4"
             HorizontalAlignment="Right"
             Appearance="Transparent"
             Click="HandleNewItem"
@@ -61,7 +62,7 @@
             x:Name="TreeNamespace"
             Grid.Row="1"
             Grid.ColumnSpan="2"
-            d:ItemsSource="{d:SampleData ItemCount=4}"
+            d:ItemsSource="{d:SampleData ItemCount=3}"
             ItemTemplate="{StaticResource NameTemplate}"
             ItemsSource="{Binding CurrentTreeItems}"
             SelectedItemChanged="TreeNamespace_SelectedItemChanged" />

@@ -10,32 +10,25 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Wpf.Ui.Controls.Window;
 
 namespace OPEdit.Views;
 
 /// <summary>
-/// Interaction logic for AboutDialog.xaml
+/// Interaction logic for TranslationItemView.xaml
 /// </summary>
-public partial class AboutDialog : FluentWindow
+public partial class TranslationItemView : UserControl
 {
 
-    public AboutDialog(Window parent)
+    public event KeyEventHandler UpdateLanguageValue;
+    public TranslationItemView()
     {
-        Owner = parent;
-        ViewModel = new ViewModels.AboutViewModel(this);
-        DataContext = this;
-
         InitializeComponent();
     }
-    public ViewModels.AboutViewModel ViewModel
-    {
-        get;
-    }
 
-    private void Button_Click(object sender, RoutedEventArgs e)
+    private void LanguageValue_KeyUp(object sender, KeyEventArgs e)
     {
-        this.Close();
+        UpdateLanguageValue?.Invoke(sender, e);
     }
 }

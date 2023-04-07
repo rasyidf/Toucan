@@ -6,15 +6,15 @@ namespace OPEdit;
 /// <summary>
 /// Interaction logic for PromptDialog.xaml
 /// </summary>
-partial class NewProjectPrompt : FluentWindow
+partial class PromptDialog : FluentWindow
 {
 
 
 
-    public NewProjectPrompt(string title, string message, string defaultValue = "")
+    public PromptDialog(string title, string message, string defaultValue = "")
     {
         InitializeComponent();
-        Title = title;
+        titleBarPrompt.Title = title;
         messageLabel.Text = message;
         ResponseTextBox.Text = defaultValue;
         ResponseTextBox.Focus();

@@ -8,7 +8,9 @@
         Title="About Toucan"
         WindowStartupLocation="CenterOwner" 
         WindowStyle="ToolWindow"
-        Padding="20" Width="425" Height="355" d:Background="#FF020202" d:Foreground="White" >
+        Padding="20" Width="425" Height="355" d:Background="#FF020202" d:Foreground="White" WindowBackdropType="Tabbed"
+    WindowCornerPreference="Round"  
+    ExtendsContentIntoTitleBar="True"  >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height ="24"/>
