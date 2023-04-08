@@ -6,14 +6,14 @@
     xmlns:local="clr-namespace:OPEdit"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    Width="332"
-    Height="208"
     MinWidth="250"
     MinHeight="200"
-    MaxWidth="600"
-    MaxHeight="200"
     d:Background="#FF121111"
+    d:DesignHeight="330"
+    d:DesignWidth="370"
     d:Foreground="#fafafa"
+    d:Height="208"
+    d:Width="332"
     WindowStartupLocation="CenterOwner"
     mc:Ignorable="d">
     <Grid>
@@ -23,10 +23,10 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="titleBar" Height="auto" />
-            <RowDefinition x:Name="contentRow" Height="*" />
+            <RowDefinition x:Name="contentRow" />
         </Grid.RowDefinitions>
         <ui:TitleBar
-            Title="Add"
+            Title="New Project"
             Grid.ColumnSpan="2"
             VerticalAlignment="Center"
             ShowMaximize="false"
@@ -45,26 +45,29 @@
         </ui:TitleBar>
         <Grid
             Grid.Row="1"
+            Grid.RowSpan="2"
             Grid.ColumnSpan="2"
             Margin="0,2,0,0">
-            <TextBlock
-                x:Name="messageLabel"
-                Height="49"
-                Margin="16,0,16,0"
-                VerticalAlignment="Top"
-                d:Text="Input" />
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="42" />
+            </Grid.RowDefinitions>
             <ui:TextBox
                 x:Name="ResponseTextBox"
-                Margin="16,52,16,0"
-                VerticalAlignment="Top" />
+                Height="35"
+                Margin="10,52,10,0"
+                VerticalAlignment="Top"
+                PlaceholderText="Project Name"
+                RenderTransformOrigin="0,0" />
             <ui:Button
-                Width="70"
+                Grid.RowSpan="2"
+                Width="90"
                 Height="32"
-                Margin="0,0,16,10"
+                Margin="0,0,10,10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 Click="OKButton_Click"
-                Content="OK" />
+                Content="Create" />
         </Grid>
     </Grid>
 </ui:FluentWindow>

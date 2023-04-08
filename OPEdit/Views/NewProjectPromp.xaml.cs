@@ -15,7 +15,7 @@ partial class NewProjectPrompt : FluentWindow
     {
         InitializeComponent();
         Title = title;
-        messageLabel.Text = message;
+         
         ResponseTextBox.Text = defaultValue;
         ResponseTextBox.Focus();
         ResponseTextBox.SelectAll();
