@@ -64,7 +64,7 @@
     <PackageReference Include="WPF-UI" Version="3.0.0-preview.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OPEdit.Core\OPEdit.Core.csproj" />
+    <ProjectReference Include="..\OPEdit.Core\Toucan.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Assets\Images\logo.png">

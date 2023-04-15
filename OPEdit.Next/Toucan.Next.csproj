@@ -19,7 +19,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\OPEdit.Core\OPEdit.Core.csproj" />
+    <ProjectReference Include="..\OPEdit.Core\Toucan.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
