@@ -16,7 +16,7 @@ namespace OPEdit.ViewModels;
 public partial class LanguagePromptViewModel : ObservableObject
 {
     [ObservableProperty]
-    private ObservableCollection<LanguageModel> _cultureList;
+    private ObservableCollection<LanguageModel> cultureList;
 
     [ObservableProperty]
     private LanguageModel language;

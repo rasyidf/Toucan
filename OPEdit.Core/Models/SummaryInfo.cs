@@ -1,11 +1,16 @@
-﻿using OPEdit.Extensions;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using OPEdit.Extensions;
+using System.Collections.ObjectModel;
+
 namespace OPEdit.Core.Models;
 
-public class SummaryInfoViewModel
+public partial class SummaryInfoViewModel : ObservableObject
 {
+    [ObservableProperty]
+    private ObservableCollection<SummaryItem> details = new ObservableCollection<SummaryItem>();
+
     public double Languages { get; private set; }
     public double Translations { get; private set; }
-    public List<SummaryItem> Details { get; private set; } = new List<SummaryItem>();
 
     public void Update(IEnumerable<TranslationItem> settings)
     {
@@ -21,10 +26,10 @@ public class SummaryInfoViewModel
         {
             var languageNamespaces = settings.ToNamespaces(language).ToList();
             double missingLanguageCount = allNamespace.Except(languageNamespaces).Count();
-
-            var translated = languageNamespaces.Count - missingLanguageCount;
+            
             Details.Add(new SummaryItem()
             {
+                IsExpanded = false,
                 Language = language,
                 Potential = Translations,
                 Missing = missingLanguageCount

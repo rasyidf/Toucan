@@ -26,8 +26,34 @@
     WindowStartupLocation="CenterScreen"
     WindowStyle="SingleBorderWindow"
     mc:Ignorable="d">
- 
-    
+
+    <Window.InputBindings>
+        <KeyBinding
+            Key="N"
+            Command="{Binding ViewModel.NewFolderCommand}"
+            Modifiers="Ctrl+Shift" />
+        <KeyBinding
+            Key="O"
+            Command="{Binding ViewModel.OpenFolderCommand}"
+            Modifiers="Ctrl" />
+        <KeyBinding
+            Key="R"
+            Command="{Binding ViewModel.OpenRecentCommand}"
+            Modifiers="Ctrl" />
+        <KeyBinding
+            Key="S"
+            Command="{Binding ViewModel.SaveCommand}"
+            Modifiers="Ctrl" />
+        <KeyBinding Key="F12" Command="{Binding ViewModel.SaveToCommand}" />
+        <KeyBinding
+            Key="F4"
+            Command="{Binding ViewModel.CloseProjectCommand}"
+            Modifiers="Ctrl" />
+        <KeyBinding
+            Key="F4"
+            Command="{Binding ViewModel.ExitCommand}"
+            Modifiers="Alt" />
+    </Window.InputBindings>
     <Window.Resources>
         <converters:LanguageNameConverter x:Key="LanguageConverter" />
     </Window.Resources>
@@ -67,39 +93,54 @@
             <ui:MenuItem AutomationProperties.AccessKey="F" Header="_File">
                 <ui:MenuItem
                     Width="250"
-                    Click="NewFolder"
+                    Command="{Binding ViewModel.NewFolderCommand}"
                     Header="_New project"
                     InputGestureText="Ctrl+Shift+N"
                     SymbolIcon="Document20" />
                 <ui:MenuItem
-                    Click="OpenFolder"
+                    Command="{Binding ViewModel.OpenFolderCommand}"
                     Header="_Open project"
                     InputGestureText="Ctrl+O"
                     SymbolIcon="Folder20" />
-                <ui:MenuItem Header="_Open recent" Click="OpenRecent" IsEnabled="true" InputGestureText="Ctrl+R" />
+                <ui:MenuItem
+                    Command="{Binding ViewModel.OpenRecentCommand}"
+                    Header="_Open recent"
+                    InputGestureText="Ctrl+R"
+                    IsEnabled="true" />
                 <Separator />
                 <ui:MenuItem
-                    Click="Save"
+                    Command="{Binding ViewModel.SaveCommand}"
                     Header="_Save project"
                     InputGestureText="Ctrl+S"
-                    SymbolIcon="Save20" 
-                    />
+                    SymbolIcon="Save20" />
                 <ui:MenuItem
-                    Click="SaveTo"
+                    Command="{Binding ViewModel.SaveToCommand}"
                     Header="Save _As"
                     InputGestureText="F12"
                     SymbolIcon="SaveArrowRight20" />
-                <ui:MenuItem Header="Close" InputGestureText="Ctrl+F4" Click="CloseProject" />
-                <Separator />
-                <ui:MenuItem IsEnabled="False" Header="Import..." SymbolIcon="ArrowExportLtr20" />
-                <ui:MenuItem IsEnabled="False" Header="Export..." SymbolIcon="ArrowImport20" />
+                <ui:MenuItem
+                    Command="{Binding ViewModel.CloseProjectCommand}"
+                    Header="Close"
+                    InputGestureText="Ctrl+F4" />
                 <Separator />
                 <ui:MenuItem
-                    Click="ShowPreferences"
+                    Header="Import..."
+                    IsEnabled="False"
+                    SymbolIcon="ArrowExportLtr20" />
+                <ui:MenuItem
+                    Header="Export..."
+                    IsEnabled="False"
+                    SymbolIcon="ArrowImport20" />
+                <Separator />
+                <ui:MenuItem
+                    Command="{Binding ViewModel.ShowPreferencesCommand}"
                     Header="Preferences"
                     SymbolIcon="Settings20" />
                 <Separator />
-                <ui:MenuItem Header="_Exit" InputGestureText="Alt+F4" />
+                <ui:MenuItem
+                    Command="{Binding ViewModel.ExitCommand}"
+                    Header="_Exit"
+                    InputGestureText="Alt+F4" />
             </ui:MenuItem>
             <ui:MenuItem Name="itemMenu" Header="_Edit">
                 <ui:MenuItem
@@ -114,43 +155,71 @@
                     InputGestureText="Ctrl+I" />
                 <ui:MenuItem
                     Click="RenameItem"
-                     Header="_Rename"
+                    Header="_Rename"
                     InputGestureText="F2" />
                 <ui:MenuItem
                     Click="DeleteItem"
-                   IsEnabled="False"  Header="_Remove IDs"
-                    InputGestureText="Del" />
+                    Header="_Remove IDs"
+                    InputGestureText="Del"
+                    IsEnabled="False" />
                 <Separator />
-                <ui:MenuItem IsEnabled="False" Header="_Pre-Translate..." />
-                <ui:MenuItem IsEnabled="False" Header="_Fill empty translations..." />
-                <ui:MenuItem IsEnabled="False" Header="_Delete unused translations..." />
+                <ui:MenuItem Header="_Pre-Translate..." IsEnabled="False" />
+                <ui:MenuItem Header="_Fill empty translations..." IsEnabled="False" />
+                <ui:MenuItem Header="_Delete unused translations..." IsEnabled="False" />
 
                 <Separator />
                 <ui:MenuItem Header="Convert case">
-                    <ui:MenuItem IsEnabled="False" Header="_lowercase" />
-                    <ui:MenuItem IsEnabled="False" Header="_UPPERCASE" />
-                    <ui:MenuItem IsEnabled="False" Header="_Sentence case" />
-                    <ui:MenuItem IsEnabled="False" Header="_Title Case" />
+                    <ui:MenuItem Header="_lowercase" IsEnabled="False" />
+                    <ui:MenuItem Header="_UPPERCASE" IsEnabled="False" />
+                    <ui:MenuItem Header="_Sentence case" IsEnabled="False" />
+                    <ui:MenuItem Header="_Title Case" IsEnabled="False" />
                 </ui:MenuItem>
                 <ui:MenuItem Header="Remove whitespaces">
-                    <ui:MenuItem IsEnabled="False" Header="_Trim" />
-                    <ui:MenuItem IsEnabled="False" Header="Trim _line by line" />
+                    <ui:MenuItem Header="_Trim" IsEnabled="False" />
+                    <ui:MenuItem Header="Trim _line by line" IsEnabled="False" />
                     <Separator />
-                    <ui:MenuItem IsEnabled="False" Header="_Simplify" />
+                    <ui:MenuItem Header="_Simplify" IsEnabled="False" />
 
                 </ui:MenuItem>
                 <Separator />
-                <ui:MenuItem IsEnabled="False" Header="Cut" SymbolIcon="Cut20" />
-                <ui:MenuItem IsEnabled="False" Header="Copy" SymbolIcon="Copy20" />
-                <ui:MenuItem IsEnabled="False" Header="Paste" SymbolIcon="ClipboardPaste20" />
+                <ui:MenuItem
+                    Header="Cut"
+                    IsEnabled="False"
+                    SymbolIcon="Cut20" />
+                <ui:MenuItem
+                    Header="Copy"
+                    IsEnabled="False"
+                    SymbolIcon="Copy20" />
+                <ui:MenuItem
+                    Header="Paste"
+                    IsEnabled="False"
+                    SymbolIcon="ClipboardPaste20" />
             </ui:MenuItem>
             <ui:MenuItem Header="Find">
-                <ui:MenuItem IsEnabled="False" Header="Find" SymbolIcon="Search20" />
-                <ui:MenuItem IsEnabled="False" Header="Find Next" SymbolIcon="SlideSearch20" />
-                <ui:MenuItem IsEnabled="False" Header="Set Filter" SymbolIcon="Filter20" />
-                <ui:MenuItem IsEnabled="False" Header="Filter By ID" SymbolIcon="FilterSync20" />
-                <ui:MenuItem IsEnabled="False" Header="Show untranslated" SymbolIcon="PhotoFilter20" />
-                <ui:MenuItem IsEnabled="False" Header="Clear" SymbolIcon="FilterDismiss20" />
+                <ui:MenuItem
+                    Header="Find"
+                    IsEnabled="False"
+                    SymbolIcon="Search20" />
+                <ui:MenuItem
+                    Header="Find Next"
+                    IsEnabled="False"
+                    SymbolIcon="SlideSearch20" />
+                <ui:MenuItem
+                    Header="Set Filter"
+                    IsEnabled="False"
+                    SymbolIcon="Filter20" />
+                <ui:MenuItem
+                    Header="Filter By ID"
+                    IsEnabled="False"
+                    SymbolIcon="FilterSync20" />
+                <ui:MenuItem
+                    Header="Show untranslated"
+                    IsEnabled="False"
+                    SymbolIcon="PhotoFilter20" />
+                <ui:MenuItem
+                    Header="Clear"
+                    IsEnabled="False"
+                    SymbolIcon="FilterDismiss20" />
             </ui:MenuItem>
             <ui:MenuItem Header="Views">
                 <ui:MenuItem Header="Tree View" SymbolIcon="TextBulletListTree20" />
@@ -222,18 +291,19 @@
             MinWidth="200"
             Padding="0,6,0,8"
             HorizontalAlignment="Center"
+            Background="#0F020202"
             Icon="Search16"
             IconPlacement="Right"
-            TextChanged="SearchFilterTextbox_TextChanged"
-            PlaceholderText="  Toucan" Background="#0F020202" />
-        
+            PlaceholderText="  Toucan"
+            TextChanged="SearchFilterTextbox_TextChanged" />
+
         <views:TranslationDetailsView
             x:Name="translationDetailsView"
             Grid.Row="1"
             Grid.RowSpan="1"
             Grid.Column="2"
             Margin="0,2,0,0"
-            DataContext="{Binding ViewModel}" 
+            DataContext="{Binding ViewModel}"
             FirstPageClick="FirstPage"
             LastPageClick="LastPage"
             NextPageClick="NextPage"
@@ -255,7 +325,7 @@
                 Margin="10,5,0,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
-                Text="Ready"
+                Text="{Binding StatusText}"
                 TextWrapping="Wrap" />
             <ui:Button
                 Margin="0,0,16,0"

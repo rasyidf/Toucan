@@ -21,6 +21,7 @@ public class JsonParser : IParser
         Language = language;
         return this;
     }
+
     public async IAsyncEnumerable<TranslationItem> Parse(string content)
     {
 

@@ -7,6 +7,8 @@
     xmlns:local="clr-namespace:OPEdit.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:viewmodels="clr-namespace:OPEdit.ViewModels"
+    d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
     d:DesignHeight="405"
     d:DesignWidth="475"
     d:Foreground="White"
@@ -18,26 +20,39 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="42" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="35" />
+            <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
-            <ColumnDefinition Width="59" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <TextBlock
-            Margin="8,0,0,0"
-            VerticalAlignment="Center"
+            Height="22"
+            Margin="8,8,0,0"
+            VerticalAlignment="Top"
             FontWeight="SemiBold"
             Text="Languages" />
-        <ui:Button
+
+        <StackPanel
             Grid.Column="1"
-            Margin="2,0,8,0"
-            Padding="4"
-            HorizontalAlignment="Right"
-            Appearance="Transparent"
-            Click="HandleNewLanguage"
-            Icon="Add16" />
+            Margin="2,0,2,0"
+            Orientation="Horizontal">
+            <ui:Button
+                Margin="2,0"
+                Padding="4"
+                HorizontalAlignment="Right"
+                Appearance="Transparent"
+                Click="HandleExpandToggle"
+                Icon="ArrowSort16" />
+            <ui:Button
+                Margin="2,0"
+                Padding="4"
+                HorizontalAlignment="Right"
+                Appearance="Transparent"
+                Click="HandleNewLanguage"
+                Icon="Add16" />
+        </StackPanel>
 
         <ui:DynamicScrollViewer
             Grid.Row="1"
@@ -45,17 +60,17 @@
             HorizontalContentAlignment="Stretch"
             UseLayoutRounding="True">
             <ItemsControl
-                x:Name="summaryControl"
                 Width="auto"
                 Margin="4,4,4,4"
-                d:ItemsSource="{d:SampleData ItemCount=3}">
+                d:ItemsSource="{d:SampleData ItemCount=3}"
+                ItemsSource="{Binding SummaryInfo.Details}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <ui:CardExpander
                             Margin="4"
                             Padding="8"
                             Header="{Binding Language, Mode=OneWay, Converter={StaticResource LanguageConverter}}"
-                            IsExpanded="True">
+                            IsExpanded="{Binding IsExpanded}">
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*" />
@@ -63,17 +78,19 @@
                                 </Grid.ColumnDefinitions>
                                 <Grid Margin="8,0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="24" />
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="39" />
                                         <ColumnDefinition Width="12" />
                                     </Grid.ColumnDefinitions>
                                     <ProgressBar
-                                        Margin="0,4"
+                                        Margin="0,4,0,4"
+                                        d:Value="50"
                                         Maximum="100"
                                         Value="{Binding Percentage, FallbackValue=0, Mode=OneWay, TargetNullValue=0}" />
 
                                     <TextBlock
                                         Grid.Column="1"
+                                        d:Text="50"
                                         Text="{Binding Percentage, FallbackValue=0, Mode=OneWay, StringFormat=\{0:F0\}, TargetNullValue=0}"
                                         TextAlignment="Right" />
                                     <TextBlock

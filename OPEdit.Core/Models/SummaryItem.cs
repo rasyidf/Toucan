@@ -2,6 +2,7 @@
 
 public class SummaryItem
 {
+    public bool IsExpanded { get; set; }
     public string Language { get; set; }
     public double Percentage { get { return Math.Round(Math.Floor((Potential - Missing) / Potential * 100), 2); } }
     public double Missing { get; set; }

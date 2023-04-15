@@ -1,14 +1,23 @@
-﻿namespace OPEdit.Core.Services;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
 
-public class PagingController<T>
+namespace OPEdit.Core.Services;
+
+public partial class PagingController<T> : ObservableObject
 {
-    public IEnumerable<T> Data { get; private set; }
-    public IEnumerable<T> PageData { get; private set; }
+    [ObservableProperty]
+    private ObservableCollection<T> data;
+    public ObservableCollection<T> PageData { get; private set; }
 
-    public int Page { get; private set; }
-    public int PageSize { get; private set; }
-    public int Pages { get; private set; }
-    public bool IsPartial { get; private set; }
+    [ObservableProperty]
+    private int page;
+    [ObservableProperty]
+    private int pageSize;
+    [ObservableProperty]
+    private int pages;
+
+    [ObservableProperty]
+    private bool isPartial;
     public bool HasPages => Pages > 1;
     public bool HasNextPage => Pages > Page;
     public bool HasPreviousPage => Page > 1;
@@ -53,7 +62,7 @@ public class PagingController<T>
 
     private void UpdatePageData()
     {
-        PageData = Data.Skip((Page - 1) * PageSize).Take(PageSize).ToList();
+        PageData = new (Data.AsEnumerable().Skip((Page - 1) * PageSize).Take(PageSize).ToList());
     }
 
     public void NextPage()
@@ -79,7 +88,7 @@ public class PagingController<T>
         PageSize = pageSize;
         Page = 1;
         if (Data == null)
-            Data = new List<T>();
+            Data = new ();
         double pages = Data.Count() / (double)PageSize;
         if (pages > (int)pages)
             pages++;
@@ -91,7 +100,7 @@ public class PagingController<T>
     public void SwapData(IEnumerable<T> data, bool isPartial = false)
     {
         IsPartial = isPartial;
-        Data = data;
+        Data = new (data);
         UpdatePageSize(PageSize);
     }
 

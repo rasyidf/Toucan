@@ -42,6 +42,16 @@ public partial class MainWindow : FluentWindow
 
         InitializeComponent();
 
+        UpdateStartupOptions(startupPath);
+
+        //RegisterCommands();
+
+        ViewModel.PagingController.UpdatePageSize(ViewModel.AppOptions.PageSize);
+
+    }
+
+    private void UpdateStartupOptions(string startupPath)
+    {
         ViewModel.AppOptions = AppOptions.LoadFromDisk();
         ViewModel.CurrentPath = ViewModel.AppOptions.DefaultPath;
 
@@ -52,26 +62,10 @@ public partial class MainWindow : FluentWindow
             ViewModel.AppOptions.DefaultPath = ViewModel.CurrentPath;
             ViewModel.AppOptions.ToDisk();
         }
-
-
-
-        ViewModel.PagingController.UpdatePageSize(ViewModel.AppOptions.PageSize);
-
-
-        RegisterCommands();
-
     }
+
     private void RegisterCommands()
     {
-        RoutedCommand saveCommand = new();
-        saveCommand.InputGestures.Add(new KeyGesture(Key.S, ModifierKeys.Control));
-        CommandBindings.Add(new CommandBinding(saveCommand, Save));
-
-        RoutedCommand refreshCommand = new();
-        refreshCommand.InputGestures.Add(new KeyGesture(Key.R, ModifierKeys.Control));
-        CommandBindings.Add(new CommandBinding(refreshCommand, Refresh));
-
-
         RoutedCommand deleteCommand = new();
         deleteCommand.InputGestures.Add(new KeyGesture(Key.Delete, ModifierKeys.None));
         CommandBindings.Add(new CommandBinding(deleteCommand, DeleteItem));
@@ -87,10 +81,6 @@ public partial class MainWindow : FluentWindow
         RoutedCommand newLanguageCommand = new();
         newLanguageCommand.InputGestures.Add(new KeyGesture(Key.L, ModifierKeys.Control));
         CommandBindings.Add(new CommandBinding(newLanguageCommand, NewLanguage));
-
-        RoutedCommand openFolderCommand = new();
-        openFolderCommand.InputGestures.Add(new KeyGesture(Key.O, ModifierKeys.Control));
-        CommandBindings.Add(new CommandBinding(openFolderCommand, OpenFolder));
 
         RoutedCommand nextPageCommand = new();
         nextPageCommand.InputGestures.Add(new KeyGesture(Key.Right, ModifierKeys.Alt));
@@ -126,7 +116,7 @@ public partial class MainWindow : FluentWindow
 
     private void Window_Loaded(object sender, RoutedEventArgs e)
     {
-        OpenRecent(sender, e);
+        ViewModel.OpenRecent();
 
         SearchFilterTextbox.TextChanged += SearchFilterTextbox_TextChanged;
 
@@ -136,179 +126,12 @@ public partial class MainWindow : FluentWindow
 
     private void SearchFilterTextbox_TextChanged(object sender, TextChangedEventArgs e)
     {
-        Search(SearchFilterTextbox.Text);
+       
+        ViewModel.Search(SearchFilterTextbox.Text, false);
+        
     }
 
 
-    private void LoadFolder(string path)
-    {
-        ViewModel.AllTranslation = ProjectHelper.Load(path);
-        AddMissingTranslations();
-
-        RefreshTree();
-        UpdateSummaryInfo();
-    }
-
-    private void RefreshTree(string selectNamespace = "")
-    {
-
-        IEnumerable<NsTreeItem> nodes = ViewModel.AllTranslation.ForParse().ToNsTree();
-        ViewModel.CurrentTreeItems.Clear();
-        foreach (NsTreeItem node in nodes)
-        {
-            ViewModel.CurrentTreeItems.Add(node);
-        }
-
-        resourcesView.TreeNamespace.ItemsSource = null;
-        resourcesView.TreeNamespace.ItemsSource = ViewModel.CurrentTreeItems;
-
-
-    }
-
-    private void UpdateSummaryInfo()
-    {
-        ViewModel.SummaryInfo.Update(ViewModel.AllTranslation);
-        languagesView.summaryControl.ItemsSource = null;
-        languagesView.summaryControl.ItemsSource = ViewModel.SummaryInfo.Details;
-    }
-
-    private void Search(string ns, bool alwaysPaging = false)
-    {
-
-        bool isPartial = false;
-        List<TranslationItem> matchedTranslations = ViewModel.AllTranslation.ToList();
-        List<TranslationItem> translationItems;
-
-
-        int TranslationCount = 0;
-        if (string.IsNullOrWhiteSpace(ns))
-        {
-            translationItems = matchedTranslations.ToList();
-        }
-        else if (!ns.EndsWith(".", StringComparison.InvariantCultureIgnoreCase))
-        {
-            translationItems = matchedTranslations.Where(o => o.Namespace == ns).ToList();
-        }
-        else
-        {
-            List<TranslationItem> translations = matchedTranslations.Where(o => o.Namespace.StartsWith(ns, StringComparison.InvariantCulture)).ToList();
-
-            if (!alwaysPaging && (translations.Count / 3 > ViewModel.AppOptions.TruncateResultsOver))
-            {
-                isPartial = true;
-                translationItems = translations.Take(ViewModel.AppOptions.TruncateResultsOver).ToList();
-                TranslationCount = translations.Count;
-            }
-            else
-                translationItems = translations.ToList();
-        }
-
-        List<string> namespaces = translationItems.ToNamespaces().ToList();
-        List<string> languages = ViewModel.AllTranslation.ToLanguages().ToList();
-
-
-        List<LanguageGroup> languageGroups = new();
-        foreach (string n in namespaces)
-        {
-            LanguageGroup languageGroup = new(n, languages);
-            languageGroup.LoadTranslations(matchedTranslations.Where(o => o.Namespace == n).ToList());
-            languageGroups.Add(languageGroup);
-        }
-
-        ViewModel.PagingController.SwapData(languageGroups, isPartial);
-        translationDetailsView.languageGroupContainer.ItemsSource = ViewModel.PagingController.PageData;
-        translationDetailsView.pagingMessage.Text = ViewModel.PagingController.PageMessage;
-        translationDetailsView.partialPagingButton.Visibility = isPartial ? Visibility.Visible : Visibility.Hidden;
-        if (isPartial)
-            translationDetailsView.partialPagingButton.Content = "LoadAsync " + TranslationCount / 3;
-
-        translationDetailsView.ContentScroller.ScrollToTop();
-
-        translationDetailsView.pagingButtons.Visibility = ViewModel.PagingController.HasPages ? Visibility.Visible : Visibility.Hidden;
-    }
-
-    private void ShowAll(object sender, RoutedEventArgs e)
-    {
-        Search(SearchFilterTextbox.Text, true);
-    }
-    private void AddMissingTranslations()
-    {
-        List<string> namespaces = ViewModel.AllTranslation.ToNamespaces().ToList();
-        List<string> allLanguages = ViewModel.AllTranslation.ToLanguages().ToList();
-
-        foreach (string language in allLanguages)
-        {
-            IEnumerable<string> languageNamespaces = ViewModel.AllTranslation.OnlyLanguage(language).ToNamespaces();
-            ViewModel.AllTranslation.AddRange(namespaces.Except(languageNamespaces).Select(o => new TranslationItem() { Namespace = o, Value = string.Empty, Language = language }));
-        }
-
-    }
-
-    private void NewFolder(object sender, RoutedEventArgs e)
-    {
-        VistaFolderBrowserDialog dialog = new()
-        {
-            SelectedPath = ViewModel.CurrentPath
-        };
-        bool? selected = dialog.ShowDialog(this);
-        if (selected.GetValueOrDefault())
-        {
-            ViewModel.CurrentPath = dialog.SelectedPath;
-            ViewModel.AppOptions.DefaultPath = ViewModel.CurrentPath;
-            ProjectHelper.CreateLanguage(ViewModel.CurrentPath, "en-US");
-            LoadFolder(ViewModel.CurrentPath);
-        }
-    }
-
-    private void OpenFolder(object sender, RoutedEventArgs e)
-    {
-
-        VistaFolderBrowserDialog dialog = new()
-        {
-            SelectedPath = ViewModel.CurrentPath
-        };
-        bool? selected = dialog.ShowDialog(this);
-        if (selected.GetValueOrDefault())
-        {
-            ViewModel.CurrentPath = dialog.SelectedPath;
-            ViewModel.AppOptions.DefaultPath = ViewModel.CurrentPath;
-            LoadFolder(ViewModel.CurrentPath);
-        }
-    }
-
-    private void Save(object sender, RoutedEventArgs e)
-    {
-        switch (ViewModel.AppOptions.SaveStyle)
-        {
-            case SaveStyles.Json:
-                ProjectHelper.SaveJson(ViewModel.CurrentPath, ViewModel.AllTranslation.ToLanguageDictionary());
-                break;
-            case SaveStyles.Namespaced:
-                ProjectHelper.SaveNsJson(ViewModel.CurrentPath, ViewModel.CurrentTreeItems.ToList(), ViewModel.AllTranslation.ToLanguages().ToList());
-                break;
-        }
-
-    }
-    private void SaveTo(object sender, RoutedEventArgs e)
-    {
-        VistaFolderBrowserDialog dialog = new()
-        {
-            SelectedPath = ViewModel.CurrentPath
-        };
-        bool? selected = dialog.ShowDialog(this);
-        if (selected.GetValueOrDefault())
-        {
-            ViewModel.CurrentPath = dialog.SelectedPath;
-            Save(null, null);
-        }
-
-
-    }
-
-    private void Refresh(object sender, RoutedEventArgs e)
-    {
-        LoadFolder(ViewModel.CurrentPath);
-    }
     private void NewItem(object sender, RoutedEventArgs e)
     {
         NsTreeItem node = (NsTreeItem)resourcesView.TreeNamespace.SelectedItem;
@@ -333,8 +156,8 @@ public partial class MainWindow : FluentWindow
             string val = string.Empty;
             ViewModel.AllTranslation.Add(new TranslationItem() { Namespace = dialog.ResponseText, Value = val, Language = language });
         }
-        RefreshTree(dialog.ResponseText);
-        UpdateSummaryInfo();
+        ViewModel.RefreshTree(dialog.ResponseText);
+        ViewModel.UpdateSummaryInfo();
     }
     private void NewLanguage(object sender, RoutedEventArgs e)
     {
@@ -355,9 +178,9 @@ public partial class MainWindow : FluentWindow
         TranslationItem newSetting = new() { Namespace = "", Value = "", Language = dialog.ResponseText };
 
         ViewModel.AllTranslation.Add(newSetting);
-        AddMissingTranslations();
-        UpdateSummaryInfo();
-        RefreshTree();
+        ViewModel.AddMissingTranslations();
+        ViewModel.UpdateSummaryInfo();
+        ViewModel.RefreshTree();
         translationDetailsView.languageGroupContainer.ItemsSource = null;
     }
     private void RenameItem(object sender, RoutedEventArgs e)
@@ -377,19 +200,19 @@ public partial class MainWindow : FluentWindow
         if (string.IsNullOrWhiteSpace(dialog.ResponseText))
             return;
 
-        if (dialog.ResponseText.Contains('.'))
+        if (dialog.ResponseText.Contains('.', StringComparison.InvariantCulture))
             return;
 
 
-        string newNs = ns[..ns.LastIndexOf(node.Name)] + dialog.ResponseText.Trim();
+        string newNs = ns[..ns.LastIndexOf(node.Name, StringComparison.InvariantCulture)] + dialog.ResponseText.Trim();
 
         ViewModel.AllTranslation.ForParse().ToList().ForEach((item) =>
         {
-            if (item.Namespace.StartsWith(ns))
-                item.Namespace = item.Namespace.Replace(ns, newNs);
+            if (item.Namespace.StartsWith(ns, StringComparison.InvariantCulture))
+                item.Namespace = item.Namespace.Replace(ns, newNs, StringComparison.InvariantCulture);
         });
 
-        RefreshTree(newNs);
+        ViewModel.RefreshTree(newNs);
     }
     private void DeleteItem(object sender, RoutedEventArgs e)
     {
@@ -416,23 +239,8 @@ public partial class MainWindow : FluentWindow
 
         ViewModel.AllTranslation.RemoveAll(o => o?.Namespace?.StartsWith(ns) ?? false);
 
-        RefreshTree();
+        ViewModel.RefreshTree();
     }
-
-
-    private void ShowPreferences(object sender, RoutedEventArgs e)
-    {
-        OptionDialog optionsHwnd = new(ViewModel.AppOptions) { Owner = this };
-        bool? saved = optionsHwnd.ShowDialog();
-        if (saved.GetValueOrDefault())
-        {
-            ViewModel.AppOptions = optionsHwnd.Config;
-        }
-        ViewModel.PagingController.UpdatePageSize(ViewModel.AppOptions.PageSize);
-
-    }
-
-
 
     private void NextPage(object sender, RoutedEventArgs e)
     {
@@ -502,75 +310,14 @@ public partial class MainWindow : FluentWindow
         //   }
     }
 
-    async Task<String> Translate(string text, string from, string to)
-    {
-        var a = await PostAsync(sharedClient);
-        MessageBox.Show(a);
-        return "";
-    }
-    void PreTranslate(object sender, RoutedEventArgs e)
-    {
-        if (ViewModel.SummaryInfo != null)
-        {
-            var Details = ViewModel.SummaryInfo.Details;
-            var AllSet = ViewModel.AllTranslation;
-            // Scan the completed data
-            var Aset = AllSet.FindAll(x => x.Language == Details[0].Language);
-            var Bset = AllSet.FindAll(x => x.Language == Details[1].Language);
-            var isAfull = Details[0].Missing == 0;
-            var isBfull = Details[1].Missing == 0;
-
-            // Get Only 
-            if (!isAfull)
-            {
-                var AAset = Aset.FindAll(x => string.IsNullOrEmpty(x.Value));
-                // find corresponding Bset by AASet
-                var ABset = AAset.Select(x => Bset.Find(v => v.Namespace == x.Namespace));
-
-                IEnumerable<string> ACSet = ABset.Select(x => x?.Value);
-
-                TranslationClient client = TranslationClient.Create();
-                var ADSet = client.TranslateText(ACSet, Details[0].Language, Details[1].Language);
-
-                MessageBox.Show("Hehe", "Hehe");
-            }
-
-            if (!isBfull)
-            {
-                var BAset = Bset.FindAll(x => string.IsNullOrEmpty(x.Value));
-                // find corresponding Bset by AASet
-                var BBset = BAset.Select(x => Bset.Find(v => v.Namespace == x.Namespace));
-
-                var BCSet = BBset.Select(x => x?.Value);
-
-                TranslationClient client = TranslationClient.Create();
-                var BDSet = client.TranslateText(BCSet, Details[0].Language, Details[1].Language);
-
-                MessageBox.Show("Hehe", "Hehe");
-
-            }
-        }
-
-    }
-
     private void UpdateLanguageValue(object sender, RoutedEventArgs e)
     {
-        UpdateSummaryInfo();
+        ViewModel.UpdateSummaryInfo();
+        ViewModel.IsDirty = true;
     }
 
-    private void CloseProject(object sender, RoutedEventArgs e)
+    private void ShowAll(object sender, RoutedEventArgs e)
     {
-        ViewModel.AllTranslation = new List<TranslationItem>();
-        ViewModel.CurrentPath = "";
-
-        RefreshTree();
-        UpdateSummaryInfo();
-    }
-
-    private void OpenRecent(object sender, RoutedEventArgs e)
-    {
-
-        LoadFolder(ViewModel.AppOptions.DefaultPath);
-
+        ViewModel.ShowAll(SearchFilterTextbox.Text);
     }
 }
