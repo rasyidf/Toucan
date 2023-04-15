@@ -5,7 +5,7 @@
 
 A JSON Language Resource or i18n Editor for Windows, the name is based on parody of PO Editor. It helps make translation easier.
 
-![image](https://user-images.githubusercontent.com/28984914/216422347-3274a074-1ab7-48c6-8014-c3305597aba9.png)
+![image](https://user-images.githubusercontent.com/28984914/232173538-302fa946-5bb5-47a0-aafa-fa0d335639c5.png)
 
 ## Features
 
@@ -33,3 +33,9 @@ Feel free to contribute to the development of OP Editor. Report bugs, suggest fe
 ## License
 
 OP Editor is released under the [MIT License](https://opensource.org/licenses/MIT).
+
+## Additional Screenshoots
+
+![image](https://user-images.githubusercontent.com/28984914/232173511-a9bc8b54-cf52-4c40-a371-9fdbd9ecb1af.png)
+![image](https://user-images.githubusercontent.com/28984914/232173526-f044ddc9-cdd2-44f4-ae32-bd07973850a3.png)
+![image](https://user-images.githubusercontent.com/28984914/232173616-9c6b637d-6fbe-427a-82e5-eb9dedc7ee2d.png)
