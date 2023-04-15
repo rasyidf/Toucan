@@ -1,9 +1,9 @@
 <div style="display:flex;margin:2px;place-items:center;">
 <img width="32" height="32" src="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png" style="margin-top: 2px"/>
-<span style="font-size:24px;line-height: 8px;font-weight:600; margin-left:6px;">OP Editor</span>
+<span style="font-size:24px;line-height: 8px;font-weight:600; margin-left:6px;">Toucan</span>
 </div>
 
-A JSON Language Resource or i18n Editor for Windows, the name is based on parody of PO Editor. It helps make translation easier.
+A JSON Language Resource or i18n Editor for Windows, It helps make translation easier.
 
 ![image](https://user-images.githubusercontent.com/28984914/232173538-302fa946-5bb5-47a0-aafa-fa0d335639c5.png)
 
@@ -28,7 +28,7 @@ A JSON Language Resource or i18n Editor for Windows, the name is based on parody
 
 ## Contribute
 
-Feel free to contribute to the development of OP Editor. Report bugs, suggest features or send pull requests on our [GitHub repository](https://github.com/rasyidf/OPEditor).
+Feel free to contribute to the development of Toucan. Report bugs, suggest features or send pull requests on our [GitHub repository](https://github.com/rasyidf/OPEditor).
 
 ## License
 
