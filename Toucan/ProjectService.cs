@@ -22,6 +22,11 @@ public static class ProjectHelper
 
     public static List<TranslationItem> Load(string folder)
     {
+        if (string.IsNullOrEmpty(folder))
+        {
+            return new();
+        }
+
         string[] files = Directory.GetFiles(folder, "*.json");
         List<TranslationItem> settings = new();
 
@@ -52,9 +57,9 @@ public static class ProjectHelper
                 ProcessLanguage(language, TranslationItems, jproperty);
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            throw ex;
+            Console.WriteLine("Error");
         }
         translationItem.AddRange(TranslationItems);
     }

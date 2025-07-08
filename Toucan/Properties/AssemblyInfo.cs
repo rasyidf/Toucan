@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("OPEditor")]
-[assembly: AssemblyDescription("i18n Editor")]
+[assembly: AssemblyTitle("Toucan")]
+[assembly: AssemblyDescription("Toucan - i18n Editor")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("rasyid.dev")]
-[assembly: AssemblyProduct("OPEditor")]
+[assembly: AssemblyProduct("Toucan")]
 [assembly: AssemblyCopyright("Copyright © Rasyidf 2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

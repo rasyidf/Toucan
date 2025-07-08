@@ -28,7 +28,7 @@ A JSON Language Resource or i18n Editor for Windows, It helps make translation e
 
 ## Contribute
 
-Feel free to contribute to the development of Toucan. Report bugs, suggest features or send pull requests on our [GitHub repository](https://github.com/rasyidf/OPEditor).
+Feel free to contribute to the development of Toucan. Report bugs, suggest features or send pull requests on our [GitHub repository](https://github.com/rasyidf/Toucan).
 
 ## License
 

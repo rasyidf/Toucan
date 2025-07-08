@@ -17,7 +17,7 @@ public class AppOptions
     public int TruncateResultsOver { get; set; }
     public int LoadingDepth { get; set; }
 
-    static readonly string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDoc‌​uments), "OPEditor");
+    static readonly string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan");
 
 
     public static AppOptions LoadFromDisk()
