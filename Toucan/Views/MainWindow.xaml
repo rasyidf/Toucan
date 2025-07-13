@@ -17,7 +17,7 @@
     ui:Design.Foreground="#0a0a0a"
     ExtendsContentIntoTitleBar="True"
     Loaded="Window_Loaded"
-    WindowBackdropType="Tabbed"
+    WindowBackdropType="Auto"
     WindowCornerPreference="Round"
     WindowStartupLocation="CenterScreen" 
     mc:Ignorable="d">
@@ -77,166 +77,9 @@
             Height="51"
             VerticalAlignment="Center"
             Icon="/Views/WindowIcon.ico" />
-
-        <Menu
-            Grid.Row="0"
-            Grid.ColumnSpan="3"
-            Width="350"
-            Margin="51,0,0,0"
-            HorizontalAlignment="Left"
-            Background="{x:Null}">
-            <ui:MenuItem AutomationProperties.AccessKey="F" Header="_File">
-                <ui:MenuItem
-                    Width="250"
-                    Command="{Binding NewFolderCommand}"
-                    Header="_New project"
-                    InputGestureText="Ctrl+Shift+N"
-                    SymbolIcon="Document20" />
-                <ui:MenuItem
-                    Command="{Binding OpenFolderCommand}"
-                    Header="_Open project"
-                    InputGestureText="Ctrl+O"
-                    SymbolIcon="Folder20" />
-                <ui:MenuItem
-                    Command="{Binding OpenRecentCommand}"
-                    Header="_Open recent"
-                    InputGestureText="Ctrl+R"
-                    IsEnabled="true" />
-                <Separator />
-                <ui:MenuItem
-                    Command="{Binding SaveCommand}"
-                    Header="_Save project"
-                    InputGestureText="Ctrl+S"
-                    SymbolIcon="Save20" />
-                <ui:MenuItem
-                    Command="{Binding SaveToCommand}"
-                    Header="Save _As"
-                    InputGestureText="F12"
-                    SymbolIcon="SaveArrowRight20" />
-                <ui:MenuItem
-                    Command="{Binding CloseProjectCommand}"
-                    Header="Close"
-                    InputGestureText="Ctrl+F4" />
-                <Separator />
-                <ui:MenuItem
-                    Header="Import..."
-                    IsEnabled="False"
-                    SymbolIcon="ArrowExportLtr20" />
-                <ui:MenuItem
-                    Header="Export..."
-                    IsEnabled="False"
-                    SymbolIcon="ArrowImport20" />
-                <Separator />
-                <ui:MenuItem
-                    Command="{Binding ShowPreferencesCommand}"
-                    Header="Preferences"
-                    SymbolIcon="Settings20" />
-                <Separator />
-                <ui:MenuItem
-                    Command="{Binding ExitCommand}"
-                    Header="_Exit"
-                    InputGestureText="Alt+F4" />
-            </ui:MenuItem>
-            <ui:MenuItem Name="itemMenu" Header="_Edit">
-                <ui:MenuItem
-                    MinWidth="190"
-                    Header="Add Language"
-                    InputGestureText="Ctrl+L" />
-                <Separator />
-                <ui:MenuItem
-                    Click="NewItem"
-                    Header="Add _ID"
-                    InputGestureText="Ctrl+I" />
-                <ui:MenuItem
-                    Click="RenameItem"
-                    Header="_Rename"
-                    InputGestureText="F2" />
-                <ui:MenuItem
-                    Click="DeleteItem"
-                    Header="_Remove IDs"
-                    InputGestureText="Del"
-                    IsEnabled="False" />
-                <Separator />
-                <ui:MenuItem Header="_Pre-Translate..." IsEnabled="False" />
-                <ui:MenuItem Header="_Fill empty translations..." IsEnabled="False" />
-                <ui:MenuItem Header="_Delete unused translations..." IsEnabled="False" />
-
-                <Separator />
-                <ui:MenuItem Header="Convert case">
-                    <ui:MenuItem Header="_lowercase" IsEnabled="False" />
-                    <ui:MenuItem Header="_UPPERCASE" IsEnabled="False" />
-                    <ui:MenuItem Header="_Sentence case" IsEnabled="False" />
-                    <ui:MenuItem Header="_Title Case" IsEnabled="False" />
-                </ui:MenuItem>
-                <ui:MenuItem Header="Remove whitespaces">
-                    <ui:MenuItem Header="_Trim" IsEnabled="False" />
-                    <ui:MenuItem Header="Trim _line by line" IsEnabled="False" />
-                    <Separator />
-                    <ui:MenuItem Header="_Simplify" IsEnabled="False" />
-
-                </ui:MenuItem>
-                <Separator />
-                <ui:MenuItem
-                    Header="Cut"
-                    IsEnabled="False"
-                    SymbolIcon="Cut20" />
-                <ui:MenuItem
-                    Header="Copy"
-                    IsEnabled="False"
-                    SymbolIcon="Copy20" />
-                <ui:MenuItem
-                    Header="Paste"
-                    IsEnabled="False"
-                    SymbolIcon="ClipboardPaste20" />
-            </ui:MenuItem>
-            <ui:MenuItem Header="Find">
-                <ui:MenuItem
-                    Header="Find"
-                    IsEnabled="False"
-                    SymbolIcon="Search20" />
-                <ui:MenuItem
-                    Header="Find Next"
-                    IsEnabled="False"
-                    SymbolIcon="SlideSearch20" />
-                <ui:MenuItem
-                    Header="Set Filter"
-                    IsEnabled="False"
-                    SymbolIcon="Filter20" />
-                <ui:MenuItem
-                    Header="Filter By ID"
-                    IsEnabled="False"
-                    SymbolIcon="FilterSync20" />
-                <ui:MenuItem
-                    Header="Show untranslated"
-                    IsEnabled="False"
-                    SymbolIcon="PhotoFilter20" />
-                <ui:MenuItem
-                    Header="Clear"
-                    IsEnabled="False"
-                    SymbolIcon="FilterDismiss20" />
-            </ui:MenuItem>
-            <ui:MenuItem Header="Views">
-                <ui:MenuItem Header="Tree View" SymbolIcon="TextBulletListTree20" />
-                <ui:MenuItem Header="List View" SymbolIcon="List20" />
-                <Separator />
-                <ui:MenuItem Header="Show machine translations" />
-                <ui:MenuItem Header="Show thesaurus" />
-                <Separator />
-                <ui:MenuItem Header="Statistics" />
-            </ui:MenuItem>
-
-            <ui:MenuItem Header="Help">
-                <ui:MenuItem
-                    Width="150"
-                    Command="{Binding HelpHomepageCommand}"
-                    Header="Homepage" />
-                <ui:MenuItem
-                    Width="150"
-                    Command="{Binding HelpAboutCommand}"
-                    Header="About" />
-            </ui:MenuItem>
-        </Menu>
-
+        <views:MainMenu  Grid.Row="0"
+             Grid.ColumnSpan="3"
+             Margin="47,0,464,0"/>
         <Grid
             Grid.Row="1"
             Grid.Column="0"
@@ -256,8 +99,7 @@
                 HorizontalAlignment="Stretch"
                 Background="#0CFFFFFF" />
             <views:ResourcesView
-                x:Name="resourcesView" 
-                NewItem="NewItem"
+                x:Name="resourcesView"  
                 SelectionChanged="TreeNamespace_SelectedItemChanged" />
 
             <views:LanguagesView
@@ -288,6 +130,7 @@
             PlaceholderText="  Toucan"
             TextChanged="SearchFilterTextbox_TextChanged" />
 
+
         <views:TranslationDetailsView
             x:Name="translationDetailsView"
             Grid.Row="1"
@@ -300,31 +143,58 @@
             PreviousPageClick="PreviousPage"
             ShowAllClick="ShowAll"
             UpdateLanguageValue="UpdateLanguageValue" />
-        <Grid
-            x:Name="StatusBar"
-            Grid.Row="2"
+
+
+        <!--<views:StartScreen 
+            Grid.Row="1"
+            Grid.RowSpan="1"
+            Grid.Column="0" Grid.ColumnSpan="3" Visibility="{Binding ShowStartScreen, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" />-->
+
+
+        <StatusBar
+            x:Name="RootStatusBar"
+            Grid.Row="3"
             Grid.ColumnSpan="3"
-            Background="#0CFFFFFF">
-            <TextBlock
-                Width="80"
-                Height="23"
-                Margin="10,5,0,0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                Text="{Binding StatusText}"
-                TextWrapping="Wrap" />
-            <ui:Button
-                Margin="790,0,0,0"
-                Icon="Wand16" />
-            <ui:Button
-                Margin="747,0,0,0"
-                Icon="ChatEmpty16" />
-            <ResizeGrip Margin="0,0,-1,-1" Height="10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="12">
-                <ResizeGrip.Background>
-                    <SolidColorBrush Opacity="0.28" />
-                </ResizeGrip.Background>
-            </ResizeGrip>
-        </Grid>
+            MinHeight="0"
+            Margin="0"
+            Padding="8,2"
+            
+            >
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem>
+                <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="BranchFork24" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="1" Margin="0,0,4,0">
+                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Development *" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="2" Margin="4,0,4,0">
+                <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="Home24" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="3" Margin="4,0,4,0">
+                <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="Fire24" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="4" Margin="4,0,4,0">
+                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Toucan Project" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="6">
+                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Ln 45, Col 30" />
+            </StatusBarItem>  
+        </StatusBar> 
 
     </Grid>
 </ui:FluentWindow>

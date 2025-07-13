@@ -1,0 +1,11 @@
+﻿<UserControl
+    x:Class="Toucan.Views.StartScreenCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Border Margin="8" Padding="12" Background="#F6F6FA" CornerRadius="8">
+        <StackPanel>
+            <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}" FontWeight="Bold" />
+            <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}}" TextWrapping="Wrap" Foreground="Gray" />
+        </StackPanel>
+    </Border>
+</UserControl>

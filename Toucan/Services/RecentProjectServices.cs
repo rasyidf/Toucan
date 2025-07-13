@@ -3,49 +3,89 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using Toucan.Core.Contracts;
+using Toucan.Core.Models;
 
 namespace Toucan.Services;
 
-internal interface IRecentFileService
+internal class RecentProjectService : IRecentProjectService
 {
-    List<string> GetRecentPaths();
-    void AddRecentPath(string path);
-    void Save();
-}
-
-internal class RecentFileService : IRecentFileService
-{
+    private const int MaxItems = 10;
     private readonly string storageFile = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "Toucan", "recent.json");
+        "Toucan", "recent_projects.json");
 
-    private readonly int maxItems = 10;
-    private List<string> recentPaths = new();
+    private List<Project> recentProjects = [];
 
-    public RecentFileService()
+    public RecentProjectService()
     {
-        if (File.Exists(storageFile))
-        {
-            string json = File.ReadAllText(storageFile);
-            recentPaths = JsonConvert.DeserializeObject<List<string>>(json) ?? new();
-        }
+        Load();
     }
 
-    public List<string> GetRecentPaths() => recentPaths.ToList();
-
-    public void AddRecentPath(string path)
+    public List<Project> LoadRecent()
     {
-        recentPaths.Remove(path);
-        recentPaths.Insert(0, path);
-        if (recentPaths.Count > maxItems)
-            recentPaths = recentPaths.Take(maxItems).ToList();
+        // Clean invalid ones on load
+        recentProjects = recentProjects
+            .Where(p => p.IsValid())
+            .OrderByDescending(p => p.LastOpened)
+            .Take(MaxItems)
+            .ToList();
+
+        Save();
+        return recentProjects;
+    }
+
+    public void Add(string projectPath)
+    {
+        var existing = recentProjects.FirstOrDefault(p => p.Path == projectPath);
+        if (existing != null)
+        {
+            existing.LastOpened = DateTime.Now;
+        }
+        else
+        {
+            var newProj = new Project
+            {
+                Path = projectPath,
+                LastOpened = DateTime.Now
+            };
+            recentProjects.Insert(0, newProj);
+        }
+
+        recentProjects = recentProjects
+            .DistinctBy(p => p.Path)
+            .OrderByDescending(p => p.LastOpened)
+            .Take(MaxItems)
+            .ToList();
+
+        Save();
+    }
+
+    public void Remove(string projectPath)
+    {
+        recentProjects.RemoveAll(p => p.Path == projectPath);
         Save();
     }
 
     public void Save()
     {
         Directory.CreateDirectory(Path.GetDirectoryName(storageFile)!);
-        File.WriteAllText(storageFile, JsonConvert.SerializeObject(recentPaths));
+        File.WriteAllText(storageFile, JsonConvert.SerializeObject(recentProjects, Formatting.Indented));
+    }
+
+    private void Load()
+    {
+        if (File.Exists(storageFile))
+        {
+            try
+            {
+                string json = File.ReadAllText(storageFile);
+                recentProjects = JsonConvert.DeserializeObject<List<Project>>(json) ?? [];
+            }
+            catch
+            {
+                recentProjects = [];
+            }
+        }
     }
 }

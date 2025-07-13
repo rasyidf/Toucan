@@ -57,52 +57,63 @@
 
             </ui:DynamicScrollViewer>
 
-            <Grid
-                Grid.Row="1"
-                Height="42"
-                VerticalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-
-                    <ColumnDefinition Width="195" />
-                    <ColumnDefinition Width="105" />
-                </Grid.ColumnDefinitions>
-
-                <TextBlock
-                    x:Name="pagingMessage"
-                    Grid.Column="0"
-                    Margin="10,0,5,0"
-                    VerticalAlignment="Center"
-                    d:Text="Showing some from" />
-                <UniformGrid
-                    x:Name="pagingButtons"
-                    Grid.Column="1"
-                    Rows="1"
-                    Visibility="{Binding ViewModel.PagingController.HasPages, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StatusBar
+            x:Name="RootStatusBar"
+            Grid.Row="3"
+            MinHeight="0"
+            Margin="0"
+            Padding="4,2">
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
+                <StatusBarItem>
+                    <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="BranchFork24" />
+                </StatusBarItem>
+                <StatusBarItem Grid.Column="1" Margin="0,0,4,0">
+                    <TextBlock  x:Name="pagingMessage" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Showing some from" />
+                </StatusBarItem>   
+                <StatusBarItem Grid.Column="3">
                     <ui:Button Click="FirstPage">
                         <ui:SymbolIcon Symbol="ArrowPrevious24" />
                     </ui:Button>
+                </StatusBarItem>
+                <StatusBarItem Grid.Column="4">
                     <ui:Button Click="PreviousPage">
                         <ui:SymbolIcon Symbol="IosArrowLtr24" />
-                    </ui:Button>
-                    <ui:Button Click="NextPage">
+                </ui:Button>
+                </StatusBarItem>
+                <StatusBarItem Grid.Column="5">
+                <ui:Button Click="NextPage">
                         <ui:SymbolIcon Symbol="IosArrowRtl24" />
-                    </ui:Button>
-                    <ui:Button Click="LastPage">
+                </ui:Button>
+                </StatusBarItem>
+                <StatusBarItem Grid.Column="6">
+                <ui:Button Click="LastPage">
                         <ui:SymbolIcon Symbol="ArrowNext24" />
                     </ui:Button>
-                </UniformGrid>
-                <ui:Button
+                </StatusBarItem>
+                <StatusBarItem Grid.Column="7">
+                    <ui:Button
                     x:Name="partialPagingButton"
-                    Grid.Column="2"
-                    Width="50"
-                    Height="29"
-                    Margin="2,0,0,0"
+                    Grid.Column="2"   
                     Click="ShowAll"
-                    Content="Load"
-                    FontSize="12"
-                    Visibility="Hidden" />
-            </Grid>
+                    Content="Show All"
+                    FontSize="12"  />
+                </StatusBarItem>
+            </StatusBar> 
 
         </Grid>
     </Border>

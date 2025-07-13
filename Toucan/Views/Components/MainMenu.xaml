@@ -1,0 +1,165 @@
+﻿<UserControl x:Class="Toucan.Views.MainMenu"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Toucan.Views" xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d" 
+             d:DesignHeight="39.817" d:DesignWidth="705.829">
+
+    <Menu 
+            HorizontalAlignment="Left"
+            Background="{x:Null}">
+        <ui:MenuItem AutomationProperties.AccessKey="F" Header="_File">
+            <ui:MenuItem
+                    Width="250"
+                    Command="{Binding NewFolderCommand}"
+                    Header="_New project"
+                    InputGestureText="Ctrl+Shift+N"
+                    SymbolIcon="Document20" />
+            <ui:MenuItem
+                    Command="{Binding OpenFolderCommand}"
+                    Header="_Open project"
+                    InputGestureText="Ctrl+O"
+                    SymbolIcon="Folder20" />
+            <ui:MenuItem
+                    Command="{Binding OpenRecentCommand}"
+                    Header="_Open recent"
+                    InputGestureText="Ctrl+R"
+                    IsEnabled="true" />
+            <Separator />
+            <ui:MenuItem
+                    Command="{Binding SaveCommand}"
+                    Header="_Save project"
+                    InputGestureText="Ctrl+S"
+                    SymbolIcon="Save20" />
+            <ui:MenuItem
+                    Command="{Binding SaveToCommand}"
+                    Header="Save _As"
+                    InputGestureText="F12"
+                    SymbolIcon="SaveArrowRight20" />
+            <ui:MenuItem
+                    Command="{Binding CloseProjectCommand}"
+                    Header="Close"
+                    InputGestureText="Ctrl+F4" />
+            <Separator />
+            <ui:MenuItem
+                    Header="Import..."
+                    IsEnabled="False"
+                    SymbolIcon="ArrowExportLtr20" />
+            <ui:MenuItem
+                    Header="Export..."
+                    IsEnabled="False"
+                    SymbolIcon="ArrowImport20" />
+            <Separator />
+            <ui:MenuItem
+                    Command="{Binding ShowPreferencesCommand}"
+                    Header="Preferences"
+                    SymbolIcon="Settings20" />
+            <Separator />
+            <ui:MenuItem
+                    Command="{Binding ExitCommand}"
+                    Header="_Exit"
+                    InputGestureText="Alt+F4" />
+        </ui:MenuItem>
+        <ui:MenuItem Name="itemMenu" Header="_Edit">
+            <ui:MenuItem
+                    MinWidth="190"
+                    Header="Add Language"
+                    InputGestureText="Ctrl+L" />
+            <Separator />
+            <ui:MenuItem
+                    Command="{Binding AddItemCommand}"
+                    Header="Add _ID"
+                    InputGestureText="Ctrl+I" />
+            <ui:MenuItem
+                    Command="{Binding RenameItemCommand}"
+                    Header="_Rename"
+                    InputGestureText="F2" />
+            <ui:MenuItem
+                    Command="{Binding RemoveItemCommand}"
+                    Header="_Remove IDs"
+                    InputGestureText="Del"
+                    IsEnabled="False" />
+            <Separator />
+            <ui:MenuItem Header="_Pre-Translate..." IsEnabled="False" />
+            <ui:MenuItem Header="_Fill empty translations..." IsEnabled="False" />
+            <ui:MenuItem Header="_Delete unused translations..." IsEnabled="False" />
+
+            <Separator />
+            <ui:MenuItem Header="Convert case">
+                <ui:MenuItem Header="_lowercase" IsEnabled="False" />
+                <ui:MenuItem Header="_UPPERCASE" IsEnabled="False" />
+                <ui:MenuItem Header="_Sentence case" IsEnabled="False" />
+                <ui:MenuItem Header="_Title Case" IsEnabled="False" />
+            </ui:MenuItem>
+            <ui:MenuItem Header="Remove whitespaces">
+                <ui:MenuItem Header="_Trim" IsEnabled="False" />
+                <ui:MenuItem Header="Trim _line by line" IsEnabled="False" />
+                <Separator />
+                <ui:MenuItem Header="_Simplify" IsEnabled="False" />
+
+            </ui:MenuItem>
+            <Separator />
+            <ui:MenuItem
+                    Header="Cut"
+                    IsEnabled="False"
+                    SymbolIcon="Cut20" />
+            <ui:MenuItem
+                    Header="Copy"
+                    IsEnabled="False"
+                    SymbolIcon="Copy20" />
+            <ui:MenuItem
+                    Header="Paste"
+                    IsEnabled="False"
+                    SymbolIcon="ClipboardPaste20" />
+        </ui:MenuItem>
+        <ui:MenuItem Header="Find">
+            <ui:MenuItem
+                    Header="Find"
+                    IsEnabled="False"
+                    SymbolIcon="Search20" />
+            <ui:MenuItem
+                    Header="Find Next"
+                    IsEnabled="False"
+                    SymbolIcon="SlideSearch20" />
+            <ui:MenuItem
+                    Header="Set Filter"
+                    IsEnabled="False"
+                    SymbolIcon="Filter20" />
+            <ui:MenuItem
+                    Header="Filter By ID"
+                    IsEnabled="False"
+                    SymbolIcon="FilterSync20" />
+            <ui:MenuItem
+                    Header="Show untranslated"
+                    IsEnabled="False"
+                    SymbolIcon="PhotoFilter20" />
+            <ui:MenuItem
+                    Header="Clear"
+                    IsEnabled="False"
+                    SymbolIcon="FilterDismiss20" />
+        </ui:MenuItem>
+        <ui:MenuItem Header="Views">
+            <ui:MenuItem Header="Tree View" SymbolIcon="TextBulletListTree20" />
+            <ui:MenuItem Header="List View" SymbolIcon="List20" />
+            <Separator />
+            <ui:MenuItem Header="Show machine translations" />
+            <ui:MenuItem Header="Show thesaurus" />
+            <Separator />
+            <ui:MenuItem Header="Statistics" />
+        </ui:MenuItem>
+
+        <ui:MenuItem Header="Help">
+            <ui:MenuItem
+                    Width="150"
+                    Command="{Binding HelpHomepageCommand}"
+                    Header="Homepage" />
+            <ui:MenuItem
+                    Width="150"
+                    Command="{Binding HelpAboutCommand}"
+                    Header="About" />
+        </ui:MenuItem>
+    </Menu>
+
+</UserControl>

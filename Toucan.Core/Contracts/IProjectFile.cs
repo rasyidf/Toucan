@@ -8,6 +8,4 @@ public interface IProjectFile
 {
     Task<IEnumerable<TranslationItem>> LoadAsync(string folder);
     void CreateLanguage(string folder, string language);
-}
-
-
+} 

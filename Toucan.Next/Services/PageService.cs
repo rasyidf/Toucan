@@ -19,6 +19,9 @@ public class PageService : IPageService
         Configure<HomeViewModel, HomePage>();
         Configure<ProjectViewModel, ProjectPage>();
         Configure<SettingsViewModel, SettingsPage>();
+        Configure<TranslationEditorViewModel, TranslationEditorPage>();
+        Configure<NamespaceViewModel, NamespacePage>();
+        Configure<SearchViewModel, SearchPage>();
     }
 
     public Type GetPageType(string key)

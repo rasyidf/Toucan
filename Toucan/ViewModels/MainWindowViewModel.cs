@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using Toucan.Core;
+using Toucan.Core.Contracts;
 using Toucan.Core.Extensions;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
@@ -56,18 +57,21 @@ internal partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool isTreeView = true;
 
+    [ObservableProperty]
+    private bool showStartScreen = true;
+
 
     public IEnumerable<LanguageGroup> PageData { get; private set; }
     public string PageMessage { get; private set; }
 
-    private readonly IRecentFileService _recentFileService;
+    private readonly IRecentProjectService _recentFileService;
     private readonly IDialogService _dialogService;
     private readonly IMessageService _messageService;
     private readonly IPreferenceService _preferenceService;
 
 
     public MainWindowViewModel(
-     IRecentFileService recentFileService,
+     IRecentProjectService recentFileService,
      IDialogService dialogService,
      IMessageService messageService,
      IPreferenceService preferenceService)
@@ -206,6 +210,52 @@ internal partial class MainWindowViewModel : ObservableObject
         }
     }
 
+
+
+    [RelayCommand]
+    private void NewItem()
+    {
+        string ns = SelectedNode?.Namespace ?? "";
+
+        var dialog = new PromptDialog("New Translation", "Please enter an ID for the translation\nUse '.' to create hierarchical IDs.", ns)
+        {
+            Owner = Application.Current.MainWindow
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            CreateNewItem(dialog.ResponseText);
+        }
+    }
+
+
+
+    [RelayCommand]
+    private void RenameItem()
+    {
+        var node = SelectedNode;
+        if (node == null) return;
+
+        var dialog = new PromptDialog("Rename: " + node.Name, "Enter the new name below.", node.Name)
+        {
+            Owner = Application.Current.MainWindow
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            RenameItem(node, dialog.ResponseText);
+        }
+    }
+
+    [RelayCommand]
+    private void DeleteItem()
+    {
+        var node = SelectedNode;
+        if (node != null)
+        {
+            DeleteItem(node);
+        }
+    }
     internal void Search(string ns, bool alwaysPaging = false)
     {
 
@@ -303,7 +353,7 @@ internal partial class MainWindowViewModel : ObservableObject
         {
             CurrentPath = selected;
             AppOptions.DefaultPath = selected;
-            _recentFileService.AddRecentPath(selected);
+            _recentFileService.Add(selected);
             LoadFolder(CurrentPath);
         }
         else
@@ -375,14 +425,14 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     internal void OpenRecent()
     {
-        var recents = _recentFileService.GetRecentPaths();
+        var recents = _recentFileService.LoadRecent();
         if (recents.Count == 0)
         {
             _messageService.ShowMessage("No recent projects found.");
             return;
         }
 
-        string path = recents.First(); // For now, just use first. Replace with proper recent list picker later
+        string path = recents?.First().Path; // For now, just use first. Replace with proper recent list picker later
         if (!Directory.Exists(path))
         {
             _messageService.ShowMessage($"Path not found: {path}");
@@ -392,6 +442,8 @@ internal partial class MainWindowViewModel : ObservableObject
         CurrentPath = path;
         LoadFolder(CurrentPath);
     }
+
+
 
     [RelayCommand]
     private void ShowPreferences()

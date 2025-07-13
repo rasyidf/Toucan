@@ -58,7 +58,7 @@
                 Margin="4,0"  
                 Padding="4"  
                 Appearance="Transparent"  
-                Click="HandleNewItem"  
+                Command="{Binding NewItemCommand}"
                 Icon="Add16"  
                 IsDefault="True"  
                 ToolTip="New Item" />  

@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+    <data name="ShellMenuItemViewsSearchPageHeader" xml:space="preserve">
+		    <value>Search</value>
+    </data>
+    <data name="SearchPageTitle" xml:space="preserve">
+		    <value>Search</value>
+    </data>
+    <data name="ShellMenuItemViewsNamespacePageHeader" xml:space="preserve">
+		    <value>Namespace</value>
+    </data>
+    <data name="NamespacePageTitle" xml:space="preserve">
+		    <value>Namespace</value>
+    </data>
+    <data name="ShellMenuItemViewsTranslationEditorPageHeader" xml:space="preserve">
+		    <value>TranslationEditor</value>
+    </data>
+    <data name="TranslationEditorPageTitle" xml:space="preserve">
+		    <value>TranslationEditor</value>
+    </data>
+
   <!-- 
     Microsoft ResX Schema 
     

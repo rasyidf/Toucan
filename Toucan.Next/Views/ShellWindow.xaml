@@ -22,72 +22,112 @@
             <i:InvokeCommandAction Command="{Binding UnloadedCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <Grid>
+    <Grid Focusable="False">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <ui:TitleBar
-            Title="{x:Static properties:Resources.AppDisplayName}"
-            Grid.Row="0"
-            Grid.Column="0"
-            Grid.ColumnSpan="3"> 
+            Title="{x:Static properties:Resources.AppDisplayName}" 
+            x:Name="TitleBar" 
+            Margin="0"
+            CloseWindowByDoubleClickOnIcon="True">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="/Views/logo.png" />
+            </ui:TitleBar.Icon>
+            <ui:TitleBar.Header>
 
-        </ui:TitleBar>
-
-        <Grid Grid.Row="1" Focusable="False">
-
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="42" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <Menu
+                <Menu
                 Grid.Row="0"
                 Grid.Column="0"
                 d:Foreground="white"
                 Background="{x:Null}"
                 Focusable="False">
-                <ui:MenuItem AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource Self}}" Header="{x:Static properties:Resources.ShellMenuFileHeader}">
+                    <ui:MenuItem AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource Self}}" Header="{x:Static properties:Resources.ShellMenuFileHeader}">
 
-                    <Separator />
-                    <ui:MenuItem
+                        <Separator />
+                        <ui:MenuItem
                         AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource Self}}"
                         Command="{Binding MenuFileExitCommand}"
                         Header="{x:Static properties:Resources.ShellMenuItemFileExitHeader}" />
-                </ui:MenuItem>
-                <ui:MenuItem AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource Self}}" Header="{x:Static properties:Resources.ShellMenuViewsHeader}">
-                    <!--  TODO: Review the MenuItem headers in Resources.resx file for all of your views and place '_' before the letter that you want to use for menu keyboard usage  -->
-                    <ui:MenuItem
+                    </ui:MenuItem>
+                    <ui:MenuItem AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource Self}}" Header="{x:Static properties:Resources.ShellMenuViewsHeader}">
+                        <!--  TODO: Review the MenuItem headers in Resources.resx file for all of your views and place '_' before the letter that you want to use for menu keyboard usage  -->
+                        <ui:MenuItem
                         Width="120"
                         AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource Self}}"
                         Command="{Binding MenuViewsHomeCommand}"
                         Header="{x:Static properties:Resources.ShellMenuItemViewsHomePageHeader}" />
-                    <ui:MenuItem
+                        <ui:MenuItem
                         AutomationProperties.Name="{Binding Header, RelativeSource={RelativeSource Self}}"
                         Command="{Binding MenuViewsProjectCommand}"
                         Header="{x:Static properties:Resources.ShellMenuItemViewsProjectPageHeader}" />
-                </ui:MenuItem>
-            </Menu>
-            <ui:Button
-                Grid.Row="0"
-                Grid.Column="1"
-                AutomationProperties.Name="Settings"
-                Background="{x:Null}"
-                BorderBrush="{x:Null}"
-                Command="{Binding MenuFileSettingsCommand}">
-                <ui:SymbolIcon Symbol="Settings24" />
-            </ui:Button>
+                        
+                    </ui:MenuItem>
+                </Menu>
+            </ui:TitleBar.Header>
+            <ui:TitleBar.TrailingContent>
+                <Menu>
+                    <ui:MenuItem 
+                        Padding="0"
+                    AutomationProperties.Name="Settings" 
+                    Command="{Binding MenuFileSettingsCommand}"  Icon="{ui:SymbolIcon Symbol=Settings48}"  />
+                </Menu>
+            </ui:TitleBar.TrailingContent>
+        </ui:TitleBar>
+
+
+        <Grid Grid.Row="1" Focusable="False"> 
             <Frame
                 x:Name="shellFrame"
                 Grid.Row="1"
                 Grid.ColumnSpan="2"
                 Focusable="False"
                 NavigationUIVisibility="Hidden" />
+            
         </Grid>
+
+        <StatusBar
+            x:Name="RootStatusBar"
+            Grid.Row="3"
+            MinHeight="0"
+            Margin="0"
+            Padding="8,2">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem>
+                <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="BranchFork24" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="1" Margin="0,0,4,0">
+                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Development *" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="2" Margin="4,0,4,0">
+                <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="Home24" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="3" Margin="4,0,4,0">
+                <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="Fire24" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="4" Margin="4,0,4,0">
+                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Wpf.Ui.sln" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="6">
+                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Ln 45, Col 30  Spaces: 2 UTF8 with BOM C#" />
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 
 </ui:FluentWindow>

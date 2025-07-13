@@ -40,8 +40,8 @@ partial class LanguagePrompt : FluentWindow
 
     public string ResponseText
     {
-        get { return (ResponseLanguage?.SelectedValue as LanguageModel)?.Language; }
-        set { ResponseLanguage.SelectedItem = value; }
+        get { return (ResponseLanguage?.Text); }
+        set { ResponseLanguage.Text = value; }
     }
 
     private void CancelDialog(object sender, System.Windows.RoutedEventArgs e)

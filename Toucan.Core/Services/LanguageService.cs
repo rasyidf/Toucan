@@ -42,7 +42,11 @@ namespace Toucan.Core
         {
             get;
         }
+        public override string ToString()
+        {
+            return Culture?.NativeName ?? Language ?? base.ToString();
+        }
 
-       
+
     }
 }

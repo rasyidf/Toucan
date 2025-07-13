@@ -50,9 +50,9 @@ public partial class App : Application
         await _host.StartAsync();
     }
 
+        // TODO: Register your services, viewmodels and pages here
     private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
-        // TODO: Register your services, viewmodels and pages here
 
         // App Host
         services.AddHostedService<ApplicationHostService>();
@@ -71,9 +71,14 @@ public partial class App : Application
         services.AddSingleton<IPageService, PageService>();
         services.AddSingleton<INavigationService, NavigationService>();
 
+        //services.AddSingleton<IProjectService, ProjectService>();
+        //services.AddSingleton<ITranslationService, TranslationService>();
+        //services.AddSingleton<IAppPreferenceService, AppPreferenceService>();
+        //services.AddSingleton<IWebTranslationService, WebTranslationService>();
+        //services.AddSingleton<INotificationService, NotificationService>();
+        //services.AddSingleton<IValidationService, ValidationService>(); 
+
         // Views and ViewModels
-        services.AddTransient<IShellWindow, ShellWindow>();
-        services.AddTransient<ShellViewModel>();
 
         services.AddTransient<HomeViewModel>();
         services.AddTransient<HomePage>();
@@ -84,11 +89,25 @@ public partial class App : Application
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<SettingsPage>();
 
+        services.AddTransient<TranslationEditorViewModel>();
+        services.AddTransient<TranslationEditorPage>();
+
+        services.AddTransient<NamespaceViewModel>();
+        services.AddTransient<NamespacePage>();
+
+        services.AddTransient<SearchViewModel>();
+        services.AddTransient<SearchPage>();
+
+        services.AddTransient<IShellWindow, ShellWindow>();
+        services.AddTransient<ShellViewModel>();
+
         services.AddTransient<IShellDialogWindow, ShellDialogWindow>();
         services.AddTransient<ShellDialogViewModel>();
 
         // Configuration
-        services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));
+        //services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));
+
+        services.AddSingleton<IAppConfigService, AppConfigService>();
         services.AddSingleton<IRightPaneService, RightPaneService>();
     }
 

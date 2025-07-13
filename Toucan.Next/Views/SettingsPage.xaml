@@ -9,15 +9,15 @@
     xmlns:models="clr-namespace:Toucan.Models"
     xmlns:properties="clr-namespace:Toucan.Properties"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    d:DesignHeight="450"
-    d:DesignWidth="415"
+    d:DesignHeight="1045.65"
+    d:DesignWidth="607"
     mc:Ignorable="d">
     <Page.Resources>
         <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" EnumType="models:AppTheme" />
         <converters:BooleanToThemeConverter x:Key="BooleanToEnumConverter" />
     </Page.Resources>
     <ScrollViewer>
-        <StackPanel Margin="24" Orientation="Vertical"  > 
+        <StackPanel Margin="24" Orientation="Vertical"  >
             <!-- GENERAL SETTINGS -->
             <ui:CardExpander Header="General" IsExpanded="True" Margin="0,0,0,20">
                 <StackPanel  >
@@ -53,7 +53,7 @@
             </ui:CardExpander>
 
             <!-- EDITOR BEHAVIOR -->
-            <ui:CardExpander Header="Editor Behavior" IsExpanded="True"  Margin="0,0,0,20">
+            <ui:CardExpander Header="Editor Behavior" IsExpanded="False"  Margin="0,0,0,20">
                 <StackPanel >
                     <ui:CardControl Header="Auto-Capitalize Strings" Icon="TextCase20">
                         <ui:ToggleSwitch IsChecked="{Binding AutoCapitalize}" />
@@ -70,7 +70,7 @@
             </ui:CardExpander>
 
             <!-- PROJECT DEFAULTS -->
-            <ui:CardExpander Header="Project Defaults" IsExpanded="True"  Margin="0,0,0,20">
+            <ui:CardExpander Header="Project Defaults" IsExpanded="False"  Margin="0,0,0,20">
                 <StackPanel >
                     <ui:CardControl Header="Auto-Save Changes" Icon="Save20">
                         <ui:ToggleSwitch IsChecked="{Binding AutoSave}" />
@@ -97,7 +97,7 @@
             </ui:CardExpander>
 
             <!-- ABOUT -->
-            <ui:CardExpander Header="{x:Static properties:Resources.SettingsPageAboutTitle}" IsExpanded="False"  Margin="0,0,0,20">
+            <ui:CardExpander Header="{x:Static properties:Resources.SettingsPageAboutTitle}" IsExpanded="True"  Margin="0,0,0,20">
                 <StackPanel >
                     <TextBlock Text="{Binding VersionDescription}" Style="{StaticResource BodyTextStyle}" />
                     <TextBlock Text="{x:Static properties:Resources.SettingsPageAboutText}" Style="{StaticResource BodyTextStyle}" />

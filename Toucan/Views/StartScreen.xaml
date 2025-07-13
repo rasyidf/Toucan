@@ -1,0 +1,81 @@
+﻿<UserControl
+    x:Class="Toucan.Views.StartScreen"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:local="clr-namespace:Toucan.Views"
+    xmlns:vm="clr-namespace:Toucan.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:cv="clr-namespace:Toucan.Converters"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance Type=vm:StartScreenViewModel}"
+    Background="White">
+    <UserControl.Resources>
+        <!-- Bool To Visibility-->
+        <cv:BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </UserControl.Resources>
+
+    <Grid Margin="48">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- 1. Header -->
+        <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,24">
+            <TextBlock Text="🌐 Toucan" FontSize="36" FontWeight="Bold" Foreground="#695CF5" />
+            <TextBlock Text="Professional i18n editor for modern development teams."
+                       FontSize="14"
+                       HorizontalAlignment="Center"
+                       Foreground="Gray" />
+        </StackPanel>
+
+        <!-- 2. Quick Actions -->
+        <UniformGrid Grid.Row="1" Rows="2" Columns="2" Margin="0,0,0,24">
+            <ui:Button Icon="DocumentAdd16" Content="New Project" ToolTip="Create a new translation project" Command="{Binding NewProjectCommand}" />
+            <ui:Button Icon="FolderOpen16" Content="Open Project" ToolTip="Open an existing project file" Command="{Binding OpenProjectCommand}" />
+            <ui:Button Icon="ArrowImport20" Content="Import" ToolTip="Import translations from various formats" Command="{Binding ImportCommand}" />
+            <ui:Button Icon="BookQuestionMark20" Content="Documentation" ToolTip="Learn how to use Toucan effectively" Command="{Binding DocsCommand}" />
+        </UniformGrid>
+
+        <!-- 3. Recent Projects -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,48">
+            <TextBlock Text="🕒 Recent Projects" FontWeight="SemiBold" FontSize="16" Margin="0,0,0,12" />
+            <ItemsControl ItemsSource="{Binding RecentProjects}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ui:Button Content="{Binding DisplayName}" Command="{Binding OpenProjectCommand}" Margin="0,2" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.Style>
+                    <Style TargetType="ItemsControl">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RecentProjects.Count}" Value="0">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ItemsControl.Style>
+            </ItemsControl>
+
+            <!-- Empty State -->
+            <TextBlock Text="No recent projects"
+                       Foreground="Gray"
+                       HorizontalAlignment="Center"
+                       Visibility="{Binding HasRecentProjects, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
+            <ui:Button Content="+ Create your first project" Command="{Binding NewProjectCommand}" HorizontalAlignment="Center" Margin="0,12,0,0" />
+        </StackPanel>
+
+        <!-- 4. Features Section -->
+        <TextBlock Grid.Row="3" Text="🎯 Why Choose Toucan?" FontWeight="Bold" FontSize="16" />
+        <UniformGrid Grid.Row="3" Rows="2" Columns="2" Margin="0,24,0,0">
+            <local:StartScreenCard Title="Fast &amp; Efficient" Description="Lightning-fast translation editing with real-time validation" />
+            <local:StartScreenCard Title="Multi-format Export" Description="Export to PO, JSON, YAML, CSV and platform formats" />
+            <local:StartScreenCard Title="Namespace Support" Description="Organize translations with hierarchical namespaces" />
+            <local:StartScreenCard Title="Team Collaboration" Description="Built for teams with progress tracking and validation" />
+        </UniformGrid>
+
+    </Grid>
+</UserControl>

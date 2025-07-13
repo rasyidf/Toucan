@@ -230,5 +230,71 @@ namespace Toucan.Properties {
                 return ResourceManager.GetString("ShellMenuViewsHeader", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to TranslationEditor.
+        /// </summary>
+        public static string TranslationEditorPageTitle
+        {
+            get
+            {
+                return ResourceManager.GetString("TranslationEditorPageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to MenuItemViewsTranslationEditorPageHeader.
+        /// </summary>
+        public static string ShellMenuItemViewsTranslationEditorPageHeader
+        {
+            get
+            {
+                return ResourceManager.GetString("ShellMenuItemViewsTranslationEditorPageHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Namespace.
+        /// </summary>
+        public static string NamespacePageTitle
+        {
+            get
+            {
+                return ResourceManager.GetString("NamespacePageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to MenuItemViewsNamespacePageHeader.
+        /// </summary>
+        public static string ShellMenuItemViewsNamespacePageHeader
+        {
+            get
+            {
+                return ResourceManager.GetString("ShellMenuItemViewsNamespacePageHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Search.
+        /// </summary>
+        public static string SearchPageTitle
+        {
+            get
+            {
+                return ResourceManager.GetString("SearchPageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to MenuItemViewsSearchPageHeader.
+        /// </summary>
+        public static string ShellMenuItemViewsSearchPageHeader
+        {
+            get
+            {
+                return ResourceManager.GetString("ShellMenuItemViewsSearchPageHeader", resourceCulture);
+            }
+        }
     }
 }

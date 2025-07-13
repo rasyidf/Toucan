@@ -25,7 +25,7 @@ public partial class App : Application
             startupPath = e.Args[0];
         }
 
-        var recentService = new RecentFileService();
+        var recentService = new RecentProjectService();
         var dialogService = new DialogService();
         var messageService = new MessageService();
         var preferenceService = new PreferenceService();

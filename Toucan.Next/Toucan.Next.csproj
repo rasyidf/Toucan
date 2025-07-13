@@ -3,12 +3,16 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows10.0.19041</TargetFramework>
-    <RootNamespace>OPEdit</RootNamespace>
+    <RootNamespace>Toucan</RootNamespace>
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ImplicitUsings>enable</ImplicitUsings>
     <Platforms>x64;x86</Platforms>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Remove="Views\logo.png" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
@@ -20,6 +24,10 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Toucan.Core\Toucan.Core.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Resource Include="Views\logo.png" />
   </ItemGroup>
 
   <ItemGroup>

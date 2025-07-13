@@ -71,47 +71,6 @@ public partial class MainWindow : FluentWindow
         ViewModel.Search(SearchFilterTextbox.Text, false);
     }
 
-    private void NewItem(object sender, RoutedEventArgs e)
-    {
-        string ns = (resourcesView.TreeNamespace.SelectedItem as NsTreeItem)?.Namespace ?? "";
-
-        var dialog = new PromptDialog("New Translation", "Please enter an ID for the translation\nUse '.' to create hierarchical IDs.", ns)
-        {
-            Owner = this
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            ViewModel.CreateNewItem(dialog.ResponseText);
-        }
-    }
-
-
-
-    private void RenameItem(object sender, RoutedEventArgs e)
-    {
-        var node = resourcesView.TreeNamespace.SelectedItem as NsTreeItem;
-        if (node == null) return;
-
-        var dialog = new PromptDialog("Rename: " + node.Name, "Enter the new name below.", node.Name)
-        {
-            Owner = this
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            ViewModel.RenameItem(node, dialog.ResponseText);
-        }
-    }
-
-    private void DeleteItem(object sender, RoutedEventArgs e)
-    {
-        var node = resourcesView.TreeNamespace.SelectedItem as NsTreeItem;
-        if (node != null)
-        {
-            ViewModel.DeleteItem(node);
-        }
-    }
 
     private void NextPage(object sender, RoutedEventArgs e) => ViewModel.NextPageCommand.Execute(null);
     private void PreviousPage(object sender, RoutedEventArgs e) => ViewModel.PreviousPageCommand.Execute(null);
