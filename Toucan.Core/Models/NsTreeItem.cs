@@ -1,4 +1,4 @@
-﻿using OPEdit.Extensions;
+﻿using Toucan.Extensions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OPEdit.Core.Models;
+namespace Toucan.Core.Models;
 
 public class NsTreeItem
 {
@@ -18,7 +18,7 @@ public class NsTreeItem
 
     public string Namespace { get; set; }
     public string ImagePath { get; set; }
-    private List<NsTreeItem> _storage { get; set; } = new List<NsTreeItem>();
+    private List<NsTreeItem> _storage { get; set; } = [];
 
     public IEnumerable<NsTreeItem> Items
     {

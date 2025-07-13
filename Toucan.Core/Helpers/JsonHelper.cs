@@ -1,14 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using OPEdit.Core.Contracts;
-using OPEdit.Core.Models;
-using System;
-using System.Collections.Generic;
+using Toucan.Core.Contracts;
+using Toucan.Core.Models;
+using System.Text;
 using System.IO;
-using System.Linq;
-using System.Text; 
 
-namespace OPEdit.Core.Extensions; 
+namespace Toucan.Core.Extensions; 
+
 public class JsonParser : IParser
 {
     private string Language;
@@ -82,7 +80,7 @@ public class JsonParser : IParser
 
         foreach (string language in languages)
         {
-            Dictionary<string, dynamic> dyn = new();
+            Dictionary<string, dynamic> dyn = [];
 
             for (int i = 0; i < items?.Count; i++)
             {

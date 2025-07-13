@@ -1,4 +1,4 @@
-﻿namespace OPEdit.Contracts.ViewModels;
+﻿namespace Toucan.Contracts.ViewModels;
 
 public interface INavigationAware
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OPEdit.Core.Models
+namespace Toucan.Core.Models
 { 
     public enum SaveStyles
     {

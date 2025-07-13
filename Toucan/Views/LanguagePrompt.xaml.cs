@@ -4,11 +4,11 @@ using System.Windows.Input;
 using Wpf.Ui.Controls.Window;
 using System.Linq;
 using System;
-using OPEdit.ViewModels;
-using OPEdit.Core.Models;
-using OPEdit.Core;
+using Toucan.ViewModels;
+using Toucan.Core.Models;
+using Toucan.Core;
 
-namespace OPEdit;
+namespace Toucan;
 
 /// <summary>
 /// Interaction logic for PromptDialog.xaml

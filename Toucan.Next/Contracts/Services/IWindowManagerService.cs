@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace OPEdit.Contracts.Services;
+namespace Toucan.Contracts.Services;
 
 public interface IWindowManagerService
 {

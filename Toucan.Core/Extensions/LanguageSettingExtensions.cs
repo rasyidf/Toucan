@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OPEdit.Core.Models;
+using Toucan.Core.Models;
 
-namespace OPEdit.Extensions;
+namespace Toucan.Extensions;
 
 public static class TranslationItemExtensions
 {

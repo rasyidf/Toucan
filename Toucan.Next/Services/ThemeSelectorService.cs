@@ -4,10 +4,10 @@ using ControlzEx.Theming;
 
 using MahApps.Metro.Theming;
 
-using OPEdit.Contracts.Services;
-using OPEdit.Models;
+using Toucan.Contracts.Services;
+using Toucan.Models;
 
-namespace OPEdit.Services;
+namespace Toucan.Services;
 
 public class ThemeSelectorService : IThemeSelectorService
 {
@@ -32,40 +32,40 @@ public class ThemeSelectorService : IThemeSelectorService
         if (theme == AppTheme.Default)
         {
             //ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncAll;
-            //ThemeManager.Current.SyncTheme();
-            Wpf.Ui.Appearance.Theme.Apply(
-              Wpf.Ui.Appearance.ThemeType.Unknown,     // Theme type
-              Wpf.Ui.Controls.Window.WindowBackdropType.Mica, // Background type
+            //ThemeManager.Current.SyncTheme(); 
+            Wpf.Ui.Appearance.ApplicationThemeManager.Apply(
+              Wpf.Ui.Appearance.ApplicationTheme.Unknown,     // Theme type
+              Wpf.Ui.Controls.WindowBackdropType.Mica, // Background type
               true                                   // Whether to change accents automatically
             );
         }
         else
         {
-        //    ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncWithHighContrast;
-        //    ThemeManager.Current.SyncTheme();
-        //    ThemeManager.Current.ChangeTheme(Application.Current, $"{theme}.Blue", SystemParameters.HighContrast);
-           try { 
-            if (SystemParameters.HighContrast)
+            //    ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncWithHighContrast;
+            //    ThemeManager.Current.SyncTheme();
+            //    ThemeManager.Current.ChangeTheme(Application.Current, $"{theme}.Blue", SystemParameters.HighContrast);
+            try
             {
-                Wpf.Ui.Appearance.Theme.Apply(
-                Wpf.Ui.Appearance.ThemeType.HighContrast,
-                Wpf.Ui.Controls.Window.WindowBackdropType.Mica,
-                     true,
-                true
-            );
-            }
-            else
-            {
-                Wpf.Ui.Appearance.Theme.Apply(
-                    theme == AppTheme.Dark
-                    ? Wpf.Ui.Appearance.ThemeType.Dark
-                    : Wpf.Ui.Appearance.ThemeType.Light,
-                     Wpf.Ui.Controls.Window.WindowBackdropType.Mica,
-                     true,
-                     true
+                if (SystemParameters.HighContrast)
+                {
+                    Wpf.Ui.Appearance.ApplicationThemeManager.Apply(
+                        Wpf.Ui.Appearance.ApplicationTheme.HighContrast,
+                        Wpf.Ui.Controls.WindowBackdropType.Mica,
+                         true
+                     );
+                }
+                else
+                {
+                    Wpf.Ui.Appearance.ApplicationThemeManager.Apply(
+                        theme == AppTheme.Dark
+                        ? Wpf.Ui.Appearance.ApplicationTheme.Dark
+                        : Wpf.Ui.Appearance.ApplicationTheme.Light,
+                         Wpf.Ui.Controls.WindowBackdropType.Mica,
+                         true
                    );
+                }
             }
-            } catch (Exception _)
+            catch (Exception _)
             {
 
             }

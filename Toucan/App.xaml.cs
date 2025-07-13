@@ -5,8 +5,10 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Toucan.Services;
+using Toucan.ViewModels;
 
-namespace OPEdit;
+namespace Toucan;
 
 /// <summary>
 /// Interaction logic for App.xaml
@@ -22,8 +24,21 @@ public partial class App : Application
         {
             startupPath = e.Args[0];
         }
-        MainWindow wnd = new(startupPath, new ViewModels.MainWindowViewModel());
-        wnd.Show();
+
+        var recentService = new RecentFileService();
+        var dialogService = new DialogService();
+        var messageService = new MessageService();
+        var preferenceService = new PreferenceService();
+
+        var viewModel = new MainWindowViewModel(
+            recentService,
+            dialogService,
+            messageService,
+            preferenceService);
+
+        var mainWindow = new MainWindow(startupPath, viewModel);
+        mainWindow.Show();
+
 
     }
 }

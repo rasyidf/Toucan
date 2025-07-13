@@ -1,4 +1,4 @@
-﻿namespace OPEdit.Models;
+﻿namespace Toucan.Models;
 
 public class AppConfig
 {

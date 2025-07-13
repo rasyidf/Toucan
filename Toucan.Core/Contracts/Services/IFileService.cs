@@ -1,4 +1,4 @@
-﻿namespace OPEdit.Core.Contracts.Services;
+﻿namespace Toucan.Core.Contracts.Services;
 
 public interface IFileService
 {

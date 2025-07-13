@@ -1,4 +1,4 @@
-﻿namespace OPEdit.Core.Contracts;
+﻿namespace Toucan.Core.Contracts;
 
 public interface ITranslationItem
 {

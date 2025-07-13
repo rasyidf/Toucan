@@ -3,7 +3,7 @@
 using MahApps.Metro.Controls;
 using Wpf.Ui.Controls;
 
-namespace OPEdit.Contracts.Services;
+namespace Toucan.Contracts.Services;
 
 public interface IRightPaneService
 {
@@ -13,7 +13,7 @@ public interface IRightPaneService
 
     void OpenDialog(string pageKey, object parameter = null);
 
-    void Initialize(Frame rightPaneFrame, Dialog splitView);
+    void Initialize(Frame rightPaneFrame, ContentDialog splitView);
 
     void CleanUp();
 }

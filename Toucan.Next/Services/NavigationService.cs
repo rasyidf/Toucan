@@ -1,10 +1,10 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Navigation;
 
-using OPEdit.Contracts.Services;
-using OPEdit.Contracts.ViewModels;
+using Toucan.Contracts.Services;
+using Toucan.Contracts.ViewModels;
 
-namespace OPEdit.Services;
+namespace Toucan.Services;
 
 public class NavigationService : INavigationService
 {

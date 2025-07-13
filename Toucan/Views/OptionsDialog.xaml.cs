@@ -1,11 +1,11 @@
-﻿using OPEdit.Core.Models;
-using OPEdit.Core.Services;
+﻿using Toucan.Core.Models;
 using System;
 using System.Globalization;
 using System.Windows;
 using Wpf.Ui.Controls.Window;
+using Toucan.Core.Options;
 
-namespace OPEdit;
+namespace Toucan;
 
 /// <summary>
 /// Interaction logic for Options.xaml

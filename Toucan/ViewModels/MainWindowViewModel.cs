@@ -1,27 +1,26 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using OPEdit.Core.Models;
-using OPEdit.Core.Services;
+using Ookii.Dialogs.Wpf;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using OPEdit.Views;
-using Google.Cloud.Translation.V2;
 using System.Collections.ObjectModel;
-using System.Drawing.Drawing2D;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Input;
-using Ookii.Dialogs.Wpf;
-using OPEdit.Core.Extensions;
+using Toucan.Core;
+using Toucan.Core.Extensions;
+using Toucan.Core.Models;
+using Toucan.Core.Options;
+using Toucan.Core.Services;
+using Toucan.Services;
+using Toucan.Views;
 
-namespace OPEdit.ViewModels;
+namespace Toucan.ViewModels;
 
-public partial class MainWindowViewModel : ObservableObject
+internal partial class MainWindowViewModel : ObservableObject
 {
     [ObservableProperty]
     private List<TranslationItem> allTranslation;
@@ -36,7 +35,7 @@ public partial class MainWindowViewModel : ObservableObject
     private PagingController<LanguageGroup> pagingController = new(30, new List<LanguageGroup>());
 
     [ObservableProperty]
-    private ObservableCollection<NsTreeItem> currentTreeItems = new();
+    private ObservableCollection<NsTreeItem> currentTreeItems = [];
 
 
     [ObservableProperty]
@@ -53,9 +52,33 @@ public partial class MainWindowViewModel : ObservableObject
 
     [ObservableProperty]
     private string statusText;
+
+    [ObservableProperty]
+    private bool isTreeView = true;
+
+
     public IEnumerable<LanguageGroup> PageData { get; private set; }
     public string PageMessage { get; private set; }
 
+    private readonly IRecentFileService _recentFileService;
+    private readonly IDialogService _dialogService;
+    private readonly IMessageService _messageService;
+    private readonly IPreferenceService _preferenceService;
+
+
+    public MainWindowViewModel(
+     IRecentFileService recentFileService,
+     IDialogService dialogService,
+     IMessageService messageService,
+     IPreferenceService preferenceService)
+    {
+        _recentFileService = recentFileService;
+        _dialogService = dialogService;
+        _messageService = messageService;
+        _preferenceService = preferenceService;
+
+        AppOptions = _preferenceService.Load();
+    }
 
 
     #region Help Commands
@@ -113,6 +136,12 @@ public partial class MainWindowViewModel : ObservableObject
     }
     #endregion
 
+    [RelayCommand]
+    private void ToggleViewMode()
+    {
+        IsTreeView = !IsTreeView;
+    }
+
     internal static void OpenUrl(string url)
     {
         try
@@ -163,6 +192,20 @@ public partial class MainWindowViewModel : ObservableObject
         SummaryInfo.Update(AllTranslation);
     }
 
+    [RelayCommand]
+    private void NewLanguage()
+    {
+        var dialog = new LanguagePrompt("New Language", "Enter the translation language name below.", AllTranslation)
+        {
+            Owner = Application.Current.MainWindow
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            AddLanguage(dialog.ResponseText);
+        }
+    }
+
     internal void Search(string ns, bool alwaysPaging = false)
     {
 
@@ -198,7 +241,7 @@ public partial class MainWindowViewModel : ObservableObject
         List<string> languages = AllTranslation.ToLanguages().ToList();
 
 
-        List<LanguageGroup> languageGroups = new();
+        List<LanguageGroup> languageGroups = [];
         foreach (string n in namespaces)
         {
             LanguageGroup languageGroup = new(n, languages);
@@ -254,19 +297,22 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void OpenFolder()
     {
+        string? selected = _dialogService.SelectFolder(CurrentPath);
 
-        VistaFolderBrowserDialog dialog = new()
+        if (selected != null)
         {
-            SelectedPath = CurrentPath
-        };
-        bool? selected = dialog.ShowDialog(App.Current.MainWindow);
-        if (selected.GetValueOrDefault())
-        {
-            CurrentPath = dialog.SelectedPath;
-            AppOptions.DefaultPath = CurrentPath;
+            CurrentPath = selected;
+            AppOptions.DefaultPath = selected;
+            _recentFileService.AddRecentPath(selected);
             LoadFolder(CurrentPath);
         }
+        else
+        {
+            _messageService.ShowMessage("No folder selected.");
+        }
     }
+
+
     private void LoadFolder(string path)
     {
         AllTranslation = ProjectHelper.Load(path);
@@ -315,7 +361,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void CloseProject()
     {
-        AllTranslation = new List<TranslationItem>();
+        AllTranslation = [];
         CurrentPath = "";
 
         RefreshTree();
@@ -329,9 +375,22 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     internal void OpenRecent()
     {
+        var recents = _recentFileService.GetRecentPaths();
+        if (recents.Count == 0)
+        {
+            _messageService.ShowMessage("No recent projects found.");
+            return;
+        }
 
-        LoadFolder(AppOptions.DefaultPath);
+        string path = recents.First(); // For now, just use first. Replace with proper recent list picker later
+        if (!Directory.Exists(path))
+        {
+            _messageService.ShowMessage($"Path not found: {path}");
+            return;
+        }
 
+        CurrentPath = path;
+        LoadFolder(CurrentPath);
     }
 
     [RelayCommand]
@@ -347,6 +406,93 @@ public partial class MainWindowViewModel : ObservableObject
 
     }
     #endregion
+
+    public void CreateNewItem(string newNamespace)
+    {
+        if (string.IsNullOrWhiteSpace(newNamespace))
+            return;
+
+        if (AllTranslation.NoEmpty().Any(setting => setting.Namespace.Contains(newNamespace)))
+        {
+            MessageBox.Show("Duplicate name");
+            return;
+        }
+
+        var languages = AllTranslation.ToLanguages().ToList();
+        foreach (string lang in languages)
+        {
+            AllTranslation.Add(new TranslationItem
+            {
+                Namespace = newNamespace,
+                Value = string.Empty,
+                Language = lang
+            });
+        }
+
+        RefreshTree(newNamespace);
+        UpdateSummaryInfo();
+    }
+
+    public void AddLanguage(string newLanguage)
+    {
+        if (string.IsNullOrWhiteSpace(newLanguage))
+            return;
+
+        if (AllTranslation.Any(setting => setting.Language == newLanguage))
+        {
+            MessageBox.Show("Duplicate language");
+            return;
+        }
+
+        AllTranslation.Add(new TranslationItem
+        {
+            Namespace = "",
+            Value = "",
+            Language = newLanguage
+        });
+
+        AddMissingTranslations();
+        UpdateSummaryInfo();
+        RefreshTree();
+    }
+
+    public void RenameItem(NsTreeItem node, string newName)
+    {
+        if (node == null || string.IsNullOrWhiteSpace(newName) || newName.Contains('.'))
+            return;
+
+        string oldNs = node.Namespace;
+        string newNs = oldNs[..oldNs.LastIndexOf(node.Name, StringComparison.InvariantCulture)] + newName.Trim();
+
+        AllTranslation.ForParse().ToList().ForEach(item =>
+        {
+            if (item.Namespace.StartsWith(oldNs, StringComparison.InvariantCulture))
+            {
+                item.Namespace = item.Namespace.Replace(oldNs, newNs, StringComparison.InvariantCulture);
+            }
+        });
+
+        RefreshTree(newNs);
+    }
+
+    public void DeleteItem(NsTreeItem node)
+    {
+        if (node == null || string.IsNullOrWhiteSpace(node.Namespace))
+            return;
+
+        if (node.Parent == null)
+        {
+            CurrentTreeItems.Remove(node);
+        }
+        else if (node.Parent.Items is List<NsTreeItem> siblings)
+        {
+            siblings.Remove(node);
+        }
+
+        AllTranslation.RemoveAll(o => o?.Namespace?.StartsWith(node.Namespace) ?? false);
+        RefreshTree();
+    }
+
 
 }
 

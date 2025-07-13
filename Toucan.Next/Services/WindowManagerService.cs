@@ -4,11 +4,11 @@ using System.Windows.Navigation;
 
 using MahApps.Metro.Controls;
 
-using OPEdit.Contracts.Services;
-using OPEdit.Contracts.ViewModels;
-using OPEdit.Contracts.Views;
+using Toucan.Contracts.Services;
+using Toucan.Contracts.ViewModels;
+using Toucan.Contracts.Views;
 
-namespace OPEdit.Services;
+namespace Toucan.Services;
 
 public class WindowManagerService : IWindowManagerService
 {

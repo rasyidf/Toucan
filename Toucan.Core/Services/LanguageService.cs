@@ -4,13 +4,13 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 
-namespace OPEdit.Core
+namespace Toucan.Core
 {
     internal class LanguageService
     {
         public static readonly LanguageService Instance = new ();
 
-        List<LanguageModel> languages;
+        private readonly List<LanguageModel> languages;
 
         public bool LanguageExists(string language)
         {
@@ -29,7 +29,7 @@ namespace OPEdit.Core
             {
                 if (columnName == "Language")
                 {
-                    if (true )//|| LanguageService.Instance.LanguageExists(Language))
+                    if (LanguageService.Instance.LanguageExists(Language))
                     {
                         return "Language already exists";
                     }

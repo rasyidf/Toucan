@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace OPEdit.Contracts.Views;
+namespace Toucan.Contracts.Views;
 
 public interface IShellDialogWindow
 {

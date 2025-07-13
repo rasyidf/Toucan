@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Reflection;
 using System.Windows;
 
-namespace OPEdit.ViewModels;
+namespace Toucan.ViewModels;
 
 public partial class AboutViewModel : ObservableObject
 {

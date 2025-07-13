@@ -1,12 +1,10 @@
-﻿using System.Windows.Controls;
-
-using MahApps.Metro.Controls;
-
-using OPEdit.Contracts.Views;
-using OPEdit.ViewModels;
-using Wpf.Ui.Controls.Window;
-
-namespace OPEdit.Views;
+﻿using MahApps.Metro.Controls;
+using Toucan.Contracts.Views;
+using Toucan.ViewModels; 
+using System.Windows;
+using System.Windows.Controls;
+using Wpf.Ui.Controls;
+namespace Toucan.Views;
 
 public partial class ShellDialogWindow : FluentWindow, IShellDialogWindow
 {

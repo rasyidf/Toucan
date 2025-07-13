@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 
-using OPEdit.Contracts.Services;
+using Toucan.Contracts.Services;
 
-namespace OPEdit.Services;
+namespace Toucan.Services;
 
 public class SystemService : ISystemService
 {

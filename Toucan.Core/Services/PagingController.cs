@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 
-namespace OPEdit.Core.Services;
+namespace Toucan.Core.Services;
 
 public partial class PagingController<T> : ObservableObject
 {
@@ -87,8 +87,7 @@ public partial class PagingController<T> : ObservableObject
 
         PageSize = pageSize;
         Page = 1;
-        if (Data == null)
-            Data = new ();
+        Data ??= [];
         double pages = Data.Count() / (double)PageSize;
         if (pages > (int)pages)
             pages++;

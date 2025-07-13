@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace OPEdit.ViewModels;
+namespace Toucan.ViewModels;
 
 public class HomeViewModel : ObservableObject
 {

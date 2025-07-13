@@ -3,9 +3,9 @@ using System.Text;
 
 using Newtonsoft.Json;
 
-using OPEdit.Core.Contracts.Services;
+using Toucan.Core.Contracts.Services;
 
-namespace OPEdit.Core.Services;
+namespace Toucan.Core.Services;
 
 public class FileService : IFileService
 {

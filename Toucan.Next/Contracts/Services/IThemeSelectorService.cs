@@ -1,6 +1,6 @@
-﻿using OPEdit.Models;
+﻿using Toucan.Models;
 
-namespace OPEdit.Contracts.Services;
+namespace Toucan.Contracts.Services;
 
 public interface IThemeSelectorService
 {

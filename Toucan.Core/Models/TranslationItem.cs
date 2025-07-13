@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OPEdit.Core.Models;
+namespace Toucan.Core.Models;
 
 public class TranslationItem
 {

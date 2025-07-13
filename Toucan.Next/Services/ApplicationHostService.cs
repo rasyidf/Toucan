@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Hosting;
 
-using OPEdit.Contracts.Activation;
-using OPEdit.Contracts.Services;
-using OPEdit.Contracts.Views;
-using OPEdit.ViewModels;
+using Toucan.Contracts.Activation;
+using Toucan.Contracts.Services;
+using Toucan.Contracts.Views;
+using Toucan.ViewModels;
 
-namespace OPEdit.Services;
+namespace Toucan.Services;
 
 public class ApplicationHostService : IHostedService
 {

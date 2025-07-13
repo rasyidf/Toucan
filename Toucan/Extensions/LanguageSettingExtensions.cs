@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OPEdit.Core.Models;
+using Toucan.Core.Models;
 
-namespace OPEdit.Core.Extensions;
+namespace Toucan.Core.Extensions;
 
 public static class TranslationItemExtensions
 {
@@ -80,7 +80,8 @@ public static class TranslationItemExtensions
         if (customDepth == 0)
             customDepth = 1;
 
-        var thisNode = new NsTreeItem() { Parent = node, Name = ns.Split('.').Last(), Namespace = ns, ImagePath = "Assets/Images/ns.png" };
+        var thisNode = new NsTreeItem() { Parent = node, Name = ns.Split('.')
+                                                                  .Last(), Namespace = ns, ImagePath = "Assets/Images/ns.png" };
 
         if (node == null)
             node = thisNode;

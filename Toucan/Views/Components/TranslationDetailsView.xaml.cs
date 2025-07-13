@@ -1,4 +1,4 @@
-﻿using OPEdit.Core.Models;
+﻿using Toucan.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace OPEdit.Views;
+namespace Toucan.Views;
 
 /// <summary>
 /// Interaction logic for TranslationDetailsView.xaml

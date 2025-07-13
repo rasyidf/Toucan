@@ -3,7 +3,7 @@
 using MahApps.Metro.Controls;
 using Wpf.Ui.Controls;
 
-namespace OPEdit.Contracts.Views;
+namespace Toucan.Contracts.Views;
 
 public interface IShellWindow
 {

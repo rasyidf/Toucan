@@ -5,11 +5,11 @@ using CommunityToolkit.Mvvm.Input;
 
 using Microsoft.Extensions.Options;
 
-using OPEdit.Contracts.Services;
-using OPEdit.Contracts.ViewModels;
-using OPEdit.Models;
+using Toucan.Contracts.Services;
+using Toucan.Contracts.ViewModels;
+using Toucan.Models;
 
-namespace OPEdit.ViewModels;
+namespace Toucan.ViewModels;
 
 // TODO: Change the URL for your privacy policy in the appsettings.json file, currently set to https://YourPrivacyUrlGoesHere
 public class SettingsViewModel : ObservableObject, INavigationAware
@@ -22,6 +22,18 @@ public class SettingsViewModel : ObservableObject, INavigationAware
     private string _versionDescription;
     private ICommand _setThemeCommand;
     private ICommand _privacyStatementCommand;
+
+    public bool AutoSave { get; set; }
+    public bool EnableBackup { get; set; }
+    public bool AutoCapitalize { get; set; }
+    public bool UseCompactLayout { get; set; }
+    public bool EnableDevTools { get; set; }
+    public string SelectedFontSize { get; set; } = "Normal";
+    public string SelectedKeyStyle { get; set; } = "dot.notation";
+
+    public ICommand ExportSettingsCommand { get; }
+    public ICommand ResetSettingsCommand { get; }
+
 
     public AppTheme Theme
     {
@@ -59,9 +71,13 @@ public class SettingsViewModel : ObservableObject, INavigationAware
 
     private void OnSetTheme(string themeName)
     {
-        if (string.IsNullOrWhiteSpace(themeName)) {  return; }
-        var theme = (AppTheme)Enum.Parse(typeof(AppTheme), themeName);
-        _themeSelectorService.SetTheme(theme);
+        if (string.IsNullOrWhiteSpace(themeName)) return;
+
+        if (Enum.TryParse<AppTheme>(themeName, out var theme))
+        {
+            _themeSelectorService.SetTheme(theme);
+            Theme = theme;  
+        }
     }
 
     private void OnPrivacyStatement()

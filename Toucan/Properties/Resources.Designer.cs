@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace OPEdit.Properties; 
+namespace Toucan.Properties; 
 using System;
 
 

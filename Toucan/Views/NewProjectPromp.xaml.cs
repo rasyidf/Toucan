@@ -1,7 +1,7 @@
 ﻿using System.Windows.Input;
 using Wpf.Ui.Controls.Window;
 
-namespace OPEdit;
+namespace Toucan;
 
 /// <summary>
 /// Interaction logic for PromptDialog.xaml

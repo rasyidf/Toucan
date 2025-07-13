@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace OPEdit.Properties; 
+namespace Toucan.Properties; 
 
 
 [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

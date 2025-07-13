@@ -1,15 +1,11 @@
 ﻿using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using OPEdit.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using Toucan.Core.Models;
 using System.Text;
-using System.Threading.Tasks;
-using OPEdit.Core.Extensions;
+using Toucan.Extensions;
+using System.IO;
 
-namespace OPEdit;
+namespace Toucan.Core;
 
 
 public static class ProjectHelper
@@ -24,22 +20,22 @@ public static class ProjectHelper
     {
         if (string.IsNullOrEmpty(folder))
         {
-            return new();
+            return [];
         }
 
         string[] files = Directory.GetFiles(folder, "*.json");
-        List<TranslationItem> settings = new();
+        List<TranslationItem> settings = [];
 
         foreach (string filePath in files)
         {
-            List<TranslationItem> newFiles = new();
+            List<TranslationItem> newFiles = [];
             string file = Path.GetFileName(filePath);
             string language = Path.GetFileNameWithoutExtension(filePath);
 
             string content = string.Join(Environment.NewLine, File.ReadAllLines(filePath));
             FromNestMethod(newFiles, language, content);
-            if (!newFiles.Any())
-                newFiles.AddRange(new TranslationItem[] { new TranslationItem() { Language = language } });
+            if (newFiles.Count == 0)
+                newFiles.AddRange([new TranslationItem() { Language = language }]);
             settings.AddRange(newFiles);
         }
         //GenerateLargeTestData(translationItem, translationItem.ToLanguages().ToList());
@@ -48,7 +44,7 @@ public static class ProjectHelper
 
     private static void FromNestMethod(List<TranslationItem> translationItem, string language, string content)
     {
-        List<TranslationItem> TranslationItems = new();
+        List<TranslationItem> TranslationItems = [];
         try
         {
             dynamic myObj = JsonConvert.DeserializeObject(content) ?? new object();
@@ -57,9 +53,9 @@ public static class ProjectHelper
                 ProcessLanguage(language, TranslationItems, jproperty);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            Console.WriteLine("Error");
+            Console.WriteLine("Error :" + ex.Message);
         }
         translationItem.AddRange(TranslationItems);
     }
@@ -100,7 +96,7 @@ public static class ProjectHelper
 
         foreach (string language in languages)
         {
-            Dictionary<string, dynamic> dyn = new();
+            Dictionary<string, dynamic> dyn = [];
 
             for (int i = 0; i < items.Count; i++)
             {

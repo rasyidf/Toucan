@@ -2,15 +2,15 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 
-using OPEdit.Contracts.Services;
-using OPEdit.ViewModels;
-using OPEdit.Views;
+using Toucan.Contracts.Services;
+using Toucan.ViewModels;
+using Toucan.Views;
 
-namespace OPEdit.Services;
+namespace Toucan.Services;
 
 public class PageService : IPageService
 {
-    private readonly Dictionary<string, Type> _pages = new Dictionary<string, Type>();
+    private readonly Dictionary<string, Type> _pages = [];
     private readonly IServiceProvider _serviceProvider;
 
     public PageService(IServiceProvider serviceProvider)

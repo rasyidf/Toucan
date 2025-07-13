@@ -1,4 +1,4 @@
-﻿namespace OPEdit.Contracts.Activation;
+﻿namespace Toucan.Contracts.Activation;
 
 public interface IActivationHandler
 {

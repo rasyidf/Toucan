@@ -1,13 +1,13 @@
 ﻿<Page
-    x:Class="OPEdit.Views.SettingsPage"
+    x:Class="Toucan.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:converters="clr-namespace:OPEdit.Converters"
+    xmlns:converters="clr-namespace:Toucan.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="clr-namespace:OPEdit.Models"
-    xmlns:properties="clr-namespace:OPEdit.Properties"
+    xmlns:models="clr-namespace:Toucan.Models"
+    xmlns:properties="clr-namespace:Toucan.Properties"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     d:DesignHeight="450"
     d:DesignWidth="415"
@@ -17,95 +17,97 @@
         <converters:BooleanToThemeConverter x:Key="BooleanToEnumConverter" />
     </Page.Resources>
     <ScrollViewer>
-        <Grid Margin="{StaticResource SmallTopBottomMargin}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="36" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <TextBlock Style="{StaticResource PageTitleStyle}" Text="{x:Static properties:Resources.SettingsPageTitle}" Margin="24,-3,0,0" VerticalAlignment="Top" />
-            <StackPanel
-                x:Name="ContentArea"
-                Grid.Row="1"
-                Margin="{StaticResource MediumLeftRightMargin}">
-
-                <TextBlock
-                    Margin="{StaticResource SmallTopMargin}"
-                    Style="{StaticResource SubtitleTextStyle}" />
-                <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
-                    <ui:CardExpander Header="Theme" IsExpanded="True">
-                        <ui:CardControl Header="Dark Mode" Icon="DarkTheme20">
-                            <ui:ToggleSwitch IsChecked="{Binding Theme, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark}" >
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="Checked">
-                                        <i:InvokeCommandAction Command="{Binding SetThemeCommand}" CommandParameter="{Binding IsChecked, Converter={StaticResource BooleanToEnumConverter}, ConverterParameter=Dark}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </ui:ToggleSwitch>
-                        </ui:CardControl>
-                    </ui:CardExpander>
-                    <TextBlock Style="{StaticResource BodyTextStyle}" Text="{x:Static properties:Resources.SettingsPageChooseThemeText}" />
-                    <StackPanel Margin="{StaticResource XSmallTopMargin}">
-
-                        <RadioButton
-                            Content="{x:Static properties:Resources.SettingsPageRadioButtonLightTheme}"
-                            FontSize="{StaticResource MediumFontSize}"
-                            GroupName="AppTheme"
-                            IsChecked="{Binding Theme, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light}">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Checked">
-                                    <i:InvokeCommandAction Command="{Binding SetThemeCommand}" CommandParameter="Light" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </RadioButton>
-                        <RadioButton
-                            Margin="{StaticResource XSmallTopMargin}"
-                            Content="{x:Static properties:Resources.SettingsPageRadioButtonDarkTheme}"
-                            FontSize="{StaticResource MediumFontSize}"
-                            GroupName="AppTheme"
+        <StackPanel Margin="24" Orientation="Vertical"  > 
+            <!-- GENERAL SETTINGS -->
+            <ui:CardExpander Header="General" IsExpanded="True" Margin="0,0,0,20">
+                <StackPanel  >
+                    <!-- Theme Toggle -->
+                    <ui:CardControl Header="Dark Mode" Icon="DarkTheme20">
+                        <ui:ToggleSwitch
                             IsChecked="{Binding Theme, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Checked">
                                     <i:InvokeCommandAction Command="{Binding SetThemeCommand}" CommandParameter="Dark" />
                                 </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </RadioButton>
-                        <RadioButton
-                            Margin="{StaticResource XSmallTopMargin}"
-                            Content="{x:Static properties:Resources.SettingsPageRadioButtonWindowsDefaultTheme}"
-                            FontSize="{StaticResource MediumFontSize}"
-                            GroupName="AppTheme"
-                            IsChecked="{Binding Theme, Mode=OneWay, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Default}">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Checked">
-                                    <i:InvokeCommandAction Command="{Binding SetThemeCommand}" CommandParameter="Default" />
+                                <i:EventTrigger EventName="Unchecked">
+                                    <i:InvokeCommandAction Command="{Binding SetThemeCommand}" CommandParameter="Light" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
-                        </RadioButton>
+                        </ui:ToggleSwitch>
+                    </ui:CardControl>
+
+                    <!-- Font Size -->
+                    <ui:CardControl Header="Font Size" Icon="TextFont20">
+                        <ComboBox SelectedItem="{Binding SelectedFontSize}" Width="150">
+                            <ComboBoxItem Content="Small" />
+                            <ComboBoxItem Content="Normal" />
+                            <ComboBoxItem Content="Large" />
+                        </ComboBox>
+                    </ui:CardControl>
+
+                    <!-- Compact Layout -->
+                    <ui:CardControl Header="Compact Layout" Icon="Layout20">
+                        <ui:ToggleSwitch IsChecked="{Binding UseCompactLayout}" />
+                    </ui:CardControl>
+                </StackPanel>
+            </ui:CardExpander>
+
+            <!-- EDITOR BEHAVIOR -->
+            <ui:CardExpander Header="Editor Behavior" IsExpanded="True"  Margin="0,0,0,20">
+                <StackPanel >
+                    <ui:CardControl Header="Auto-Capitalize Strings" Icon="TextCase20">
+                        <ui:ToggleSwitch IsChecked="{Binding AutoCapitalize}" />
+                    </ui:CardControl>
+
+                    <ui:CardControl Header="Key Naming Style" Icon="Code20">
+                        <ComboBox SelectedItem="{Binding SelectedKeyStyle}" Width="200">
+                            <ComboBoxItem Content="dot.notation" />
+                            <ComboBoxItem Content="snake_case" />
+                            <ComboBoxItem Content="camelCase" />
+                        </ComboBox>
+                    </ui:CardControl>
+                </StackPanel>
+            </ui:CardExpander>
+
+            <!-- PROJECT DEFAULTS -->
+            <ui:CardExpander Header="Project Defaults" IsExpanded="True"  Margin="0,0,0,20">
+                <StackPanel >
+                    <ui:CardControl Header="Auto-Save Changes" Icon="Save20">
+                        <ui:ToggleSwitch IsChecked="{Binding AutoSave}" />
+                    </ui:CardControl>
+
+                    <ui:CardControl Header="Backup Previous Versions" Icon="Document20">
+                        <ui:ToggleSwitch IsChecked="{Binding EnableBackup}" />
+                    </ui:CardControl>
+                </StackPanel>
+            </ui:CardExpander>
+
+            <!-- ADVANCED -->
+            <ui:CardExpander Header="Advanced" IsExpanded="False"  Margin="0,0,0,20">
+                <StackPanel >
+                    <ui:CardControl Header="Developer Mode" Icon="Bug20">
+                        <ui:ToggleSwitch IsChecked="{Binding EnableDevTools}" />
+                    </ui:CardControl>
+
+                    <StackPanel Orientation="Horizontal"   Margin="4,0,0,0">
+                        <Button Content="Export Settings" Command="{Binding ExportSettingsCommand}" />
+                        <Button Content="Reset to Defaults" Command="{Binding ResetSettingsCommand}" />
                     </StackPanel>
                 </StackPanel>
+            </ui:CardExpander>
 
-                <TextBlock
-                    Margin="{StaticResource SmallTopMargin}"
-                    Style="{StaticResource SubtitleTextStyle}"
-                    Text="{x:Static properties:Resources.SettingsPageAboutTitle}" />
-                <TextBlock
-                    Margin="{StaticResource XSmallTopMargin}"
-                    Style="{StaticResource BodyTextStyle}"
-                    Text="{Binding VersionDescription, Mode=OneWay}" />
-                <TextBlock
-                    Margin="{StaticResource XSmallTopMargin}"
-                    Style="{StaticResource BodyTextStyle}"
-                    Text="{x:Static properties:Resources.SettingsPageAboutText}" />
-
-                <TextBlock Margin="{StaticResource SmallTopMargin}" AutomationProperties.Name="{Binding Text, ElementName=settingsPrivacyStatement}">
-                    <Hyperlink AutomationProperties.Name="{Binding Text, ElementName=settingsPrivacyStatement}" Command="{Binding PrivacyStatementCommand}">
-                        <TextBlock
-                            x:Name="settingsPrivacyStatement"
-                            Style="{StaticResource BodyTextStyle}"
-                            Text="{x:Static properties:Resources.SettingsPagePrivacyStatementText}" />
-                    </Hyperlink>
-                </TextBlock>
-            </StackPanel>
-        </Grid>
+            <!-- ABOUT -->
+            <ui:CardExpander Header="{x:Static properties:Resources.SettingsPageAboutTitle}" IsExpanded="False"  Margin="0,0,0,20">
+                <StackPanel >
+                    <TextBlock Text="{Binding VersionDescription}" Style="{StaticResource BodyTextStyle}" />
+                    <TextBlock Text="{x:Static properties:Resources.SettingsPageAboutText}" Style="{StaticResource BodyTextStyle}" />
+                    <TextBlock>
+                        <Hyperlink Command="{Binding PrivacyStatementCommand}">
+                            <TextBlock Text="{x:Static properties:Resources.SettingsPagePrivacyStatementText}" Style="{StaticResource BodyTextStyle}" />
+                        </Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+            </ui:CardExpander>
+        </StackPanel>
     </ScrollViewer>
 </Page>

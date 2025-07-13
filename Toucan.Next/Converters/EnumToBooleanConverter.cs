@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
 
-namespace OPEdit.Converters;
+namespace Toucan.Converters;
 
 public class EnumToBooleanConverter : IValueConverter
 {

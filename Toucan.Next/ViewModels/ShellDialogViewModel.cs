@@ -3,7 +3,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace OPEdit.ViewModels;
+namespace Toucan.ViewModels;
 
 public partial class ShellDialogViewModel : ObservableObject
 {

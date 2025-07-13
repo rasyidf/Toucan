@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Wpf.Ui.Controls.Window;
 
-namespace OPEdit.Views;
+namespace Toucan.Views;
 
 /// <summary>
 /// Interaction logic for AboutDialog.xaml

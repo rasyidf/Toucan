@@ -1,4 +1,4 @@
-﻿namespace OPEdit.Contracts.Services;
+﻿namespace Toucan.Contracts.Services;
 
 public interface ISystemService
 {

@@ -1,8 +1,8 @@
 ﻿using System.Windows.Controls;
 
-using OPEdit.ViewModels;
+using Toucan.ViewModels;
 
-namespace OPEdit.Views;
+namespace Toucan.Views;
 
 public partial class HomePage : Page
 {

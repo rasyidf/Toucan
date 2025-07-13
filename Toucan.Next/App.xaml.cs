@@ -7,16 +7,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using OPEdit.Contracts.Services;
-using OPEdit.Contracts.Views;
-using OPEdit.Core.Contracts.Services;
-using OPEdit.Core.Services;
-using OPEdit.Models;
-using OPEdit.Services;
-using OPEdit.ViewModels;
-using OPEdit.Views;
+using Toucan.Contracts.Services;
+using Toucan.Contracts.Views;
+using Toucan.Core.Contracts.Services;
+using Toucan.Core.Services;
+using Toucan.Models;
+using Toucan.Services;
+using Toucan.ViewModels;
+using Toucan.Views;
 
-namespace OPEdit;
+namespace Toucan;
 
 // For more information about application lifecycle events see https://docs.microsoft.com/dotnet/framework/wpf/app-development/application-management-overview
 

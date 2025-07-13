@@ -3,18 +3,18 @@ using System.Windows.Navigation;
 
 using MahApps.Metro.Controls;
 
-using OPEdit.Contracts.Services;
-using OPEdit.Contracts.ViewModels;
+using Toucan.Contracts.Services;
+using Toucan.Contracts.ViewModels;
 using Wpf.Ui.Controls;
 
-namespace OPEdit.Services;
+namespace Toucan.Services;
 
 public class RightPaneService : IRightPaneService
 {
     private readonly IPageService _pageService;
     private Frame _frame;
     private object _lastParameterUsed;
-    private Dialog _dialogView;
+    private ContentDialog _dialogView;
 
     public event EventHandler PaneOpened;
 
@@ -25,7 +25,7 @@ public class RightPaneService : IRightPaneService
         _pageService = pageService;
     }
 
-    public void Initialize(Frame rightPaneFrame, Dialog splitView)
+    public void Initialize(Frame rightPaneFrame, ContentDialog splitView)
     {
         _frame = rightPaneFrame;
         _dialogView = splitView;
@@ -57,7 +57,7 @@ public class RightPaneService : IRightPaneService
             }
         }
 
-        _dialogView.ShowAndWaitAsync();
+        _dialogView.ShowAsync();
         PaneOpened?.Invoke(_dialogView, EventArgs.Empty);
     }
 

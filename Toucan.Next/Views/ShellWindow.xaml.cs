@@ -1,13 +1,13 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 
 using MahApps.Metro.Controls;
 
-using OPEdit.Contracts.Views;
-using OPEdit.ViewModels;
+using Toucan.Contracts.Views;
+using Toucan.ViewModels;
 using Wpf.Ui.Controls;
-using Wpf.Ui.Controls.Window;
 
-namespace OPEdit.Views;
+namespace Toucan.Views;
 
 public partial class ShellWindow : FluentWindow, IShellWindow
 {
@@ -25,5 +25,5 @@ public partial class ShellWindow : FluentWindow, IShellWindow
 
     public void CloseWindow()
         => Close();
-  
+
 }

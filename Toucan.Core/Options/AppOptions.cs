@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
-using OPEdit.Core.Models;
+using Toucan.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
 
-namespace OPEdit.Core.Services;
+namespace Toucan.Core.Options;
 
 public class AppOptions
 {
@@ -38,7 +38,6 @@ public class AppOptions
 
             return options;
         }
-
         return new AppOptions() { SaveStyle = SaveStyles.Json, PageSize = 100, TruncateResultsOver = 2000, LoadingDepth = 1 };
 
     }

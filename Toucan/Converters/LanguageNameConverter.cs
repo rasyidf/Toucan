@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace OPEdit.Converters;
+namespace Toucan.Converters;
 
 internal class LanguageNameConverter : IValueConverter
 {

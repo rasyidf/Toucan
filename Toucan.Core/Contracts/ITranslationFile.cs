@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace OPEdit.Core.Contracts;
+namespace Toucan.Core.Contracts;
 
 public interface ITranslationFile
 {

@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 
-using OPEdit.Contracts.Services;
+using Toucan.Contracts.Services;
 
 using OSVersionHelper;
 
 using Windows.ApplicationModel;
 
-namespace OPEdit.Services;
+namespace Toucan.Services;
 
 public class ApplicationInfoService : IApplicationInfoService
 {
@@ -20,7 +20,7 @@ public class ApplicationInfoService : IApplicationInfoService
         if (WindowsVersionHelper.HasPackageIdentity)
         {
             // Packaged application
-            // Set the app version in OPEdit.Packaging > Package.appxmanifest > Packaging > PackageVersion
+            // Set the app version in Toucan.Packaging > Package.appxmanifest > Packaging > PackageVersion
             var packageVersion = Package.Current.Id.Version;
             return new Version(packageVersion.Major, packageVersion.Minor, packageVersion.Build, packageVersion.Revision);
         }

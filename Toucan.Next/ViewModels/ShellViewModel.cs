@@ -4,10 +4,10 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-using OPEdit.Contracts.Services;
-using OPEdit.Properties;
+using Toucan.Contracts.Services;
+using Toucan.Properties;
 
-namespace OPEdit.ViewModels;
+namespace Toucan.ViewModels;
 
 // You can show pages in different ways (update main view, navigate, right pane, new windows or dialog)
 // using the NavigationService, RightPaneService and WindowManagerService.
@@ -77,5 +77,6 @@ public class ShellViewModel : ObservableObject
         => _navigationService.NavigateTo(typeof(ProjectViewModel).FullName, null, true);
 
     private void OnMenuFileSettings()
-       => _windowsManagerService.OpenInDialog(typeof(SettingsViewModel).FullName);
+        => _navigationService.NavigateTo(typeof(SettingsViewModel).FullName, null, true);
+    //=> _windowsManagerService.OpenInDialog(typeof(SettingsViewModel).FullName);
 }

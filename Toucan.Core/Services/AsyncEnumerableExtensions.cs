@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OPEdit.Core.Services;
+namespace Toucan.Core.Services;
 
 public static class AsyncEnumerableExtensions
 {
