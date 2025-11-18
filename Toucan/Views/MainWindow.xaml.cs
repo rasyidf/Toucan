@@ -4,7 +4,7 @@ using Toucan.Core.Models;
 using Toucan.Core.Options;
 using Toucan.ViewModels;
 using Wpf.Ui.Appearance;
-using Wpf.Ui.Controls.Window;
+using Wpf.Ui.Controls;
 
 namespace Toucan;
 
@@ -13,8 +13,6 @@ public partial class MainWindow : FluentWindow
 {
     internal MainWindowViewModel ViewModel { get; }
      
-
-
 
     internal MainWindow(string startupPath, MainWindowViewModel viewModel)
     {
@@ -26,6 +24,9 @@ public partial class MainWindow : FluentWindow
         UpdateStartupOptions(startupPath);
 
         ViewModel.PagingController.UpdatePageSize(ViewModel.AppOptions.PageSize);
+
+        // wire up list selection from resources view
+        resourcesView.ListSelectionChanged += ResourcesView_ListSelectionChanged;
     }
 
     private void UpdateStartupOptions(string startupPath)
@@ -59,11 +60,32 @@ public partial class MainWindow : FluentWindow
         }
     }
 
+    private void ResourcesView_ListSelectionChanged(object sender, RoutedEventArgs e)
+    {
+        if (sender is global::System.Windows.Controls.ListView lv && lv.SelectedItem is NsFlatItem flat)
+        {
+            // try to select the corresponding node
+            ViewModel.SelectedNode = flat.Source;
+            if (ViewModel.SelectedNode != null)
+            {
+                ViewModel.SelectedNode.IsExpanded = true;
+                string clickedNamespace = ViewModel.SelectedNode.Namespace;
+                if (ViewModel.SelectedNode.HasItems)
+                    clickedNamespace += ".";
+
+                if (!string.IsNullOrWhiteSpace(clickedNamespace))
+                {
+                    SearchFilterTextbox.Text = clickedNamespace;
+                }
+            }
+        }
+    }
+
     private void Window_Loaded(object sender, RoutedEventArgs e)
     {
         ViewModel.OpenRecent();
         SearchFilterTextbox.TextChanged += SearchFilterTextbox_TextChanged;
-        Watcher.Watch(this, WindowBackdropType.Tabbed, true);
+        SystemThemeWatcher.Watch(this, WindowBackdropType.Tabbed, true);
     }
 
     private void SearchFilterTextbox_TextChanged(object sender, TextChangedEventArgs e)

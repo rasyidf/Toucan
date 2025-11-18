@@ -7,9 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     MinWidth="250"
-    MinHeight="200" 
+    MinHeight="200"
     d:DesignHeight="330"
-    d:DesignWidth="370" 
+    d:DesignWidth="370"
     d:Height="208"
     d:Width="332"
     WindowStartupLocation="CenterOwner"
@@ -28,19 +28,7 @@
             Grid.ColumnSpan="2"
             VerticalAlignment="Center"
             ShowMaximize="false"
-            ShowMinimize="false">
-            <ui:TitleBar.Tray>
-                <ui:NotifyIcon
-                    FocusOnLeftClick="True"
-                    MenuOnRightClick="True"
-                    TooltipText="Wpf.Ui.Demo.Simple">
-                    <ui:NotifyIcon.Menu>
-                        <ContextMenu ItemsSource="{Binding ViewModel.TrayMenuItems, Mode=OneWay}" />
-                    </ui:NotifyIcon.Menu>
-                </ui:NotifyIcon>
-            </ui:TitleBar.Tray>
-
-        </ui:TitleBar>
+            ShowMinimize="false" />
         <Grid
             Grid.Row="1"
             Grid.RowSpan="2"

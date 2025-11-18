@@ -17,12 +17,14 @@
     <UserControl.Resources>
         <converters:LanguageNameConverter x:Key="LanguageConverter" />
         <converters:IsExpandedToIconConverter x:Key="IsExpandedToIconConverter" />
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
 
-    <Grid>
+    <Grid Visibility="{Binding LanguagesVisible, Converter={StaticResource BoolToVis}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
             <RowDefinition />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -44,18 +46,25 @@
                 Padding="4"
                 HorizontalAlignment="Right"
                 Appearance="Transparent"
-                Command="{Binding SummaryInfo.ToggleExpandAllCommand}"
-                
-                Icon="{Binding SummaryInfo.ExpandState, Converter={StaticResource IsExpandedToIconConverter}}"/>
+                Command="{Binding SummaryInfo.ToggleExpandAllCommand}">
+                <ui:SymbolIcon Symbol="{Binding SummaryInfo.ExpandState, Converter={StaticResource IsExpandedToIconConverter}, FallbackValue=ChevronDown16}" />
+            </ui:Button>
             <ui:Button
                 Margin="2,0"
                 Padding="4"
                 HorizontalAlignment="Right"
-                Appearance="Transparent" 
-                
-                Command="{Binding NewLanguageCommand}" 
-                
-                Icon="Add16" />
+                Appearance="Transparent"
+                Command="{Binding NewLanguageCommand}">
+                <ui:SymbolIcon Symbol="Add16" />
+            </ui:Button>
+            <ui:Button
+                Margin="2,0"
+                Padding="4"
+                HorizontalAlignment="Right"
+                Appearance="Transparent"
+                Command="{Binding ToggleAdvancedOptionsCommand}">
+                <TextBlock Text="..." FontWeight="Bold" />
+            </ui:Button>
         </StackPanel>
 
         <ui:DynamicScrollViewer
@@ -113,5 +122,27 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ui:DynamicScrollViewer>
+
+        <!-- Advanced options panel -->
+        <Border Grid.Row="2" Grid.ColumnSpan="2" Margin="8" Padding="8" Background="#1F000000" Visibility="{Binding ShowAdvancedOptions, Converter={StaticResource BoolToVis}}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <ui:Button Margin="2" Padding="6" Command="{Binding PreTranslateBulkCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Pre-translate" />
+                    </StackPanel>
+                </ui:Button>
+                <ui:Button Margin="2" Padding="6" Command="{Binding GenerateStatisticsBulkCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Statistics" />
+                    </StackPanel>
+                </ui:Button>
+                <ui:Button Margin="2" Padding="6" Command="{Binding ToggleLanguagesVisibilityCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Hide" />
+                    </StackPanel>
+                </ui:Button>
+            </StackPanel>
+        </Border>
+
     </Grid>
 </UserControl>

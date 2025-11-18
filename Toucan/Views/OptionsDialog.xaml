@@ -7,8 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="Options"
-    Width="535"
-    Height="500" 
+    d:DesignHeight="1211"
+    d:DesignWidth="620"
     ExtendsContentIntoTitleBar="True"
     ResizeMode="NoResize"
     WindowBackdropType="Mica"
@@ -22,60 +22,173 @@
         <Grid.RowDefinitions>
             <RowDefinition x:Name="titleBar" Height="auto" />
             <RowDefinition x:Name="contentRow" Height="*" />
-            <RowDefinition Height="42" />
+            <RowDefinition Height="52" />
         </Grid.RowDefinitions>
         <ui:TitleBar
             Title="Options"
             Grid.Row="0"
             ShowHelp="true"
             ShowMaximize="false"
-            ShowMinimize="false">
-            <ui:TitleBar.Tray>
-                <ui:NotifyIcon
-                    FocusOnLeftClick="True"
-                    MenuOnRightClick="True"
-                    TooltipText="Wpf.Ui.Demo.Simple">
-                    <ui:NotifyIcon.Menu>
-                        <ContextMenu ItemsSource="{Binding ViewModel.TrayMenuItems, Mode=OneWay}" />
-                    </ui:NotifyIcon.Menu>
-                </ui:NotifyIcon>
-            </ui:TitleBar.Tray>
-
-        </ui:TitleBar>
+            ShowMinimize="false" />
         <ScrollViewer
             x:Name="ContentScroller"
             Grid.Row="1"
-            Margin="16,0,0,0">
-            <StackPanel>
-                <ui:CardControl Margin="8" Header="Save Style">
-                    <ComboBox x:Name="SaveStyleCombobox" Width="220">
-                        <ComboBoxItem>Flat Json (.json)</ComboBoxItem>
-                        <ComboBoxItem>Namespaced Json (.json)</ComboBoxItem>
-                        <Separator />
-                        <ComboBoxItem>Generic Yaml (.yaml)</ComboBoxItem>
-                        <ComboBoxItem>JAVA (.properties)</ComboBoxItem>
-                        <ComboBoxItem>Flutter (.arb)</ComboBoxItem>
-                        <ComboBoxItem IsEnabled="False">Comma Separated Value (.csv)</ComboBoxItem>
-                    </ComboBox>
+            Margin="16,0,16,0">
+            <StackPanel Margin="0,8,0,8">
+                <!--  File format  -->
+                <ui:CardExpander Margin="8" Header="File format" IsExpanded="True">
+                    <StackPanel Margin="8">
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Width="80" VerticalAlignment="Center">Indent</TextBlock>
+                            <ComboBox Width="200" SelectedValue="{Binding Indent, Mode=TwoWay}">
+                                <ComboBoxItem>tab</ComboBoxItem>
+                                <ComboBoxItem>spaces (2)</ComboBoxItem>
+                                <ComboBoxItem>spaces (4)</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel
+                            Margin="0,8,0,0"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal">
+                            <TextBlock Width="80" VerticalAlignment="Center">Format</TextBlock>
+                            <ComboBox Width="300" SelectedValue="{Binding Format, Mode=TwoWay}">
+                                <ComboBoxItem>JSON with namespaces in keys, tree view</ComboBoxItem>
+                                <ComboBoxItem>Flat JSON</ComboBoxItem>
+                                <ComboBoxItem>YAML</ComboBoxItem>
+                                <ComboBoxItem>Properties (.properties)</ComboBoxItem>
+                                <ComboBoxItem>ARB (Flutter)</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
+                            <CheckBox Content="Support arrays" IsChecked="{Binding SupportArrays, Mode=TwoWay}" />
+                            <TextBlock
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                Foreground="Gray">
+                                (future)
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </ui:CardExpander>
 
-                </ui:CardControl>
-                <ui:CardControl Margin="8" Header="Page Size">
-                    <TextBox x:Name="PageSizeText" Width="220" />
-                </ui:CardControl>
-                <ui:CardControl Margin="8" Header="Pagination Limit">
-                    <TextBox x:Name="TruncateSizeText" Width="220" />
-                </ui:CardControl>
+                <!--  Language Codes  -->
+                <ui:CardExpander Margin="8" Header="Language Codes" IsExpanded="True">
+                    <StackPanel Margin="8">
+                        <TextBlock>Custom language codes defined in project.</TextBlock>
+                        <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
+                            <TextBlock Foreground="Gray">No custom language codes defined.</TextBlock>
+                            <Button
+                                Margin="8,0,0,0"
+                                Command="{Binding ConfigureLanguageCodesCommand}"
+                                Content="Configure..." />
+                        </StackPanel>
+                    </StackPanel>
+                </ui:CardExpander>
+
+                <!--  Editor  -->
+                <ui:CardExpander Margin="8" Header="Editor" IsExpanded="True">
+                    <StackPanel Margin="8">
+                        <CheckBox Content="Save empty translations" IsChecked="{Binding SaveEmptyTranslations, Mode=TwoWay}" />
+
+                        <StackPanel
+                            Margin="0,8,0,0"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal">
+                            <TextBlock Width="160" VerticalAlignment="Center">Translation order</TextBlock>
+                            <ComboBox Width="260" SelectedValue="{Binding TranslationOrder, Mode=TwoWay}">
+                                <ComboBoxItem>Alphabetically sorted</ComboBoxItem>
+                                <ComboBoxItem>By key added</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <TextBlock Margin="0,8,0,0">Copy template 1</TextBlock>
+                        <TextBox Text="{Binding CopyTemplate1, Mode=TwoWay}" />
+                        <TextBlock Margin="0,8,0,0">Copy template 2</TextBlock>
+                        <TextBox Text="{Binding CopyTemplate2, Mode=TwoWay}" />
+                        <TextBlock Margin="0,8,0,0">Copy template 3</TextBlock>
+                        <TextBox Text="{Binding CopyTemplate3, Mode=TwoWay}" />
+
+                        <StackPanel
+                            Margin="0,8,0,0"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal">
+                            <TextBlock Width="160" VerticalAlignment="Center">Source root</TextBlock>
+                            <TextBox Width="300" Text="{Binding SourceRoot, Mode=TwoWay}" />
+                            <Button
+                                Margin="8,0,0,0"
+                                Command="{Binding BrowseSourceRootCommand}"
+                                Content="..." />
+                            <TextBlock Margin="8,0,0,0" Foreground="Gray">(future)</TextBlock>
+                        </StackPanel>
+
+                        <StackPanel
+                            Margin="0,8,0,0"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal">
+                            <TextBlock Width="160" VerticalAlignment="Center">Source code editor</TextBlock>
+                            <TextBox Width="300" Text="{Binding SourceCodeEditor, Mode=TwoWay}" />
+                            <Button
+                                Margin="8,0,0,0"
+                                Command="{Binding BrowseSourceEditorCommand}"
+                                Content="..." />
+                        </StackPanel>
+
+                        <TextBlock Margin="0,8,0,0">Editor parameters</TextBlock>
+                        <TextBox Text="{Binding EditorParameters, Mode=TwoWay}" />
+                        <TextBlock Margin="0,4,0,0" Foreground="Gray">%1 = file, %2 = line (future)</TextBlock>
+
+                    </StackPanel>
+                </ui:CardExpander>
+
+                <!--  Machine Translation  -->
+                <ui:CardExpander Margin="8" Header="Machine Translation" IsExpanded="True">
+                    <StackPanel Margin="8">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Width="80" VerticalAlignment="Center">Formality</TextBlock>
+                            <ComboBox Width="240" SelectedValue="{Binding Formality, Mode=TwoWay}">
+                                <ComboBoxItem>Default</ComboBoxItem>
+                                <ComboBoxItem>Formal</ComboBoxItem>
+                                <ComboBoxItem>Informal</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <TextBlock Margin="8,8,0,0">Context</TextBlock>
+                        <TextBox
+                            Height="80"
+                            AcceptsReturn="True"
+                            Text="{Binding Context, Mode=TwoWay}"
+                            TextWrapping="Wrap" />
+                        <TextBlock HorizontalAlignment="Right" Foreground="Gray">{Binding ContextCharCount} / 200</TextBlock>
+                    </StackPanel>
+                </ui:CardExpander>
+
+                <!--  Pagination / Misc  -->
+                <ui:CardExpander Margin="8" Header="Pagination" IsExpanded="True">
+                    <StackPanel Margin="8">
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Width="160" VerticalAlignment="Center">Page Size</TextBlock>
+                            <TextBox Width="220" Text="{Binding PageSizeText, Mode=TwoWay}" />
+                        </StackPanel>
+                        <StackPanel
+                            Margin="0,8,0,0"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal">
+                            <TextBlock Width="160" VerticalAlignment="Center">Pagination limit</TextBlock>
+                            <TextBox Width="220" Text="{Binding TruncateSizeText, Mode=TwoWay}" />
+                        </StackPanel>
+                    </StackPanel>
+                </ui:CardExpander>
 
             </StackPanel>
         </ScrollViewer>
 
         <StackPanel
             Grid.Row="2"
-            Margin="12,0,12,8"
+            Margin="12,8,12,8"
             FlowDirection="RightToLeft"
             Orientation="Horizontal">
-            <ui:Button Margin="0,0,8,0" Click="CloseOptions">Close</ui:Button>
-            <ui:Button Margin="0,0,8,0" Click="SaveOptions">Save</ui:Button>
+            <ui:Button Margin="0,0,8,0" Command="{Binding CancelCommand}">Cancel</ui:Button>
+            <ui:Button Margin="0,0,8,0" Command="{Binding SaveCommand}">OK</ui:Button>
         </StackPanel>
 
     </Grid>

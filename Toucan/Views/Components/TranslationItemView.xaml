@@ -14,21 +14,31 @@
         <StackPanel>
             <Grid x:Name="Header" Margin="0,0,0,4">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="86"/>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="86" />
                 </Grid.ColumnDefinitions>
                 <TextBlock
-                Grid.Column="0"
-                Margin="0"
-                d:Text="namespace.item.child"
-                Text="{Binding Namespace}" />
-                <StackPanel Grid.Column="1" HorizontalAlignment="Right" 
-                Margin="0" Orientation="Horizontal">
-                    <ui:Button Margin="4, 0" Padding="4" ToolTip="Translate this key"
-                        Icon="Globe16"/>
+                    Grid.Column="0"
+                    Margin="0"
+                    d:Text="namespace.item.child"
+                    Text="{Binding Namespace}" />
+                <StackPanel
+                    Grid.Column="1"
+                    Margin="0"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal">
                     <ui:Button
-                        HorizontalAlignment="Right" Padding="4" ToolTip="Show Editor"
-                        Icon="Edit16" />
+                        Margin="4,0"
+                        Padding="4"
+                        ToolTip="Translate this key">
+                        <ui:SymbolIcon Symbol="Translate16" />
+                    </ui:Button>
+                    <ui:Button
+                        Padding="4"
+                        HorizontalAlignment="Right"
+                        ToolTip="Show Editor">
+                        <ui:SymbolIcon Symbol="Edit16" />
+                    </ui:Button>
                 </StackPanel>
             </Grid>
             <ItemsControl
@@ -61,12 +71,13 @@
                                 Text="{Binding Value}" />
                             <ui:Button
                                 Grid.Column="3"
-                                Height="28"
                                 Width="32"
-                                Padding="2"
+                                Height="28"
                                 Margin="0,0,2,0"
-                                HorizontalAlignment="Right"
-                                Icon="Copy20" />
+                                Padding="2"
+                                HorizontalAlignment="Right">
+                                <ui:SymbolIcon Symbol="Copy16" />
+                            </ui:Button>
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

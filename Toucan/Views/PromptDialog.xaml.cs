@@ -1,5 +1,5 @@
 ﻿using System.Windows.Input;
-using Wpf.Ui.Controls.Window;
+using Wpf.Ui.Controls;
 
 namespace Toucan;
 

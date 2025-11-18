@@ -11,15 +11,15 @@
     Width="858"
     Height="650"
     MinWidth="800"
-    MinHeight="600"  
-    d:DesignHeight="450" 
+    MinHeight="600"
+    d:DesignHeight="450"
     ui:Design.Background="white"
     ui:Design.Foreground="#0a0a0a"
     ExtendsContentIntoTitleBar="True"
     Loaded="Window_Loaded"
     WindowBackdropType="Auto"
     WindowCornerPreference="Round"
-    WindowStartupLocation="CenterScreen" 
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
     <Window.InputBindings>
@@ -55,97 +55,77 @@
 
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition
-                x:Name="TreeColumn"
-                Width="250"
-                MinWidth="230"
-                MaxWidth="530" />
-            <ColumnDefinition Width="2" />
-            <ColumnDefinition x:Name="ContentColumn" Width="*" />
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="titleBar" Height="auto" />
-            <RowDefinition x:Name="menuRow" />
+            <RowDefinition x:Name="contentRow" Height="*" />
             <RowDefinition x:Name="footerRow" Height="32" />
 
         </Grid.RowDefinitions>
-        <ui:TitleBar
-            Title=""
-            Grid.Column="0"
-            Grid.ColumnSpan="3"
-            Height="51"
-            VerticalAlignment="Center"
-            Icon="/Views/WindowIcon.ico" />
-        <views:MainMenu  Grid.Row="0"
-             Grid.ColumnSpan="3"
-             Margin="47,0,464,0"/>
-        <Grid
-            Grid.Row="1"
-            Grid.Column="0"
-            Margin="0,2,0,0">
+        <ui:TitleBar Title="Toucan">
+            <ui:TitleBar.Header>
+                <views:MainMenu />
+            </ui:TitleBar.Header>
+            <ui:TitleBar.TrailingContent>
+                <ui:TextBox
+                    x:Name="SearchFilterTextbox"
+                    Width="206"
+                    Height="32"
+                    MinWidth="100"
+                    Padding="0,6,0,8"
+                    HorizontalAlignment="Left"
+                    Background="#0F020202"
+                    Icon="Search16"
+                    IconPlacement="Right"
+                    PlaceholderText="  Toucan"
+                    TextChanged="SearchFilterTextbox_TextChanged" />
+
+            </ui:TitleBar.TrailingContent>
+        </ui:TitleBar>
+        <Grid Grid.Row="1" Grid.RowSpan="1">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320" />
+                <ColumnDefinition Width="2" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="2" />
-                <RowDefinition Height="280" />
-            </Grid.RowDefinitions>
-            <GridSplitter
-                Grid.Row="1"
-                Grid.Column="0"
-                Height="3"
-                HorizontalAlignment="Stretch"
-                Background="#0CFFFFFF" />
-            <views:ResourcesView
-                x:Name="resourcesView"  
-                SelectionChanged="TreeNamespace_SelectedItemChanged" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="2" />
+                    <RowDefinition Height="280" />
+                </Grid.RowDefinitions>
+                <GridSplitter
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Height="3"
+                    HorizontalAlignment="Stretch"
+                    Background="#0CFFFFFF" />
+                <views:ResourcesView x:Name="resourcesView" SelectionChanged="TreeNamespace_SelectedItemChanged" ListSelectionChanged="ResourcesView_ListSelectionChanged" />
 
-            <views:LanguagesView
-                x:Name="languagesView"
-                Grid.Row="3"
-                Grid.Column="0" />
+
+                <views:LanguagesView
+                    x:Name="languagesView"
+                    Grid.Row="3"
+                    Grid.Column="0" />
+
+            </Grid>
+
+
+            <views:TranslationDetailsView
+                x:Name="translationDetailsView"
+                Grid.Column="2"
+                FirstPageClick="FirstPage"
+                LastPageClick="LastPage"
+                NextPageClick="NextPage"
+                PreviousPageClick="PreviousPage"
+                ShowAllClick="ShowAll"
+                UpdateLanguageValue="UpdateLanguageValue" />
 
         </Grid>
 
-        <GridSplitter
-            Grid.Row="1"
-            Grid.Column="1"
-            Width="3"
-            Margin="0,16,-3,0"
-            HorizontalAlignment="Stretch"
-            Background="#01FFFFFF" />
-        <ui:TextBox
-            x:Name="SearchFilterTextbox"
-            Grid.Column="2"
-            Width="205"
-            Height="32"
-            MinWidth="200"
-            Padding="0,6,0,8"
-            HorizontalAlignment="Center"
-            Background="#0F020202"
-            Icon="Search16"
-            IconPlacement="Right"
-            PlaceholderText="  Toucan"
-            TextChanged="SearchFilterTextbox_TextChanged" />
-
-
-        <views:TranslationDetailsView
-            x:Name="translationDetailsView"
-            Grid.Row="1"
-            Grid.RowSpan="1"
-            Grid.Column="2"
-            Margin="0,2,0,0" 
-            FirstPageClick="FirstPage"
-            LastPageClick="LastPage"
-            NextPageClick="NextPage"
-            PreviousPageClick="PreviousPage"
-            ShowAllClick="ShowAll"
-            UpdateLanguageValue="UpdateLanguageValue" />
-
-
-        <!--<views:StartScreen 
+        <!--<views:StartScreen
             Grid.Row="1"
             Grid.RowSpan="1"
             Grid.Column="0" Grid.ColumnSpan="3" Visibility="{Binding ShowStartScreen, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" />-->
@@ -153,13 +133,9 @@
 
         <StatusBar
             x:Name="RootStatusBar"
-            Grid.Row="3"
-            Grid.ColumnSpan="3"
-            MinHeight="0"
-            Margin="0"
-            Padding="8,2"
-            
-            >
+            Grid.Row="2"
+            MinHeight="32"
+            Padding="2">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid>
@@ -193,8 +169,8 @@
             </StatusBarItem>
             <StatusBarItem Grid.Column="6">
                 <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Ln 45, Col 30" />
-            </StatusBarItem>  
-        </StatusBar> 
+            </StatusBarItem>
+        </StatusBar>
 
     </Grid>
 </ui:FluentWindow>

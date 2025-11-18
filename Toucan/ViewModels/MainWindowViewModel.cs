@@ -8,10 +8,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Toucan.Core;
 using Toucan.Core.Contracts;
+using Toucan.Core.Contracts.Services;
 using Toucan.Core.Extensions;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
@@ -36,7 +38,7 @@ internal partial class MainWindowViewModel : ObservableObject
     private PagingController<LanguageGroup> pagingController = new(30, new List<LanguageGroup>());
 
     [ObservableProperty]
-    private ObservableCollection<NsTreeItem> currentTreeItems = [];
+    private ObservableCollection<NsTreeItem> currentTreeItems = new();
 
 
     [ObservableProperty]
@@ -60,6 +62,13 @@ internal partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool showStartScreen = true;
 
+    // New properties for languages panel visibility and advanced options
+    [ObservableProperty]
+    private bool languagesVisible = true;
+
+    [ObservableProperty]
+    private bool showAdvancedOptions = false;
+
 
     public IEnumerable<LanguageGroup> PageData { get; private set; }
     public string PageMessage { get; private set; }
@@ -68,18 +77,21 @@ internal partial class MainWindowViewModel : ObservableObject
     private readonly IDialogService _dialogService;
     private readonly IMessageService _messageService;
     private readonly IPreferenceService _preferenceService;
+    private readonly IBulkActionService _bulkActionService;
 
 
     public MainWindowViewModel(
      IRecentProjectService recentFileService,
      IDialogService dialogService,
      IMessageService messageService,
-     IPreferenceService preferenceService)
+     IPreferenceService preferenceService,
+     IBulkActionService bulkActionService = null)
     {
         _recentFileService = recentFileService;
         _dialogService = dialogService;
         _messageService = messageService;
         _preferenceService = preferenceService;
+        _bulkActionService = bulkActionService;
 
         AppOptions = _preferenceService.Load();
     }
@@ -146,6 +158,60 @@ internal partial class MainWindowViewModel : ObservableObject
         IsTreeView = !IsTreeView;
     }
 
+    // New commands for UI control and bulk actions
+    [RelayCommand]
+    private void ToggleLanguagesVisibility()
+    {
+        LanguagesVisible = !LanguagesVisible;
+    }
+
+    [RelayCommand]
+    private void ToggleAdvancedOptions()
+    {
+        ShowAdvancedOptions = !ShowAdvancedOptions;
+    }
+
+    [RelayCommand]
+    private async Task PreTranslateBulk()
+    {
+        if (AllTranslation == null || AllTranslation.Count == 0)
+        {
+            _messageService.ShowMessage("No translations loaded to pre-translate.");
+            return;
+        }
+
+        if (_bulkActionService == null)
+        {
+            _messageService.ShowMessage("Bulk action service is not available.");
+            return;
+        }
+
+        await _bulkActionService.PreTranslateAsync(AllTranslation);
+        UpdateSummaryInfo();
+        IsDirty = true;
+        StatusText = "Pre-translation completed.";
+    }
+
+    [RelayCommand]
+    private void GenerateStatisticsBulk()
+    {
+        if (AllTranslation == null || AllTranslation.Count == 0)
+        {
+            _messageService.ShowMessage("No translations loaded to generate statistics.");
+            return;
+        }
+
+        if (_bulkActionService == null)
+        {
+            _messageService.ShowMessage("Bulk action service is not available.");
+            return;
+        }
+
+        var stats = _bulkActionService.GenerateStatistics(AllTranslation);
+        StatusText = stats;
+        _messageService.ShowMessage(stats);
+    }
+
     internal static void OpenUrl(string url)
     {
         try
@@ -209,6 +275,7 @@ internal partial class MainWindowViewModel : ObservableObject
             AddLanguage(dialog.ResponseText);
         }
     }
+
 
 
 
@@ -291,7 +358,7 @@ internal partial class MainWindowViewModel : ObservableObject
         List<string> languages = AllTranslation.ToLanguages().ToList();
 
 
-        List<LanguageGroup> languageGroups = [];
+        List<LanguageGroup> languageGroups = new();
         foreach (string n in namespaces)
         {
             LanguageGroup languageGroup = new(n, languages);
@@ -411,7 +478,7 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void CloseProject()
     {
-        AllTranslation = [];
+        AllTranslation = new();
         CurrentPath = "";
 
         RefreshTree();

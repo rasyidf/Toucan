@@ -9,6 +9,8 @@ namespace Toucan.Views;
 public partial class ResourcesView : UserControl
 { 
     public event RoutedPropertyChangedEventHandler<object> SelectionChanged;
+    public event RoutedEventHandler ListSelectionChanged;
+
     public ResourcesView()
     {
         InitializeComponent();
@@ -18,5 +20,10 @@ public partial class ResourcesView : UserControl
     private void TreeNamespace_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
         SelectionChanged?.Invoke(sender, e);
+    }
+
+    private void ListNamespace_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ListSelectionChanged?.Invoke(sender, e);
     }
 }

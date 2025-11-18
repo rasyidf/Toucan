@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -11,12 +12,17 @@ public class TreeItemtoListItemConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is IEnumerable<NsTreeItem> roots)
+        // Handle CollectionView and other non-generic enumerables by iterating non-generic IEnumerable
+        if (value is IEnumerable enumerable)
         {
             var result = new List<NsFlatItem>();
-            foreach (var item in roots)
+
+            foreach (var v in enumerable)
             {
-                Flatten(item, "", 0, result);
+                if (v is NsTreeItem item)
+                {
+                    Flatten(item, "", 0, result);
+                }
             }
 
             return result;
@@ -36,7 +42,7 @@ public class TreeItemtoListItemConverter : IValueConverter
             FullKey = fullKey,
             IsLeaf = isLeaf,
             Source = item,
-            DisplayKey = $"{new string(' ', depth * 2)}{(depth > 0 ? "└ " : "")}{item.Name}"
+            DisplayKey = $"{new string(' ', depth * 2)}{(depth > 0 ? "└ " : "")} {item.Name}".TrimStart()
         });
 
         foreach (var child in item.Items)

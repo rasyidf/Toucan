@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Windows.Input;
-using Wpf.Ui.Controls.Window;
+using Wpf.Ui.Controls;
 using System.Linq;
 using System;
 using Toucan.ViewModels;

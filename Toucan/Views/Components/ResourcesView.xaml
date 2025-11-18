@@ -1,90 +1,130 @@
-﻿<UserControl  
-    x:Class="Toucan.Views.ResourcesView"  
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"  
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"  
-    xmlns:converters="clr-namespace:Toucan.Converters"  
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"  
-    xmlns:local="clr-namespace:Toucan.Views"  
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"  
-    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"  
-    xmlns:models="clr-namespace:Toucan.Core.Models;assembly=Toucan.Core" 
-    d:DesignHeight="450"  
-    d:DesignWidth="329.592"  
-    d:Foreground="White"  
-    mc:Ignorable="d">  
-    <UserControl.Resources>  
-        <HierarchicalDataTemplate x:Key="ChildTemplate" ItemsSource="{Binding Path=Items}">  
-            <TextBlock x:Name="textBlock" Text="{Binding Path=Name}" />  
-        </HierarchicalDataTemplate>  
-        <HierarchicalDataTemplate  
-            x:Key="NameTemplate"  
-            ItemTemplate="{StaticResource ChildTemplate}"  
-            ItemsSource="{Binding Path=Items}">  
-            <TextBlock  
-                x:Name="textBlock"  
-                Padding="0,1,0,2"  
-                Text="{Binding Path=Name}" />  
-        </HierarchicalDataTemplate>  
-        <converters:TreeItemtoListItemConverter x:Key="TreeItemsFlatten" />  
-        <converters:ViewModeIconConverter x:Key="ViewModeIconConverter" />  
-        <converters:BooleanToVisibilityConverter x:Key="BoolToVis" />  
-    </UserControl.Resources>  
-    <Grid>  
-        <Grid.RowDefinitions>  
-            <RowDefinition Height="42" />  
-            <RowDefinition Height="*" />  
-        </Grid.RowDefinitions>  
-        <Grid.ColumnDefinitions>  
-            <ColumnDefinition />  
-            <ColumnDefinition Width="Auto" />  
-        </Grid.ColumnDefinitions>  
-        <TextBlock  
-            x:Name="textBlock"  
-            Height="16"  
-            Margin="8,0,0,0"  
-            VerticalAlignment="Center"  
-            FontWeight="SemiBold"  
-            Text="Translation IDs" />  
-        <StackPanel Grid.Column="1" Orientation="Horizontal">  
-            <ui:Button  
-                Margin="4,0"  
-                Padding="4"  
-                Appearance="Transparent"  
-                ToolTip="Toggle view mode"  
-                Icon="{Binding IsTreeView, Converter={StaticResource ViewModeIconConverter}}"  
-                Command="{Binding ToggleViewModeCommand}" />  
-            <ui:Button  
-                x:Name="bNewItem"  
-                Margin="4,0"  
-                Padding="4"  
-                Appearance="Transparent"  
-                Command="{Binding NewItemCommand}"
-                Icon="Add16"  
-                IsDefault="True"  
-                ToolTip="New Item" />  
-        </StackPanel>  
-        <TreeView  
-            x:Name="TreeNamespace"  
-            Grid.Row="1"  
-            Grid.ColumnSpan="2"  
-            ItemTemplate="{StaticResource NameTemplate}"  
-            ItemsSource="{Binding CurrentTreeItems}"  
-            SelectedItemChanged="TreeNamespace_SelectedItemChanged"  
-            Visibility="{Binding IsTreeView, Converter={StaticResource BoolToVis}}" />  
-        <ListView  
-            x:Name="ListNamespace"  
-            Grid.Row="1"  
-            Grid.ColumnSpan="2"  
-            Visibility="{Binding IsTreeView, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"  
-            ItemsSource="{Binding CurrentTreeItems, Converter={StaticResource TreeItemsFlatten}}">  
-            <ListView.ItemTemplate>  
-                <DataTemplate DataType="{x:Type models:NsFlatItem}"> <!-- Fixed namespace prefix and ensured 'NsFlatItem' is defined in the 'Toucan.Models' namespace -->  
-                    <StackPanel Orientation="Horizontal" Margin="4,2">  
-                        <TextBlock Text="{Binding DisplayKey}" />  
-                        <TextBlock Foreground="Gray" Margin="4,0,0,0" Text="{Binding Source.Namespace}" />  
-                    </StackPanel>  
-                </DataTemplate>  
-            </ListView.ItemTemplate>  
-        </ListView>  
-    </Grid>  
+﻿<UserControl
+    x:Class="Toucan.Views.ResourcesView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:Toucan.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Toucan.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="clr-namespace:Toucan.Core.Models;assembly=Toucan.Core"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    d:DesignHeight="450"
+    d:DesignWidth="329.592"
+    d:Foreground="White"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <HierarchicalDataTemplate x:Key="ChildTemplate" ItemsSource="{Binding Path=Items}">
+            <StackPanel Margin="2,1" Orientation="Horizontal">
+                <ui:SymbolIcon Margin="0,0,6,0" Symbol="ChevronRight16" />
+                <TextBlock x:Name="textBlock" Text="{Binding Path=Name}" />
+            </StackPanel>
+        </HierarchicalDataTemplate>
+        <HierarchicalDataTemplate
+            x:Key="NameTemplate"
+            ItemTemplate="{StaticResource ChildTemplate}"
+            ItemsSource="{Binding Path=Items}">
+            <StackPanel Margin="0,1,0,2" Orientation="Horizontal">
+                <ui:SymbolIcon Margin="0,0,6,0" Symbol="Folder16" />
+                <TextBlock
+                    x:Name="textBlock"
+                    Margin="0,1,0,2"
+                    Text="{Binding Path=Name}" />
+            </StackPanel>
+        </HierarchicalDataTemplate>
+        <converters:TreeItemtoListItemConverter x:Key="TreeItemsFlatten" />
+        <converters:ViewModeIconConverter x:Key="ViewModeIconConverter" />
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+
+    <ui:Card
+        Margin="0"
+        Padding="0"
+        VerticalAlignment="Stretch"
+        VerticalContentAlignment="Stretch">
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="42" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                x:Name="textBlockHeader"
+                Height="16"
+                Margin="8,0,0,0"
+                VerticalAlignment="Center"
+                FontWeight="SemiBold"
+                Text="Translation IDs" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <ui:Button
+                    Margin="4,0"
+                    Padding="4"
+                    Appearance="Transparent"
+                    Command="{Binding ToggleViewModeCommand}"
+                    ToolTip="Toggle view mode">
+                    <ui:Button.Icon>
+                        <ui:SymbolIcon Symbol="{Binding IsTreeView, Converter={StaticResource ViewModeIconConverter}}" />
+                    </ui:Button.Icon>
+                </ui:Button>
+                <ui:Button
+                    x:Name="bNewItem"
+                    Margin="4,0"
+                    Padding="4"
+                    Appearance="Transparent"
+                    Command="{Binding NewItemCommand}"
+                    IsDefault="True"
+                    ToolTip="New Item">
+                    <ui:Button.Icon>
+                        <ui:SymbolIcon Symbol="Add16" />
+                    </ui:Button.Icon>
+                </ui:Button>
+            </StackPanel>
+
+            <Border
+                Grid.Row="1"
+                Grid.ColumnSpan="2"
+                Padding="6"
+                Background="Transparent">
+                <Grid>
+                    <Grid.Resources>
+                        <Style TargetType="TreeView">
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Background" Value="Transparent" />
+                        </Style>
+                        <Style TargetType="ListView">
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Background" Value="Transparent" />
+                        </Style>
+                    </Grid.Resources>
+
+                    <ui:ListView
+                        x:Name="ListNamespace"
+                        VerticalAlignment="Stretch"
+                        ItemsSource="{Binding CurrentTreeItems, Converter={StaticResource TreeItemsFlatten}}"
+                        SelectionChanged="ListNamespace_SelectionChanged">
+                        <ui:ListView.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:NsFlatItem}">
+                                <StackPanel Margin="4,2" Orientation="Horizontal">
+                                    <ui:SymbolIcon Foreground="Gray" Symbol="Document16" />
+                                    <TextBlock
+                                        Margin="6,0,0,0"
+                                        Foreground="Gray"
+                                        Text="{Binding Source.Namespace}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ui:ListView.ItemTemplate>
+                    </ui:ListView>
+                    <TreeView
+                        x:Name="TreeNamespace"
+                        ItemTemplate="{StaticResource NameTemplate}"
+                        ItemsSource="{Binding CurrentTreeItems}"
+                        SelectedItemChanged="TreeNamespace_SelectedItemChanged"
+                        Visibility="{Binding IsTreeView, Converter={StaticResource BoolToVis}}" />
+
+                </Grid>
+            </Border>
+        </Grid>
+    </ui:Card>
 </UserControl>
