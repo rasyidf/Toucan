@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Toucan Project Schema",
+  "type": "object",
+  "required": ["schemaVersion","projectName","framework","packages"],
+  "properties": {
+    "schemaVersion": {"type":"string"},
+    "projectName": {"type":"string"},
+    "beVersion": {"type":"string"},
+    "framework": {"type":"string"},
+    "languages": {"type":"array","items":{"type":"string"}},
+    "translationPackages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required":["name"],
+        "properties":{
+          "name":{"type":"string"},
+          "translationUrls": {"type":"array","items":{"type":"object","required":["language","path"],"properties":{"language":{"type":"string"},"path":{"type":"string"}}}}
+        }
+      }
+    },
+    "primaryLanguage": {"type":"string"},
+    "embeddedSourceTexts": {"type":"boolean"},
+    "editorConfiguration": {"type":"object"},
+    "configuration": {"type":"object"},
+    "packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name","files"],
+        "properties": {
+          "name": {"type":"string"},
+          "files": {"type":"array","items":{
+            "type":"object",
+            "required":["name"],
+            "properties":{
+              "name":{"type":"string"},
+              "folders": {"type":"array","items":{
+                "type":"object",
+                "required":["name"],
+                "properties":{
+                  "name":{"type":"string"},
+                  "concepts": {"type":"array","items":{
+                    "type":"object",
+                    "required":["name","translations"],
+                    "properties":{
+                      "name":{"type":"string"},
+                      "description":{"type":"string"},
+                      "comment":{"type":"string"},
+                      "translations":{
+                        "type":"object",
+                        "additionalProperties":{
+                          "type":"object",
+                          "properties":{
+                            "approved":{"type":"boolean"},
+                            "text":{"type":"string"}
+                          }
+                        }
+                      }
+                    }
+                  }}
+                }
+              }}
+            }
+          }}
+        }
+      }
+    }
+  }
+}

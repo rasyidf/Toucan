@@ -1,0 +1,67 @@
+{
+  "$schema": "./toucan.project.schema.json",
+  "schemaVersion": "1.0.0",
+  "projectName": "qcash-ui",
+  "beVersion": "5.5.1",
+  "framework": "i18next",
+  "languages": ["en-US", "id-ID", "zh-CN"],
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        { "path": "C:/Users/syid/Documents/en-US.json", "language": "en-US" },
+        { "path": "C:/Users/syid/Documents/id-ID.json", "language": "id-ID" }
+      ]
+    }
+  ],
+  "embeddedSourceTexts": false,
+  "primaryLanguage": "en-US",
+  "editorConfiguration": {
+    "save_empty_translations": "true",
+    "translation_order": "primary_language",
+    "copy_templates": ["'%1'", "", ""],
+    "machine_translation_formality": "prefer_formal"
+  },
+  "configuration": {
+    "indent": "space4",
+    "format": "namespaced-json",
+    "support_arrays": "true"
+  },
+  "packages": [
+    {
+      "name": "main",
+      "files": [
+        {
+          "name": "common",
+          "folders": [
+            {
+              "name": "buttons",
+              "concepts": [
+                {
+                  "name": "add",
+                  "description": "",
+                  "comment": "",
+                  "translations": {
+                    "en-US": { "approved": false },
+                    "id-ID": { "approved": false },
+                    "zh-CN": { "approved": false }
+                  }
+                },
+                {
+                  "name": "save",
+                  "description": "",
+                  "comment": "",
+                  "translations": {
+                    "en-US": { "approved": false },
+                    "id-ID": { "approved": false },
+                    "zh-CN": { "approved": false }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

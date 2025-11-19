@@ -78,6 +78,7 @@ internal partial class MainWindowViewModel : ObservableObject
     private readonly IMessageService _messageService;
     private readonly IPreferenceService _preferenceService;
     private readonly IBulkActionService _bulkActionService;
+    private readonly IProjectService _projectService;
 
 
     public MainWindowViewModel(
@@ -85,13 +86,15 @@ internal partial class MainWindowViewModel : ObservableObject
      IDialogService dialogService,
      IMessageService messageService,
      IPreferenceService preferenceService,
-     IBulkActionService bulkActionService = null)
+    IBulkActionService bulkActionService = null,
+    IProjectService projectService = null)
     {
         _recentFileService = recentFileService;
         _dialogService = dialogService;
         _messageService = messageService;
         _preferenceService = preferenceService;
         _bulkActionService = bulkActionService;
+        _projectService = projectService;
 
         AppOptions = _preferenceService.Load();
     }
@@ -407,7 +410,7 @@ internal partial class MainWindowViewModel : ObservableObject
         {
             CurrentPath = dialog.SelectedPath;
             AppOptions.DefaultPath = CurrentPath;
-            ProjectHelper.CreateLanguage(CurrentPath, "en-US");
+            _projectService.CreateLanguage(CurrentPath, "en-US");
             LoadFolder(CurrentPath);
         }
     }
@@ -432,7 +435,7 @@ internal partial class MainWindowViewModel : ObservableObject
 
     private void LoadFolder(string path)
     {
-        AllTranslation = ProjectHelper.Load(path);
+        AllTranslation = _projectService.Load(path);
         AddMissingTranslations();
 
         RefreshTree();
@@ -447,10 +450,10 @@ internal partial class MainWindowViewModel : ObservableObject
         switch (AppOptions.SaveStyle)
         {
             case SaveStyles.Json:
-                ProjectHelper.SaveJson(CurrentPath, AllTranslation.ToLanguageDictionary());
+                _projectService.Save(CurrentPath, SaveStyles.Json, CurrentTreeItems.ToList(), AllTranslation);
                 break;
             case SaveStyles.Namespaced:
-                ProjectHelper.SaveNsJson(CurrentPath, CurrentTreeItems.ToList(), AllTranslation.ToLanguages().ToList());
+                _projectService.Save(CurrentPath, SaveStyles.Namespaced, CurrentTreeItems.ToList(), AllTranslation);
                 break;
         }
     }

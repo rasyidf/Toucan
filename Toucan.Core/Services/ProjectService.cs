@@ -4,51 +4,65 @@ using Toucan.Core.Models;
 using System.Text;
 using Toucan.Extensions;
 using System.IO;
+using Toucan.Core.Contracts.Services;
+using System.Linq;
+using System.Collections.Generic;
 
-namespace Toucan.Core;
+namespace Toucan.Core.Services;
 
-
-public static class ProjectHelper
+public class ProjectService : IProjectService
 {
 
-    public static void CreateLanguage(string folder, string language)
+    private readonly IFileService _fileService;
+    private readonly IEnumerable<ISaveStrategy> _saveStrategies;
+
+    public ProjectService(IFileService fileService, IEnumerable<ISaveStrategy> saveStrategies)
     {
-        File.WriteAllText($"{folder}/{language}.json", /*lang=json,strict*/ "{ \"app\": \"\" }");
+        _fileService = fileService;
+        _saveStrategies = saveStrategies;
     }
 
-    public static List<TranslationItem> Load(string folder)
+    public void CreateLanguage(string folder, string language)
+    {
+        // Persist a minimal JSON object for language files
+        _fileService.Save(folder, language + ".json", new Dictionary<string, string>() { { "app", "" } });
+    }
+
+    public List<TranslationItem> Load(string folder)
     {
         if (string.IsNullOrEmpty(folder))
         {
-            return [];
+            return new List<TranslationItem>();
         }
 
         string[] files = Directory.GetFiles(folder, "*.json");
-        List<TranslationItem> settings = [];
+        List<TranslationItem> settings = new List<TranslationItem>();
 
         foreach (string filePath in files)
         {
-            List<TranslationItem> newFiles = [];
+            List<TranslationItem> newFiles = new List<TranslationItem>();
             string file = Path.GetFileName(filePath);
             string language = Path.GetFileNameWithoutExtension(filePath);
 
-            string content = string.Join(Environment.NewLine, File.ReadAllLines(filePath));
-            FromNestMethod(newFiles, language, content);
+            // Use file service to deserialize JSON content; we read it as dynamic/JObject
+            var myObj = _fileService.Read<dynamic>(folder, file);
+            FromNestMethod(newFiles, language, myObj);
             if (newFiles.Count == 0)
-                newFiles.AddRange([new TranslationItem() { Language = language }]);
+                newFiles.AddRange(new List<TranslationItem>() { new TranslationItem() { Language = language } });
             settings.AddRange(newFiles);
         }
         //GenerateLargeTestData(translationItem, translationItem.ToLanguages().ToList());
         return settings;
     }
 
-    private static void FromNestMethod(List<TranslationItem> translationItem, string language, string content)
+    private static void FromNestMethod(List<TranslationItem> translationItem, string language, dynamic content)
     {
-        List<TranslationItem> TranslationItems = [];
+        List<TranslationItem> TranslationItems = new List<TranslationItem>();
         try
         {
-            dynamic myObj = JsonConvert.DeserializeObject(content) ?? new object();
-            foreach (JProperty jproperty in myObj)
+            if (content == null) return;
+
+            foreach (JProperty jproperty in content)
             {
                 ProcessLanguage(language, TranslationItems, jproperty);
             }
@@ -91,12 +105,12 @@ public static class ProjectHelper
     }
 
 
-    public static void SaveNsJson(string path, List<NsTreeItem> items, List<string> languages)
+    public void SaveNsJson(string path, List<NsTreeItem> items, List<string> languages)
     {
 
         foreach (string language in languages)
         {
-            Dictionary<string, dynamic> dyn = [];
+            Dictionary<string, dynamic> dyn = new Dictionary<string, dynamic>();
 
             for (int i = 0; i < items.Count; i++)
             {
@@ -106,33 +120,41 @@ public static class ProjectHelper
             //cleanup empty
 
 
-            string newFilePath = Path.Combine(path, language + ".json");
-            string json = JsonConvert.SerializeObject(dyn, Formatting.Indented, new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-            });
-            File.WriteAllText(newFilePath, json);
+            _fileService.Save(path, language + ".json", dyn);
         }
 
     }
 
 
-    public static void SaveJson(string path, Dictionary<string, IEnumerable<TranslationItem>> TranslationItems)
+    public void SaveJson(string path, Dictionary<string, IEnumerable<TranslationItem>> TranslationItems)
     {
 
         foreach (KeyValuePair<string, IEnumerable<TranslationItem>> TranslationItem in TranslationItems)
         {
-            string newFilePath = Path.Combine(path, TranslationItem.Key + ".json");
-            StringBuilder contentBuilder = new("{\n");
-            int counter = 0;
+            var dict = new Dictionary<string, string>();
             foreach (TranslationItem setting in TranslationItem.Value.NoEmpty().OrderBy(o => o.Namespace))
             {
-                counter++;
-                contentBuilder.AppendLine((counter == 1 ? "" : ",") + "\t\"" + setting.Namespace + "\" : \"" + setting.Value + "\"");
+                dict[setting.Namespace] = setting.Value ?? string.Empty;
             }
 
-            contentBuilder.AppendLine("}");
-            File.WriteAllText(newFilePath, contentBuilder.ToString());
+            _fileService.Save(path, TranslationItem.Key + ".json", dict);
         }
+    }
+
+    // Pluggable save entrypoint — selects a registered save strategy by SaveStyles
+    public void Save(string path, SaveStyles style, List<NsTreeItem> items, IEnumerable<TranslationItem> translations)
+    {
+        var strategy = _saveStrategies?.FirstOrDefault(s => s.Style == style);
+        if (strategy == null)
+            throw new NotSupportedException($"No save strategy registered for {style}");
+
+        var context = new SaveContext()
+        {
+            LanguageDictionary = translations?.ToLanguageDictionary() ?? new Dictionary<string, IEnumerable<TranslationItem>>(),
+            NsTreeItems = items ?? new List<NsTreeItem>(),
+            Languages = translations?.ToLanguages().ToList() ?? new List<string>()
+        };
+
+        strategy.Save(path, context);
     }
 }

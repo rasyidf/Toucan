@@ -61,6 +61,10 @@ public partial class App : Application
 
         // Core Services
         services.AddSingleton<IFileService, FileService>();
+        services.AddSingleton<IProjectService, ProjectService>();
+        // Save strategies
+        services.AddSingleton<ISaveStrategy, Toucan.Core.Services.SaveStrategies.JsonSaveStrategy>();
+        services.AddSingleton<ISaveStrategy, Toucan.Core.Services.SaveStrategies.NamespacedSaveStrategy>();
 
         // Services
         services.AddSingleton<IWindowManagerService, WindowManagerService>();
