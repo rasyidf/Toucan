@@ -476,23 +476,39 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task NewFolder()
     {
-        VistaFolderBrowserDialog dialog = new()
+        // Open the new project dialog to collect detailed settings
+        var dialog = new Toucan.NewProjectPrompt("New Project", "Create a new project with languages and packages.")
         {
-            SelectedPath = CurrentPath
+            Owner = App.Current.MainWindow
         };
-        bool? selected = dialog.ShowDialog(App.Current.MainWindow);
-        if (selected.GetValueOrDefault())
+
+        // Show dialog and use the ViewModel to initialize project files when confirmed
+        if (dialog.ShowDialog() == true && dialog.DataContext is NewProjectViewModel vm)
         {
-            CurrentPath = dialog.SelectedPath;
-            AppOptions.DefaultPath = CurrentPath;
-            if (_projectService == null)
+            // require project folder
+            if (string.IsNullOrWhiteSpace(vm.ProjectFolder))
             {
-                _messageService.ShowMessage("Project service not available.");
+                _messageService.ShowMessage("No folder selected.");
                 return;
             }
 
-            _projectService.CreateLanguage(CurrentPath, "en-US");
-            await LoadFolderAsync(CurrentPath);
+            try
+            {
+                System.IO.Directory.CreateDirectory(vm.ProjectFolder);
+                foreach (var l in vm.Languages)
+                {
+                    _projectService.CreateLanguage(vm.ProjectFolder, l);
+                }
+
+                CurrentPath = vm.ProjectFolder;
+                AppOptions.DefaultPath = CurrentPath;
+                _recentFileService.Add(CurrentPath);
+                await LoadFolderAsync(CurrentPath);
+            }
+            catch (Exception ex)
+            {
+                _messageService.ShowMessage($"Failed to create project: {ex.Message}");
+            }
         }
     }
     [RelayCommand]

@@ -38,13 +38,87 @@
                 <RowDefinition />
                 <RowDefinition Height="42" />
             </Grid.RowDefinitions>
-            <ui:TextBox
-                x:Name="ResponseTextBox"
-                Height="35"
-                Margin="10,52,10,0"
-                VerticalAlignment="Top"
-                PlaceholderText="Project Name"
-                RenderTransformOrigin="0,0" />
+                <StackPanel Margin="10,10,10,10">
+                    <TextBlock Text="Project Name" FontWeight="SemiBold" />
+                    <ui:TextBox
+                        x:Name="ResponseTextBox"
+                        Height="32"
+                        Margin="0,6,0,10"
+                        PlaceholderText="Project Name" />
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="120"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Framework" FontWeight="SemiBold" />
+                            <ComboBox ItemsSource="{Binding Frameworks}" SelectedItem="{Binding SelectedFramework}" Height="28"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                            <TextBlock Text="Folder" FontWeight="SemiBold" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="70"/>
+                                </Grid.ColumnDefinitions>
+                                <ui:TextBox Text="{Binding ProjectFolder}" Height="28" Margin="0,6,6,0"/>
+                                <ui:Button Grid.Column="1" Content="Browse" Height="28" Margin="0,6,0,0" Command="{Binding BrowseFolderCommand}" />
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+
+                    <Separator Margin="0,6,0,6"/>
+
+                    <TextBlock Text="Languages" FontWeight="SemiBold" />
+                    <StackPanel Orientation="Horizontal" Margin="0,6,0,10">
+                        <ui:Button Content="Add language" Margin="0,0,6,0" Click="AddLanguage_Click"/>
+                        <ui:Button Content="Remove language" Click="RemoveLanguage_Click"/>
+                    </StackPanel>
+
+                    <ScrollViewer Height="160">
+                        <ItemsControl ItemsSource="{Binding Packages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderThickness="1" BorderBrush="#2A2A2A" Padding="6" Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Text="{Binding Name, Mode=TwoWay}" Height="28"/>
+                                                <ui:Button Grid.Column="1" Content="Remove" Command="{Binding DataContext.RemovePackageCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Margin="6,0,0,0"/>
+                                            </Grid>
+                                            <ItemsControl ItemsSource="{Binding Path=Translations}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,6,0,0">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="140"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="80"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Text="{Binding Language}" VerticalAlignment="Center"/>
+                                                            <TextBox Grid.Column="1" Text="{Binding FilePath, Mode=TwoWay}" Height="28"/>
+                                                            <ui:Button Grid.Column="2" Content="Browse" Height="28" Margin="6,0,0,0" Click="BrowseTranslation_Click"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,10,0,0">
+                        <ui:Button Content="Add package" Command="{Binding AddPackageCommand}"/>
+                        <TextBlock Text="  Source language: " VerticalAlignment="Center" Margin="20,0,0,0"/>
+                        <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding SourceLanguage}" Width="140"/>
+                    </StackPanel>
+                </StackPanel>
             <ui:Button
                 Grid.RowSpan="2"
                 Width="90"

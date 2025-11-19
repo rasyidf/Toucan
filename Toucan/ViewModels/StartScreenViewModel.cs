@@ -41,7 +41,18 @@ public partial class StartScreenViewModel : ObservableObject
     [RelayCommand]
     private void NewProject()
     {
-        // TODO: Navigate to New Project screen or show dialog
+        // Show the New Project dialog
+        var dialog = new Toucan.NewProjectPrompt("New Project", "Create a new translation project");
+        dialog.Owner = System.Windows.Application.Current.MainWindow;
+
+        if (dialog.ShowDialog() == true && dialog.DataContext is NewProjectViewModel vm)
+        {
+            // Add to recent projects if a folder is set
+            if (!string.IsNullOrWhiteSpace(vm.ProjectFolder))
+            {
+                _recentProjectService.Add(vm.ProjectFolder);
+            }
+        }
     }
 
     [RelayCommand]
