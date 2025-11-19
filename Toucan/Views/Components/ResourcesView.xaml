@@ -15,7 +15,7 @@
     <UserControl.Resources>
         <HierarchicalDataTemplate x:Key="ChildTemplate" ItemsSource="{Binding Path=Items}">
             <StackPanel Margin="2,1" Orientation="Horizontal">
-                <ui:SymbolIcon Margin="0,0,6,0" Symbol="ChevronRight16" />
+                <!-- <ui:SymbolIcon Margin="0,0,6,0" Symbol="ChevronRight16" /> -->
                 <TextBlock x:Name="textBlock" Text="{Binding Path=Name}" />
             </StackPanel>
         </HierarchicalDataTemplate>

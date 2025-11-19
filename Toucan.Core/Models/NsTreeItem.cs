@@ -10,14 +10,14 @@ namespace Toucan.Core.Models;
 
 public class NsTreeItem
 {
-    public NsTreeItem Parent { get; set; }
+    public NsTreeItem? Parent { get; set; }
     public bool IsLoaded { get; set; }
 
     public bool IsExpanded { get; set; }
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string Namespace { get; set; }
-    public string ImagePath { get; set; }
+    public string? Namespace { get; set; }
+    public string? ImagePath { get; set; }
     private List<NsTreeItem> _storage { get; set; } = [];
 
     public IEnumerable<NsTreeItem> Items

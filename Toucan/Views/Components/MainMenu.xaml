@@ -20,9 +20,13 @@
                 InputGestureText="Ctrl+Shift+N" />
             <ui:MenuItem
                 Command="{Binding OpenFolderCommand}"
-                Header="_Open project"
+                Header="_Open folder"
                 Icon="{ui:SymbolIcon Folder20}"
                 InputGestureText="Ctrl+O" />
+            <ui:MenuItem
+                Command="{Binding OpenProjectFileCommand}"
+                Header="Open project file..."
+                Icon="{ui:SymbolIcon DocumentText20}" />
             <ui:MenuItem
                 Command="{Binding OpenRecentCommand}"
                 Header="_Open recent"
@@ -79,14 +83,14 @@
                 Header="_Rename"
                 InputGestureText="F2" />
             <ui:MenuItem
-                Command="{Binding RemoveItemCommand}"
+                Command="{Binding DeleteItemCommand}"
                 Header="_Remove IDs"
                 InputGestureText="Del"
-                IsEnabled="False" />
+                 />
             <Separator />
-            <ui:MenuItem Header="_Pre-Translate..." IsEnabled="False" />
-            <ui:MenuItem Header="_Fill empty translations..." IsEnabled="False" />
-            <ui:MenuItem Header="_Delete unused translations..." IsEnabled="False" />
+                <ui:MenuItem Header="_Pre-Translate..." Command="{Binding PreTranslateBulkCommand}" />
+                <ui:MenuItem Header="_Fill empty translations..." Command="{Binding FillEmptyTranslationsCommand}" />
+                <ui:MenuItem Header="_Delete unused translations..." Command="{Binding DeleteUnusedTranslationsCommand}" />
 
             <Separator />
             <ui:MenuItem Header="Convert case">
@@ -149,7 +153,7 @@
             <ui:MenuItem Header="Show machine translations" />
             <ui:MenuItem Header="Show thesaurus" />
             <Separator />
-            <ui:MenuItem Header="Statistics" />
+            <ui:MenuItem Header="Statistics" Command="{Binding GenerateStatisticsBulkCommand}" />
         </ui:MenuItem>
 
         <ui:MenuItem Header="Help">

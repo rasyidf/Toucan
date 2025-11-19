@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
 using Toucan.ViewModels;
+using Toucan.Services;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
@@ -27,6 +28,28 @@ public partial class MainWindow : FluentWindow
 
         // wire up list selection from resources view
         resourcesView.ListSelectionChanged += ResourcesView_ListSelectionChanged;
+
+        // wire up statusbar view model and service
+        var statusViewModel = new StatusBarViewModel();
+        // initialize from main view model
+        statusViewModel.StatusText = ViewModel.StatusText;
+        statusViewModel.IsLoading = ViewModel.IsLoading;
+        statusViewModel.ProjectName = System.IO.Path.GetFileName(ViewModel.CurrentPath) ?? ViewModel.CurrentPath ?? "Toucan Project";
+        StatusBarService.Instance.Register(statusViewModel);
+        RootStatusBar.DataContext = statusViewModel;
+
+        // forward basic updates from the main VM to the status bar
+        ViewModel.PropertyChanged += (s, ea) =>
+        {
+            if (ea.PropertyName == nameof(MainWindowViewModel.StatusText))
+                statusViewModel.StatusText = ViewModel.StatusText;
+            else if (ea.PropertyName == nameof(MainWindowViewModel.IsLoading))
+                statusViewModel.IsLoading = ViewModel.IsLoading;
+            else if (ea.PropertyName == nameof(MainWindowViewModel.CurrentPath))
+            {
+                statusViewModel.ProjectName = System.IO.Path.GetFileName(ViewModel.CurrentPath) ?? ViewModel.CurrentPath ?? "Toucan Project";
+            }
+        };
     }
 
     private void UpdateStartupOptions(string startupPath)
@@ -81,9 +104,9 @@ public partial class MainWindow : FluentWindow
         }
     }
 
-    private void Window_Loaded(object sender, RoutedEventArgs e)
+    private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
-        ViewModel.OpenRecent();
+        await ViewModel.OpenRecent();
         SearchFilterTextbox.TextChanged += SearchFilterTextbox_TextChanged;
         SystemThemeWatcher.Watch(this, WindowBackdropType.Tabbed, true);
     }

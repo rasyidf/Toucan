@@ -1,0 +1,168 @@
+<UserControl
+    x:Class="Toucan.Views.ToolBarView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    mc:Ignorable="d"
+    d:DesignHeight="32"
+        d:DesignWidth="600">
+
+    <StackPanel Orientation="Horizontal"
+            Margin="8,0">
+
+        <!-- Group: File actions (new/open/save) -->
+        <ui:Button Margin="2,0"
+                Padding="4"
+                Appearance="Transparent"
+                Command="{Binding NewFolderCommand}"
+                ToolTip="New Project">
+            <ui:Button.Icon>
+                <ui:SymbolIcon Symbol="DocumentAdd16"/>
+            </ui:Button.Icon>
+        </ui:Button>
+
+        <!-- Open: main button + drop-down (split) -->
+        <StackPanel Orientation="Horizontal">
+            <ui:Button Margin="2,0"
+                    Padding="4"
+                    Command="{Binding OpenFolderCommand}"
+                    Appearance="Transparent"
+                    ToolTip="Open project/folder">
+                <ui:Button.Icon>
+                    <ui:SymbolIcon Symbol="FolderOpen16"/>
+                </ui:Button.Icon>
+            </ui:Button>
+            <!-- Drop down opens a small context menu with extra open options -->
+            <Button x:Name="OpenDropDown"
+                    Margin="0,0,6,0"
+                    Padding="6,4"
+                    Click="OpenDropDown_Click"
+                    ToolTip="Open options"
+                    Background="Transparent"
+                    BorderBrush="{x:Null}">
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Open folder"
+                                Command="{Binding OpenFolderCommand}"/>
+                        <MenuItem Header="Open project file"
+                                Command="{Binding OpenProjectFileCommand}"/>
+                        <MenuItem Header="Open recent"
+                                Command="{Binding OpenRecentCommand}"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+                <TextBlock FontWeight="Bold">▾</TextBlock>
+            </Button>
+        </StackPanel>
+
+        <ui:Button Margin="2,0"
+                Padding="4"
+                Command="{Binding SaveCommand}"
+                Appearance="Transparent"
+                ToolTip="Save project">
+            <ui:Button.Icon>
+                <ui:SymbolIcon Symbol="Save20"/>
+            </ui:Button.Icon>
+        </ui:Button>
+
+        <Separator Margin="6,0"/>
+
+        <!-- Group: Edit (add/remove ids) -->
+        <ui:Button Margin="2,0"
+                Padding="4"
+                Command="{Binding NewItemCommand}"
+                Appearance="Transparent"
+                ToolTip="Add ID">
+            <ui:Button.Icon>
+                <ui:SymbolIcon Symbol="Add16"/>
+            </ui:Button.Icon>
+        </ui:Button>
+        <ui:Button Margin="2,0"
+                Padding="4"
+                Command="{Binding DeleteItemCommand}"
+                Appearance="Transparent"
+                ToolTip="Remove ID">
+            <ui:Button.Icon>
+                <ui:SymbolIcon Symbol="Delete20"/>
+            </ui:Button.Icon>
+        </ui:Button>
+
+        <Separator Margin="6,0"/>
+
+        <!-- Group: Filters / pre-translate / statistics -->
+        <ui:Button Margin="2,0"
+                Padding="4"
+                Appearance="Transparent"
+                Command="{Binding ToggleLanguagesVisibilityCommand}"
+                ToolTip="Project languages">
+            <ui:Button.Icon>
+                <ui:SymbolIcon Symbol="Book20"/>
+            </ui:Button.Icon>
+        </ui:Button>
+
+        <ui:Button Margin="2,0"
+                Padding="4"
+                Appearance="Transparent"
+                Command="{Binding ShowPreferencesCommand}"
+                ToolTip="Configuration">
+            <ui:Button.Icon>
+                <ui:SymbolIcon Symbol="Settings20"/>
+            </ui:Button.Icon>
+        </ui:Button>
+
+        <ui:Button Margin="2,0"
+                Padding="4"
+                Command="{Binding PreTranslateBulkCommand}"
+                Appearance="Transparent"
+                ToolTip="Pre-translate">
+            <ui:Button.Icon>
+                <ui:SymbolIcon Symbol="Translate16"/>
+            </ui:Button.Icon>
+        </ui:Button>
+
+        <ui:Button Margin="2,0"
+                Padding="4"
+                Command="{Binding GenerateStatisticsBulkCommand}"
+                Appearance="Transparent"
+                ToolTip="Statistics">
+            <ui:Button.Icon>
+                <ui:SymbolIcon Symbol="DocumentText20"/>
+            </ui:Button.Icon>
+        </ui:Button>
+
+        <Separator Margin="6,0"/>
+
+        <!-- Group: Source, source control and filter -->
+        <ui:Button Margin="2,0"
+                Padding="4"
+                Command="{Binding ToggleAdvancedOptionsCommand}"
+                Appearance="Transparent"
+                ToolTip="Show source">
+            <ui:Button.Icon>
+                <ui:SymbolIcon Symbol="DocumentText20"/>
+            </ui:Button.Icon>
+        </ui:Button>
+
+        <ui:Button Margin="2,0"
+                Padding="4"
+                Appearance="Transparent"
+                ToolTip="Source Control"
+                IsEnabled="False">
+            <ui:Button.Icon>
+                <ui:SymbolIcon Symbol="BranchFork24"/>
+            </ui:Button.Icon>
+        </ui:Button>
+
+        <ui:Button Margin="2,0"
+                Padding="4"
+                Appearance="Transparent"
+                ToolTip="Set Filter"
+                IsEnabled="False">
+            <ui:Button.Icon>
+                <ui:SymbolIcon Symbol="Filter20"/>
+            </ui:Button.Icon>
+        </ui:Button>
+
+    </StackPanel>
+</UserControl>

@@ -26,44 +26,51 @@
         <KeyBinding
             Key="N"
             Command="{Binding NewFolderCommand}"
-            Modifiers="Ctrl+Shift" />
+            Modifiers="Ctrl+Shift"/>
         <KeyBinding
             Key="O"
             Command="{Binding OpenFolderCommand}"
-            Modifiers="Ctrl" />
+            Modifiers="Ctrl"/>
         <KeyBinding
             Key="R"
             Command="{Binding OpenRecentCommand}"
-            Modifiers="Ctrl" />
+            Modifiers="Ctrl"/>
         <KeyBinding
             Key="S"
             Command="{Binding SaveCommand}"
-            Modifiers="Ctrl" />
-        <KeyBinding Key="F12" Command="{Binding SaveToCommand}" />
+            Modifiers="Ctrl"/>
+        <KeyBinding Key="F12"
+                Command="{Binding SaveToCommand}"/>
         <KeyBinding
             Key="F4"
             Command="{Binding CloseProjectCommand}"
-            Modifiers="Ctrl" />
+            Modifiers="Ctrl"/>
         <KeyBinding
             Key="F4"
             Command="{Binding ExitCommand}"
-            Modifiers="Alt" />
+            Modifiers="Alt"/>
     </Window.InputBindings>
     <Window.Resources>
-        <converters:LanguageNameConverter x:Key="LanguageConverter" />
+        <converters:LanguageNameConverter x:Key="LanguageConverter"/>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </Window.Resources>
 
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="titleBar" Height="auto" />
-            <RowDefinition x:Name="contentRow" Height="*" />
-            <RowDefinition x:Name="footerRow" Height="32" />
+            <RowDefinition x:Name="titleBar"
+                    Height="auto"/>
+            <RowDefinition x:Name="toolBarRow"
+                    Height="auto"/>
+            <RowDefinition x:Name="contentRow"
+                    Height="*"/>
+            <RowDefinition x:Name="footerRow"
+                    Height="32"/>
 
         </Grid.RowDefinitions>
         <ui:TitleBar Title="Toucan">
             <ui:TitleBar.Header>
-                <views:MainMenu />
+                <views:MainMenu Grid.Column="0"/>
             </ui:TitleBar.Header>
             <ui:TitleBar.TrailingContent>
                 <ui:TextBox
@@ -77,38 +84,47 @@
                     Icon="Search16"
                     IconPlacement="Right"
                     PlaceholderText="  Toucan"
-                    TextChanged="SearchFilterTextbox_TextChanged" />
+                    TextChanged="SearchFilterTextbox_TextChanged"/>
 
             </ui:TitleBar.TrailingContent>
         </ui:TitleBar>
-        <Grid Grid.Row="1" Grid.RowSpan="1">
+
+
+        <views:ToolBarView Grid.Row="1"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"/>
+
+        <Grid Grid.Row="2"
+                Grid.RowSpan="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="320" />
-                <ColumnDefinition Width="2" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="320"/>
+                <ColumnDefinition Width="2"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="2" />
-                    <RowDefinition Height="280" />
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="2"/>
+                    <RowDefinition Height="280"/>
                 </Grid.RowDefinitions>
                 <GridSplitter
                     Grid.Row="1"
                     Grid.Column="0"
                     Height="3"
                     HorizontalAlignment="Stretch"
-                    Background="#0CFFFFFF" />
-                <views:ResourcesView x:Name="resourcesView" SelectionChanged="TreeNamespace_SelectedItemChanged" ListSelectionChanged="ResourcesView_ListSelectionChanged" />
+                    Background="#0CFFFFFF"/>
+                <views:ResourcesView x:Name="resourcesView"
+                        SelectionChanged="TreeNamespace_SelectedItemChanged"
+                        ListSelectionChanged="ResourcesView_ListSelectionChanged"/>
 
 
                 <views:LanguagesView
                     x:Name="languagesView"
                     Grid.Row="3"
-                    Grid.Column="0" />
+                    Grid.Column="0"/>
 
             </Grid>
 
@@ -121,7 +137,7 @@
                 NextPageClick="NextPage"
                 PreviousPageClick="PreviousPage"
                 ShowAllClick="ShowAll"
-                UpdateLanguageValue="UpdateLanguageValue" />
+                UpdateLanguageValue="UpdateLanguageValue"/>
 
         </Grid>
 
@@ -131,46 +147,8 @@
             Grid.Column="0" Grid.ColumnSpan="3" Visibility="{Binding ShowStartScreen, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}" />-->
 
 
-        <StatusBar
-            x:Name="RootStatusBar"
-            Grid.Row="2"
-            MinHeight="32"
-            Padding="2">
-            <StatusBar.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                    </Grid>
-                </ItemsPanelTemplate>
-            </StatusBar.ItemsPanel>
-            <StatusBarItem>
-                <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="BranchFork24" />
-            </StatusBarItem>
-            <StatusBarItem Grid.Column="1" Margin="0,0,4,0">
-                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Development *" />
-            </StatusBarItem>
-            <StatusBarItem Grid.Column="2" Margin="4,0,4,0">
-                <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="Home24" />
-            </StatusBarItem>
-            <StatusBarItem Grid.Column="3" Margin="4,0,4,0">
-                <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="Fire24" />
-            </StatusBarItem>
-            <StatusBarItem Grid.Column="4" Margin="4,0,4,0">
-                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Toucan Project" />
-            </StatusBarItem>
-            <StatusBarItem Grid.Column="6">
-                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Ln 45, Col 30" />
-            </StatusBarItem>
-        </StatusBar>
+        <views:StatusBarView x:Name="RootStatusBar"
+                Grid.Row="3"/>
 
     </Grid>
 </ui:FluentWindow>

@@ -57,6 +57,9 @@ internal partial class MainWindowViewModel : ObservableObject
     private string statusText;
 
     [ObservableProperty]
+    private bool isLoading;
+
+    [ObservableProperty]
     private bool isTreeView = true;
 
     [ObservableProperty]
@@ -300,7 +303,7 @@ internal partial class MainWindowViewModel : ObservableObject
 
 
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRenameItem))]
     private void RenameItem()
     {
         var node = SelectedNode;
@@ -317,7 +320,7 @@ internal partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanDeleteItem))]
     private void DeleteItem()
     {
         var node = SelectedNode;
@@ -325,6 +328,16 @@ internal partial class MainWindowViewModel : ObservableObject
         {
             DeleteItem(node);
         }
+    }
+
+    private bool CanRenameItem()
+    {
+        return SelectedNode != null;
+    }
+
+    private bool CanDeleteItem()
+    {
+        return SelectedNode != null;
     }
     internal void Search(string ns, bool alwaysPaging = false)
     {
@@ -376,6 +389,7 @@ internal partial class MainWindowViewModel : ObservableObject
     {
         Search(Path, true);
     }
+    [RelayCommand]
     internal void AddMissingTranslations()
     {
         List<string> namespaces = AllTranslation.ToNamespaces().ToList();
@@ -388,6 +402,67 @@ internal partial class MainWindowViewModel : ObservableObject
         }
 
     }
+    // NOTE: The [RelayCommand] above generates AddMissingTranslationsCommand
+
+    // Fill empty translations — alias for pre-translate to keep behaviour explicit
+    [RelayCommand]
+    private async Task FillEmptyTranslations()
+    {
+        if (AllTranslation == null || AllTranslation.Count == 0)
+        {
+            _messageService.ShowMessage("No translations loaded to fill.");
+            return;
+        }
+
+        if (_bulkActionService == null)
+        {
+            _messageService.ShowMessage("Bulk action service is not available.");
+            return;
+        }
+
+        await _bulkActionService.PreTranslateAsync(AllTranslation);
+        UpdateSummaryInfo();
+        IsDirty = true;
+        StatusText = "Empty translations filled.";
+    }
+
+    [RelayCommand]
+    private void DeleteUnusedTranslations()
+    {
+        if (AllTranslation == null || AllTranslation.Count == 0)
+        {
+            _messageService.ShowMessage("No translations loaded.");
+            return;
+        }
+
+        if (!_messageService.ShowConfirmation("Delete all IDs that have no translation values for any language?"))
+            return;
+
+        var emptyNamespaces = AllTranslation.GroupBy(t => t.Namespace)
+            .Where(g => g.All(i => string.IsNullOrEmpty(i.Value)))
+            .Select(g => g.Key)
+            .ToList();
+
+        foreach (var ns in emptyNamespaces)
+        {
+            AllTranslation.RemoveAll(o => o.Namespace == ns);
+        }
+
+        RefreshTree();
+        UpdateSummaryInfo();
+        IsDirty = true;
+        StatusText = $"Deleted {emptyNamespaces.Count} unused IDs";
+    }
+
+    partial void OnSelectedNodeChanged(NsTreeItem value)
+    {
+        try
+        {
+            (RenameItemCommand as CommunityToolkit.Mvvm.Input.RelayCommand)?.NotifyCanExecuteChanged();
+            (DeleteItemCommand as CommunityToolkit.Mvvm.Input.RelayCommand)?.NotifyCanExecuteChanged();
+        }
+        catch { }
+    }
 
     [RelayCommand]
     private void ShowAll()
@@ -399,7 +474,7 @@ internal partial class MainWindowViewModel : ObservableObject
 
 
     [RelayCommand]
-    private void NewFolder()
+    private async Task NewFolder()
     {
         VistaFolderBrowserDialog dialog = new()
         {
@@ -410,12 +485,18 @@ internal partial class MainWindowViewModel : ObservableObject
         {
             CurrentPath = dialog.SelectedPath;
             AppOptions.DefaultPath = CurrentPath;
+            if (_projectService == null)
+            {
+                _messageService.ShowMessage("Project service not available.");
+                return;
+            }
+
             _projectService.CreateLanguage(CurrentPath, "en-US");
-            LoadFolder(CurrentPath);
+            await LoadFolderAsync(CurrentPath);
         }
     }
     [RelayCommand]
-    private void OpenFolder()
+    private async Task OpenFolder()
     {
         string? selected = _dialogService.SelectFolder(CurrentPath);
 
@@ -424,7 +505,7 @@ internal partial class MainWindowViewModel : ObservableObject
             CurrentPath = selected;
             AppOptions.DefaultPath = selected;
             _recentFileService.Add(selected);
-            LoadFolder(CurrentPath);
+            await LoadFolderAsync(CurrentPath);
         }
         else
         {
@@ -432,15 +513,55 @@ internal partial class MainWindowViewModel : ObservableObject
         }
     }
 
-
-    private void LoadFolder(string path)
+    [RelayCommand]
+    private async Task OpenProjectFile()
     {
-        AllTranslation = _projectService.Load(path);
-        AddMissingTranslations();
+        string? selected = _dialogService.SelectFile(CurrentPath, "Toucan project|*.project|JSON files (*.json)|*.json|All Files (*.*)|*.*");
 
-        RefreshTree();
-        UpdateSummaryInfo();
-        IsDirty = true;
+        if (string.IsNullOrEmpty(selected))
+        {
+            _messageService.ShowMessage("No project file selected.");
+            return;
+        }
+
+        // If user selected a file, take its directory as the project folder
+        string directory = System.IO.Path.GetDirectoryName(selected) ?? CurrentPath;
+        if (!System.IO.Directory.Exists(directory))
+        {
+            _messageService.ShowMessage($"Folder not found: {directory}");
+            return;
+        }
+
+        CurrentPath = directory;
+        AppOptions.DefaultPath = directory;
+        _recentFileService.Add(directory);
+        await LoadFolderAsync(directory);
+    }
+
+
+    private async Task LoadFolderAsync(string path)
+    {
+        try
+        {
+            IsLoading = true;
+            StatusText = "Loading project...";
+
+            var loaded = await Task.Run(() => _projectService.Load(path));
+            AllTranslation = loaded;
+            AddMissingTranslations();
+            RefreshTree();
+            UpdateSummaryInfo();
+            IsDirty = true;
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage($"Error loading project: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+            StatusText = "Ready";
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
@@ -450,10 +571,12 @@ internal partial class MainWindowViewModel : ObservableObject
         switch (AppOptions.SaveStyle)
         {
             case SaveStyles.Json:
-                _projectService.Save(CurrentPath, SaveStyles.Json, CurrentTreeItems.ToList(), AllTranslation);
+                if (_projectService != null)
+                    _projectService.Save(CurrentPath, SaveStyles.Json, CurrentTreeItems.ToList(), AllTranslation);
                 break;
             case SaveStyles.Namespaced:
-                _projectService.Save(CurrentPath, SaveStyles.Namespaced, CurrentTreeItems.ToList(), AllTranslation);
+                if (_projectService != null)
+                    _projectService.Save(CurrentPath, SaveStyles.Namespaced, CurrentTreeItems.ToList(), AllTranslation);
                 break;
         }
     }
@@ -488,12 +611,12 @@ internal partial class MainWindowViewModel : ObservableObject
         UpdateSummaryInfo();
     }
     [RelayCommand]
-    private void Refresh()
+    private async Task Refresh()
     {
-        LoadFolder(CurrentPath);
+        await LoadFolderAsync(CurrentPath);
     }
     [RelayCommand]
-    internal void OpenRecent()
+    internal async Task OpenRecent()
     {
         var recents = _recentFileService.LoadRecent();
         if (recents.Count == 0)
@@ -510,7 +633,7 @@ internal partial class MainWindowViewModel : ObservableObject
         }
 
         CurrentPath = path;
-        LoadFolder(CurrentPath);
+        await LoadFolderAsync(CurrentPath);
     }
 
 

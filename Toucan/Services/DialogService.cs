@@ -10,6 +10,7 @@ internal interface IDialogService
 {
     string? SelectFolder(string initialPath);
     bool? ShowDialog(Window dialog);
+    string? SelectFile(string initialPath, string filter = "All Files (*.*)|*.*");
 }
 
 internal class DialogService : IDialogService
@@ -28,7 +29,7 @@ internal class DialogService : IDialogService
         return dialog.ShowDialog();
     }
 
-    public string SelectFile(string initialPath, string filter = "All Files (*.*)|*.*")
+    public string? SelectFile(string initialPath, string filter = "All Files (*.*)|*.*")
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
         {

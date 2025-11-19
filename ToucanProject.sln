@@ -9,13 +9,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toucan.Next", "Toucan.Next\Toucan.Next.csproj", "{0B178547-B8C0-49C2-97C8-5E4AC87C0A39}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toucan.Core", "Toucan.Core\Toucan.Core.csproj", "{B2DA5DD3-F1EC-4BBE-BB44-E0B01E608010}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Toucan", "Toucan\Toucan.csproj", "{982141A9-332D-46ED-BE02-ADFAF0313BEE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Converters", "Toucan.Converters\Toucan.Converters.csproj", "{93F541A0-5202-49BD-A59B-E1D89FA8D721}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
