@@ -12,12 +12,12 @@ namespace Toucan.Core.Services
         {
             _pretranslationService = pretranslationService;
         }
-        public async Task PreTranslateAsync(IEnumerable<TranslationItem> items)
+        public async Task PreTranslateAsync(IEnumerable<TranslationItem> items, IProgress<PretranslationProgress>? progress = null, System.Threading.CancellationToken cancellationToken = default)
         {
             if (_pretranslationService != null)
             {
                 // delegate to configured pretranslation engine
-                await _pretranslationService.PreTranslateAsync(items).ConfigureAwait(true);
+                await _pretranslationService.PreTranslateAsync(items, new PretranslationOptions(), progress, cancellationToken).ConfigureAwait(true);
                 return;
             }
             // Simple stub: set empty values to a placeholder or copy from another language (naive)

@@ -13,8 +13,7 @@
     MaxWidth="600"
     MaxHeight="200"
     WindowBackdropType="Tabbed"
-    WindowCornerPreference="Round" 
-    WindowStyle="SingleBorderWindow"
+    WindowCornerPreference="Round"  
     ExtendsContentIntoTitleBar="True"
     WindowStartupLocation="CenterOwner"
     mc:Ignorable="d">

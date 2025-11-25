@@ -111,6 +111,20 @@ internal partial class OptionsViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void OpenProviderSettings()
+    {
+        var window = new Views.Dialogs.ProviderSettingsWindow();
+        var ds = App.Services.GetService(typeof(IDialogService)) as IDialogService;
+        if (ds != null)
+            ds.ShowDialog(window);
+        else
+        {
+            window.Owner = System.Windows.Application.Current.MainWindow;
+            window.ShowDialog();
+        }
+    }
+
+    [RelayCommand]
     private void BrowseSourceRoot()
     {
         // future: implement folder picker

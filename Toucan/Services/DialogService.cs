@@ -3,14 +3,14 @@ using System.Windows;
 
 namespace Toucan.Services;
 
-internal interface IDialogService
+public interface IDialogService
 {
     string? SelectFolder(string initialPath);
     bool? ShowDialog(Window dialog);
     string? SelectFile(string initialPath, string filter = "All Files (*.*)|*.*");
 }
 
-internal class DialogService : IDialogService
+public class DialogService : IDialogService
 {
     public string? SelectFolder(string initialPath)
     {
@@ -22,8 +22,8 @@ internal class DialogService : IDialogService
 
     public bool? ShowDialog(Window dialog)
     {
-        dialog.Owner = Application.Current.MainWindow;
-        return dialog.ShowDialog();
+        dialog?.Owner = Application.Current.MainWindow;
+        return dialog?.ShowDialog();
     }
 
     public string? SelectFile(string initialPath, string filter = "All Files (*.*)|*.*")

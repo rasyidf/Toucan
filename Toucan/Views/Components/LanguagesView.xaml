@@ -68,7 +68,7 @@
                 HorizontalAlignment="Right"
                 Appearance="Transparent"
                 Command="{Binding ToggleLanguagesVisibilityCommand}">
-                <ui:SymbolIcon Symbol="Hide16" />
+                <ui:SymbolIcon Symbol="Dismiss16" />
             </ui:Button>
         </StackPanel>
 

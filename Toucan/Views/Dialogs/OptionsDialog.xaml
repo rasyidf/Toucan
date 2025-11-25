@@ -158,7 +158,10 @@
                             AcceptsReturn="True"
                             Text="{Binding Context, Mode=TwoWay}"
                             TextWrapping="Wrap" />
-                        <TextBlock HorizontalAlignment="Right" Foreground="Gray">{Binding ContextCharCount} / 200</TextBlock>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Margin="0,0,8,0" Command="{Binding OpenProviderSettingsCommand}">Configure providers...</Button>
+                            <TextBlock HorizontalAlignment="Right" Foreground="Gray">{Binding ContextCharCount} / 200</TextBlock>
+                        </StackPanel>
                     </StackPanel>
                 </ui:CardExpander>
 

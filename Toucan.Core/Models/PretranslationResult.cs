@@ -13,6 +13,7 @@ public class PretranslationItemResult
 {
     public string Namespace { get; set; } = string.Empty;
     public string Language { get; set; } = string.Empty;
+    public string? SourceText { get; set; }
     public bool Succeeded { get; set; }
     public string? TranslatedValue { get; set; }
     public string? Provider { get; set; }

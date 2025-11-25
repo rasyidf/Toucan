@@ -75,15 +75,44 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-                        <Button x:Name="CancelButton" Content="Cancel" Width="90" Margin="0,0,8,0" Click="CancelButton_Click" Command="{Binding CancelCommand}" />
-                        <Button x:Name="StartButton" Content="Start" Width="120" Click="StartButton_Click" Command="{Binding StartCommand}" />
+                        <Button x:Name="CancelButton" Content="Cancel" Width="90" Margin="0,0,8,0" Command="{Binding CancelCommand}" />
+                        <Button x:Name="StartButton" Content="Preview" Width="120" Command="{Binding StartCommand}" />
                     </StackPanel>
                 </StackPanel>
 
             </Grid>
         </Border>
 
-        <TextBlock Grid.Row="2" Text="Note: Your source language strings may be sent to the provider service." Foreground="Gray" FontSize="11" Margin="2,10,0,0" />
+        <Grid Grid.Row="2" Margin="0,10,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="120" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <ProgressBar Grid.Row="0" Height="14"
+                         Value="{Binding ProgressPercent, Mode=OneWay, FallbackValue=0, TargetNullValue=0}"
+                         Minimum="0" Maximum="100" />
+
+            <Border Grid.Row="1" Background="#10101010" CornerRadius="4" Padding="6" Margin="0,6,0,6">
+                <ListView ItemsSource="{Binding PreviewResults}" HorizontalAlignment="Stretch">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Namespace" Width="160" DisplayMemberBinding="{Binding Namespace}" />
+                            <GridViewColumn Header="Language" Width="80" DisplayMemberBinding="{Binding Language}" />
+                            <GridViewColumn Header="Source" Width="200" DisplayMemberBinding="{Binding SourceValue}" />
+                            <GridViewColumn Header="Proposed" Width="200" DisplayMemberBinding="{Binding TranslatedValue}" />
+                            <GridViewColumn Header="Status" Width="100" DisplayMemberBinding="{Binding ErrorMessage}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Border>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <TextBlock Text="Note: Your source language strings may be sent to the provider service." Foreground="Gray" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" />
+                <Button Content="Apply Preview" Width="120" Command="{Binding CommitCommand}" />
+            </StackPanel>
+        </Grid>
 
     </Grid>
 </Window>

@@ -48,6 +48,8 @@ Get started with Toucan in a few simple steps:
 3.  **Translate** the key values in the target language columns.
 4.  **Save** your changes. Toucan automatically manages and updates your JSON files.
 
+For details about configuring translation providers (where API keys are stored and how to use app-level vs project-level overrides) see docs/Provider-Settings.md. For information about the pre-translation preview and progress UI see docs/Pretranslation-Preview.md.
+
 ---
 
 ## Contribute

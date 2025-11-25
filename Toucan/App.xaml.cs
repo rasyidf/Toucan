@@ -20,10 +20,45 @@ namespace Toucan;
 /// </summary>
 public partial class App : Application
 {
+        private static void ReportUnhandledException(Exception ex, string source)
+        {
+            try
+            {
+                // Attempt to write to console and show a message box for local debugging
+                Console.Error.WriteLine($"Unhandled exception ({source}): {ex}");
+                // also append to a log file to help capture stack traces from CI or dev machines
+                try
+                {
+                    var logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? ".", "toucan-unhandled-exceptions.log");
+                    System.IO.File.AppendAllText(logPath, $"\n=== {DateTime.UtcNow:u} ({source}) ===\n{ex}\n");
+                }
+                catch (Exception) { }
+                System.Windows.MessageBox.Show($"Unhandled exception ({source}): {ex.Message}\n\nSee console or logs for full details.", "Unhandled exception", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+            catch (Exception) { }
+        }
     public static IServiceProvider Services { get; private set; }
 
     private void Application_Startup(object sender, StartupEventArgs e)
     {
+            // Global exception handlers to capture runtime issues (helps debug crashes like AllowsTransparency errors)
+            this.DispatcherUnhandledException += (s, ea) =>
+            {
+                ReportUnhandledException(ea.Exception, "DispatcherUnhandledException");
+                ea.Handled = true;
+            };
+
+            AppDomain.CurrentDomain.UnhandledException += (s, ea) =>
+            {
+                if (ea.ExceptionObject is Exception ex)
+                    ReportUnhandledException(ex, "AppDomain.UnhandledException");
+            };
+
+            System.Threading.Tasks.TaskScheduler.UnobservedTaskException += (s, ea) =>
+            {
+                ReportUnhandledException(ea.Exception, "TaskScheduler.UnobservedTaskException");
+                ea.SetObserved();
+            };
         string startupPath = "";
 
         if (e.Args.Length == 1)
@@ -41,6 +76,13 @@ public partial class App : Application
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<IMessageService, MessageService>();
         services.AddSingleton<IPreferenceService, PreferenceService>();
+        // provider settings + secure storage for API keys
+        services.AddSingleton<ISecureStorageService, SecureStorageService>();
+        services.AddSingleton<IProviderSettingsService, ProviderSettingsService>();
+
+        // Secure storage and provider settings
+        services.AddSingleton<ISecureStorageService, SecureStorageService>();
+        services.AddSingleton<IProviderSettingsService, ProviderSettingsService>();
 
         // core file service
         services.AddSingleton<IFileService, FileService>();

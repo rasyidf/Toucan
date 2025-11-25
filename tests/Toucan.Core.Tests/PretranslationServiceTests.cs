@@ -19,7 +19,9 @@ public class PretranslationServiceTests
 
         var items = new List<TranslationItem>
         {
+            new TranslationItem { Namespace = "greeting.hello", Language = "en", Value = "Hello" },
             new TranslationItem { Namespace = "greeting.hello", Language = "fr", Value = "" },
+            new TranslationItem { Namespace = "greeting.goodbye", Language = "en", Value = "Goodbye" },
             new TranslationItem { Namespace = "greeting.goodbye", Language = "fr", Value = "existing" }
         };
 
@@ -27,8 +29,11 @@ public class PretranslationServiceTests
         var result = await service.PreTranslateAsync(items);
 
         // Assert
-        Assert.Equal(2, result.Items.Count);
+        Assert.Equal(1, result.Items.Count);
         var applied = items.First(i => i.Namespace == "greeting.hello");
         Assert.False(string.IsNullOrEmpty(applied.Value));
+        // the existing target should remain unchanged
+        var unchanged = items.First(i => i.Namespace == "greeting.goodbye" && i.Language == "fr");
+        Assert.Equal("existing", unchanged.Value);
     }
 }

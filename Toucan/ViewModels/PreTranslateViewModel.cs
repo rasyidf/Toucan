@@ -46,6 +46,23 @@ public partial class PreTranslateViewModel : ObservableObject
     private readonly IPretranslationService? _pretranslationService;
     private readonly IEnumerable<TranslationItem>? _sourceItems;
 
+    private System.Threading.CancellationTokenSource? _cts;
+
+    public ObservableCollection<PretranslationItemResult> PreviewResults { get; } = new();
+
+    [ObservableProperty]
+    private int progressCompleted;
+
+    [ObservableProperty]
+    private int progressTotal;
+
+    // ProgressBar.Value expects a double. Return double here to avoid conversion issues
+    // and ensure the value is clamped to the 0..100 range.
+    public double ProgressPercent => progressTotal == 0 ? 0.0 : Math.Clamp(((double)progressCompleted / progressTotal * 100.0), 0.0, 100.0);
+
+    [ObservableProperty]
+    private bool isRunning;
+
     public PreTranslateViewModel()
     {
         // default languages for preview
@@ -63,11 +80,7 @@ public partial class PreTranslateViewModel : ObservableObject
             AvailableLanguages.Add(new LanguageItem(l, true));
     }
 
-    [RelayCommand]
-    private void Cancel()
-    {
-        // handled by window code-behind
-    }
+    // Cancel command for running preview will be provided below (cancellation-token aware).
 
     [RelayCommand]
     private async Task Start()
@@ -85,19 +98,120 @@ public partial class PreTranslateViewModel : ObservableObject
         if (TranslateSelectedOnly)
             itemsToProcess = itemsToProcess.Where(i => selectedLanguages.Contains(i.Language));
 
+        PreviewResults.Clear();
+
         var req = new PretranslationRequest
         {
             Provider = SelectedProvider,
             Items = itemsToProcess.ToList(),
-            Options = new PretranslationOptions { Overwrite = OverwriteExisting }
+            ContextItems = _sourceItems,
+            Options = new PretranslationOptions { Overwrite = OverwriteExisting, PreviewOnly = true }
         };
 
-        await _pretranslationService.PreTranslateAsync(req).ConfigureAwait(false);
+        if (_pretranslationService == null) return;
+
+        _cts = new System.Threading.CancellationTokenSource();
+        IsRunning = true;
+        ProgressCompleted = 0;
+        ProgressTotal = 0;
+
+            var progress = new Progress<PretranslationProgress>(p =>
+            {
+                // Always marshal updates to the UI thread when available to avoid binding exceptions
+                try
+                {
+                    Action update = () =>
+                    {
+                        ProgressCompleted = p.Completed;
+                        ProgressTotal = p.Total;
+                        OnPropertyChanged(nameof(ProgressPercent));
+                    };
+
+                    var app = System.Windows.Application.Current;
+                    if (app?.Dispatcher?.CheckAccess() == true)
+                    {
+                        update();
+                    }
+                    else if (app?.Dispatcher != null)
+                    {
+                        // Use Invoke so the update runs immediately. BeginInvoke may never execute
+                        // in environments without a running dispatcher loop (unit tests).
+                        app.Dispatcher.Invoke(update);
+                    }
+                    else
+                    {
+                        // No dispatcher (unit tests or non-WPF host) — just run directly
+                        update();
+                    }
+                }
+                catch
+                {
+                    // Swallow any exceptions from progress updates to ensure we don't bubble an exception back
+                    // into providers or the UI binding engine (which would surface as RangeBase.Value exceptions).
+                }
+            });
+
+        var result = await _pretranslationService.PreTranslateAsync(req, progress, _cts.Token).ConfigureAwait(true);
+
+        // populate preview results on the UI thread
+        PreviewResults.Clear();
+        foreach (var r in result.Items)
+        {
+            PreviewResults.Add(r);
+        }
+
+        IsRunning = false;
     }
 
     [RelayCommand]
     private void OpenProviderSettings()
     {
-        // placeholder for opening provider settings (hook into app's dialog service later)
+        // open provider settings using the application's dialog service
+        var window = new Views.Dialogs.ProviderSettingsWindow();
+
+        // try to use the dialog manager if available
+        var ds = Toucan.App.Services.GetService(typeof(Toucan.Services.IDialogService)) as Toucan.Services.IDialogService;
+        if (ds != null)
+        {
+            ds.ShowDialog(window);
+        }
+        else
+        {
+            // fall back to direct modal show
+            window.Owner = System.Windows.Application.Current.MainWindow;
+            window.ShowDialog();
+        }
+    }
+
+    [RelayCommand]
+    private void Cancel()
+    {
+        if (_cts != null && !_cts.IsCancellationRequested)
+            _cts.Cancel();
+    }
+
+    [RelayCommand]
+    private Task Commit()
+    {
+        // Apply preview results to source items directly (so we don't re-run the provider)
+        if (PreviewResults == null || !_sourceItems?.Any() == true)
+            return Task.CompletedTask;
+
+        var items = _sourceItems!.ToList();
+
+        foreach (var pr in PreviewResults)
+        {
+            if (string.IsNullOrEmpty(pr.TranslatedValue)) continue;
+            var item = items.FirstOrDefault(i => (i.Namespace ?? string.Empty) == pr.Namespace && i.Language == pr.Language);
+            if (item == null) continue;
+
+            // honor overwrite
+            if (OverwriteExisting || string.IsNullOrEmpty(item.Value))
+            {
+                item.Value = pr.TranslatedValue;
+            }
+        }
+
+        return Task.CompletedTask;
     }
 }

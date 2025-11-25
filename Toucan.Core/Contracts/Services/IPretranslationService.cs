@@ -10,10 +10,10 @@ public interface IPretranslationService
     /// </summary>
     /// <param name="request">Pretranslation request describing the target scope</param>
     /// <returns>Result summarizing successes/failures</returns>
-    Task<PretranslationResult> PreTranslateAsync(PretranslationRequest request);
+    Task<PretranslationResult> PreTranslateAsync(PretranslationRequest request, IProgress<PretranslationProgress>? progress = null, System.Threading.CancellationToken cancellationToken = default);
 
     /// <summary>
     /// A convenience overload to pre-translate by passing items directly.
     /// </summary>
-    Task<PretranslationResult> PreTranslateAsync(IEnumerable<TranslationItem> items, PretranslationOptions? options = null);
+    Task<PretranslationResult> PreTranslateAsync(IEnumerable<TranslationItem> items, PretranslationOptions? options = null, IProgress<PretranslationProgress>? progress = null, System.Threading.CancellationToken cancellationToken = default);
 }

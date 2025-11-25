@@ -263,42 +263,59 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task PreTranslateBulk()
     {
-        if (AllTranslation == null || AllTranslation.Count == 0)
+        try
         {
-            _messageService.ShowMessage("No translations loaded to pre-translate.");
-            return;
-        }
-
-        // If we have a UI-capable pretranslation engine, show the Pre-Translate dialog instead
-        if (_pretranslationService != null)
-        {
-            // gather language list
-            var languages = AllTranslation.ToLanguages().ToList();
-
-            var vm = new PreTranslateViewModel(languages, AllTranslation, _pretranslationService);
-            var dialog = new Views.Dialogs.PreTranslateWindow(vm) { Owner = Application.Current.MainWindow };
-            bool? result = dialog.ShowDialog();
-
-            if (result == true)
+            if (AllTranslation == null || AllTranslation.Count == 0)
             {
-                UpdateSummaryInfo();
-                IsDirty = true;
-                StatusText = "Pre-translation completed.";
+                _messageService.ShowMessage("No translations loaded to pre-translate.");
+                return;
             }
 
-            return;
-        }
+            // If we have a UI-capable pretranslation engine, show the Pre-Translate dialog instead
+            if (_pretranslationService != null)
+            {
+                // gather language list
+                var languages = AllTranslation.ToLanguages().ToList();
 
-        if (_bulkActionService == null)
+                var vm = new PreTranslateViewModel(languages, AllTranslation, _pretranslationService);
+                var dialog = new Views.Dialogs.PreTranslateWindow(vm) { Owner = Application.Current.MainWindow };
+                bool? result = dialog.ShowDialog();
+
+                if (result == true)
+                {
+                    UpdateSummaryInfo();
+                    IsDirty = true;
+                    StatusText = "Pre-translation completed.";
+                }
+
+                return;
+            }
+
+            if (_bulkActionService == null)
+            {
+                _messageService.ShowMessage("Bulk action service is not available.");
+                return;
+            }
+
+            // Ensure continuation runs on the UI context so we can update UI-bound properties safely
+            await _bulkActionService.PreTranslateAsync(AllTranslation).ConfigureAwait(true);
+            UpdateSummaryInfo();
+            IsDirty = true;
+            StatusText = "Pre-translation completed.";
+        }
+        catch (Exception ex)
         {
-            _messageService.ShowMessage("Bulk action service is not available.");
-            return;
+            // Catch any unexpected exception in the UI flow and surface a friendly message instead of crashing
+            try
+            {
+                _messageService.ShowMessage("Error during pre-translation: " + ex.Message);
+            }
+            catch
+            {
+                // if message service fails for some reason, fall back to a simple dialog
+                System.Windows.MessageBox.Show("Error during pre-translation: " + ex.Message);
+            }
         }
-
-        await _bulkActionService.PreTranslateAsync(AllTranslation).ConfigureAwait(false);
-        UpdateSummaryInfo();
-        IsDirty = true;
-        StatusText = "Pre-translation completed.";
     }
 
     [RelayCommand]

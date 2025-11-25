@@ -17,8 +17,9 @@ public class ProviderSelectionTests
         var service = new PretranslationService(new Toucan.Core.Contracts.ITranslationProvider[] { mock, google });
 
         var items = new[] { new TranslationItem { Namespace = "a.b", Language = "id-ID", Value = "" } };
+        var context = new[] { new TranslationItem { Namespace = "a.b", Language = "en", Value = "Hello" } };
 
-        var request = new PretranslationRequest { Items = items, Provider = "Google" };
+        var request = new PretranslationRequest { Items = items, ContextItems = context, Provider = "Google" };
         var res = await service.PreTranslateAsync(request);
 
         Assert.All(res.Items, r => Assert.Equal("Google", r.Provider));

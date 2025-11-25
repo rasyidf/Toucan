@@ -11,8 +11,7 @@
     d:Height="400"  
     WindowStartupLocation="CenterOwner"
     WindowBackdropType="Tabbed"
-    WindowCornerPreference="Round" 
-    WindowStyle="SingleBorderWindow"
+    WindowCornerPreference="Round"  
     ExtendsContentIntoTitleBar="True" 
     mc:Ignorable="d" d:DesignHeight="227.911" d:DesignWidth="470.458">
     <!-- DataContext will be set from code-behind to pass existing languages for filtering -->

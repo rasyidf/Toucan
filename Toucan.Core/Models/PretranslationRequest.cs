@@ -28,6 +28,12 @@ public class PretranslationRequest
     public IEnumerable<TranslationItem>? Items { get; set; }
 
     /// <summary>
+    /// Optional larger context (project-wide) items that can be used as source texts when resolving a translation's source value.
+    /// If set, providers and services may search this collection for source texts by namespace.
+    /// </summary>
+    public IEnumerable<TranslationItem>? ContextItems { get; set; }
+
+    /// <summary>
     /// Additional options controlling translation behavior.
     /// </summary>
     public PretranslationOptions? Options { get; set; }

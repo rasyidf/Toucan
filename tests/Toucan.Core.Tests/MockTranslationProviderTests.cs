@@ -14,15 +14,16 @@ public class MockTranslationProviderTests
     {
         var provider = new MockTranslationProvider();
 
-        var items = new List<TranslationItem>
+        var jobs = new List<PretranslationJob>
         {
-            new TranslationItem { Namespace = "home.title", Language = "fr", Value = "" },
-            new TranslationItem { Namespace = "home.desc", Language = "fr", Value = "" }
+            new PretranslationJob { Namespace = "home.title", SourceText = "Welcome", SourceLanguage = "en", TargetLanguage = "fr" },
+            new PretranslationJob { Namespace = "home.desc", SourceText = "Description", SourceLanguage = "en", TargetLanguage = "fr" }
         };
 
-        var results = (await provider.PretranslateAsync(items)).ToList();
+        var results = (await provider.PretranslateAsync(jobs)).ToList();
 
         Assert.Equal(2, results.Count);
-        Assert.All(results, r => Assert.True(r.Succeeded || r.ErrorMessage == "Skipped — existing translation present"));
+        Assert.All(results, r => Assert.True(r.Succeeded));
+        Assert.All(results, r => Assert.Contains("[mock/", r.TranslatedValue));
     }
 }
