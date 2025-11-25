@@ -21,7 +21,37 @@ internal partial class OptionsViewModel : ObservableObject
         PageSizeText = AppOptions.PageSize.ToString();
         TruncateSizeText = AppOptions.TruncateResultsOver.ToString();
         MaxItemsText = AppOptions.MaxItems.ToString();
+        // default language preference from app options
+        DefaultLanguage = AppOptions.DefaultLanguage ?? "en-US";
     }
+
+    [ObservableProperty]
+    private string defaultLanguage;
+
+    // Project-specific editor configuration (if a project manifest is available)
+    [ObservableProperty]
+    private string projectFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string projectPrimaryLanguage = string.Empty;
+
+    [ObservableProperty]
+    private bool projectSaveEmptyTranslations = true;
+
+    [ObservableProperty]
+    private string projectTranslationOrder = "Alphabetically sorted";
+
+    [ObservableProperty]
+    private string projectCopyTemplate1 = string.Empty;
+
+    [ObservableProperty]
+    private string projectCopyTemplate2 = string.Empty;
+
+    [ObservableProperty]
+    private string projectCopyTemplate3 = string.Empty;
+
+    [ObservableProperty]
+    private bool applyChangesToProject = false;
 
     [ObservableProperty]
     private AppOptions appOptions;
@@ -89,8 +119,38 @@ internal partial class OptionsViewModel : ObservableObject
         AppOptions.PageSize = page;
         AppOptions.TruncateResultsOver = trunc;
         AppOptions.MaxItems = maxItems;
+        // Persist user's default language preference
+        AppOptions.DefaultLanguage = DefaultLanguage;
 
         _preferenceService.Save(AppOptions);
+
+        // If project changes are requested, attempt to write to the project's toucan.project manifest
+        if (ApplyChangesToProject && !string.IsNullOrWhiteSpace(ProjectFilePath))
+        {
+            try
+            {
+                var manifestPath = System.IO.Path.Combine(ProjectFilePath, "toucan.project");
+                if (System.IO.File.Exists(manifestPath))
+                {
+                    var text = System.IO.File.ReadAllText(manifestPath);
+                    var root = Newtonsoft.Json.Linq.JObject.Parse(text);
+
+                    var editorCfg = root["editorConfiguration"] as Newtonsoft.Json.Linq.JObject ?? new Newtonsoft.Json.Linq.JObject();
+                    editorCfg["save_empty_translations"] = ProjectSaveEmptyTranslations.ToString().ToLowerInvariant();
+                    editorCfg["translation_order"] = ProjectTranslationOrder == "Primary language" ? "primary_language" : "alphabetical";
+                    editorCfg["copy_templates"] = new Newtonsoft.Json.Linq.JArray(ProjectCopyTemplate1 ?? string.Empty, ProjectCopyTemplate2 ?? string.Empty, ProjectCopyTemplate3 ?? string.Empty);
+
+                    // attach back
+                    root["editorConfiguration"] = editorCfg;
+
+                    System.IO.File.WriteAllText(manifestPath, root.ToString());
+                }
+            }
+            catch
+            {
+                // ignore manifest write failures here; UI may show message later
+            }
+        }
 
         // close window by setting result (owner handles)
         CloseAction?.Invoke(true);

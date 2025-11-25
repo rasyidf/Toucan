@@ -12,40 +12,32 @@
     mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="16*"/>
-            <ColumnDefinition Width="9*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="titleBar"/>
-            <RowDefinition x:Name="contentRow"/>
+            <RowDefinition x:Name="titleBar" Height="Auto"/>
+            <RowDefinition x:Name="contentRow" Height="*"/>
+            <RowDefinition x:Name="footerRow" Height="Auto"/>
         </Grid.RowDefinitions>
         <ui:TitleBar
-            Title="New Project"
-            Grid.ColumnSpan="2"
+            Title="New Project" 
             VerticalAlignment="Center"
             ShowMaximize="false"
             ShowMinimize="false"/>
-        <Grid
-            Grid.Row="1"
-            Grid.RowSpan="2"
-            Grid.ColumnSpan="2"
-            Margin="0,2,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <StackPanel Margin="10,10,10,10">
+        <Grid Grid.Row="1" Margin="0,2,0,0">
+            <StackPanel Margin="12,12,12,12">
                 <TextBlock Text="Project Name"
                            FontWeight="SemiBold"/>
                 <ui:TextBox
-                    x:Name="ResponseTextBox"
+                    x:Name="ProjectNameTextBox"
+                    Text="{Binding ProjectName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     Margin="0,6,0,10"
                     PlaceholderText="My Translation Project"/>
 
                 <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
                         <TextBlock Text="Framework"
@@ -58,9 +50,12 @@
                                 Margin="8,0,0,0">
                         <TextBlock Text="Project Folder"
                                    FontWeight="SemiBold"/>
-                        <ui:Button Content="Browse..."
-                                   Margin="0,6,0,0"
-                                   Command="{Binding BrowseFolderCommand}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:TextBox Text="{Binding ProjectFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="330" Margin="0,6,6,0"/>
+                            <ui:Button Content="Browse..."
+                                       Margin="0,6,0,0"
+                                       Command="{Binding BrowseFolderCommand}"/>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
 
@@ -80,13 +75,17 @@
                     <TextBlock Text="Languages"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
-                    <StackPanel Grid.Column="1"
-                                Orientation="Horizontal">
+                        <StackPanel Grid.Column="1"
+                            Orientation="Horizontal">
                         <ui:Button Content="Add"
-                                   Padding="8,4"
-                                   Margin="0,0,6,0"
-                                   Command="{Binding AddLanguageCommand}"/>
-                    </StackPanel>
+                               Padding="8,4"
+                               Margin="0,0,6,0"
+                               Command="{Binding AddLanguageCommand}"/>
+                        <ui:Button Content="Add suggested"
+                               Padding="8,4"
+                               Margin="0,0,6,0"
+                               Command="{Binding AddDefaultsCommand}"/>
+                        </StackPanel>
                 </Grid>
 
                 <ScrollViewer  Margin="0,6,0,10">
@@ -117,16 +116,11 @@
                            Foreground="Gray"
                            TextWrapping="Wrap"/>
             </StackPanel>
-            <ui:Button
-                Grid.RowSpan="2"
-                x:Name="CreateButton"
-                Width="90"
-                Margin="0,0,10,10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Click="OKButton_Click"
-                Content="Create"
-                IsEnabled="{Binding IsValid}"/>
         </Grid>
-    </Grid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,12,12">
+            <CheckBox Content="Create manifest (toucan.project)" IsChecked="{Binding CreateManifest}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+            <ui:Button x:Name="CreateButton" Width="90" HorizontalAlignment="Right" Click="OKButton_Click" Content="Create" IsEnabled="{Binding IsValid}"/>
+        </StackPanel>
+        </Grid>
 </ui:FluentWindow>

@@ -28,6 +28,9 @@ Top-level keys in `toucan.project`:
 - `translationPackages` (array): mapping packages to translation files. This is especially helpful to locate where the actual translation words live.
 - `embeddedSourceTexts` (boolean): whether the translation texts are embedded in the project file.
 - `primaryLanguage` (string; optional): main language (used for display, canonical ordering).
+- `primaryLanguage` (string; optional): main language (used for display, canonical ordering).
+
+Note: Users can also specify a per-user default language preference in the application settings (Settings → Options → Default language). This preference is stored in your Toucan settings file and is used as the default when creating new projects or choosing a source language in dialogs.
 - `editorConfiguration` (object; optional): editor preferences (ex: `save_empty_translations`, `translation_order`) — flexible fields.
 - `configuration` (object; optional): formatting preferences such as `format` (namespaced JSON vs nested) and `support_arrays`.
 - `packages` (array): the hierarchical grouping of translation keys — packages contain files, files contain folders, folders contain concepts (keys).

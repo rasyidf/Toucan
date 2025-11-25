@@ -14,7 +14,7 @@
 
     <StatusBar MinHeight="32" Padding="2">
         <StatusBar.ItemsPanel>
-            <ItemsPanelTemplate>
+                <ItemsPanelTemplate>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -25,13 +25,15 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                 </Grid>
             </ItemsPanelTemplate>
         </StatusBar.ItemsPanel>
 
         <!-- Git / Branch -->
-        <StatusBarItem>
+        <StatusBarItem Visibility="{Binding IsGitVisible, Converter={StaticResource BoolToVis}}">
             <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="BranchFork24" />
         </StatusBarItem>
 
@@ -60,9 +62,24 @@
             <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding StatusText}" />
         </StatusBarItem>
 
+        <!-- Default language (app or project primary) -->
+        <StatusBarItem Grid.Column="6" Margin="4,0,4,0">
+            <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding DefaultLanguage}" />
+        </StatusBarItem>
+
+        <!-- Cursor/selection position -->
+        <StatusBarItem Grid.Column="7" Margin="4,0,4,0">
+            <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding CursorPosition}" />
+        </StatusBarItem>
+
         <!-- Loading -->
-        <StatusBarItem Grid.Column="6" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
+        <StatusBarItem Grid.Column="9" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
             <ProgressBar Width="80" Height="12" IsIndeterminate="True" />
+        </StatusBarItem>
+        
+        <!-- Notification count -->
+        <StatusBarItem Grid.Column="8" HorizontalAlignment="Right">
+            <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding NotificationCount}" />
         </StatusBarItem>
     </StatusBar>
 </UserControl>

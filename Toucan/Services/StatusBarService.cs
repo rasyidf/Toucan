@@ -11,6 +11,7 @@ internal interface IStatusBarService
     void UpdateStatus(string text);
     void UpdateProjectName(string projectName);
     void UpdateCursor(string cursorPosition);
+    void UpdateDefaultLanguage(string language);
     void ShowNotificationBadge(int count);
     void UpdateGitStats(int changes, int errors, int warnings);
 }
@@ -59,6 +60,12 @@ internal class StatusBarService : IStatusBarService
     {
         if (_statusBarViewModel == null) return;
         _statusBarViewModel.CursorPosition = cursorPosition;
+    }
+
+    public void UpdateDefaultLanguage(string language)
+    {
+        if (_statusBarViewModel == null) return;
+        _statusBarViewModel.DefaultLanguage = language;
     }
 
     public void ShowNotificationBadge(int count)

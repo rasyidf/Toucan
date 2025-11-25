@@ -14,6 +14,9 @@ internal partial class StatusBarViewModel : ObservableObject
     private string cursorPosition = "Ln 0, Col 0";
 
     [ObservableProperty]
+    private string defaultLanguage = "en-US";
+
+    [ObservableProperty]
     private string statusText = "Ready";
 
     [ObservableProperty]
@@ -31,6 +34,9 @@ internal partial class StatusBarViewModel : ObservableObject
 
     [ObservableProperty]
     private int notificationCount;
+
+    [ObservableProperty]
+    private bool isGitVisible = false; // keep git code but hidden by default
 
     // TODO: Consider exposing ICommand for opening Git view or navigating to warnings
     public void ShowNotification(int count)

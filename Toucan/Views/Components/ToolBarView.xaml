@@ -7,11 +7,13 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     mc:Ignorable="d"
     d:DesignHeight="32"
-    d:DesignWidth="600" Padding="0" Margin="0">
-    <ui:Card Padding="0"
-        Margin="0">
+    d:DesignWidth="600"
+    Margin="0">
+    <ui:Card Padding="4,0"
+             Margin="0">
 
-        <StackPanel Orientation="Horizontal" Margin="0">
+        <StackPanel Orientation="Horizontal"
+                    Margin="0">
 
             <!-- Group: File actions (new/open/save) -->
             <ui:Button Margin="2,0"

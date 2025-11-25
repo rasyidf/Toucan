@@ -6,6 +6,8 @@ namespace Toucan.Core.Options;
 
 public class AppOptions
 {
+        // Optional default language preference for new projects / UI
+        public string DefaultLanguage { get; set; }
     public SaveStyles SaveStyle { get; set; }
     public string DefaultPath { get; set; }
     public int PageSize { get; set; }
@@ -36,7 +38,7 @@ public class AppOptions
 
             return options;
         }
-        return new AppOptions() { SaveStyle = SaveStyles.Json, PageSize = 100, MaxItems = 100, TruncateResultsOver = 2000, LoadingDepth = 1 };
+        return new AppOptions() { SaveStyle = SaveStyles.Json, PageSize = 100, MaxItems = 100, TruncateResultsOver = 2000, LoadingDepth = 1, DefaultLanguage = "en-US" };
 
     }
     public void ToDisk()

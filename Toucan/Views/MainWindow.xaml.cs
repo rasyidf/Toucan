@@ -35,6 +35,8 @@ public partial class MainWindow : FluentWindow
         statusViewModel.StatusText = ViewModel.StatusText;
         statusViewModel.IsLoading = ViewModel.IsLoading;
         statusViewModel.ProjectName = System.IO.Path.GetFileName(ViewModel.CurrentPath) ?? ViewModel.CurrentPath ?? "Toucan Project";
+        // show configured default language (app preference)
+        statusViewModel.DefaultLanguage = ViewModel.AppOptions?.DefaultLanguage ?? "en-US";
         StatusBarService.Instance.Register(statusViewModel);
         RootStatusBar.DataContext = statusViewModel;
 

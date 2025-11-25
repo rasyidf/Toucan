@@ -36,12 +36,39 @@ public partial class NewProjectViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<string> languages = new();
 
+    [ObservableProperty]
+    private bool createManifest = false;
+
+    // Convenience read-only validation property for XAML binding
+    public bool IsValid => !string.IsNullOrWhiteSpace(ProjectName) && !string.IsNullOrWhiteSpace(ProjectFolder) && Languages?.Count > 0;
+
     public NewProjectViewModel(IProjectService projectService = null)
     {
         _projectService = projectService;
-        
-        // default language
-        Languages.Add("en-US");
+        // default language from app options (user preference)
+        try
+        {
+            var opts = Toucan.Core.Options.AppOptions.LoadFromDisk();
+            var defaultLang = string.IsNullOrWhiteSpace(opts?.DefaultLanguage) ? "en-US" : opts.DefaultLanguage;
+            SourceLanguage = defaultLang;
+            // Ensure at least one default language exists and add a small curated set of helpful defaults
+            Languages.Add(defaultLang);
+            var suggestions = new[] { "en-US", "id-ID", "zh-CN", "fr-FR" };
+            foreach (var s in suggestions)
+            {
+                if (!Languages.Contains(s))
+                    Languages.Add(s);
+            }
+        }
+        catch
+        {
+            // fallback
+            Languages.Add("en-US");
+        }
+
+        // ensure we update IsValid when languages change
+        if (Languages != null)
+            Languages.CollectionChanged += (s, e) => OnPropertyChanged(nameof(IsValid));
     }
 
     [RelayCommand]
@@ -57,6 +84,16 @@ public partial class NewProjectViewModel : ObservableObject
             {
                 Languages.Add(language);
             }
+        }
+    }
+
+    [RelayCommand]
+    private void AddDefaults()
+    {
+        var defaults = new[] { "en-US", "id-ID", "zh-CN", "fr-FR", "es-ES" };
+        foreach (var d in defaults)
+        {
+            if (!Languages.Contains(d)) Languages.Add(d);
         }
     }
 
@@ -83,16 +120,25 @@ public partial class NewProjectViewModel : ObservableObject
         }
     }
 
-    public bool IsValid()
+    partial void OnProjectNameChanged(string value)
     {
-        // Basic validation: project name & folder
-        if (string.IsNullOrWhiteSpace(ProjectName) || string.IsNullOrWhiteSpace(ProjectFolder))
-            return false;
-
-        // For now, we don't require file paths to be set manually
-        // since CreateProject will generate them automatically
-        return true;
+        OnPropertyChanged(nameof(IsValid));
     }
+
+    partial void OnProjectFolderChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsValid));
+    }
+
+    partial void OnLanguagesChanged(ObservableCollection<string> value)
+    {
+        if (value != null)
+        {
+            value.CollectionChanged += (s, e) => OnPropertyChanged(nameof(IsValid));
+        }
+    }
+
+    // validation is now implemented as a computed property 'IsValid'
 
     /// <summary>
     /// Creates the actual project files on disk
@@ -102,7 +148,7 @@ public partial class NewProjectViewModel : ObservableObject
         if (_projectService == null)
             throw new InvalidOperationException("ProjectService is not available");
 
-        if (!IsValid())
+        if (!IsValid)
             throw new InvalidOperationException("Project settings are not valid");
 
         // Map framework selection to SaveStyles
@@ -115,6 +161,6 @@ public partial class NewProjectViewModel : ObservableObject
         };
 
         // Create the project folder if it doesn't exist and create language files
-        _projectService.CreateProject(ProjectFolder, Languages, style);
+        _projectService.CreateProject(ProjectFolder, Languages, style, CreateManifest);
     }
 }

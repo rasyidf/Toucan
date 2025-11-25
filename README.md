@@ -20,6 +20,7 @@
 
 1.  **JSON Language Resource Editing:** Clean, structured editing of JSON i18n files.
 2.  **Support for Multiple Languages:** Translate and manage all your project languages within a single view.
+3.  **Default language preferences:** Set a per-user default language in Settings → Options. New projects will default to this language (default: en-US).
 3.  **User-Friendly Interface:** A clear, modern design focusing on translator efficiency.
 4.  **In-line Translation Editor:** Easily edit source and target language values side-by-side.
 5.  **Translation Suggestions using AI** (Awaiting Implementation)

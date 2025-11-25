@@ -57,7 +57,7 @@ public class ProjectService : IProjectService
         }
     }
 
-    public void CreateProject(string folder, IEnumerable<string> languages, SaveStyles style = SaveStyles.Json)
+    public void CreateProject(string folder, IEnumerable<string> languages, SaveStyles style = SaveStyles.Json, bool createManifest = false)
     {
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
@@ -65,6 +65,26 @@ public class ProjectService : IProjectService
         foreach (var language in languages)
         {
             CreateLanguage(folder, language, style);
+        }
+
+        if (createManifest)
+        {
+            try
+            {
+                var manifest = new Dictionary<string, object>
+                {
+                    ["$schema"] = "./toucan.project.schema.json",
+                    ["languages"] = languages.ToList(),
+                    ["saveStyle"] = style.ToString(),
+                    ["translationPackages"] = new List<object>()
+                };
+
+                _fileService.Save(folder, "toucan.project", manifest);
+            }
+            catch
+            {
+                // best-effort - if saving the manifest fails we don't want to break project creation
+            }
         }
     }
 

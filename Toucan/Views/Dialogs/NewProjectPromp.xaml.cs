@@ -17,14 +17,15 @@ partial class NewProjectPrompt : FluentWindow
         Title = title;
         _projectService = projectService;
          
-        ResponseTextBox.Text = defaultValue;
-        ResponseTextBox.Focus();
-        ResponseTextBox.SelectAll();
+        // if a default value was provided, push it into the view model
 
         // Setup view model with project service
         var vm = new ViewModels.NewProjectViewModel(projectService);
-        ResponseTextBox.SetBinding(System.Windows.Controls.TextBox.TextProperty, new System.Windows.Data.Binding("ProjectName") { Source = vm, Mode = System.Windows.Data.BindingMode.TwoWay });
+        if (!string.IsNullOrEmpty(defaultValue)) vm.ProjectName = defaultValue;
         DataContext = vm;
+        // give keyboard focus to the project name textbox when available
+        ProjectNameTextBox?.Focus();
+        ProjectNameTextBox?.SelectAll();
 
         RoutedCommand saveCommand = new();
         saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
@@ -43,10 +44,10 @@ partial class NewProjectPrompt : FluentWindow
     {
         InitializeComponent();
         Title = "New Project";
-        ResponseTextBox.Text = defaultValue;
-        ResponseTextBox.Focus();
-        ResponseTextBox.SelectAll();
+        if (!string.IsNullOrEmpty(defaultValue)) vm.ProjectName = defaultValue;
         DataContext = vm;
+        ProjectNameTextBox?.Focus();
+        ProjectNameTextBox?.SelectAll();
 
         RoutedCommand saveCommand = new();
         saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
@@ -59,8 +60,8 @@ partial class NewProjectPrompt : FluentWindow
 
     public string ResponseText
     {
-        get { return ResponseTextBox.Text; }
-        set { ResponseTextBox.Text = value; }
+        get { return (DataContext as ViewModels.NewProjectViewModel)?.ProjectName ?? string.Empty; }
+        set { if (DataContext is ViewModels.NewProjectViewModel vm) vm.ProjectName = value; }
     }
 
 
@@ -78,7 +79,7 @@ partial class NewProjectPrompt : FluentWindow
             return;
         }
 
-        if (!vm.IsValid())
+        if (!vm.IsValid)
         {
             // a basic validation alert
             System.Windows.MessageBox.Show("Please set a project name and folder.", "Invalid", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);

@@ -564,6 +564,13 @@ internal partial class MainWindowViewModel : ObservableObject
     internal void UpdateSummaryInfo()
     {
         SummaryInfo.Update(AllTranslation);
+        // show number of missing translations as a notification badge
+        try
+        {
+            var totalMissing = SummaryInfo.Details?.Sum(d => (int)d.Missing) ?? 0;
+            StatusBarService.Instance.ShowNotificationBadge(totalMissing);
+        }
+        catch { }
     }
 
     [RelayCommand]
@@ -849,6 +856,15 @@ internal partial class MainWindowViewModel : ObservableObject
             (DeleteItemCommand as RelayCommand)?.NotifyCanExecuteChanged();
         }
         catch { }
+        // update statusbar cursor (selection info)
+        if (value != null)
+        {
+            StatusBarService.Instance.UpdateCursor("Selected: " + value.Namespace);
+        }
+        else
+        {
+            StatusBarService.Instance.UpdateCursor("Ln 0, Col 0");
+        }
     }
 
     [RelayCommand]
@@ -956,8 +972,41 @@ internal partial class MainWindowViewModel : ObservableObject
             RefreshTree();
             UpdateSummaryInfo();
             IsDirty = true;
+            // update status bar default language from project manifest (toucan.project) if present
+            try
+            {
+                var manifestPath = System.IO.Path.Combine(path, "toucan.project");
+                if (System.IO.File.Exists(manifestPath))
+                {
+                    var txt = System.IO.File.ReadAllText(manifestPath);
+                    try
+                    {
+                        var root = Newtonsoft.Json.Linq.JObject.Parse(txt);
+                        var primary = root["primaryLanguage"]?.ToString();
+                        if (!string.IsNullOrWhiteSpace(primary))
+                        {
+                            StatusBarService.Instance.UpdateDefaultLanguage(primary);
+                        }
+                    }
+                    catch { }
+                }
+                else
+                {
+                    // fallback: use first language in loaded translations if available
+                    var firstLang = AllTranslation?.ToLanguages().FirstOrDefault();
+                    if (!string.IsNullOrWhiteSpace(firstLang))
+                        StatusBarService.Instance.UpdateDefaultLanguage(firstLang);
+                }
+            }
+            catch { }
             // Populate paging controller for loaded data
             Search("", true);
+            // ensure project name shown in status bar
+            try
+            {
+                StatusBarService.Instance.UpdateProjectName(System.IO.Path.GetFileName(path) ?? path ?? "Toucan Project");
+            }
+            catch { }
         }
         catch (Exception ex)
         {
@@ -1057,11 +1106,13 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void ShowPreferences()
     {
-        OptionDialog optionsHwnd = new(AppOptions) { Owner = Application.Current.MainWindow };
+        OptionDialog optionsHwnd = new(AppOptions, CurrentPath) { Owner = Application.Current.MainWindow };
         bool? saved = optionsHwnd.ShowDialog();
         if (saved.GetValueOrDefault())
         {
             AppOptions = optionsHwnd.Config;
+            // update statusbar language when preferences change
+            try { StatusBarService.Instance.UpdateDefaultLanguage(AppOptions.DefaultLanguage ?? "en-US"); } catch { }
         }
         // Recreate or update the paging controller to reflect new options (page size and max items)
         int oldPage = PagingController?.Page ?? 1;
