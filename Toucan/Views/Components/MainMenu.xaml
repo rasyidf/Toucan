@@ -124,27 +124,27 @@
             <ui:MenuItem
                 Header="Find"
                 Icon="{ui:SymbolIcon Search20}"
-                IsEnabled="False" />
+                Command="{Binding FindPromptCommand}" />
             <ui:MenuItem
                 Header="Find Next"
                 Icon="{ui:SymbolIcon SlideSearch20}"
-                IsEnabled="False" />
+                Command="{Binding FindNextCommand}" />
             <ui:MenuItem
                 Header="Set Filter"
                 Icon="{ui:SymbolIcon Filter20}"
-                IsEnabled="False" />
+                Command="{Binding SetFilterCommand}" />
             <ui:MenuItem
                 Header="Filter By ID"
                 Icon="{ui:SymbolIcon FilterSync20}"
-                IsEnabled="False" />
+                Command="{Binding FilterByIdCommand}" />
             <ui:MenuItem
                 Header="Show untranslated"
                 Icon="{ui:SymbolIcon PhotoFilter20}"
-                IsEnabled="False" />
+                Command="{Binding ShowUntranslatedCommand}" />
             <ui:MenuItem
                 Header="Clear"
                 Icon="{ui:SymbolIcon FilterDismiss20}"
-                IsEnabled="False" />
+                Command="{Binding ClearFilterCommand}" />
         </ui:MenuItem>
         <ui:MenuItem Header="Views">
             <ui:MenuItem Header="Tree View" Icon="{ui:SymbolIcon TextBulletListTree20}" />

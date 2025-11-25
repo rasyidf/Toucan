@@ -116,4 +116,14 @@ public class PreTranslateViewModelTests
         // ProgressPercent must remain within 0..100 even if provider reports odd values
         Assert.InRange(vm.ProgressPercent, 0, 100);
     }
+
+    [Fact]
+    public void OpenProviderSettings_DoesNotThrow_WhenNoDialogServiceOrApplication()
+    {
+        // Ensure no App.Services and no WPF Application are required for this call.
+        var vm = new PreTranslateViewModel();
+
+        // Should not throw even when running in a headless unit-test environment
+        vm.OpenProviderSettingsCommand.Execute(null);
+    }
 }

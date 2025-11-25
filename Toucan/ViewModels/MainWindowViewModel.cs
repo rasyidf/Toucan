@@ -684,9 +684,97 @@ internal partial class MainWindowViewModel : ObservableObject
         PagedUpdates();
     }
 
+    partial void OnSearchTextChanged(string value)
+    {
+        // keep existing behaviour: search on text changes
+        Search(value, false);
+    }
+
     internal void ShowAll(string Path)
     {
         Search(Path, true);
+    }
+
+    [RelayCommand]
+    private void FindPrompt()
+    {
+        var dialog = new PromptDialog("Find", "Enter text or namespace to find (append '.' to search by prefix)", SearchText ?? "")
+        {
+            Owner = Application.Current.MainWindow
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            SearchText = dialog.ResponseText?.Trim() ?? string.Empty;
+        }
+    }
+
+    [RelayCommand]
+    private void FindNext()
+    {
+        // for now Find Next cycles to the next page of results
+        NextPage();
+    }
+
+    [RelayCommand]
+    private void SetFilter()
+    {
+        // equivalent to the find prompt - choose a filter to apply
+        FindPrompt();
+    }
+
+    [RelayCommand]
+    private void FilterById()
+    {
+        var dialog = new PromptDialog("Filter by ID", "Enter exact ID/namespace to filter by (exact match)", "")
+        {
+            Owner = Application.Current.MainWindow
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            string ns = dialog.ResponseText?.Trim() ?? string.Empty;
+            // exact IDs are handled by Search when the filter does not end with a dot
+            SearchText = ns;
+        }
+    }
+
+    [RelayCommand]
+    private void ShowUntranslated()
+    {
+        if (AllTranslation == null || AllTranslation.Count == 0)
+        {
+            _messageService.ShowMessage("No translations loaded.");
+            return;
+        }
+
+        var matchedTranslations = AllTranslation.Where(t => string.IsNullOrWhiteSpace(t.Value)).ToList();
+
+        if (matchedTranslations.Count == 0)
+        {
+            _messageService.ShowMessage("No untranslated items found.");
+            return;
+        }
+
+        List<string> namespaces = matchedTranslations.ToNamespaces().ToList();
+
+        List<LanguageGroupViewModel> languageGroups = new();
+        foreach (string n in namespaces)
+        {
+            var languageGroupVm = new LanguageGroupViewModel(n);
+            languageGroupVm.LoadTranslations(matchedTranslations.Where(o => o.Namespace == n).ToList());
+            languageGroups.Add(languageGroupVm);
+        }
+
+        PagingController.SwapData(languageGroups, false);
+        PagedUpdates();
+    }
+
+    [RelayCommand]
+    private void ClearFilter()
+    {
+        SearchText = string.Empty;
+        Search("", true);
     }
     [RelayCommand]
     internal void AddMissingTranslations()

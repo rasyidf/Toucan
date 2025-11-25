@@ -80,7 +80,7 @@ public partial class MainWindow : FluentWindow
 
         if (!string.IsNullOrWhiteSpace(clickedNamespace))
         {
-            SearchFilterTextbox.Text = clickedNamespace;
+            ViewModel.SearchText = clickedNamespace;
         }
     }
 
@@ -99,7 +99,7 @@ public partial class MainWindow : FluentWindow
 
                 if (!string.IsNullOrWhiteSpace(clickedNamespace))
                 {
-                    SearchFilterTextbox.Text = clickedNamespace;
+                    ViewModel.SearchText = clickedNamespace;
                 }
             }
         }
@@ -108,14 +108,10 @@ public partial class MainWindow : FluentWindow
     private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
         await ViewModel.OpenRecent().ConfigureAwait(true);
-        SearchFilterTextbox.TextChanged += SearchFilterTextbox_TextChanged;
         SystemThemeWatcher.Watch(this, WindowBackdropType.Tabbed, true);
     }
 
-    private void SearchFilterTextbox_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        ViewModel.Search(SearchFilterTextbox.Text, false);
-    }
+    // Search is now driven by the view-model SearchText property binding.
 
 
     private void NextPage(object sender, RoutedEventArgs e) => ViewModel.NextPageCommand.Execute(null);
@@ -131,6 +127,6 @@ public partial class MainWindow : FluentWindow
 
     private void ShowAll(object sender, RoutedEventArgs e)
     {
-        ViewModel.ShowAll(SearchFilterTextbox.Text);
+        ViewModel.ShowAll(ViewModel.SearchText);
     }
 }

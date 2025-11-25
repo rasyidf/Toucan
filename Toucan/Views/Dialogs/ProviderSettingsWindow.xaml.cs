@@ -1,9 +1,10 @@
 using System.Windows;
 using Toucan.ViewModels;
+using Wpf.Ui.Controls;
 
 namespace Toucan.Views.Dialogs
 {
-    public partial class ProviderSettingsWindow : Window
+    public partial class ProviderSettingsWindow : FluentWindow
     {
         public ProviderSettingsWindow()
         {

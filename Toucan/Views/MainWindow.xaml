@@ -84,7 +84,7 @@
                     Icon="Search16"
                     IconPlacement="Right"
                     PlaceholderText="  Toucan"
-                    TextChanged="SearchFilterTextbox_TextChanged"/>
+                    Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
             </ui:TitleBar.TrailingContent>
         </ui:TitleBar>

@@ -1,9 +1,10 @@
 using System.Windows;
 using Toucan.ViewModels;
+using Wpf.Ui.Controls;
 
 namespace Toucan.Views.Dialogs;
 
-public partial class PreTranslateWindow : Window
+public partial class PreTranslateWindow : FluentWindow
 {
     public PreTranslateWindow()
     {
