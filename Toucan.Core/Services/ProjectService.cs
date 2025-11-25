@@ -1,12 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using Toucan.Core.Models;
-using System.Text;
 using Toucan.Extensions;
 using System.IO;
 using Toucan.Core.Contracts.Services;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace Toucan.Core.Services;
 
@@ -15,44 +11,90 @@ public class ProjectService : IProjectService
 
     private readonly IFileService _fileService;
     private readonly IEnumerable<ISaveStrategy> _saveStrategies;
+    private readonly ITranslationStrategyFactory _strategyFactory;
+    private readonly IProjectModeResolver _modeResolver;
+    private readonly Microsoft.Extensions.Logging.ILogger<ProjectService> _logger;
 
-    public ProjectService(IFileService fileService, IEnumerable<ISaveStrategy> saveStrategies)
+    public ProjectService(IFileService fileService, IEnumerable<ISaveStrategy> saveStrategies, ITranslationStrategyFactory strategyFactory, IProjectModeResolver modeResolver, Microsoft.Extensions.Logging.ILogger<ProjectService> logger)
     {
         _fileService = fileService;
         _saveStrategies = saveStrategies;
+        _strategyFactory = strategyFactory;
+        _modeResolver = modeResolver;
+        _logger = logger;
     }
 
-    public void CreateLanguage(string folder, string language)
+    // Backward-compatible constructor for existing non-DI callers
+    public ProjectService(IFileService fileService, IEnumerable<ISaveStrategy> saveStrategies)
+        : this(fileService, saveStrategies, new TranslationStrategyFactory(saveStrategies, new List<ILoadStrategy>()), new ProjectModeResolver(), Microsoft.Extensions.Logging.Abstractions.NullLogger<ProjectService>.Instance)
     {
-        // Persist a minimal JSON object for language files
-        _fileService.Save(folder, language + ".json", new Dictionary<string, string>() { { "app", "" } });
+    }
+
+    public void CreateLanguage(string folder, string language, SaveStyles style = SaveStyles.Json)
+    {
+        // Create a minimal translation structure
+        var translations = new List<TranslationItem>
+        {
+            new TranslationItem { Namespace = "app", Value = string.Empty, Language = language }
+        };
+
+        var context = new SaveContext
+        {
+            LanguageDictionary = new Dictionary<string, IEnumerable<TranslationItem>> { { language, translations } },
+            NsTreeItems = new List<NsTreeItem>(),
+            Languages = new List<string> { language }
+        };
+
+        var strategy = _saveStrategies?.FirstOrDefault(s => s.Style == style);
+        if (strategy != null)
+        {
+            strategy.Save(folder, context);
+        }
+        else
+        {
+            // Fallback to JSON if no strategy found
+            _fileService.Save(folder, language + ".json", new Dictionary<string, string>() { { "app", "" } });
+        }
+    }
+
+    public void CreateProject(string folder, IEnumerable<string> languages, SaveStyles style = SaveStyles.Json)
+    {
+        if (!Directory.Exists(folder))
+            Directory.CreateDirectory(folder);
+
+        foreach (var language in languages)
+        {
+            CreateLanguage(folder, language, style);
+        }
     }
 
     public List<TranslationItem> Load(string folder)
     {
-        if (string.IsNullOrEmpty(folder))
+        if (string.IsNullOrEmpty(folder)) return new List<TranslationItem>();
+
+        // Decide which loading mode to use (config vs folder scan)
+        var variant = _modeResolver?.Resolve(folder) ?? ProjectTypeVariant.FolderScan;
+        if (variant == ProjectTypeVariant.ConfigManifest)
         {
-            return new List<TranslationItem>();
+            var loader = _strategyFactory?.GetManifestLoadStrategy();
+            if (loader != null)
+                return loader.Load(folder).ToList();
+            // fallback
+            return LoadByStyle(folder, SaveStyles.Json).ToList();
         }
 
-        string[] files = Directory.GetFiles(folder, "*.json");
-        List<TranslationItem> settings = new List<TranslationItem>();
+        // Folder scan - choose JSON loader for now
+        return LoadByStyle(folder, SaveStyles.Json).ToList();
+    }
 
-        foreach (string filePath in files)
-        {
-            List<TranslationItem> newFiles = new List<TranslationItem>();
-            string file = Path.GetFileName(filePath);
-            string language = Path.GetFileNameWithoutExtension(filePath);
+    // New helper to load via registered load strategies
+    private IEnumerable<TranslationItem> LoadByStyle(string folder, SaveStyles style)
+    {
+        var loader = _strategyFactory?.GetLoadStrategy(style);
+        if (loader != null)
+            return loader.Load(folder);
 
-            // Use file service to deserialize JSON content; we read it as dynamic/JObject
-            var myObj = _fileService.Read<dynamic>(folder, file);
-            FromNestMethod(newFiles, language, myObj);
-            if (newFiles.Count == 0)
-                newFiles.AddRange(new List<TranslationItem>() { new TranslationItem() { Language = language } });
-            settings.AddRange(newFiles);
-        }
-        //GenerateLargeTestData(translationItem, translationItem.ToLanguages().ToList());
-        return settings;
+        return new List<TranslationItem>();
     }
 
     private static void FromNestMethod(List<TranslationItem> translationItem, string language, dynamic content)

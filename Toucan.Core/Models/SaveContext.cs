@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Toucan.Core.Models
 {
     public class SaveContext

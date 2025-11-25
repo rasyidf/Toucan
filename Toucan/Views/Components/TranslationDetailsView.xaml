@@ -5,6 +5,7 @@
     xmlns:c="clr-namespace:Toucan.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Toucan.Views"
+        xmlns:components="clr-namespace:Toucan.Views.Components"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     d:DesignHeight="450"
@@ -41,7 +42,7 @@
                     </StackPanel.Resources>
 
                     <StackPanel>
-                        <ItemsControl x:Name="languageGroupContainer" ItemsSource="{Binding PagingController.Data, TargetNullValue=0}">
+                        <ItemsControl x:Name="languageGroupContainer" ItemsSource="{Binding PagingController.PageData}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <local:TranslationItemView DataContext="{Binding}" UpdateLanguageValue="LanguageValue_KeyUp" />
@@ -49,12 +50,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
-
-
-
                 </StackPanel>
-
-
             </ui:DynamicScrollViewer>
 
             <StatusBar
@@ -67,52 +63,25 @@
                     <ItemsPanelTemplate>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" /> 
                             </Grid.ColumnDefinitions>
                         </Grid>
                     </ItemsPanelTemplate>
                 </StatusBar.ItemsPanel>
-                <StatusBarItem>
-                    <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="BranchFork24" />
-                </StatusBarItem>
-                <StatusBarItem Grid.Column="1" Margin="0,0,4,0">
-                    <TextBlock  x:Name="pagingMessage" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Showing some from" />
-                </StatusBarItem>   
-                <StatusBarItem Grid.Column="3">
-                    <ui:Button Click="FirstPage">
-                        <ui:SymbolIcon Symbol="ArrowPrevious24" />
-                    </ui:Button>
-                </StatusBarItem>
-                <StatusBarItem Grid.Column="4">
-                    <ui:Button Click="PreviousPage">
-                        <ui:SymbolIcon Symbol="IosArrowLtr24" />
-                </ui:Button>
-                </StatusBarItem>
-                <StatusBarItem Grid.Column="5">
-                <ui:Button Click="NextPage">
-                        <ui:SymbolIcon Symbol="IosArrowRtl24" />
-                </ui:Button>
-                </StatusBarItem>
-                <StatusBarItem Grid.Column="6">
-                <ui:Button Click="LastPage">
-                        <ui:SymbolIcon Symbol="ArrowNext24" />
-                    </ui:Button>
-                </StatusBarItem>
-                <StatusBarItem Grid.Column="7">
-                    <ui:Button
-                    x:Name="partialPagingButton"
-                    Grid.Column="2"   
-                    Click="ShowAll"
-                    Content="Show All"
-                    FontSize="12"  />
-                </StatusBarItem>
+                <StatusBarItem> 
+                    <components:PaginationControl
+                        PageButtons="{Binding PageButtons}"
+                        PageMessage="{Binding PageMessage}"
+                        HasPreviousPage="{Binding PagingController.HasPreviousPage}"
+                        HasNextPage="{Binding PagingController.HasNextPage}"
+                        IsPartial="{Binding PagingController.IsPartial}"
+                        FirstPageCommand="{Binding FirstPageCommand}"
+                        PreviousPageCommand="{Binding PreviousPageCommand}"
+                        NextPageCommand="{Binding NextPageCommand}"
+                        LastPageCommand="{Binding LastPageCommand}"
+                        GoToPageCommand="{Binding GoToPageCommand}"
+                        ShowAllCommand="{Binding ShowAllCommand}" />
+                </StatusBarItem>  
             </StatusBar> 
 
         </Grid>

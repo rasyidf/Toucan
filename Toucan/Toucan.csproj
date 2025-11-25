@@ -28,8 +28,6 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\Images\WindowIcon.ico" />
-    <None Remove="Views\logo.png" />
-    <None Remove="Views\WindowIcon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Images\WindowIcon.ico">
@@ -47,11 +45,9 @@
   <ItemGroup>
     <Resource Include="Assets\Images\ns.png" />
     <Resource Include="Assets\Images\translation.png" />
-    <Resource Include="Views\logo.png" />
-    <Resource Include="Views\WindowIcon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Google.Cloud.Translation.V2" Version="3.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
@@ -60,6 +56,9 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="WPF-UI" Version="4.0.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Toucan.Core\Toucan.Core.csproj" />

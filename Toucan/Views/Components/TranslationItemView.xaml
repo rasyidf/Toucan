@@ -7,76 +7,108 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Margin="0,5"
-    d:DesignHeight="130"
+    d:DesignHeight="150"
     d:DesignWidth="563"
     mc:Ignorable="d">
-    <ui:Card Padding="6" VerticalAlignment="Stretch">
+
+    <ui:Card
+        Padding="8"
+        Grid.IsSharedSizeScope="True"
+        VerticalAlignment="Stretch">
         <StackPanel>
-            <Grid x:Name="Header" Margin="0,0,0,4">
+            <Grid x:Name="Header"
+                    Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="86" />
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
+
                 <TextBlock
                     Grid.Column="0"
-                    Margin="0"
-                    d:Text="namespace.item.child"
-                    Text="{Binding Namespace}" />
+                    Margin="2,0"
+                    VerticalAlignment="Center"
+                    d:Text="namespace.item.child_key_name"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    Text="{Binding Namespace}"
+                    TextTrimming="CharacterEllipsis"/>
+
                 <StackPanel
                     Grid.Column="1"
-                    Margin="0"
                     HorizontalAlignment="Right"
                     Orientation="Horizontal">
+
                     <ui:Button
                         Margin="4,0"
                         Padding="4"
+                        Appearance="Transparent"
                         ToolTip="Translate this key">
-                        <ui:SymbolIcon Symbol="Translate16" />
+                        <ui:SymbolIcon Symbol="Translate16"/>
                     </ui:Button>
                     <ui:Button
                         Padding="4"
+                        Appearance="Transparent"
                         HorizontalAlignment="Right"
                         ToolTip="Show Editor">
-                        <ui:SymbolIcon Symbol="Edit16" />
+                        <ui:SymbolIcon Symbol="Edit16"/>
                     </ui:Button>
                 </StackPanel>
             </Grid>
+
+            <Rectangle
+                Height="1"
+                Margin="0,0,0,8"
+                Fill="{DynamicResource TextControlBorderThemeBrush}"
+                Opacity="0.2"/>
+
             <ItemsControl
-                Padding="2"
-                d:ItemsSource="{d:SampleData ItemCount=2}"
+                d:ItemsSource="{d:SampleData ItemCount=3}"
                 ItemsSource="{Binding Translations}">
                 <ItemsControl.ItemContainerStyle>
-                    <Style>
-                        <Setter Property="FrameworkElement.Margin" Value="2" />
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Margin"
+                                Value="0,0,0,6"/>
                     </Style>
                 </ItemsControl.ItemContainerStyle>
+
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid Margin="1" VerticalAlignment="Center">
+                        <Grid Margin="0,2">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition x:Name="languageColumn" Width="42" />
-                                <ColumnDefinition Width="12" />
-                                <ColumnDefinition x:Name="translationColumn" Width="1*" />
-                                <ColumnDefinition Width="36" />
+                                <ColumnDefinition Width="Auto"
+                                        SharedSizeGroup="LanguageLabel"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
+
                             <TextBlock
                                 Grid.Column="0"
-                                VerticalAlignment="center"
-                                Text="{Binding Language}" />
+                                VerticalAlignment="Top"
+                                Margin="0,6,0,0"
+                                FontWeight="Medium"
+                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                Text="{Binding Language}"/>
+
                             <ui:TextBox
                                 Grid.Column="2"
-                                Padding="5"
+                                MinHeight="32"
+                                Padding="6,4"
+                                VerticalAlignment="Stretch"
+                                AcceptsReturn="True"
                                 KeyUp="LanguageValue_KeyUp"
                                 Tag="{Binding}"
-                                Text="{Binding Value}" />
+                                Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                TextWrapping="Wrap"/>
+
                             <ui:Button
                                 Grid.Column="3"
-                                Width="32"
-                                Height="28"
-                                Margin="0,0,2,0"
-                                Padding="2"
-                                HorizontalAlignment="Right">
-                                <ui:SymbolIcon Symbol="Copy16" />
+                                Margin="6,0,0,0"
+                                Padding="6"
+                                VerticalAlignment="Top"
+                                Appearance="Transparent"
+                                ToolTip="Copy translation">
+                                <ui:SymbolIcon Symbol="Copy16"/>
                             </ui:Button>
                         </Grid>
                     </DataTemplate>

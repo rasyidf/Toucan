@@ -1,10 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Toucan.Extensions;
+﻿using Toucan.Extensions;
 using System.Collections.ObjectModel;
 
-namespace Toucan.Core.Models; using CommunityToolkit.Mvvm.ComponentModel;
+namespace Toucan.Core.Models;
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Toucan.Core.Models;
 
 public partial class SummaryInfoViewModel : ObservableObject
 {

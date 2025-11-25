@@ -1,11 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Toucan.Core.Models;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Toucan.Core.Options;
 
@@ -14,6 +9,7 @@ public class AppOptions
     public SaveStyles SaveStyle { get; set; }
     public string DefaultPath { get; set; }
     public int PageSize { get; set; }
+    public int MaxItems { get; set; }
     public int TruncateResultsOver { get; set; }
     public int LoadingDepth { get; set; }
 
@@ -29,6 +25,8 @@ public class AppOptions
 
             if (options.PageSize <= 0)
                 options.PageSize = 100;
+            if (options.MaxItems <= 0)
+                options.MaxItems = 100;
 
             if (options.TruncateResultsOver <= 0)
                 options.TruncateResultsOver = 2000;
@@ -38,7 +36,7 @@ public class AppOptions
 
             return options;
         }
-        return new AppOptions() { SaveStyle = SaveStyles.Json, PageSize = 100, TruncateResultsOver = 2000, LoadingDepth = 1 };
+        return new AppOptions() { SaveStyle = SaveStyles.Json, PageSize = 100, MaxItems = 100, TruncateResultsOver = 2000, LoadingDepth = 1 };
 
     }
     public void ToDisk()

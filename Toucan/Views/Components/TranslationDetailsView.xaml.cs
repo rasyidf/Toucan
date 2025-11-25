@@ -1,18 +1,8 @@
 ﻿using Toucan.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Toucan.ViewModels;
 
 namespace Toucan.Views;
 
@@ -64,8 +54,21 @@ public partial class TranslationDetailsView : UserControl
 
     private void LanguageValue_KeyUp(object sender, KeyEventArgs e)
     {
-        TextBox txtBox = (TextBox)sender;
-        TranslationItem setting = (TranslationItem)txtBox.Tag;
-        setting.Value = txtBox.Text;
+        if (sender is not TextBox txtBox)
+            return;
+
+        // Tag can be either the model (TranslationItem) or a TranslationItemViewModel
+        if (txtBox.Tag is TranslationItem model)
+        {
+            model.Value = txtBox.Text;
+        }
+        else if (txtBox.Tag is TranslationItemViewModel vm)
+        {
+            // The Text binding already updates VM.Value, but set it explicitly to be safe
+            vm.Value = txtBox.Text;
+        }
+
+        // Notify parent (e.g. MainWindow) that a language value was updated so it can mark changes
+        UpdateLanguageValue?.Invoke(this, new RoutedEventArgs());
     }
 }

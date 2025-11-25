@@ -1,8 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
-using System.IO;
-using System.Windows.Input;
 using Toucan.Core.Options;
 using Toucan.Services;
 
@@ -22,6 +20,7 @@ internal partial class OptionsViewModel : ObservableObject
         Format = AppOptions.SaveStyle.ToString();
         PageSizeText = AppOptions.PageSize.ToString();
         TruncateSizeText = AppOptions.TruncateResultsOver.ToString();
+        MaxItemsText = AppOptions.MaxItems.ToString();
     }
 
     [ObservableProperty]
@@ -72,6 +71,9 @@ internal partial class OptionsViewModel : ObservableObject
     [ObservableProperty]
     private string truncateSizeText;
 
+    [ObservableProperty]
+    private string maxItemsText;
+
     public int ContextCharCount => Context?.Length ?? 0;
 
     [RelayCommand]
@@ -79,12 +81,14 @@ internal partial class OptionsViewModel : ObservableObject
     {
         if (!int.TryParse(PageSizeText, out int page)) page = AppOptions.PageSize;
         if (!int.TryParse(TruncateSizeText, out int trunc)) trunc = AppOptions.TruncateResultsOver;
+        if (!int.TryParse(MaxItemsText, out int maxItems)) maxItems = AppOptions.MaxItems;
 
         if (Enum.TryParse<Core.Models.SaveStyles>(Format, out var ss))
             AppOptions.SaveStyle = ss;
 
         AppOptions.PageSize = page;
         AppOptions.TruncateResultsOver = trunc;
+        AppOptions.MaxItems = maxItems;
 
         _preferenceService.Save(AppOptions);
 

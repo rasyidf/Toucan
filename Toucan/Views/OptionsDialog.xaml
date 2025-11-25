@@ -176,6 +176,13 @@
                             <TextBlock Width="160" VerticalAlignment="Center">Pagination limit</TextBlock>
                             <TextBox Width="220" Text="{Binding TruncateSizeText, Mode=TwoWay}" />
                         </StackPanel>
+                        <StackPanel
+                            Margin="0,8,0,0"
+                            VerticalAlignment="Center"
+                            Orientation="Horizontal">
+                            <TextBlock Width="160" VerticalAlignment="Center">Max items</TextBlock>
+                            <TextBox Width="220" Text="{Binding MaxItemsText, Mode=TwoWay}" />
+                        </StackPanel>
                     </StackPanel>
                 </ui:CardExpander>
 

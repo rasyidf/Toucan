@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 
@@ -9,12 +6,24 @@ namespace Toucan.Core.Services
 {
     public class BulkActionService : IBulkActionService
     {
+        private readonly Toucan.Core.Contracts.Services.IPretranslationService? _pretranslationService;
+
+        public BulkActionService(Toucan.Core.Contracts.Services.IPretranslationService? pretranslationService = null)
+        {
+            _pretranslationService = pretranslationService;
+        }
         public async Task PreTranslateAsync(IEnumerable<TranslationItem> items)
         {
+            if (_pretranslationService != null)
+            {
+                // delegate to configured pretranslation engine
+                await _pretranslationService.PreTranslateAsync(items).ConfigureAwait(true);
+                return;
+            }
             // Simple stub: set empty values to a placeholder or copy from another language (naive)
             await Task.Run(() =>
             {
-                // pick first language with values as source
+                // pick first language with values as source (fallback behavior)
                 var source = items.Where(i => !string.IsNullOrEmpty(i.Value)).FirstOrDefault();
                 foreach (var item in items)
                 {

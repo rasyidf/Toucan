@@ -102,6 +102,7 @@
                     <ui:ListView
                         x:Name="ListNamespace"
                         VerticalAlignment="Stretch"
+                        Visibility="{Binding IsTreeView, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"
                         ItemsSource="{Binding CurrentTreeItems, Converter={StaticResource TreeItemsFlatten}}"
                         SelectionChanged="ListNamespace_SelectionChanged">
                         <ui:ListView.ItemTemplate>

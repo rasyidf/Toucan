@@ -1,5 +1,4 @@
 ﻿using Toucan.Core.Models;
-using System.Collections.Generic;
 
 namespace Toucan.Core.Contracts;
 

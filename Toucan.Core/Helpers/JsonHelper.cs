@@ -4,15 +4,18 @@ using Toucan.Core.Contracts;
 using Toucan.Core.Models;
 using System.Text;
 using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace Toucan.Core.Extensions; 
 
 public class JsonParser : IParser
 {
     private string Language;
-    public JsonParser(string language)
+    private readonly Microsoft.Extensions.Logging.ILogger<JsonParser>? _logger;
+    public JsonParser(string language, Microsoft.Extensions.Logging.ILogger<JsonParser>? logger = null)
     {
         Language = language;
+        _logger = logger;
     }
     public IParser SetLanguage(string language)
     {
@@ -42,10 +45,10 @@ public class JsonParser : IParser
             }
             else
             {
-                if (item.Type == JTokenType.Object && !item.Any())
-                {
-                    Console.WriteLine($"Skipped: {item.Path}");
-                }
+                    if (item.Type == JTokenType.Object && !item.Any())
+                    {
+                        _logger?.Log(LogLevel.Debug,"Skipped: {Path}", item.Path);
+                    }
                 else
                 {
                     yield return new TranslationItem

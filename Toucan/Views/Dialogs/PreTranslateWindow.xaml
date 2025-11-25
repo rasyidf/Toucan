@@ -1,0 +1,89 @@
+<Window
+    x:Class="Toucan.Views.Dialogs.PreTranslateWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Toucan.ViewModels"
+    xmlns:converters="clr-namespace:Toucan.Converters"
+    mc:Ignorable="d"
+    Title="Pre-Translate" Height="420" Width="520" WindowStartupLocation="CenterOwner">
+
+    <Window.Resources>
+        <converters:StringEqualsConverter x:Key="StringEqualsConverter" />
+    </Window.Resources>
+
+    <Window.DataContext>
+        <vm:PreTranslateViewModel />
+    </Window.DataContext>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,8" VerticalAlignment="Center">
+            <TextBlock Text="Pre-Translate" FontSize="18" FontWeight="Bold" />
+            <TextBlock Text="  " />
+            <TextBlock Text="powered by" VerticalAlignment="Center" Foreground="Gray" />
+            <TextBlock Text=" Google Translate" VerticalAlignment="Center" Foreground="Gray" Margin="6,0,0,0" />
+        </StackPanel>
+
+        <Border Grid.Row="1" Background="#20101010" Padding="8" CornerRadius="4">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Provider selection -->
+                <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0,0,0,8">
+                    <TextBlock Text="Translation service:" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <RadioButton Content="Google" IsChecked="{Binding SelectedProvider, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Google}" Margin="6,0" />
+                        <RadioButton Content="DeepL" IsChecked="{Binding SelectedProvider, Converter={StaticResource StringEqualsConverter}, ConverterParameter=DeepL}" Margin="6,0" />
+                        <RadioButton Content="Microsoft" IsChecked="{Binding SelectedProvider, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Microsoft}" Margin="6,0" />
+                        <RadioButton Content="OpenAI" IsChecked="{Binding SelectedProvider, Converter={StaticResource StringEqualsConverter}, ConverterParameter=OpenAI}" Margin="6,0" />
+                        <Button Content="⚙" Width="28" Height="22" Margin="12,0,0,0" Command="{Binding OpenProviderSettingsCommand}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Languages list -->
+                <StackPanel Grid.Row="1" Margin="0,6,0,8">
+                    <TextBlock Text="Languages to translate:" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <ScrollViewer Height="90" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding AvailableLanguages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+
+                <!-- Options -->
+                <StackPanel Grid.Row="2" Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,4">
+                        <CheckBox Content="Reset Approved flag" IsChecked="{Binding ResetApproved}" Margin="0,0,18,0" />
+                        <CheckBox Content="Translate selected items only" IsChecked="{Binding TranslateSelectedOnly}" Margin="0,0,18,0" />
+                        <CheckBox Content="Overwrite existing translations" IsChecked="{Binding OverwriteExisting}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                        <Button x:Name="CancelButton" Content="Cancel" Width="90" Margin="0,0,8,0" Click="CancelButton_Click" Command="{Binding CancelCommand}" />
+                        <Button x:Name="StartButton" Content="Start" Width="120" Click="StartButton_Click" Command="{Binding StartCommand}" />
+                    </StackPanel>
+                </StackPanel>
+
+            </Grid>
+        </Border>
+
+        <TextBlock Grid.Row="2" Text="Note: Your source language strings may be sent to the provider service." Foreground="Gray" FontSize="11" Margin="2,10,0,0" />
+
+    </Grid>
+</Window>

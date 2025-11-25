@@ -68,7 +68,7 @@
                     Height="32"/>
 
         </Grid.RowDefinitions>
-        <ui:TitleBar Title="Toucan">
+        <ui:TitleBar Title="Toucan"> 
             <ui:TitleBar.Header>
                 <views:MainMenu Grid.Column="0"/>
             </ui:TitleBar.Header>
@@ -91,7 +91,7 @@
 
 
         <views:ToolBarView Grid.Row="1"
-                           HorizontalAlignment="Right"
+                           HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
 
         <Grid Grid.Row="2"

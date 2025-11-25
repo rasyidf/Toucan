@@ -1,17 +1,17 @@
-﻿ 
+﻿
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Input;
 using Toucan.Core.Contracts;
-using Toucan.Services;
+using Toucan.Core.Contracts.Services;
 
 namespace Toucan.ViewModels;
 
 public partial class StartScreenViewModel : ObservableObject
 {
     private readonly IRecentProjectService _recentProjectService;
+    private readonly IProjectService _projectService;
 
     // Observable list of recent projects
     [ObservableProperty]
@@ -20,9 +20,10 @@ public partial class StartScreenViewModel : ObservableObject
     // Whether to show "No recent project" state
     public bool HasRecentProjects => RecentProjects?.Count > 0;
 
-    public StartScreenViewModel(IRecentProjectService recentProjectService)
+    public StartScreenViewModel(IRecentProjectService recentProjectService, IProjectService projectService = null)
     {
         _recentProjectService = recentProjectService;
+        _projectService = projectService;
 
         LoadRecentProjects();
     }
@@ -42,7 +43,11 @@ public partial class StartScreenViewModel : ObservableObject
     private void NewProject()
     {
         // Show the New Project dialog
-        var dialog = new Toucan.NewProjectPrompt("New Project", "Create a new translation project");
+        NewProjectPrompt dialog;
+        if (App.Services != null)
+            dialog = App.Services.GetService(typeof(NewProjectPrompt)) as NewProjectPrompt ?? new NewProjectPrompt("New Project", "Create a new translation project", _projectService);
+        else
+            dialog = new NewProjectPrompt("New Project", "Create a new translation project", _projectService);
         dialog.Owner = System.Windows.Application.Current.MainWindow;
 
         if (dialog.ShowDialog() == true && dialog.DataContext is NewProjectViewModel vm)

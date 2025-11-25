@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Toucan.Core.Models
+﻿namespace Toucan.Core.Models
 { 
     public enum SaveStyles
     {

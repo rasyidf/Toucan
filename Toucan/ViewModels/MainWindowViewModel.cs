@@ -10,8 +10,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
-using Toucan.Core;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Extensions;
@@ -20,6 +18,7 @@ using Toucan.Core.Options;
 using Toucan.Core.Services;
 using Toucan.Services;
 using Toucan.Views;
+using Toucan.Models;
 
 namespace Toucan.ViewModels;
 
@@ -29,13 +28,13 @@ internal partial class MainWindowViewModel : ObservableObject
     private List<TranslationItem> allTranslation;
 
     [ObservableProperty]
-    private NsTreeItem selectedNode;
+    private NsTreeItem? selectedNode;
 
     [ObservableProperty]
     private SummaryInfoViewModel summaryInfo = new();
 
     [ObservableProperty]
-    private PagingController<LanguageGroup> pagingController = new(30, new List<LanguageGroup>());
+    private PaginationViewModel<LanguageGroupViewModel> pagingController;
 
     [ObservableProperty]
     private ObservableCollection<NsTreeItem> currentTreeItems = new();
@@ -73,37 +72,59 @@ internal partial class MainWindowViewModel : ObservableObject
     private bool showAdvancedOptions = false;
 
 
-    public IEnumerable<LanguageGroup> PageData { get; private set; }
-    public string PageMessage { get; private set; }
+    [ObservableProperty]
+    private IEnumerable<LanguageGroupViewModel> pageData;
+
+    [ObservableProperty]
+    private string pageMessage;
+
+    [ObservableProperty]
+    private int paginationWindow = 1; // show 1 page on each side = 3 items centered
+
+    // Page button model for UI - moved to shared model Toucan.Models.PaginationButton
+
+    [ObservableProperty]
+    private ObservableCollection<PaginationButton> pageButtons = new();
 
     private readonly IRecentProjectService _recentFileService;
     private readonly IDialogService _dialogService;
     private readonly IMessageService _messageService;
     private readonly IPreferenceService _preferenceService;
     private readonly IBulkActionService _bulkActionService;
+    private readonly Toucan.Core.Contracts.Services.IPretranslationService? _pretranslationService;
     private readonly IProjectService _projectService;
+    private readonly System.Func<NewProjectPrompt> _newProjectPromptFactory;
 
 
     public MainWindowViewModel(
-     IRecentProjectService recentFileService,
-     IDialogService dialogService,
-     IMessageService messageService,
-     IPreferenceService preferenceService,
-    IBulkActionService bulkActionService = null,
-    IProjectService projectService = null)
+        IRecentProjectService recentFileService,
+        IDialogService dialogService,
+        IMessageService messageService,
+        IPreferenceService preferenceService,
+        IBulkActionService bulkActionService = null,
+        Toucan.Core.Contracts.Services.IPretranslationService pretranslationService = null,
+        IProjectService projectService = null)
     {
         _recentFileService = recentFileService;
         _dialogService = dialogService;
         _messageService = messageService;
         _preferenceService = preferenceService;
         _bulkActionService = bulkActionService;
+        _pretranslationService = pretranslationService;
         _projectService = projectService;
+        _newProjectPromptFactory = null;
+        
 
         AppOptions = _preferenceService.Load();
+
+        // Initialize PagingController after loading options
+        int pageSize = AppOptions.PageSize <= 0 ? 30 : AppOptions.PageSize;
+        int maxItems = AppOptions.MaxItems <= 0 ? 100 : AppOptions.MaxItems;
+        PagingController = new PaginationViewModel<LanguageGroupViewModel>(pageSize, new List<LanguageGroupViewModel>(), maxItems);
+        PagedUpdates();
     }
 
-
-    #region Help Commands
+        
 
     [RelayCommand]
     void HelpHomepage()
@@ -111,15 +132,16 @@ internal partial class MainWindowViewModel : ObservableObject
         // Redirect to Rasyid.dev
         OpenUrl("https://rasyid.dev");
     }
+            
 
     [RelayCommand]
     void HelpAbout()
     {
-        AboutDialog ad = new(App.Current.MainWindow);
+        AboutDialog ad = new(Application.Current.MainWindow);
         ad.ShowDialog();
     }
 
-    #endregion
+     
 
     #region Pagination
 
@@ -155,6 +177,67 @@ internal partial class MainWindowViewModel : ObservableObject
     {
         PageData = PagingController.PageData;
         PageMessage = PagingController.PageMessage;
+        // Notify property changed for other UI consumers
+        OnPropertyChanged(nameof(PageData));
+        OnPropertyChanged(nameof(PageMessage));
+        UpdatePageButtons(PaginationWindow);
+        // populate controller values for the pagination usercontrol
+        // the control will bind to these properties (PageButtons/PageMessage)
+        OnPropertyChanged(nameof(PageButtons));
+        OnPropertyChanged(nameof(PageMessage));
+    }
+
+    private void UpdatePageButtons(int window = 1)
+    {
+        // window is how many pages on each side of the current page to show
+        PageButtons.Clear();
+        if (PagingController == null)
+            return;
+        if (PagingController == null)
+            return;
+        int pages = Math.Max(1, PagingController.Pages);
+        int current = Math.Min(Math.Max(1, PagingController.Page), pages);
+
+        if (pages <= 0)
+            return;
+
+        // always show first page
+        PageButtons.Add(new PaginationButton(1, default, current == 1));
+
+        if (pages == 1)
+            return;
+
+        int start = Math.Max(2, current - window);
+        int end = Math.Min(pages - 1, current + window);
+
+        if (start > 2)
+        {
+            // ellipse
+            PageButtons.Add(new PaginationButton(default, true, default));
+        }
+
+        for (int i = start; i <= end; i++)
+        {
+            PageButtons.Add(new PaginationButton(i, default, i == current));
+        }
+
+        if (end < pages - 1)
+        {
+            PageButtons.Add(new PaginationButton(default, true, default));
+        }
+
+        // always show last page
+        PageButtons.Add(new PaginationButton(pages, default, current == pages));
+    }
+
+    [RelayCommand]
+    private void GoToPage(int? page)
+    {
+        if (PagingController == null) return;
+        if (page == null) return;
+        if (page < 1 || page > PagingController.Pages) return;
+        PagingController.Page = page.Value;
+        PagedUpdates();
     }
     #endregion
 
@@ -186,13 +269,33 @@ internal partial class MainWindowViewModel : ObservableObject
             return;
         }
 
+        // If we have a UI-capable pretranslation engine, show the Pre-Translate dialog instead
+        if (_pretranslationService != null)
+        {
+            // gather language list
+            var languages = AllTranslation.ToLanguages().ToList();
+
+            var vm = new PreTranslateViewModel(languages, AllTranslation, _pretranslationService);
+            var dialog = new Views.Dialogs.PreTranslateWindow(vm) { Owner = Application.Current.MainWindow };
+            bool? result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                UpdateSummaryInfo();
+                IsDirty = true;
+                StatusText = "Pre-translation completed.";
+            }
+
+            return;
+        }
+
         if (_bulkActionService == null)
         {
             _messageService.ShowMessage("Bulk action service is not available.");
             return;
         }
 
-        await _bulkActionService.PreTranslateAsync(AllTranslation);
+        await _bulkActionService.PreTranslateAsync(AllTranslation).ConfigureAwait(false);
         UpdateSummaryInfo();
         IsDirty = true;
         StatusText = "Pre-translation completed.";
@@ -216,6 +319,184 @@ internal partial class MainWindowViewModel : ObservableObject
         var stats = _bulkActionService.GenerateStatistics(AllTranslation);
         StatusText = stats;
         _messageService.ShowMessage(stats);
+    }
+
+    // Per-language / contextual pre-translate and stats commands
+    [RelayCommand]
+    private async Task PreTranslateLanguage(SummaryItem item)
+    {
+        try
+        {
+            IsLoading = true;
+
+            if (item == null) return;
+
+            if (AllTranslation == null || AllTranslation.Count == 0)
+            {
+                _messageService.ShowMessage("No translations loaded to pre-translate.");
+                return;
+            }
+
+            if (_bulkActionService == null)
+            {
+                _messageService.ShowMessage("Bulk action service is not available.");
+                return;
+            }
+
+            var toTranslate = AllTranslation.Where(t => t.Language == item.Language).ToList();
+            await _bulkActionService.PreTranslateAsync(toTranslate).ConfigureAwait(true);
+            UpdateSummaryInfo();
+            IsDirty = true;
+            StatusText = $"Pre-translation completed for {item.Language}.";
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage("Error during pre-translation: " + ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task PreTranslateNamespace(SummaryItem item)
+    {
+        try
+        {
+            IsLoading = true;
+
+            if (item == null) return;
+
+            var dialog = new PromptDialog("Pre-translate namespace", "Enter namespace (exact or prefix) to pre-translate for language: " + item.Language, "")
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            string ns = dialog.ResponseText?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(ns)) return;
+
+            var toTranslate = AllTranslation.Where(t => t.Language == item.Language && t.Namespace != null && (t.Namespace == ns || t.Namespace.StartsWith(ns))).ToList();
+
+            if (toTranslate.Count == 0)
+            {
+                _messageService.ShowMessage("No translations matched the namespace.");
+                return;
+            }
+
+            if (_bulkActionService == null)
+            {
+                _messageService.ShowMessage("Bulk action service is not available.");
+                return;
+            }
+
+            await _bulkActionService.PreTranslateAsync(toTranslate).ConfigureAwait(true);
+            UpdateSummaryInfo();
+            IsDirty = true;
+            StatusText = $"Pre-translation completed for {item.Language} (namespace: {ns}).";
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage("Error during pre-translation: " + ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task PreTranslateKey(SummaryItem item)
+    {
+        try
+        {
+            IsLoading = true;
+
+            if (item == null) return;
+
+            var dialog = new PromptDialog("Pre-translate key", "Enter exact key namespace/id to pre-translate for language: " + item.Language, "")
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            string key = dialog.ResponseText?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(key)) return;
+
+            var toTranslate = AllTranslation.Where(t => t.Language == item.Language && t.Namespace == key).ToList();
+
+            if (toTranslate.Count == 0)
+            {
+                _messageService.ShowMessage("No matching key found for that language.");
+                return;
+            }
+
+            if (_bulkActionService == null)
+            {
+                _messageService.ShowMessage("Bulk action service is not available.");
+                return;
+            }
+
+            await _bulkActionService.PreTranslateAsync(toTranslate).ConfigureAwait(true);
+            UpdateSummaryInfo();
+            IsDirty = true;
+            StatusText = $"Pre-translation completed for {item.Language} (key: {key}).";
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage("Error during pre-translation: " + ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private void GenerateStatisticsForLanguage(SummaryItem item)
+    {
+        try
+        {
+            IsLoading = true;
+            if (item == null) return;
+
+            if (AllTranslation == null || AllTranslation.Count == 0)
+            {
+                _messageService.ShowMessage("No translations loaded to generate statistics.");
+                return;
+            }
+
+            if (_bulkActionService == null)
+            {
+                _messageService.ShowMessage("Bulk action service is not available.");
+                return;
+            }
+
+            var langItems = AllTranslation.Where(t => t.Language == item.Language);
+            var stats = _bulkActionService.GenerateStatistics(langItems);
+            StatusText = stats;
+            _messageService.ShowMessage(stats);
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage("Error generating statistics: " + ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private void HideLanguage(SummaryItem item)
+    {
+        if (item == null) return;
+
+        // For now 'hide' removes the summary entry from the panel. This is a UI-level action.
+        SummaryInfo.Details.Remove(item);
     }
 
     internal static void OpenUrl(string url)
@@ -374,15 +655,16 @@ internal partial class MainWindowViewModel : ObservableObject
         List<string> languages = AllTranslation.ToLanguages().ToList();
 
 
-        List<LanguageGroup> languageGroups = new();
+        List<LanguageGroupViewModel> languageGroups = new();
         foreach (string n in namespaces)
         {
-            LanguageGroup languageGroup = new(n, languages);
-            languageGroup.LoadTranslations(matchedTranslations.Where(o => o.Namespace == n).ToList());
-            languageGroups.Add(languageGroup);
+            var languageGroupVm = new LanguageGroupViewModel(n);
+            languageGroupVm.LoadTranslations(matchedTranslations.Where(o => o.Namespace == n).ToList());
+            languageGroups.Add(languageGroupVm);
         }
 
-        PagingController.SwapData(languageGroups);
+        PagingController.SwapData(languageGroups, isPartial);
+        PagedUpdates();
     }
 
     internal void ShowAll(string Path)
@@ -420,7 +702,7 @@ internal partial class MainWindowViewModel : ObservableObject
             return;
         }
 
-        await _bulkActionService.PreTranslateAsync(AllTranslation);
+        await _bulkActionService.PreTranslateAsync(AllTranslation).ConfigureAwait(true);
         UpdateSummaryInfo();
         IsDirty = true;
         StatusText = "Empty translations filled.";
@@ -458,8 +740,8 @@ internal partial class MainWindowViewModel : ObservableObject
     {
         try
         {
-            (RenameItemCommand as CommunityToolkit.Mvvm.Input.RelayCommand)?.NotifyCanExecuteChanged();
-            (DeleteItemCommand as CommunityToolkit.Mvvm.Input.RelayCommand)?.NotifyCanExecuteChanged();
+            (RenameItemCommand as RelayCommand)?.NotifyCanExecuteChanged();
+            (DeleteItemCommand as RelayCommand)?.NotifyCanExecuteChanged();
         }
         catch { }
     }
@@ -477,10 +759,16 @@ internal partial class MainWindowViewModel : ObservableObject
     private async Task NewFolder()
     {
         // Open the new project dialog to collect detailed settings
-        var dialog = new Toucan.NewProjectPrompt("New Project", "Create a new project with languages and packages.")
+        NewProjectPrompt dialog;
+        if (App.Services != null)
         {
-            Owner = App.Current.MainWindow
-        };
+            dialog = App.Services.GetService(typeof(NewProjectPrompt)) as NewProjectPrompt ?? new NewProjectPrompt("New Project", "Create a new project with languages and packages.", _projectService);
+        }
+        else
+        {
+            dialog = new NewProjectPrompt("New Project", "Create a new project with languages and packages.", _projectService);
+        }
+        dialog.Owner = Application.Current.MainWindow;
 
         // Show dialog and use the ViewModel to initialize project files when confirmed
         if (dialog.ShowDialog() == true && dialog.DataContext is NewProjectViewModel vm)
@@ -494,20 +782,15 @@ internal partial class MainWindowViewModel : ObservableObject
 
             try
             {
-                System.IO.Directory.CreateDirectory(vm.ProjectFolder);
-                foreach (var l in vm.Languages)
-                {
-                    _projectService.CreateLanguage(vm.ProjectFolder, l);
-                }
-
+                // Project files already created by vm.CreateProject() in OKButton_Click
                 CurrentPath = vm.ProjectFolder;
                 AppOptions.DefaultPath = CurrentPath;
                 _recentFileService.Add(CurrentPath);
-                await LoadFolderAsync(CurrentPath);
+                await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
             }
             catch (Exception ex)
             {
-                _messageService.ShowMessage($"Failed to create project: {ex.Message}");
+                _messageService.ShowMessage($"Failed to load project: {ex.Message}");
             }
         }
     }
@@ -521,7 +804,7 @@ internal partial class MainWindowViewModel : ObservableObject
             CurrentPath = selected;
             AppOptions.DefaultPath = selected;
             _recentFileService.Add(selected);
-            await LoadFolderAsync(CurrentPath);
+            await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
         }
         else
         {
@@ -541,8 +824,8 @@ internal partial class MainWindowViewModel : ObservableObject
         }
 
         // If user selected a file, take its directory as the project folder
-        string directory = System.IO.Path.GetDirectoryName(selected) ?? CurrentPath;
-        if (!System.IO.Directory.Exists(directory))
+        string directory = Path.GetDirectoryName(selected) ?? CurrentPath;
+        if (!Directory.Exists(directory))
         {
             _messageService.ShowMessage($"Folder not found: {directory}");
             return;
@@ -551,7 +834,7 @@ internal partial class MainWindowViewModel : ObservableObject
         CurrentPath = directory;
         AppOptions.DefaultPath = directory;
         _recentFileService.Add(directory);
-        await LoadFolderAsync(directory);
+        await LoadFolderAsync(directory).ConfigureAwait(true);
     }
 
 
@@ -562,12 +845,14 @@ internal partial class MainWindowViewModel : ObservableObject
             IsLoading = true;
             StatusText = "Loading project...";
 
-            var loaded = await Task.Run(() => _projectService.Load(path));
+            var loaded = await Task.Run(() => _projectService.Load(path)).ConfigureAwait(true);
             AllTranslation = loaded;
             AddMissingTranslations();
             RefreshTree();
             UpdateSummaryInfo();
             IsDirty = true;
+            // Populate paging controller for loaded data
+            Search("", true);
         }
         catch (Exception ex)
         {
@@ -599,7 +884,7 @@ internal partial class MainWindowViewModel : ObservableObject
 
     private bool CanSave()
     {
-        return isDirty;
+        return IsDirty;
     }
 
     [RelayCommand]
@@ -609,7 +894,7 @@ internal partial class MainWindowViewModel : ObservableObject
         {
             SelectedPath = CurrentPath
         };
-        bool? selected = dialog.ShowDialog(App.Current.MainWindow);
+        bool? selected = dialog.ShowDialog(Application.Current.MainWindow);
         if (selected.GetValueOrDefault())
         {
             CurrentPath = dialog.SelectedPath;
@@ -620,16 +905,26 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void CloseProject()
     {
+        // Reset all project-related data and UI state
         AllTranslation = new();
-        CurrentPath = "";
+        CurrentPath = string.Empty;
+        SelectedNode = null!; // Intentional null to clear UI selection (null-forgiving)
+        IsDirty = false;
+        StatusText = string.Empty;
 
+        // Clear collected tree and paging controller
+        CurrentTreeItems.Clear();
+        PagingController?.SwapData(new List<LanguageGroupViewModel>());
+        PageButtons.Clear();
+
+        // Reset summary and UI
         RefreshTree();
         UpdateSummaryInfo();
     }
     [RelayCommand]
     private async Task Refresh()
     {
-        await LoadFolderAsync(CurrentPath);
+        await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
     }
     [RelayCommand]
     internal async Task OpenRecent()
@@ -649,7 +944,7 @@ internal partial class MainWindowViewModel : ObservableObject
         }
 
         CurrentPath = path;
-        await LoadFolderAsync(CurrentPath);
+        await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
     }
 
 
@@ -657,13 +952,20 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void ShowPreferences()
     {
-        OptionDialog optionsHwnd = new(AppOptions) { Owner = App.Current.MainWindow };
+        OptionDialog optionsHwnd = new(AppOptions) { Owner = Application.Current.MainWindow };
         bool? saved = optionsHwnd.ShowDialog();
         if (saved.GetValueOrDefault())
         {
             AppOptions = optionsHwnd.Config;
         }
-        PagingController.UpdatePageSize(AppOptions.PageSize);
+        // Recreate or update the paging controller to reflect new options (page size and max items)
+        int oldPage = PagingController?.Page ?? 1;
+        int maxItems = AppOptions.MaxItems <= 0 ? 100 : AppOptions.MaxItems;
+        int pageSize = AppOptions.PageSize <= 0 ? 30 : AppOptions.PageSize;
+        var currentData = PagingController?.Data ?? new System.Collections.ObjectModel.ObservableCollection<LanguageGroupViewModel>();
+        PagingController = new PaginationViewModel<LanguageGroupViewModel>(pageSize, currentData, maxItems);
+        PagingController.Page = Math.Min(Math.Max(1, oldPage), PagingController.Pages);
+        PagedUpdates();
 
     }
     #endregion
@@ -692,6 +994,7 @@ internal partial class MainWindowViewModel : ObservableObject
 
         RefreshTree(newNamespace);
         UpdateSummaryInfo();
+        Search(newNamespace, true);
     }
 
     public void AddLanguage(string newLanguage)
@@ -715,6 +1018,9 @@ internal partial class MainWindowViewModel : ObservableObject
         AddMissingTranslations();
         UpdateSummaryInfo();
         RefreshTree();
+        Search("", true);
+        // Ensure the UI paging is refreshed after adding translations
+        Search("", true);
     }
 
     public void RenameItem(NsTreeItem node, string newName)
@@ -734,6 +1040,7 @@ internal partial class MainWindowViewModel : ObservableObject
         });
 
         RefreshTree(newNs);
+        Search(newNs, true);
     }
 
     public void DeleteItem(NsTreeItem node)
@@ -752,6 +1059,7 @@ internal partial class MainWindowViewModel : ObservableObject
 
         AllTranslation.RemoveAll(o => o?.Namespace?.StartsWith(node.Namespace) ?? false);
         RefreshTree();
+        Search("", true);
     }
 
 

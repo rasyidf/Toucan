@@ -41,6 +41,7 @@
             Grid.Column="1"
             Margin="2,0,2,0"
             Orientation="Horizontal">
+            <!-- Expand/Collapse all languages -->
             <ui:Button
                 Margin="2,0"
                 Padding="4"
@@ -49,6 +50,8 @@
                 Command="{Binding SummaryInfo.ToggleExpandAllCommand}">
                 <ui:SymbolIcon Symbol="{Binding SummaryInfo.ExpandState, Converter={StaticResource IsExpandedToIconConverter}, FallbackValue=ChevronDown16}" />
             </ui:Button>
+
+            <!-- Add new language -->
             <ui:Button
                 Margin="2,0"
                 Padding="4"
@@ -57,13 +60,15 @@
                 Command="{Binding NewLanguageCommand}">
                 <ui:SymbolIcon Symbol="Add16" />
             </ui:Button>
+
+            <!-- Show / Hide toggle for the entire languages panel -->
             <ui:Button
                 Margin="2,0"
                 Padding="4"
                 HorizontalAlignment="Right"
                 Appearance="Transparent"
-                Command="{Binding ToggleAdvancedOptionsCommand}">
-                <TextBlock Text="..." FontWeight="Bold" />
+                Command="{Binding ToggleLanguagesVisibilityCommand}">
+                <ui:SymbolIcon Symbol="Hide16" />
             </ui:Button>
         </StackPanel>
 
@@ -78,12 +83,52 @@
                 d:ItemsSource="{d:SampleData ItemCount=3}"
                 ItemsSource="{Binding SummaryInfo.Details}">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <ui:CardExpander
-                            Margin="4"
-                            Padding="8"
-                            Header="{Binding Language, Mode=OneWay, Converter={StaticResource LanguageConverter}}"
-                            IsExpanded="{Binding IsExpanded}">
+                            <DataTemplate>
+                                <ui:CardExpander
+                                    Margin="4"
+                                    Padding="8"
+                                    IsExpanded="{Binding IsExpanded}">
+                                    <!-- New compact & informative header -->
+                                    <ui:CardExpander.Header>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Language name -->
+                                            <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding Language, Converter={StaticResource LanguageConverter}}" />
+
+                                            <!-- Compact stats and quick actions -->
+                                            <StackPanel Orientation="Horizontal" Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Margin="8,0,6,0" VerticalAlignment="Center" Text="{Binding Percentage, FallbackValue=0, Mode=OneWay, StringFormat=\{0:F0\}%}" />
+                                                <TextBlock Margin="0,0,8,0" VerticalAlignment="Center" Text="{Binding Stats, Mode=OneWay}" />
+
+                                                <!-- inline quick menu (three dots) -->
+                                                <ui:Button Margin="2,0" Padding="2" Appearance="Transparent">
+                                                    <TextBlock Text="⋯" FontWeight="Bold" />
+                                                    <ui:Button.ContextMenu>
+                                                        <ContextMenu>
+                                                            <!-- Per-language pretranslate options -->
+                                                            <MenuItem Header="Pre-translate › Key"
+                                                                      Command="{Binding DataContext.PreTranslateKeyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                      CommandParameter="{Binding}" />
+                                                            <MenuItem Header="Pre-translate › Namespace"
+                                                                      Command="{Binding DataContext.PreTranslateNamespaceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                      CommandParameter="{Binding}" />
+                                                            <MenuItem Header="Pre-translate › Language"
+                                                                      Command="{Binding DataContext.PreTranslateLanguageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                      CommandParameter="{Binding}" />
+                                                            <Separator />
+                                                            <MenuItem Header="Statistics" Command="{Binding DataContext.GenerateStatisticsForLanguageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                                                            <MenuItem Header="Hide" Command="{Binding DataContext.HideLanguageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                                                        </ContextMenu>
+                                                    </ui:Button.ContextMenu>
+                                                </ui:Button>
+
+                                            </StackPanel>
+                                        </Grid>
+                                    </ui:CardExpander.Header>
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*" />
@@ -123,26 +168,7 @@
             </ItemsControl>
         </ui:DynamicScrollViewer>
 
-        <!-- Advanced options panel -->
-        <Border Grid.Row="2" Grid.ColumnSpan="2" Margin="8" Padding="8" Background="#1F000000" Visibility="{Binding ShowAdvancedOptions, Converter={StaticResource BoolToVis}}">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <ui:Button Margin="2" Padding="6" Command="{Binding PreTranslateBulkCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Pre-translate" />
-                    </StackPanel>
-                </ui:Button>
-                <ui:Button Margin="2" Padding="6" Command="{Binding GenerateStatisticsBulkCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Statistics" />
-                    </StackPanel>
-                </ui:Button>
-                <ui:Button Margin="2" Padding="6" Command="{Binding ToggleLanguagesVisibilityCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Hide" />
-                    </StackPanel>
-                </ui:Button>
-            </StackPanel>
-        </Border>
+        <!-- Advanced options panel removed in favor of per-language context menus and inline quick actions -->
 
     </Grid>
 </UserControl>

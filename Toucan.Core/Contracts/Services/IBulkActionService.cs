@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Toucan.Core.Models;
 
 namespace Toucan.Core.Contracts.Services

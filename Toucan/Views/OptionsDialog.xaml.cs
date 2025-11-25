@@ -1,7 +1,4 @@
-﻿using Toucan.Core.Models;
-using System;
-using System.Globalization;
-using System.Windows;
+﻿using System.Globalization;
 using Wpf.Ui.Controls;
 using Toucan.Core.Options;
 using Toucan.ViewModels;
@@ -45,5 +42,6 @@ public partial class OptionDialog : FluentWindow
         vm.PageSizeText = importOptions?.PageSize.ToString(CultureInfo.InvariantCulture);
         vm.TruncateSizeText = importOptions?.TruncateResultsOver.ToString(CultureInfo.InvariantCulture);
         vm.Format = importOptions?.SaveStyle.ToString();
+        vm.MaxItemsText = importOptions?.MaxItems.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
     }
 }

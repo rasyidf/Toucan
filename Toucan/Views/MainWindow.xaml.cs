@@ -31,7 +31,7 @@ public partial class MainWindow : FluentWindow
 
         // wire up statusbar view model and service
         var statusViewModel = new StatusBarViewModel();
-        // initialize from main view model
+            // initialize from main view model
         statusViewModel.StatusText = ViewModel.StatusText;
         statusViewModel.IsLoading = ViewModel.IsLoading;
         statusViewModel.ProjectName = System.IO.Path.GetFileName(ViewModel.CurrentPath) ?? ViewModel.CurrentPath ?? "Toucan Project";
@@ -50,6 +50,7 @@ public partial class MainWindow : FluentWindow
                 statusViewModel.ProjectName = System.IO.Path.GetFileName(ViewModel.CurrentPath) ?? ViewModel.CurrentPath ?? "Toucan Project";
             }
         };
+            ViewModel.PagedUpdates();
     }
 
     private void UpdateStartupOptions(string startupPath)
@@ -85,7 +86,7 @@ public partial class MainWindow : FluentWindow
 
     private void ResourcesView_ListSelectionChanged(object sender, RoutedEventArgs e)
     {
-        if (sender is global::System.Windows.Controls.ListView lv && lv.SelectedItem is NsFlatItem flat)
+        if (sender is System.Windows.Controls.ListView lv && lv.SelectedItem is NsFlatItem flat)
         {
             // try to select the corresponding node
             ViewModel.SelectedNode = flat.Source;
@@ -106,7 +107,7 @@ public partial class MainWindow : FluentWindow
 
     private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
-        await ViewModel.OpenRecent();
+        await ViewModel.OpenRecent().ConfigureAwait(true);
         SearchFilterTextbox.TextChanged += SearchFilterTextbox_TextChanged;
         SystemThemeWatcher.Watch(this, WindowBackdropType.Tabbed, true);
     }

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Extensions;
@@ -32,5 +31,10 @@ public class JsonSaveStrategy : ISaveStrategy
 
             _fileService.Save(path, language + ".json", dict);
         }
+    }
+
+    public async Task SaveAsync(string path, SaveContext context)
+    {
+        await Task.Run(() => Save(path, context));
     }
 }

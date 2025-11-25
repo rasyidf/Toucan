@@ -15,9 +15,7 @@
     WindowStyle="SingleBorderWindow"
     ExtendsContentIntoTitleBar="True" 
     mc:Ignorable="d" d:DesignHeight="227.911" d:DesignWidth="470.458">
-    <Window.DataContext>
-        <vm:LanguagePromptViewModel/>
-    </Window.DataContext>
+    <!-- DataContext will be set from code-behind to pass existing languages for filtering -->
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="16*" />
@@ -54,9 +52,10 @@
                 ClearButtonEnabled="True"
                     Margin="16,0,16,26"  
                 Icon="LocalLanguage20"
-                ItemsSource="{Binding CultureList, Mode=OneWay}" 
-                Text="{Binding Language, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
-                PlaceholderText="Search..." VerticalAlignment="Bottom" >  
+                ItemsSource="{Binding FilteredView, Mode=OneWay}" 
+                DisplayMemberPath="Language"
+                Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                PlaceholderText="Search or type a language code (eg. en, en-US)" VerticalAlignment="Bottom" >  
             </ui:AutoSuggestBox>
 
             <ui:Button

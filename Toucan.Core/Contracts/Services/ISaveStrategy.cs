@@ -6,5 +6,6 @@ namespace Toucan.Core.Contracts.Services
     {
         SaveStyles Style { get; }
         void Save(string path, SaveContext context);
+        Task SaveAsync(string path, SaveContext context);
     }
 }

@@ -26,7 +26,8 @@ Key responsibilities:
 - `SaveStyles` — Enum to choose save formats (Json, Namespaced, Properties, Yaml, Adb)
 
 ## Services
-- `FileService` — Provides file-based persistence using `Newtonsoft.Json`. Small, synchronous API: `Read<T>`, `Save<T>`, `Delete`.
+- `FileService` — Provides file-based persistence. Small, synchronous API: `Read<T>`, `Save<T>`, `ReadText`, `SaveText`, `ReadBytes`, `SaveBytes` and `Delete`.
+  * For `T` types that are not `string` or `byte[]`, `Read<T>`/`Save<T>` use `Newtonsoft.Json` for serialization/deserialization. For raw text and binary files, use the `ReadText`/`SaveText` or `ReadBytes`/`SaveBytes` methods.
 - `ProjectHelper` (in code this is a static helper) — Reads JSON files in a folder and produces a `List<TranslationItem>`. Also provides `SaveJson` and `SaveNsJson`.
 - `JsonParser` — Implementation of `IParser` which walks JSON tokens and produces `TranslationItem` objects. It supports nested JSON and returns a queue-based BFS/DFS enumeration of leaf nodes.
 - `LanguageService` — Singleton-like internal validation for language uniqueness.

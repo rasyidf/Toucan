@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Toucan.Core.Contracts;
+﻿namespace Toucan.Core.Contracts;
 
 public interface ITranslationFile
 {
