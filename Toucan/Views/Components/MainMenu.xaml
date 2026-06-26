@@ -63,6 +63,14 @@
                 Command="{Binding ExportCommand}"
                 Header="Export..."
                 Icon="{ui:SymbolIcon ArrowExportLtr20}" />
+            <ui:MenuItem
+                Command="{Binding ImportExcelCommand}"
+                Header="Import Excel..."
+                Icon="{ui:SymbolIcon TableSimple20}" />
+            <ui:MenuItem
+                Command="{Binding ExportExcelCommand}"
+                Header="Export Excel..."
+                Icon="{ui:SymbolIcon TableSimple20}" />
             <Separator />
             <ui:MenuItem
                 Command="{Binding RevealInExplorerCommand}"
@@ -188,8 +196,12 @@
             <ui:MenuItem Header="Tree View" Icon="{ui:SymbolIcon TextBulletListTree20}" Command="{Binding SwitchToTreeViewCommand}" />
             <ui:MenuItem Header="List View" Icon="{ui:SymbolIcon List20}" Command="{Binding SwitchToListViewCommand}" />
             <Separator />
+            <ui:MenuItem Header="Focused Editor" Icon="{ui:SymbolIcon EditSettings20}" Command="{Binding ToggleFocusedEditorCommand}" InputGestureText="Ctrl+E"/>
+            <ui:MenuItem Header="Zen Mode" Icon="{ui:SymbolIcon FullScreenMaximize20}" Command="{Binding ToggleZenModeCommand}" InputGestureText="F11"/>
+            <ui:MenuItem Header="Infinite Scroll" Icon="{ui:SymbolIcon ArrowRepeatAll20}" Command="{Binding ToggleInfiniteScrollCommand}"/>
+            <Separator />
+            <ui:MenuItem Header="Suggestions Panel" Icon="{ui:SymbolIcon Lightbulb20}" Command="{Binding ToggleSuggestionsCommand}"/>
             <ui:MenuItem Header="Show machine translations" Command="{Binding ToggleShowMachineTranslationsCommand}" />
-            <ui:MenuItem Header="Show thesaurus" IsEnabled="False" />
             <Separator />
             <ui:MenuItem Header="Statistics" Command="{Binding GenerateStatisticsBulkCommand}" />
         </ui:MenuItem>

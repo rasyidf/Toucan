@@ -1580,6 +1580,166 @@ internal partial class MainWindowViewModel : ObservableObject
 
     #endregion
 
+    #region Excel Import / Export
+
+    [RelayCommand]
+    private void ExportExcel()
+    {
+        if (AllTranslation == null || AllTranslation.Count == 0)
+        {
+            _messageService.ShowMessage("No translations to export.");
+            return;
+        }
+
+        var path = _dialogService.SelectFolder(CurrentPath);
+        if (string.IsNullOrEmpty(path)) return;
+
+        try
+        {
+            var file = System.IO.Path.Combine(path, "translations.xlsx");
+            Toucan.Core.Services.ExcelService.Export(file, AllTranslation);
+            StatusText = $"Exported to {file}";
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage($"Excel export failed: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private void ImportExcel()
+    {
+        var file = _dialogService.SelectFile(CurrentPath, "Excel files (*.xlsx)|*.xlsx");
+        if (string.IsNullOrEmpty(file)) return;
+
+        try
+        {
+            var imported = Toucan.Core.Services.ExcelService.Import(file);
+            if (imported.Count == 0)
+            {
+                _messageService.ShowMessage("No translations found in the Excel file.");
+                return;
+            }
+
+            AllTranslation ??= new List<TranslationItem>();
+            foreach (var item in imported)
+            {
+                var existing = AllTranslation.FirstOrDefault(t => t.Namespace == item.Namespace && t.Language == item.Language);
+                if (existing != null) existing.Value = item.Value;
+                else AllTranslation.Add(item);
+            }
+
+            RefreshTree();
+            UpdateSummaryInfo();
+            Search("", true);
+            IsDirty = true;
+            StatusText = $"Imported {imported.Count} items from Excel";
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage($"Excel import failed: {ex.Message}");
+        }
+    }
+
+    #endregion
+
+    #region Panels & Editor Modes
+
+    [ObservableProperty]
+    private bool suggestionsVisible;
+
+    [ObservableProperty]
+    private ObservableCollection<string> suggestions = new();
+
+    [ObservableProperty]
+    private bool focusedEditorMode;
+
+    [ObservableProperty]
+    private int focusedIndex;
+
+    [ObservableProperty]
+    private bool zenMode;
+
+    [ObservableProperty]
+    private bool infiniteScroll;
+
+    [RelayCommand]
+    private void ToggleSuggestions()
+    {
+        SuggestionsVisible = !SuggestionsVisible;
+        if (SuggestionsVisible)
+            RefreshSuggestions();
+    }
+
+    private void RefreshSuggestions()
+    {
+        Suggestions.Clear();
+        if (AllTranslation == null || SelectedNode == null) return;
+
+        // ponytail: naive fuzzy match — find translations with similar namespace or value
+        var current = AllTranslation.FirstOrDefault(t => t.Namespace == SelectedNode.Namespace);
+        if (current == null || string.IsNullOrWhiteSpace(current.Value)) return;
+
+        var similar = AllTranslation
+            .Where(t => t.Language == current.Language && t.Namespace != current.Namespace && !string.IsNullOrWhiteSpace(t.Value))
+            .Where(t => t.Value.Contains(current.Value[..Math.Min(4, current.Value.Length)], StringComparison.OrdinalIgnoreCase)
+                     || current.Value.Contains(t.Value[..Math.Min(4, t.Value.Length)], StringComparison.OrdinalIgnoreCase))
+            .Take(8)
+            .Select(t => $"{t.Namespace}: {t.Value}");
+
+        foreach (var s in similar)
+            Suggestions.Add(s);
+    }
+
+    [RelayCommand]
+    private void ToggleFocusedEditor()
+    {
+        FocusedEditorMode = !FocusedEditorMode;
+        if (FocusedEditorMode)
+            FocusedIndex = 0;
+    }
+
+    [RelayCommand]
+    private void FocusedNext()
+    {
+        if (PagingController == null) return;
+        var max = PagingController.Data?.Count ?? 0;
+        if (FocusedIndex < max - 1) FocusedIndex++;
+    }
+
+    [RelayCommand]
+    private void FocusedPrevious()
+    {
+        if (FocusedIndex > 0) FocusedIndex--;
+    }
+
+    [RelayCommand]
+    private void ToggleZenMode()
+    {
+        ZenMode = !ZenMode;
+        Services.PanelService.Instance.ToggleZenMode();
+    }
+
+    [RelayCommand]
+    private void ToggleInfiniteScroll()
+    {
+        InfiniteScroll = !InfiniteScroll;
+        if (InfiniteScroll)
+        {
+            // Show all items without pagination
+            PagingController.SwapData(PagingController.Data?.ToList() ?? new List<LanguageGroupViewModel>(), false);
+            PagingController.UpdatePageSize(int.MaxValue);
+        }
+        else
+        {
+            int pageSize = AppOptions?.PageSize <= 0 ? 30 : AppOptions.PageSize;
+            PagingController.UpdatePageSize(pageSize);
+        }
+        PagedUpdates();
+    }
+
+    #endregion
+
 
 }
 
