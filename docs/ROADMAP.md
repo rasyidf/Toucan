@@ -23,10 +23,10 @@
 - [x] Copy as template (3 configurable `%1` patterns)
 - [x] Convert case (lower / upper / sentence / title)
 - [x] Remove whitespace (trim / line-by-line / simplify)
-- [ ] Tab between edit fields in translation card
+- [x] Tab between edit fields in translation card
 - [ ] Infinite scroll mode (alternative to pagination)
-- [ ] Filter expression history (remember last N)
-- [ ] Statistics dialog (visual grid, per-language)
+- [x] Filter expression history (remember last N)
+- [x] Statistics dialog (visual grid, per-language)
 - [ ] Custom language codes (alias mapping)
 - [ ] Better font for RTL languages
 
@@ -108,7 +108,7 @@
 
 ## Progress
 
-**Done: 54 / 85 (64%)**
+**Done: 57 / 85 (67%)**
 
 **Feature parity vs BabelEdit: ~80%**
 
@@ -137,11 +137,11 @@
 
 ## Recommended Next Sprint
 
-1. Tab navigation between edit fields (S)
-2. Statistics dialog visual redesign (M)
-3. Source code scanning — basic regex key extraction (L)
-4. Excel export (M)
-5. ConsistencyAI (L)
+1. Source code scanning — basic regex key extraction (L)
+2. Excel export (M)
+3. ConsistencyAI (L)
+4. Suggestions panel — fuzzy match existing translations (M)
+5. Infinite scroll mode (M)
 
 ---
 
