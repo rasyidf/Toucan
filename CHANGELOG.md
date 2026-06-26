@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] — 2026-06-27
+
+### Added
+- **Custom language codes** — alias mapping in project settings (e.g. `zh-Hans` → `zh-CN`)
+- **Auto-detect framework** — automatically selects format (ARB, RESX, PO, etc.) when opening a folder
+- **Java .properties** — load/save ISO-8859-1 files with `\uXXXX` Unicode escapes
+- **Skip unchanged on reload** — file watcher only triggers reload when timestamps actually change
+- **RTL font support** — auto-detects RTL languages and applies appropriate font/flow direction
+
 ## [0.3.0] — 2026-06-27
 
 ### Added

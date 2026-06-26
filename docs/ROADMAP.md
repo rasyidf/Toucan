@@ -26,8 +26,8 @@
 - [x] Tab between edit fields
 - [x] Filter expression history (last 15)
 - [x] Statistics dialog (visual grid, per-language)
-- [ ] Custom language codes (alias mapping)
-- [ ] Better font for RTL languages
+- [x] Custom language codes (alias mapping)
+- [x] Better font for RTL languages
 
 ## Editor Modes
 
@@ -48,11 +48,11 @@
 - [x] Project manifest (`toucan.project` JSON)
 - [x] Excel (.xlsx) import/export
 - [x] Export/Import approved flags + comments in Excel
-- [ ] Java .properties (ISO-8859-1)
+- [x] Java .properties (ISO-8859-1)
 - [ ] Laravel PHP file support
-- [ ] Auto-detect framework on folder drop
+- [x] Auto-detect framework on folder drop
 - [x] File watcher (reload changed files from disk)
-- [ ] Skip unchanged files on reload
+- [x] Skip unchanged files on reload
 
 ## Machine Translation
 
@@ -119,7 +119,7 @@
 
 ## Progress
 
-**Done: 66 / 88 (75%)**
+**Done: 71 / 88 (81%)**
 
 **Feature parity vs BabelEdit: ~88%**
 
@@ -128,10 +128,10 @@
 ## Recommended Next Sprint
 
 1. Plural forms support (L)
-2. Auto-detect framework on folder drop (S)
-3. Custom language codes (S)
-4. Package support — multiple translation sets (L)
-5. MSIX installer (M)
+2. Laravel PHP file support (S)
+3. Package support — multiple translation sets (L)
+4. MSIX installer (M)
+5. Pre-translate plural forms (M)
 
 ---
 
