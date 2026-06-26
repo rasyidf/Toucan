@@ -1,6 +1,5 @@
 # Toucan Roadmap
 
-> Feature parity tracker vs BabelEdit + Toucan-exclusive improvements.
 > Last updated: 2026-06-27
 
 ---
@@ -11,7 +10,7 @@
 - [x] Tree view + List view toggle
 - [x] Add / Remove / Rename / Duplicate translation IDs
 - [x] Add / Remove languages
-- [x] Undo / Redo (command stack, Ctrl+Z / Ctrl+Y)
+- [x] Undo / Redo (Ctrl+Z / Ctrl+Y)
 - [x] Comment field per translation
 - [x] Approved flag (toggle per row)
 - [x] Spell checking (WPF native)
@@ -19,16 +18,24 @@
 - [x] Plain text keys mode (no dot-splitting)
 - [x] Auto-select newly added ID
 - [x] Pagination with compact controls
+- [x] Infinite scroll toggle (paginated vs continuous)
 - [x] Cut / Copy / Paste translation values
-- [x] Copy as template (3 configurable `%1` patterns)
+- [x] Copy as template (3 configurable patterns)
 - [x] Convert case (lower / upper / sentence / title)
 - [x] Remove whitespace (trim / line-by-line / simplify)
-- [x] Tab between edit fields in translation card
-- [ ] Infinite scroll mode (alternative to pagination)
-- [x] Filter expression history (remember last N)
+- [x] Tab between edit fields
+- [x] Filter expression history (last 15)
 - [x] Statistics dialog (visual grid, per-language)
 - [ ] Custom language codes (alias mapping)
 - [ ] Better font for RTL languages
+
+## Editor Modes
+
+- [x] Focused Editor mode (single-key form, prev/next navigation)
+- [x] Zen mode (hides toolbar/statusbar/sidepanel, F11)
+- [x] PanelService for centralized panel state
+- [ ] Focused Editor: language subset selector
+- [ ] Zen mode: keyboard-only navigation (j/k)
 
 ## File I/O
 
@@ -39,9 +46,9 @@
 - [x] XLIFF, ARB (Flutter), CSV
 - [x] Import / Export menu (all formats)
 - [x] Project manifest (`toucan.project` JSON)
-- [ ] Excel (.xlsx) import/export
-- [ ] Export/Import approved flags + comments in CSV/Excel
-- [ ] Java .properties file support (ISO-8859-1)
+- [x] Excel (.xlsx) import/export
+- [ ] Export/Import approved flags + comments in Excel
+- [ ] Java .properties (ISO-8859-1)
 - [ ] Laravel PHP file support
 - [ ] Auto-detect framework on folder drop
 - [ ] File watcher (reload changed files from disk)
@@ -50,16 +57,15 @@
 ## Machine Translation
 
 - [x] Google Translate, DeepL, Microsoft, OpenAI providers
-- [x] Provider settings dialog (API keys, options)
+- [x] Provider settings dialog
 - [x] Translation context passed to providers
-- [x] Formality setting (formal / informal → DeepL)
+- [x] Formality setting (formal / informal)
 - [x] Remember last translation service
-- [x] Preserve parameters in translation (`{{var}}`, `{0}`, `%s`, `:param`)
+- [x] Preserve parameters (`{{var}}`, `{0}`, `%s`, `:param`)
 - [x] Keep uppercase first letter
 - [x] Per-language / per-namespace / per-key pre-translate
 - [x] Preview before apply
-- [ ] ConsistencyAI (check translations against source language)
-- [ ] Suggestions panel (fuzzy-match existing translations)
+- [x] Suggestions panel (fuzzy-match existing translations)
 - [ ] Pre-translate plural forms (i18next/ICU)
 - [ ] Translation memory (reuse across projects)
 
@@ -72,27 +78,18 @@
 - [x] Recent projects flyout (last 10, clear)
 - [x] Auto-open last project on startup
 - [x] Reveal in Explorer
-- [x] Centralized KeybindingService (20+ shortcuts)
+- [x] Centralized KeybindingService (22+ shortcuts)
 - [x] Keyboard Shortcuts tab in Options dialog
 - [x] Filter: untranslated / translated / approved
 - [x] Status bar (project, language, cursor, loading, notifications)
 - [x] Toucan icon in TitleBar
 - [x] Compact pagination controls
 
-## Source Code Integration
-
-- [ ] Source code view panel (show where key is used)
-- [ ] Extract translation IDs from source (`t('key')` patterns)
-- [ ] Filter: used / unused in source code
-- [ ] Double-click opens source in external editor
-- [ ] Wire source root configuration (UI exists in Options)
-- [ ] Support `.tsx`, `.vue`, `.svelte`, `.py` scanning
-
 ## Advanced Data Model
 
 - [ ] Plural forms support (i18next `_one/_other`, ICU)
-- [ ] Array support in JSON (`["a","b"]` as indexed children)
-- [ ] Package support (multiple translation sets per project)
+- [ ] Array support in JSON
+- [ ] Package support (multiple translation sets)
 - [ ] Drag & drop reorder in tree
 - [ ] Multi-selection in tree (batch operations)
 
@@ -100,48 +97,41 @@
 
 - [ ] Avalonia port (macOS + Linux) — started
 - [ ] MSIX installer (Windows)
-- [ ] Auto-updater (Squirrel or .NET native)
+- [ ] Auto-updater
 - [ ] File association (`.toucan.project` → open app)
 - [ ] Translation file locations configurable per language
+
+## AI Features (Low Priority)
+
+- [ ] ConsistencyAI (check translations against source language)
+- [ ] AI-powered translation memory
+
+## Source Code Integration (Low Priority)
+
+- [ ] Source code view panel (show where key is used)
+- [ ] Extract translation IDs from source (`t('key')` patterns)
+- [ ] Filter: used / unused in source code
+- [ ] Double-click opens source in external editor
+- [ ] Wire source root configuration
+- [ ] Support `.tsx`, `.vue`, `.svelte`, `.py` scanning
 
 ---
 
 ## Progress
 
-**Done: 57 / 85 (67%)**
+**Done: 62 / 88 (70%)**
 
-**Feature parity vs BabelEdit: ~80%**
-
----
-
-## Competitive Positioning
-
-### Toucan advantages over BabelEdit
-- Open source (no license cost)
-- Modern Fluent UI (Mica, system theme)
-- More formats (TOML, INI)
-- Smarter pre-translate (per-namespace, preview, parameter protection)
-- JSON manifest (human-readable)
-- Pagination (10k+ keys)
-- Centralized keybindings
-- Design system tokens
-
-### Remaining gaps vs BabelEdit
-- [ ] Source code integration (killer feature)
-- [ ] ConsistencyAI
-- [ ] Plural forms (i18next/ICU)
-- [ ] Excel export
-- [ ] Cross-platform (macOS/Linux)
+**Feature parity vs BabelEdit: ~85%**
 
 ---
 
 ## Recommended Next Sprint
 
-1. Source code scanning — basic regex key extraction (L)
-2. Excel export (M)
-3. ConsistencyAI (L)
-4. Suggestions panel — fuzzy match existing translations (M)
-5. Infinite scroll mode (M)
+1. Focused Editor: language subset selector (S)
+2. Zen mode: keyboard-only navigation (S)
+3. Export/Import approved flags in Excel (S)
+4. Plural forms support (L)
+5. File watcher — reload changed files (M)
 
 ---
 
