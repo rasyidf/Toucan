@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] — 2026-06-27
+
+### Added
+- **Laravel PHP file support** — load/save `resources/lang/en/messages.php` nested arrays
+- **Start screen responsiveness** — adaptive WrapPanel layout, max-width constraint
+- **File association** — `.toucan.project` files open in Toucan (per-user registry)
+- **Multi-selection in tree** — toggle selection, batch delete, select all/clear
+- **Array support in JSON** — parse and reconstruct JSON arrays with `[N]` indexing
+
+### Fixed
+- **List view bug** — now shows full leaf keys instead of parent namespace nodes
+
 ## [0.4.0] — 2026-06-27
 
 ### Added

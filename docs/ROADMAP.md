@@ -49,7 +49,7 @@
 - [x] Excel (.xlsx) import/export
 - [x] Export/Import approved flags + comments in Excel
 - [x] Java .properties (ISO-8859-1)
-- [ ] Laravel PHP file support
+- [x] Laravel PHP file support
 - [x] Auto-detect framework on folder drop
 - [x] File watcher (reload changed files from disk)
 - [x] Skip unchanged files on reload
@@ -88,17 +88,17 @@
 ## Advanced Data Model
 
 - [ ] Plural forms support (i18next `_one/_other`, ICU)
-- [ ] Array support in JSON
+- [x] Array support in JSON
 - [ ] Package support (multiple translation sets)
 - [ ] Drag & drop reorder in tree
-- [ ] Multi-selection in tree (batch operations)
+- [x] Multi-selection in tree (batch operations)
 
 ## Distribution & Platform
 
 - [ ] Avalonia port (macOS + Linux) — started
 - [ ] MSIX installer (Windows)
 - [ ] Auto-updater
-- [ ] File association (`.toucan.project` → open app)
+- [x] File association (`.toucan.project` → open app)
 - [ ] Translation file locations configurable per language
 
 ## AI Features (Low Priority)
@@ -119,7 +119,7 @@
 
 ## Progress
 
-**Done: 71 / 88 (81%)**
+**Done: 76 / 88 (86%)**
 
 **Feature parity vs BabelEdit: ~88%**
 
@@ -128,10 +128,10 @@
 ## Recommended Next Sprint
 
 1. Plural forms support (L)
-2. Laravel PHP file support (S)
-3. Package support — multiple translation sets (L)
-4. MSIX installer (M)
-5. Pre-translate plural forms (M)
+2. Package support — multiple translation sets (L)
+3. MSIX installer (M)
+4. Pre-translate plural forms (M)
+5. Drag & drop reorder in tree (S)
 
 ---
 
