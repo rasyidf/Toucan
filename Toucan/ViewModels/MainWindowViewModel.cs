@@ -1663,6 +1663,28 @@ internal partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool infiniteScroll;
 
+    /// <summary>Languages selected for Focused Editor mode. Null/empty = show all.</summary>
+    [ObservableProperty]
+    private ObservableCollection<string> focusedLanguages = new();
+
+    [RelayCommand]
+    private void SelectFocusedLanguages()
+    {
+        if (AllTranslation == null) return;
+        var allLangs = AllTranslation.ToLanguages().ToList();
+        var input = _dialogService.ShowPrompt("Focused Languages",
+            $"Enter language codes to show (comma-separated), or leave empty for all.\nAvailable: {string.Join(", ", allLangs)}",
+            string.Join(", ", FocusedLanguages));
+        if (input == null) return;
+
+        FocusedLanguages.Clear();
+        foreach (var lang in input.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (allLangs.Contains(lang, StringComparer.OrdinalIgnoreCase))
+                FocusedLanguages.Add(lang);
+        }
+    }
+
     [RelayCommand]
     private void ToggleSuggestions()
     {
@@ -1718,6 +1740,20 @@ internal partial class MainWindowViewModel : ObservableObject
     {
         ZenMode = !ZenMode;
         Services.PanelService.Instance.ToggleZenMode();
+    }
+
+    [RelayCommand]
+    private void ZenNext()
+    {
+        if (!ZenMode && !FocusedEditorMode) return;
+        FocusedNext();
+    }
+
+    [RelayCommand]
+    private void ZenPrevious()
+    {
+        if (!ZenMode && !FocusedEditorMode) return;
+        FocusedPrevious();
     }
 
     [RelayCommand]

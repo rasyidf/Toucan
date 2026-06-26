@@ -40,6 +40,8 @@ internal static class KeybindingService
         new("Edit", "Copy Template 3", "Ctrl+3"),
         new("View", "Focused Editor", "Ctrl+E"),
         new("View", "Zen Mode", "F11"),
+        new("View", "Zen Next (j)", "J"),
+        new("View", "Zen Previous (k)", "K"),
     ];
 
     public static void Apply(Window window, MainWindowViewModel vm)
@@ -80,6 +82,8 @@ internal static class KeybindingService
         // Editor modes
         Bind(bindings, Key.E, ModifierKeys.Control, vm.ToggleFocusedEditorCommand);
         Bind(bindings, Key.F11, ModifierKeys.None, vm.ToggleZenModeCommand);
+        Bind(bindings, Key.J, ModifierKeys.None, vm.ZenNextCommand);
+        Bind(bindings, Key.K, ModifierKeys.None, vm.ZenPreviousCommand);
     }
 
     private static void Bind(InputBindingCollection bindings, Key key, ModifierKeys modifiers, ICommand command)

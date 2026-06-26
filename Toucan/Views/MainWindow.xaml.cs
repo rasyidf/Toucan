@@ -14,7 +14,7 @@ namespace Toucan;
 public partial class MainWindow : FluentWindow
 {
     internal MainWindowViewModel ViewModel { get; }
-     
+    private readonly Services.FileWatcherService _fileWatcher = new();
 
     internal MainWindow(string startupPath, MainWindowViewModel viewModel)
     {
@@ -54,8 +54,17 @@ public partial class MainWindow : FluentWindow
             else if (ea.PropertyName == nameof(MainWindowViewModel.CurrentPath))
             {
                 statusViewModel.ProjectName = System.IO.Path.GetFileName(ViewModel.CurrentPath) ?? ViewModel.CurrentPath ?? "Toucan Project";
+                _fileWatcher.Watch(ViewModel.CurrentPath);
             }
         };
+        _fileWatcher.FilesChanged += () => Dispatcher.Invoke(() =>
+        {
+            if (System.Windows.MessageBox.Show("Files changed on disk. Reload?", "File Changed",
+                System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.Yes)
+            {
+                ViewModel.RefreshCommand.Execute(null);
+            }
+        });
             ViewModel.PagedUpdates();
     }
 
