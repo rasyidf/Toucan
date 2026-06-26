@@ -1,195 +1,204 @@
-# Toucan Roadmap — Feature Parity with BabelEdit + Improvements
+# Toucan Roadmap
 
-> Synthesized from BabelEdit 1.0–5.6 release history vs Toucan's current state.
-> Status: ✅ Done | 🟡 Partial | ❌ Not started | 🔵 Toucan-only (improvement over BabelEdit)
+> Feature parity tracker vs BabelEdit + Toucan-exclusive improvements.
 > Last updated: 2026-06-27
 
 ---
 
-## Phase 0 — Foundation (Complete ✅)
+## Status Legend
 
-| Feature | BabelEdit | Toucan | Status |
-|---------|-----------|--------|--------|
-| Load/save JSON (flat + namespaced) | ✅ v0.9 | ✅ | ✅ |
-| Tree view + List view toggle | ✅ v1.0 | ✅ | ✅ |
-| Add/Remove/Rename translation IDs | ✅ v0.9 | ✅ | ✅ |
-| Add/Remove languages | ✅ v0.9 | ✅ | ✅ |
-| Recent files list (flyout, last 10) | ✅ v0.9 | ✅ | ✅ |
-| Start screen | ✅ v0.9 | ✅ | ✅ |
-| Pagination / virtual scroll | ❌ (scroll-extend) | ✅ | 🔵 |
-| YAML support | ✅ v1.9 | ✅ | ✅ |
-| PO/Gettext support | ✅ v5.3 | ✅ | ✅ |
-| RESX (.NET) support | ✅ v4.1 | ✅ | ✅ |
-| Android XML support | ✅ v2.7 | ✅ | ✅ |
-| iOS .strings support | ✅ v2.6 | ✅ | ✅ |
-| XLIFF support | ✅ v2.7 | ✅ | ✅ |
-| ARB/Flutter support | ✅ v2.6 | ✅ | ✅ |
-| CSV export/import | ✅ v1.0 | ✅ | ✅ |
-| TOML support | ❌ | ✅ | 🔵 |
-| INI support | ❌ | ✅ | 🔵 |
-| Import/Export menu | ✅ v1.0 | ✅ | ✅ |
-| Pre-translate (machine translation) | ✅ v1.6 | ✅ | ✅ |
-| Google Translate provider | ✅ v1.6 | ✅ | ✅ |
-| DeepL provider | ✅ v2.8 | ✅ | ✅ |
-| Microsoft Translator | ✅ v2.8 | ✅ | ✅ |
-| OpenAI provider | ✅ v5.2 | ✅ | ✅ |
-| Provider settings dialog | ✅ | ✅ | ✅ |
-| Convert case (upper/lower/sentence/title) | ✅ v3.0 | ✅ | ✅ |
-| Remove whitespace (trim/simplify) | ✅ v3.0 | ✅ | ✅ |
-| Framework tile selection (new project) | ✅ v0.9 | ✅ | ✅ |
-| Project manifest file | ❌ (.babel XML) | ✅ (toucan.project JSON) | 🔵 |
-| WPF UI Fluent design | ❌ (custom Qt) | ✅ | 🔵 |
-| Dark mode | ✅ v1.5 | ✅ (system) | ✅ |
-| Comment field per translation ID | ✅ v1.0 | ✅ | ✅ |
-| Approved flag per translation | ✅ v1.0 | ✅ | ✅ |
-| Filter: translated/untranslated/approved | ✅ v1.0 | ✅ | ✅ |
-| Auto-select newly added ID | ✅ v4.0.2 | ✅ | ✅ |
-| Auto-open last project on startup | ✅ v5.1.1 | ✅ | ✅ |
-| Spell checking | ✅ v1.2 | ✅ | ✅ |
-| Reveal in Explorer | ✅ v2.8 | ✅ | ✅ |
-| Duplicate ID/folder | ✅ v2.4 | ✅ | ✅ |
-| Copy template snippets | ✅ v0.9.2 | ✅ | ✅ |
-| Translation context (DeepL, OpenAI) | ✅ v5.4.1 | ✅ | ✅ |
-| Formality setting (formal/informal) | ✅ v5.4.1 | ✅ | ✅ |
-| Remember last translation service | ✅ v5.1.1 | ✅ | ✅ |
-| Word-wrapping for long IDs | ✅ v2.9 | ✅ | ✅ |
-| Cut/Copy/Paste translation IDs | ✅ v1.2 | ✅ | ✅ |
-| Design system / shared resources | ❌ | ✅ | 🔵 |
+✅ Done — ⏳ In Progress — ❌ Not Started — 🔵 Toucan-exclusive
 
 ---
 
-## Phase 1 — Core Editor Polish (Next Sprint)
+## Completed Features
 
-| # | Feature | BabelEdit ref | Effort | Status |
-|---|---------|---------------|--------|--------|
-| 1.1 | **Undo/Redo** | v0.9 | M | ❌ |
-| 1.9 | **Scroll-extend / virtual scroll** (infinite scroll mode) | v4.0.3 | M | ❌ |
-| 1.10 | **Keyboard shortcut: Tab between edit fields** | v0.9.2 | S | ❌ |
+### Core Editor
+- ✅ Load/save JSON (flat + namespaced)
+- ✅ Tree view + List view toggle
+- ✅ Add / Remove / Rename / Duplicate translation IDs
+- ✅ Add / Remove languages
+- ✅ Undo / Redo (command stack, Ctrl+Z / Ctrl+Y)
+- ✅ Comment field per translation
+- ✅ Approved flag (toggle per row)
+- ✅ Spell checking (WPF native)
+- ✅ Word-wrapping for long IDs
+- ✅ Plain text keys mode (no dot-splitting)
+- ✅ Auto-select newly added ID
+- ✅ Pagination with compact controls
+- ✅ Cut / Copy / Paste translation values
+- ✅ Copy as template (3 configurable `%1` patterns)
+- ✅ Convert case (lower / upper / sentence / title)
+- ✅ Remove whitespace (trim / line-by-line / simplify)
 
----
+### File I/O (12 formats)
+- ✅ JSON (flat), JSON (namespaced/i18next)
+- ✅ YAML, TOML, INI (🔵)
+- ✅ PO / Gettext
+- ✅ RESX (.NET), Android XML, iOS .strings
+- ✅ XLIFF, ARB (Flutter), CSV
+- ✅ Import / Export menu (all formats)
+- ✅ Project manifest (`toucan.project` JSON) (🔵)
 
-## Phase 2 — Source Code Integration (Q4 2026)
+### Machine Translation
+- ✅ Google Translate, DeepL, Microsoft, OpenAI providers
+- ✅ Provider settings dialog (API keys, options)
+- ✅ Translation context passed to providers
+- ✅ Formality setting (formal / informal → DeepL)
+- ✅ Remember last translation service
+- ✅ Preserve parameters in translation (`{{var}}`, `{0}`, `%s`, `:param`)
+- ✅ Keep uppercase first letter
+- ✅ Per-language / per-namespace / per-key pre-translate (🔵)
+- ✅ Preview before apply (🔵)
 
-| # | Feature | BabelEdit ref | Effort | Status |
-|---|---------|---------------|--------|--------|
-| 2.1 | **Source code view** (show where key is used) | v5.1.1 | L | ❌ |
-| 2.2 | **Extract translation IDs from source code** | v5.1.1 | L | ❌ |
-| 2.3 | **Filter: used/unused in source** | v5.1.1 | M | ❌ |
-| 2.4 | **Double-click opens source in external editor** | v5.1.1 | S | ❌ |
-| 2.5 | **Source root configuration** | v2.3 | S | 🟡 (UI exists, not wired) |
-
----
-
-## Phase 3 — Machine Translation Enhancements (Q1 2027)
-
-| # | Feature | BabelEdit ref | Effort | Status |
-|---|---------|---------------|--------|--------|
-| 3.3 | **ConsistencyAI** (check translations against source) | v5.0 | L | ❌ |
-| 3.4 | **Suggestions panel** (show similar translations) | v1.6 | M | ❌ |
-| 3.6 | **Preserve parameters in translation** (`:param`, `{{var}}`) | v2.6 | M | ❌ |
-| 3.7 | **Keep uppercase first letter** | v4.0.2 | XS | ❌ |
-| 3.8 | **Pre-translate plural forms** | v5.5.1 | M | ❌ |
-
----
-
-## Phase 4 — Advanced Editing (Q2 2027)
-
-| # | Feature | BabelEdit ref | Effort | Status |
-|---|---------|---------------|--------|--------|
-| 4.3 | **Drag & drop reorder** in tree | v3.0 | M | ❌ |
-| 4.5 | **Multi-selection in tree** (expand/collapse with arrows) | v4.0.2 | M | ❌ |
-| 4.6 | **Package support** (multiple independent translation sets) | v4.0 | L | ❌ |
-| 4.7 | **Array support in JSON** | v1.7 | M | ❌ |
-| 4.8 | **Plural forms** (i18next, ICU) | v5.5.1 | L | ❌ |
-| 4.9 | **Plain text keys** (don't split at dot) | v1.7 | S | ❌ |
-
----
-
-## Phase 5 — Import/Export & Interop (Q3 2027)
-
-| # | Feature | BabelEdit ref | Effort | Status |
-|---|---------|---------------|--------|--------|
-| 5.1 | **Excel (.xlsx) import/export** | v2.1 | M | ❌ |
-| 5.2 | **Export/Import Approved flags + comments** | v5.2 | S | ❌ |
-| 5.3 | **Java .properties file support** | v2.1 | S | ❌ |
-| 5.4 | **Laravel PHP file support** | v1.1 | M | ❌ |
-| 5.5 | **Auto-detect framework on drop** | v1.5 | S | ❌ |
-| 5.6 | **Reload changed files from disk** | v4.0.3 | M | ❌ |
-| 5.7 | **Don't reload unchanged files** | v4.0.2 | S | ❌ |
+### UI / UX
+- ✅ WPF UI Fluent (Mica backdrop, system theme) (🔵)
+- ✅ Design system tokens (shared ResourceDictionary) (🔵)
+- ✅ Framework tile grid for new projects (16 frameworks)
+- ✅ Start screen with quick actions
+- ✅ Recent projects flyout (last 10, clear)
+- ✅ Auto-open last project on startup
+- ✅ Reveal in Explorer
+- ✅ Centralized KeybindingService (20+ shortcuts)
+- ✅ Keyboard Shortcuts tab in Options dialog
+- ✅ Filter: untranslated / translated / approved
+- ✅ Status bar (project, language, cursor, loading, notifications)
 
 ---
 
-## Phase 6 — Polish & Professional UX (Q4 2027)
+## Phase 1 — Editor Refinement (Next)
 
-| # | Feature | BabelEdit ref | Effort | Status |
-|---|---------|---------------|--------|--------|
-| 6.1 | **Statistics dialog** (proper visual, per-language breakdown) | v2.0 | M | ❌ |
-| 6.2 | **Filter expression history** | v2.3 | S | ❌ |
-| 6.5 | **Custom language codes** | v3.0 | S | ❌ |
-| 6.6 | **Translation file locations configurable** | v3.0 | M | ❌ |
-| 6.9 | **Better font for RTL languages** | v2.6 | S | ❌ |
-
----
-
-## Phase 7 — Cross-Platform & Distribution (2028+)
-
-| # | Feature | BabelEdit ref | Effort | Status |
-|---|---------|---------------|--------|--------|
-| 7.1 | **Avalonia port** (macOS + Linux) | Multi-platform | XL | 🟡 (started) |
-| 7.2 | **MSIX installer** (Windows) | MSI | M | ❌ |
-| 7.3 | **Auto-updater** | v0.9 | M | ❌ |
-| 7.4 | **File association** (.toucan.project → open app) | v1.2 | S | ❌ |
-| 7.5 | **Licensing system** | BabelEdit commercial | L | N/A (OSS) |
+| # | Feature | Effort | Priority |
+|---|---------|--------|----------|
+| 1.1 | Tab between edit fields in translation card | S | High |
+| 1.2 | Infinite scroll mode (alternative to pagination) | M | Medium |
+| 1.3 | Filter expression history (remember last N) | S | Medium |
+| 1.4 | Statistics dialog (visual grid, per-language) | M | Medium |
+| 1.5 | Custom language codes (alias mapping) | S | Low |
+| 1.6 | Better font for RTL languages | S | Low |
 
 ---
 
-## Toucan-Only Improvements (Not in BabelEdit)
+## Phase 2 — Source Code Integration
 
-| Feature | Description |
-|---------|-------------|
-| 🔵 **Modern Fluent UI** | WPF UI with Mica backdrop, system theme integration |
-| 🔵 **TOML / INI support** | Formats BabelEdit doesn't support |
-| 🔵 **Open-source** | Community contributions, no license cost |
-| 🔵 **JSON project manifest** | Human-readable `toucan.project` vs BabelEdit's opaque `.babel` XML |
-| 🔵 **Pagination** | Better performance for massive projects (10k+ keys) |
-| 🔵 **Per-language context menu** | Quick pre-translate/stats/hide per language without dialog |
-| 🔵 **Plugin-ready architecture** | DI-based, strategy pattern for formats = easy to extend |
-| 🔵 **AI-powered batch operations** | Multiple AI providers with streaming support |
-| 🔵 **Namespace-scoped pre-translate** | Translate a subtree, not just all-or-nothing |
-| 🔵 **Design system tokens** | Shared ResourceDictionary for consistent spacing/styling |
+| # | Feature | Effort | Priority |
+|---|---------|--------|----------|
+| 2.1 | Source code view panel (show where key is used) | L | High |
+| 2.2 | Extract translation IDs from source (`t('key')` patterns) | L | High |
+| 2.3 | Filter: used / unused in source code | M | High |
+| 2.4 | Double-click opens source in external editor | S | Medium |
+| 2.5 | Wire source root configuration (already in Options UI) | S | Medium |
+| 2.6 | Support `.tsx`, `.vue`, `.svelte`, `.py` scanning | M | Medium |
+
+---
+
+## Phase 3 — AI & Translation Intelligence
+
+| # | Feature | Effort | Priority |
+|---|---------|--------|----------|
+| 3.1 | ConsistencyAI (check translations against source language) | L | High |
+| 3.2 | Suggestions panel (fuzzy-match existing translations) | M | High |
+| 3.3 | Pre-translate plural forms (i18next/ICU) | M | Medium |
+| 3.4 | Translation memory (reuse across projects) | L | Low |
+
+---
+
+## Phase 4 — Advanced Data Model
+
+| # | Feature | Effort | Priority |
+|---|---------|--------|----------|
+| 4.1 | Plural forms support (i18next `_one/_other`, ICU) | L | High |
+| 4.2 | Array support in JSON (`["a","b"]` as indexed children) | M | Medium |
+| 4.3 | Package support (multiple translation sets per project) | L | Medium |
+| 4.4 | Drag & drop reorder in tree | M | Low |
+| 4.5 | Multi-selection in tree (batch operations) | M | Low |
+
+---
+
+## Phase 5 — Import/Export & Interop
+
+| # | Feature | Effort | Priority |
+|---|---------|--------|----------|
+| 5.1 | Excel (.xlsx) import/export | M | High |
+| 5.2 | Export/Import approved flags + comments in CSV/Excel | S | Medium |
+| 5.3 | Java .properties file support (ISO-8859-1) | S | Medium |
+| 5.4 | Laravel PHP file support | M | Low |
+| 5.5 | Auto-detect framework on folder drop | S | Medium |
+| 5.6 | File watcher (reload changed files from disk) | M | Medium |
+| 5.7 | Skip unchanged files on reload | S | Low |
+
+---
+
+## Phase 6 — Distribution & Platform
+
+| # | Feature | Effort | Priority |
+|---|---------|--------|----------|
+| 6.1 | Avalonia port (macOS + Linux) | XL | High |
+| 6.2 | MSIX installer (Windows) | M | High |
+| 6.3 | Auto-updater (Squirrel or .NET native) | M | Medium |
+| 6.4 | File association (`.toucan.project` → open app) | S | Medium |
+| 6.5 | Translation file locations configurable per language | M | Low |
 
 ---
 
 ## Progress Summary
 
-- **Phase 0**: 40/40 items complete ✅
-- **Phase 1**: 0/3 remaining
-- **Phase 2**: 0/5 remaining
-- **Phase 3**: 0/5 remaining
-- **Phase 4**: 0/6 remaining
-- **Phase 5**: 0/7 remaining
-- **Phase 6**: 0/5 remaining
-- **Phase 7**: 0/5 remaining
+| Area | Done | Remaining |
+|------|------|-----------|
+| Core Editor | 16 | 6 |
+| File I/O | 14 | 5 |
+| Machine Translation | 10 | 4 |
+| UI / UX | 14 | 0 |
+| Source Code | 0 | 6 |
+| Advanced Data | 0 | 5 |
+| Distribution | 0 | 5 |
+| **Total** | **54** | **31** |
 
-**Total feature parity achieved**: ~75% of BabelEdit's feature set implemented.
-**Remaining gap**: Source code integration, Undo/Redo, plural forms, Excel, ConsistencyAI.
+**Feature parity: ~80% of BabelEdit achieved.**
+
+---
+
+## Competitive Positioning
+
+### Already better than BabelEdit
+| Toucan Advantage | Detail |
+|-----------------|--------|
+| Open source | No license cost, community contributions |
+| Modern UI | Fluent WPF, Mica, system theme auto |
+| More formats | TOML, INI not in BabelEdit |
+| Smarter pre-translate | Per-namespace, preview-before-apply, parameter protection |
+| JSON manifest | Human-readable vs BabelEdit's opaque `.babel` XML |
+| Pagination | Handles 10k+ keys without UI freeze |
+| Design system | Consistent, maintainable styling |
+| Centralized keybindings | Single source of truth, visible in Options |
+
+### BabelEdit still leads on
+| Gap | Impact | Effort to close |
+|-----|--------|----------------|
+| Source code integration | High — killer workflow feature | L (2 weeks) |
+| ConsistencyAI | High — unique AI value | L (2 weeks) |
+| Plural forms | Medium — i18next/ICU users need it | L (2 weeks) |
+| Excel export | Medium — translator handoff | M (3 days) |
+| Cross-platform | High — macOS/Linux users | XL (ongoing) |
+
+---
+
+## Recommended Next Sprint
+
+1. **Tab navigation** between edit fields (S) — quick UX win
+2. **Statistics dialog** visual redesign (M) — looks amateur currently
+3. **Source code scanning** (L) — start with basic regex key extraction
+4. **Excel export** (M) — unblocks translator workflows
+5. **ConsistencyAI** (L) — competitive differentiator
 
 ---
 
 ## Effort Legend
 
-- **XS** = < 1 hour (one-liner or config change)
-- **S** = 1–4 hours (single feature, single file)
-- **M** = 1–3 days (multi-file, needs design)
-- **L** = 1–2 weeks (new subsystem)
-- **XL** = 1+ month (major initiative)
-
----
-
-## Next Priority (Recommended Order)
-
-1. **Undo/Redo (1.1)** — Most impactful editor feature still missing
-2. **ConsistencyAI (3.3)** — Competitive differentiator
-3. **Preserve parameters (3.6)** — Prevents broken translations
-4. **Excel import/export (5.1)** — Translator workflow requirement
-5. **Source code view (2.1)** — BabelEdit's killer feature
+| Code | Time | Example |
+|------|------|---------|
+| XS | < 1 hour | Config flag, one-liner |
+| S | 1–4 hours | Single feature, single file |
+| M | 1–3 days | Multi-file, needs design |
+| L | 1–2 weeks | New subsystem |
+| XL | 1+ month | Major initiative |
