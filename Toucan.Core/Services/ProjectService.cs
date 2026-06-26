@@ -23,12 +23,22 @@ public class ProjectService(
     public ProjectLoadResult LoadProject(string folder)
     {
         // Try loading project settings from toucan.project manifest
-        var settings = ProjectSettings.LoadFrom(folder)
-            ?? ProjectSettings.CreateDefault(folder);
+        var settings = ProjectSettings.LoadFrom(folder);
+        if (settings == null)
+        {
+            settings = ProjectSettings.CreateDefault(folder);
+            settings.SaveStyle = FrameworkDetector.Detect(folder);
+        }
         settings.ProjectPath = folder;
 
         // Load translations
         var translations = Load(folder);
+
+        // Apply language aliases
+        if (settings.LanguageAliases is { Count: > 0 })
+            foreach (var t in translations)
+                if (settings.LanguageAliases.TryGetValue(t.Language, out var mapped))
+                    t.Language = mapped;
 
         // Backfill settings from loaded data if manifest was missing
         if (settings.Languages.Count == 0)
@@ -62,7 +72,26 @@ public class ProjectService(
 
     public void Save(ProjectSettings project, List<NsTreeItem> items, IEnumerable<TranslationItem> translations)
     {
-        Save(project.ProjectPath, project.SaveStyle, items, translations);
+        var toSave = translations;
+        // Reverse alias mapping for file output
+        if (project.LanguageAliases is { Count: > 0 })
+        {
+            var reverse = project.LanguageAliases.ToDictionary(kv => kv.Value, kv => kv.Key);
+            var list = translations.ToList();
+            foreach (var t in list)
+                if (reverse.TryGetValue(t.Language, out var fileCode))
+                    t.Language = fileCode;
+            toSave = list;
+        }
+
+        Save(project.ProjectPath, project.SaveStyle, items, toSave);
+
+        // Restore display codes for in-memory state
+        if (project.LanguageAliases is { Count: > 0 })
+            foreach (var t in (IEnumerable<TranslationItem>)toSave)
+                if (project.LanguageAliases.TryGetValue(t.Language, out var mapped))
+                    t.Language = mapped;
+
         // Update project manifest with current language list
         project.Languages = translations.ToLanguages().ToList();
         project.Save();

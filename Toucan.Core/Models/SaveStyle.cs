@@ -14,4 +14,5 @@ public enum SaveStyles
     Arb = 9,          // Flutter ARB
     Csv = 10,
     Resx = 11,
+    JavaProperties = 12,
 }

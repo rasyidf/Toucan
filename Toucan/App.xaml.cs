@@ -113,6 +113,8 @@ public partial class App : Application
         services.AddSingleton<CsvSaveStrategy>();
         services.AddSingleton<ResxSaveStrategy>();
 
+        services.AddSingleton<JavaPropertiesSaveStrategy>();
+
         services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<JsonSaveStrategy>());
         services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<NamespacedSaveStrategy>());
         services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<PoSaveStrategy>());
@@ -125,6 +127,7 @@ public partial class App : Application
         services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<ArbSaveStrategy>());
         services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<CsvSaveStrategy>());
         services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<ResxSaveStrategy>());
+        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<JavaPropertiesSaveStrategy>());
 
         // Load strategies - register concrete types and interface mappings
         services.AddSingleton<JsonLoadStrategy>();
@@ -139,6 +142,7 @@ public partial class App : Application
         services.AddSingleton<CsvLoadStrategy>();
         services.AddSingleton<ResxLoadStrategy>();
         services.AddSingleton<PoLoadStrategy>();
+        services.AddSingleton<JavaPropertiesLoadStrategy>();
 
         services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<JsonLoadStrategy>());
         services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<NamespacedLoadStrategy>());
@@ -152,6 +156,7 @@ public partial class App : Application
         services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<CsvLoadStrategy>());
         services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<ResxLoadStrategy>());
         services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<PoLoadStrategy>());
+        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<JavaPropertiesLoadStrategy>());
 
         // Strategy factory and mode resolver
         services.AddSingleton<ITranslationStrategyFactory, TranslationStrategyFactory>();

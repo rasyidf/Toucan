@@ -38,6 +38,9 @@ public class ProjectSettings
     // --- Provider overrides (project-scoped) ---
     public string? DefaultProvider { get; set; }
 
+    // --- Language alias mapping (file-system code → display code) ---
+    public Dictionary<string, string>? LanguageAliases { get; set; }
+
     // --- Runtime (not serialized) ---
     [JsonIgnore] public string ProjectPath { get; set; } = string.Empty;
     [JsonIgnore] public bool IsDirty { get; set; }

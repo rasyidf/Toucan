@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Toucan.Services;
@@ -6,12 +7,15 @@ namespace Toucan.Services;
 /// <summary>
 /// Watches the project folder for file changes and raises an event.
 /// ponytail: simple FileSystemWatcher wrapper. Debounces rapid changes.
+/// Only fires FilesChanged if timestamps actually differ from snapshot.
 /// </summary>
 internal class FileWatcherService : IDisposable
 {
     private FileSystemWatcher? _watcher;
     private System.Timers.Timer? _debounce;
     private bool _pending;
+    private string _folder = "";
+    private Dictionary<string, DateTime> _snapshots = new();
 
     public event Action? FilesChanged;
 
@@ -19,6 +23,8 @@ internal class FileWatcherService : IDisposable
     {
         Stop();
         if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder)) return;
+        _folder = folder;
+        TakeSnapshot();
 
         _watcher = new FileSystemWatcher(folder)
         {
@@ -34,13 +40,37 @@ internal class FileWatcherService : IDisposable
         _debounce.Elapsed += (_, _) =>
         {
             _pending = false;
-            FilesChanged?.Invoke();
+            if (HasChanges()) FilesChanged?.Invoke();
         };
+    }
+
+    /// <summary>Record current file timestamps. Call after a successful load/save.</summary>
+    public void TakeSnapshot()
+    {
+        _snapshots.Clear();
+        if (string.IsNullOrEmpty(_folder) || !Directory.Exists(_folder)) return;
+        foreach (var f in Directory.GetFiles(_folder, "*.*", SearchOption.AllDirectories))
+        {
+            if (f.Contains(".obj") || f.Contains(".bin")) continue;
+            _snapshots[f] = File.GetLastWriteTimeUtc(f);
+        }
+    }
+
+    private bool HasChanges()
+    {
+        if (string.IsNullOrEmpty(_folder) || !Directory.Exists(_folder)) return true;
+        foreach (var f in Directory.GetFiles(_folder, "*.*", SearchOption.AllDirectories))
+        {
+            if (f.Contains(".obj") || f.Contains(".bin")) continue;
+            var lwt = File.GetLastWriteTimeUtc(f);
+            if (!_snapshots.TryGetValue(f, out var prev) || lwt != prev)
+                return true;
+        }
+        return false;
     }
 
     private void OnChange(object sender, FileSystemEventArgs e)
     {
-        // Skip temp/build files
         if (e.FullPath.Contains(".obj") || e.FullPath.Contains(".bin")) return;
         if (!_pending)
         {

@@ -50,6 +50,12 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
 
     public string Language { get; set; } = string.Empty;
 
+    /// <summary>ponytail: RTL-aware font for binding in XAML.</summary>
+    public string FontFamily => Toucan.Core.RtlHelper.GetFontFamily(Language);
+
+    public System.Windows.FlowDirection FlowDirection =>
+        Toucan.Core.RtlHelper.IsRtl(Language) ? System.Windows.FlowDirection.RightToLeft : System.Windows.FlowDirection.LeftToRight;
+
     public string Comment
     {
         get => _model?.Comment ?? string.Empty;
