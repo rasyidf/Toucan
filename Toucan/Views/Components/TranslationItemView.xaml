@@ -65,7 +65,8 @@
 
             <ItemsControl
                 d:ItemsSource="{d:SampleData ItemCount=3}"
-                ItemsSource="{Binding Translations}">
+                ItemsSource="{Binding Translations}"
+                KeyboardNavigation.TabNavigation="Continue">
                 <ItemsControl.ItemContainerStyle>
                     <Style TargetType="ContentPresenter">
                         <Setter Property="Margin"
@@ -99,6 +100,8 @@
                                 Padding="6,4"
                                 VerticalAlignment="Stretch"
                                 AcceptsReturn="True"
+                                AcceptsTab="False"
+                                IsTabStop="True"
                                 SpellCheck.IsEnabled="True"
                                 KeyUp="LanguageValue_KeyUp"
                                 Tag="{Binding}"
