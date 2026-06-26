@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
@@ -28,6 +29,7 @@ public class AppOptions
 
     // --- Editor behavior ---
     public bool PlainTextKeys { get; set; } = false;
+    public List<string> FilterHistory { get; set; } = [];
     // --- Last session state ---
     public string? LastProjectPath { get; set; }
 

@@ -122,6 +122,7 @@ public partial class MainWindow : FluentWindow
 
         // Populate recent projects for flyout menu
         ViewModel.RefreshRecentProjects();
+        ViewModel.LoadFilterHistory();
 
         SystemThemeWatcher.Watch(this, WindowBackdropType.Tabbed, true);
     }
