@@ -11,7 +11,7 @@ namespace Toucan.ViewModels;
 public partial class RecentProjectViewModel : ObservableObject
 {
     public string FilePath { get; }
-    public string DisplayName => Path.GetFileNameWithoutExtension(FilePath);
+    public string DisplayName => Path.GetFileName(FilePath) ?? FilePath;
 
     public ICommand OpenProjectCommand { get; }
 
