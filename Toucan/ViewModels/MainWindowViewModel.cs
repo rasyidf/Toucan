@@ -1825,6 +1825,71 @@ internal partial class MainWindowViewModel : ObservableObject
 
     #endregion
 
+    #region Plural / Gender / Placeholder
+
+    [RelayCommand]
+    private void GeneratePluralForms()
+    {
+        if (SelectedNode == null || AllTranslation == null) return;
+        var baseKey = PluralService.GetBaseKey(SelectedNode.Namespace);
+        var languages = AllTranslation.ToLanguages().ToList();
+        var added = 0;
+        foreach (var lang in languages)
+        {
+            var missing = PluralService.GenerateMissingForms(baseKey, lang, AllTranslation);
+            AllTranslation.AddRange(missing);
+            added += missing.Count;
+        }
+        if (added > 0) { RefreshTree(); UpdateSummaryInfo(); IsDirty = true; }
+        StatusText = added > 0 ? $"Generated {added} plural forms for '{baseKey}'" : "All plural forms already exist.";
+    }
+
+    [RelayCommand]
+    private void GenerateGenderForms()
+    {
+        if (SelectedNode == null || AllTranslation == null) return;
+        var baseKey = GenderService.GetBaseKey(SelectedNode.Namespace);
+        var languages = AllTranslation.ToLanguages().ToList();
+        var added = 0;
+        foreach (var lang in languages)
+        {
+            var missing = GenderService.GenerateMissingForms(baseKey, lang, AllTranslation);
+            AllTranslation.AddRange(missing);
+            added += missing.Count;
+        }
+        if (added > 0) { RefreshTree(); UpdateSummaryInfo(); IsDirty = true; }
+        StatusText = added > 0 ? $"Generated {added} gender forms for '{baseKey}'" : "All gender forms already exist.";
+    }
+
+    [RelayCommand]
+    private void ValidatePlaceholders()
+    {
+        if (AllTranslation == null || AllTranslation.Count == 0) return;
+        var languages = AllTranslation.ToLanguages().ToList();
+        var primary = languages.FirstOrDefault() ?? "en";
+        var issues = new List<string>();
+
+        var sourceItems = AllTranslation.Where(t => t.Language == primary && !string.IsNullOrEmpty(t.Value)).ToList();
+        foreach (var source in sourceItems)
+        {
+            foreach (var lang in languages.Where(l => l != primary))
+            {
+                var target = AllTranslation.FirstOrDefault(t => t.Namespace == source.Namespace && t.Language == lang);
+                if (target == null || string.IsNullOrEmpty(target.Value)) continue;
+                var result = PlaceholderService.Validate(source.Value, target.Value);
+                if (!result.IsValid)
+                    issues.Add($"{source.Namespace} [{lang}]: missing={string.Join(",", result.Missing)} extra={string.Join(",", result.Extra)}");
+            }
+        }
+
+        if (issues.Count == 0)
+            _messageService.ShowMessage("All placeholders are consistent across translations.");
+        else
+            _messageService.ShowMessage($"{issues.Count} placeholder issue(s):\n" + string.Join("\n", issues.Take(20)));
+    }
+
+    #endregion
+
 
 }
 

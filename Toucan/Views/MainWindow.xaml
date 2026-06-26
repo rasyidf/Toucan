@@ -15,6 +15,7 @@
     d:DesignHeight="450"
     ui:Design.Background="white"
     ui:Design.Foreground="#0a0a0a"
+    Icon="Assets/Images/WindowIcon.ico"
     ExtendsContentIntoTitleBar="True"
     Loaded="Window_Loaded"
     WindowBackdropType="Auto"

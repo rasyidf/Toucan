@@ -157,6 +157,10 @@
                 Header="Paste"
                 Icon="{ui:SymbolIcon ClipboardPaste20}"
                 Command="{Binding EditPasteCommand}" />
+            <Separator />
+            <ui:MenuItem Header="Generate Plural Forms" Command="{Binding GeneratePluralFormsCommand}" Icon="{ui:SymbolIcon TextNumberFormat20}" />
+            <ui:MenuItem Header="Generate Gender Forms" Command="{Binding GenerateGenderFormsCommand}" Icon="{ui:SymbolIcon People20}" />
+            <ui:MenuItem Header="Validate Placeholders" Command="{Binding ValidatePlaceholdersCommand}" Icon="{ui:SymbolIcon CheckmarkSquare20}" />
         </ui:MenuItem>
         <ui:MenuItem Header="Find">
             <ui:MenuItem

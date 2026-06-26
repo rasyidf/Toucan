@@ -20,8 +20,8 @@
     <PackageIcon>logo.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/rasyidf/Toucan</RepositoryUrl>
-    <AssemblyVersion>0.5.0.0</AssemblyVersion>
-    <FileVersion>0.5.0.0</FileVersion>
+    <AssemblyVersion>0.6.0.0</AssemblyVersion>
+    <FileVersion>0.6.0.0</FileVersion>
     <Authors>rasyid.dev</Authors>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
@@ -44,6 +44,7 @@
   <ItemGroup>
     <Resource Include="Assets\Images\ns.png" />
     <Resource Include="Assets\Images\translation.png" />
+    <Resource Include="Assets\Images\logo.png" />
   </ItemGroup>
   <ItemGroup>
   <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
