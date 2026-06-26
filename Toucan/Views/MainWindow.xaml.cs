@@ -21,6 +21,10 @@ public partial class MainWindow : FluentWindow
 
         InitializeComponent();
 
+        // ponytail: set icon via pack URI to avoid BAML TypeConverter error
+        Icon = new System.Windows.Media.Imaging.BitmapImage(
+            new System.Uri("pack://application:,,,/Assets/Images/WindowIcon.ico"));
+
         ViewModel = viewModel;
         DataContext = ViewModel;
         Services.KeybindingService.Apply(this, ViewModel);
