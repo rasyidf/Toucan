@@ -15,4 +15,5 @@ public enum SaveStyles
     Csv = 10,
     Resx = 11,
     JavaProperties = 12,
+    LaravelPhp = 13,
 }

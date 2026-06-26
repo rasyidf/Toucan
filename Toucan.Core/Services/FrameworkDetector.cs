@@ -29,6 +29,8 @@ public static class FrameworkDetector
             return SaveStyles.AndroidXml;
         if (Directory.GetFiles(folder, "*.properties", SearchOption.AllDirectories).Length > 0)
             return SaveStyles.JavaProperties;
+        if (Directory.GetFiles(folder, "*.php", SearchOption.AllDirectories).Length > 0)
+            return SaveStyles.LaravelPhp;
         if (Directory.GetFiles(folder, "*.yaml", SearchOption.AllDirectories).Length > 0
             || Directory.GetFiles(folder, "*.yml", SearchOption.AllDirectories).Length > 0)
             return SaveStyles.Yaml;

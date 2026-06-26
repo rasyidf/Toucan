@@ -36,14 +36,18 @@ public class TreeItemtoListItemConverter : IValueConverter
         string fullKey = string.IsNullOrEmpty(parentNs) ? item.Name : $"{parentNs}.{item.Name}";
         bool isLeaf = !item.Items.Any();
 
-        result.Add(new NsFlatItem
+        // ponytail: only show leaf keys in list view — parent namespace nodes are noise
+        if (isLeaf)
         {
-            Depth = depth,
-            FullKey = fullKey,
-            IsLeaf = isLeaf,
-            Source = item,
-            DisplayKey = $"{new string(' ', depth * 2)}{(depth > 0 ? "└ " : "")} {item.Name}".TrimStart()
-        });
+            result.Add(new NsFlatItem
+            {
+                Depth = depth,
+                FullKey = fullKey,
+                IsLeaf = true,
+                Source = item,
+                DisplayKey = item.Namespace
+            });
+        }
 
         foreach (var child in item.Items)
         {

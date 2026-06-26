@@ -47,6 +47,15 @@ internal static class NestedJsonParser
                 break;
 
             // Skip null/array/undefined
+            case JsonValueKind.Array:
+                int idx = 0;
+                foreach (var arrayItem in element.EnumerateArray())
+                {
+                    var itemPath = string.IsNullOrEmpty(path) ? $"[{idx}]" : $"{path}[{idx}]";
+                    WalkElement(language, arrayItem, itemPath, result);
+                    idx++;
+                }
+                break;
         }
     }
 }

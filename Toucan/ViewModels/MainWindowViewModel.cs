@@ -68,6 +68,9 @@ internal partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool showAdvancedOptions = false;
 
+    [ObservableProperty]
+    private ObservableCollection<NsTreeItem> selectedNodes = new();
+
 
     [ObservableProperty]
     private IEnumerable<LanguageGroupViewModel> pageData;
@@ -1215,6 +1218,52 @@ internal partial class MainWindowViewModel : ObservableObject
         // Auto-select the newly created node
         var newNode = CurrentTreeItems.SelectMany(FindAll).FirstOrDefault(n => n.Namespace == newNamespace);
         if (newNode != null) SelectedNode = newNode;
+    }
+
+    [RelayCommand]
+    private void ToggleNodeSelection(NsTreeItem node)
+    {
+        if (node == null) return;
+        node.IsSelected = !node.IsSelected;
+        if (node.IsSelected)
+            SelectedNodes.Add(node);
+        else
+            SelectedNodes.Remove(node);
+    }
+
+    [RelayCommand]
+    private void DeleteSelectedItems()
+    {
+        if (SelectedNodes.Count == 0) return;
+        if (!_messageService.ShowConfirmation($"Delete {SelectedNodes.Count} selected items?")) return;
+        foreach (var node in SelectedNodes.ToList())
+        {
+            AllTranslation.RemoveAll(o => o.Namespace != null && o.Namespace.StartsWith(node.Namespace));
+        }
+        SelectedNodes.Clear();
+        RefreshTree();
+        UpdateSummaryInfo();
+        Search("", true);
+        IsDirty = true;
+    }
+
+    [RelayCommand]
+    private void SelectAll()
+    {
+        SelectedNodes.Clear();
+        foreach (var node in CurrentTreeItems.SelectMany(FindAll))
+        {
+            node.IsSelected = true;
+            SelectedNodes.Add(node);
+        }
+    }
+
+    [RelayCommand]
+    private void ClearSelection()
+    {
+        foreach (var node in SelectedNodes)
+            node.IsSelected = false;
+        SelectedNodes.Clear();
     }
 
     private static IEnumerable<NsTreeItem> FindAll(NsTreeItem node)

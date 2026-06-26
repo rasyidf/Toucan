@@ -7,6 +7,7 @@ public class NsTreeItem
     public NsTreeItem? Parent { get; set; }
     public bool IsLoaded { get; set; }
     public bool IsExpanded { get; set; }
+    public bool IsSelected { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Namespace { get; set; } = string.Empty;
     public string? ImagePath { get; set; }

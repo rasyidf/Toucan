@@ -129,6 +129,9 @@ public partial class App : Application
         services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<ResxSaveStrategy>());
         services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<JavaPropertiesSaveStrategy>());
 
+        services.AddSingleton<LaravelPhpSaveStrategy>();
+        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<LaravelPhpSaveStrategy>());
+
         // Load strategies - register concrete types and interface mappings
         services.AddSingleton<JsonLoadStrategy>();
         services.AddSingleton<NamespacedLoadStrategy>();
@@ -157,6 +160,9 @@ public partial class App : Application
         services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<ResxLoadStrategy>());
         services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<PoLoadStrategy>());
         services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<JavaPropertiesLoadStrategy>());
+
+        services.AddSingleton<LaravelPhpLoadStrategy>();
+        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<LaravelPhpLoadStrategy>());
 
         // Strategy factory and mode resolver
         services.AddSingleton<ITranslationStrategyFactory, TranslationStrategyFactory>();
@@ -200,6 +206,10 @@ public partial class App : Application
 
         var viewModel = serviceProvider.GetRequiredService<MainWindowViewModel>();
         var mainWindow = new MainWindow(startupPath, viewModel);
+
+        // Register file association (per-user, no elevation needed)
+        FileAssociationService.Register();
+
         mainWindow.Show();
 
 
