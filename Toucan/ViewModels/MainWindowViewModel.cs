@@ -539,14 +539,14 @@ internal partial class MainWindowViewModel : ObservableObject
     }
     internal void RefreshTree(string selectNamespace = "")
     {
-
-        IEnumerable<NsTreeItem> nodes = AllTranslation.ForParse().ToNsTree();
+        IEnumerable<NsTreeItem> nodes = AppOptions?.PlainTextKeys == true
+            ? Toucan.Extensions.TranslationItemExtensions.ToNsTreeFlat(AllTranslation.ForParse())
+            : AllTranslation.ForParse().ToNsTree();
         CurrentTreeItems.Clear();
         foreach (NsTreeItem node in nodes)
         {
             CurrentTreeItems.Add(node);
         }
-
     }
 
     [RelayCommand]
@@ -1296,6 +1296,36 @@ internal partial class MainWindowViewModel : ObservableObject
         RefreshTree();
         Search("", true);
     }
+
+    #region Undo / Redo
+
+    [RelayCommand]
+    private void Undo()
+    {
+        var action = Services.UndoRedoService.Instance.Undo();
+        if (action == null) return;
+        ApplyUndoRedo(action.Namespace, action.Language, action.OldValue);
+    }
+
+    [RelayCommand]
+    private void Redo()
+    {
+        var action = Services.UndoRedoService.Instance.Redo();
+        if (action == null) return;
+        ApplyUndoRedo(action.Namespace, action.Language, action.NewValue);
+    }
+
+    private void ApplyUndoRedo(string ns, string language, string value)
+    {
+        var item = AllTranslation?.FirstOrDefault(t => t.Namespace == ns && t.Language == language);
+        if (item == null) return;
+        item.Value = value;
+        IsDirty = true;
+        // Refresh UI if currently viewing this namespace
+        Search(SearchText ?? "", true);
+    }
+
+    #endregion
 
     #region Edit Actions (Convert Case, Trim, Clipboard)
 

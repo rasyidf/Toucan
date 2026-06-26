@@ -68,6 +68,9 @@ public partial class OptionDialog : FluentWindow
 
         DataContext = vm;
 
+        // Populate keybindings tab
+        KeybindingsListView.ItemsSource = KeybindingService.GetDefinitions();
+
         // migrate values to VM if code previously relied on controls
         vm.PageSizeText = importOptions?.PageSize.ToString(CultureInfo.InvariantCulture);
         vm.TruncateSizeText = importOptions?.TruncateResultsOver.ToString(CultureInfo.InvariantCulture);

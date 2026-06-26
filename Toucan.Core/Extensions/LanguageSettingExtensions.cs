@@ -77,4 +77,20 @@ public static class TranslationItemExtensions
 
         thisNode.IsLoaded = true;
     }
+
+    /// <summary>
+    /// Flat tree for plain-text keys mode — no splitting at dot separator.
+    /// Each unique namespace becomes a leaf node.
+    /// </summary>
+    public static IEnumerable<NsTreeItem> ToNsTreeFlat(this IEnumerable<TranslationItem> settings)
+    {
+        return settings.Select(o => o.Namespace).Distinct().OrderBy(o => o)
+            .Select(ns => new NsTreeItem
+            {
+                Name = ns,
+                Namespace = ns,
+                ImagePath = "Assets/Images/translation.png",
+                Settings = settings.Where(o => o.Namespace == ns)
+            });
+    }
 }

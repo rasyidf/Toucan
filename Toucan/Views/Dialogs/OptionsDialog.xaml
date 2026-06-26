@@ -316,6 +316,31 @@
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
+
+                <TabItem Header="Keyboard Shortcuts">
+                    <Grid Margin="6">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Foreground="Gray" Margin="0,0,0,8">All keyboard shortcuts are listed below. Customization coming in a future release.</TextBlock>
+                        <ListView Grid.Row="1" x:Name="KeybindingsListView" AlternationCount="2">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Category" Width="100" DisplayMemberBinding="{Binding Category}"/>
+                                    <GridViewColumn Header="Action" Width="180" DisplayMemberBinding="{Binding Action}"/>
+                                    <GridViewColumn Header="Shortcut" Width="150" DisplayMemberBinding="{Binding Shortcut}"/>
+                                </GridView>
+                            </ListView.View>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Padding" Value="4,2"/>
+                                    <Setter Property="FontSize" Value="12"/>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+                    </Grid>
+                </TabItem>
             </TabControl>
         </Grid>
 

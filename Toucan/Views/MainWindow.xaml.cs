@@ -23,6 +23,7 @@ public partial class MainWindow : FluentWindow
 
         ViewModel = viewModel;
         DataContext = ViewModel;
+        Services.KeybindingService.Apply(this, ViewModel);
         UpdateStartupOptions(startupPath);
 
         ViewModel.PagingController.UpdatePageSize(ViewModel.AppOptions.PageSize);

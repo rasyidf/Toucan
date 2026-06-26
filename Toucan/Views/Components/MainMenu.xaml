@@ -81,6 +81,17 @@
         <ui:MenuItem Name="itemMenu" Header="_Edit">
             <ui:MenuItem
                 MinWidth="190"
+                Command="{Binding UndoCommand}"
+                Header="_Undo"
+                Icon="{ui:SymbolIcon ArrowUndo20}"
+                InputGestureText="Ctrl+Z" />
+            <ui:MenuItem
+                Command="{Binding RedoCommand}"
+                Header="_Redo"
+                Icon="{ui:SymbolIcon ArrowRedo20}"
+                InputGestureText="Ctrl+Y" />
+            <Separator />
+            <ui:MenuItem
                 Command="{Binding NewLanguageCommand}"
                 Header="Add Language"
                 InputGestureText="Ctrl+L" />

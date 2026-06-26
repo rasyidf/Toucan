@@ -22,34 +22,7 @@
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
-    <Window.InputBindings>
-        <KeyBinding
-            Key="N"
-            Command="{Binding NewFolderCommand}"
-            Modifiers="Ctrl+Shift"/>
-        <KeyBinding
-            Key="O"
-            Command="{Binding OpenFolderCommand}"
-            Modifiers="Ctrl"/>
-        <KeyBinding
-            Key="R"
-            Command="{Binding OpenRecentCommand}"
-            Modifiers="Ctrl"/>
-        <KeyBinding
-            Key="S"
-            Command="{Binding SaveCommand}"
-            Modifiers="Ctrl"/>
-        <KeyBinding Key="F12"
-                Command="{Binding SaveToCommand}"/>
-        <KeyBinding
-            Key="F4"
-            Command="{Binding CloseProjectCommand}"
-            Modifiers="Ctrl"/>
-        <KeyBinding
-            Key="F4"
-            Command="{Binding ExitCommand}"
-            Modifiers="Alt"/>
-    </Window.InputBindings>
+    <!-- Keybindings applied from KeybindingService in code-behind -->
     <Window.Resources>
         <converters:LanguageNameConverter x:Key="LanguageConverter"/>
         <converters:BooleanToVisibilityConverter x:Key="BoolToVis"/>

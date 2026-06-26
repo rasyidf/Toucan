@@ -26,6 +26,8 @@ public class AppOptions
     public string CopyTemplate2 { get; set; } = "{ this.props.t('%1') }";
     public string CopyTemplate3 { get; set; } = "{ t('%1') }";
 
+    // --- Editor behavior ---
+    public bool PlainTextKeys { get; set; } = false;
     // --- Last session state ---
     public string? LastProjectPath { get; set; }
 

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
@@ -33,10 +35,31 @@ public class PretranslationService(IEnumerable<ITranslationProvider> providers) 
 
         if (jobs.Count == 0) return result;
 
-        var providerResults = await provider.PretranslateAsync(jobs, request.Options, progress, cancellationToken).ConfigureAwait(false);
+        // Protect parameters before sending to provider
+        var placeholderMap = new Dictionary<string, List<string>>();
+        var protectedJobs = jobs.Select(j =>
+        {
+            var (cleaned, placeholders) = TranslationPostProcessor.ProtectParameters(j.SourceText);
+            placeholderMap[$"{j.Namespace}|{j.TargetLanguage}"] = placeholders;
+            return j with { SourceText = cleaned };
+        }).ToList();
+
+        var providerResults = await provider.PretranslateAsync(protectedJobs, request.Options, progress, cancellationToken).ConfigureAwait(false);
 
         foreach (var r in providerResults)
         {
+            // Restore parameters and apply post-processing
+            if (!string.IsNullOrEmpty(r.TranslatedValue))
+            {
+                var key = $"{r.Namespace}|{r.Language}";
+                if (placeholderMap.TryGetValue(key, out var placeholders))
+                    r.TranslatedValue = TranslationPostProcessor.RestoreParameters(r.TranslatedValue, placeholders);
+
+                var originalJob = jobs.FirstOrDefault(j => j.Namespace == r.Namespace && j.TargetLanguage == r.Language);
+                if (originalJob != null)
+                    r.TranslatedValue = TranslationPostProcessor.PreserveUppercaseFirst(originalJob.SourceText, r.TranslatedValue);
+            }
+
             result.Items.Add(r);
 
             if (!string.IsNullOrEmpty(r.TranslatedValue) && request.Options?.PreviewOnly != true)
