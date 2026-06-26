@@ -13,6 +13,9 @@
     WindowCornerPreference="Round"
     ExtendsContentIntoTitleBar="True"
     mc:Ignorable="d">
+    <ui:FluentWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </ui:FluentWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -165,7 +168,4 @@
         </Border>
     </Grid>
 
-    <ui:FluentWindow.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-    </ui:FluentWindow.Resources>
 </ui:FluentWindow>
