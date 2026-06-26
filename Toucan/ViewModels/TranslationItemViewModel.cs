@@ -10,6 +10,7 @@ namespace Toucan.ViewModels;
 public partial class TranslationItemViewModel : ObservableObject, IDisposable
 {
     private string _value = string.Empty;
+    private string _valueBeforeEdit = string.Empty;
     private readonly TranslationItem? _model;
     private Timer _debounceTimer;
 
@@ -25,6 +26,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     {
         _model = model;
         _value = model?.Value ?? string.Empty;
+        _valueBeforeEdit = _value;
         Language = model?.Language ?? string.Empty;
     }
 
@@ -35,6 +37,9 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         {
             if (_value != value)
             {
+                // Capture the value before this edit session starts
+                if (!_debounceTimer.Enabled)
+                    _valueBeforeEdit = _value;
                 _value = value;
                 OnPropertyChanged(nameof(Value));
                 _debounceTimer.Stop();
@@ -69,8 +74,11 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
 
     private void SaveTranslation()
     {
-        System.Diagnostics.Debug.WriteLine($"Saving to DB: {_value}");
+        // Record undo action before writing to model
+        if (_model != null && _valueBeforeEdit != _value)
+            Services.UndoRedoService.Instance.Record(_model.Namespace, _model.Language, _valueBeforeEdit, _value);
         _model?.Value = _value;
+        _valueBeforeEdit = _value;
     }
 
     public void Dispose()
