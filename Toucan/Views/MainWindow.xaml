@@ -69,10 +69,12 @@
 
         <views:ToolBarView Grid.Row="1"
                            HorizontalAlignment="Stretch"
-                           VerticalAlignment="Center" />
+                           VerticalAlignment="Center"
+                           Visibility="{Binding ShowStartScreen, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}" />
 
         <Grid Grid.Row="2"
-                Grid.RowSpan="1">
+                Grid.RowSpan="1"
+                Visibility="{Binding ShowStartScreen, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="320"/>
                 <ColumnDefinition Width="2"/>
@@ -123,6 +125,7 @@
             x:Name="startScreen"
             Grid.Row="1"
             Grid.RowSpan="2"
+            Background="{DynamicResource ApplicationBackgroundBrush}"
             Visibility="{Binding ShowStartScreen, Converter={StaticResource BoolToVis}}"/>
 
 
