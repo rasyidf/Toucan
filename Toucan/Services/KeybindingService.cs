@@ -82,8 +82,17 @@ internal static class KeybindingService
         // Editor modes
         Bind(bindings, Key.E, ModifierKeys.Control, vm.ToggleFocusedEditorCommand);
         Bind(bindings, Key.F11, ModifierKeys.None, vm.ToggleZenModeCommand);
-        Bind(bindings, Key.J, ModifierKeys.None, vm.ZenNextCommand);
-        Bind(bindings, Key.K, ModifierKeys.None, vm.ZenPreviousCommand);
+        // ponytail: J/K without modifiers can't use KeyGesture — handled via PreviewKeyDown in Window
+    }
+
+    /// <summary>Call from Window.PreviewKeyDown to handle bare-key Zen navigation.</summary>
+    public static void HandleZenKeys(KeyEventArgs e, MainWindowViewModel vm)
+    {
+        if (!vm.ZenMode && !vm.FocusedEditorMode) return;
+        // Don't intercept if a TextBox has focus
+        if (e.OriginalSource is System.Windows.Controls.TextBox) return;
+        if (e.Key == Key.J) { vm.ZenNextCommand.Execute(null); e.Handled = true; }
+        else if (e.Key == Key.K) { vm.ZenPreviousCommand.Execute(null); e.Handled = true; }
     }
 
     private static void Bind(InputBindingCollection bindings, Key key, ModifierKeys modifiers, ICommand command)
