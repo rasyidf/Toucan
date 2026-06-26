@@ -1,0 +1,244 @@
+{
+  "progress": { "done": 54, "total": 85, "parity": 80 },
+  "categories": [
+    {
+      "name": "Core Editor",
+      "groups": [
+        {
+          "name": "Views & Navigation",
+          "features": [
+            { "name": "Tree view + List view toggle", "done": true },
+            { "name": "Pagination with compact controls", "done": true },
+            { "name": "Infinite scroll mode", "done": false },
+            { "name": "Filter expression history", "done": false }
+          ]
+        },
+        {
+          "name": "Key Management",
+          "features": [
+            { "name": "Add / Remove / Rename / Duplicate translation IDs", "done": true },
+            { "name": "Add / Remove languages", "done": true },
+            { "name": "Auto-select newly added ID", "done": true },
+            { "name": "Plain text keys mode (no dot-splitting)", "done": true }
+          ]
+        },
+        {
+          "name": "Editing",
+          "features": [
+            { "name": "Load/save JSON (flat + namespaced)", "done": true },
+            { "name": "Undo / Redo (Ctrl+Z / Ctrl+Y)", "done": true },
+            { "name": "Comment field per translation", "done": true },
+            { "name": "Approved flag (toggle per row)", "done": true },
+            { "name": "Cut / Copy / Paste translation values", "done": true },
+            { "name": "Copy as template (3 configurable patterns)", "done": true },
+            { "name": "Tab between edit fields", "done": false }
+          ]
+        },
+        {
+          "name": "Text Processing",
+          "features": [
+            { "name": "Spell checking (WPF native)", "done": true },
+            { "name": "Word-wrapping for long IDs", "done": true },
+            { "name": "Convert case (lower / upper / sentence / title)", "done": true },
+            { "name": "Remove whitespace (trim / line-by-line / simplify)", "done": true }
+          ]
+        },
+        {
+          "name": "Localization UX",
+          "features": [
+            { "name": "Statistics dialog (visual grid, per-language)", "done": false },
+            { "name": "Custom language codes (alias mapping)", "done": false },
+            { "name": "Better font for RTL languages", "done": false }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "File I/O",
+      "groups": [
+        {
+          "name": "Structured Formats",
+          "features": [
+            { "name": "JSON (flat)", "done": true },
+            { "name": "JSON (namespaced / i18next)", "done": true },
+            { "name": "YAML", "done": true },
+            { "name": "TOML", "done": true },
+            { "name": "INI (save-only)", "done": true }
+          ]
+        },
+        {
+          "name": "Platform Formats",
+          "features": [
+            { "name": "PO / Gettext", "done": true },
+            { "name": "RESX (.NET)", "done": true },
+            { "name": "Android XML", "done": true },
+            { "name": "iOS .strings", "done": true },
+            { "name": "XLIFF", "done": true },
+            { "name": "ARB (Flutter)", "done": true }
+          ]
+        },
+        {
+          "name": "Exchange Formats",
+          "features": [
+            { "name": "CSV", "done": true },
+            { "name": "Import / Export menu (all formats)", "done": true },
+            { "name": "Project manifest (toucan.project JSON)", "done": true },
+            { "name": "Excel (.xlsx) import/export", "done": false },
+            { "name": "Export/Import approved flags + comments", "done": false }
+          ]
+        },
+        {
+          "name": "Additional Formats",
+          "features": [
+            { "name": "Java .properties (ISO-8859-1)", "done": false },
+            { "name": "Laravel PHP file support", "done": false }
+          ]
+        },
+        {
+          "name": "File Management",
+          "features": [
+            { "name": "Auto-detect framework on folder drop", "done": false },
+            { "name": "File watcher (reload changed files)", "done": false },
+            { "name": "Skip unchanged files on reload", "done": false }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Machine Translation",
+      "groups": [
+        {
+          "name": "Providers",
+          "features": [
+            { "name": "Google Translate", "done": true },
+            { "name": "DeepL", "done": true },
+            { "name": "Microsoft Translator", "done": true },
+            { "name": "OpenAI (GPT)", "done": true },
+            { "name": "Provider settings dialog", "done": true }
+          ]
+        },
+        {
+          "name": "Translation Options",
+          "features": [
+            { "name": "Translation context passed to providers", "done": true },
+            { "name": "Formality setting (formal / informal)", "done": true },
+            { "name": "Remember last translation service", "done": true },
+            { "name": "Per-language / per-namespace / per-key scope", "done": true },
+            { "name": "Preview before apply", "done": true }
+          ]
+        },
+        {
+          "name": "Smart Processing",
+          "features": [
+            { "name": "Preserve parameters ({{var}}, {0}, %s, :param)", "done": true },
+            { "name": "Keep uppercase first letter", "done": true },
+            { "name": "ConsistencyAI (check against source)", "done": false },
+            { "name": "Suggestions panel (fuzzy-match existing)", "done": false },
+            { "name": "Pre-translate plural forms", "done": false },
+            { "name": "Translation memory (reuse across projects)", "done": false }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UI / UX",
+      "groups": [
+        {
+          "name": "Design",
+          "features": [
+            { "name": "WPF UI Fluent (Mica backdrop, system theme)", "done": true },
+            { "name": "Design system tokens (shared ResourceDictionary)", "done": true },
+            { "name": "Toucan icon in TitleBar", "done": true }
+          ]
+        },
+        {
+          "name": "Navigation & Workflow",
+          "features": [
+            { "name": "Framework tile grid for new projects (16 frameworks)", "done": true },
+            { "name": "Start screen with quick actions", "done": true },
+            { "name": "Recent projects flyout (last 10, clear)", "done": true },
+            { "name": "Auto-open last project on startup", "done": true },
+            { "name": "Reveal in Explorer", "done": true }
+          ]
+        },
+        {
+          "name": "Keyboard & Controls",
+          "features": [
+            { "name": "Centralized KeybindingService (20+ shortcuts)", "done": true },
+            { "name": "Keyboard Shortcuts tab in Options dialog", "done": true },
+            { "name": "Filter: untranslated / translated / approved", "done": true },
+            { "name": "Compact pagination controls", "done": true }
+          ]
+        },
+        {
+          "name": "Status & Feedback",
+          "features": [
+            { "name": "Status bar (project, language, cursor, loading)", "done": true },
+            { "name": "Per-language context menu", "done": true }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Source Code Integration",
+      "groups": [
+        {
+          "name": "Key Usage",
+          "features": [
+            { "name": "Source code view panel (show where key is used)", "done": false },
+            { "name": "Double-click opens source in external editor", "done": false },
+            { "name": "Wire source root configuration", "done": false }
+          ]
+        },
+        {
+          "name": "Extraction & Analysis",
+          "features": [
+            { "name": "Extract translation IDs from source", "done": false },
+            { "name": "Filter: used / unused in source code", "done": false },
+            { "name": "Support .tsx, .vue, .svelte, .py scanning", "done": false }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Advanced Data Model",
+      "groups": [
+        {
+          "name": "Complex Values",
+          "features": [
+            { "name": "Plural forms (i18next _one/_other, ICU)", "done": false },
+            { "name": "Array support in JSON", "done": false }
+          ]
+        },
+        {
+          "name": "Project Organization",
+          "features": [
+            { "name": "Package support (multiple translation sets)", "done": false },
+            { "name": "Drag & drop reorder in tree", "done": false },
+            { "name": "Multi-selection in tree (batch operations)", "done": false }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Distribution & Platform",
+      "groups": [
+        {
+          "name": "Cross-Platform",
+          "features": [
+            { "name": "Avalonia port (macOS + Linux)", "done": false, "wip": true },
+            { "name": "Translation file locations configurable per language", "done": false }
+          ]
+        },
+        {
+          "name": "Installation & Updates",
+          "features": [
+            { "name": "MSIX installer (Windows)", "done": false },
+            { "name": "Auto-updater", "done": false },
+            { "name": "File association (.toucan.project → open app)", "done": false }
+          ]
+        }
+      ]
+    }
+  ]
+}

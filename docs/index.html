@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toucan — i18n Resource Editor</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'dark'});</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+<header>
+<div class="container">
+<img src="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png" alt="Toucan">
+<h1>Toucan</h1>
+<nav>
+<a href="#features">Features</a>
+<a href="#formats">Formats</a>
+<a href="#providers">Providers</a>
+<a href="#roadmap">Roadmap</a>
+<a href="https://github.com/rasyidf/Toucan">GitHub</a>
+</nav>
+</div>
+</header>
+
+<div class="hero">
+<div class="container">
+<h2>Universal i18n Resource Editor</h2>
+<p>A modern, open-source internationalization file editor for Windows — manage all your translations in one place.</p>
+<div class="badges">
+<span class="badge green">Free &amp; Open Source</span>
+<span class="badge blue">Windows Desktop</span>
+<span class="badge purple">MIT License</span>
+<span class="badge green">12+ File Formats</span>
+</div>
+</div>
+</div>
+
+<div class="container">
+
+<section id="features">
+<h3>Features</h3>
+<div class="grid">
+<div class="card"><h4><i data-lucide="file-json"></i> Multi-Format Editing</h4><p>Edit JSON, YAML, PO, RESX, Android XML, iOS .strings, XLIFF, Flutter ARB, CSV, TOML and more — all in one unified interface.</p></div>
+<div class="card"><h4><i data-lucide="columns-2"></i> Side-by-Side Translation</h4><p>View and edit source and target languages next to each other. Filter by untranslated, translated, and approved items.</p></div>
+<div class="card"><h4><i data-lucide="sparkles"></i> AI Pre-Translation</h4><p>Batch-translate using Google, DeepL, Microsoft, or OpenAI — with parameter preservation, formality settings, and preview before applying.</p></div>
+<div class="card"><h4><i data-lucide="paintbrush"></i> Fluent Design</h4><p>Modern Windows UI with Mica backdrop, dark/light theme following your system preference.</p></div>
+<div class="card"><h4><i data-lucide="gauge"></i> Built for Scale</h4><p>Handles large projects (10,000+ keys) with pagination, streaming JSON parser, and per-namespace operations.</p></div>
+<div class="card"><h4><i data-lucide="keyboard"></i> Keyboard-First</h4><p>Centralized keybinding service with 20+ configurable shortcuts. Cut/copy/paste, case conversion, and bulk actions.</p></div>
+</div>
+</section>
+
+<section id="formats">
+<h3>Supported Formats</h3>
+<table>
+<thead><tr><th>Format</th><th>Load</th><th>Save</th><th>Use Case</th></tr></thead>
+<tbody>
+<tr><td>JSON (flat)</td><td class="status-done">✅</td><td class="status-done">✅</td><td>React, Vue, generic web apps</td></tr>
+<tr><td>JSON (nested)</td><td class="status-done">✅</td><td class="status-done">✅</td><td>i18next, Angular</td></tr>
+<tr><td>YAML</td><td class="status-done">✅</td><td class="status-done">✅</td><td>Ruby on Rails, Laravel</td></tr>
+<tr><td>TOML</td><td class="status-done">✅</td><td class="status-done">✅</td><td>Rust, Hugo, config files</td></tr>
+<tr><td>INI</td><td class="status-partial">—</td><td class="status-done">✅</td><td>Legacy desktop apps</td></tr>
+<tr><td>PO/POT</td><td class="status-done">✅</td><td class="status-done">✅</td><td>WordPress, PHP, GNU gettext</td></tr>
+<tr><td>RESX</td><td class="status-done">✅</td><td class="status-done">✅</td><td>.NET / WPF / Blazor</td></tr>
+<tr><td>Android XML</td><td class="status-done">✅</td><td class="status-done">✅</td><td>Android apps</td></tr>
+<tr><td>iOS .strings</td><td class="status-done">✅</td><td class="status-done">✅</td><td>iOS / macOS apps</td></tr>
+<tr><td>XLIFF</td><td class="status-done">✅</td><td class="status-done">✅</td><td>Enterprise CAT tools</td></tr>
+<tr><td>ARB</td><td class="status-done">✅</td><td class="status-done">✅</td><td>Flutter / Dart</td></tr>
+<tr><td>CSV</td><td class="status-done">✅</td><td class="status-done">✅</td><td>Spreadsheet exchange</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="providers">
+<h3>Translation Providers</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant You as You
+    participant Toucan as Toucan
+    participant AI as Translation Provider
+    You->>Toucan: Select keys to translate
+    Toucan->>AI: Send source text + context
+    AI-->>Toucan: Return translations
+    Toucan-->>You: Preview results before saving
+</div>
+<table>
+<thead><tr><th>Provider</th><th>Highlights</th></tr></thead>
+<tbody>
+<tr><td><strong>Google Cloud Translation</strong></td><td>100+ languages, fast, automatic language detection</td></tr>
+<tr><td><strong>DeepL</strong></td><td>High-quality European languages, formality settings</td></tr>
+<tr><td><strong>Microsoft Translator</strong></td><td>Azure-integrated, batch processing, 60+ languages</td></tr>
+<tr><td><strong>OpenAI (GPT)</strong></td><td>Context-aware, custom prompts, handles idioms well</td></tr>
+</tbody>
+</table>
+<p style="margin-top:16px;color:var(--muted);font-size:.9rem">Bring your own API key. Keys are stored securely on your machine using Windows DPAPI encryption.</p>
+</section>
+
+<section id="roadmap">
+<h3>Roadmap</h3>
+<div v-if="roadmap" class="roadmap-header">
+<p>Progress: <strong>{{roadmap.progress.done}} / {{roadmap.progress.total}}</strong> features done. Feature parity vs BabelEdit: ~{{roadmap.progress.parity}}%.</p>
+<div class="progress-bar large"><div class="fill" :style="{width: (roadmap.progress.done/roadmap.progress.total*100)+'%'}"></div></div>
+</div>
+
+<template v-if="roadmap">
+<details v-for="cat in roadmap.categories" :key="cat.name" class="category">
+<summary>
+<span class="cat-name">{{cat.name}}</span>
+<span class="cat-stats">
+<span class="badge-sm green">{{catDone(cat)}} done</span>
+<span class="badge-sm" :class="catPlanned(cat)?'orange':''" v-if="catPlanned(cat)">{{catPlanned(cat)}} planned</span>
+</span>
+</summary>
+<div class="phase-content">
+<div v-for="group in cat.groups" :key="group.name" class="feature-group">
+<div class="group-header">
+<span class="group-name">{{group.name}}</span>
+<span class="group-stats">
+<span class="badge-sm green" v-if="groupDone(group)">{{groupDone(group)}} implemented</span>
+<span class="badge-sm orange" v-if="groupPlanned(group)">{{groupPlanned(group)}} planned</span>
+</span>
+</div>
+<ul class="feature-list">
+<li v-for="f in group.features" :key="f.name" :class="{done: f.done, wip: f.wip && !f.done}">{{f.name}}</li>
+</ul>
+</div>
+</div>
+</details>
+</template>
+</section>
+
+<section id="download">
+<h3>Download</h3>
+<div class="grid">
+<div class="card"><h4><i data-lucide="monitor"></i> Windows</h4><p>Download the latest installer from the <a href="https://github.com/rasyidf/Toucan/releases">GitHub Releases page</a>. Requires Windows 10 or later.</p></div>
+<div class="card"><h4><i data-lucide="laptop"></i> macOS &amp; Linux</h4><p>Cross-platform support via Avalonia is in progress. Star the <a href="https://github.com/rasyidf/Toucan">repository</a> to get notified.</p></div>
+</div>
+</section>
+
+</div>
+
+<footer>
+<div class="container">
+<p>Toucan © 2025 <a href="https://rasyid.dev">rasyid.dev</a> · <a href="https://github.com/rasyidf/Toucan">Source on GitHub</a> · MIT License</p>
+</div>
+</footer>
+
+</div>
+
+<script>
+const {createApp} = Vue;
+createApp({
+  data(){ return { roadmap: null } },
+  methods:{
+    catDone(cat){ return cat.groups.reduce((s,g)=>s+g.features.filter(f=>f.done).length,0) },
+    catPlanned(cat){ return cat.groups.reduce((s,g)=>s+g.features.filter(f=>!f.done).length,0) },
+    groupDone(g){ return g.features.filter(f=>f.done).length },
+    groupPlanned(g){ return g.features.filter(f=>!f.done).length }
+  },
+  async mounted(){
+    this.roadmap = await fetch('roadmap.json').then(r=>r.json());
+    this.$nextTick(()=>lucide.createIcons());
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
