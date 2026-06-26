@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] — 2026-06-27
+
+### Added
+- **Plural forms support** — i18next suffix detection (`_one`/`_other`), ICU `{count, plural, ...}` parsing, generate missing forms
+- **Gendered translations** — suffix detection (`_male`/`_female`/`_other`), ICU `{var, select, ...}` parsing, generate missing forms
+- **Advanced placeholder validation** — extract/validate 7 placeholder formats across translations (named, indexed, printf, colon, template, ICU)
+
+### Fixed
+- **Title icon** — logo now properly shows in titlebar; window icon set for taskbar/alt-tab display
+
 ## [0.5.0] — 2026-06-27
 
 ### Added

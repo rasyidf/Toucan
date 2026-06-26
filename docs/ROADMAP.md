@@ -66,7 +66,7 @@
 - [x] Per-language / per-namespace / per-key pre-translate
 - [x] Preview before apply
 - [x] Suggestions panel (fuzzy-match existing translations)
-- [ ] Pre-translate plural forms (i18next/ICU)
+- [x] Pre-translate plural forms (i18next/ICU)
 - [ ] Translation memory (reuse across projects)
 
 ## UI / UX
@@ -87,7 +87,7 @@
 
 ## Advanced Data Model
 
-- [ ] Plural forms support (i18next `_one/_other`, ICU)
+- [x] Plural forms support (i18next `_one/_other`, ICU)
 - [x] Array support in JSON
 - [ ] Package support (multiple translation sets)
 - [ ] Drag & drop reorder in tree
@@ -119,7 +119,7 @@
 
 ## Progress
 
-**Done: 76 / 88 (86%)**
+**Done: 78 / 88 (89%)**
 
 **Feature parity vs BabelEdit: ~88%**
 
@@ -127,11 +127,11 @@
 
 ## Recommended Next Sprint
 
-1. Plural forms support (L)
+1. Translation memory — reuse across projects (M)
 2. Package support — multiple translation sets (L)
 3. MSIX installer (M)
-4. Pre-translate plural forms (M)
-5. Drag & drop reorder in tree (S)
+4. Drag & drop reorder in tree (S)
+5. Translation file locations configurable per language (S)
 
 ---
 
