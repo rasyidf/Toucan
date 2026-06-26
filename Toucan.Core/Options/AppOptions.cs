@@ -1,56 +1,59 @@
-﻿using Newtonsoft.Json;
-using Toucan.Core.Models;
 using System.IO;
+using System.Text.Json;
 
 namespace Toucan.Core.Options;
 
+/// <summary>
+/// Global application preferences. Stored in ~/Documents/Toucan/settings.json.
+/// NOT project-specific — project settings live in toucan.project.
+/// </summary>
 public class AppOptions
 {
-        // Optional default language preference for new projects / UI
-        public string DefaultLanguage { get; set; }
-    public SaveStyles SaveStyle { get; set; }
-    public string DefaultPath { get; set; }
-    public int PageSize { get; set; }
-    public int MaxItems { get; set; }
-    public int TruncateResultsOver { get; set; }
-    public int LoadingDepth { get; set; }
+    // --- UI preferences ---
+    public string DefaultLanguage { get; set; } = "en-US";
+    public int PageSize { get; set; } = 100;
+    public int MaxItems { get; set; } = 100;
+    public int TruncateResultsOver { get; set; } = 2000;
+    public int LoadingDepth { get; set; } = 1;
 
-    static readonly string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan");
+    // --- Machine Translation ---
+    public string Formality { get; set; } = "Default";
+    public string Context { get; set; } = string.Empty;
+    public string LastProvider { get; set; } = "Google";
 
+    // --- Copy Templates ---
+    public string CopyTemplate1 { get; set; } = "%1";
+    public string CopyTemplate2 { get; set; } = "{ this.props.t('%1') }";
+    public string CopyTemplate3 { get; set; } = "{ t('%1') }";
+
+    // --- Last session state ---
+    public string? LastProjectPath { get; set; }
+
+    private static readonly string s_path = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan");
+
+    private static readonly JsonSerializerOptions s_options = new() { WriteIndented = true };
 
     public static AppOptions LoadFromDisk()
     {
-        if (File.Exists(Path.Combine(path, "settings.json")))
+        var file = Path.Combine(s_path, "settings.json");
+        if (!File.Exists(file)) return new AppOptions();
+
+        try
         {
-            var loaded = File.ReadAllText(Path.Combine(path, "settings.json"));
-            var options = JsonConvert.DeserializeObject<AppOptions>(loaded) ?? new AppOptions();
-
-            if (options.PageSize <= 0)
-                options.PageSize = 100;
-            if (options.MaxItems <= 0)
-                options.MaxItems = 100;
-
-            if (options.TruncateResultsOver <= 0)
-                options.TruncateResultsOver = 2000;
-
-            if (options.LoadingDepth <= 0)
-                options.LoadingDepth = 1;
-
+            var options = JsonSerializer.Deserialize<AppOptions>(File.ReadAllText(file), s_options) ?? new AppOptions();
+            if (options.PageSize <= 0) options.PageSize = 100;
+            if (options.MaxItems <= 0) options.MaxItems = 100;
+            if (options.TruncateResultsOver <= 0) options.TruncateResultsOver = 2000;
+            if (options.LoadingDepth <= 0) options.LoadingDepth = 1;
             return options;
         }
-        return new AppOptions() { SaveStyle = SaveStyles.Json, PageSize = 100, MaxItems = 100, TruncateResultsOver = 2000, LoadingDepth = 1, DefaultLanguage = "en-US" };
-
+        catch { return new AppOptions(); }
     }
+
     public void ToDisk()
     {
-
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-        }
-
-        var json = JsonConvert.SerializeObject(this);
-        File.WriteAllText(Path.Combine(path, "settings.json"), json);
-
+        Directory.CreateDirectory(s_path);
+        File.WriteAllText(Path.Combine(s_path, "settings.json"), JsonSerializer.Serialize(this, s_options));
     }
 }

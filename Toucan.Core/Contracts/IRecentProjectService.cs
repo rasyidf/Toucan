@@ -1,4 +1,4 @@
-﻿using Toucan.Core.Models;
+using Toucan.Core.Models;
 
 namespace Toucan.Core.Contracts;
 

@@ -2,10 +2,8 @@ namespace Toucan.Core.Models;
 
 public class PretranslationResult
 {
-    public List<PretranslationItemResult> Items { get; } = new();
-
+    public List<PretranslationItemResult> Items { get; } = [];
     public bool Success => Items.All(i => i.Succeeded);
-
     public string Summary => $"{Items.Count(i => i.Succeeded)} succeeded, {Items.Count(i => !i.Succeeded)} failed";
 }
 

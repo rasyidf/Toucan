@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Toucan.Avalonia.Views.Components.LanguagesView">
+  <Border IsVisible="{Binding LanguagesVisible}" Margin="0,2,0,0">
+    <Grid RowDefinitions="36,*">
+      <Grid ColumnDefinitions="*,Auto" Margin="10,0">
+        <TextBlock Text="Languages" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12"/>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2">
+          <Button Command="{Binding SummaryInfo.ToggleExpandAllCommand}" Padding="5" ToolTip.Tip="Expand/Collapse All">
+            <TextBlock Text="⌄" FontSize="14"/>
+          </Button>
+          <Button Command="{Binding NewLanguageCommand}" Padding="5" ToolTip.Tip="Add Language">
+            <TextBlock Text="＋" FontSize="14"/>
+          </Button>
+          <Button Command="{Binding ToggleLanguagesVisibilityCommand}" Padding="5" ToolTip.Tip="Hide Panel">
+            <TextBlock Text="✕" FontSize="12"/>
+          </Button>
+        </StackPanel>
+      </Grid>
+
+      <ScrollViewer Grid.Row="1" Margin="4,0,4,4">
+        <ItemsControl ItemsSource="{Binding SummaryInfo.Details}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Margin="0,1" Padding="10,8" CornerRadius="4"
+                      BorderThickness="1" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                <Grid RowDefinitions="Auto,Auto">
+                  <!-- Row 1: Language name + stats + menu -->
+                  <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                    <TextBlock Text="{Binding Language}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Percentage, StringFormat={}{0:F0}%}" 
+                               VerticalAlignment="Center" FontSize="12" Opacity="0.6" Margin="8,0"/>
+                    <TextBlock Grid.Column="2" Text="{Binding Stats}" 
+                               VerticalAlignment="Center" FontSize="11" Opacity="0.5" Margin="4,0"/>
+                    <Button Grid.Column="3" Padding="4" Opacity="0.5" Margin="4,0,0,0" ToolTip.Tip="Options">
+                      <TextBlock Text="⋯" FontWeight="Bold" FontSize="12"/>
+                    </Button>
+                  </Grid>
+                  <!-- Row 2: Progress bar (compact) -->
+                  <ProgressBar Grid.Row="1" Maximum="100" Value="{Binding Percentage}" Height="3" Margin="0,6,0,0"
+                               CornerRadius="2"/>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+  </Border>
+</UserControl>

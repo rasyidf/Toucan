@@ -2,19 +2,12 @@ using System.IO;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 
-namespace Toucan.Core.Services
+namespace Toucan.Core.Services;
+
+public class ProjectModeResolver : IProjectModeResolver
 {
-    public class ProjectModeResolver : IProjectModeResolver
-    {
-        private const string ManifestFileName = "toucan.project";
-
-        public ProjectTypeVariant Resolve(string path)
-        {
-            if (string.IsNullOrEmpty(path)) return ProjectTypeVariant.FolderScan;
-
-            var manifestPath = Path.Combine(path, ManifestFileName);
-            if (File.Exists(manifestPath)) return ProjectTypeVariant.ConfigManifest;
-            return ProjectTypeVariant.FolderScan;
-        }
-    }
+    public ProjectTypeVariant Resolve(string path) =>
+        !string.IsNullOrEmpty(path) && File.Exists(Path.Combine(path, "toucan.project"))
+            ? ProjectTypeVariant.ConfigManifest
+            : ProjectTypeVariant.FolderScan;
 }

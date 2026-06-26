@@ -28,10 +28,17 @@
                 Header="Open project file..."
                 Icon="{ui:SymbolIcon DocumentText20}" />
             <ui:MenuItem
-                Command="{Binding OpenRecentCommand}"
                 Header="_Open recent"
                 InputGestureText="Ctrl+R"
-                IsEnabled="true" />
+                ItemsSource="{Binding RecentProjects}">
+                <ui:MenuItem.ItemContainerStyle>
+                    <Style TargetType="ui:MenuItem">
+                        <Setter Property="Header" Value="{Binding Path}"/>
+                        <Setter Property="Command" Value="{Binding DataContext.OpenRecentProjectCommand, RelativeSource={RelativeSource AncestorType=Menu}}"/>
+                        <Setter Property="CommandParameter" Value="{Binding Path}"/>
+                    </Style>
+                </ui:MenuItem.ItemContainerStyle>
+            </ui:MenuItem>
             <Separator />
             <ui:MenuItem
                 Command="{Binding SaveCommand}"
@@ -49,14 +56,18 @@
                 InputGestureText="Ctrl+F4" />
             <Separator />
             <ui:MenuItem
+                Command="{Binding ImportCommand}"
                 Header="Import..."
-                Icon="{ui:SymbolIcon ArrowExportLtr20}"
-                IsEnabled="False" />
+                Icon="{ui:SymbolIcon ArrowImport20}" />
             <ui:MenuItem
+                Command="{Binding ExportCommand}"
                 Header="Export..."
-                Icon="{ui:SymbolIcon ArrowImport20}"
-                IsEnabled="False" />
+                Icon="{ui:SymbolIcon ArrowExportLtr20}" />
             <Separator />
+            <ui:MenuItem
+                Command="{Binding RevealInExplorerCommand}"
+                Header="Reveal in Explorer"
+                Icon="{ui:SymbolIcon FolderOpen20}" />
             <ui:MenuItem
                 Command="{Binding ShowPreferencesCommand}"
                 Header="Preferences"
@@ -87,6 +98,15 @@
                 Header="_Remove IDs"
                 InputGestureText="Del"
                  />
+            <ui:MenuItem
+                Command="{Binding DuplicateItemCommand}"
+                Header="D_uplicate ID" />
+            <Separator />
+            <ui:MenuItem Header="Copy as template">
+                <ui:MenuItem Header="Template 1" Command="{Binding CopyAsTemplate1Command}" InputGestureText="Ctrl+1"/>
+                <ui:MenuItem Header="Template 2" Command="{Binding CopyAsTemplate2Command}" InputGestureText="Ctrl+2"/>
+                <ui:MenuItem Header="Template 3" Command="{Binding CopyAsTemplate3Command}" InputGestureText="Ctrl+3"/>
+            </ui:MenuItem>
             <Separator />
                 <ui:MenuItem Header="_Pre-Translate..." Command="{Binding PreTranslateBulkCommand}" />
                 <ui:MenuItem Header="_Fill empty translations..." Command="{Binding FillEmptyTranslationsCommand}" />
@@ -94,31 +114,30 @@
 
             <Separator />
             <ui:MenuItem Header="Convert case">
-                <ui:MenuItem Header="_lowercase" IsEnabled="False" />
-                <ui:MenuItem Header="_UPPERCASE" IsEnabled="False" />
-                <ui:MenuItem Header="_Sentence case" IsEnabled="False" />
-                <ui:MenuItem Header="_Title Case" IsEnabled="False" />
+                <ui:MenuItem Header="_lowercase" Command="{Binding ConvertLowercaseCommand}" />
+                <ui:MenuItem Header="_UPPERCASE" Command="{Binding ConvertUppercaseCommand}" />
+                <ui:MenuItem Header="_Sentence case" Command="{Binding ConvertSentenceCaseCommand}" />
+                <ui:MenuItem Header="_Title Case" Command="{Binding ConvertTitleCaseCommand}" />
             </ui:MenuItem>
             <ui:MenuItem Header="Remove whitespaces">
-                <ui:MenuItem Header="_Trim" IsEnabled="False" />
-                <ui:MenuItem Header="Trim _line by line" IsEnabled="False" />
+                <ui:MenuItem Header="_Trim" Command="{Binding TrimWhitespaceCommand}" />
+                <ui:MenuItem Header="Trim _line by line" Command="{Binding TrimLineByLineCommand}" />
                 <Separator />
-                <ui:MenuItem Header="_Simplify" IsEnabled="False" />
-
+                <ui:MenuItem Header="_Simplify" Command="{Binding SimplifyWhitespaceCommand}" />
             </ui:MenuItem>
             <Separator />
             <ui:MenuItem
                 Header="Cut"
                 Icon="{ui:SymbolIcon Cut20}"
-                IsEnabled="False" />
+                Command="{Binding EditCutCommand}" />
             <ui:MenuItem
                 Header="Copy"
                 Icon="{ui:SymbolIcon Copy20}"
-                IsEnabled="False" />
+                Command="{Binding EditCopyCommand}" />
             <ui:MenuItem
                 Header="Paste"
                 Icon="{ui:SymbolIcon ClipboardPaste20}"
-                IsEnabled="False" />
+                Command="{Binding EditPasteCommand}" />
         </ui:MenuItem>
         <ui:MenuItem Header="Find">
             <ui:MenuItem
@@ -142,16 +161,24 @@
                 Icon="{ui:SymbolIcon PhotoFilter20}"
                 Command="{Binding ShowUntranslatedCommand}" />
             <ui:MenuItem
+                Header="Show translated"
+                Icon="{ui:SymbolIcon Checkmark20}"
+                Command="{Binding ShowTranslatedCommand}" />
+            <ui:MenuItem
+                Header="Show approved"
+                Icon="{ui:SymbolIcon CheckmarkCircle20}"
+                Command="{Binding ShowApprovedCommand}" />
+            <ui:MenuItem
                 Header="Clear"
                 Icon="{ui:SymbolIcon FilterDismiss20}"
                 Command="{Binding ClearFilterCommand}" />
         </ui:MenuItem>
         <ui:MenuItem Header="Views">
-            <ui:MenuItem Header="Tree View" Icon="{ui:SymbolIcon TextBulletListTree20}" />
-            <ui:MenuItem Header="List View" Icon="{ui:SymbolIcon List20}" />
+            <ui:MenuItem Header="Tree View" Icon="{ui:SymbolIcon TextBulletListTree20}" Command="{Binding SwitchToTreeViewCommand}" />
+            <ui:MenuItem Header="List View" Icon="{ui:SymbolIcon List20}" Command="{Binding SwitchToListViewCommand}" />
             <Separator />
-            <ui:MenuItem Header="Show machine translations" />
-            <ui:MenuItem Header="Show thesaurus" />
+            <ui:MenuItem Header="Show machine translations" Command="{Binding ToggleShowMachineTranslationsCommand}" />
+            <ui:MenuItem Header="Show thesaurus" IsEnabled="False" />
             <Separator />
             <ui:MenuItem Header="Statistics" Command="{Binding GenerateStatisticsBulkCommand}" />
         </ui:MenuItem>

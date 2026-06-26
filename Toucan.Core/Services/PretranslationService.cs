@@ -4,98 +4,52 @@ using Toucan.Core.Models;
 
 namespace Toucan.Core.Services;
 
-public class PretranslationService : IPretranslationService
+public class PretranslationService(IEnumerable<ITranslationProvider> providers) : IPretranslationService
 {
-    private readonly IEnumerable<ITranslationProvider> _providers;
-
-    public PretranslationService(IEnumerable<ITranslationProvider> providers)
-    {
-        _providers = providers;
-    }
-
-    public async Task<PretranslationResult> PreTranslateAsync(PretranslationRequest request, IProgress<PretranslationProgress>? progress = null, System.Threading.CancellationToken cancellationToken = default)
+    public async Task<PretranslationResult> PreTranslateAsync(PretranslationRequest request, IProgress<PretranslationProgress>? progress = null, CancellationToken cancellationToken = default)
     {
         var result = new PretranslationResult();
-
         if (request == null) return result;
 
-        // Determine provider
-        ITranslationProvider? provider = null;
-        if (!string.IsNullOrWhiteSpace(request.Provider))
-            provider = _providers.FirstOrDefault(p => string.Equals(p.Name, request.Provider, StringComparison.InvariantCultureIgnoreCase));
+        var provider = (!string.IsNullOrWhiteSpace(request.Provider)
+            ? providers.FirstOrDefault(p => string.Equals(p.Name, request.Provider, StringComparison.OrdinalIgnoreCase))
+            : null) ?? providers.FirstOrDefault();
 
-        provider ??= _providers.FirstOrDefault();
+        if (provider == null) return result;
 
-        if (provider == null)
-        {
-            // No provider available, return empty result
-            return result;
-        }
+        var itemsToTranslate = (request.Items ?? []).ToList();
 
-        IEnumerable<TranslationItem> toProcess = request.Items ?? Enumerable.Empty<TranslationItem>();
-
-        // If items are not supplied, the caller may expect the service to filter by key/namespace + language.
-        // The service itself is not given access to a store here, so caller should populate items when possible.
-
-        var itemsToTranslate = toProcess.ToList();
-
-        // Build jobs: for each target item, find a source text from ContextItems or from items list if available
-        var jobs = new List<PretranslationJob>();
-        foreach (var target in itemsToTranslate)
-        {
-            // optionally skip if target already has value and no overwrite requested
-            if (!string.IsNullOrEmpty(target.Value) && !(request.Options?.Overwrite == true))
-                continue;
-
-            // find source: check ContextItems (full project) first, then the supplied Items collection
-            var source = request.ContextItems?.FirstOrDefault(i => i.Namespace == target.Namespace && !string.IsNullOrEmpty(i.Value) && i.Language != target.Language);
-            if (source == null)
+        var jobs = itemsToTranslate
+            .Where(target => string.IsNullOrEmpty(target.Value) || request.Options?.Overwrite == true)
+            .Select(target =>
             {
-                source = itemsToTranslate.FirstOrDefault(i => i.Namespace == target.Namespace && !string.IsNullOrEmpty(i.Value) && i.Language != target.Language);
-            }
+                var source = request.ContextItems?.FirstOrDefault(i => i.Namespace == target.Namespace && !string.IsNullOrEmpty(i.Value) && i.Language != target.Language)
+                    ?? itemsToTranslate.FirstOrDefault(i => i.Namespace == target.Namespace && !string.IsNullOrEmpty(i.Value) && i.Language != target.Language);
+                return source == null ? null : new PretranslationJob(target.Namespace, source.Value, source.Language, target.Language);
+            })
+            .Where(j => j != null)
+            .Cast<PretranslationJob>()
+            .ToList();
 
-            if (source == null)
-                continue; // no source text found for this target
+        if (jobs.Count == 0) return result;
 
-            jobs.Add(new PretranslationJob
-            {
-                Namespace = target.Namespace ?? string.Empty,
-                SourceText = source.Value,
-                SourceLanguage = source.Language,
-                TargetLanguage = target.Language
-            });
-        }
+        var providerResults = await provider.PretranslateAsync(jobs, request.Options, progress, cancellationToken).ConfigureAwait(false);
 
-        if (!jobs.Any())
-            return result;
-
-        var providerResults = (await provider.PretranslateAsync(jobs, request.Options, progress, cancellationToken).ConfigureAwait(false)).ToList();
-
-        // Apply results back to source items when the provider returned a translated value
         foreach (var r in providerResults)
         {
             result.Items.Add(r);
 
-            if (!string.IsNullOrEmpty(r.TranslatedValue))
+            if (!string.IsNullOrEmpty(r.TranslatedValue) && request.Options?.PreviewOnly != true)
             {
-                var target = itemsToTranslate.FirstOrDefault(i => (i.Namespace ?? string.Empty) == r.Namespace && i.Language == r.Language);
-                if (target != null)
-                {
-                    // honor overwrite option -- but in preview-only mode do not modify target items
-                    if (!(request.Options?.PreviewOnly == true) && (request.Options?.Overwrite == true || string.IsNullOrEmpty(target.Value)))
-                    {
-                        target.Value = r.TranslatedValue;
-                    }
-                }
+                var target = itemsToTranslate.FirstOrDefault(i => i.Namespace == r.Namespace && i.Language == r.Language);
+                if (target != null && (request.Options?.Overwrite == true || string.IsNullOrEmpty(target.Value)))
+                    target.Value = r.TranslatedValue;
             }
         }
 
         return result;
     }
 
-    public Task<PretranslationResult> PreTranslateAsync(IEnumerable<TranslationItem> items, PretranslationOptions? options = null, IProgress<PretranslationProgress>? progress = null, System.Threading.CancellationToken cancellationToken = default)
-    {
-        var req = new PretranslationRequest { Items = items, Options = options };
-        return PreTranslateAsync(req, progress, cancellationToken);
-    }
+    public Task<PretranslationResult> PreTranslateAsync(IEnumerable<TranslationItem> items, PretranslationOptions? options = null, IProgress<PretranslationProgress>? progress = null, CancellationToken cancellationToken = default)
+        => PreTranslateAsync(new PretranslationRequest { Items = items, Options = options }, progress, cancellationToken);
 }

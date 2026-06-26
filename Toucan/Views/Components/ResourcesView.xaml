@@ -59,8 +59,8 @@
                 Text="Translation IDs" />
             <StackPanel Grid.Column="1" Orientation="Horizontal">
                 <ui:Button
-                    Margin="4,0"
-                    Padding="4"
+                    Margin="{StaticResource ToolbarButtonMargin}"
+                    Padding="{StaticResource ToolbarButtonPadding}"
                     Appearance="Transparent"
                     Command="{Binding ToggleViewModeCommand}"
                     ToolTip="Toggle view mode">
@@ -70,8 +70,8 @@
                 </ui:Button>
                 <ui:Button
                     x:Name="bNewItem"
-                    Margin="4,0"
-                    Padding="4"
+                    Margin="{StaticResource ToolbarButtonMargin}"
+                    Padding="{StaticResource ToolbarButtonPadding}"
                     Appearance="Transparent"
                     Command="{Binding NewItemCommand}"
                     IsDefault="True"

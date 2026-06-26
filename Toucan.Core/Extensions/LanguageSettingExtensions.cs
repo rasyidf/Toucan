@@ -1,100 +1,70 @@
-﻿using Toucan.Core.Models;
+using Toucan.Core.Models;
 
 namespace Toucan.Extensions;
 
 public static class TranslationItemExtensions
 {
+    public static IEnumerable<TranslationItem> ForParse(this IEnumerable<TranslationItem> settings) =>
+        settings.Where(o => !string.IsNullOrWhiteSpace(o.Namespace));
 
-    public static IEnumerable<TranslationItem> ForParse(this IEnumerable<TranslationItem> settings)
-    {
-        return settings.Where(o => !string.IsNullOrWhiteSpace(o.Namespace));
-    }
-    public static IEnumerable<TranslationItem> NoEmpty(this IEnumerable<TranslationItem> settings)
-    {
-        return settings.ForParse().Where(o => !string.IsNullOrWhiteSpace(o.Value));
-    }
-    public static IEnumerable<TranslationItem> ExcludeLanguage(this IEnumerable<TranslationItem> settings, string language)
-    {
-        return settings.Where(o => o.Language != language);
-    }
-    public static IEnumerable<TranslationItem> OnlyLanguage(this IEnumerable<TranslationItem> settings, string language)
-    {
-        return settings.Where(o => o.Language == language);
-    }
+    public static IEnumerable<TranslationItem> NoEmpty(this IEnumerable<TranslationItem> settings) =>
+        settings.ForParse().Where(o => !string.IsNullOrWhiteSpace(o.Value));
 
-    public static IEnumerable<string> ToNamespaces(this IEnumerable<TranslationItem> settings)
-    {
-        return settings.ForParse().Select(o => o.Namespace).Distinct();
-    }
-    public static IEnumerable<string> ToNamespaces(this IEnumerable<TranslationItem> settings, string language)
-    {
-        return settings.NoEmpty().Where(o => o.Language == language).Select(o => o.Namespace).Distinct();
-    }
+    public static IEnumerable<TranslationItem> ExcludeLanguage(this IEnumerable<TranslationItem> settings, string language) =>
+        settings.Where(o => o.Language != language);
 
-    public static IEnumerable<string> ToLanguages(this IEnumerable<TranslationItem> settings)
-    {
-        return settings.Select(o => o.Language).Distinct();
-    }
+    public static IEnumerable<TranslationItem> OnlyLanguage(this IEnumerable<TranslationItem> settings, string language) =>
+        settings.Where(o => o.Language == language);
 
-    public static Dictionary<string, IEnumerable<TranslationItem>> ToLanguageDictionary(this IEnumerable<TranslationItem> settings)
-    {
-        var seperatedByLanguage = settings.GroupBy(o => o.Language).Select(o => new { Language = o.Key, Settings = o.Select(p => p) });
-        var dictionary = new Dictionary<string, IEnumerable<TranslationItem>>();
+    public static IEnumerable<string> ToNamespaces(this IEnumerable<TranslationItem> settings) =>
+        settings.ForParse().Select(o => o.Namespace).Distinct();
 
-        foreach (var matches in seperatedByLanguage)
-        {
-            dictionary.Add(matches.Language, matches.Settings.ForParse());
-        }
-        return dictionary;
-    }
+    public static IEnumerable<string> ToNamespaces(this IEnumerable<TranslationItem> settings, string language) =>
+        settings.NoEmpty().Where(o => o.Language == language).Select(o => o.Namespace).Distinct();
+
+    public static IEnumerable<string> ToLanguages(this IEnumerable<TranslationItem> settings) =>
+        settings.Select(o => o.Language).Distinct();
+
+    public static Dictionary<string, IEnumerable<TranslationItem>> ToLanguageDictionary(this IEnumerable<TranslationItem> settings) =>
+        settings.GroupBy(o => o.Language).ToDictionary(g => g.Key, g => g.ForParse());
 
     public static IEnumerable<NsTreeItem> ToNsTree(this IEnumerable<TranslationItem> settings)
     {
         var namespaces = settings.Select(o => o.Namespace.Split('.')[0]).Distinct().OrderBy(o => o).ToList();
-        var root = new NsTreeItem() { Name = "root" };
+        var root = new NsTreeItem { Name = "root", Namespace = "" };
 
         foreach (var ns in namespaces)
-        {
             settings.ProcessNs(root, ns);
-        }
 
-        var nodes = new List<NsTreeItem>();
-        foreach (NsTreeItem node in root.Items)
-        {
-            nodes.Add(node);
+        var nodes = root.Items.ToList();
+        foreach (var node in nodes)
             node.Parent = null;
-        }
         root.Clear();
-
 
         return nodes;
     }
 
-    public static void ProcessNs(this IEnumerable<TranslationItem> AllTranslation,  NsTreeItem node, string ns, int depth = 1, int customDepth = 0)
+    public static void ProcessNs(this IEnumerable<TranslationItem> allTranslation, NsTreeItem node, string ns, int depth = 1, int customDepth = 0)
     {
-        if (customDepth == 0)
-            customDepth = 1;
+        if (customDepth == 0) customDepth = 1;
 
-        var thisNode = new NsTreeItem() { Parent = node, Name = (ns.Split('.').Last()), Namespace = ns, ImagePath = "Assets/Images/ns.png" };
+        var thisNode = new NsTreeItem { Parent = node, Name = ns.Split('.').Last(), Namespace = ns, ImagePath = "Assets/Images/ns.png" };
+        node.AddChild(thisNode);
 
-        if (node == null)
-            node = thisNode;
-        else
-        {
-            node.AddChild(thisNode);
-        }
+        var namespaces = allTranslation
+            .Where(o => o.Namespace.StartsWith(ns + "."))
+            .Select(o => o.Namespace[(ns.Length + 1)..].Split('.')[0])
+            .Distinct().OrderBy(o => o).ToList();
 
-        var namespaces = AllTranslation.Where(o => o.Namespace.StartsWith(ns + ".")).Select(o => o.Namespace.Substring(ns.Length + 1).Split('.')[0]).Distinct().OrderBy(o => o).ToList();
-
-        if (!namespaces.Any())
+        if (namespaces.Count == 0)
         {
             thisNode.ImagePath = "Assets/Images/translation.png";
-            thisNode.Settings = AllTranslation.Where(o => o.Namespace == thisNode.Namespace);
+            thisNode.Settings = allTranslation.Where(o => o.Namespace == thisNode.Namespace);
             return;
         }
 
-        var applicableSettings = AllTranslation.Where(o => o.Namespace.StartsWith(ns + ".")).ToList();
-        
+        var applicableSettings = allTranslation.Where(o => o.Namespace.StartsWith(ns + ".")).ToList();
+
         if (depth > customDepth)
         {
             thisNode.HeldSetttings = applicableSettings;
@@ -103,11 +73,8 @@ public static class TranslationItemExtensions
 
         depth++;
         foreach (var nextNs in namespaces)
-        {
             applicableSettings.ProcessNs(thisNode, $"{ns}.{nextNs}", depth);
-        }
 
         thisNode.IsLoaded = true;
     }
-
 }

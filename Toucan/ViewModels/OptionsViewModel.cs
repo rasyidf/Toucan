@@ -17,7 +17,7 @@ internal partial class OptionsViewModel : ObservableObject
 
         // initialize vm fields
         Indent = "tab";
-        Format = AppOptions.SaveStyle.ToString();
+        Format = "Json"; // ponytail: SaveStyle now per-project, not app-level
         PageSizeText = AppOptions.PageSize.ToString();
         TruncateSizeText = AppOptions.TruncateResultsOver.ToString();
         MaxItemsText = AppOptions.MaxItems.ToString();
@@ -114,7 +114,7 @@ internal partial class OptionsViewModel : ObservableObject
         if (!int.TryParse(MaxItemsText, out int maxItems)) maxItems = AppOptions.MaxItems;
 
         if (Enum.TryParse<Core.Models.SaveStyles>(Format, out var ss))
-            AppOptions.SaveStyle = ss;
+        { } // ponytail: SaveStyle is now per-project setting
 
         AppOptions.PageSize = page;
         AppOptions.TruncateResultsOver = trunc;
@@ -173,15 +173,8 @@ internal partial class OptionsViewModel : ObservableObject
     [RelayCommand]
     private void OpenProviderSettings()
     {
-        var window = new Views.Dialogs.ProviderSettingsWindow();
-        var ds = App.Services.GetService(typeof(IDialogService)) as IDialogService;
-        if (ds != null)
-            ds.ShowDialog(window);
-        else
-        {
-            window.Owner = System.Windows.Application.Current.MainWindow;
-            window.ShowDialog();
-        }
+        var ds = App.Services?.GetService(typeof(IDialogService)) as IDialogService;
+        ds?.ShowProviderSettings();
     }
 
     [RelayCommand]

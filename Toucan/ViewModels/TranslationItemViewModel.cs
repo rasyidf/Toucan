@@ -1,6 +1,8 @@
 using System;
 using System.Timers;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Toucan.Core.Models;
 
 namespace Toucan.ViewModels;
@@ -13,10 +15,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
 
     public TranslationItemViewModel()
     {
-        // leave empty for design-time or simple instantiation
         _model = null;
-
-        // Set up a timer for 500ms (half a second)
         _debounceTimer = new Timer(500);
         _debounceTimer.AutoReset = false;
         _debounceTimer.Elapsed += (s, e) => SaveTranslation();
@@ -38,11 +37,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
             {
                 _value = value;
                 OnPropertyChanged(nameof(Value));
-
-                // 1. Stop the timer if it was already running (user kept typing)
                 _debounceTimer.Stop();
-
-                // 2. Start the timer again
                 _debounceTimer.Start();
             }
         }
@@ -50,12 +45,31 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
 
     public string Language { get; set; } = string.Empty;
 
+    public string Comment
+    {
+        get => _model?.Comment ?? string.Empty;
+        set { if (_model != null) { _model.Comment = value; OnPropertyChanged(nameof(Comment)); } }
+    }
+
+    public bool IsApproved
+    {
+        get => _model?.IsApproved ?? false;
+        set { if (_model != null) { _model.IsApproved = value; OnPropertyChanged(nameof(IsApproved)); } }
+    }
+
+    [RelayCommand]
+    private void ToggleApproved() => IsApproved = !IsApproved;
+
+    [RelayCommand]
+    private void CopyTranslation()
+    {
+        if (!string.IsNullOrEmpty(Value))
+            Clipboard.SetText(Value);
+    }
+
     private void SaveTranslation()
     {
-        // This only runs 500ms AFTER the user STOPS typing.
         System.Diagnostics.Debug.WriteLine($"Saving to DB: {_value}");
-
-        // If this VM wraps a model, write the value back to the model
         _model?.Value = _value;
     }
 

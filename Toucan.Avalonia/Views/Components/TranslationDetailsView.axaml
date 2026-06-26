@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:components="using:Toucan.Avalonia.Views.Components"
+             x:Class="Toucan.Avalonia.Views.Components.TranslationDetailsView">
+  <Border CornerRadius="4" Margin="0,0,0,2">
+    <Grid RowDefinitions="*,Auto">
+      <ScrollViewer Padding="4">
+        <ItemsControl ItemsSource="{Binding PagingController.PageData}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <components:TranslationItemView DataContext="{Binding}"/>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+      <components:PaginationControl Grid.Row="1" DataContext="{Binding}"/>
+    </Grid>
+  </Border>
+</UserControl>

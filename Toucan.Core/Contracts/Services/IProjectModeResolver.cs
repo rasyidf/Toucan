@@ -1,9 +1,8 @@
 using Toucan.Core.Models;
 
-namespace Toucan.Core.Contracts.Services
+namespace Toucan.Core.Contracts.Services;
+
+public interface IProjectModeResolver
 {
-    public interface IProjectModeResolver
-    {
-        ProjectTypeVariant Resolve(string path);
-    }
+    ProjectTypeVariant Resolve(string path);
 }

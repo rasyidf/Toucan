@@ -77,6 +77,15 @@ public class DeepLTranslationProvider : ITranslationProvider
                 if (!string.IsNullOrEmpty(src))
                     values.Add(new KeyValuePair<string, string>("source_lang", src));
 
+                // Wire formality if provided
+                if (options?.ProviderOptions != null)
+                {
+                    if (options.ProviderOptions.TryGetValue("formality", out var formality) && !string.IsNullOrWhiteSpace(formality))
+                        values.Add(new KeyValuePair<string, string>("formality", formality == "formal" ? "more" : formality == "informal" ? "less" : "default"));
+                    if (options.ProviderOptions.TryGetValue("context", out var context) && !string.IsNullOrWhiteSpace(context))
+                        values.Add(new KeyValuePair<string, string>("context", context));
+                }
+
                 var content = new FormUrlEncodedContent(values);
                 var resp = await client.PostAsync(endpoint, content).ConfigureAwait(false);
                 if (!resp.IsSuccessStatusCode)

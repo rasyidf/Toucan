@@ -1,0 +1,53 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Toucan.Avalonia.Views.Dialogs.OptionsDialog"
+        Title="Preferences" Width="420" Height="380"
+        WindowStartupLocation="CenterOwner" CanResize="False"
+        TransparencyLevelHint="Mica,AcrylicBlur,None" Background="Transparent"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaTitleBarHeightHint="32">
+  <Grid RowDefinitions="32,*" Margin="0">
+    <TextBlock Text="Preferences" Grid.Row="0" Margin="16,8,0,0"
+               FontWeight="SemiBold" FontSize="12" Opacity="0.7" IsHitTestVisible="False"/>
+
+    <Border Grid.Row="1" Padding="24,8,24,24">
+      <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Header -->
+        <StackPanel Spacing="2" Margin="0,0,0,14">
+          <TextBlock Text="Application Settings" FontSize="18" FontWeight="Bold"/>
+          <TextBlock Text="These apply globally across all projects." FontSize="12" Opacity="0.6"/>
+        </StackPanel>
+
+        <!-- Settings -->
+        <StackPanel Grid.Row="1" Spacing="14">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Default Language" FontSize="12" FontWeight="Medium"/>
+            <TextBox Text="{Binding DefaultLanguage, Mode=TwoWay}" Watermark="en-US"/>
+          </StackPanel>
+
+          <Grid ColumnDefinitions="*,12,*">
+            <StackPanel Spacing="4">
+              <TextBlock Text="Page Size" FontSize="12" FontWeight="Medium"/>
+              <TextBox Text="{Binding PageSizeText, Mode=TwoWay}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Spacing="4">
+              <TextBlock Text="Max Items" FontSize="12" FontWeight="Medium"/>
+              <TextBox Text="{Binding MaxItemsText, Mode=TwoWay}"/>
+            </StackPanel>
+          </Grid>
+
+          <StackPanel Spacing="4">
+            <TextBlock Text="Truncate Results Over" FontSize="12" FontWeight="Medium"/>
+            <TextBox Text="{Binding TruncateSizeText, Mode=TwoWay}"/>
+            <TextBlock Text="Large result sets will be paginated beyond this limit." FontSize="11" Opacity="0.5"/>
+          </StackPanel>
+        </StackPanel>
+
+        <!-- Footer -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,16,0,0">
+          <Button Content="Cancel" Width="80" Command="{Binding CancelCommand}"/>
+          <Button Content="Save" Width="80" Command="{Binding SaveCommand}" Classes="accent"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

@@ -1,42 +1,131 @@
-<Window
-    x:Class="OPEdit.Avalonia.Views.MainWindow"
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:rxui="using:Avalonia.ReactiveUI"
-    Title="OPEdit.Avalonia"
-    HorizontalContentAlignment="Stretch"
-    VerticalContentAlignment="Stretch"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
-    Icon="/Assets/avalonia-logo.ico"
-    mc:Ignorable="d">
+<Window x:Class="Toucan.Avalonia.Views.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:components="using:Toucan.Avalonia.Views.Components"
+        xmlns:ui="using:FluentAvalonia.UI.Windowing"
+        Title="Toucan" Width="960" Height="680" MinWidth="800" MinHeight="600"
+        Icon="/Assets/WindowIcon.ico"
+        WindowStartupLocation="CenterScreen"
+        TransparencyLevelHint="Mica,AcrylicBlur,None"
+        Background="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="36">
 
-    <Grid
-        ColumnDefinitions="120,*"
-        DataContext="{Binding RoutedViewHost}"
-        RowDefinitions="24,*">
-        <Menu Grid.ColumnSpan="2" Height="32">
-            <MenuItem Header="_File">
-                <MenuItem Command="{Binding ShowStart}" Header="_New" />
-                <MenuItem Command="{Binding ShowEditor}" Header="_Open" />
-                <MenuItem Header="_Save" />
-                <MenuItem Header="_Save To" />
-                <Separator />
-                <MenuItem Header="_Exit" />
-            </MenuItem>
-            <MenuItem Name="itemMenu" Header="_Language">
-                <MenuItem Header="_New" />
-                <MenuItem Header="_Rename" />
-                <Separator />
-                <MenuItem Header="_Delete" />
-            </MenuItem>
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Ctrl+Shift+N" Command="{Binding NewFolderCommand}"/>
+    <KeyBinding Gesture="Ctrl+O" Command="{Binding OpenFolderCommand}"/>
+    <KeyBinding Gesture="Ctrl+R" Command="{Binding OpenRecentCommand}"/>
+    <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}"/>
+    <KeyBinding Gesture="F12" Command="{Binding SaveToCommand}"/>
+    <KeyBinding Gesture="Ctrl+F4" Command="{Binding CloseProjectCommand}"/>
+    <KeyBinding Gesture="Ctrl+F" Command="{Binding ClearFilterCommand}"/>
+  </Window.KeyBindings>
 
-            <MenuItem Header="Preferences" />
-        </Menu>
-        <rxui:RoutedViewHost Grid.Row="1" Router="{Binding Router}" />
+  <Panel>
+    <!-- Mica fallback: semi-transparent background for non-Mica platforms -->
+    <Panel IsHitTestVisible="False" Opacity="0.85">
+      <Panel.Background>
+        <SolidColorBrush Color="{DynamicResource SystemAltHighColor}"/>
+      </Panel.Background>
+    </Panel>
 
+    <Grid RowDefinitions="36,Auto,Auto,*,Auto">
+      <!-- Row 0: Title bar drag area -->
+      <Grid ColumnDefinitions="Auto,*,Auto" IsHitTestVisible="False" Margin="12,0">
+        <TextBlock Text="Toucan" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12" Opacity="0.8"/>
+      </Grid>
+
+      <!-- Row 1: Menu -->
+      <Menu Grid.Row="1" Margin="4,0">
+        <MenuItem Header="_File">
+          <MenuItem Header="_New Project" Command="{Binding NewFolderCommand}" InputGesture="Ctrl+Shift+N"/>
+          <MenuItem Header="_Open Folder" Command="{Binding OpenFolderCommand}" InputGesture="Ctrl+O"/>
+          <MenuItem Header="Open _Project File" Command="{Binding OpenProjectFileCommand}"/>
+          <MenuItem Header="Open _Recent" Command="{Binding OpenRecentCommand}" InputGesture="Ctrl+R"/>
+          <Separator/>
+          <MenuItem Header="_Save" Command="{Binding SaveCommand}" InputGesture="Ctrl+S"/>
+          <MenuItem Header="Save _To..." Command="{Binding SaveToCommand}" InputGesture="F12"/>
+          <Separator/>
+          <MenuItem Header="_Close Project" Command="{Binding CloseProjectCommand}"/>
+          <MenuItem Header="Refresh" Command="{Binding RefreshCommand}"/>
+          <Separator/>
+          <MenuItem Header="E_xit" Command="{Binding ExitCommand}"/>
+        </MenuItem>
+        <MenuItem Header="_Edit">
+          <MenuItem Header="New _Language" Command="{Binding NewLanguageCommand}"/>
+          <MenuItem Header="New _Item" Command="{Binding NewItemCommand}"/>
+          <MenuItem Header="_Rename" Command="{Binding RenameItemCommand}"/>
+          <MenuItem Header="_Delete" Command="{Binding DeleteItemCommand}"/>
+          <Separator/>
+          <MenuItem Header="_Pre-translate" Command="{Binding PreTranslateBulkCommand}"/>
+          <MenuItem Header="Delete _Unused" Command="{Binding DeleteUnusedTranslationsCommand}"/>
+          <MenuItem Header="Add _Missing" Command="{Binding AddMissingTranslationsCommand}"/>
+        </MenuItem>
+        <MenuItem Header="_Find">
+          <MenuItem Header="Show _Untranslated" Command="{Binding ShowUntranslatedCommand}"/>
+          <MenuItem Header="_Clear Filter" Command="{Binding ClearFilterCommand}" InputGesture="Ctrl+F"/>
+          <MenuItem Header="Show _All" Command="{Binding ShowAllCommand}"/>
+        </MenuItem>
+        <MenuItem Header="_View">
+          <MenuItem Header="Toggle _Tree/List" Command="{Binding ToggleViewModeCommand}"/>
+          <MenuItem Header="Toggle _Languages" Command="{Binding ToggleLanguagesVisibilityCommand}"/>
+        </MenuItem>
+        <MenuItem Header="_Settings">
+          <MenuItem Header="_Preferences..." Command="{Binding ShowPreferencesCommand}"/>
+          <MenuItem Header="Pro_ject Settings..." Command="{Binding ShowProjectSettingsCommand}"/>
+          <MenuItem Header="_Language Manager..." Command="{Binding ShowLanguageManagerCommand}"/>
+        </MenuItem>
+        <MenuItem Header="_Help">
+          <MenuItem Header="_Homepage" Command="{Binding HelpHomepageCommand}"/>
+          <MenuItem Header="_About" Command="{Binding HelpAboutCommand}"/>
+        </MenuItem>
+      </Menu>
+
+      <!-- Row 2: Toolbar -->
+      <Border Grid.Row="2" Padding="8,6" Margin="4,0">
+        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,8,*,8,Auto">
+          <Button Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open" Padding="6" Margin="0,0,2,0" Classes="Flat">
+            <TextBlock Text="📂" FontSize="14"/>
+          </Button>
+          <Button Grid.Column="1" Command="{Binding SaveCommand}" ToolTip.Tip="Save" Padding="6" Margin="0,0,2,0">
+            <TextBlock Text="💾" FontSize="14"/>
+          </Button>
+          <Button Grid.Column="2" Command="{Binding NewItemCommand}" ToolTip.Tip="New ID" Padding="6" Margin="0,0,2,0">
+            <TextBlock Text="➕" FontSize="14"/>
+          </Button>
+          <Button Grid.Column="3" Command="{Binding PreTranslateBulkCommand}" ToolTip.Tip="Pre-translate" Padding="6" Margin="0,0,2,0">
+            <TextBlock Text="🌐" FontSize="14"/>
+          </Button>
+          <Button Grid.Column="4" Command="{Binding ShowProjectSettingsCommand}" ToolTip.Tip="Project Settings" Padding="6">
+            <TextBlock Text="⚙" FontSize="14"/>
+          </Button>
+
+          <!-- Search -->
+          <TextBox Grid.Column="6" Watermark="  Search translations..."
+                   Text="{Binding SearchText, Mode=TwoWay}"
+                   VerticalContentAlignment="Center"/>
+
+          <!-- Project badge -->
+          <Border Grid.Column="8" CornerRadius="4" Padding="8,4"
+                  IsVisible="{Binding ProjectSettings, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock Text="{Binding ProjectSettings.Name}" FontSize="11" Opacity="0.7"/>
+          </Border>
+        </Grid>
+      </Border>
+
+      <!-- Row 3: Main content -->
+      <Grid Grid.Row="3" ColumnDefinitions="260,4,*" Margin="4,4,4,0">
+        <Grid RowDefinitions="*,4,200">
+          <components:ResourcesView DataContext="{Binding}"/>
+          <GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
+          <components:LanguagesView Grid.Row="2" DataContext="{Binding}"/>
+        </Grid>
+        <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+        <components:TranslationDetailsView Grid.Column="2" DataContext="{Binding}"/>
+      </Grid>
+
+      <!-- Row 4: Status Bar -->
+      <components:StatusBarView Grid.Row="4" x:Name="RootStatusBar"/>
     </Grid>
-
+  </Panel>
 </Window>

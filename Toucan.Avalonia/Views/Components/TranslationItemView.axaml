@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Toucan.Avalonia.Views.Components.TranslationItemView"
+             Margin="0,2">
+  <Border CornerRadius="6" Padding="12,10" Margin="2"
+          BorderThickness="1" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+          Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+    <StackPanel Spacing="6">
+      <!-- Header: namespace + action buttons -->
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="{Binding Namespace}" FontSize="13" FontWeight="SemiBold" Opacity="0.85"
+                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2">
+          <Button Padding="5" ToolTip.Tip="Translate this key" Opacity="0.6">
+            <TextBlock Text="🔄" FontSize="12"/>
+          </Button>
+          <Button Padding="5" ToolTip.Tip="Edit" Opacity="0.6">
+            <TextBlock Text="✏️" FontSize="12"/>
+          </Button>
+        </StackPanel>
+      </Grid>
+
+      <Separator Height="1" Margin="0,2"/>
+
+      <!-- Translation rows -->
+      <ItemsControl ItemsSource="{Binding Translations}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Grid ColumnDefinitions="56,8,*,Auto" Margin="0,3">
+              <TextBlock Grid.Column="0" Text="{Binding Language}" VerticalAlignment="Center"
+                         FontSize="12" FontWeight="Medium" Opacity="0.55"/>
+              <TextBox Grid.Column="2" Text="{Binding Value, Mode=TwoWay}" AcceptsReturn="True"
+                       TextWrapping="Wrap" MinHeight="28" Padding="8,5"/>
+              <Button Grid.Column="3" Padding="5" Margin="4,0,0,0" VerticalAlignment="Top"
+                      ToolTip.Tip="Copy" Opacity="0.5">
+                <TextBlock Text="📋" FontSize="11"/>
+              </Button>
+            </Grid>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </Border>
+</UserControl>

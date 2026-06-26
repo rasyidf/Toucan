@@ -12,6 +12,7 @@ public partial class StartScreenViewModel : ObservableObject
 {
     private readonly IRecentProjectService _recentProjectService;
     private readonly IProjectService _projectService;
+    private readonly System.Func<Toucan.Core.Models.Project, System.Action<string>, RecentProjectViewModel> _recentProjectFactory;
 
     // Observable list of recent projects
     [ObservableProperty]
@@ -20,10 +21,11 @@ public partial class StartScreenViewModel : ObservableObject
     // Whether to show "No recent project" state
     public bool HasRecentProjects => RecentProjects?.Count > 0;
 
-    public StartScreenViewModel(IRecentProjectService recentProjectService, IProjectService projectService = null)
+    public StartScreenViewModel(IRecentProjectService recentProjectService, IProjectService projectService = null, System.Func<Toucan.Core.Models.Project, System.Action<string>, RecentProjectViewModel> recentProjectFactory = null)
     {
         _recentProjectService = recentProjectService;
         _projectService = projectService;
+        _recentProjectFactory = recentProjectFactory;
 
         LoadRecentProjects();
     }
@@ -32,7 +34,7 @@ public partial class StartScreenViewModel : ObservableObject
     {
         var recent = _recentProjectService.LoadRecent();
         RecentProjects = new ObservableCollection<RecentProjectViewModel>(
-            recent.Select(p => new RecentProjectViewModel(p, OpenRecentProject))
+            recent.Select(p => _recentProjectFactory != null ? _recentProjectFactory(p, OpenRecentProject) : new RecentProjectViewModel(p, OpenRecentProject))
         );
 
         OnPropertyChanged(nameof(HasRecentProjects));
@@ -42,22 +44,8 @@ public partial class StartScreenViewModel : ObservableObject
     [RelayCommand]
     private void NewProject()
     {
-        // Show the New Project dialog
-        NewProjectPrompt dialog;
-        if (App.Services != null)
-            dialog = App.Services.GetService(typeof(NewProjectPrompt)) as NewProjectPrompt ?? new NewProjectPrompt("New Project", "Create a new translation project", _projectService);
-        else
-            dialog = new NewProjectPrompt("New Project", "Create a new translation project", _projectService);
-        dialog.Owner = System.Windows.Application.Current.MainWindow;
-
-        if (dialog.ShowDialog() == true && dialog.DataContext is NewProjectViewModel vm)
-        {
-            // Add to recent projects if a folder is set
-            if (!string.IsNullOrWhiteSpace(vm.ProjectFolder))
-            {
-                _recentProjectService.Add(vm.ProjectFolder);
-            }
-        }
+        // Delegate to MainWindow's NewFolder command via service
+        // ponytail: StartScreen will be wired to trigger MainWindowViewModel.NewFolderCommand
     }
 
     [RelayCommand]

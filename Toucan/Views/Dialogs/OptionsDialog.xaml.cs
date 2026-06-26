@@ -20,9 +20,9 @@ public partial class OptionDialog : FluentWindow
     {
         InitializeComponent();
 
-        // prefer to use preference service when available, otherwise create one
-        IPreferenceService pref = new PreferenceService();
-        vm = new OptionsViewModel(pref);
+        // prefer to use preference service and DI-created OptionsViewModel when available
+        IPreferenceService pref = App.Services?.GetService(typeof(IPreferenceService)) as IPreferenceService ?? new PreferenceService();
+        vm = App.Services?.GetService(typeof(OptionsViewModel)) as OptionsViewModel ?? new OptionsViewModel(pref);
         // load project manifest editorConfiguration when available
         if (!string.IsNullOrWhiteSpace(projectPath))
         {
@@ -71,7 +71,7 @@ public partial class OptionDialog : FluentWindow
         // migrate values to VM if code previously relied on controls
         vm.PageSizeText = importOptions?.PageSize.ToString(CultureInfo.InvariantCulture);
         vm.TruncateSizeText = importOptions?.TruncateResultsOver.ToString(CultureInfo.InvariantCulture);
-        vm.Format = importOptions?.SaveStyle.ToString();
+        vm.Format = "Json"; // ponytail: SaveStyle now per-project
         vm.MaxItemsText = importOptions?.MaxItems.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
     }
 }

@@ -1,4 +1,4 @@
-﻿using Toucan.Extensions;
+using Toucan.Extensions;
 
 namespace Toucan.Core.Models;
 
@@ -6,87 +6,61 @@ public class NsTreeItem
 {
     public NsTreeItem? Parent { get; set; }
     public bool IsLoaded { get; set; }
-
     public bool IsExpanded { get; set; }
-    public string? Name { get; set; }
-
-    public string? Namespace { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Namespace { get; set; } = string.Empty;
     public string? ImagePath { get; set; }
-    private List<NsTreeItem> _storage { get; set; } = [];
+
+    private List<NsTreeItem> _storage = [];
 
     public IEnumerable<NsTreeItem> Items
     {
         get
         {
-            if (!IsLoaded)
-                if (HeldSetttings != null)
+            if (!IsLoaded && HeldSetttings != null)
+            {
+                HeldSetttings.ProcessNs(this, Namespace);
+                var copy = _storage.ToList();
+                _storage.Clear();
+                foreach (var child in copy)
                 {
-                    HeldSetttings.ProcessNs(this, Namespace);
-
-                    var copy = _storage.ToList();
-                    _storage.Clear();
-                    foreach (var child in copy)
-                    {
-                        child.Parent = this;
-                        _storage.AddRange(child.Items);
-                    }
-
-                    HeldSetttings = null;
+                    child.Parent = this;
+                    _storage.AddRange(child.Items);
                 }
-
+                HeldSetttings = null;
+            }
             return _storage;
         }
-        set { _storage = value.ToList(); }
+        set => _storage = value.ToList();
     }
 
-    public IEnumerable<TranslationItem> Settings { get; set; }
+    public IEnumerable<TranslationItem>? Settings { get; set; }
+    public List<TranslationItem>? HeldSetttings;
 
-    public bool HasItems => _storage == null ? false : _storage.Count > 0;
+    public bool HasItems => _storage.Count > 0;
     public bool HasParent => Parent != null;
 
-    public NsTreeItem() { }
-
-
-    public void ToJson(Dictionary<string, dynamic> parent, string language)
+    public void ToJson(Dictionary<string, object> parent, string language)
     {
-
         if (HasItems || Items.Any())
         {
-            var node = new Dictionary<string, dynamic>();
-            parent.Add(Name, node);
+            var node = new Dictionary<string, object>();
+            parent[Name] = node;
             foreach (var item in Items.ToList())
-            {
                 item.ToJson(node, language);
-            }
-            if (!node.Any())
+            if (node.Count == 0)
                 parent.Remove(Name);
         }
-        else
+        else if (Settings != null)
         {
-            if (Settings != null && Settings.Any())
-            {
-                var setting = Settings.FirstOrDefault(o => o.Language == language);
-                if (setting != null && !string.IsNullOrWhiteSpace(setting.Value))
-                    parent.Add(Name, setting.Value);
-            }
+            var setting = Settings.FirstOrDefault(o => o.Language == language);
+            if (setting != null && !string.IsNullOrWhiteSpace(setting.Value))
+                parent[Name] = setting.Value;
         }
     }
 
+    public override string ToString() => $"{Name} | {Namespace} | Items: {_storage.Count}";
 
-    public override string ToString()
-    {
-        return $"{Name} | {Namespace} | Items: {(_storage == null ? 0 : _storage.Count)}";
-    }
-
-    public List<TranslationItem> HeldSetttings;
-
-    public void AddChild(NsTreeItem child)
-    {
-        _storage.Add(child);
-    }
-    public void Clear()
-    {
-        _storage.Clear();
-    }
-
+    public void AddChild(NsTreeItem child) => _storage.Add(child);
+    public void Clear() => _storage.Clear();
 }

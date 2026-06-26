@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Toucan.Avalonia.Views.Dialogs.LanguageManagerDialog"
+        Title="Language Manager" Width="450" Height="480"
+        WindowStartupLocation="CenterOwner" CanResize="False"
+        TransparencyLevelHint="Mica,AcrylicBlur,None" Background="Transparent"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaTitleBarHeightHint="32">
+  <Grid RowDefinitions="32,*" Margin="0">
+    <TextBlock Text="Language Manager" Grid.Row="0" Margin="16,8,0,0"
+               FontWeight="SemiBold" FontSize="12" Opacity="0.7" IsHitTestVisible="False"/>
+
+    <Border Grid.Row="1" Padding="20,8,20,20">
+      <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
+        <!-- Header -->
+        <StackPanel Spacing="2">
+          <TextBlock Text="Manage Languages" FontSize="18" FontWeight="Bold"/>
+          <TextBlock Text="Add, remove, or set the primary language for this project." FontSize="12" Opacity="0.6"/>
+        </StackPanel>
+
+        <!-- Add new -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,14,0,8">
+          <TextBox x:Name="NewLangInput" Watermark="Language code (e.g. ja-JP)" VerticalContentAlignment="Center"/>
+          <Button Grid.Column="1" x:Name="AddBtn" Content="Add" Margin="8,0,0,0" Padding="12,6"/>
+        </Grid>
+
+        <!-- Language list -->
+        <Border Grid.Row="2" CornerRadius="4" BorderThickness="1"
+                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" Padding="2">
+          <ListBox x:Name="LangList" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="4,2">
+                  <TextBlock Text="🌐" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                  <TextBlock Grid.Column="1" Text="{Binding}" VerticalAlignment="Center" FontSize="13"/>
+                  <TextBlock Grid.Column="2" Text="primary" FontSize="10" Opacity="0.5" VerticalAlignment="Center" Margin="8,0"
+                             IsVisible="{Binding $parent[ListBox].((vm:LanguageManagerViewModel)DataContext).IsPrimary}"/>
+                  <Button Grid.Column="3" Content="✕" Padding="4,1" FontSize="10"
+                          Command="{Binding $parent[ListBox].DataContext.RemoveLanguageCommand}"
+                          CommandParameter="{Binding}"/>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Border>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" Margin="0,10,0,0">
+          <Button x:Name="MoveUpBtn" Content="↑ Move Up" Padding="8,4"/>
+          <Button x:Name="MoveDownBtn" Content="↓ Move Down" Padding="8,4"/>
+          <Button x:Name="SetPrimaryBtn" Content="Set as Primary" Padding="8,4"/>
+        </StackPanel>
+
+        <!-- Footer -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,14,0,0">
+          <Button x:Name="CloseBtn" Content="Close" Width="80"/>
+          <Button x:Name="SaveBtn" Content="Save" Width="80" Classes="accent"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

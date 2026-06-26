@@ -1,0 +1,78 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Toucan.Avalonia.Views.Dialogs.ProjectSettingsDialog"
+        Title="Project Settings" Width="520" Height="500"
+        WindowStartupLocation="CenterOwner" CanResize="False">
+  <Grid RowDefinitions="*,Auto" Margin="16">
+    <ScrollViewer>
+      <StackPanel Spacing="12">
+        <!-- Identity -->
+        <TextBlock Text="Project" FontWeight="Bold" FontSize="14"/>
+        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" Margin="0,0,0,4">
+          <StackPanel Margin="0,0,8,0">
+            <TextBlock Text="Name" FontSize="11" Opacity="0.7"/>
+            <TextBox Text="{Binding Name, Mode=TwoWay}" Watermark="Project name"/>
+          </StackPanel>
+          <StackPanel Grid.Column="1">
+            <TextBlock Text="Primary Language" FontSize="11" Opacity="0.7"/>
+            <TextBox Text="{Binding PrimaryLanguage, Mode=TwoWay}" Watermark="en-US"/>
+          </StackPanel>
+        </Grid>
+
+        <Separator/>
+
+        <!-- Format -->
+        <TextBlock Text="Output Format" FontWeight="Bold" FontSize="14"/>
+        <ComboBox ItemsSource="{Binding Formats}" SelectedItem="{Binding SelectedFormat}" MinWidth="200"/>
+
+        <Separator/>
+
+        <!-- Languages -->
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Languages" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"/>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+            <TextBox x:Name="NewLangBox" Watermark="lang code" Width="100" Height="32"/>
+            <Button Content="Add" x:Name="AddLangBtn" Padding="8,4"/>
+          </StackPanel>
+        </Grid>
+        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" BorderThickness="1" CornerRadius="4" Padding="4" MaxHeight="150">
+          <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Languages}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid ColumnDefinitions="*,Auto" Margin="4,2">
+                    <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Content="✕" Padding="4,0"
+                            Command="{Binding $parent[Window].DataContext.RemoveLanguageCommand}"
+                            CommandParameter="{Binding}"/>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Border>
+
+        <Separator/>
+
+        <!-- Editor preferences -->
+        <TextBlock Text="Editor" FontWeight="Bold" FontSize="14"/>
+        <CheckBox Content="Save empty translations" IsChecked="{Binding SaveEmptyTranslations}"/>
+        <Grid ColumnDefinitions="Auto,*" Margin="0,4">
+          <TextBlock Text="Translation order" VerticalAlignment="Center" Margin="0,0,8,0"/>
+          <ComboBox ItemsSource="{Binding OrderOptions}" SelectedItem="{Binding TranslationOrder}" MinWidth="150"/>
+        </Grid>
+
+        <Separator/>
+
+        <!-- Provider -->
+        <TextBlock Text="Translation Provider" FontWeight="Bold" FontSize="14"/>
+        <TextBox Text="{Binding DefaultProvider, Mode=TwoWay}" Watermark="e.g. Google, DeepL, Mock"/>
+      </StackPanel>
+    </ScrollViewer>
+
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+      <Button x:Name="CancelBtn" Content="Cancel" Width="80"/>
+      <Button x:Name="SaveBtn" Content="Save" Width="80"/>
+    </StackPanel>
+  </Grid>
+</Window>

@@ -1,22 +1,16 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using OPEdit.Avalonia.ViewModels;
+using Toucan.Avalonia.Services;
+using Toucan.Avalonia.ViewModels;
 
-namespace OPEdit.Avalonia.Views
+namespace Toucan.Avalonia.Views;
+
+public partial class MainWindow : Window
 {
-    public partial class MainWindow : Window
+    public MainWindow(MainWindowViewModel vm, StatusBarViewModel statusVm)
     {
-        public MainWindow()
-        {
-            this.InitializeComponent();
-            this.DataContext = new MainWindowViewModel();
-            this.AttachDevTools();
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+        InitializeComponent();
+        DataContext = vm;
+        RootStatusBar.DataContext = statusVm;
+        StatusBarService.Instance.Register(statusVm);
     }
 }

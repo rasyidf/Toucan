@@ -5,28 +5,17 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class PoSaveStrategy : ISaveStrategy
+public class PoSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public SaveStyles Style => SaveStyles.Properties;
-
-    private readonly IFileService _fileService;
-
-    public PoSaveStrategy(IFileService fileService)
-    {
-        _fileService = fileService;
-    }
 
     public void Save(string path, SaveContext context)
     {
         if (context?.LanguageDictionary == null) return;
 
-        foreach (var kv in context.LanguageDictionary)
+        foreach (var (language, list) in context.LanguageDictionary)
         {
-            var language = kv.Key;
-            var list = kv.Value;
             var sb = new StringBuilder();
-
-            // PO file header
             sb.AppendLine("# Translation file");
             sb.AppendLine($"# Language: {language}");
             sb.AppendLine("msgid \"\"");
@@ -36,32 +25,19 @@ public class PoSaveStrategy : ISaveStrategy
 
             foreach (var item in list.NoEmpty())
             {
-                // msgctxt is the namespace/key
-                sb.AppendLine($"msgctxt \"{EscapePoString(item.Namespace)}\"");
-                sb.AppendLine($"msgid \"{EscapePoString(item.Namespace)}\"");
-                sb.AppendLine($"msgstr \"{EscapePoString(item.Value ?? string.Empty)}\"");
+                sb.AppendLine($"msgctxt \"{Escape(item.Namespace)}\"");
+                sb.AppendLine($"msgid \"{Escape(item.Namespace)}\"");
+                sb.AppendLine($"msgstr \"{Escape(item.Value ?? string.Empty)}\"");
                 sb.AppendLine();
             }
 
-            _fileService.SaveText(path, language + ".po", sb.ToString());
+            fileService.SaveText(path, language + ".po", sb.ToString());
         }
     }
 
-    private static string EscapePoString(string input)
-    {
-        if (string.IsNullOrEmpty(input))
-            return string.Empty;
+    private static string Escape(string input) =>
+        string.IsNullOrEmpty(input) ? string.Empty :
+        input.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
 
-        return input
-            .Replace("\\", "\\\\")
-            .Replace("\"", "\\\"")
-            .Replace("\n", "\\n")
-            .Replace("\r", "\\r")
-            .Replace("\t", "\\t");
-    }
-
-    public async Task SaveAsync(string path, SaveContext context)
-    {
-        await Task.Run(() => Save(path, context));
-    }
+    public Task SaveAsync(string path, SaveContext context) => Task.Run(() => Save(path, context));
 }

@@ -1,10 +1,11 @@
 <Application
-    x:Class="OPEdit.Avalonia.App"
+    x:Class="Toucan.Avalonia.App"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:OPEdit.Avalonia">
+    xmlns:sty="using:FluentAvalonia.Styling"
+    RequestedThemeVariant="Light">
 
     <Application.Styles>
-        <FluentTheme />
+        <sty:FluentAvaloniaTheme PreferSystemTheme="False" CustomAccentColor="#0097A7"/>
     </Application.Styles>
 </Application>

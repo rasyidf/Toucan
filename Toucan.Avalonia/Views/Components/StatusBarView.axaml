@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Toucan.Avalonia.Views.Components.StatusBarView">
+  <Border Padding="8,4" Margin="4,0,4,4" CornerRadius="0,0,4,4">
+    <Grid ColumnDefinitions="Auto,8,Auto,*,Auto,12,Auto,12,Auto,12,Auto">
+      <!-- Mode -->
+      <TextBlock Grid.Column="0" Text="{Binding ModeText}" VerticalAlignment="Center" FontSize="11" Opacity="0.5"/>
+      <!-- Status -->
+      <TextBlock Grid.Column="2" Text="{Binding StatusText}" VerticalAlignment="Center" FontSize="11"/>
+      <!-- Spacer -->
+      <!-- Language -->
+      <TextBlock Grid.Column="4" Text="{Binding DefaultLanguage}" VerticalAlignment="Center" FontSize="11" Opacity="0.6"/>
+      <!-- Cursor -->
+      <TextBlock Grid.Column="6" Text="{Binding CursorPosition}" VerticalAlignment="Center" FontSize="11" Opacity="0.5"/>
+      <!-- Loading -->
+      <ProgressBar Grid.Column="8" IsIndeterminate="True" IsVisible="{Binding IsLoading}" Width="50" Height="3"/>
+      <!-- Notification badge -->
+      <Border Grid.Column="10" CornerRadius="8" Padding="5,1" MinWidth="20"
+              IsVisible="{Binding NotificationCount}"
+              Background="{DynamicResource SystemAccentColor}">
+        <TextBlock Text="{Binding NotificationCount}" FontSize="10" HorizontalAlignment="Center" Foreground="White"/>
+      </Border>
+    </Grid>
+  </Border>
+</UserControl>

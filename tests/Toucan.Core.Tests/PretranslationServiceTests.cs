@@ -29,7 +29,7 @@ public class PretranslationServiceTests
         var result = await service.PreTranslateAsync(items);
 
         // Assert
-        Assert.Equal(1, result.Items.Count);
+        Assert.Single(result.Items!);
         var applied = items.First(i => i.Namespace == "greeting.hello");
         Assert.False(string.IsNullOrEmpty(applied.Value));
         // the existing target should remain unchanged

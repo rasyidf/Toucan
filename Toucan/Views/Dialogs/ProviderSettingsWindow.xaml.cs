@@ -1,5 +1,6 @@
 using System.Windows;
 using Toucan.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using Wpf.Ui.Controls;
 
 namespace Toucan.Views.Dialogs
@@ -15,8 +16,16 @@ namespace Toucan.Views.Dialogs
             var secure = Toucan.App.Services.GetService(typeof(Toucan.Services.ISecureStorageService)) as Toucan.Services.ISecureStorageService;
             var dialogs = Toucan.App.Services.GetService(typeof(Toucan.Services.IDialogService)) as Toucan.Services.IDialogService;
 
-            if (svc != null && secure != null && dialogs != null)
+            // Prefer DI instance if available, otherwise fall back to manual construction
+            if (App.Services != null)
+            {
+                DataContext = App.Services.GetService(typeof(ProviderSettingsViewModel)) as ProviderSettingsViewModel
+                              ?? new ProviderSettingsViewModel(svc, secure, dialogs);
+            }
+            else if (svc != null && secure != null && dialogs != null)
+            {
                 DataContext = new ProviderSettingsViewModel(svc, secure, dialogs);
+            }
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

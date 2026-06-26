@@ -1,52 +1,52 @@
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Toucan.Core.Models;
 
-namespace Toucan.Core.Services
+namespace Toucan.Core.Services;
+
+internal static class NestedJsonParser
 {
-    internal static class NestedJsonParser
+    public static List<TranslationItem> ParseNestedJson(string language, string jsonContent, ILogger? logger = null)
     {
-        public static List<TranslationItem> ParseNestedJson(string language, dynamic content, Microsoft.Extensions.Logging.ILogger? logger = null)
+        var result = new List<TranslationItem>();
+        if (string.IsNullOrWhiteSpace(jsonContent)) return result;
+
+        try
         {
-            var result = new List<TranslationItem>();
-            if (content == null) return result;
-
-            try
-            {
-                foreach (JProperty property in content)
-                {
-                    ProcessLanguage(language, result, property);
-                }
-            }
-            catch (System.Exception ex)
-            {
-                logger?.LogError(ex, "Failed to parse nested JSON for language {language}", language);
-            }
-
-            return result;
+            using var doc = JsonDocument.Parse(jsonContent);
+            WalkElement(language, doc.RootElement, "", result);
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(ex, "Failed to parse nested JSON for language {Language}", language);
         }
 
-        private static void ProcessLanguage(string language, List<TranslationItem> list, JToken property)
-        {
-            if (property.Children().Any())
-            {
-                foreach (var childProperty in property.Children())
-                {
-                    ProcessLanguage(language, list, childProperty);
-                }
-            }
-            else
-            {
-                list.Add(new TranslationItem { Namespace = CleanPath(property.Path), Value = property.ToObject<string>() ?? string.Empty, Language = language });
-            }
-        }
+        return result;
+    }
 
-        private static string CleanPath(string path)
+    private static void WalkElement(string language, JsonElement element, string path, List<TranslationItem> result)
+    {
+        switch (element.ValueKind)
         {
-            var newPath = path;
-            if (newPath.StartsWith("['")) newPath = newPath.Substring(2);
-            if (newPath.EndsWith("']")) newPath = newPath.Substring(0, newPath.Length - 2);
-            return newPath;
+            case JsonValueKind.Object:
+                foreach (var prop in element.EnumerateObject())
+                {
+                    var childPath = string.IsNullOrEmpty(path) ? prop.Name : $"{path}.{prop.Name}";
+                    WalkElement(language, prop.Value, childPath, result);
+                }
+                break;
+
+            case JsonValueKind.String:
+                result.Add(new TranslationItem { Namespace = path, Value = element.GetString() ?? "", Language = language });
+                break;
+
+            case JsonValueKind.Number:
+            case JsonValueKind.True:
+            case JsonValueKind.False:
+                result.Add(new TranslationItem { Namespace = path, Value = element.ToString(), Language = language });
+                break;
+
+            // Skip null/array/undefined
         }
     }
 }

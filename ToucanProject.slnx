@@ -1,0 +1,49 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="tests/Toucan.Core.Tests/Toucan.Core.Tests.csproj">
+    <BuildType Solution="*|ARM" Project="?" />
+    <BuildType Solution="*|ARM64" Project="?" />
+    <BuildType Solution="*|x64" Project="?" />
+    <BuildType Solution="*|x86" Project="?" />
+    <Platform Solution="*|ARM" Project="?" />
+    <Platform Solution="*|ARM64" Project="?" />
+    <Platform Solution="*|x64" Project="?" />
+    <Platform Solution="*|x86" Project="?" />
+    <Build Solution="*|ARM" Project="false" />
+    <Build Solution="*|ARM64" Project="false" />
+    <Build Solution="*|x64" Project="false" />
+    <Build Solution="*|x86" Project="false" />
+  </Project>
+  <Project Path="tests/Toucan.Tests/Toucan.Tests.csproj">
+    <BuildType Solution="*|ARM" Project="?" />
+    <BuildType Solution="*|ARM64" Project="?" />
+    <BuildType Solution="*|x64" Project="?" />
+    <BuildType Solution="*|x86" Project="?" />
+    <Platform Solution="*|ARM" Project="?" />
+    <Platform Solution="*|ARM64" Project="?" />
+    <Platform Solution="*|x64" Project="?" />
+    <Platform Solution="*|x86" Project="?" />
+    <Build Solution="*|ARM" Project="false" />
+    <Build Solution="*|ARM64" Project="false" />
+    <Build Solution="*|x64" Project="false" />
+    <Build Solution="*|x86" Project="false" />
+  </Project>
+  <Project Path="Toucan.Avalonia/Toucan.Avalonia.csproj" />
+  <Project Path="Toucan.Core/Toucan.Core.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+  </Project>
+  <Project Path="Toucan/Toucan.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
+</Solution>

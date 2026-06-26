@@ -1,0 +1,13 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Toucan.Avalonia.Views.Dialogs.AboutDialog"
+        Title="About Toucan" Width="350" Height="200"
+        WindowStartupLocation="CenterOwner" CanResize="False">
+  <StackPanel Margin="16" Spacing="8" VerticalAlignment="Center">
+    <TextBlock Text="Toucan" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+    <TextBlock Text="Translation Resource Manager" HorizontalAlignment="Center" Opacity="0.7"/>
+    <TextBlock x:Name="VersionText" HorizontalAlignment="Center" FontSize="11" Opacity="0.5"/>
+    <TextBlock Text="by rasyid.dev" HorizontalAlignment="Center" Opacity="0.6"/>
+    <Button x:Name="CloseBtn" Content="Close" HorizontalAlignment="Center" Width="80" Margin="0,12,0,0"/>
+  </StackPanel>
+</Window>

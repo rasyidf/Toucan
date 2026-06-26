@@ -19,8 +19,8 @@ partial class NewProjectPrompt : FluentWindow
          
         // if a default value was provided, push it into the view model
 
-        // Setup view model with project service
-        var vm = new ViewModels.NewProjectViewModel(projectService);
+        // Setup view model with project service. Prefer DI-resolved ViewModel when available.
+        var vm = App.Services?.GetService(typeof(ViewModels.NewProjectViewModel)) as ViewModels.NewProjectViewModel ?? new ViewModels.NewProjectViewModel(projectService);
         if (!string.IsNullOrEmpty(defaultValue)) vm.ProjectName = defaultValue;
         DataContext = vm;
         // give keyboard focus to the project name textbox when available
@@ -68,6 +68,15 @@ partial class NewProjectPrompt : FluentWindow
     private void CancelDialog(object sender, System.Windows.RoutedEventArgs e)
     {
         DialogResult = false;
+    }
+
+    private void FrameworkTile_Checked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        if (sender is System.Windows.Controls.RadioButton rb && rb.Tag is ViewModels.FrameworkTile tile)
+        {
+            if (DataContext is ViewModels.NewProjectViewModel vm)
+                vm.SelectedFramework = tile;
+        }
     }
 
     private void OKButton_Click(object sender, System.Windows.RoutedEventArgs e)

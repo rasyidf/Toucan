@@ -1,11 +1,9 @@
 using Toucan.Core.Models;
 
-namespace Toucan.Core.Contracts.Services
-{
-    public interface IBulkActionService
-    {
-        Task PreTranslateAsync(IEnumerable<TranslationItem> items, IProgress<PretranslationProgress>? progress = null, System.Threading.CancellationToken cancellationToken = default);
+namespace Toucan.Core.Contracts.Services;
 
-        string GenerateStatistics(IEnumerable<TranslationItem> items);
-    }
+public interface IBulkActionService
+{
+    Task PreTranslateAsync(IEnumerable<TranslationItem> items, IProgress<PretranslationProgress>? progress = null, CancellationToken cancellationToken = default);
+    string GenerateStatistics(IEnumerable<TranslationItem> items);
 }

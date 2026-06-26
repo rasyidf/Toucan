@@ -1,8 +1,7 @@
-namespace Toucan.Core.Models
+namespace Toucan.Core.Models;
+
+public enum ProjectTypeVariant
 {
-    public enum ProjectTypeVariant
-    {
-        FolderScan,
-        ConfigManifest
-    }
+    FolderScan,
+    ConfigManifest
 }

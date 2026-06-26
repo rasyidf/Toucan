@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Ookii.Dialogs.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Extensions;
@@ -17,7 +15,6 @@ using Toucan.Core.Models;
 using Toucan.Core.Options;
 using Toucan.Core.Services;
 using Toucan.Services;
-using Toucan.Views;
 using Toucan.Models;
 
 namespace Toucan.ViewModels;
@@ -92,7 +89,10 @@ internal partial class MainWindowViewModel : ObservableObject
     private readonly IPreferenceService _preferenceService;
     private readonly IBulkActionService _bulkActionService;
     private readonly Toucan.Core.Contracts.Services.IPretranslationService? _pretranslationService;
+    private readonly System.Func<string, LanguageGroupViewModel> _languageGroupFactory;
+    private readonly System.Func<System.Collections.Generic.IEnumerable<string>, System.Collections.Generic.IEnumerable<TranslationItem>, Toucan.Core.Contracts.Services.IPretranslationService, PreTranslateViewModel> _preTranslateFactory;
     private readonly IProjectService _projectService;
+    private readonly ITranslationStrategyFactory _strategyFactory;
     private readonly System.Func<NewProjectPrompt> _newProjectPromptFactory;
 
 
@@ -103,7 +103,10 @@ internal partial class MainWindowViewModel : ObservableObject
         IPreferenceService preferenceService,
         IBulkActionService bulkActionService = null,
         Toucan.Core.Contracts.Services.IPretranslationService pretranslationService = null,
-        IProjectService projectService = null)
+        IProjectService projectService = null,
+        ITranslationStrategyFactory strategyFactory = null,
+        System.Func<string, LanguageGroupViewModel> languageGroupFactory = null,
+        System.Func<System.Collections.Generic.IEnumerable<string>, System.Collections.Generic.IEnumerable<TranslationItem>, Toucan.Core.Contracts.Services.IPretranslationService, PreTranslateViewModel> preTranslateFactory = null)
     {
         _recentFileService = recentFileService;
         _dialogService = dialogService;
@@ -112,7 +115,10 @@ internal partial class MainWindowViewModel : ObservableObject
         _bulkActionService = bulkActionService;
         _pretranslationService = pretranslationService;
         _projectService = projectService;
+        _strategyFactory = strategyFactory;
         _newProjectPromptFactory = null;
+        _languageGroupFactory = languageGroupFactory;
+        _preTranslateFactory = preTranslateFactory;
         
 
         AppOptions = _preferenceService.Load();
@@ -137,8 +143,7 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     void HelpAbout()
     {
-        AboutDialog ad = new(Application.Current.MainWindow);
-        ad.ShowDialog();
+        _dialogService.ShowAbout();
     }
 
      
@@ -277,11 +282,10 @@ internal partial class MainWindowViewModel : ObservableObject
                 // gather language list
                 var languages = AllTranslation.ToLanguages().ToList();
 
-                var vm = new PreTranslateViewModel(languages, AllTranslation, _pretranslationService);
-                var dialog = new Views.Dialogs.PreTranslateWindow(vm) { Owner = Application.Current.MainWindow };
-                bool? result = dialog.ShowDialog();
+                var vm = _preTranslateFactory != null ? _preTranslateFactory(languages, AllTranslation, _pretranslationService) : new PreTranslateViewModel(languages, AllTranslation, _pretranslationService);
+                bool result = _dialogService.ShowPreTranslate(vm);
 
-                if (result == true)
+                if (result)
                 {
                     UpdateSummaryInfo();
                     IsDirty = true;
@@ -312,8 +316,7 @@ internal partial class MainWindowViewModel : ObservableObject
             }
             catch
             {
-                // if message service fails for some reason, fall back to a simple dialog
-                System.Windows.MessageBox.Show("Error during pre-translation: " + ex.Message);
+                // if message service fails, swallow — no direct UI calls
             }
         }
     }
@@ -385,14 +388,9 @@ internal partial class MainWindowViewModel : ObservableObject
 
             if (item == null) return;
 
-            var dialog = new PromptDialog("Pre-translate namespace", "Enter namespace (exact or prefix) to pre-translate for language: " + item.Language, "")
-            {
-                Owner = Application.Current.MainWindow
-            };
-
-            if (dialog.ShowDialog() != true) return;
-
-            string ns = dialog.ResponseText?.Trim() ?? string.Empty;
+            var ns = _dialogService.ShowPrompt("Pre-translate namespace", "Enter namespace (exact or prefix) to pre-translate for language: " + item.Language, "");
+            if (ns == null) return;
+            ns = ns.Trim();
             if (string.IsNullOrWhiteSpace(ns)) return;
 
             var toTranslate = AllTranslation.Where(t => t.Language == item.Language && t.Namespace != null && (t.Namespace == ns || t.Namespace.StartsWith(ns))).ToList();
@@ -433,14 +431,9 @@ internal partial class MainWindowViewModel : ObservableObject
 
             if (item == null) return;
 
-            var dialog = new PromptDialog("Pre-translate key", "Enter exact key namespace/id to pre-translate for language: " + item.Language, "")
-            {
-                Owner = Application.Current.MainWindow
-            };
-
-            if (dialog.ShowDialog() != true) return;
-
-            string key = dialog.ResponseText?.Trim() ?? string.Empty;
+            var key = _dialogService.ShowPrompt("Pre-translate key", "Enter exact key namespace/id to pre-translate for language: " + item.Language, "");
+            if (key == null) return;
+            key = key.Trim();
             if (string.IsNullOrWhiteSpace(key)) return;
 
             var toTranslate = AllTranslation.Where(t => t.Language == item.Language && t.Namespace == key).ToList();
@@ -559,7 +552,7 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void Exit()
     {
-        Application.Current.Shutdown();
+        _dialogService.Shutdown();
     }
     internal void UpdateSummaryInfo()
     {
@@ -576,14 +569,10 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void NewLanguage()
     {
-        var dialog = new LanguagePrompt("New Language", "Enter the translation language name below.", AllTranslation)
+        var result = _dialogService.ShowLanguagePrompt("New Language", "Enter the translation language name below.", AllTranslation);
+        if (result != null)
         {
-            Owner = Application.Current.MainWindow
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            AddLanguage(dialog.ResponseText);
+            AddLanguage(result);
         }
     }
 
@@ -594,15 +583,10 @@ internal partial class MainWindowViewModel : ObservableObject
     private void NewItem()
     {
         string ns = SelectedNode?.Namespace ?? "";
-
-        var dialog = new PromptDialog("New Translation", "Please enter an ID for the translation\nUse '.' to create hierarchical IDs.", ns)
+        var result = _dialogService.ShowPrompt("New Translation", "Please enter an ID for the translation\nUse '.' to create hierarchical IDs.", ns);
+        if (result != null)
         {
-            Owner = Application.Current.MainWindow
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            CreateNewItem(dialog.ResponseText);
+            CreateNewItem(result);
         }
     }
 
@@ -614,14 +598,10 @@ internal partial class MainWindowViewModel : ObservableObject
         var node = SelectedNode;
         if (node == null) return;
 
-        var dialog = new PromptDialog("Rename: " + node.Name, "Enter the new name below.", node.Name)
+        var result = _dialogService.ShowPrompt("Rename: " + node.Name, "Enter the new name below.", node.Name);
+        if (result != null)
         {
-            Owner = Application.Current.MainWindow
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            RenameItem(node, dialog.ResponseText);
+            RenameItem(node, result);
         }
     }
 
@@ -643,6 +623,55 @@ internal partial class MainWindowViewModel : ObservableObject
     private bool CanDeleteItem()
     {
         return SelectedNode != null;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRenameItem))]
+    private void DuplicateItem()
+    {
+        var node = SelectedNode;
+        if (node == null) return;
+
+        var newNs = node.Namespace + "_copy";
+        var existing = AllTranslation.Where(t => t.Namespace == node.Namespace).ToList();
+        foreach (var item in existing)
+        {
+            AllTranslation.Add(new TranslationItem
+            {
+                Namespace = newNs,
+                Value = item.Value,
+                Language = item.Language,
+                Comment = item.Comment,
+                IsApproved = false
+            });
+        }
+        RefreshTree(newNs);
+        UpdateSummaryInfo();
+        Search(newNs, true);
+        IsDirty = true;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRenameItem))]
+    private void CopyAsTemplate1()
+    {
+        if (SelectedNode == null) return;
+        var template = AppOptions?.CopyTemplate1 ?? "%1";
+        System.Windows.Clipboard.SetText(template.Replace("%1", SelectedNode.Namespace));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRenameItem))]
+    private void CopyAsTemplate2()
+    {
+        if (SelectedNode == null) return;
+        var template = AppOptions?.CopyTemplate2 ?? "%1";
+        System.Windows.Clipboard.SetText(template.Replace("%1", SelectedNode.Namespace));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRenameItem))]
+    private void CopyAsTemplate3()
+    {
+        if (SelectedNode == null) return;
+        var template = AppOptions?.CopyTemplate3 ?? "%1";
+        System.Windows.Clipboard.SetText(template.Replace("%1", SelectedNode.Namespace));
     }
     internal void Search(string ns, bool alwaysPaging = false)
     {
@@ -682,7 +711,7 @@ internal partial class MainWindowViewModel : ObservableObject
         List<LanguageGroupViewModel> languageGroups = new();
         foreach (string n in namespaces)
         {
-            var languageGroupVm = new LanguageGroupViewModel(n);
+            var languageGroupVm = _languageGroupFactory != null ? _languageGroupFactory(n) : new LanguageGroupViewModel(n);
             languageGroupVm.LoadTranslations(matchedTranslations.Where(o => o.Namespace == n).ToList());
             languageGroups.Add(languageGroupVm);
         }
@@ -705,14 +734,10 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void FindPrompt()
     {
-        var dialog = new PromptDialog("Find", "Enter text or namespace to find (append '.' to search by prefix)", SearchText ?? "")
+        var result = _dialogService.ShowPrompt("Find", "Enter text or namespace to find (append '.' to search by prefix)", SearchText ?? "");
+        if (result != null)
         {
-            Owner = Application.Current.MainWindow
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            SearchText = dialog.ResponseText?.Trim() ?? string.Empty;
+            SearchText = result.Trim();
         }
     }
 
@@ -733,16 +758,10 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void FilterById()
     {
-        var dialog = new PromptDialog("Filter by ID", "Enter exact ID/namespace to filter by (exact match)", "")
+        var result = _dialogService.ShowPrompt("Filter by ID", "Enter exact ID/namespace to filter by (exact match)", "");
+        if (result != null)
         {
-            Owner = Application.Current.MainWindow
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            string ns = dialog.ResponseText?.Trim() ?? string.Empty;
-            // exact IDs are handled by Search when the filter does not end with a dot
-            SearchText = ns;
+            SearchText = result.Trim();
         }
     }
 
@@ -768,12 +787,46 @@ internal partial class MainWindowViewModel : ObservableObject
         List<LanguageGroupViewModel> languageGroups = new();
         foreach (string n in namespaces)
         {
-            var languageGroupVm = new LanguageGroupViewModel(n);
+            var languageGroupVm = _languageGroupFactory != null ? _languageGroupFactory(n) : new LanguageGroupViewModel(n);
             languageGroupVm.LoadTranslations(matchedTranslations.Where(o => o.Namespace == n).ToList());
             languageGroups.Add(languageGroupVm);
         }
 
         PagingController.SwapData(languageGroups, false);
+        PagedUpdates();
+    }
+
+    [RelayCommand]
+    private void ShowTranslated()
+    {
+        if (AllTranslation == null || AllTranslation.Count == 0) return;
+        var matched = AllTranslation.Where(t => !string.IsNullOrWhiteSpace(t.Value)).ToList();
+        FilterAndDisplay(matched, "No translated items found.");
+    }
+
+    [RelayCommand]
+    private void ShowApproved()
+    {
+        if (AllTranslation == null || AllTranslation.Count == 0) return;
+        var matched = AllTranslation.Where(t => t.IsApproved).ToList();
+        FilterAndDisplay(matched, "No approved items found.");
+    }
+
+    private void FilterAndDisplay(List<TranslationItem> matched, string emptyMessage)
+    {
+        if (matched.Count == 0)
+        {
+            _messageService.ShowMessage(emptyMessage);
+            return;
+        }
+        var namespaces = matched.ToNamespaces().ToList();
+        var groups = namespaces.Select(n =>
+        {
+            var vm = _languageGroupFactory != null ? _languageGroupFactory(n) : new LanguageGroupViewModel(n);
+            vm.LoadTranslations(matched.Where(o => o.Namespace == n).ToList());
+            return vm;
+        }).ToList();
+        PagingController.SwapData(groups, false);
         PagedUpdates();
     }
 
@@ -879,22 +932,8 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task NewFolder()
     {
-        // Open the new project dialog to collect detailed settings
-        NewProjectPrompt dialog;
-        if (App.Services != null)
+        if (_dialogService.ShowNewProject(_projectService, out var vm) && vm != null)
         {
-            dialog = App.Services.GetService(typeof(NewProjectPrompt)) as NewProjectPrompt ?? new NewProjectPrompt("New Project", "Create a new project with languages and packages.", _projectService);
-        }
-        else
-        {
-            dialog = new NewProjectPrompt("New Project", "Create a new project with languages and packages.", _projectService);
-        }
-        dialog.Owner = Application.Current.MainWindow;
-
-        // Show dialog and use the ViewModel to initialize project files when confirmed
-        if (dialog.ShowDialog() == true && dialog.DataContext is NewProjectViewModel vm)
-        {
-            // require project folder
             if (string.IsNullOrWhiteSpace(vm.ProjectFolder))
             {
                 _messageService.ShowMessage("No folder selected.");
@@ -903,9 +942,8 @@ internal partial class MainWindowViewModel : ObservableObject
 
             try
             {
-                // Project files already created by vm.CreateProject() in OKButton_Click
                 CurrentPath = vm.ProjectFolder;
-                AppOptions.DefaultPath = CurrentPath;
+                AppOptions.LastProjectPath = CurrentPath;
                 _recentFileService.Add(CurrentPath);
                 await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
             }
@@ -923,7 +961,7 @@ internal partial class MainWindowViewModel : ObservableObject
         if (selected != null)
         {
             CurrentPath = selected;
-            AppOptions.DefaultPath = selected;
+            AppOptions.LastProjectPath = selected;
             _recentFileService.Add(selected);
             await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
         }
@@ -953,7 +991,7 @@ internal partial class MainWindowViewModel : ObservableObject
         }
 
         CurrentPath = directory;
-        AppOptions.DefaultPath = directory;
+        AppOptions.LastProjectPath = directory;
         _recentFileService.Add(directory);
         await LoadFolderAsync(directory).ConfigureAwait(true);
     }
@@ -964,6 +1002,7 @@ internal partial class MainWindowViewModel : ObservableObject
         try
         {
             IsLoading = true;
+            ShowStartScreen = false;
             StatusText = "Loading project...";
 
             var loaded = await Task.Run(() => _projectService.Load(path)).ConfigureAwait(true);
@@ -1023,17 +1062,8 @@ internal partial class MainWindowViewModel : ObservableObject
     private void Save()
     {
         IsDirty = false;
-        switch (AppOptions.SaveStyle)
-        {
-            case SaveStyles.Json:
-                if (_projectService != null)
-                    _projectService.Save(CurrentPath, SaveStyles.Json, CurrentTreeItems.ToList(), AllTranslation);
-                break;
-            case SaveStyles.Namespaced:
-                if (_projectService != null)
-                    _projectService.Save(CurrentPath, SaveStyles.Namespaced, CurrentTreeItems.ToList(), AllTranslation);
-                break;
-        }
+        // ponytail: SaveStyle now lives in ProjectSettings. Use Json as fallback for legacy WPF path.
+        _projectService?.Save(CurrentPath, SaveStyles.Json, CurrentTreeItems.ToList(), AllTranslation);
     }
 
     private bool CanSave()
@@ -1044,17 +1074,12 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void SaveTo()
     {
-        VistaFolderBrowserDialog dialog = new()
+        var selected = _dialogService.SelectFolder(CurrentPath);
+        if (selected != null)
         {
-            SelectedPath = CurrentPath
-        };
-        bool? selected = dialog.ShowDialog(Application.Current.MainWindow);
-        if (selected.GetValueOrDefault())
-        {
-            CurrentPath = dialog.SelectedPath;
+            CurrentPath = selected;
             Save();
         }
-
     }
     [RelayCommand]
     private void CloseProject()
@@ -1062,9 +1087,10 @@ internal partial class MainWindowViewModel : ObservableObject
         // Reset all project-related data and UI state
         AllTranslation = new();
         CurrentPath = string.Empty;
-        SelectedNode = null!; // Intentional null to clear UI selection (null-forgiving)
+        SelectedNode = null!;
         IsDirty = false;
         StatusText = string.Empty;
+        ShowStartScreen = true;
 
         // Clear collected tree and paging controller
         CurrentTreeItems.Clear();
@@ -1083,6 +1109,9 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     internal async Task OpenRecent()
     {
+        // Reload the list for the flyout menu
+        RefreshRecentProjects();
+        // If there are recent projects, open the most recent
         var recents = _recentFileService.LoadRecent();
         if (recents.Count == 0)
         {
@@ -1090,7 +1119,7 @@ internal partial class MainWindowViewModel : ObservableObject
             return;
         }
 
-        string path = recents?.First().Path; // For now, just use first. Replace with proper recent list picker later
+        string path = recents.First().Path;
         if (!Directory.Exists(path))
         {
             _messageService.ShowMessage($"Path not found: {path}");
@@ -1101,20 +1130,59 @@ internal partial class MainWindowViewModel : ObservableObject
         await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
     }
 
+    // Recent projects collection for flyout menu binding
+    [ObservableProperty]
+    private ObservableCollection<Project> recentProjects = new();
 
+    internal void RefreshRecentProjects()
+    {
+        var list = _recentFileService.LoadRecent();
+        RecentProjects.Clear();
+        foreach (var p in list)
+            RecentProjects.Add(p);
+    }
+
+    [RelayCommand]
+    private async Task OpenRecentProject(string path)
+    {
+        if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
+        {
+            _messageService.ShowMessage($"Path not found: {path}");
+            _recentFileService.Remove(path);
+            RefreshRecentProjects();
+            return;
+        }
+
+        CurrentPath = path;
+        AppOptions.LastProjectPath = path;
+        _recentFileService.Add(path);
+        await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
+    }
+
+    [RelayCommand]
+    private void ClearRecentProjects()
+    {
+        foreach (var p in RecentProjects.ToList())
+            _recentFileService.Remove(p.Path);
+        RecentProjects.Clear();
+    }
+
+    [RelayCommand]
+    private void RevealInExplorer()
+    {
+        if (string.IsNullOrEmpty(CurrentPath) || !Directory.Exists(CurrentPath)) return;
+        Process.Start(new ProcessStartInfo("explorer.exe", CurrentPath) { UseShellExecute = true });
+    }
 
     [RelayCommand]
     private void ShowPreferences()
     {
-        OptionDialog optionsHwnd = new(AppOptions, CurrentPath) { Owner = Application.Current.MainWindow };
-        bool? saved = optionsHwnd.ShowDialog();
-        if (saved.GetValueOrDefault())
+        if (_dialogService.ShowOptions(AppOptions, CurrentPath, out var updated) && updated != null)
         {
-            AppOptions = optionsHwnd.Config;
-            // update statusbar language when preferences change
+            AppOptions = updated;
             try { StatusBarService.Instance.UpdateDefaultLanguage(AppOptions.DefaultLanguage ?? "en-US"); } catch { }
         }
-        // Recreate or update the paging controller to reflect new options (page size and max items)
+        // Recreate paging controller with new options
         int oldPage = PagingController?.Page ?? 1;
         int maxItems = AppOptions.MaxItems <= 0 ? 100 : AppOptions.MaxItems;
         int pageSize = AppOptions.PageSize <= 0 ? 30 : AppOptions.PageSize;
@@ -1122,7 +1190,6 @@ internal partial class MainWindowViewModel : ObservableObject
         PagingController = new PaginationViewModel<LanguageGroupViewModel>(pageSize, currentData, maxItems);
         PagingController.Page = Math.Min(Math.Max(1, oldPage), PagingController.Pages);
         PagedUpdates();
-
     }
     #endregion
 
@@ -1133,7 +1200,7 @@ internal partial class MainWindowViewModel : ObservableObject
 
         if (AllTranslation.NoEmpty().Any(setting => setting.Namespace.Contains(newNamespace)))
         {
-            MessageBox.Show("Duplicate name");
+            _messageService.ShowMessage("Duplicate name");
             return;
         }
 
@@ -1151,6 +1218,18 @@ internal partial class MainWindowViewModel : ObservableObject
         RefreshTree(newNamespace);
         UpdateSummaryInfo();
         Search(newNamespace, true);
+
+        // Auto-select the newly created node
+        var newNode = CurrentTreeItems.SelectMany(FindAll).FirstOrDefault(n => n.Namespace == newNamespace);
+        if (newNode != null) SelectedNode = newNode;
+    }
+
+    private static IEnumerable<NsTreeItem> FindAll(NsTreeItem node)
+    {
+        yield return node;
+        if (node.Items != null)
+            foreach (var child in node.Items.SelectMany(FindAll))
+                yield return child;
     }
 
     public void AddLanguage(string newLanguage)
@@ -1160,7 +1239,7 @@ internal partial class MainWindowViewModel : ObservableObject
 
         if (AllTranslation.Any(setting => setting.Language == newLanguage))
         {
-            MessageBox.Show("Duplicate language");
+            _messageService.ShowMessage("Duplicate language");
             return;
         }
 
@@ -1217,6 +1296,240 @@ internal partial class MainWindowViewModel : ObservableObject
         RefreshTree();
         Search("", true);
     }
+
+    #region Edit Actions (Convert Case, Trim, Clipboard)
+
+    private void ApplyToAllValues(Func<string, string> transform)
+    {
+        if (AllTranslation == null || AllTranslation.Count == 0) return;
+        foreach (var item in AllTranslation.Where(t => !string.IsNullOrEmpty(t.Value)))
+            item.Value = transform(item.Value);
+        IsDirty = true;
+        Search(SearchText ?? "", true);
+    }
+
+    [RelayCommand] private void ConvertLowercase() => ApplyToAllValues(v => v.ToLowerInvariant());
+    [RelayCommand] private void ConvertUppercase() => ApplyToAllValues(v => v.ToUpperInvariant());
+    [RelayCommand] private void ConvertSentenceCase() => ApplyToAllValues(v => v.Length > 0 ? char.ToUpper(v[0]) + v[1..].ToLowerInvariant() : v);
+    [RelayCommand] private void ConvertTitleCase() => ApplyToAllValues(v => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(v.ToLowerInvariant()));
+
+    [RelayCommand] private void TrimWhitespace() => ApplyToAllValues(v => v.Trim());
+    [RelayCommand] private void TrimLineByLine() => ApplyToAllValues(v => string.Join("\n", v.Split('\n').Select(l => l.Trim())));
+    [RelayCommand] private void SimplifyWhitespace() => ApplyToAllValues(v => System.Text.RegularExpressions.Regex.Replace(v.Trim(), @"\s+", " "));
+
+    [RelayCommand]
+    private void EditCut()
+    {
+        if (SelectedNode == null) return;
+        var items = AllTranslation.Where(t => t.Namespace == SelectedNode.Namespace).ToList();
+        if (items.Count == 0) return;
+        var text = string.Join("\n", items.Select(t => $"{t.Language}={t.Value}"));
+        System.Windows.Clipboard.SetText(text);
+        DeleteItem(SelectedNode);
+    }
+
+    [RelayCommand]
+    private void EditCopy()
+    {
+        if (SelectedNode == null) return;
+        var items = AllTranslation.Where(t => t.Namespace == SelectedNode.Namespace).ToList();
+        if (items.Count == 0) return;
+        var text = string.Join("\n", items.Select(t => $"{t.Language}={t.Value}"));
+        System.Windows.Clipboard.SetText(text);
+    }
+
+    [RelayCommand]
+    private void EditPaste()
+    {
+        if (!System.Windows.Clipboard.ContainsText()) return;
+        var text = System.Windows.Clipboard.GetText();
+        // Parse lines in format "language=value" and apply to current selected node
+        if (SelectedNode == null) return;
+        foreach (var line in text.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var eq = line.IndexOf('=');
+            if (eq <= 0) continue;
+            var lang = line[..eq].Trim();
+            var val = line[(eq + 1)..].Trim();
+            var existing = AllTranslation.FirstOrDefault(t => t.Namespace == SelectedNode.Namespace && t.Language == lang);
+            if (existing != null) existing.Value = val;
+        }
+        IsDirty = true;
+        Search(SelectedNode.Namespace, true);
+    }
+
+    #endregion
+
+    #region View Menu
+
+    [RelayCommand]
+    private void SwitchToTreeView()
+    {
+        IsTreeView = true;
+    }
+
+    [RelayCommand]
+    private void SwitchToListView()
+    {
+        IsTreeView = false;
+    }
+
+    [ObservableProperty]
+    private bool showMachineTranslations;
+
+    [RelayCommand]
+    private void ToggleShowMachineTranslations()
+    {
+        ShowMachineTranslations = !ShowMachineTranslations;
+        // ponytail: placeholder toggle — visual indicator only for now
+        // upgrade path: filter/highlight machine-translated values when metadata is tracked
+        StatusText = ShowMachineTranslations ? "Showing machine translations" : "Machine translations hidden";
+    }
+
+    #endregion
+
+    #region Import / Export
+
+    // ponytail: file filter string built from the SaveStyles enum names
+    private const string ImportExportFilter =
+        "JSON (*.json)|*.json|" +
+        "YAML (*.yml;*.yaml)|*.yml;*.yaml|" +
+        "TOML (*.toml)|*.toml|" +
+        "Android XML (*.xml)|*.xml|" +
+        "iOS Strings (*.strings)|*.strings|" +
+        "XLIFF (*.xlf;*.xliff)|*.xlf;*.xliff|" +
+        "ARB - Flutter (*.arb)|*.arb|" +
+        "CSV (*.csv)|*.csv|" +
+        "RESX (*.resx)|*.resx|" +
+        "PO/Gettext (*.po)|*.po|" +
+        "INI (*.ini)|*.ini|" +
+        "All Files (*.*)|*.*";
+
+    private static SaveStyles FilterIndexToStyle(int index) => index switch
+    {
+        1 => SaveStyles.Json,
+        2 => SaveStyles.Yaml,
+        3 => SaveStyles.Toml,
+        4 => SaveStyles.AndroidXml,
+        5 => SaveStyles.IosStrings,
+        6 => SaveStyles.Xliff,
+        7 => SaveStyles.Arb,
+        8 => SaveStyles.Csv,
+        9 => SaveStyles.Resx,
+        10 => SaveStyles.Properties,
+        11 => SaveStyles.Adb,
+        _ => SaveStyles.Json
+    };
+
+    [RelayCommand]
+    private void Import()
+    {
+        var file = _dialogService.SelectFile(CurrentPath, ImportExportFilter);
+        if (string.IsNullOrEmpty(file)) return;
+
+        try
+        {
+            var folder = Path.GetDirectoryName(file)!;
+            var ext = Path.GetExtension(file).ToLowerInvariant();
+            var style = ext switch
+            {
+                ".json" => SaveStyles.Json,
+                ".yml" or ".yaml" => SaveStyles.Yaml,
+                ".toml" => SaveStyles.Toml,
+                ".xml" => SaveStyles.AndroidXml,
+                ".strings" => SaveStyles.IosStrings,
+                ".xlf" or ".xliff" => SaveStyles.Xliff,
+                ".arb" => SaveStyles.Arb,
+                ".csv" => SaveStyles.Csv,
+                ".resx" => SaveStyles.Resx,
+                ".po" => SaveStyles.Properties,
+                ".ini" => SaveStyles.Adb,
+                _ => SaveStyles.Json
+            };
+
+            var loader = _strategyFactory?.GetLoadStrategy(style);
+            if (loader == null)
+            {
+                _messageService.ShowMessage($"No loader available for {ext} format.");
+                return;
+            }
+
+            var imported = loader.Load(folder).ToList();
+            if (imported.Count == 0)
+            {
+                _messageService.ShowMessage("No translations found in the selected file.");
+                return;
+            }
+
+            // Merge imported items into current project
+            AllTranslation ??= new List<TranslationItem>();
+            foreach (var item in imported)
+            {
+                var existing = AllTranslation.FirstOrDefault(t => t.Namespace == item.Namespace && t.Language == item.Language);
+                if (existing != null)
+                    existing.Value = item.Value;
+                else
+                    AllTranslation.Add(item);
+            }
+
+            RefreshTree();
+            UpdateSummaryInfo();
+            Search("", true);
+            IsDirty = true;
+            StatusText = $"Imported {imported.Count} items from {Path.GetFileName(file)}";
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage($"Import failed: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private void Export()
+    {
+        if (AllTranslation == null || AllTranslation.Count == 0)
+        {
+            _messageService.ShowMessage("No translations to export.");
+            return;
+        }
+
+        var folder = _dialogService.SelectFolder(CurrentPath);
+        if (string.IsNullOrEmpty(folder)) return;
+
+        // Ask user for format via a simple prompt listing options
+        var formatInput = _dialogService.ShowPrompt("Export Format",
+            "Enter format: json, yaml, toml, xml, strings, xliff, arb, csv, resx, po, ini",
+            "json");
+        if (string.IsNullOrWhiteSpace(formatInput)) return;
+
+        var style = formatInput.Trim().ToLowerInvariant() switch
+        {
+            "json" => SaveStyles.Json,
+            "yaml" or "yml" => SaveStyles.Yaml,
+            "toml" => SaveStyles.Toml,
+            "xml" or "android" => SaveStyles.AndroidXml,
+            "strings" or "ios" => SaveStyles.IosStrings,
+            "xliff" or "xlf" => SaveStyles.Xliff,
+            "arb" or "flutter" => SaveStyles.Arb,
+            "csv" => SaveStyles.Csv,
+            "resx" => SaveStyles.Resx,
+            "po" or "gettext" => SaveStyles.Properties,
+            "ini" => SaveStyles.Adb,
+            _ => SaveStyles.Json
+        };
+
+        try
+        {
+            _projectService?.Save(folder, style, CurrentTreeItems.ToList(), AllTranslation);
+            StatusText = $"Exported to {folder} ({style})";
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage($"Export failed: {ex.Message}");
+        }
+    }
+
+    #endregion
 
 
 }

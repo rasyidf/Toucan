@@ -30,7 +30,15 @@ public partial class PreTranslateViewModel : ObservableObject
     public static Func<string, object, bool> StringEqualsConverter = (param, value) => string.Equals((string?)param, (string?)value, StringComparison.InvariantCultureIgnoreCase);
 
     [ObservableProperty]
-    private string selectedProvider = "Google";
+    private string selectedProvider = Toucan.Core.Options.AppOptions.LoadFromDisk().LastProvider ?? "Google";
+
+    partial void OnSelectedProviderChanged(string value)
+    {
+        // Remember last translation service
+        var opts = Toucan.Core.Options.AppOptions.LoadFromDisk();
+        opts.LastProvider = value;
+        opts.ToDisk();
+    }
 
     public ObservableCollection<LanguageItem> AvailableLanguages { get; } = new();
 
@@ -105,7 +113,12 @@ public partial class PreTranslateViewModel : ObservableObject
             Provider = SelectedProvider,
             Items = itemsToProcess.ToList(),
             ContextItems = _sourceItems,
-            Options = new PretranslationOptions { Overwrite = OverwriteExisting, PreviewOnly = true }
+            Options = new PretranslationOptions
+            {
+                Overwrite = OverwriteExisting,
+                PreviewOnly = true,
+                ProviderOptions = BuildProviderOptions()
+            }
         };
 
         if (_pretranslationService == null) return;
@@ -117,38 +130,9 @@ public partial class PreTranslateViewModel : ObservableObject
 
             var progress = new Progress<PretranslationProgress>(p =>
             {
-                // Always marshal updates to the UI thread when available to avoid binding exceptions
-                try
-                {
-                    Action update = () =>
-                    {
-                        ProgressCompleted = p.Completed;
-                        ProgressTotal = p.Total;
-                        OnPropertyChanged(nameof(ProgressPercent));
-                    };
-
-                    var app = System.Windows.Application.Current;
-                    if (app?.Dispatcher?.CheckAccess() == true)
-                    {
-                        update();
-                    }
-                    else if (app?.Dispatcher != null)
-                    {
-                        // Use Invoke so the update runs immediately. BeginInvoke may never execute
-                        // in environments without a running dispatcher loop (unit tests).
-                        app.Dispatcher.Invoke(update);
-                    }
-                    else
-                    {
-                        // No dispatcher (unit tests or non-WPF host) — just run directly
-                        update();
-                    }
-                }
-                catch
-                {
-                    // Swallow any exceptions from progress updates to ensure we don't bubble an exception back
-                    // into providers or the UI binding engine (which would surface as RangeBase.Value exceptions).
-                }
+                ProgressCompleted = p.Completed;
+                ProgressTotal = p.Total;
+                OnPropertyChanged(nameof(ProgressPercent));
             });
 
         var result = await _pretranslationService.PreTranslateAsync(req, progress, _cts.Token).ConfigureAwait(true);
@@ -166,47 +150,8 @@ public partial class PreTranslateViewModel : ObservableObject
         [RelayCommand]
         private void OpenProviderSettings()
         {
-            // We defer construction of any WPF Window until we know we are in a UI host or
-            // have a dialog service available. Constructing a Window in headless test runs
-            // will throw (needs STA), so avoid building it prematurely.
-
-            // try to use the dialog manager if available
-            Toucan.Services.IDialogService? ds = null;
-            if (Toucan.App.Services != null)
-            {
-                ds = Toucan.App.Services.GetService(typeof(Toucan.Services.IDialogService)) as Toucan.Services.IDialogService;
-            }
-
-            if (ds != null)
-            {
-                var window = new Views.Dialogs.ProviderSettingsWindow();
-                ds.ShowDialog(window);
-                return;
-            }
-
-            // fall back to direct modal show. Be defensive: Application.Current (or MainWindow)
-            // might be null in unit tests or non-WPF hosts — avoid dereferencing it.
-            var app = System.Windows.Application.Current;
-            // If there is no Application.Current and App.Services isn't available, we're likely in
-            // a headless unit-test environment — do not construct/show the UI window to avoid
-            // raising NullReferenceExceptions.
-            if (app == null)
-                return;
-
-            if (app.MainWindow != null)
-            {
-                var window = new Views.Dialogs.ProviderSettingsWindow();
-                window.Owner = app.MainWindow;
-
-                try
-                {
-                    window.ShowDialog();
-                }
-                catch
-                {
-                    // Swallow exceptions here to avoid crashing headless unit tests / CI runs.
-                }
-            }
+            var ds = Toucan.App.Services?.GetService(typeof(Toucan.Services.IDialogService)) as Toucan.Services.IDialogService;
+            ds?.ShowProviderSettings();
         }
 
     [RelayCommand]
@@ -239,5 +184,16 @@ public partial class PreTranslateViewModel : ObservableObject
         }
 
         return Task.CompletedTask;
+    }
+
+    private static Dictionary<string, string> BuildProviderOptions()
+    {
+        var opts = Toucan.Core.Options.AppOptions.LoadFromDisk();
+        var dict = new Dictionary<string, string>();
+        if (!string.IsNullOrWhiteSpace(opts.Context))
+            dict["context"] = opts.Context;
+        if (!string.IsNullOrWhiteSpace(opts.Formality) && opts.Formality != "Default")
+            dict["formality"] = opts.Formality.ToLowerInvariant();
+        return dict;
     }
 }

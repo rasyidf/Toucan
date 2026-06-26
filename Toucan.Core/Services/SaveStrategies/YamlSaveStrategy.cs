@@ -5,16 +5,9 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class YamlSaveStrategy : ISaveStrategy
+public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public SaveStyles Style => SaveStyles.Yaml;
-
-    private readonly IFileService _fileService;
-
-    public YamlSaveStrategy(IFileService fileService)
-    {
-        _fileService = fileService;
-    }
 
     public void Save(string path, SaveContext context)
     {
@@ -40,7 +33,7 @@ public class YamlSaveStrategy : ISaveStrategy
             // Convert flat dict to YAML format with nested keys
             WriteYamlDict(sb, dict, 0);
 
-            _fileService.SaveText(path, language + ".yaml", sb.ToString());
+            fileService.SaveText(path, language + ".yaml", sb.ToString());
         }
     }
 

@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using Wpf.Ui.Controls;
 using Toucan.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using Toucan.Core.Models;
 using Toucan.Core;
 using System.Linq;
@@ -32,7 +33,8 @@ partial class LanguagePrompt : FluentWindow
         refreshCommand.InputGestures.Add(new KeyGesture(Key.Escape, ModifierKeys.None));
         CommandBindings.Add(new CommandBinding(refreshCommand, CancelDialog));
 
-        ViewModel = new LanguagePromptViewModel(languageList);
+        var factory = App.Services?.GetService(typeof(System.Func<System.Collections.Generic.IEnumerable<Toucan.Core.Models.TranslationItem>, LanguagePromptViewModel>)) as System.Func<System.Collections.Generic.IEnumerable<Toucan.Core.Models.TranslationItem>, LanguagePromptViewModel>;
+        ViewModel = factory != null ? factory(languageList) : new LanguagePromptViewModel(languageList);
         LanguageList = languageList;
         DataContext = ViewModel;
 
@@ -60,9 +62,9 @@ partial class LanguagePrompt : FluentWindow
             string typed = ResponseLanguage?.Text;
             if (!string.IsNullOrWhiteSpace(typed) && ViewModel?.CultureList != null)
             {
-                var match = ViewModel.CultureList.FirstOrDefault(l => string.Equals(l.Language, typed, System.StringComparison.InvariantCultureIgnoreCase) ||
-                    string.Equals(l.Culture?.NativeName ?? string.Empty, typed, System.StringComparison.InvariantCultureIgnoreCase) ||
-                    string.Equals(l.Culture?.Name ?? string.Empty, typed, System.StringComparison.InvariantCultureIgnoreCase));
+                var match = ViewModel.CultureList.FirstOrDefault(l => string.Equals(l.Language, typed, System.StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(l.Culture?.NativeName ?? string.Empty, typed, System.StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(l.Culture?.Name ?? string.Empty, typed, System.StringComparison.OrdinalIgnoreCase));
                 if (match?.Culture != null)
                     return match.Culture.Name;
             }

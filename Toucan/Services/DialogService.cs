@@ -1,43 +1,27 @@
-﻿using Ookii.Dialogs.Wpf;
-using System.Windows;
+using System.Collections.Generic;
+using Toucan.Core.Contracts.Services;
+using Toucan.Core.Models;
+using Toucan.Core.Options;
+using Toucan.ViewModels;
 
 namespace Toucan.Services;
 
 public interface IDialogService
 {
-    string? SelectFolder(string initialPath);
-    bool? ShowDialog(Window dialog);
-    string? SelectFile(string initialPath, string filter = "All Files (*.*)|*.*");
-}
+    string? SelectFolder(string? initialPath);
+    string? SelectFile(string? initialPath, string filter = "All Files (*.*)|*.*");
 
-public class DialogService : IDialogService
-{
-    public string? SelectFolder(string initialPath)
-    {
-        VistaFolderBrowserDialog dialog = new() { SelectedPath = initialPath };
-        return dialog.ShowDialog(Application.Current.MainWindow) == true
-            ? dialog.SelectedPath
-            : null;
-    }
+    // Generic prompt (returns user input or null if cancelled)
+    string? ShowPrompt(string title, string message, string defaultValue = "");
 
-    public bool? ShowDialog(Window dialog)
-    {
-        dialog?.Owner = Application.Current.MainWindow;
-        return dialog?.ShowDialog();
-    }
+    // Typed dialogs (return true if user confirmed/saved)
+    bool ShowAbout();
+    bool ShowNewProject(IProjectService projectService, out NewProjectViewModel? resultVm);
+    bool ShowOptions(AppOptions options, string currentPath, out AppOptions? updatedOptions);
+    bool ShowPreTranslate(PreTranslateViewModel vm);
+    bool ShowProviderSettings();
+    string? ShowLanguagePrompt(string title, string message, IEnumerable<TranslationItem>? existingTranslations);
 
-    public string? SelectFile(string initialPath, string filter = "All Files (*.*)|*.*")
-    {
-        var dialog = new Microsoft.Win32.OpenFileDialog
-        {
-            InitialDirectory = initialPath,
-            Filter = filter,
-            Multiselect = false
-        };
-        return dialog.ShowDialog(Application.Current.MainWindow) == true
-            ? dialog.FileName
-            : null;
-    }
-
-
+    // Application lifecycle
+    void Shutdown();
 }

@@ -1,124 +1,93 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.IO;
+using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Toucan.Core.Contracts;
 using Toucan.Core.Models;
-using System.Text;
-using System.IO;
-using Microsoft.Extensions.Logging;
 
-namespace Toucan.Core.Extensions; 
+namespace Toucan.Core.Extensions;
 
-public class JsonParser : IParser
+public class JsonParser(string language, ILogger<JsonParser>? logger = null) : IParser
 {
-    private string Language;
-    private readonly Microsoft.Extensions.Logging.ILogger<JsonParser>? _logger;
-    public JsonParser(string language, Microsoft.Extensions.Logging.ILogger<JsonParser>? logger = null)
-    {
-        Language = language;
-        _logger = logger;
-    }
+    private string _language = language;
+
     public IParser SetLanguage(string language)
     {
-        Language = language;
+        _language = language;
         return this;
     }
 
     public async IAsyncEnumerable<TranslationItem> Parse(string content)
     {
+        if (string.IsNullOrWhiteSpace(content)) yield break;
 
-        dynamic myObj = JsonConvert.DeserializeObject(content) ?? new object();
-        var walkItems = new Queue<JToken>();
-
-        foreach (dynamic item in myObj.Children())
+        JsonDocument doc;
+        try { doc = JsonDocument.Parse(content); }
+        catch (JsonException ex)
         {
-            walkItems.Enqueue(item);
+            logger?.LogError(ex, "Failed to parse JSON for language {Language}", _language);
+            yield break;
         }
 
-        while (walkItems.TryDequeue(out var item))
+        var queue = new Queue<(string Path, JsonElement Element)>();
+
+        if (doc.RootElement.ValueKind == JsonValueKind.Object)
         {
-            if (item.Children().Any())
+            foreach (var prop in doc.RootElement.EnumerateObject())
+                queue.Enqueue((prop.Name, prop.Value));
+        }
+
+        while (queue.TryDequeue(out var item))
+        {
+            if (item.Element.ValueKind == JsonValueKind.Object)
             {
-                foreach (JToken i in item.Children())
+                if (item.Element.EnumerateObject().Any())
                 {
-                    walkItems.Enqueue(i);
+                    foreach (var prop in item.Element.EnumerateObject())
+                        queue.Enqueue((string.IsNullOrEmpty(item.Path) ? prop.Name : $"{item.Path}.{prop.Name}", prop.Value));
                 }
-            }
-            else
-            {
-                    if (item.Type == JTokenType.Object && !item.Any())
-                    {
-                        _logger?.Log(LogLevel.Debug,"Skipped: {Path}", item.Path);
-                    }
                 else
                 {
-                    yield return new TranslationItem
-                    {
-                        Namespace = CleanPath(item.Path),
-                        Value = item.Value<string>() ?? "",
-                        Language = Language
-                    };
+                    logger?.LogDebug("Skipped empty object: {Path}", item.Path);
                 }
+            }
+            else if (item.Element.ValueKind is JsonValueKind.String or JsonValueKind.Number or JsonValueKind.True or JsonValueKind.False)
+            {
+                yield return new TranslationItem
+                {
+                    Namespace = item.Path,
+                    Value = item.Element.ValueKind == JsonValueKind.String ? item.Element.GetString() ?? "" : item.Element.ToString(),
+                    Language = _language
+                };
             }
         }
 
-    }
-
-    private static string CleanPath(string path)
-    {
-        string newPath = path;
-        if (newPath.StartsWith("['", StringComparison.InvariantCulture))
-        {
-            newPath = newPath[2..];
-        }
-        if (newPath.EndsWith("']", StringComparison.InvariantCulture))
-        {
-            newPath = newPath[..^2];
-        }
-
-        return newPath;
+        await Task.CompletedTask; // ponytail: keeps method async for IAsyncEnumerable contract
+        doc.Dispose();
     }
 
     public static void SaveNs(string path, List<NsTreeItem> items, List<string> languages)
     {
-
         foreach (string language in languages)
         {
-            Dictionary<string, dynamic> dyn = [];
-
+            Dictionary<string, object> dyn = [];
             for (int i = 0; i < items?.Count; i++)
-            {
-                NsTreeItem v = items[i];
-                v.ToJson(dyn, language);
-            }
+                items[i].ToJson(dyn, language);
 
-            string newFilePath = Path.Combine(path, language + ".json");
-            string json = JsonConvert.SerializeObject(dyn, Formatting.Indented, new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-            });
-            File.WriteAllText(newFilePath, json);
+            var json = JsonSerializer.Serialize(dyn, new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull });
+            File.WriteAllText(Path.Combine(path, language + ".json"), json);
         }
-
     }
 
-
-    public static void Save(string path, Dictionary<string, IEnumerable<TranslationItem>> TranslationItems)
+    public static void Save(string path, Dictionary<string, IEnumerable<TranslationItem>> translationItems)
     {
-
-        foreach (KeyValuePair<string, IEnumerable<TranslationItem>> TranslationItem in TranslationItems)
+        foreach (var kv in translationItems)
         {
-            string newFilePath = Path.Combine(path, TranslationItem.Key + ".json");
-            StringBuilder contentBuilder = new("{\n");
-            int counter = 0;
-            foreach (TranslationItem setting in TranslationItem.Value.Where(x => !string.IsNullOrEmpty(x.Value)).OrderBy(o => o.Namespace))
-            {
-                counter++;
-                contentBuilder.AppendLine((counter == 1 ? "" : ",") + "\t\"" + setting.Namespace + "\" : \"" + setting.Value + "\"");
-            }
+            var dict = new Dictionary<string, string>();
+            foreach (var setting in kv.Value.Where(x => !string.IsNullOrEmpty(x.Value)).OrderBy(o => o.Namespace))
+                dict[setting.Namespace] = setting.Value;
 
-            contentBuilder.AppendLine("}");
-            File.WriteAllText(newFilePath, contentBuilder.ToString());
+            var json = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(Path.Combine(path, kv.Key + ".json"), json);
         }
     }
 }
-

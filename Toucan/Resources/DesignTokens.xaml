@@ -1,0 +1,33 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Spacing (Double) -->
+    <sys:Double x:Key="SmallSpacing">4</sys:Double>
+    <sys:Double x:Key="MediumSpacing">8</sys:Double>
+    <sys:Double x:Key="LargeSpacing">12</sys:Double>
+    <sys:Double x:Key="XLargeSpacing">16</sys:Double>
+
+    <!-- Margins (Thickness) -->
+    <Thickness x:Key="ToolbarButtonMargin">4,0</Thickness>
+    <Thickness x:Key="ToolbarSeparatorMargin">6,0</Thickness>
+    <Thickness x:Key="CardContentPadding">8</Thickness>
+    <Thickness x:Key="PanelMargin">0</Thickness>
+    <Thickness x:Key="SectionMargin">0,0,0,8</Thickness>
+    <Thickness x:Key="DialogContentMargin">16,0,16,0</Thickness>
+    <Thickness x:Key="DialogFooterMargin">12,8,12,8</Thickness>
+
+    <!-- Corner Radius -->
+    <CornerRadius x:Key="SmallRadius">2</CornerRadius>
+    <CornerRadius x:Key="MediumRadius">4</CornerRadius>
+    <CornerRadius x:Key="LargeRadius">6</CornerRadius>
+    <CornerRadius x:Key="XLargeRadius">8</CornerRadius>
+
+    <!-- Sizing -->
+    <Thickness x:Key="ToolbarButtonPadding">4</Thickness>
+    <sys:Double x:Key="IconSize">16</sys:Double>
+    <sys:Double x:Key="TitleBarSearchWidth">206</sys:Double>
+    <sys:Double x:Key="TitleBarSearchHeight">32</sys:Double>
+    <sys:Double x:Key="LeftPanelWidth">320</sys:Double>
+
+</ResourceDictionary>

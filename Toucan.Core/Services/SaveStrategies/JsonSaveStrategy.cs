@@ -4,37 +4,19 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class JsonSaveStrategy : ISaveStrategy
+public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public SaveStyles Style => SaveStyles.Json;
-
-    private readonly IFileService _fileService;
-
-    public JsonSaveStrategy(IFileService fileService)
-    {
-        _fileService = fileService;
-    }
 
     public void Save(string path, SaveContext context)
     {
         if (context?.LanguageDictionary == null) return;
-
-        foreach (var kv in context.LanguageDictionary)
+        foreach (var (language, list) in context.LanguageDictionary)
         {
-            var language = kv.Key;
-            var list = kv.Value;
-            var dict = new Dictionary<string, string>();
-            foreach (var t in list.NoEmpty())
-            {
-                dict[t.Namespace] = t.Value ?? string.Empty;
-            }
-
-            _fileService.Save(path, language + ".json", dict);
+            var dict = list.NoEmpty().ToDictionary(t => t.Namespace, t => t.Value ?? string.Empty);
+            fileService.Save(path, language + ".json", dict);
         }
     }
 
-    public async Task SaveAsync(string path, SaveContext context)
-    {
-        await Task.Run(() => Save(path, context));
-    }
+    public Task SaveAsync(string path, SaveContext context) => Task.Run(() => Save(path, context));
 }

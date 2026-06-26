@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Toucan.Avalonia.Views.Components.ResourcesView">
+  <Border CornerRadius="4" Margin="0,0,0,2">
+    <Grid RowDefinitions="36,*">
+      <Grid ColumnDefinitions="*,Auto" Margin="10,0">
+        <TextBlock Text="Translation IDs" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12"/>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2">
+          <Button Command="{Binding ToggleViewModeCommand}" Padding="5" ToolTip.Tip="Toggle Tree/List">
+            <TextBlock Text="☰" FontSize="13"/>
+          </Button>
+          <Button Command="{Binding NewItemCommand}" Padding="5" ToolTip.Tip="New Translation ID">
+            <TextBlock Text="＋" FontSize="14"/>
+          </Button>
+        </StackPanel>
+      </Grid>
+
+      <Panel Grid.Row="1" Margin="4,0,4,4">
+        <TreeView x:Name="TreeNamespace"
+                  ItemsSource="{Binding CurrentTreeItems}"
+                  IsVisible="{Binding IsTreeView}"
+                  SelectionChanged="TreeNamespace_SelectionChanged">
+          <TreeView.ItemTemplate>
+            <TreeDataTemplate ItemsSource="{Binding Items}">
+              <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,1">
+                <TextBlock Text="📁" FontSize="11" VerticalAlignment="Center" Opacity="0.6"/>
+                <TextBlock Text="{Binding Name}" FontSize="12"/>
+              </StackPanel>
+            </TreeDataTemplate>
+          </TreeView.ItemTemplate>
+        </TreeView>
+        <ListBox x:Name="ListNamespace"
+                 ItemsSource="{Binding CurrentTreeItems}"
+                 IsVisible="{Binding !IsTreeView}"
+                 SelectionChanged="ListNamespace_SelectionChanged">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="6" Margin="2">
+                <TextBlock Text="📄" FontSize="11" Opacity="0.6"/>
+                <TextBlock Text="{Binding Namespace}" FontSize="12"/>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Panel>
+    </Grid>
+  </Border>
+</UserControl>

@@ -2,54 +2,39 @@ using System.Text;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 
-namespace Toucan.Core.Services
+namespace Toucan.Core.Services;
+
+public class BulkActionService(IPretranslationService? pretranslationService = null) : IBulkActionService
 {
-    public class BulkActionService : IBulkActionService
+    public async Task PreTranslateAsync(IEnumerable<TranslationItem> items, IProgress<PretranslationProgress>? progress = null, CancellationToken cancellationToken = default)
     {
-        private readonly Toucan.Core.Contracts.Services.IPretranslationService? _pretranslationService;
-
-        public BulkActionService(Toucan.Core.Contracts.Services.IPretranslationService? pretranslationService = null)
+        if (pretranslationService != null)
         {
-            _pretranslationService = pretranslationService;
-        }
-        public async Task PreTranslateAsync(IEnumerable<TranslationItem> items, IProgress<PretranslationProgress>? progress = null, System.Threading.CancellationToken cancellationToken = default)
-        {
-            if (_pretranslationService != null)
-            {
-                // delegate to configured pretranslation engine
-                await _pretranslationService.PreTranslateAsync(items, new PretranslationOptions(), progress, cancellationToken).ConfigureAwait(true);
-                return;
-            }
-            // Simple stub: set empty values to a placeholder or copy from another language (naive)
-            await Task.Run(() =>
-            {
-                // pick first language with values as source (fallback behavior)
-                var source = items.Where(i => !string.IsNullOrEmpty(i.Value)).FirstOrDefault();
-                foreach (var item in items)
-                {
-                    if (string.IsNullOrEmpty(item.Value) && source != null)
-                    {
-                        item.Value = source.Value; // naive copy
-                    }
-                }
-            }).ConfigureAwait(true);
+            await pretranslationService.PreTranslateAsync(items, new PretranslationOptions(), progress, cancellationToken).ConfigureAwait(false);
+            return;
         }
 
-        public string GenerateStatistics(IEnumerable<TranslationItem> items)
+        // Fallback: naive copy from first value found
+        await Task.Run(() =>
         {
-            var byLanguage = items.GroupBy(i => i.Language)
-                .Select(g => new { Language = g.Key, Total = g.Count(), Missing = g.Count(i => string.IsNullOrEmpty(i.Value)) })
-                .OrderBy(o => o.Language)
-                .ToList();
+            var source = items.FirstOrDefault(i => !string.IsNullOrEmpty(i.Value));
+            if (source == null) return;
+            foreach (var item in items.Where(i => string.IsNullOrEmpty(i.Value)))
+                item.Value = source.Value;
+        }, cancellationToken).ConfigureAwait(false);
+    }
 
-            StringBuilder sb = new();
-            sb.AppendLine("Translation statistics:");
-            foreach (var l in byLanguage)
-            {
-                StringBuilder stringBuilder = sb.AppendLine($"{l.Language}: {l.Total - l.Missing}/{l.Total} ({(int)((double)(l.Total - l.Missing) / l.Total * 100)}% complete)");
-            }
+    public string GenerateStatistics(IEnumerable<TranslationItem> items)
+    {
+        var byLanguage = items
+            .GroupBy(i => i.Language)
+            .Select(g => (Language: g.Key, Total: g.Count(), Missing: g.Count(i => string.IsNullOrEmpty(i.Value))))
+            .OrderBy(o => o.Language);
 
-            return sb.ToString();
-        }
+        var sb = new StringBuilder("Translation statistics:\n");
+        foreach (var (language, total, missing) in byLanguage)
+            sb.AppendLine($"{language}: {total - missing}/{total} ({(int)((double)(total - missing) / total * 100)}% complete)");
+
+        return sb.ToString();
     }
 }

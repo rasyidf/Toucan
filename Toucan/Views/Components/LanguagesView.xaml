@@ -43,8 +43,8 @@
             Orientation="Horizontal">
             <!-- Expand/Collapse all languages -->
             <ui:Button
-                Margin="2,0"
-                Padding="4"
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
                 HorizontalAlignment="Right"
                 Appearance="Transparent"
                 Command="{Binding SummaryInfo.ToggleExpandAllCommand}">
@@ -53,8 +53,8 @@
 
             <!-- Add new language -->
             <ui:Button
-                Margin="2,0"
-                Padding="4"
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
                 HorizontalAlignment="Right"
                 Appearance="Transparent"
                 Command="{Binding NewLanguageCommand}">
@@ -63,8 +63,8 @@
 
             <!-- Show / Hide toggle for the entire languages panel -->
             <ui:Button
-                Margin="2,0"
-                Padding="4"
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
                 HorizontalAlignment="Right"
                 Appearance="Transparent"
                 Command="{Binding ToggleLanguagesVisibilityCommand}">
@@ -86,7 +86,7 @@
                             <DataTemplate>
                                 <ui:CardExpander
                                     Margin="4"
-                                    Padding="8"
+                                    Padding="6"
                                     IsExpanded="{Binding IsExpanded}">
                                     <!-- New compact & informative header -->
                                     <ui:CardExpander.Header>
@@ -104,9 +104,9 @@
                                                 <TextBlock Margin="8,0,6,0" VerticalAlignment="Center" Text="{Binding Percentage, FallbackValue=0, Mode=OneWay, StringFormat=\{0:F0\}%}" />
                                                 <TextBlock Margin="0,0,8,0" VerticalAlignment="Center" Text="{Binding Stats, Mode=OneWay}" />
 
-                                                <!-- inline quick menu (three dots) -->
+                                                <!-- inline quick menu -->
                                                 <ui:Button Margin="2,0" Padding="2" Appearance="Transparent">
-                                                    <TextBlock Text="⋯" FontWeight="Bold" />
+                                                    <ui:SymbolIcon Symbol="MoreHorizontal20" />
                                                     <ui:Button.ContextMenu>
                                                         <ContextMenu>
                                                             <!-- Per-language pretranslate options -->

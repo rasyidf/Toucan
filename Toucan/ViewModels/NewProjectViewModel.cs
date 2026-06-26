@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
 using Toucan.Services;
 using System;
 using Toucan.Core.Contracts.Services;
@@ -10,9 +9,19 @@ using Toucan.Core.Models;
 
 namespace Toucan.ViewModels;
 
+/// <summary>Framework tile shown in New Project grid.</summary>
+public class FrameworkTile
+{
+    public string Name { get; init; } = "";
+    public string Description { get; init; } = "";
+    public string Icon { get; init; } = "🌐";
+    public SaveStyles Style { get; init; } = SaveStyles.Json;
+}
+
 public partial class NewProjectViewModel : ObservableObject
 {
     private readonly IProjectService _projectService;
+
     [ObservableProperty]
     private string projectName = string.Empty;
 
@@ -20,14 +29,26 @@ public partial class NewProjectViewModel : ObservableObject
     private string projectFolder = string.Empty;
 
     [ObservableProperty]
-    private string selectedFramework = "JSON";
+    private FrameworkTile selectedFramework;
 
-    public ObservableCollection<string> Frameworks { get; } = new()
+    public ObservableCollection<FrameworkTile> Frameworks { get; } = new()
     {
-        "JSON",
-        "INI",
-        "PO",
-        "YAML"
+        new() { Name = "i18next", Description = "JSON namespaced", Icon = "⚙", Style = SaveStyles.Namespaced },
+        new() { Name = "React", Description = "Flat JSON", Icon = "⚛", Style = SaveStyles.Json },
+        new() { Name = "Vue", Description = "vue-i18n JSON", Icon = "🟢", Style = SaveStyles.Json },
+        new() { Name = "Angular", Description = "JSON / XLIFF", Icon = "🅰", Style = SaveStyles.Json },
+        new() { Name = "Flutter", Description = "ARB format", Icon = "🐦", Style = SaveStyles.Arb },
+        new() { Name = "Laravel", Description = "PHP / JSON", Icon = "🔷", Style = SaveStyles.Json },
+        new() { Name = ".NET", Description = "RESX resource", Icon = "🟣", Style = SaveStyles.Resx },
+        new() { Name = "Android", Description = "strings.xml", Icon = "🤖", Style = SaveStyles.AndroidXml },
+        new() { Name = "iOS", Description = ".strings", Icon = "🍎", Style = SaveStyles.IosStrings },
+        new() { Name = "Ruby/Rails", Description = "YAML locale", Icon = "💎", Style = SaveStyles.Yaml },
+        new() { Name = "Svelte", Description = "svelte-i18n", Icon = "🔶", Style = SaveStyles.Json },
+        new() { Name = "Java", Description = ".properties", Icon = "☕", Style = SaveStyles.Properties },
+        new() { Name = "Gettext", Description = "PO files", Icon = "📝", Style = SaveStyles.Properties },
+        new() { Name = "Generic JSON", Description = "Flat JSON", Icon = "{ }", Style = SaveStyles.Json },
+        new() { Name = "Generic YAML", Description = "YAML files", Icon = "≡", Style = SaveStyles.Yaml },
+        new() { Name = "CSV", Description = "CSV table", Icon = "📊", Style = SaveStyles.Csv },
     };
 
     [ObservableProperty]
@@ -39,19 +60,18 @@ public partial class NewProjectViewModel : ObservableObject
     [ObservableProperty]
     private bool createManifest = false;
 
-    // Convenience read-only validation property for XAML binding
-    public bool IsValid => !string.IsNullOrWhiteSpace(ProjectName) && !string.IsNullOrWhiteSpace(ProjectFolder) && Languages?.Count > 0;
+    public bool IsValid => !string.IsNullOrWhiteSpace(ProjectName) && !string.IsNullOrWhiteSpace(ProjectFolder) && Languages?.Count > 0 && SelectedFramework != null;
 
     public NewProjectViewModel(IProjectService projectService = null)
     {
         _projectService = projectService;
-        // default language from app options (user preference)
+        SelectedFramework = Frameworks[0];
+
         try
         {
             var opts = Toucan.Core.Options.AppOptions.LoadFromDisk();
             var defaultLang = string.IsNullOrWhiteSpace(opts?.DefaultLanguage) ? "en-US" : opts.DefaultLanguage;
             SourceLanguage = defaultLang;
-            // Ensure at least one default language exists and add a small curated set of helpful defaults
             Languages.Add(defaultLang);
             var suggestions = new[] { "en-US", "id-ID", "zh-CN", "fr-FR" };
             foreach (var s in suggestions)
@@ -62,11 +82,9 @@ public partial class NewProjectViewModel : ObservableObject
         }
         catch
         {
-            // fallback
             Languages.Add("en-US");
         }
 
-        // ensure we update IsValid when languages change
         if (Languages != null)
             Languages.CollectionChanged += (s, e) => OnPropertyChanged(nameof(IsValid));
     }
@@ -74,17 +92,10 @@ public partial class NewProjectViewModel : ObservableObject
     [RelayCommand]
     private void AddLanguage()
     {
-        // Uses the existing LanguagePrompt to ask for language
-        var dialog = new LanguagePrompt("Add Language", "Pick a language to add", null);
-        dialog.Owner = Application.Current.MainWindow;
-        if (dialog.ShowDialog() == true)
-        {
-            var language = dialog.ResponseText;
-            if (!string.IsNullOrWhiteSpace(language) && !Languages.Contains(language))
-            {
-                Languages.Add(language);
-            }
-        }
+        var ds = App.Services?.GetService(typeof(IDialogService)) as IDialogService;
+        var result = ds?.ShowLanguagePrompt("Add Language", "Enter a language code", null);
+        if (!string.IsNullOrWhiteSpace(result) && !Languages.Contains(result))
+            Languages.Add(result);
     }
 
     [RelayCommand]
@@ -101,66 +112,37 @@ public partial class NewProjectViewModel : ObservableObject
     private void RemoveLanguage(string language)
     {
         if (string.IsNullOrEmpty(language)) return;
-        if (Languages.Count <= 1)
-        {
-            // Keep at least one language
-            return;
-        }
+        if (Languages.Count <= 1) return;
         Languages.Remove(language);
     }
 
     [RelayCommand]
     private void BrowseFolder()
     {
-        var ds = new DialogService();
-        var selected = ds.SelectFolder(ProjectFolder);
+        var ds = App.Services?.GetService(typeof(IDialogService)) as IDialogService;
+        var selected = ds?.SelectFolder(ProjectFolder);
         if (selected != null)
-        {
             ProjectFolder = selected;
-        }
     }
 
-    partial void OnProjectNameChanged(string value)
-    {
-        OnPropertyChanged(nameof(IsValid));
-    }
-
-    partial void OnProjectFolderChanged(string value)
-    {
-        OnPropertyChanged(nameof(IsValid));
-    }
+    partial void OnProjectNameChanged(string value) => OnPropertyChanged(nameof(IsValid));
+    partial void OnProjectFolderChanged(string value) => OnPropertyChanged(nameof(IsValid));
+    partial void OnSelectedFrameworkChanged(FrameworkTile value) => OnPropertyChanged(nameof(IsValid));
 
     partial void OnLanguagesChanged(ObservableCollection<string> value)
     {
         if (value != null)
-        {
             value.CollectionChanged += (s, e) => OnPropertyChanged(nameof(IsValid));
-        }
     }
 
-    // validation is now implemented as a computed property 'IsValid'
-
-    /// <summary>
-    /// Creates the actual project files on disk
-    /// </summary>
     public void CreateProject()
     {
         if (_projectService == null)
             throw new InvalidOperationException("ProjectService is not available");
-
         if (!IsValid)
             throw new InvalidOperationException("Project settings are not valid");
 
-        // Map framework selection to SaveStyles
-        SaveStyles style = SelectedFramework switch
-        {
-            "INI" => SaveStyles.Adb,
-            "PO" => SaveStyles.Properties,
-            "YAML" => SaveStyles.Yaml,
-            _ => SaveStyles.Json
-        };
-
-        // Create the project folder if it doesn't exist and create language files
+        var style = SelectedFramework?.Style ?? SaveStyles.Json;
         _projectService.CreateProject(ProjectFolder, Languages, style, CreateManifest);
     }
 }

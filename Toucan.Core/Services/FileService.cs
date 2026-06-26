@@ -1,150 +1,121 @@
-﻿using System.IO;
+using System.IO;
 using System.Text;
-
-using Newtonsoft.Json;
-
-using Toucan.Core.Contracts.Services;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Toucan.Core.Contracts.Services;
 
 namespace Toucan.Core.Services;
 
-public class FileService : IFileService
+public class FileService(ILogger<FileService> logger) : IFileService
 {
-    private readonly Microsoft.Extensions.Logging.ILogger<FileService> _logger;
-    public FileService(Microsoft.Extensions.Logging.ILogger<FileService> logger)
+    private static readonly JsonSerializerOptions s_options = new()
     {
-        _logger = logger;
-    }
+        WriteIndented = true,
+        PropertyNameCaseInsensitive = true
+    };
 
     public T Read<T>(string folderPath, string fileName)
     {
         var path = Path.Combine(folderPath, fileName);
-            if (File.Exists(path))
+        if (!File.Exists(path))
         {
-            if (typeof(T) == typeof(string))
-            {
-                // Read as raw text
-                var text = File.ReadAllText(path, Encoding.UTF8);
-                return (T)(object)text;
-            }
-
-            if (typeof(T) == typeof(byte[]))
-            {
-                var bytes = File.ReadAllBytes(path);
-                return (T)(object)bytes;
-            }
-
-            var json = File.ReadAllText(path, Encoding.UTF8);
-            return JsonConvert.DeserializeObject<T>(json);
+            logger.LogWarning("File not found: {Path}", path);
+            return default!;
         }
 
-            _logger?.LogWarning("File not found: {path}", path);
-            return default;
+        if (typeof(T) == typeof(string)) return (T)(object)File.ReadAllText(path, Encoding.UTF8);
+        if (typeof(T) == typeof(byte[])) return (T)(object)File.ReadAllBytes(path);
+
+        var json = File.ReadAllText(path, Encoding.UTF8);
+        return JsonSerializer.Deserialize<T>(json, s_options)!;
     }
 
     public void Save<T>(string folderPath, string fileName, T content)
     {
-        if (!Directory.Exists(folderPath))
-        {
-            Directory.CreateDirectory(folderPath);
-        }
-
+        Directory.CreateDirectory(folderPath);
         var path = Path.Combine(folderPath, fileName);
 
-        if (content is string textContent)
-        {
-            File.WriteAllText(path, textContent, Encoding.UTF8);
-            return;
-        }
+        if (content is string text) { File.WriteAllText(path, text, Encoding.UTF8); return; }
+        if (content is byte[] bytes) { File.WriteAllBytes(path, bytes); return; }
 
-        if (content is byte[] bytesContent)
-        {
-            File.WriteAllBytes(path, bytesContent);
-            return;
-        }
-
-        var fileContent = JsonConvert.SerializeObject(content);
-        File.WriteAllText(path, fileContent, Encoding.UTF8);
+        File.WriteAllText(path, JsonSerializer.Serialize(content, s_options), Encoding.UTF8);
     }
 
     public string ReadText(string folderPath, string fileName)
     {
         var path = Path.Combine(folderPath, fileName);
-        if (File.Exists(path))
-        {
-            return File.ReadAllText(path, Encoding.UTF8);
-        }
-
-        return null;
+        return File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8) : null!;
     }
 
     public void SaveText(string folderPath, string fileName, string content)
     {
-        if (!Directory.Exists(folderPath))
-        {
-            Directory.CreateDirectory(folderPath);
-        }
-
+        Directory.CreateDirectory(folderPath);
         File.WriteAllText(Path.Combine(folderPath, fileName), content, Encoding.UTF8);
     }
 
     public byte[] ReadBytes(string folderPath, string fileName)
     {
         var path = Path.Combine(folderPath, fileName);
-        if (File.Exists(path))
-        {
-            return File.ReadAllBytes(path);
-        }
-
-        return null;
+        return File.Exists(path) ? File.ReadAllBytes(path) : null!;
     }
 
     public void SaveBytes(string folderPath, string fileName, byte[] content)
     {
-        if (!Directory.Exists(folderPath))
-        {
-            Directory.CreateDirectory(folderPath);
-        }
-
+        Directory.CreateDirectory(folderPath);
         File.WriteAllBytes(Path.Combine(folderPath, fileName), content);
     }
 
     public void Delete(string folderPath, string fileName)
     {
-        if (fileName != null && File.Exists(Path.Combine(folderPath, fileName)))
-        {
-            File.Delete(Path.Combine(folderPath, fileName));
-        }
+        var path = Path.Combine(folderPath, fileName);
+        if (File.Exists(path)) File.Delete(path);
     }
 
-    // Async wrappers to existing synchronous methods (to avoid breaking changes while adding async support)
     public async Task<T> ReadAsync<T>(string folderPath, string fileName)
     {
-        return await Task.Run(() => Read<T>(folderPath, fileName));
+        var path = Path.Combine(folderPath, fileName);
+        if (!File.Exists(path)) return default!;
+
+        if (typeof(T) == typeof(string)) return (T)(object)await File.ReadAllTextAsync(path, Encoding.UTF8).ConfigureAwait(false);
+        if (typeof(T) == typeof(byte[])) return (T)(object)await File.ReadAllBytesAsync(path).ConfigureAwait(false);
+
+        await using var stream = File.OpenRead(path);
+        return (await JsonSerializer.DeserializeAsync<T>(stream, s_options).ConfigureAwait(false))!;
     }
 
     public async Task SaveAsync<T>(string folderPath, string fileName, T content)
     {
-        await Task.Run(() => Save(folderPath, fileName, content));
+        Directory.CreateDirectory(folderPath);
+        var path = Path.Combine(folderPath, fileName);
+
+        if (content is string text) { await File.WriteAllTextAsync(path, text, Encoding.UTF8).ConfigureAwait(false); return; }
+        if (content is byte[] bytes) { await File.WriteAllBytesAsync(path, bytes).ConfigureAwait(false); return; }
+
+        await using var stream = File.Create(path);
+        await JsonSerializer.SerializeAsync(stream, content, s_options).ConfigureAwait(false);
     }
 
-    public async Task<string> ReadTextAsync(string folderPath, string fileName)
+    public Task<string> ReadTextAsync(string folderPath, string fileName)
     {
-        return await Task.Run(() => ReadText(folderPath, fileName));
+        var path = Path.Combine(folderPath, fileName);
+        return File.Exists(path) ? File.ReadAllTextAsync(path, Encoding.UTF8) : Task.FromResult<string>(null!);
     }
 
-    public async Task SaveTextAsync(string folderPath, string fileName, string content)
+    public Task SaveTextAsync(string folderPath, string fileName, string content)
     {
-        await Task.Run(() => SaveText(folderPath, fileName, content));
+        Directory.CreateDirectory(folderPath);
+        return File.WriteAllTextAsync(Path.Combine(folderPath, fileName), content, Encoding.UTF8);
     }
 
-    public async Task<byte[]> ReadBytesAsync(string folderPath, string fileName)
+    public Task<byte[]> ReadBytesAsync(string folderPath, string fileName)
     {
-        return await Task.Run(() => ReadBytes(folderPath, fileName));
+        var path = Path.Combine(folderPath, fileName);
+        return File.Exists(path) ? File.ReadAllBytesAsync(path) : Task.FromResult<byte[]>(null!);
     }
 
-    public async Task SaveBytesAsync(string folderPath, string fileName, byte[] content)
+    public Task SaveBytesAsync(string folderPath, string fileName, byte[] content)
     {
-        await Task.Run(() => SaveBytes(folderPath, fileName, content));
+        Directory.CreateDirectory(folderPath);
+        return File.WriteAllBytesAsync(Path.Combine(folderPath, fileName), content);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Windows;
 using System.Windows.Controls;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
@@ -29,8 +30,10 @@ public partial class MainWindow : FluentWindow
         // wire up list selection from resources view
         resourcesView.ListSelectionChanged += ResourcesView_ListSelectionChanged;
 
-        // wire up statusbar view model and service
-        var statusViewModel = new StatusBarViewModel();
+        // wire up statusbar view model and service; prefer the DI-registered singleton instance
+        var statusViewModel = App.Services != null
+            ? App.Services.GetRequiredService<StatusBarViewModel>()
+            : new StatusBarViewModel();
             // initialize from main view model
         statusViewModel.StatusText = ViewModel.StatusText;
         statusViewModel.IsLoading = ViewModel.IsLoading;
@@ -58,12 +61,12 @@ public partial class MainWindow : FluentWindow
     private void UpdateStartupOptions(string startupPath)
     {
         ViewModel.AppOptions = AppOptions.LoadFromDisk();
-        ViewModel.CurrentPath = ViewModel.AppOptions.DefaultPath;
+        ViewModel.CurrentPath = ViewModel.AppOptions.LastProjectPath;
 
         if (!string.IsNullOrEmpty(startupPath))
         {
             ViewModel.CurrentPath = startupPath;
-            ViewModel.AppOptions.DefaultPath = ViewModel.CurrentPath;
+            ViewModel.AppOptions.LastProjectPath = ViewModel.CurrentPath;
             ViewModel.AppOptions.ToDisk();
         }
     }
@@ -109,7 +112,16 @@ public partial class MainWindow : FluentWindow
 
     private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
-        await ViewModel.OpenRecent().ConfigureAwait(true);
+        // Auto-open last project on startup
+        if (!string.IsNullOrEmpty(ViewModel.CurrentPath) && System.IO.Directory.Exists(ViewModel.CurrentPath))
+        {
+            if (ViewModel.OpenRecentProjectCommand.CanExecute(ViewModel.CurrentPath))
+                await ViewModel.OpenRecentProjectCommand.ExecuteAsync(ViewModel.CurrentPath).ConfigureAwait(true);
+        }
+
+        // Populate recent projects for flyout menu
+        ViewModel.RefreshRecentProjects();
+
         SystemThemeWatcher.Watch(this, WindowBackdropType.Tabbed, true);
     }
 
@@ -130,5 +142,14 @@ public partial class MainWindow : FluentWindow
     private void ShowAll(object sender, RoutedEventArgs e)
     {
         ViewModel.ShowAll(ViewModel.SearchText);
+    }
+
+    private void SearchFilterTextbox_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.Enter)
+        {
+            var binding = ((System.Windows.Controls.TextBox)sender).GetBindingExpression(System.Windows.Controls.TextBox.TextProperty);
+            binding?.UpdateSource();
+        }
     }
 }
