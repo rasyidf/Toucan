@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] — 2026-06-27
+
+### Added
+- **Focused Editor: language subset selector** — Ctrl+E to toggle, prompt to pick languages
+- **Zen mode: j/k keyboard navigation** — navigate between translation keys without mouse
+- **Excel: Comment + Approved columns** — export/import approval status and comments
+- **File watcher** — monitors project folder, prompts to reload on external changes
+- **Suggestions panel** — fuzzy-match existing translations for the selected key
+- **Focused Editor mode** — single-key form with prev/next for translator workflow
+- **Zen mode** — F11 distraction-free editing (hides toolbar/statusbar/sidepanel)
+- **PanelService** — centralized panel visibility management
+- **Infinite scroll toggle** — switch between paginated and continuous modes
+- **Excel (.xlsx) import/export** — ClosedXML-based, key + language columns
+- **Statistics dialog** — per-language breakdown with progress bars
+- **Tab navigation** between translation edit fields
+- **Filter expression history** — last 15 searches persisted
+- **Undo / Redo** — command-stack based (Ctrl+Z / Ctrl+Y)
+- **KeybindingService** — centralized 24 shortcuts, visible in Options tab
+- **TranslationPostProcessor** — parameter preservation + uppercase first letter
+- **Plain text keys** option (no dot-splitting in tree)
+
+### Changed
+- Version bump to 0.3.0
+- Roadmap reprioritized: AI/Source scanning moved to low priority
+- Statistics uses proper dialog instead of MessageBox
+
 ## [0.2.0] — 2026-06-27
 
 ### Added

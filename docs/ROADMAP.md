@@ -34,8 +34,8 @@
 - [x] Focused Editor mode (single-key form, prev/next navigation)
 - [x] Zen mode (hides toolbar/statusbar/sidepanel, F11)
 - [x] PanelService for centralized panel state
-- [ ] Focused Editor: language subset selector
-- [ ] Zen mode: keyboard-only navigation (j/k)
+- [x] Focused Editor: language subset selector
+- [x] Zen mode: keyboard-only navigation (j/k)
 
 ## File I/O
 
@@ -47,11 +47,11 @@
 - [x] Import / Export menu (all formats)
 - [x] Project manifest (`toucan.project` JSON)
 - [x] Excel (.xlsx) import/export
-- [ ] Export/Import approved flags + comments in Excel
+- [x] Export/Import approved flags + comments in Excel
 - [ ] Java .properties (ISO-8859-1)
 - [ ] Laravel PHP file support
 - [ ] Auto-detect framework on folder drop
-- [ ] File watcher (reload changed files from disk)
+- [x] File watcher (reload changed files from disk)
 - [ ] Skip unchanged files on reload
 
 ## Machine Translation
@@ -119,19 +119,19 @@
 
 ## Progress
 
-**Done: 62 / 88 (70%)**
+**Done: 66 / 88 (75%)**
 
-**Feature parity vs BabelEdit: ~85%**
+**Feature parity vs BabelEdit: ~88%**
 
 ---
 
 ## Recommended Next Sprint
 
-1. Focused Editor: language subset selector (S)
-2. Zen mode: keyboard-only navigation (S)
-3. Export/Import approved flags in Excel (S)
-4. Plural forms support (L)
-5. File watcher — reload changed files (M)
+1. Plural forms support (L)
+2. Auto-detect framework on folder drop (S)
+3. Custom language codes (S)
+4. Package support — multiple translation sets (L)
+5. MSIX installer (M)
 
 ---
 
