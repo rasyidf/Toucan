@@ -31,6 +31,13 @@ public partial class NewProjectViewModel : ObservableObject
     [ObservableProperty]
     private FrameworkTile selectedFramework;
 
+    // Wizard step: 0 = template+title, 1 = languages
+    [ObservableProperty]
+    private int wizardStep = 0;
+
+    public bool IsStep0 => WizardStep == 0;
+    public bool IsStep1 => WizardStep == 1;
+
     public ObservableCollection<FrameworkTile> Frameworks { get; } = new()
     {
         new() { Name = "i18next", Description = "JSON namespaced", Icon = "⚙", Style = SaveStyles.Namespaced },
@@ -38,13 +45,13 @@ public partial class NewProjectViewModel : ObservableObject
         new() { Name = "Vue", Description = "vue-i18n JSON", Icon = "🟢", Style = SaveStyles.Json },
         new() { Name = "Angular", Description = "JSON / XLIFF", Icon = "🅰", Style = SaveStyles.Json },
         new() { Name = "Flutter", Description = "ARB format", Icon = "🐦", Style = SaveStyles.Arb },
-        new() { Name = "Laravel", Description = "PHP / JSON", Icon = "🔷", Style = SaveStyles.Json },
+        new() { Name = "Laravel", Description = "PHP / JSON", Icon = "🔷", Style = SaveStyles.LaravelPhp },
         new() { Name = ".NET", Description = "RESX resource", Icon = "🟣", Style = SaveStyles.Resx },
         new() { Name = "Android", Description = "strings.xml", Icon = "🤖", Style = SaveStyles.AndroidXml },
         new() { Name = "iOS", Description = ".strings", Icon = "🍎", Style = SaveStyles.IosStrings },
         new() { Name = "Ruby/Rails", Description = "YAML locale", Icon = "💎", Style = SaveStyles.Yaml },
         new() { Name = "Svelte", Description = "svelte-i18n", Icon = "🔶", Style = SaveStyles.Json },
-        new() { Name = "Java", Description = ".properties", Icon = "☕", Style = SaveStyles.Properties },
+        new() { Name = "Java", Description = ".properties", Icon = "☕", Style = SaveStyles.JavaProperties },
         new() { Name = "Gettext", Description = "PO files", Icon = "📝", Style = SaveStyles.Properties },
         new() { Name = "Generic JSON", Description = "Flat JSON", Icon = "{ }", Style = SaveStyles.Json },
         new() { Name = "Generic YAML", Description = "YAML files", Icon = "≡", Style = SaveStyles.Yaml },
@@ -73,12 +80,6 @@ public partial class NewProjectViewModel : ObservableObject
             var defaultLang = string.IsNullOrWhiteSpace(opts?.DefaultLanguage) ? "en-US" : opts.DefaultLanguage;
             SourceLanguage = defaultLang;
             Languages.Add(defaultLang);
-            var suggestions = new[] { "en-US", "id-ID", "zh-CN", "fr-FR" };
-            foreach (var s in suggestions)
-            {
-                if (!Languages.Contains(s))
-                    Languages.Add(s);
-            }
         }
         catch
         {
@@ -87,6 +88,31 @@ public partial class NewProjectViewModel : ObservableObject
 
         if (Languages != null)
             Languages.CollectionChanged += (s, e) => OnPropertyChanged(nameof(IsValid));
+    }
+
+    [RelayCommand]
+    private void NextStep()
+    {
+        if (WizardStep == 0 && SelectedFramework != null && !string.IsNullOrWhiteSpace(ProjectFolder))
+        {
+            // Auto-set project name from framework if empty
+            if (string.IsNullOrWhiteSpace(ProjectName))
+                ProjectName = SelectedFramework.Name + "-i18n";
+            WizardStep = 1;
+            OnPropertyChanged(nameof(IsStep0));
+            OnPropertyChanged(nameof(IsStep1));
+        }
+    }
+
+    [RelayCommand]
+    private void PreviousStep()
+    {
+        if (WizardStep > 0)
+        {
+            WizardStep = 0;
+            OnPropertyChanged(nameof(IsStep0));
+            OnPropertyChanged(nameof(IsStep1));
+        }
     }
 
     [RelayCommand]
@@ -101,10 +127,18 @@ public partial class NewProjectViewModel : ObservableObject
     [RelayCommand]
     private void AddDefaults()
     {
-        var defaults = new[] { "en-US", "id-ID", "zh-CN", "fr-FR", "es-ES" };
-        foreach (var d in defaults)
+        try
         {
-            if (!Languages.Contains(d)) Languages.Add(d);
+            var opts = Toucan.Core.Options.AppOptions.LoadFromDisk();
+            var suggested = opts?.SuggestedLanguages ?? ["en-US", "id-ID", "zh-CN", "fr-FR", "es-ES"];
+            foreach (var d in suggested)
+            {
+                if (!Languages.Contains(d)) Languages.Add(d);
+            }
+        }
+        catch
+        {
+            if (!Languages.Contains("en-US")) Languages.Add("en-US");
         }
     }
 
@@ -127,7 +161,14 @@ public partial class NewProjectViewModel : ObservableObject
 
     partial void OnProjectNameChanged(string value) => OnPropertyChanged(nameof(IsValid));
     partial void OnProjectFolderChanged(string value) => OnPropertyChanged(nameof(IsValid));
-    partial void OnSelectedFrameworkChanged(FrameworkTile value) => OnPropertyChanged(nameof(IsValid));
+
+    partial void OnSelectedFrameworkChanged(FrameworkTile value)
+    {
+        OnPropertyChanged(nameof(IsValid));
+        // Auto-set project name based on framework
+        if (value != null && string.IsNullOrWhiteSpace(ProjectName))
+            ProjectName = value.Name + "-i18n";
+    }
 
     partial void OnLanguagesChanged(ObservableCollection<string> value)
     {
@@ -143,6 +184,6 @@ public partial class NewProjectViewModel : ObservableObject
             throw new InvalidOperationException("Project settings are not valid");
 
         var style = SelectedFramework?.Style ?? SaveStyles.Json;
-        _projectService.CreateProject(ProjectFolder, Languages, style, CreateManifest);
+        _projectService.CreateProject(ProjectFolder, Languages, style, CreateManifest, ProjectName);
     }
 }

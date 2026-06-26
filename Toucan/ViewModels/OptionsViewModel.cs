@@ -17,16 +17,34 @@ internal partial class OptionsViewModel : ObservableObject
 
         // initialize vm fields
         Indent = "tab";
-        Format = "Json"; // ponytail: SaveStyle now per-project, not app-level
+        Format = "Json";
         PageSizeText = AppOptions.PageSize.ToString();
         TruncateSizeText = AppOptions.TruncateResultsOver.ToString();
         MaxItemsText = AppOptions.MaxItems.ToString();
-        // default language preference from app options
         DefaultLanguage = AppOptions.DefaultLanguage ?? "en-US";
+        PlainTextKeys = AppOptions.PlainTextKeys;
+        CopyTemplate1 = AppOptions.CopyTemplate1 ?? "%1";
+        CopyTemplate2 = AppOptions.CopyTemplate2 ?? string.Empty;
+        CopyTemplate3 = AppOptions.CopyTemplate3 ?? string.Empty;
+        Formality = AppOptions.Formality ?? "Default";
+        Context = AppOptions.Context ?? string.Empty;
+        SuggestedLanguages = new System.Collections.ObjectModel.ObservableCollection<string>(AppOptions.SuggestedLanguages ?? ["en-US"]);
     }
 
     [ObservableProperty]
     private string defaultLanguage;
+
+    [ObservableProperty]
+    private bool plainTextKeys;
+
+    [ObservableProperty]
+    private System.Collections.ObjectModel.ObservableCollection<string> suggestedLanguages = new();
+
+    [RelayCommand]
+    private void RemoveSuggestedLanguage(string lang)
+    {
+        if (!string.IsNullOrEmpty(lang)) SuggestedLanguages.Remove(lang);
+    }
 
     // Project-specific editor configuration (if a project manifest is available)
     [ObservableProperty]
@@ -119,8 +137,14 @@ internal partial class OptionsViewModel : ObservableObject
         AppOptions.PageSize = page;
         AppOptions.TruncateResultsOver = trunc;
         AppOptions.MaxItems = maxItems;
-        // Persist user's default language preference
         AppOptions.DefaultLanguage = DefaultLanguage;
+        AppOptions.PlainTextKeys = PlainTextKeys;
+        AppOptions.CopyTemplate1 = CopyTemplate1;
+        AppOptions.CopyTemplate2 = CopyTemplate2;
+        AppOptions.CopyTemplate3 = CopyTemplate3;
+        AppOptions.Formality = Formality;
+        AppOptions.Context = Context;
+        AppOptions.SuggestedLanguages = [.. SuggestedLanguages];
 
         _preferenceService.Save(AppOptions);
 

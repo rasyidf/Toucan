@@ -22,11 +22,11 @@
 
         <ui:TitleBar Title="New Project" ShowMaximize="False" ShowMinimize="False"/>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <!-- Step 0: Framework + Title + Folder -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      Visibility="{Binding IsStep0, Converter={StaticResource BoolToVis}}">
             <StackPanel Margin="20,8,20,8">
-
-                <!-- Header -->
-                <TextBlock Text="Create a new translation project" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <TextBlock Text="Step 1: Choose framework &amp; location" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,4"/>
                 <TextBlock Text="Select the framework used in your project:" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,12"/>
 
                 <!-- Framework tile grid -->
@@ -41,14 +41,10 @@
                             <RadioButton GroupName="Framework"
                                          IsChecked="{Binding IsSelected, Mode=TwoWay, RelativeSource={RelativeSource Self}}"
                                          Checked="FrameworkTile_Checked"
-                                         Tag="{Binding}"
-                                         Margin="4" Padding="0"
-                                         Style="{StaticResource {x:Type RadioButton}}">
+                                         Tag="{Binding}" Margin="4" Padding="0">
                                 <RadioButton.Template>
                                     <ControlTemplate TargetType="RadioButton">
-                                        <Border x:Name="TileBorder"
-                                                Width="100" Height="80"
-                                                CornerRadius="6"
+                                        <Border x:Name="TileBorder" Width="100" Height="80" CornerRadius="6"
                                                 BorderThickness="1"
                                                 BorderBrush="{DynamicResource ControlElevationBorderBrush}"
                                                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
@@ -97,6 +93,15 @@
                     <ui:Button Grid.Column="1" Content="Browse..." Margin="6,0,0,0"
                                Command="{Binding BrowseFolderCommand}"/>
                 </Grid>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Step 1: Languages -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      Visibility="{Binding IsStep1, Converter={StaticResource BoolToVis}}">
+            <StackPanel Margin="20,8,20,8">
+                <TextBlock Text="Step 2: Configure languages" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <TextBlock Text="Add the languages you want to translate into:" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,12"/>
 
                 <!-- Languages -->
                 <Grid Margin="0,0,0,4">
@@ -111,7 +116,7 @@
                     </StackPanel>
                 </Grid>
 
-                <Border BorderThickness="1" BorderBrush="{DynamicResource ControlElevationBorderBrush}" CornerRadius="4" MaxHeight="120">
+                <Border BorderThickness="1" BorderBrush="{DynamicResource ControlElevationBorderBrush}" CornerRadius="4" MinHeight="120" MaxHeight="240">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <ItemsControl ItemsSource="{Binding Languages}">
                             <ItemsControl.ItemTemplate>
@@ -134,6 +139,7 @@
                     </ScrollViewer>
                 </Border>
 
+                <CheckBox Content="Create manifest (toucan.project)" IsChecked="{Binding CreateManifest}" Margin="0,12,0,0"/>
             </StackPanel>
         </ScrollViewer>
 
@@ -141,13 +147,25 @@
         <Border Grid.Row="2" Padding="20,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <CheckBox Content="Create manifest (toucan.project)" IsChecked="{Binding CreateManifest}" VerticalAlignment="Center"/>
-                <ui:Button Grid.Column="1" x:Name="CreateButton" Content="Create" Appearance="Primary"
-                           Width="90" Click="OKButton_Click" IsEnabled="{Binding IsValid}"/>
+                <ui:Button Content="← Back" Visibility="{Binding IsStep1, Converter={StaticResource BoolToVis}}"
+                           Command="{Binding PreviousStepCommand}"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <ui:Button Content="Next →" Margin="0,0,8,0"
+                               Visibility="{Binding IsStep0, Converter={StaticResource BoolToVis}}"
+                               Command="{Binding NextStepCommand}" Appearance="Primary"/>
+                    <ui:Button x:Name="CreateButton" Content="Create" Appearance="Primary"
+                               Visibility="{Binding IsStep1, Converter={StaticResource BoolToVis}}"
+                               Width="90" Click="OKButton_Click" IsEnabled="{Binding IsValid}"/>
+                </StackPanel>
             </Grid>
         </Border>
     </Grid>
+
+    <ui:FluentWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </ui:FluentWindow.Resources>
 </ui:FluentWindow>

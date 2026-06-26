@@ -30,6 +30,7 @@ public class AppOptions
     // --- Editor behavior ---
     public bool PlainTextKeys { get; set; } = false;
     public List<string> FilterHistory { get; set; } = [];
+    public List<string> SuggestedLanguages { get; set; } = ["en-US", "id-ID", "zh-CN", "fr-FR", "es-ES"];
     // --- Last session state ---
     public string? LastProjectPath { get; set; }
 
