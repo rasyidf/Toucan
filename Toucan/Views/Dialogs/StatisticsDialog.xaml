@@ -1,0 +1,70 @@
+<ui:FluentWindow
+    x:Class="Toucan.Views.Dialogs.StatisticsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Translation Statistics" Width="480" Height="400"
+    WindowStartupLocation="CenterOwner"
+    WindowBackdropType="Mica"
+    WindowCornerPreference="Round"
+    ExtendsContentIntoTitleBar="True"
+    ResizeMode="NoResize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Title="Statistics" ShowMaximize="False" ShowMinimize="False"/>
+
+        <Grid Grid.Row="1" Margin="16,8,16,8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Summary -->
+            <StackPanel Margin="0,0,0,12">
+                <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding Title}"/>
+                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding Summary}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- Overall progress -->
+            <Grid Grid.Row="1" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ProgressBar Height="8" Minimum="0" Maximum="100" Value="{Binding OverallPercent}"/>
+                <TextBlock Grid.Column="1" Margin="8,0,0,0" FontWeight="SemiBold"
+                           Text="{Binding OverallPercent, StringFormat='{}{0:F0}%'}"/>
+            </Grid>
+
+            <!-- Per-language breakdown -->
+            <ListView Grid.Row="2" ItemsSource="{Binding Languages}" x:Name="StatsListView">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Language" Width="100" DisplayMemberBinding="{Binding Language}"/>
+                        <GridViewColumn Header="Translated" Width="80" DisplayMemberBinding="{Binding Translated}"/>
+                        <GridViewColumn Header="Missing" Width="80" DisplayMemberBinding="{Binding Missing}"/>
+                        <GridViewColumn Header="Total" Width="70" DisplayMemberBinding="{Binding Total}"/>
+                        <GridViewColumn Header="%" Width="60">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Percent, StringFormat='{}{0:F0}%'}" FontWeight="SemiBold"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+
+        <ui:Button Grid.Row="2" Content="Close" HorizontalAlignment="Right" Margin="16,8,16,12" Click="Close_Click"/>
+    </Grid>
+</ui:FluentWindow>

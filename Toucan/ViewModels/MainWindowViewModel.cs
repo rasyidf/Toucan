@@ -330,15 +330,8 @@ internal partial class MainWindowViewModel : ObservableObject
             return;
         }
 
-        if (_bulkActionService == null)
-        {
-            _messageService.ShowMessage("Bulk action service is not available.");
-            return;
-        }
-
-        var stats = _bulkActionService.GenerateStatistics(AllTranslation);
-        StatusText = stats;
-        _messageService.ShowMessage(stats);
+        var dialog = new Views.Dialogs.StatisticsDialog(AllTranslation, System.Windows.Application.Current?.MainWindow);
+        dialog.ShowDialog();
     }
 
     // Per-language / contextual pre-translate and stats commands
@@ -738,13 +731,13 @@ internal partial class MainWindowViewModel : ObservableObject
         if (result != null)
         {
             SearchText = result.Trim();
+            RecordFilterHistory(SearchText);
         }
     }
 
     [RelayCommand]
     private void FindNext()
     {
-        // for now Find Next cycles to the next page of results
         NextPage();
     }
 
@@ -1296,6 +1289,32 @@ internal partial class MainWindowViewModel : ObservableObject
         RefreshTree();
         Search("", true);
     }
+
+    #region Filter History
+
+    [ObservableProperty]
+    private ObservableCollection<string> filterHistory = new();
+
+    private void RecordFilterHistory(string filter)
+    {
+        if (string.IsNullOrWhiteSpace(filter)) return;
+        FilterHistory.Remove(filter); // dedupe
+        FilterHistory.Insert(0, filter);
+        while (FilterHistory.Count > 15) FilterHistory.RemoveAt(FilterHistory.Count - 1);
+
+        // Persist
+        AppOptions.FilterHistory = FilterHistory.ToList();
+        AppOptions.ToDisk();
+    }
+
+    internal void LoadFilterHistory()
+    {
+        FilterHistory.Clear();
+        foreach (var f in AppOptions?.FilterHistory ?? [])
+            FilterHistory.Add(f);
+    }
+
+    #endregion
 
     #region Undo / Redo
 
