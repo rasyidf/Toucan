@@ -36,7 +36,7 @@ public class NsTreeItem
     }
 
     public IEnumerable<TranslationItem>? Settings { get; set; }
-    public List<TranslationItem>? HeldSetttings;
+    public List<TranslationItem>? HeldSetttings { get; set; }
 
     public bool HasItems => _storage.Count > 0;
     public bool HasParent => Parent != null;

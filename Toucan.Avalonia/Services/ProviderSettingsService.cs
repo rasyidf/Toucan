@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using Toucan.Core.Contracts;
 using Toucan.Core.Models;
 
 namespace Toucan.Avalonia.Services;

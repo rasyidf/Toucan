@@ -1,7 +1,7 @@
 # Toucan v1.0 Release Candidate Plan
 
 > Current state: v0.7.0 → targeting v1.0-rc1
-> Features: 88/88 complete, ~95% BabelEdit parity
+> Features: 88/88 complete, ~95% feature parity
 > Codebase: 249 C# files, 3 projects (Core: 102, WPF: 85, Avalonia: 57)
 > Goal: **Stabilize, polish, ship.** No new features until RC passes.
 

@@ -1,17 +1,19 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Windows;
-using Microsoft.Extensions.DependencyInjection;
 using Toucan.Core.Contracts;
-// using Toucan.Core.Contracts.Services; // already used inside other files; unnecessary duplicate
-using Toucan.Services;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
-using Toucan.ViewModels;
-using Toucan.Core.Services;
-using Toucan.Core.Services.SaveStrategies;
-using Toucan.Core.Services.LoadStrategies;
 using Toucan.Core.Contracts.Services;
+using Toucan.Core.Models;
+using Toucan.Core.Options;
+using Toucan.Core.Services;
+using Toucan.Core.Services.LoadStrategies;
+using Toucan.Core.Services.SaveStrategies;
+using Toucan.Services;
+using Toucan.ViewModels;
+using Toucan.Views;
+using Toucan.Views.Dialogs;
 
 namespace Toucan;
 
@@ -20,45 +22,48 @@ namespace Toucan;
 /// </summary>
 public partial class App : Application
 {
-        private static void ReportUnhandledException(Exception ex, string source)
+    private static void ReportUnhandledException(Exception ex, string source)
+    {
+        try
         {
+            // Attempt to write to console and show a message box for local debugging
+            Console.Error.WriteLine($"Unhandled exception ({source}): {ex}");
+            // also append to a log file to help capture stack traces from CI or dev machines
             try
             {
-                // Attempt to write to console and show a message box for local debugging
-                Console.Error.WriteLine($"Unhandled exception ({source}): {ex}");
-                // also append to a log file to help capture stack traces from CI or dev machines
-                try
-                {
-                    var logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? ".", "toucan-unhandled-exceptions.log");
-                    System.IO.File.AppendAllText(logPath, $"\n=== {DateTime.UtcNow:u} ({source}) ===\n{ex}\n");
-                }
-                catch (Exception) { }
-                System.Windows.MessageBox.Show($"Unhandled exception ({source}): {ex.Message}\n\nSee console or logs for full details.", "Unhandled exception", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory ?? ".", "toucan-unhandled-exceptions.log");
+                System.IO.File.AppendAllText(logPath, $"\n=== {DateTime.UtcNow:u} ({source}) ===\n{ex}\n");
             }
             catch (Exception) { }
+            _ = System.Windows.MessageBox.Show($"Unhandled exception ({source}): {ex.Message}\n\nSee console or logs for full details.", "Unhandled exception", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
-    public static IServiceProvider Services { get; private set; }
+        catch (Exception) { }
+    }
+
+    private IServiceProvider _services = null!;
 
     private void Application_Startup(object sender, StartupEventArgs e)
     {
-            // Global exception handlers to capture runtime issues (helps debug crashes like AllowsTransparency errors)
-            this.DispatcherUnhandledException += (s, ea) =>
-            {
-                ReportUnhandledException(ea.Exception, "DispatcherUnhandledException");
-                ea.Handled = true;
-            };
+        // Global exception handlers to capture runtime issues (helps debug crashes like AllowsTransparency errors)
+        DispatcherUnhandledException += (s, ea) =>
+        {
+            ReportUnhandledException(ea.Exception, "DispatcherUnhandledException");
+            ea.Handled = true;
+        };
 
-            AppDomain.CurrentDomain.UnhandledException += (s, ea) =>
+        AppDomain.CurrentDomain.UnhandledException += (s, ea) =>
+        {
+            if (ea.ExceptionObject is Exception ex)
             {
-                if (ea.ExceptionObject is Exception ex)
-                    ReportUnhandledException(ex, "AppDomain.UnhandledException");
-            };
+                ReportUnhandledException(ex, "AppDomain.UnhandledException");
+            }
+        };
 
-            System.Threading.Tasks.TaskScheduler.UnobservedTaskException += (s, ea) =>
-            {
-                ReportUnhandledException(ea.Exception, "TaskScheduler.UnobservedTaskException");
-                ea.SetObserved();
-            };
+        System.Threading.Tasks.TaskScheduler.UnobservedTaskException += (s, ea) =>
+        {
+            ReportUnhandledException(ea.Exception, "TaskScheduler.UnobservedTaskException");
+            ea.SetObserved();
+        };
         string startupPath = "";
 
         if (e.Args.Length == 1)
@@ -69,169 +74,181 @@ public partial class App : Application
         var services = new ServiceCollection();
 
         // Add logging and configure console logger for dev-time visibility
-        services.AddLogging(builder => builder.AddConsole());
+        _ = services.AddLogging(builder => builder.AddConsole());
 
         // register simple services (UI helpers)
-        services.AddSingleton<IRecentProjectService, RecentProjectService>();
-        services.AddSingleton<IDialogService, WpfDialogService>();
-        services.AddSingleton<IMessageService, MessageService>();
-        services.AddSingleton<IPreferenceService, PreferenceService>();
-        
+        _ = services.AddSingleton<IRecentProjectService, RecentProjectService>();
+        _ = services.AddSingleton<IDialogService, WpfDialogService>();
+        _ = services.AddSingleton<IMessageService, MessageService>();
+        _ = services.AddSingleton<IPreferenceService, PreferenceService>();
+
         // provider settings + secure storage for API keys
-        services.AddSingleton<ISecureStorageService, SecureStorageService>();
-        services.AddSingleton<IProviderSettingsService, ProviderSettingsService>();
+        _ = services.AddSingleton<ISecureStorageService, SecureStorageService>();
+        _ = services.AddSingleton<IProviderSettingsService, ProviderSettingsService>();
 
         // core file service
-        services.AddSingleton<IFileService, FileService>();
+        _ = services.AddSingleton<IFileService, FileService>();
 
         // Bulk action service
-        services.AddSingleton<IBulkActionService, BulkActionService>();
+        _ = services.AddSingleton<IBulkActionService, BulkActionService>();
 
         // Pretranslation engine and a simple mock provider
-        services.AddSingleton<IPretranslationService, PretranslationService>();
-        services.AddSingleton<Toucan.Core.Contracts.ITranslationMemory, Toucan.Core.Services.TranslationMemoryService>();
-        services.AddSingleton<IPackageService, Toucan.Core.Services.PackageService>();
-        services.AddSingleton<Toucan.Core.Contracts.ISourceCodeService, Toucan.Core.Services.SourceCodeService>();
-        services.AddSingleton<Toucan.Core.Contracts.ITranslationAnalyzer, Toucan.Core.Services.TranslationAnalyzerService>();
-        services.AddSingleton<ITranslationProvider, Core.Services.Providers.MockTranslationProvider>();
-        services.AddSingleton<ITranslationProvider, Core.Services.Providers.DeepLTranslationProvider>();
-        services.AddSingleton<ITranslationProvider, Core.Services.Providers.GoogleTranslationProvider>();
-        services.AddSingleton<ITranslationProvider, Core.Services.Providers.MicrosoftTranslationProvider>();
-        services.AddSingleton<ITranslationProvider, Core.Services.Providers.OpenAITranslationProvider>();
-        services.AddSingleton<ITranslationProvider, Core.Services.Providers.CustomWebhookTranslationProvider>();
+        _ = services.AddSingleton<IPretranslationService, PretranslationService>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.ITranslationMemory, Toucan.Core.Services.TranslationMemoryService>();
+        _ = services.AddSingleton<IPackageService, Toucan.Core.Services.PackageService>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.ISourceCodeService, Toucan.Core.Services.SourceCodeService>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.ITranslationAnalyzer, Toucan.Core.Services.TranslationAnalyzerService>();
+        _ = services.AddSingleton<ITranslationProvider, Core.Services.Providers.MockTranslationProvider>();
+        _ = services.AddSingleton<ITranslationProvider, Core.Services.Providers.DeepLTranslationProvider>();
+        _ = services.AddSingleton<ITranslationProvider, Core.Services.Providers.GoogleTranslationProvider>();
+        _ = services.AddSingleton<ITranslationProvider, Core.Services.Providers.MicrosoftTranslationProvider>();
+        _ = services.AddSingleton<ITranslationProvider, Core.Services.Providers.OpenAITranslationProvider>();
+        _ = services.AddSingleton<ITranslationProvider, Core.Services.Providers.CustomWebhookTranslationProvider>();
 
         // Save Strategies - register concrete types and interface mappings
-        services.AddSingleton<JsonSaveStrategy>();
-        services.AddSingleton<NamespacedSaveStrategy>();
-        services.AddSingleton<PoSaveStrategy>();
-        services.AddSingleton<IniSaveStrategy>();
-        services.AddSingleton<YamlSaveStrategy>();
-        services.AddSingleton<TomlSaveStrategy>();
-        services.AddSingleton<AndroidXmlSaveStrategy>();
-        services.AddSingleton<IosStringsSaveStrategy>();
-        services.AddSingleton<XliffSaveStrategy>();
-        services.AddSingleton<ArbSaveStrategy>();
-        services.AddSingleton<CsvSaveStrategy>();
-        services.AddSingleton<ResxSaveStrategy>();
+        _ = services.AddSingleton<JsonSaveStrategy>();
+        _ = services.AddSingleton<NamespacedSaveStrategy>();
+        _ = services.AddSingleton<PoSaveStrategy>();
+        _ = services.AddSingleton<IniSaveStrategy>();
+        _ = services.AddSingleton<YamlSaveStrategy>();
+        _ = services.AddSingleton<TomlSaveStrategy>();
+        _ = services.AddSingleton<AndroidXmlSaveStrategy>();
+        _ = services.AddSingleton<IosStringsSaveStrategy>();
+        _ = services.AddSingleton<XliffSaveStrategy>();
+        _ = services.AddSingleton<ArbSaveStrategy>();
+        _ = services.AddSingleton<CsvSaveStrategy>();
+        _ = services.AddSingleton<ResxSaveStrategy>();
 
-        services.AddSingleton<JavaPropertiesSaveStrategy>();
+        _ = services.AddSingleton<JavaPropertiesSaveStrategy>();
 
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<JsonSaveStrategy>());
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<NamespacedSaveStrategy>());
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<PoSaveStrategy>());
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<IniSaveStrategy>());
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<YamlSaveStrategy>());
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<TomlSaveStrategy>());
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<AndroidXmlSaveStrategy>());
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<IosStringsSaveStrategy>());
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<XliffSaveStrategy>());
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<ArbSaveStrategy>());
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<CsvSaveStrategy>());
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<ResxSaveStrategy>());
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<JavaPropertiesSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<JsonSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<NamespacedSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<PoSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<IniSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<YamlSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<TomlSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<AndroidXmlSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<IosStringsSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<XliffSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<ArbSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<CsvSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<ResxSaveStrategy>());
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<JavaPropertiesSaveStrategy>());
 
-        services.AddSingleton<LaravelPhpSaveStrategy>();
-        services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<LaravelPhpSaveStrategy>());
+        _ = services.AddSingleton<LaravelPhpSaveStrategy>();
+        _ = services.AddSingleton<ISaveStrategy>(sp => sp.GetRequiredService<LaravelPhpSaveStrategy>());
 
         // Load strategies - register concrete types and interface mappings
-        services.AddSingleton<JsonLoadStrategy>();
-        services.AddSingleton<NamespacedLoadStrategy>();
-        services.AddSingleton<ManifestLoadStrategy>();
-        services.AddSingleton<YamlLoadStrategy>();
-        services.AddSingleton<TomlLoadStrategy>();
-        services.AddSingleton<AndroidXmlLoadStrategy>();
-        services.AddSingleton<IosStringsLoadStrategy>();
-        services.AddSingleton<XliffLoadStrategy>();
-        services.AddSingleton<ArbLoadStrategy>();
-        services.AddSingleton<CsvLoadStrategy>();
-        services.AddSingleton<ResxLoadStrategy>();
-        services.AddSingleton<PoLoadStrategy>();
-        services.AddSingleton<JavaPropertiesLoadStrategy>();
+        _ = services.AddSingleton<JsonLoadStrategy>();
+        _ = services.AddSingleton<NamespacedLoadStrategy>();
+        _ = services.AddSingleton<ManifestLoadStrategy>();
+        _ = services.AddSingleton<YamlLoadStrategy>();
+        _ = services.AddSingleton<TomlLoadStrategy>();
+        _ = services.AddSingleton<AndroidXmlLoadStrategy>();
+        _ = services.AddSingleton<IosStringsLoadStrategy>();
+        _ = services.AddSingleton<XliffLoadStrategy>();
+        _ = services.AddSingleton<ArbLoadStrategy>();
+        _ = services.AddSingleton<CsvLoadStrategy>();
+        _ = services.AddSingleton<ResxLoadStrategy>();
+        _ = services.AddSingleton<PoLoadStrategy>();
+        _ = services.AddSingleton<JavaPropertiesLoadStrategy>();
 
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<JsonLoadStrategy>());
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<NamespacedLoadStrategy>());
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<ManifestLoadStrategy>());
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<YamlLoadStrategy>());
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<TomlLoadStrategy>());
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<AndroidXmlLoadStrategy>());
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<IosStringsLoadStrategy>());
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<XliffLoadStrategy>());
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<ArbLoadStrategy>());
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<CsvLoadStrategy>());
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<ResxLoadStrategy>());
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<PoLoadStrategy>());
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<JavaPropertiesLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<JsonLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<NamespacedLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<ManifestLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<YamlLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<TomlLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<AndroidXmlLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<IosStringsLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<XliffLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<ArbLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<CsvLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<ResxLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<PoLoadStrategy>());
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<JavaPropertiesLoadStrategy>());
 
-        services.AddSingleton<LaravelPhpLoadStrategy>();
-        services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<LaravelPhpLoadStrategy>());
+        _ = services.AddSingleton<LaravelPhpLoadStrategy>();
+        _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<LaravelPhpLoadStrategy>());
 
         // Framework profiles
-        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.GenericJsonProfile>();
-        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.I18nextProfile>();
-        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.AndroidProfile>();
-        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.FlutterArbProfile>();
-        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.DotNetResxProfile>();
-        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.IosProfile>();
-        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.GettextProfile>();
-        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.RailsYamlProfile>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.GenericJsonProfile>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.I18nextProfile>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.AndroidProfile>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.FlutterArbProfile>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.DotNetResxProfile>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.IosProfile>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.GettextProfile>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.RailsYamlProfile>();
 
         // Validation pipeline
-        services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.MissingTranslationRule>();
-        services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.PlaceholderMismatchRule>();
-        services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.DuplicateKeyRule>();
-        services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.UntranslatedCopyRule>();
-        services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.EmptyValueRule>();
-        services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.WhitespaceMismatchRule>();
-        services.AddSingleton<Toucan.Core.Contracts.IValidationPipeline, Toucan.Core.Services.Validation.ValidationPipeline>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.MissingTranslationRule>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.PlaceholderMismatchRule>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.DuplicateKeyRule>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.UntranslatedCopyRule>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.EmptyValueRule>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.WhitespaceMismatchRule>();
+        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationPipeline, Toucan.Core.Services.Validation.ValidationPipeline>();
 
         // Strategy factory and mode resolver
-        services.AddSingleton<ITranslationStrategyFactory, TranslationStrategyFactory>();
-        services.AddSingleton<IProjectModeResolver, ProjectModeResolver>();
+        _ = services.AddSingleton<ITranslationStrategyFactory, TranslationStrategyFactory>();
+        _ = services.AddSingleton<IProjectModeResolver, ProjectModeResolver>();
 
         // Project service
-        services.AddSingleton<IProjectService, ProjectService>();
+        _ = services.AddSingleton<IProjectService, ProjectService>();
 
         // Register MainWindowViewModel and other UI ViewModels
-        services.AddTransient<MainWindowViewModel>();
-        services.AddTransient<NewProjectViewModel>();
-        services.AddTransient<NewProjectPrompt>();
+        _ = services.AddTransient<MainWindowViewModel>();
+        _ = services.AddTransient<NewProjectViewModel>();
+
+        // Register Views as Transient (each dialog/window instance is fresh)
+        _ = services.AddTransient<ProviderSettingsWindow>();
+        _ = services.AddTransient<ImportProjectDialog>();
+        _ = services.AddTransient<PreTranslateWindow>();
 
         // Register remaining ViewModels (transient by default so each window/dialog gets a fresh instance)
-        services.AddTransient<LanguagePromptViewModel>();
-        services.AddTransient<LanguageSummaryItemViewModel>();
-        services.AddTransient<OptionsViewModel>();
-        services.AddTransient<PreTranslateViewModel>();
-        services.AddTransient<ProviderSettingsViewModel>();
-        services.AddTransient<StartScreenViewModel>();
-        services.AddTransient<TranslationItemViewModel>();
+        _ = services.AddTransient<LanguagePromptViewModel>();
+        _ = services.AddTransient<LanguageSummaryItemViewModel>();
+        _ = services.AddTransient<OptionsViewModel>();
+        _ = services.AddTransient<PreTranslateViewModel>();
+        _ = services.AddTransient<ProviderSettingsViewModel>();
+        _ = services.AddTransient<StartScreenViewModel>();
+        _ = services.AddTransient<TranslationItemViewModel>();
+        _ = services.AddTransient<ImportProjectViewModel>();
 
         // Factory for creating TranslationItemViewModel with a TranslationItem param
-        services.AddTransient<System.Func<Toucan.Core.Models.TranslationItem, TranslationItemViewModel>>(sp => ti => ActivatorUtilities.CreateInstance<TranslationItemViewModel>(sp, ti));
+        _ = services.AddTransient<System.Func<Toucan.Core.Models.TranslationItem, TranslationItemViewModel>>(sp => ti => ActivatorUtilities.CreateInstance<TranslationItemViewModel>(sp, ti));
 
         // Register StatusBarViewModel as a singleton so any part of the app that requests it
         // can share the same instance (status is app-global)
-        services.AddSingleton<StatusBarViewModel>();
+        _ = services.AddSingleton<StatusBarViewModel>();
 
         // Factories for viewmodels that require runtime parameters so code can resolve instances via DI
-        services.AddTransient<Func<string, LanguageGroupViewModel>>(sp => ns => ActivatorUtilities.CreateInstance<LanguageGroupViewModel>(sp, ns));
-        services.AddTransient<Func<System.Windows.Window, AboutViewModel>>(sp => wnd => ActivatorUtilities.CreateInstance<AboutViewModel>(sp, wnd));
-        services.AddTransient<Func<Toucan.Core.Models.Project, System.Action<string>, RecentProjectViewModel>>(sp => (proj, act) => ActivatorUtilities.CreateInstance<RecentProjectViewModel>(sp, proj, act));
-        services.AddTransient<Func<System.Collections.Generic.IEnumerable<Toucan.Core.Models.TranslationItem>, LanguagePromptViewModel>>(sp => list => ActivatorUtilities.CreateInstance<LanguagePromptViewModel>(sp, list));
+        _ = services.AddTransient<Func<string, LanguageGroupViewModel>>(sp => ns => ActivatorUtilities.CreateInstance<LanguageGroupViewModel>(sp, ns));
+        _ = services.AddTransient<Func<System.Windows.Window, AboutViewModel>>(sp => wnd => ActivatorUtilities.CreateInstance<AboutViewModel>(sp, wnd));
+        _ = services.AddTransient<Func<Toucan.Core.Models.Project, System.Action<string>, RecentProjectViewModel>>(sp => (proj, act) => ActivatorUtilities.CreateInstance<RecentProjectViewModel>(sp, proj, act));
+        _ = services.AddTransient<Func<System.Collections.Generic.IEnumerable<Toucan.Core.Models.TranslationItem>, LanguagePromptViewModel>>(sp => list => ActivatorUtilities.CreateInstance<LanguagePromptViewModel>(sp, list));
         // Factory for PreTranslateViewModel (languages + sourceItems + optional IPretranslationService)
-        services.AddTransient<Func<System.Collections.Generic.IEnumerable<string>, System.Collections.Generic.IEnumerable<Toucan.Core.Models.TranslationItem>, Toucan.Core.Contracts.Services.IPretranslationService, PreTranslateViewModel>>(
+        _ = services.AddTransient<Func<System.Collections.Generic.IEnumerable<string>, System.Collections.Generic.IEnumerable<Toucan.Core.Models.TranslationItem>, Toucan.Core.Contracts.Services.IPretranslationService, PreTranslateViewModel>>(
             sp => (langs, items, svc) => ActivatorUtilities.CreateInstance<PreTranslateViewModel>(sp, langs, items, svc));
 
-        var serviceProvider = services.BuildServiceProvider();
-        Services = serviceProvider;
+        // Factory delegates for Views requiring runtime parameters
+        _ = services.AddTransient<Func<IEnumerable<TranslationItem>, Window?, StatisticsDialog>>(sp => (translations, owner) => new StatisticsDialog(translations, owner));
+        _ = services.AddTransient<Func<string, string, string, PromptDialog>>(sp => (title, message, defaultValue) => new PromptDialog(title, message, defaultValue));
+        _ = services.AddTransient<Func<PreTranslateViewModel, PreTranslateWindow>>(sp => vm => new PreTranslateWindow(vm));
 
-        var viewModel = serviceProvider.GetRequiredService<MainWindowViewModel>();
-        var mainWindow = new MainWindow(startupPath, viewModel);
+        _services = services.BuildServiceProvider(new ServiceProviderOptions
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true
+        });
+
+        var viewModel = _services.GetRequiredService<MainWindowViewModel>();
+        var statusBarViewModel = _services.GetRequiredService<StatusBarViewModel>();
+        var mainWindow = new MainWindow(startupPath, viewModel, statusBarViewModel);
 
         // Register file association (per-user, no elevation needed)
         FileAssociationService.Register();
 
         mainWindow.Show();
-
-
     }
 }

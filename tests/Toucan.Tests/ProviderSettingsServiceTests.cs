@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using Toucan.Core.Contracts;
 using Toucan.Services;
 using Toucan.Core.Models;
 using Xunit;

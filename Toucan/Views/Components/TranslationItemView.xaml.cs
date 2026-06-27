@@ -9,7 +9,7 @@ namespace Toucan.Views;
 public partial class TranslationItemView : UserControl
 {
 
-    public event KeyEventHandler UpdateLanguageValue;
+    public event KeyEventHandler? UpdateLanguageValue;
     public TranslationItemView()
     {
         InitializeComponent();

@@ -16,8 +16,9 @@ internal record KeybindingEntry(string Category, string Action, string Shortcut)
 internal static class KeybindingService
 {
     /// <summary>Returns all keybinding definitions for UI display.</summary>
-    public static List<KeybindingEntry> GetDefinitions() =>
-    [
+    public static List<KeybindingEntry> GetDefinitions()
+    {
+        return [
         new("Edit", "Undo", "Ctrl+Z"),
         new("Edit", "Redo", "Ctrl+Y"),
         new("File", "New Project", "Ctrl+Shift+N"),
@@ -43,10 +44,11 @@ internal static class KeybindingService
         new("View", "Zen Next (j)", "J"),
         new("View", "Zen Previous (k)", "K"),
     ];
+    }
 
     public static void Apply(Window window, MainWindowViewModel vm)
     {
-        var bindings = window.InputBindings;
+        InputBindingCollection bindings = window.InputBindings;
         bindings.Clear();
 
         // Edit
@@ -88,16 +90,27 @@ internal static class KeybindingService
     /// <summary>Call from Window.PreviewKeyDown to handle bare-key Zen navigation.</summary>
     public static void HandleZenKeys(KeyEventArgs e, MainWindowViewModel vm)
     {
-        if (!vm.ZenMode && !vm.FocusedEditorMode) return;
+        if (!vm.ZenMode && !vm.FocusedEditorMode)
+        {
+            return;
+        }
         // Don't intercept if a TextBox has focus
-        if (e.OriginalSource is System.Windows.Controls.TextBox) return;
+        if (e.OriginalSource is System.Windows.Controls.TextBox)
+        {
+            return;
+        }
+
         if (e.Key == Key.J) { vm.ZenNextCommand.Execute(null); e.Handled = true; }
         else if (e.Key == Key.K) { vm.ZenPreviousCommand.Execute(null); e.Handled = true; }
     }
 
     private static void Bind(InputBindingCollection bindings, Key key, ModifierKeys modifiers, ICommand command)
     {
-        if (command == null) return;
-        bindings.Add(new KeyBinding(command, key, modifiers));
+        if (command == null)
+        {
+            return;
+        }
+
+        _ = bindings.Add(new KeyBinding(command, key, modifiers));
     }
 }

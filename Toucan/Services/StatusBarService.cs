@@ -18,11 +18,10 @@ internal interface IStatusBarService
 
 internal class StatusBarService : IStatusBarService
 {
-    private StatusBarViewModel _statusBarViewModel;
+    private StatusBarViewModel? _statusBarViewModel;
 
     // Simple singleton-style access (keep scoped for the app)
-    private static StatusBarService? _instance;
-    public static StatusBarService Instance => _instance ??= new StatusBarService();
+    public static StatusBarService Instance => field ??= new StatusBarService();
 
     private StatusBarService()
     {
@@ -35,48 +34,76 @@ internal class StatusBarService : IStatusBarService
 
     public void Unregister()
     {
-        _statusBarViewModel = null;
+        _statusBarViewModel = null!; // Safe: all methods guard against null _statusBarViewModel
     }
 
     public void SetLoading(bool isLoading)
     {
-        if (_statusBarViewModel == null) return;
+        if (_statusBarViewModel == null)
+        {
+            return;
+        }
+
         _statusBarViewModel.IsLoading = isLoading;
     }
 
     public void UpdateStatus(string text)
     {
-        if (_statusBarViewModel == null) return;
+        if (_statusBarViewModel == null)
+        {
+            return;
+        }
+
         _statusBarViewModel.StatusText = text;
     }
 
     public void UpdateProjectName(string projectName)
     {
-        if (_statusBarViewModel == null) return;
+        if (_statusBarViewModel == null)
+        {
+            return;
+        }
+
         _statusBarViewModel.ProjectName = projectName;
     }
 
     public void UpdateCursor(string cursorPosition)
     {
-        if (_statusBarViewModel == null) return;
+        if (_statusBarViewModel == null)
+        {
+            return;
+        }
+
         _statusBarViewModel.CursorPosition = cursorPosition;
     }
 
     public void UpdateDefaultLanguage(string language)
     {
-        if (_statusBarViewModel == null) return;
+        if (_statusBarViewModel == null)
+        {
+            return;
+        }
+
         _statusBarViewModel.DefaultLanguage = language;
     }
 
     public void ShowNotificationBadge(int count)
     {
-        if (_statusBarViewModel == null) return;
+        if (_statusBarViewModel == null)
+        {
+            return;
+        }
+
         _statusBarViewModel.ShowNotification(count);
     }
 
     public void UpdateGitStats(int changes, int errors, int warnings)
     {
-        if (_statusBarViewModel == null) return;
+        if (_statusBarViewModel == null)
+        {
+            return;
+        }
+
         _statusBarViewModel.UpdateGitStats(changes, errors, warnings);
 
         // TODO: Add IoC or event aggregator notifications so other modules can update the status bar.

@@ -2,28 +2,29 @@
 using System.Runtime.CompilerServices;
 
 namespace Toucan.ViewModels;
+
 public class LanguageSummaryItemViewModel : INotifyPropertyChanged
 {
-    private bool _isExpanded;
-
-    public string Language { get; set; }
+    public string Language { get; set; } = string.Empty;
     public double Percentage { get; set; }
-    public string Stats { get; set; }
+    public string Stats { get; set; } = string.Empty;
 
     public bool IsExpanded
     {
-        get => _isExpanded;
+        get;
         set
         {
-            if (_isExpanded != value)
+            if (field != value)
             {
-                _isExpanded = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }

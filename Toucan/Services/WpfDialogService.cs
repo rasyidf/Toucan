@@ -1,7 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 using Ookii.Dialogs.Wpf;
+using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
@@ -13,17 +17,24 @@ namespace Toucan.Services;
 
 public class WpfDialogService : IDialogService
 {
+    private readonly IServiceProvider _serviceProvider;
+
+    public WpfDialogService(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+
     private static Window? Owner => Application.Current?.MainWindow;
 
     public string? SelectFolder(string? initialPath)
     {
-        var dialog = new VistaFolderBrowserDialog { SelectedPath = initialPath ?? "" };
+        VistaFolderBrowserDialog dialog = new() { SelectedPath = initialPath ?? "" };
         return dialog.ShowDialog(Owner) == true ? dialog.SelectedPath : null;
     }
 
     public string? SelectFile(string? initialPath, string filter = "All Files (*.*)|*.*")
     {
-        var dialog = new Microsoft.Win32.OpenFileDialog
+        OpenFileDialog dialog = new()
         {
             InitialDirectory = initialPath ?? "",
             Filter = filter,
@@ -34,22 +45,22 @@ public class WpfDialogService : IDialogService
 
     public string? ShowPrompt(string title, string message, string defaultValue = "")
     {
-        var dialog = new PromptDialog(title, message, defaultValue) { Owner = Owner };
+        PromptDialog dialog = new(title, message, defaultValue) { Owner = Owner };
         return dialog.ShowDialog() == true ? dialog.ResponseText : null;
     }
 
     public bool ShowAbout()
     {
-        var dialog = new AboutDialog(Owner!);
+        var factory = _serviceProvider.GetRequiredService<Func<Window, AboutViewModel>>();
+        AboutDialog dialog = new(Owner!, factory);
         return dialog.ShowDialog() == true;
     }
 
     public bool ShowNewProject(IProjectService projectService, out NewProjectViewModel? resultVm)
     {
         resultVm = null;
-        var vm = App.Services?.GetService(typeof(NewProjectViewModel)) as NewProjectViewModel
-            ?? new NewProjectViewModel(projectService);
-        var dialog = new NewProjectPrompt(vm) { Owner = Owner };
+        var vm = _serviceProvider.GetRequiredService<NewProjectViewModel>();
+        NewProjectPrompt dialog = new(vm) { Owner = Owner };
         if (dialog.ShowDialog() == true)
         {
             resultVm = vm;
@@ -61,7 +72,8 @@ public class WpfDialogService : IDialogService
     public bool ShowOptions(AppOptions options, string currentPath, out AppOptions? updatedOptions)
     {
         updatedOptions = null;
-        var dialog = new OptionDialog(options, currentPath) { Owner = Owner };
+        var vm = _serviceProvider.GetRequiredService<OptionsViewModel>();
+        OptionDialog dialog = new(options, currentPath, vm) { Owner = Owner };
         if (dialog.ShowDialog() == true)
         {
             updatedOptions = dialog.Config;
@@ -72,24 +84,29 @@ public class WpfDialogService : IDialogService
 
     public bool ShowPreTranslate(PreTranslateViewModel vm)
     {
-        var dialog = new PreTranslateWindow(vm) { Owner = Owner };
+        PreTranslateWindow dialog = new(vm) { Owner = Owner };
         return dialog.ShowDialog() == true;
     }
 
     public bool ShowProviderSettings()
     {
-        var dialog = new ProviderSettingsWindow() { Owner = Owner };
-        dialog.ShowDialog();
+        var vm = _serviceProvider.GetRequiredService<ProviderSettingsViewModel>();
+        ProviderSettingsWindow dialog = new(vm) { Owner = Owner };
+        _ = dialog.ShowDialog();
         return true;
     }
 
     public bool ShowImportProject(out ImportProjectViewModel? resultVm)
     {
         resultVm = null;
-        var profiles = App.Services?.GetService(typeof(IEnumerable<Toucan.Core.Contracts.IFrameworkProfile>)) as IEnumerable<Toucan.Core.Contracts.IFrameworkProfile>;
-        if (profiles == null) return false;
-        var vm = new ImportProjectViewModel(profiles, this);
-        var dialog = new ImportProjectDialog(vm) { Owner = Owner };
+        var profiles = _serviceProvider.GetService(typeof(IEnumerable<IFrameworkProfile>)) as IEnumerable<IFrameworkProfile>;
+        if (profiles == null)
+        {
+            return false;
+        }
+
+        ImportProjectViewModel vm = new(profiles, this);
+        ImportProjectDialog dialog = new(vm) { Owner = Owner };
         if (dialog.ShowDialog() == true)
         {
             resultVm = vm;
@@ -100,7 +117,8 @@ public class WpfDialogService : IDialogService
 
     public string? ShowLanguagePrompt(string title, string message, IEnumerable<TranslationItem>? existingTranslations)
     {
-        var dialog = new LanguagePrompt(title, message, existingTranslations?.ToList()) { Owner = Owner };
+        var factory = _serviceProvider.GetRequiredService<Func<IEnumerable<TranslationItem>, LanguagePromptViewModel>>();
+        LanguagePrompt dialog = new(title, message, existingTranslations?.ToList(), factory) { Owner = Owner };
         return dialog.ShowDialog() == true ? dialog.ResponseText : null;
     }
 

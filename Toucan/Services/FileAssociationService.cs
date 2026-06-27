@@ -1,6 +1,6 @@
+using Microsoft.Win32;
 using System;
 using System.Diagnostics;
-using Microsoft.Win32;
 
 namespace Toucan.Services;
 
@@ -18,8 +18,11 @@ internal static class FileAssociationService
     {
         try
         {
-            var exePath = Process.GetCurrentProcess().MainModule?.FileName;
-            if (string.IsNullOrEmpty(exePath)) return;
+            string? exePath = Process.GetCurrentProcess().MainModule?.FileName;
+            if (string.IsNullOrEmpty(exePath))
+            {
+                return;
+            }
 
             using var key = Registry.CurrentUser.CreateSubKey(@"Software\Classes\" + ProgId);
             key?.SetValue("", Description);

@@ -1,11 +1,10 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Toucan.Core.Contracts;
-using Toucan.Core.Models;
 using Toucan.Services;
 
 namespace Toucan.ViewModels;
@@ -27,9 +26,9 @@ public partial class ImportProjectViewModel : ObservableObject
     [ObservableProperty]
     private bool isDetecting;
 
-    public ObservableCollection<IFrameworkProfile> AvailableProfiles { get; } = new();
-    public ObservableCollection<DiscoveredFile> DiscoveredFiles { get; } = new();
-    public ObservableCollection<string> DetectedLanguages { get; } = new();
+    public ObservableCollection<IFrameworkProfile> AvailableProfiles { get; } = [];
+    public ObservableCollection<DiscoveredFile> DiscoveredFiles { get; } = [];
+    public ObservableCollection<string> DetectedLanguages { get; } = [];
 
     public bool IsValid => !string.IsNullOrWhiteSpace(Folder) && SelectedProfile != null && DiscoveredFiles.Count > 0;
 
@@ -37,8 +36,10 @@ public partial class ImportProjectViewModel : ObservableObject
     {
         _profiles = profiles;
         _dialogService = dialogService;
-        foreach (var p in profiles)
+        foreach (IFrameworkProfile p in profiles)
+        {
             AvailableProfiles.Add(p);
+        }
     }
 
     [RelayCommand]
@@ -82,7 +83,9 @@ public partial class ImportProjectViewModel : ObservableObject
         SelectedProfile = DetectedProfile;
 
         if (SelectedProfile != null)
+        {
             RefreshDiscoveredFiles(SelectedProfile);
+        }
 
         IsDetecting = false;
         OnPropertyChanged(nameof(IsValid));
@@ -93,11 +96,13 @@ public partial class ImportProjectViewModel : ObservableObject
         DiscoveredFiles.Clear();
         DetectedLanguages.Clear();
 
-        foreach (var file in profile.DiscoverFiles(Folder))
+        foreach (DiscoveredFile file in profile.DiscoverFiles(Folder))
         {
             DiscoveredFiles.Add(file);
             if (!DetectedLanguages.Contains(file.Language))
+            {
                 DetectedLanguages.Add(file.Language);
+            }
         }
 
         OnPropertyChanged(nameof(IsValid));
@@ -106,7 +111,6 @@ public partial class ImportProjectViewModel : ObservableObject
     /// <summary>Returns the import result: folder path, detected profile, and languages.</summary>
     public (string Folder, IFrameworkProfile Profile, IEnumerable<string> Languages)? GetResult()
     {
-        if (!IsValid || SelectedProfile == null) return null;
-        return (Folder, SelectedProfile, DetectedLanguages.ToList());
+        return !IsValid || SelectedProfile == null ? null : (Folder, SelectedProfile, DetectedLanguages.ToList());
     }
 }

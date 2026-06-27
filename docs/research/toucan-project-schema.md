@@ -1,6 +1,6 @@
 # Toucan Project (`toucan.project`) — JSON schema documentation
 
-This document describes the `toucan.project` JSON format used by Toucan to store translation metadata, file discovery, and editor preferences. This file is intended to be self-contained and independent from BabelEdit; however, it can mirror and import information from BabelEdit `.babel` files through the `tools/babel2toucan.py` converter.
+This document describes the `toucan.project` JSON format used by Toucan to store translation metadata, file discovery, and editor preferences. This file is intended to be self-contained; however, it can mirror and import information from `.babel` project files through the `tools/babel2toucan.py` converter.
 
 ---
 
@@ -146,7 +146,7 @@ ajv validate -s ./toucan.project.schema.json -d ./toucan.project
 
 ## ⚙️ Recommendations & best practices
 
-- Maintain `languages` as the single source of truth for all language codes. If you use BabelEdit conversion, the converter populates `languages`, but keep them in `toucan.project` for clarity.
+- Maintain `languages` as the single source of truth for all language codes. If you use the `.babel` converter, it populates `languages`, but keep them in `toucan.project` for clarity.
 - Use `translationPackages` to point to the actual translation files; prefer relative paths to keep the project portable.
 - Consider using `text` inside `translations` only when you want a single-file snapshot of translations — otherwise use the `translationPackages` to link to translation files.
 - Use `primaryLanguage` for UI ordering and missing-translation fallbacks.
@@ -162,7 +162,7 @@ ajv validate -s ./toucan.project.schema.json -d ./toucan.project
 
 ## 📚 Related tools
 
-- `tools/babel2toucan.py` — converter from BabelEdit `.babel` to `toucan.project` in this repository.
+- `tools/babel2toucan.py` — converter from `.babel` format to `toucan.project` in this repository.
 - `toucan.project.schema.json` — the JSON Schema for validation.
 
 ---

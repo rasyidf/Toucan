@@ -136,7 +136,7 @@ All notable changes to this project will be documented in this file.
 - **Keyboard Shortcuts tab** in Options dialog — displays all bindings in a GridView
 - **Design system** — `Resources/DesignTokens.xaml` with shared spacing, margins, corner radius tokens
 - **Import / Export** — full menu wiring using all 12 Core LoadStrategy/SaveStrategy formats
-- **Framework tile grid** — New Project dialog redesigned with 16 selectable framework tiles (BabelEdit-style)
+- **Framework tile grid** — New Project dialog redesigned with 16 selectable framework tiles
 - **Comment field** per translation ID
 - **Approved flag** — per-row toggle button with CheckmarkCircle icon
 - **Spell checking** — enabled on all translation TextBoxes (WPF native)
@@ -182,7 +182,7 @@ All notable changes to this project will be documented in this file.
 - Hardcoded `Window.InputBindings` block — replaced by `KeybindingService.Apply()`
 
 ### Documentation
-- `docs/ROADMAP.md` — comprehensive feature parity tracker vs BabelEdit (80% achieved)
+- `docs/ROADMAP.md` — comprehensive feature parity tracker vs professional i18n editors (80% achieved)
 
 ---
 

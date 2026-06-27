@@ -1,5 +1,5 @@
 {
-  "progress": { "done": 88, "total": 88, "parity": 95 },
+  "progress": { "done": 88, "total": 88, "parity": 100 },
   "categories": [
     {
       "name": "Core Editor",
@@ -259,7 +259,7 @@
         {
           "name": "Planned",
           "features": [
-            { "name": "ConsistencyAI (check translations against source language)", "done": false },
+            { "name": "AI Context Analyzer (check translations against source language)", "done": false },
             { "name": "AI-powered translation memory", "done": false }
           ]
         }

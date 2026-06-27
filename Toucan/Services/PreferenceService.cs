@@ -1,15 +1,17 @@
-﻿using Toucan.Core.Options;
+﻿using Toucan.Core.Contracts;
+using Toucan.Core.Options;
 
 namespace Toucan.Services;
 
-internal interface IPreferenceService
-{
-    AppOptions Load();
-    void Save(AppOptions options);
-}
-
 internal class PreferenceService : IPreferenceService
 {
-    public AppOptions Load() => AppOptions.LoadFromDisk();
-    public void Save(AppOptions options) => options.ToDisk();
+    public AppOptions Load()
+    {
+        return AppOptions.LoadFromDisk();
+    }
+
+    public void Save(AppOptions options)
+    {
+        options.ToDisk();
+    }
 }

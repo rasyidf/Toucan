@@ -5,7 +5,7 @@ namespace Toucan.Core;
 
 // ponytail: LanguageService is used by the WPF LanguagePromptViewModel for culture validation.
 // When LanguagePrompt is fully ported to Avalonia, consider inlining this logic or moving to a shared helper.
-internal class LanguageService
+internal sealed class LanguageService
 {
     public static readonly LanguageService Instance = new();
 

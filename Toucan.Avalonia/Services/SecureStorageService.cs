@@ -1,6 +1,7 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using Toucan.Core.Contracts;
 
 namespace Toucan.Avalonia.Services;
 

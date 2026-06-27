@@ -1,6 +1,6 @@
-# BabelEdit `.babel` — concise template analysis
+# `.babel` format — concise template analysis
 
-This template (`template.babel`) is a minimal BabelEdit project file used to generate a consistent `.babel` from BabelEdit.
+This template (`template.babel`) is a minimal `.babel` project file used to generate a consistent `.babel` file for import into Toucan.
 
 ## Key nodes to mirror in JSON
 
@@ -20,9 +20,8 @@ This template (`template.babel`) is a minimal BabelEdit project file used to gen
 - `editorConfiguration`: flat object mirroring editor settings.
 - `configuration`: small object with `format` and `supportArrays`.
 
-These additions make `toucan.project` a comprehensive reflection of Babel metadata and useful for tooling and CI.
+These additions make `toucan.project` a comprehensive reflection of `.babel` metadata and useful for tooling and CI.
 
 ## Examples
 
 See `toucan.project` file in the repository for an example with `languages` and `packages` represented. The converter `tools/babel2toucan.py` can be extended to include `translationPackages`.
-

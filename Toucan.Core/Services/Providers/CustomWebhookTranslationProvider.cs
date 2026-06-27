@@ -91,7 +91,7 @@ public class CustomWebhookTranslationProvider : ITranslationProvider
                     continue;
                 }
 
-                using var stream = await resp.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                using var stream = await resp.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
                 using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
                 var translations = new List<string?>();

@@ -9,9 +9,9 @@ namespace Toucan.Core.Services;
 public partial class PaginationViewModel<T> : ObservableObject
 {
     [ObservableProperty]
-    private ObservableCollection<T> data = new();
+    private ObservableCollection<T> data = [];
 
-    public ObservableCollection<T> PageData { get; private set; } = new();
+    public ObservableCollection<T> PageData { get; private set; } = [];
 
     [ObservableProperty]
     private int page;
@@ -35,27 +35,27 @@ public partial class PaginationViewModel<T> : ObservableObject
         get
         {
             if (Data == null || Data.Count == 0)
-                return "No Results";
-            if (!HasPages && !IsPartial)
-                return $"Showing All | {Data.Count}";
-
-            int start = ((Page - 1) * PageSize) + 1;
-            int end = Math.Min((Page - 1) * PageSize + PageSize, Data.Count);
-
-            if (IsPartial && TotalItems > Data.Count)
             {
-                return $"Showing Page {Page} of {Pages} | {start}-{end} of {Data.Count} (truncated from {TotalItems})";
+                return "No Results";
             }
 
-            return $"Showing Page {Page} of {Pages} | {start}-{end} of {Data.Count}";
+            if (!HasPages && !IsPartial)
+            {
+                return $"Showing All | {Data.Count}";
+            }
+
+            int start = ((Page - 1) * PageSize) + 1;
+            int end = Math.Min(((Page - 1) * PageSize) + PageSize, Data.Count);
+
+            return IsPartial && TotalItems > Data.Count
+                ? $"Showing Page {Page} of {Pages} | {start}-{end} of {Data.Count} (truncated from {TotalItems})"
+                : $"Showing Page {Page} of {Pages} | {start}-{end} of {Data.Count}";
         }
     }
 
     private static int ComputePages(int total, int pageSize)
     {
-        if (pageSize <= 0)
-            return 1;
-        return Math.Max(1, (int)Math.Ceiling(total / (double)pageSize));
+        return pageSize <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling(total / (double)pageSize));
     }
 
     public PaginationViewModel(int pageSize, IEnumerable<T> data, int maxItems = 100)
@@ -80,16 +80,18 @@ public partial class PaginationViewModel<T> : ObservableObject
     {
         if (Data == null || Data.Count == 0)
         {
-            PageData = new ObservableCollection<T>();
+            PageData = [];
             OnPropertyChanged(nameof(PageData));
             return;
         }
 
         int startIndex = (Page - 1) * PageSize;
         if (startIndex >= Data.Count)
+        {
             startIndex = Math.Max(0, (Pages - 1) * PageSize);
+        }
 
-        var pageItems = Data.Skip(startIndex).Take(PageSize).ToList();
+        List<T> pageItems = Data.Skip(startIndex).Take(PageSize).ToList();
         PageData = new ObservableCollection<T>(pageItems);
         OnPropertyChanged(nameof(PageData));
     }
@@ -97,13 +99,19 @@ public partial class PaginationViewModel<T> : ObservableObject
     public void NextPage()
     {
         if (Page < Pages)
+        {
             Page++;
+        }
+
         UpdatePageData();
     }
     public void PreviousPage()
     {
         if (Page > 1)
+        {
             Page--;
+        }
+
         UpdatePageData();
     }
 
@@ -129,7 +137,7 @@ public partial class PaginationViewModel<T> : ObservableObject
     {
         PageSize = pageSize <= 0 ? 30 : pageSize;
         Page = 1;
-        Data ??= new ObservableCollection<T>();
+        Data ??= [];
 
         Pages = ComputePages(Data.Count, PageSize);
 
@@ -138,7 +146,7 @@ public partial class PaginationViewModel<T> : ObservableObject
 
     public void SwapData(IEnumerable<T> data, bool isPartial = false)
     {
-        var list = data?.ToList() ?? new List<T>();
+        var list = data?.ToList() ?? [];
         TotalItems = list.Count;
 
         if (TotalItems > MaxItems)

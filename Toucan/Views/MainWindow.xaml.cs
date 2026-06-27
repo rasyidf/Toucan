@@ -1,10 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Data;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
-using Toucan.ViewModels;
 using Toucan.Services;
+using Toucan.ViewModels;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
@@ -16,7 +15,7 @@ public partial class MainWindow : FluentWindow
     internal MainWindowViewModel ViewModel { get; }
     private readonly Services.FileWatcherService _fileWatcher = new();
 
-    internal MainWindow(string startupPath, MainWindowViewModel viewModel)
+    internal MainWindow(string startupPath, MainWindowViewModel viewModel, StatusBarViewModel statusViewModel)
     {
 
         InitializeComponent();
@@ -36,11 +35,8 @@ public partial class MainWindow : FluentWindow
         // wire up list selection from resources view
         resourcesView.ListSelectionChanged += ResourcesView_ListSelectionChanged;
 
-        // wire up statusbar view model and service; prefer the DI-registered singleton instance
-        var statusViewModel = App.Services != null
-            ? App.Services.GetRequiredService<StatusBarViewModel>()
-            : new StatusBarViewModel();
-            // initialize from main view model
+        // wire up statusbar view model and service
+        // initialize from main view model
         statusViewModel.StatusText = ViewModel.StatusText;
         statusViewModel.IsLoading = ViewModel.IsLoading;
         statusViewModel.ProjectName = System.IO.Path.GetFileName(ViewModel.CurrentPath) ?? ViewModel.CurrentPath ?? "Toucan Project";
@@ -53,13 +49,20 @@ public partial class MainWindow : FluentWindow
         ViewModel.PropertyChanged += (s, ea) =>
         {
             if (ea.PropertyName == nameof(MainWindowViewModel.StatusText))
+            {
                 statusViewModel.StatusText = ViewModel.StatusText;
+            }
             else if (ea.PropertyName == nameof(MainWindowViewModel.IsLoading))
+            {
                 statusViewModel.IsLoading = ViewModel.IsLoading;
+            }
             else if (ea.PropertyName == nameof(MainWindowViewModel.CurrentPath))
             {
                 statusViewModel.ProjectName = System.IO.Path.GetFileName(ViewModel.CurrentPath) ?? ViewModel.CurrentPath ?? "Toucan Project";
-                _fileWatcher.Watch(ViewModel.CurrentPath);
+                if (!string.IsNullOrEmpty(ViewModel.CurrentPath))
+                {
+                    _fileWatcher.Watch(ViewModel.CurrentPath);
+                }
             }
         };
         _fileWatcher.FilesChanged += () => Dispatcher.Invoke(() =>
@@ -70,13 +73,13 @@ public partial class MainWindow : FluentWindow
                 ViewModel.RefreshCommand.Execute(null);
             }
         });
-            ViewModel.PagedUpdates();
+        ViewModel.PagedUpdates();
     }
 
     private void UpdateStartupOptions(string startupPath)
     {
         ViewModel.AppOptions = AppOptions.LoadFromDisk();
-        ViewModel.CurrentPath = ViewModel.AppOptions.LastProjectPath;
+        ViewModel.CurrentPath = ViewModel.AppOptions.LastProjectPath ?? string.Empty;
 
         if (!string.IsNullOrEmpty(startupPath))
         {
@@ -90,13 +93,17 @@ public partial class MainWindow : FluentWindow
     {
         ViewModel.SelectedNode = (NsTreeItem)e.NewValue;
         if (ViewModel.SelectedNode == null)
+        {
             return;
+        }
 
         ViewModel.SelectedNode.IsExpanded = true;
 
         string clickedNamespace = ViewModel.SelectedNode.Namespace;
         if (ViewModel.SelectedNode.HasItems)
+        {
             clickedNamespace += ".";
+        }
 
         if (!string.IsNullOrWhiteSpace(clickedNamespace))
         {
@@ -115,7 +122,9 @@ public partial class MainWindow : FluentWindow
                 ViewModel.SelectedNode.IsExpanded = true;
                 string clickedNamespace = ViewModel.SelectedNode.Namespace;
                 if (ViewModel.SelectedNode.HasItems)
+                {
                     clickedNamespace += ".";
+                }
 
                 if (!string.IsNullOrWhiteSpace(clickedNamespace))
                 {
@@ -131,7 +140,9 @@ public partial class MainWindow : FluentWindow
         if (!string.IsNullOrEmpty(ViewModel.CurrentPath) && System.IO.Directory.Exists(ViewModel.CurrentPath))
         {
             if (ViewModel.OpenRecentProjectCommand.CanExecute(ViewModel.CurrentPath))
+            {
                 await ViewModel.OpenRecentProjectCommand.ExecuteAsync(ViewModel.CurrentPath).ConfigureAwait(true);
+            }
         }
 
         // Populate recent projects for flyout menu
@@ -144,10 +155,25 @@ public partial class MainWindow : FluentWindow
     // Search is now driven by the view-model SearchText property binding.
 
 
-    private void NextPage(object sender, RoutedEventArgs e) => ViewModel.NextPageCommand.Execute(null);
-    private void PreviousPage(object sender, RoutedEventArgs e) => ViewModel.PreviousPageCommand.Execute(null);
-    private void FirstPage(object sender, RoutedEventArgs e) => ViewModel.FirstPageCommand.Execute(null);
-    private void LastPage(object sender, RoutedEventArgs e) => ViewModel.LastPageCommand.Execute(null);
+    private void NextPage(object sender, RoutedEventArgs e)
+    {
+        ViewModel.NextPageCommand.Execute(null);
+    }
+
+    private void PreviousPage(object sender, RoutedEventArgs e)
+    {
+        ViewModel.PreviousPageCommand.Execute(null);
+    }
+
+    private void FirstPage(object sender, RoutedEventArgs e)
+    {
+        ViewModel.FirstPageCommand.Execute(null);
+    }
+
+    private void LastPage(object sender, RoutedEventArgs e)
+    {
+        ViewModel.LastPageCommand.Execute(null);
+    }
 
     private void UpdateLanguageValue(object sender, RoutedEventArgs e)
     {
@@ -164,7 +190,7 @@ public partial class MainWindow : FluentWindow
     {
         if (e.Key == System.Windows.Input.Key.Enter)
         {
-            var binding = ((System.Windows.Controls.TextBox)sender).GetBindingExpression(System.Windows.Controls.TextBox.TextProperty);
+            BindingExpression binding = ((System.Windows.Controls.TextBox)sender).GetBindingExpression(System.Windows.Controls.TextBox.TextProperty);
             binding?.UpdateSource();
         }
     }

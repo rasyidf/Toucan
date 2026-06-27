@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Toucan.Avalonia.Views.Dialogs;
+using Toucan.Core.Contracts;
 
 namespace Toucan.Avalonia.Services;
 

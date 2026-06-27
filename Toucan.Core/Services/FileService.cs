@@ -79,8 +79,11 @@ public class FileService(ILogger<FileService> logger) : IFileService
         if (typeof(T) == typeof(string)) return (T)(object)await File.ReadAllTextAsync(path, Encoding.UTF8).ConfigureAwait(false);
         if (typeof(T) == typeof(byte[])) return (T)(object)await File.ReadAllBytesAsync(path).ConfigureAwait(false);
 
-        await using var stream = File.OpenRead(path);
-        return (await JsonSerializer.DeserializeAsync<T>(stream, s_options).ConfigureAwait(false))!;
+        var stream = File.OpenRead(path);
+        await using (stream.ConfigureAwait(false))
+        {
+            return (await JsonSerializer.DeserializeAsync<T>(stream, s_options).ConfigureAwait(false))!;
+        }
     }
 
     public async Task SaveAsync<T>(string folderPath, string fileName, T content)
@@ -91,8 +94,11 @@ public class FileService(ILogger<FileService> logger) : IFileService
         if (content is string text) { await File.WriteAllTextAsync(path, text, Encoding.UTF8).ConfigureAwait(false); return; }
         if (content is byte[] bytes) { await File.WriteAllBytesAsync(path, bytes).ConfigureAwait(false); return; }
 
-        await using var stream = File.Create(path);
-        await JsonSerializer.SerializeAsync(stream, content, s_options).ConfigureAwait(false);
+        var stream = File.Create(path);
+        await using (stream.ConfigureAwait(false))
+        {
+            await JsonSerializer.SerializeAsync(stream, content, s_options).ConfigureAwait(false);
+        }
     }
 
     public Task<string> ReadTextAsync(string folderPath, string fileName)

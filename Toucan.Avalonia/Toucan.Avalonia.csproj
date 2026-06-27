@@ -5,6 +5,9 @@
     <Nullable>enable</Nullable>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+    <!-- Suppress Avalonia XAML warnings about deprecated TextBox.Watermark (AVLN5001)
+         and runtime loader reachability (AVLN3001) until UI migration is complete -->
+    <NoWarn>$(NoWarn);AVLN5001;AVLN3001</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />

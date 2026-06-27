@@ -15,7 +15,7 @@ public class TreeItemtoListItemConverter : IValueConverter
         // Handle CollectionView and other non-generic enumerables by iterating non-generic IEnumerable
         if (value is IEnumerable enumerable)
         {
-            var result = new List<NsFlatItem>();
+            List<NsFlatItem> result = new();
 
             foreach (var v in enumerable)
             {

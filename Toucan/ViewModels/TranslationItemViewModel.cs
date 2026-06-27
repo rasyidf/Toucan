@@ -1,8 +1,8 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Windows;
 using System.Windows.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Toucan.Core.Models;
 
 namespace Toucan.ViewModels;
@@ -37,7 +37,10 @@ public partial class TranslationItemViewModel : ObservableObject
             if (_value != value)
             {
                 if (!_debounceTimer.IsEnabled)
+                {
                     _valueBeforeEdit = _value;
+                }
+
                 _value = value;
                 OnPropertyChanged(nameof(Value));
                 _debounceTimer.Stop();
@@ -66,20 +69,28 @@ public partial class TranslationItemViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ToggleApproved() => IsApproved = !IsApproved;
+    private void ToggleApproved()
+    {
+        IsApproved = !IsApproved;
+    }
 
     [RelayCommand]
     private void CopyTranslation()
     {
         if (!string.IsNullOrEmpty(Value))
+        {
             Clipboard.SetText(Value);
+        }
     }
 
     private void SaveTranslation()
     {
         if (_model != null && _valueBeforeEdit != _value)
+        {
             Services.UndoRedoService.Instance.Record(_model.Namespace, _model.Language, _valueBeforeEdit, _value);
-        if (_model != null) _model.Value = _value;
+        }
+
+        _ = _model?.Value = _value;
         _valueBeforeEdit = _value;
     }
 }

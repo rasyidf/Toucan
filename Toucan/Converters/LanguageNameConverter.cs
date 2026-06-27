@@ -10,7 +10,7 @@ internal class LanguageNameConverter : IValueConverter
     {
         try
         {
-            var cult = new CultureInfo(value?.ToString() ?? ""); 
+            CultureInfo cult = new(value?.ToString() ?? "");
             return cult.EnglishName;
         }
         catch (CultureNotFoundException)

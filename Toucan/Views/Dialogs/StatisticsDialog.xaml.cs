@@ -8,14 +8,21 @@ namespace Toucan.Views.Dialogs;
 
 public partial class StatisticsDialog : FluentWindow
 {
-    public StatisticsDialog(IEnumerable<TranslationItem> translations, Window owner = null)
+    public StatisticsDialog(IEnumerable<TranslationItem> translations, Window? owner = null)
     {
         InitializeComponent();
-        if (owner != null) Owner = owner;
+        if (owner != null)
+        {
+            Owner = owner;
+        }
+
         DataContext = new StatisticsViewModel(translations);
     }
 
-    private void Close_Click(object sender, RoutedEventArgs e) => Close();
+    private void Close_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
+    }
 }
 
 internal class LanguageStatRow
@@ -36,7 +43,7 @@ internal class StatisticsViewModel
 
     public StatisticsViewModel(IEnumerable<TranslationItem> translations)
     {
-        var items = translations?.ToList() ?? [];
+        List<TranslationItem> items = translations?.ToList() ?? [];
         var total = items.Count;
         var translated = items.Count(t => !string.IsNullOrWhiteSpace(t.Value));
         var languages = items.GroupBy(t => t.Language).OrderBy(g => g.Key).ToList();

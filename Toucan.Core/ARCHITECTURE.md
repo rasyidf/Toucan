@@ -4,7 +4,7 @@ Toucan is designed as a **universal i18n resource manager** that can import/expo
 
 ## Goal
 
-Any i18n project from tools like **BabelEdit**, **inlang**, **Lokalise**, **Crowdin**, **i18next**, **Flutter ARB**, **Android strings.xml**, **iOS .strings**, etc. should be importable into Toucan and exportable back — losslessly where possible.
+Any i18n project from tools like **inlang**, **Lokalise**, **Crowdin**, **i18next**, **Flutter ARB**, **Android strings.xml**, **iOS .strings**, or legacy `.babel` projects should be importable into Toucan and exportable back — losslessly where possible.
 
 ## Internal Model
 
@@ -70,8 +70,8 @@ The manifest enables multi-package projects (e.g., separate `ui.json`, `errors.j
 
 ## Interop with Other Tools
 
-### Import from BabelEdit
-BabelEdit uses nested JSON with one file per language. → Use `JsonLoadStrategy` with folder scan.
+### Import from `.babel` format
+The `.babel` format uses nested JSON with one file per language. → Use `JsonLoadStrategy` with folder scan.
 
 ### Import from inlang
 inlang uses a `project.inlang/settings.json` manifest pointing to message files. → Planned: `InlangLoadStrategy` reads the manifest and maps to TranslationItem.

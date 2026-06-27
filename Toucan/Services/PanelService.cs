@@ -1,5 +1,5 @@
-using System;
 using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 
 namespace Toucan.Services;
 
@@ -19,8 +19,15 @@ internal partial class PanelService : ObservableObject
     [ObservableProperty] private bool statusBarVisible = true;
     [ObservableProperty] private bool sidePanelVisible = true;
 
-    public void ToggleSuggestions() => SuggestionsVisible = !SuggestionsVisible;
-    public void ToggleFocusedEditor() => FocusedEditorVisible = !FocusedEditorVisible;
+    public void ToggleSuggestions()
+    {
+        SuggestionsVisible = !SuggestionsVisible;
+    }
+
+    public void ToggleFocusedEditor()
+    {
+        FocusedEditorVisible = !FocusedEditorVisible;
+    }
 
     public void EnterZenMode()
     {
@@ -41,7 +48,13 @@ internal partial class PanelService : ObservableObject
 
     public void ToggleZenMode()
     {
-        if (ZenMode) ExitZenMode();
-        else EnterZenMode();
+        if (ZenMode)
+        {
+            ExitZenMode();
+        }
+        else
+        {
+            EnterZenMode();
+        }
     }
 }

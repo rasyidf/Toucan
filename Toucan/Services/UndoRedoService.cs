@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Toucan.Services;
 
@@ -28,31 +27,45 @@ internal class UndoRedoService
 
     public void Record(string ns, string language, string oldValue, string newValue)
     {
-        if (oldValue == newValue) return;
+        if (oldValue == newValue)
+        {
+            return;
+        }
+
         _undoStack.Push(new EditAction(ns, language, oldValue, newValue));
         _redoStack.Clear();
         // Cap history
         if (_undoStack.Count > MaxHistory)
         {
-            var temp = _undoStack.ToArray();
+            EditAction[] temp = _undoStack.ToArray();
             _undoStack.Clear();
             for (int i = 0; i < MaxHistory; i++)
+            {
                 _undoStack.Push(temp[i]);
+            }
         }
     }
 
     public EditAction? Undo()
     {
-        if (_undoStack.Count == 0) return null;
-        var action = _undoStack.Pop();
+        if (_undoStack.Count == 0)
+        {
+            return null;
+        }
+
+        EditAction action = _undoStack.Pop();
         _redoStack.Push(action);
         return action;
     }
 
     public EditAction? Redo()
     {
-        if (_redoStack.Count == 0) return null;
-        var action = _redoStack.Pop();
+        if (_redoStack.Count == 0)
+        {
+            return null;
+        }
+
+        EditAction action = _redoStack.Pop();
         _undoStack.Push(action);
         return action;
     }

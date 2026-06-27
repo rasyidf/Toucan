@@ -1,152 +1,394 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Toucan — i18n Resource Editor</title>
+
+<!-- SEO Meta Tags -->
+<title>Toucan — Universal i18n Resource Editor for Windows</title>
+<meta name="description" content="A modern, open-source internationalization file editor for Windows. Manage JSON, YAML, PO, RESX, XLIFF, and 12+ translation formats in one place with AI-powered pre-translation.">
+<meta name="keywords" content="i18n, internationalization, localization, translation editor, resource editor, JSON, YAML, PO, RESX, XLIFF, ARB, Flutter, Android, iOS, Windows, open source, MIT">
+<meta name="author" content="rasyid.dev">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://toucan.rasyid.dev/">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://toucan.rasyid.dev/">
+<meta property="og:title" content="Toucan — Universal i18n Resource Editor">
+<meta property="og:description" content="A modern, open-source internationalization file editor for Windows. Manage all your translations in one place with AI-powered pre-translation.">
+<meta property="og:image" content="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://toucan.rasyid.dev/">
+<meta property="twitter:title" content="Toucan — Universal i18n Resource Editor">
+<meta property="twitter:description" content="A modern, open-source internationalization file editor for Windows. Manage all your translations in one place with AI-powered pre-translation.">
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Toucan",
+  "description": "Universal i18n Resource Editor for Windows",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Windows 10+",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "license": "https://opensource.org/licenses/MIT",
+  "url": "https://toucan.rasyid.dev/",
+  "downloadUrl": "https://github.com/rasyidf/Toucan/releases",
+  "author": { "@type": "Person", "name": "rasyid.dev", "url": "https://rasyid.dev" }
+}
+</script>
+
+<!-- Tailwind CSS CDN with dark mode -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        brand: { 50:'#eff6ff', 100:'#dbeafe', 200:'#bfdbfe', 300:'#93c5fd', 400:'#60a5fa', 500:'#2563eb', 600:'#1d4ed8', 700:'#1e40af', 800:'#1e3a8a', 900:'#172554' },
+        accent: { 50:'#fffbeb', 100:'#fef3c7', 200:'#fde68a', 300:'#fcd34d', 400:'#f59e0b', 500:'#d97706' },
+      },
+      animation: {
+        'fade-up': 'fadeUp 0.7s ease-out forwards',
+        'float': 'float 6s ease-in-out infinite',
+        'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
+      },
+      keyframes: {
+        fadeUp: { '0%': { opacity:'0', transform:'translateY(20px)' }, '100%': { opacity:'1', transform:'translateY(0)' } },
+        float: { '0%,100%': { transform:'translateY(0)' }, '50%': { transform:'translateY(-8px)' } },
+        pulseSoft: { '0%,100%': { opacity:'1' }, '50%': { opacity:'0.6' } },
+      }
+    }
+  }
+}
+</script>
+
+<!-- Vue 3 + Lucide -->
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({startOnLoad:true,theme:'dark'});</script>
-<link rel="stylesheet" href="style.css">
+
+<style>
+html { scroll-behavior: smooth; }
+
+/* Reveal animation */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* Card hover */
+.card-hover { transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+.card-hover:hover { transform: translateY(-3px); }
+
+/* Button shimmer */
+.btn-shine { position: relative; overflow: hidden; }
+.btn-shine::after { content:''; position: absolute; inset:0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); transform: translateX(-100%); }
+.btn-shine:hover::after { animation: shimmer 0.7s ease forwards; }
+@keyframes shimmer { to { transform: translateX(100%); } }
+
+/* Dot grid pattern */
+.dot-pattern {
+  background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Theme toggle animation */
+.theme-toggle { transition: transform 0.3s ease; }
+.theme-toggle:hover { transform: rotate(15deg); }
+</style>
 </head>
-<body>
+<body class="bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased transition-colors duration-300">
 <div id="app">
 
-<header>
-<div class="container">
-<img src="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png" alt="Toucan">
-<h1>Toucan</h1>
-<nav>
-<a href="#features">Features</a>
-<a href="#formats">Formats</a>
-<a href="#providers">Providers</a>
-<a href="#roadmap">Roadmap</a>
-<a href="https://github.com/rasyidf/Toucan">GitHub</a>
-</nav>
-</div>
+<!-- Navigation -->
+<header class="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-800 backdrop-blur-xl bg-white/80 dark:bg-gray-950/80 transition-all duration-300" :class="{'shadow-sm': scrolled}">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center">
+    <a href="#" class="flex items-center gap-3 group">
+      <img src="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png" alt="Toucan logo" class="w-8 h-8 transition-transform group-hover:scale-110" width="32" height="32">
+      <span class="text-lg font-bold text-gray-900 dark:text-white">Toucan</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-8 ml-12 text-sm">
+      <a href="#features" class="text-gray-600 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-colors">Features</a>
+      <a href="#formats" class="text-gray-600 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-colors">Formats</a>
+      <a href="#providers" class="text-gray-600 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-colors">Providers</a>
+      <a href="#roadmap" class="text-gray-600 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-colors">Roadmap</a>
+    </nav>
+    <div class="ml-auto flex items-center gap-3">
+      <!-- Theme toggle -->
+      <button @click="toggleTheme" class="theme-toggle p-2 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" :aria-label="dark ? 'Switch to light mode' : 'Switch to dark mode'">
+        <svg v-if="!dark" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
+        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+      </button>
+      <a href="https://github.com/rasyidf/Toucan" class="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors" aria-label="GitHub repository">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      </a>
+      <a href="https://github.com/rasyidf/Toucan/releases" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium rounded-lg transition-all duration-200 btn-shine">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Download
+      </a>
+    </div>
+    <!-- Mobile menu -->
+    <button @click="mobileMenu = !mobileMenu" class="ml-3 md:hidden text-gray-500 hover:text-gray-900 dark:hover:text-white" aria-label="Toggle menu">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+  <!-- Mobile nav -->
+  <div v-if="mobileMenu" class="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl px-6 py-4 space-y-3">
+    <a href="#features" @click="mobileMenu=false" class="block text-gray-600 dark:text-gray-400 hover:text-brand-600">Features</a>
+    <a href="#formats" @click="mobileMenu=false" class="block text-gray-600 dark:text-gray-400 hover:text-brand-600">Formats</a>
+    <a href="#providers" @click="mobileMenu=false" class="block text-gray-600 dark:text-gray-400 hover:text-brand-600">Providers</a>
+    <a href="#roadmap" @click="mobileMenu=false" class="block text-gray-600 dark:text-gray-400 hover:text-brand-600">Roadmap</a>
+    <a href="https://github.com/rasyidf/Toucan/releases" class="inline-flex items-center gap-2 px-4 py-2 bg-brand-500 text-white text-sm font-medium rounded-lg">Download</a>
+  </div>
 </header>
 
-<div class="hero">
-<div class="container">
-<h2>Universal i18n Resource Editor</h2>
-<p>A modern, open-source internationalization file editor for Windows — manage all your translations in one place.</p>
-<div class="badges">
-<span class="badge green">Free &amp; Open Source</span>
-<span class="badge blue">Windows Desktop</span>
-<span class="badge purple">MIT License</span>
-<span class="badge green">12+ File Formats</span>
-</div>
-</div>
-</div>
+<!-- Hero Section -->
+<section class="relative pt-32 pb-20 md:pt-44 md:pb-28 overflow-hidden">
+  <!-- Subtle dot pattern -->
+  <div class="absolute inset-0 dot-pattern text-brand-100 dark:text-brand-900/30 opacity-50"></div>
 
-<div class="container">
+  <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
+    <div class="animate-fade-up">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-full text-sm text-brand-700 dark:text-brand-300 mb-8">
+        <span class="w-2 h-2 bg-brand-500 rounded-full animate-pulse"></span>
+        Free &amp; Open Source · MIT License
+      </div>
+      <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
+        The Universal<br>
+        <span class="text-brand-600 dark:text-brand-400">i18n Resource Editor</span>
+      </h1>
+      <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+        Manage translations across 12+ file formats with AI-powered pre-translation. 
+        One editor for JSON, YAML, PO, RESX, XLIFF, ARB, and more.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="https://github.com/rasyidf/Toucan/releases" class="group inline-flex items-center gap-3 px-8 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:scale-[1.02] btn-shine">
+          <svg class="w-5 h-5 transition-transform group-hover:translate-y-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Download for Windows
+        </a>
+        <a href="https://github.com/rasyidf/Toucan" class="inline-flex items-center gap-3 px-8 py-3.5 border border-gray-300 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-600 text-gray-900 dark:text-white font-medium rounded-xl transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-900">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>
 
-<section id="features">
-<h3>Features</h3>
-<div class="grid">
-<div class="card"><h4><i data-lucide="file-json"></i> Multi-Format Editing</h4><p>Edit JSON, YAML, PO, RESX, Android XML, iOS .strings, XLIFF, Flutter ARB, CSV, TOML and more — all in one unified interface.</p></div>
-<div class="card"><h4><i data-lucide="columns-2"></i> Side-by-Side Translation</h4><p>View and edit source and target languages next to each other. Filter by untranslated, translated, and approved items.</p></div>
-<div class="card"><h4><i data-lucide="sparkles"></i> AI Pre-Translation</h4><p>Batch-translate using Google, DeepL, Microsoft, or OpenAI — with parameter preservation, formality settings, and preview before applying.</p></div>
-<div class="card"><h4><i data-lucide="paintbrush"></i> Fluent Design</h4><p>Modern Windows UI with Mica backdrop, dark/light theme following your system preference.</p></div>
-<div class="card"><h4><i data-lucide="gauge"></i> Built for Scale</h4><p>Handles large projects (10,000+ keys) with pagination, streaming JSON parser, and per-namespace operations.</p></div>
-<div class="card"><h4><i data-lucide="keyboard"></i> Keyboard-First</h4><p>Centralized keybinding service with 20+ configurable shortcuts. Cut/copy/paste, case conversion, and bulk actions.</p></div>
-</div>
+    <!-- Stats -->
+    <div class="mt-16 grid grid-cols-3 gap-6 max-w-2xl mx-auto animate-fade-up" style="animation-delay:0.2s">
+      <div class="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
+        <div class="text-2xl md:text-3xl font-bold text-brand-600 dark:text-brand-400">12+</div>
+        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">File Formats</div>
+      </div>
+      <div class="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
+        <div class="text-2xl md:text-3xl font-bold text-brand-600 dark:text-brand-400">10k+</div>
+        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Keys Supported</div>
+      </div>
+      <div class="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
+        <div class="text-2xl md:text-3xl font-bold text-brand-600 dark:text-brand-400">Free</div>
+        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Open Source · MIT</div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section id="formats">
-<h3>Supported Formats</h3>
-<table>
-<thead><tr><th>Format</th><th>Load</th><th>Save</th><th>Use Case</th></tr></thead>
-<tbody>
-<tr><td>JSON (flat)</td><td class="status-done">✅</td><td class="status-done">✅</td><td>React, Vue, generic web apps</td></tr>
-<tr><td>JSON (nested)</td><td class="status-done">✅</td><td class="status-done">✅</td><td>i18next, Angular</td></tr>
-<tr><td>YAML</td><td class="status-done">✅</td><td class="status-done">✅</td><td>Ruby on Rails, Laravel</td></tr>
-<tr><td>TOML</td><td class="status-done">✅</td><td class="status-done">✅</td><td>Rust, Hugo, config files</td></tr>
-<tr><td>INI</td><td class="status-partial">—</td><td class="status-done">✅</td><td>Legacy desktop apps</td></tr>
-<tr><td>PO/POT</td><td class="status-done">✅</td><td class="status-done">✅</td><td>WordPress, PHP, GNU gettext</td></tr>
-<tr><td>RESX</td><td class="status-done">✅</td><td class="status-done">✅</td><td>.NET / WPF / Blazor</td></tr>
-<tr><td>Android XML</td><td class="status-done">✅</td><td class="status-done">✅</td><td>Android apps</td></tr>
-<tr><td>iOS .strings</td><td class="status-done">✅</td><td class="status-done">✅</td><td>iOS / macOS apps</td></tr>
-<tr><td>XLIFF</td><td class="status-done">✅</td><td class="status-done">✅</td><td>Enterprise CAT tools</td></tr>
-<tr><td>ARB</td><td class="status-done">✅</td><td class="status-done">✅</td><td>Flutter / Dart</td></tr>
-<tr><td>CSV</td><td class="status-done">✅</td><td class="status-done">✅</td><td>Spreadsheet exchange</td></tr>
-</tbody>
-</table>
+<!-- Features Section -->
+<section id="features" class="py-24 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16 reveal">
+      <span class="text-brand-600 dark:text-brand-400 text-sm font-semibold uppercase tracking-wider">Features</span>
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-3">Everything you need to manage translations</h2>
+      <p class="text-gray-600 dark:text-gray-400 mt-4 max-w-xl mx-auto">Built for teams shipping multilingual software — from indie apps to enterprise platforms.</p>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-for="(feature, i) in features" :key="i" class="card-hover bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-lg hover:shadow-brand-500/5 reveal" :style="{animationDelay: (i * 0.08) + 's'}">
+        <div class="w-10 h-10 bg-brand-50 dark:bg-brand-900/40 border border-brand-200 dark:border-brand-800 rounded-lg flex items-center justify-center mb-4">
+          <i :data-lucide="feature.icon" class="w-5 h-5 text-brand-600 dark:text-brand-400"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{feature.title}}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{{feature.desc}}</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section id="providers">
-<h3>Translation Providers</h3>
-<div class="mermaid">
-sequenceDiagram
-    participant You as You
-    participant Toucan as Toucan
-    participant AI as Translation Provider
-    You->>Toucan: Select keys to translate
-    Toucan->>AI: Send source text + context
-    AI-->>Toucan: Return translations
-    Toucan-->>You: Preview results before saving
-</div>
-<table>
-<thead><tr><th>Provider</th><th>Highlights</th></tr></thead>
-<tbody>
-<tr><td><strong>Google Cloud Translation</strong></td><td>100+ languages, fast, automatic language detection</td></tr>
-<tr><td><strong>DeepL</strong></td><td>High-quality European languages, formality settings</td></tr>
-<tr><td><strong>Microsoft Translator</strong></td><td>Azure-integrated, batch processing, 60+ languages</td></tr>
-<tr><td><strong>OpenAI (GPT)</strong></td><td>Context-aware, custom prompts, handles idioms well</td></tr>
-</tbody>
-</table>
-<p style="margin-top:16px;color:var(--muted);font-size:.9rem">Bring your own API key. Keys are stored securely on your machine using Windows DPAPI encryption.</p>
+<!-- Formats Section -->
+<section id="formats" class="py-24 border-t border-gray-100 dark:border-gray-800">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16 reveal">
+      <span class="text-brand-600 dark:text-brand-400 text-sm font-semibold uppercase tracking-wider">Compatibility</span>
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-3">12+ formats, one editor</h2>
+      <p class="text-gray-600 dark:text-gray-400 mt-4 max-w-xl mx-auto">From React to Rails, Android to iOS — Toucan reads and writes them all.</p>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 reveal">
+      <div v-for="(fmt, i) in formats" :key="i" class="flex items-center gap-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 transition-all duration-200 hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-sm">
+        <div class="w-10 h-10 bg-brand-50 dark:bg-brand-900/40 rounded-lg flex items-center justify-center shrink-0">
+          <span class="text-brand-600 dark:text-brand-400 font-mono text-xs font-bold">{{fmt.ext}}</span>
+        </div>
+        <div class="min-w-0">
+          <div class="text-sm font-medium text-gray-900 dark:text-white">{{fmt.name}}</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400 truncate">{{fmt.use}}</div>
+        </div>
+        <div class="ml-auto flex gap-1">
+          <span class="text-xs px-1.5 py-0.5 rounded bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 font-medium" v-if="fmt.load">R</span>
+          <span class="text-xs px-1.5 py-0.5 rounded bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 font-medium" v-if="fmt.save">W</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<section id="roadmap">
-<h3>Roadmap</h3>
-<div v-if="roadmap" class="roadmap-header">
-<p>Progress: <strong>{{roadmap.progress.done}} / {{roadmap.progress.total}}</strong> features done. Feature parity vs BabelEdit: ~{{roadmap.progress.parity}}%.</p>
-<div class="progress-bar large"><div class="fill" :style="{width: (roadmap.progress.done/roadmap.progress.total*100)+'%'}"></div></div>
-</div>
+<!-- Providers Section -->
+<section id="providers" class="py-24 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16 reveal">
+      <span class="text-brand-600 dark:text-brand-400 text-sm font-semibold uppercase tracking-wider">Translation</span>
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-3">Pre-translate &amp; AI-assist your workflow</h2>
+      <p class="text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto">Select keys, pick a provider, preview results, then apply. Parameters like <code class="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded font-mono" v-pre>{{var}}</code> are automatically preserved.</p>
+    </div>
 
-<template v-if="roadmap">
-<details v-for="cat in roadmap.categories" :key="cat.name" class="category">
-<summary>
-<span class="cat-name">{{cat.name}}</span>
-<span class="cat-stats">
-<span class="badge-sm green">{{catDone(cat)}} done</span>
-<span class="badge-sm" :class="catPlanned(cat)?'orange':''" v-if="catPlanned(cat)">{{catPlanned(cat)}} planned</span>
-</span>
-</summary>
-<div class="phase-content">
-<div v-for="group in cat.groups" :key="group.name" class="feature-group">
-<div class="group-header">
-<span class="group-name">{{group.name}}</span>
-<span class="group-stats">
-<span class="badge-sm green" v-if="groupDone(group)">{{groupDone(group)}} implemented</span>
-<span class="badge-sm orange" v-if="groupPlanned(group)">{{groupPlanned(group)}} planned</span>
-</span>
-</div>
-<ul class="feature-list">
-<li v-for="f in group.features" :key="f.name" :class="{done: f.done, wip: f.wip && !f.done}">{{f.name}}</li>
-</ul>
-</div>
-</div>
-</details>
-</template>
+    <div class="grid lg:grid-cols-2 gap-8 mb-16">
+      <!-- Pre-Translation -->
+      <div class="reveal bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-9 h-9 bg-brand-50 dark:bg-brand-900/40 rounded-lg flex items-center justify-center">
+            <i data-lucide="languages" class="w-5 h-5 text-brand-600 dark:text-brand-400"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Pre-Translation</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Batch-translate with professional translation APIs</p>
+          </div>
+        </div>
+        <div class="space-y-3">
+          <div v-for="(p, i) in pretranslation" :key="i" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-lg transition-all duration-200 hover:border-brand-200 dark:hover:border-brand-800">
+            <div class="w-8 h-8 bg-brand-50 dark:bg-brand-900/40 rounded-md flex items-center justify-center shrink-0">
+              <i :data-lucide="p.icon" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="text-sm font-medium text-gray-900 dark:text-white">{{p.name}}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">{{p.desc}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI-Assisted Translation -->
+      <div class="reveal bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-9 h-9 bg-amber-50 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+            <i data-lucide="sparkles" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">AI-Assisted Translation</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Bring your own API key — context-aware LLM translation</p>
+          </div>
+        </div>
+        <div class="space-y-3">
+          <div v-for="(p, i) in aiProviders" :key="i" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-lg transition-all duration-200 hover:border-amber-200 dark:hover:border-amber-800">
+            <div class="w-8 h-8 bg-amber-50 dark:bg-amber-900/30 rounded-md flex items-center justify-center shrink-0">
+              <i :data-lucide="p.icon" class="w-4 h-4 text-amber-600 dark:text-amber-400"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="text-sm font-medium text-gray-900 dark:text-white">{{p.name}}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">{{p.desc}}</div>
+            </div>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-4 flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-brand-500"></i>
+          Keys stored securely with Windows DPAPI encryption.
+        </p>
+      </div>
+    </div>
+
+  </div>
 </section>
 
-<section id="download">
-<h3>Download</h3>
-<div class="grid">
-<div class="card"><h4><i data-lucide="monitor"></i> Windows</h4><p>Download the latest installer from the <a href="https://github.com/rasyidf/Toucan/releases">GitHub Releases page</a>. Requires Windows 10 or later.</p></div>
-<div class="card"><h4><i data-lucide="laptop"></i> macOS &amp; Linux</h4><p>Cross-platform support via Avalonia is in progress. Star the <a href="https://github.com/rasyidf/Toucan">repository</a> to get notified.</p></div>
-</div>
+<!-- Roadmap Section -->
+<section id="roadmap" class="py-24 border-t border-gray-100 dark:border-gray-800">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16 reveal">
+      <span class="text-brand-600 dark:text-brand-400 text-sm font-semibold uppercase tracking-wider">Progress</span>
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-3">Roadmap</h2>
+      <p class="text-gray-600 dark:text-gray-400 mt-4 max-w-xl mx-auto">Tracking progress toward feature parity with professional i18n editors.</p>
+    </div>
+
+    <div v-if="roadmap" class="mb-12 reveal">
+      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 max-w-lg mx-auto text-center">
+        <div class="text-4xl font-bold text-gray-900 dark:text-white">{{roadmap.progress.done}} <span class="text-gray-400 text-lg font-normal">/ {{roadmap.progress.total}}</span></div>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Features implemented · ~{{roadmap.progress.parity}}% parity with pro editors</p>
+        <div class="mt-4 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+          <div class="h-full bg-brand-500 rounded-full transition-all duration-1000" :style="{width: (roadmap.progress.done/roadmap.progress.total*100)+'%'}"></div>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="roadmap" class="space-y-3 max-w-4xl mx-auto">
+      <details v-for="cat in roadmap.categories" :key="cat.name" class="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden transition-colors hover:border-brand-200 dark:hover:border-brand-800 reveal">
+        <summary class="flex items-center gap-4 px-6 py-4 cursor-pointer select-none list-none">
+          <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 group-open:rotate-90 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          <span class="font-semibold text-gray-900 dark:text-white flex-1">{{cat.name}}</span>
+          <span class="text-xs px-2 py-1 rounded-full bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800">{{catDone(cat)}} done</span>
+          <span v-if="catPlanned(cat)" class="text-xs px-2 py-1 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">{{catPlanned(cat)}} planned</span>
+        </summary>
+        <div class="px-6 pb-4 space-y-3">
+          <div v-for="group in cat.groups" :key="group.name" class="bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-lg overflow-hidden">
+            <div class="flex items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">{{group.name}}</span>
+              <span v-if="groupDone(group)" class="text-xs px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 mr-2">{{groupDone(group)}} ✓</span>
+              <span v-if="groupPlanned(group)" class="text-xs px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">{{groupPlanned(group)}} planned</span>
+            </div>
+            <ul class="px-4 py-3 space-y-1.5">
+              <li v-for="f in group.features" :key="f.name" class="flex items-center gap-2.5 text-sm" :class="f.done ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'">
+                <span v-if="f.done" class="w-4 h-4 bg-brand-100 dark:bg-brand-900/40 rounded-full flex items-center justify-center shrink-0"><span class="w-2 h-2 bg-brand-500 rounded-full"></span></span>
+                <span v-else-if="f.wip" class="w-4 h-4 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center shrink-0"><span class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span></span>
+                <span v-else class="w-4 h-4 bg-gray-200 dark:bg-gray-800 rounded-full shrink-0"></span>
+                {{f.name}}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
 </section>
 
-</div>
+<!-- CTA / Download Section -->
+<section id="download" class="py-24 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 relative overflow-hidden">
+  <div class="absolute inset-0 dot-pattern text-brand-100 dark:text-brand-900/20 opacity-40"></div>
+  <div class="max-w-3xl mx-auto px-6 text-center relative z-10 reveal">
+    <h2 class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">Ready to simplify your i18n workflow?</h2>
+    <p class="text-gray-600 dark:text-gray-400 text-lg mb-10 max-w-xl mx-auto">Download Toucan for free and start managing translations across all your projects in one place.</p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+      <a href="https://github.com/rasyidf/Toucan/releases" class="group inline-flex items-center gap-3 px-8 py-4 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:scale-[1.02] btn-shine">
+        <svg class="w-5 h-5 transition-transform group-hover:translate-y-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Download for Windows
+        <span class="text-xs opacity-75">(Windows 10+)</span>
+      </a>
+      <a href="https://github.com/rasyidf/Toucan" class="inline-flex items-center gap-3 px-8 py-4 border border-gray-300 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-600 text-gray-900 dark:text-white font-medium rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-900">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+        Star on GitHub
+      </a>
+    </div>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-8">macOS &amp; Linux support (via Avalonia) is in progress. Star the repo to get notified.</p>
+  </div>
+</section>
 
-<footer>
-<div class="container">
-<p>Toucan © 2025 <a href="https://rasyid.dev">rasyid.dev</a> · <a href="https://github.com/rasyidf/Toucan">Source on GitHub</a> · MIT License</p>
-</div>
+<!-- Footer -->
+<footer class="border-t border-gray-200 dark:border-gray-800 py-8 bg-white dark:bg-gray-950">
+  <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <img src="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png" alt="Toucan" class="w-6 h-6" width="24" height="24">
+      <span class="text-sm text-gray-500 dark:text-gray-400">Toucan © 2025 <a href="https://rasyid.dev" class="text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">rasyid.dev</a></span>
+    </div>
+    <div class="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+      <a href="https://github.com/rasyidf/Toucan" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Source</a>
+      <a href="https://github.com/rasyidf/Toucan/releases" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Releases</a>
+      <span>MIT License</span>
+    </div>
+  </div>
 </footer>
 
 </div>
@@ -154,16 +396,97 @@ sequenceDiagram
 <script>
 const {createApp} = Vue;
 createApp({
-  data(){ return { roadmap: null } },
-  methods:{
-    catDone(cat){ return cat.groups.reduce((s,g)=>s+g.features.filter(f=>f.done).length,0) },
-    catPlanned(cat){ return cat.groups.reduce((s,g)=>s+g.features.filter(f=>!f.done).length,0) },
-    groupDone(g){ return g.features.filter(f=>f.done).length },
-    groupPlanned(g){ return g.features.filter(f=>!f.done).length }
+  data() {
+    return {
+      roadmap: null,
+      scrolled: false,
+      mobileMenu: false,
+      dark: false,
+      features: [
+        { icon:'file-json', title:'Multi-Format Editing', desc:'Edit JSON, YAML, PO, RESX, Android XML, iOS .strings, XLIFF, Flutter ARB, CSV, TOML — all in one unified interface.' },
+        { icon:'columns-2', title:'Side-by-Side Translation', desc:'View and edit source and target languages next to each other. Filter by untranslated, translated, and approved items.' },
+        { icon:'sparkles', title:'AI Pre-Translation', desc:'Batch-translate using Google, DeepL, Microsoft, or OpenAI — with parameter preservation, formality settings, and preview.' },
+        { icon:'paintbrush', title:'Fluent Design', desc:'Modern Windows UI with Mica backdrop, dark/light theme following your system preference.' },
+        { icon:'gauge', title:'Built for Scale', desc:'Handles large projects (10,000+ keys) with pagination, streaming JSON parser, and per-namespace operations.' },
+        { icon:'keyboard', title:'Keyboard-First', desc:'22+ configurable shortcuts. Cut/copy/paste, case conversion, and bulk actions — all from your keyboard.' },
+        { icon:'git-branch', title:'Source Code Integration', desc:'Find where translation keys are used in your codebase. Supports .tsx, .vue, .svelte, and .py scanning.' },
+        { icon:'database', title:'Translation Memory', desc:'Reuse translations across projects with fuzzy-match suggestions and AI-powered memory.' },
+        { icon:'package', title:'Multi-Package Projects', desc:'Organize translations into packages with drag & drop reorder and batch operations.' },
+      ],
+      formats: [
+        { ext:'JSON', name:'JSON (flat & nested)', use:'React, Vue, i18next, Angular', load:true, save:true },
+        { ext:'YAML', name:'YAML', use:'Ruby on Rails, Laravel', load:true, save:true },
+        { ext:'TOML', name:'TOML', use:'Rust, Hugo, config files', load:true, save:true },
+        { ext:'PO', name:'PO / Gettext', use:'WordPress, PHP, GNU gettext', load:true, save:true },
+        { ext:'RESX', name:'RESX', use:'.NET / WPF / Blazor', load:true, save:true },
+        { ext:'XML', name:'Android XML', use:'Android apps', load:true, save:true },
+        { ext:'STR', name:'iOS .strings', use:'iOS / macOS apps', load:true, save:true },
+        { ext:'XLF', name:'XLIFF', use:'Enterprise CAT tools', load:true, save:true },
+        { ext:'ARB', name:'ARB', use:'Flutter / Dart', load:true, save:true },
+        { ext:'CSV', name:'CSV / Excel', use:'Spreadsheet exchange', load:true, save:true },
+        { ext:'INI', name:'INI', use:'Legacy desktop apps', load:true, save:true },
+        { ext:'PHP', name:'Laravel PHP', use:'Laravel framework', load:true, save:true },
+      ],
+      pretranslation: [
+        { icon:'globe', name:'Google Cloud Translation', desc:'100+ languages, fast, automatic language detection' },
+        { icon:'languages', name:'DeepL', desc:'High-quality European languages, formality settings' },
+        { icon:'cloud', name:'Microsoft Translator', desc:'Azure-integrated, batch processing, 60+ languages' },
+      ],
+      aiProviders: [
+        { icon:'brain', name:'OpenAI (GPT)', desc:'Context-aware, custom prompts, handles idioms well' },
+        { icon:'cpu', name:'Any OpenAI-compatible API', desc:'Use local models, Anthropic, Mistral, or any compatible endpoint' },
+      ],
+    }
   },
-  async mounted(){
-    this.roadmap = await fetch('roadmap.json').then(r=>r.json());
-    this.$nextTick(()=>lucide.createIcons());
+  methods: {
+    toggleTheme() {
+      this.dark = !this.dark;
+      document.documentElement.classList.toggle('dark', this.dark);
+      localStorage.setItem('toucan-theme', this.dark ? 'dark' : 'light');
+    },
+    catDone(cat) { return cat.groups.reduce((s,g) => s + g.features.filter(f => f.done).length, 0) },
+    catPlanned(cat) { return cat.groups.reduce((s,g) => s + g.features.filter(f => !f.done).length, 0) },
+    groupDone(g) { return g.features.filter(f => f.done).length },
+    groupPlanned(g) { return g.features.filter(f => !f.done).length },
+    initObserver() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
+  },
+  mounted() {
+    // Restore theme preference (default: light)
+    const saved = localStorage.getItem('toucan-theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      this.dark = true;
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    // Load roadmap data
+    fetch('roadmap.json').then(r => r.json()).then(data => {
+      this.roadmap = data;
+      this.$nextTick(() => {
+        lucide.createIcons();
+        this.initObserver();
+      });
+    }).catch(() => {
+      this.$nextTick(() => {
+        lucide.createIcons();
+        this.initObserver();
+      });
+    });
+
+    // Scroll listener
+    window.addEventListener('scroll', () => {
+      this.scrolled = window.scrollY > 20;
+    });
   }
 }).mount('#app');
 </script>

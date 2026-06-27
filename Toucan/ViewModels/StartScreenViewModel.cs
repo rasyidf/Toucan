@@ -1,18 +1,20 @@
 ﻿
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
+using Toucan.Core.Models;
 
 namespace Toucan.ViewModels;
 
 public partial class StartScreenViewModel : ObservableObject
 {
     private readonly IRecentProjectService _recentProjectService;
-    private readonly IProjectService _projectService;
-    private readonly System.Func<Toucan.Core.Models.Project, System.Action<string>, RecentProjectViewModel> _recentProjectFactory;
+    private readonly IProjectService? _projectService;
+    private readonly System.Func<Toucan.Core.Models.Project, System.Action<string>, RecentProjectViewModel>? _recentProjectFactory;
 
     // Observable list of recent projects
     [ObservableProperty]
@@ -21,7 +23,7 @@ public partial class StartScreenViewModel : ObservableObject
     // Whether to show "No recent project" state
     public bool HasRecentProjects => RecentProjects?.Count > 0;
 
-    public StartScreenViewModel(IRecentProjectService recentProjectService, IProjectService projectService = null, System.Func<Toucan.Core.Models.Project, System.Action<string>, RecentProjectViewModel> recentProjectFactory = null)
+    public StartScreenViewModel(IRecentProjectService recentProjectService, IProjectService? projectService = null, System.Func<Toucan.Core.Models.Project, System.Action<string>, RecentProjectViewModel>? recentProjectFactory = null)
     {
         _recentProjectService = recentProjectService;
         _projectService = projectService;
@@ -32,7 +34,7 @@ public partial class StartScreenViewModel : ObservableObject
 
     private void LoadRecentProjects()
     {
-        var recent = _recentProjectService.LoadRecent();
+        List<Project> recent = _recentProjectService.LoadRecent();
         RecentProjects = new ObservableCollection<RecentProjectViewModel>(
             recent.Select(p => _recentProjectFactory != null ? _recentProjectFactory(p, OpenRecentProject) : new RecentProjectViewModel(p, OpenRecentProject))
         );
@@ -64,7 +66,7 @@ public partial class StartScreenViewModel : ObservableObject
     private void Docs()
     {
         // TODO: Open external documentation site
-        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+        _ = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
         {
             FileName = "https://docs.toucan.local/",
             UseShellExecute = true

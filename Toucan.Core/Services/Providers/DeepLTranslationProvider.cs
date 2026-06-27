@@ -34,7 +34,7 @@ public class DeepLTranslationProvider : ITranslationProvider
                 results.Add(new PretranslationItemResult
                 {
                     Namespace = job.Namespace ?? string.Empty,
-                    Language = job.TargetLanguage,
+                    Language = job.TargetLanguage ?? string.Empty,
                     Provider = Name,
                     SourceText = job.SourceText,
                     Succeeded = !string.IsNullOrEmpty(job.SourceText),
@@ -53,13 +53,13 @@ public class DeepLTranslationProvider : ITranslationProvider
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage, Provider = Name, Succeeded = false, ErrorMessage = "Cancelled" });
+                results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage ?? string.Empty, Provider = Name, Succeeded = false, ErrorMessage = "Cancelled" });
                 progress?.Report(new PretranslationProgress { Completed = processed, Total = total, Message = "Cancelled" });
                 break;
             }
                 if (string.IsNullOrEmpty(job.SourceText))
                 {
-                    results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage, Provider = Name, SourceText = job.SourceText, Succeeded = false, ErrorMessage = "No source text" });
+                    results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage ?? string.Empty, Provider = Name, SourceText = job.SourceText, Succeeded = false, ErrorMessage = "No source text" });
                     continue;
                 }
 
@@ -91,21 +91,21 @@ public class DeepLTranslationProvider : ITranslationProvider
                 var resp = await s_http.PostAsync(endpoint, content, cancellationToken).ConfigureAwait(false);
                 if (!resp.IsSuccessStatusCode)
                 {
-                    results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage, Provider = Name, Succeeded = false, ErrorMessage = $"HTTP {resp.StatusCode}" });
+                    results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage ?? string.Empty, Provider = Name, Succeeded = false, ErrorMessage = $"HTTP {resp.StatusCode}" });
                     continue;
                 }
 
-                using var stream = await resp.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                using var doc = await JsonDocument.ParseAsync(stream).ConfigureAwait(false);
+                using var stream = await resp.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+                using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
                 var translated = doc.RootElement.GetProperty("translations")[0].GetProperty("text").GetString();
 
-                results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage, Provider = Name, SourceText = job.SourceText, Succeeded = true, TranslatedValue = translated });
+                results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage ?? string.Empty, Provider = Name, SourceText = job.SourceText, Succeeded = true, TranslatedValue = translated });
                 processed++;
                 progress?.Report(new PretranslationProgress { Completed = processed, Total = total, Message = $"Processed {processed}/{total} (DeepL)" });
             }
             catch (Exception ex)
             {
-                results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage, Provider = Name, SourceText = job.SourceText, Succeeded = false, ErrorMessage = ex.Message });
+                results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage ?? string.Empty, Provider = Name, SourceText = job.SourceText, Succeeded = false, ErrorMessage = ex.Message });
                 processed++;
                 progress?.Report(new PretranslationProgress { Completed = processed, Total = total, Message = $"Processed {processed}/{total} (DeepL)" });
             }

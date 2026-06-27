@@ -1,11 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Toucan.Core;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using Toucan.Core;
 
 namespace Toucan.ViewModels;
 
@@ -16,15 +15,19 @@ public partial class LanguagePromptViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<LanguageModel> cultureList;
 
-    
 
-    public LanguagePromptViewModel(IEnumerable<Core.Models.TranslationItem> existingTranslations = null)
+
+    public LanguagePromptViewModel(IEnumerable<Core.Models.TranslationItem>? existingTranslations = null)
     {
         // Build a list of languages excluding any already present in the project (if provided)
-        var existing = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+        HashSet<string> existing = new(StringComparer.InvariantCultureIgnoreCase);
         if (existingTranslations != null)
+        {
             foreach (var t in existingTranslations)
-                existing.Add(t.Language);
+            {
+                _ = existing.Add(t.Language);
+            }
+        }
 
         CultureList = new(
             CultureInfo.GetCultures(CultureTypes.SpecificCultures)
@@ -41,17 +44,20 @@ public partial class LanguagePromptViewModel : ObservableObject
 
     public System.ComponentModel.ICollectionView FilteredView { get; private set; }
 
-    private bool FilterPredicate(LanguageModel m)
+    private bool FilterPredicate(LanguageModel? m)
     {
-        if (m == null) return false;
-        if (string.IsNullOrWhiteSpace(FilterText)) return true;
-        return m.Language.Contains(FilterText, StringComparison.InvariantCultureIgnoreCase) ||
+        if (m == null)
+        {
+            return false;
+        }
+
+        return string.IsNullOrWhiteSpace(FilterText) || m.Language.Contains(FilterText, StringComparison.InvariantCultureIgnoreCase) ||
                (m.Culture?.NativeName)?.Contains(FilterText, StringComparison.InvariantCultureIgnoreCase) == true ||
                (m.Culture?.Name)?.Contains(FilterText, StringComparison.InvariantCultureIgnoreCase) == true;
     }
 
     [ObservableProperty]
-    private string filterText;
+    private string filterText = string.Empty;
 
     partial void OnFilterTextChanged(string value)
     {

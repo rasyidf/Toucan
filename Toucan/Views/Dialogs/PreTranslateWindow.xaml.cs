@@ -23,7 +23,7 @@ public partial class PreTranslateWindow : FluentWindow
             vm.CancelCommand?.Execute(null);
         }
 
-        this.DialogResult = false;
+        DialogResult = false;
         Close();
     }
 
@@ -34,7 +34,7 @@ public partial class PreTranslateWindow : FluentWindow
             await vm.StartCommand.ExecuteAsync(null);
         }
 
-        this.DialogResult = true;
+        DialogResult = true;
         Close();
     }
 }

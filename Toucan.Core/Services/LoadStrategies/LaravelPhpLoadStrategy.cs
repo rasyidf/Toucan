@@ -33,7 +33,7 @@ public class LaravelPhpLoadStrategy : ILoadStrategy
                     || line == "return [" || line == "];") continue;
 
                 // ponytail: naive bracket tracking for nested arrays
-                if (line.EndsWith("["))
+                if (line.EndsWith('['))
                 {
                     // e.g. 'auth' => [
                     var key = ExtractKey(line);

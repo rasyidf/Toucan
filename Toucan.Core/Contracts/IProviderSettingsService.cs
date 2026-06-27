@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Toucan.Core.Models;
 
-namespace Toucan.Services;
+namespace Toucan.Core.Contracts;
 
 public interface IProviderSettingsService
 {

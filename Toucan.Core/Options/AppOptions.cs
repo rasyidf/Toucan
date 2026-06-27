@@ -28,7 +28,7 @@ public class AppOptions
     public string CopyTemplate3 { get; set; } = "{ t('%1') }";
 
     // --- Editor behavior ---
-    public bool PlainTextKeys { get; set; } = false;
+    public bool PlainTextKeys { get; set; }
     public List<string> FilterHistory { get; set; } = [];
     public List<string> SuggestedLanguages { get; set; } = ["en-US", "id-ID", "zh-CN", "fr-FR", "es-ES"];
     // --- Last session state ---

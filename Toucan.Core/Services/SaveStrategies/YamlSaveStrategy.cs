@@ -117,6 +117,6 @@ public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
 
     public async Task SaveAsync(string path, SaveContext context)
     {
-        await Task.Run(() => Save(path, context));
+        await Task.Run(() => Save(path, context)).ConfigureAwait(false);
     }
 }

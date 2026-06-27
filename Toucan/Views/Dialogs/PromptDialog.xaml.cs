@@ -6,7 +6,7 @@ namespace Toucan;
 /// <summary>
 /// Interaction logic for PromptDialog.xaml
 /// </summary>
-partial class PromptDialog : FluentWindow
+public partial class PromptDialog : FluentWindow
 {
 
 
@@ -17,25 +17,23 @@ partial class PromptDialog : FluentWindow
         titleBarPrompt.Title = title;
         messageLabel.Text = message;
         ResponseTextBox.Text = defaultValue;
-        ResponseTextBox.Focus();
+        _ = ResponseTextBox.Focus();
         ResponseTextBox.SelectAll();
 
         RoutedCommand saveCommand = new();
-        saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
-        CommandBindings.Add(new CommandBinding(saveCommand, OKButton_Click));
+        _ = saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
+        _ = CommandBindings.Add(new CommandBinding(saveCommand, OKButton_Click));
 
         RoutedCommand refreshCommand = new();
-        refreshCommand.InputGestures.Add(new KeyGesture(Key.Escape, ModifierKeys.None));
-        CommandBindings.Add(new CommandBinding(refreshCommand, CancelDialog));
+        _ = refreshCommand.InputGestures.Add(new KeyGesture(Key.Escape, ModifierKeys.None));
+        _ = CommandBindings.Add(new CommandBinding(refreshCommand, CancelDialog));
 
 
 
     }
 
     public string ResponseText
-    {
-        get { return ResponseTextBox.Text; }
-        set { ResponseTextBox.Text = value; }
+    { get => ResponseTextBox.Text; set => ResponseTextBox.Text = value;
     }
 
 

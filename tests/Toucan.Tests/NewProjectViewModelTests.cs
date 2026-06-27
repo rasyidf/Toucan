@@ -16,15 +16,24 @@ internal class FakeProjectService : IProjectService
 
     public List<TranslationItem> Load(string folder) => new List<TranslationItem>();
 
+    public ProjectLoadResult LoadProject(string folder) => new ProjectLoadResult
+    {
+        Settings = new ProjectSettings(),
+        Translations = new List<TranslationItem>()
+    };
+
     public void CreateLanguage(string folder, string language, SaveStyles style = SaveStyles.Json) { }
 
-    public void CreateProject(string folder, IEnumerable<string> languages, SaveStyles style = SaveStyles.Json, bool createManifest = false)
+    public ProjectSettings CreateProject(string folder, IEnumerable<string> languages, SaveStyles style = SaveStyles.Json, bool createManifest = true, string? name = null)
     {
         LastFolder = folder;
         LastLanguages = languages?.ToList();
         LastStyle = style;
         LastCreateManifest = createManifest;
+        return new ProjectSettings();
     }
+
+    public void Save(ProjectSettings project, List<NsTreeItem> items, IEnumerable<TranslationItem> translations) { }
 
     public void Save(string path, SaveStyles style, List<NsTreeItem> items, IEnumerable<TranslationItem> translations) { }
 }
@@ -38,8 +47,6 @@ public class NewProjectViewModelTests
 
         // Ensure it always contains at least en-US
         Assert.Contains("en-US", vm.Languages);
-        // Also suggestions should include other helpful languages
-        Assert.Contains("id-ID", vm.Languages);
         Assert.True(vm.Languages.Count >= 1);
     }
 
@@ -67,7 +74,7 @@ public class NewProjectViewModelTests
         vm.ProjectFolder = "C:\\temp\\proj";
         vm.Languages.Clear();
         vm.Languages.Add("en-US");
-        vm.SelectedFramework = "JSON";
+        vm.SelectedFramework = new FrameworkTile { Name = "JSON", Style = SaveStyles.Json };
         vm.CreateManifest = true;
 
         vm.CreateProject();

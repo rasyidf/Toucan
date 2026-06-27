@@ -1,42 +1,36 @@
 ﻿using System.Windows.Input;
+using Toucan.ViewModels;
 using Wpf.Ui.Controls;
-using Toucan.Core.Contracts.Services;
 
 namespace Toucan;
 
 /// <summary>
 /// Interaction logic for PromptDialog.xaml
 /// </summary>
-partial class NewProjectPrompt : FluentWindow
+public partial class NewProjectPrompt : FluentWindow
 {
-    private readonly IProjectService _projectService;
-
-    public NewProjectPrompt(string title, string message, IProjectService projectService, string defaultValue = "")
+    public NewProjectPrompt(string title, string message, NewProjectViewModel vm, string defaultValue = "")
     {
         InitializeComponent();
         Title = title;
-        _projectService = projectService;
-         
-        // if a default value was provided, push it into the view model
 
-        // Setup view model with project service. Prefer DI-resolved ViewModel when available.
-        var vm = App.Services?.GetService(typeof(ViewModels.NewProjectViewModel)) as ViewModels.NewProjectViewModel ?? new ViewModels.NewProjectViewModel(projectService);
-        if (!string.IsNullOrEmpty(defaultValue)) vm.ProjectName = defaultValue;
+        if (!string.IsNullOrEmpty(defaultValue))
+        {
+            vm.ProjectName = defaultValue;
+        }
+
         DataContext = vm;
         // give keyboard focus to the project name textbox when available
-        ProjectNameTextBox?.Focus();
+        _ = (ProjectNameTextBox?.Focus());
         ProjectNameTextBox?.SelectAll();
 
         RoutedCommand saveCommand = new();
-        saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
-        CommandBindings.Add(new CommandBinding(saveCommand, OKButton_Click));
+        _ = saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
+        _ = CommandBindings.Add(new CommandBinding(saveCommand, OKButton_Click));
 
         RoutedCommand refreshCommand = new();
-        refreshCommand.InputGestures.Add(new KeyGesture(Key.Escape, ModifierKeys.None));
-        CommandBindings.Add(new CommandBinding(refreshCommand, CancelDialog));
-
-
-
+        _ = refreshCommand.InputGestures.Add(new KeyGesture(Key.Escape, ModifierKeys.None));
+        _ = CommandBindings.Add(new CommandBinding(refreshCommand, CancelDialog));
     }
 
     // DI constructor: resolves a fully configured NewProjectViewModel from DI
@@ -44,24 +38,34 @@ partial class NewProjectPrompt : FluentWindow
     {
         InitializeComponent();
         Title = "New Project";
-        if (!string.IsNullOrEmpty(defaultValue)) vm.ProjectName = defaultValue;
+        if (!string.IsNullOrEmpty(defaultValue))
+        {
+            vm.ProjectName = defaultValue;
+        }
+
         DataContext = vm;
-        ProjectNameTextBox?.Focus();
+        _ = (ProjectNameTextBox?.Focus());
         ProjectNameTextBox?.SelectAll();
 
         RoutedCommand saveCommand = new();
-        saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
-        CommandBindings.Add(new CommandBinding(saveCommand, OKButton_Click));
+        _ = saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
+        _ = CommandBindings.Add(new CommandBinding(saveCommand, OKButton_Click));
 
         RoutedCommand refreshCommand = new();
-        refreshCommand.InputGestures.Add(new KeyGesture(Key.Escape, ModifierKeys.None));
-        CommandBindings.Add(new CommandBinding(refreshCommand, CancelDialog));
+        _ = refreshCommand.InputGestures.Add(new KeyGesture(Key.Escape, ModifierKeys.None));
+        _ = CommandBindings.Add(new CommandBinding(refreshCommand, CancelDialog));
     }
 
     public string ResponseText
     {
-        get { return (DataContext as ViewModels.NewProjectViewModel)?.ProjectName ?? string.Empty; }
-        set { if (DataContext is ViewModels.NewProjectViewModel vm) vm.ProjectName = value; }
+        get => (DataContext as ViewModels.NewProjectViewModel)?.ProjectName ?? string.Empty;
+        set
+        {
+            if (DataContext is ViewModels.NewProjectViewModel vm)
+            {
+                vm.ProjectName = value;
+            }
+        }
     }
 
 
@@ -75,14 +79,15 @@ partial class NewProjectPrompt : FluentWindow
         if (sender is System.Windows.Controls.RadioButton rb && rb.Tag is ViewModels.FrameworkTile tile)
         {
             if (DataContext is ViewModels.NewProjectViewModel vm)
+            {
                 vm.SelectedFramework = tile;
+            }
         }
     }
 
     private void OKButton_Click(object sender, System.Windows.RoutedEventArgs e)
     {
-        var vm = DataContext as ViewModels.NewProjectViewModel;
-        if (vm == null)
+        if (DataContext is not ViewModels.NewProjectViewModel vm)
         {
             DialogResult = true;
             return;
@@ -91,7 +96,7 @@ partial class NewProjectPrompt : FluentWindow
         if (!vm.IsValid)
         {
             // a basic validation alert
-            System.Windows.MessageBox.Show("Please set a project name and folder.", "Invalid", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            _ = System.Windows.MessageBox.Show("Please set a project name and folder.", "Invalid", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return;
         }
 
@@ -103,7 +108,7 @@ partial class NewProjectPrompt : FluentWindow
         }
         catch (System.Exception ex)
         {
-            System.Windows.MessageBox.Show($"Failed to create project: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            _ = System.Windows.MessageBox.Show($"Failed to create project: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
     }
 }

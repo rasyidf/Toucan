@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using Toucan.Avalonia.Services;
+using Toucan.Core.Contracts;
 using Toucan.Core.Options;
 
 namespace Toucan.Avalonia.ViewModels;

@@ -1,3 +1,4 @@
+using Toucan.Core.Contracts;
 using Toucan.Core.Options;
 
 namespace Toucan.Avalonia.Services;

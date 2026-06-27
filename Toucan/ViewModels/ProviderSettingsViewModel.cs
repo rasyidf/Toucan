@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Toucan.Core.Contracts;
 using Toucan.Core.Models;
 using Toucan.Services;
 
@@ -15,7 +15,7 @@ namespace Toucan.ViewModels
         private readonly ISecureStorageService _secure;
         private readonly IDialogService _dialogs;
 
-        public ObservableCollection<ProviderSettings> Providers { get; } = new();
+        public ObservableCollection<ProviderSettings> Providers { get; } = [];
 
         [ObservableProperty]
         private ProviderSettings? selected;
@@ -39,8 +39,10 @@ namespace Toucan.ViewModels
         private void LoadAppSettings()
         {
             Providers.Clear();
-            foreach (var p in _service.LoadAppProviderSettings())
+            foreach (ProviderSettings p in _service.LoadAppProviderSettings())
+            {
                 Providers.Add(p);
+            }
 
             Selected = Providers.FirstOrDefault();
             ProjectScope = false;
@@ -53,14 +55,22 @@ namespace Toucan.ViewModels
             if (string.IsNullOrWhiteSpace(path))
             {
                 var folder = _dialogs.SelectFolder(Environment.CurrentDirectory);
-                if (!string.IsNullOrEmpty(folder)) path = folder;
+                if (!string.IsNullOrEmpty(folder))
+                {
+                    path = folder;
+                }
             }
 
-            if (string.IsNullOrWhiteSpace(path)) return;
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return;
+            }
 
             Providers.Clear();
-            foreach (var p in _service.LoadProjectProviderSettings(path))
+            foreach (ProviderSettings p in _service.LoadProjectProviderSettings(path))
+            {
                 Providers.Add(p);
+            }
 
             Selected = Providers.FirstOrDefault();
             ProjectScope = true;
@@ -72,7 +82,11 @@ namespace Toucan.ViewModels
         {
             if (ProjectScope)
             {
-                if (string.IsNullOrWhiteSpace(ProjectPath)) return;
+                if (string.IsNullOrWhiteSpace(ProjectPath))
+                {
+                    return;
+                }
+
                 _service.SaveProjectProviderSettings(ProjectPath, Providers);
             }
             else
@@ -87,8 +101,8 @@ namespace Toucan.ViewModels
             var newP = new ProviderSettings
             {
                 Provider = "Custom",
-                Options = new Dictionary<string, string>(),
-                Secrets = new Dictionary<string, string>()
+                Options = [],
+                Secrets = []
             };
 
             Providers.Add(newP);
@@ -98,8 +112,12 @@ namespace Toucan.ViewModels
         [RelayCommand]
         private void RemoveSelected()
         {
-            if (Selected == null) return;
-            Providers.Remove(Selected);
+            if (Selected == null)
+            {
+                return;
+            }
+
+            _ = Providers.Remove(Selected);
             Selected = Providers.FirstOrDefault();
         }
 
@@ -107,7 +125,10 @@ namespace Toucan.ViewModels
         private void SelectProjectFolder()
         {
             var folder = _dialogs.SelectFolder(ProjectPath ?? Environment.CurrentDirectory);
-            if (!string.IsNullOrEmpty(folder)) ProjectPath = folder;
+            if (!string.IsNullOrEmpty(folder))
+            {
+                ProjectPath = folder;
+            }
         }
     }
 }

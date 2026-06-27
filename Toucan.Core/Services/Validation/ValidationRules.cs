@@ -53,8 +53,8 @@ public partial class PlaceholderMismatchRule : IValidationRule
         foreach (var item in context.Items.Where(i => i.Language != primary && !string.IsNullOrEmpty(i.Value)))
         {
             if (!sourceMap.TryGetValue(item.Namespace, out var sourceVal)) continue;
-            var srcPlaceholders = PlaceholderRegex().Matches(sourceVal).Count;
-            var tgtPlaceholders = PlaceholderRegex().Matches(item.Value).Count;
+            var srcPlaceholders = PlaceholderRegex().Count(sourceVal);
+            var tgtPlaceholders = PlaceholderRegex().Count(item.Value);
             if (srcPlaceholders != tgtPlaceholders)
                 yield return new(Id, DefaultSeverity, $"Placeholder count: source={srcPlaceholders}, target={tgtPlaceholders}", item.Namespace, item.Language);
         }

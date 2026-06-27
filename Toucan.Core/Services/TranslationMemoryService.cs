@@ -102,8 +102,8 @@ public class TranslationMemoryService : ITranslationMemory
         if (string.IsNullOrEmpty(a) || string.IsNullOrEmpty(b)) return 0.0;
 
         // Trigram-based similarity for speed (avoids O(n*m) Levenshtein on long strings)
-        var triA = GetTrigrams(a.ToLowerInvariant());
-        var triB = GetTrigrams(b.ToLowerInvariant());
+        var triA = GetTrigrams(a.ToUpperInvariant());
+        var triB = GetTrigrams(b.ToUpperInvariant());
         if (triA.Count == 0 || triB.Count == 0) return 0.0;
 
         var intersection = triA.Intersect(triB).Count();

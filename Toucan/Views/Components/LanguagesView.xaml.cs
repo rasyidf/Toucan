@@ -6,10 +6,10 @@ namespace Toucan.Views;
 /// Interaction logic for LanguagesView.xaml
 /// </summary>
 public partial class LanguagesView : UserControl
-{ 
+{
     public LanguagesView()
     {
         InitializeComponent();
     }
-     
+
 }

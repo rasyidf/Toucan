@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Tool: Convert a BabelEdit .babel XML file into a toucan.project JSON format.
+Tool: Convert a .babel XML project file into a toucan.project JSON format.
 
 Usage:
     python tools/babel2toucan.py d:\locales\qcash-ui.babel > toucan.project
 
-This script mirrors BabelEdit metadata (no actual translation text) into the Toucan JSON schema.
+This script mirrors .babel metadata (no actual translation text) into the Toucan JSON schema.
 """
 import xml.etree.ElementTree as ET
 import json

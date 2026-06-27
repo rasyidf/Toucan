@@ -44,6 +44,7 @@ public static class TranslationItemExtensions
         return nodes;
     }
 
+#pragma warning disable CA1851 // Justification: callers always pass materialized collections (List<T>)
     public static void ProcessNs(this IEnumerable<TranslationItem> allTranslation, NsTreeItem node, string ns, int depth = 1, int customDepth = 0)
     {
         if (customDepth == 0) customDepth = 1;
@@ -77,6 +78,7 @@ public static class TranslationItemExtensions
 
         thisNode.IsLoaded = true;
     }
+#pragma warning restore CA1851
 
     /// <summary>
     /// Flat tree for plain-text keys mode — no splitting at dot separator.

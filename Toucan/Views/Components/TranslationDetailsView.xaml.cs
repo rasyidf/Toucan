@@ -1,7 +1,7 @@
-﻿using Toucan.Core.Models;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Toucan.Core.Models;
 using Toucan.ViewModels;
 
 namespace Toucan.Views;
@@ -11,12 +11,12 @@ namespace Toucan.Views;
 /// </summary>
 public partial class TranslationDetailsView : UserControl
 {
-    public event RoutedEventHandler FirstPageClick;
-    public event RoutedEventHandler LastPageClick;
-    public event RoutedEventHandler PreviousPageClick;
-    public event RoutedEventHandler NextPageClick;
-    public event RoutedEventHandler ShowAllClick;
-    public event RoutedEventHandler UpdateLanguageValue;
+    public event RoutedEventHandler? FirstPageClick;
+    public event RoutedEventHandler? LastPageClick;
+    public event RoutedEventHandler? PreviousPageClick;
+    public event RoutedEventHandler? NextPageClick;
+    public event RoutedEventHandler? ShowAllClick;
+    public event RoutedEventHandler? UpdateLanguageValue;
 
     public static readonly DependencyProperty ViewAsProperty = DependencyProperty.Register("ViewAs", typeof(string), typeof(TranslationDetailsView), new PropertyMetadata(""));
 
@@ -55,7 +55,9 @@ public partial class TranslationDetailsView : UserControl
     private void LanguageValue_KeyUp(object sender, KeyEventArgs e)
     {
         if (sender is not TextBox txtBox)
+        {
             return;
+        }
 
         // Tag can be either the model (TranslationItem) or a TranslationItemViewModel
         if (txtBox.Tag is TranslationItem model)

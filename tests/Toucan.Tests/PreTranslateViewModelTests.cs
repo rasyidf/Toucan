@@ -46,8 +46,8 @@ public class PreTranslateViewModelTests
         await vm.StartCommand.ExecuteAsync(null);
 
         Assert.NotNull(fake.LastRequest);
-        Assert.Equal("Google", fake.LastRequest.Provider);
-        Assert.Single(fake.LastRequest.Items); // only id-ID should be included
+        Assert.Equal("Google", fake.LastRequest!.Provider);
+        Assert.Single(fake.LastRequest.Items!); // only id-ID should be included
     }
 
     internal class ProgressReportingPretranslationService : IPretranslationService

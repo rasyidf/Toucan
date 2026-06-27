@@ -17,7 +17,7 @@ public partial class SourceCodeService : ISourceCodeService
     private readonly HashSet<string> _allFoundKeys = [];
 
     private static readonly string[] s_extensions =
-        [".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte", ".py", ".cs", ".kt", ".java", ".swift", ".dart", ".rb", ".php", ".go"];
+        [".TS", ".TSX", ".JS", ".JSX", ".VUE", ".SVELTE", ".PY", ".CS", ".KT", ".JAVA", ".SWIFT", ".DART", ".RB", ".PHP", ".GO"];
 
     private static readonly string[] s_excludeDirs =
         ["node_modules", ".git", "dist", "build", "out", ".next", "__pycache__", "bin", "obj", "Pods", ".dart_tool"];
@@ -102,7 +102,7 @@ public partial class SourceCodeService : ISourceCodeService
             }
             foreach (var file in Directory.GetFiles(dir))
             {
-                var ext = Path.GetExtension(file).ToLowerInvariant();
+                var ext = Path.GetExtension(file).ToUpperInvariant();
                 if (s_extensions.Contains(ext))
                     yield return file;
             }

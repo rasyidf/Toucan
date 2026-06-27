@@ -613,13 +613,13 @@ File.WriteAllText(manifestPath, root.ToJsonString(options));
 
 *For any* valid JSON string that could have been produced by Newtonsoft.Json (varying in property casing, indentation, and formatting), deserializing with System.Text.Json SHALL produce a correctly populated object with no data loss.
 
-**Validates: Requirement 10.4**
+**Validates: Requirements 3.7, 10.4**
 
 ### Property 3: Project manifest read-write round-trip
 
 *For any* valid project manifest file, reading the manifest and writing it back without modification SHALL produce output equivalent to the original input (preserving structure and values).
 
-**Validates: Requirement 3.4**
+**Validates: Requirements 3.4, 10.3**
 
 ## Error Handling
 

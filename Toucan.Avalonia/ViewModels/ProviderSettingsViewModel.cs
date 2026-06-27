@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Toucan.Avalonia.Services;
+using Toucan.Core.Contracts;
 using Toucan.Core.Models;
 
 namespace Toucan.Avalonia.ViewModels;

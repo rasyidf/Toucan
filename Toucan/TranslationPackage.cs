@@ -4,8 +4,8 @@ namespace Toucan;
 
 public class TranslationEntry
 {
-    public string Language { get; set; }
-    public string FilePath { get; set; }
+    public string Language { get; set; } = string.Empty;
+    public string FilePath { get; set; } = string.Empty;
 }
 
 public class TranslationPackage
@@ -18,8 +18,11 @@ public class TranslationPackage
     public TranslationPackage(string name)
     {
         Name = name;
-        Translations = new ObservableCollection<TranslationEntry>();
+        Translations = [];
     }
 
-    public override string ToString() => Name;
+    public override string ToString()
+    {
+        return Name;
+    }
 }

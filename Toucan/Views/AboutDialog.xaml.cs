@@ -1,6 +1,6 @@
-﻿using System.Windows;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
+using System.Windows;
+using Toucan.ViewModels;
 using Wpf.Ui.Controls;
 
 namespace Toucan.Views;
@@ -10,24 +10,22 @@ namespace Toucan.Views;
 /// </summary>
 public partial class AboutDialog : FluentWindow
 {
-
-    public AboutDialog(Window parent)
+    public AboutDialog(Window parent, Func<Window, AboutViewModel> aboutViewModelFactory)
     {
         Owner = parent;
-        // Try to get a DI-created instance (factory) first, fall back to direct construction
-        var factory = App.Services?.GetService(typeof(Func<Window, ViewModels.AboutViewModel>)) as Func<Window, ViewModels.AboutViewModel>;
-        ViewModel = factory != null ? factory(this) : new ViewModels.AboutViewModel(this);
+        ViewModel = aboutViewModelFactory(this);
         DataContext = this;
 
         InitializeComponent();
     }
-    public ViewModels.AboutViewModel ViewModel
+
+    public AboutViewModel ViewModel
     {
         get;
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
-        this.Close();
+        Close();
     }
 }

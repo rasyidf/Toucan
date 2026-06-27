@@ -1,46 +1,46 @@
 ﻿using System;
 using System.Globalization;
+using System.Text.Json.Nodes;
 using System.Windows;
 using System.Windows.Controls;
-using Wpf.Ui.Controls;
 using Toucan.Core.Options;
-using Toucan.ViewModels;
 using Toucan.Services;
+using Toucan.ViewModels;
+using Wpf.Ui.Controls;
 
 namespace Toucan;
 
 public partial class OptionDialog : FluentWindow
 {
-    public AppOptions Config { get; private set; }
+    public AppOptions? Config { get; private set; }
     private readonly OptionsViewModel vm;
     private readonly StackPanel[] _pages;
 
-    public OptionDialog(AppOptions importOptions, string projectPath = "")
+    public OptionDialog(AppOptions importOptions, string projectPath, OptionsViewModel viewModel)
     {
         InitializeComponent();
 
         _pages = [PageGeneral, PageEditor, PageLanguages, PageTranslation, PageShortcuts, PageProject, PageAbout];
 
-        IPreferenceService pref = App.Services?.GetService(typeof(IPreferenceService)) as IPreferenceService ?? new PreferenceService();
-        vm = App.Services?.GetService(typeof(OptionsViewModel)) as OptionsViewModel ?? new OptionsViewModel(pref);
+        vm = viewModel;
 
         if (!string.IsNullOrWhiteSpace(projectPath))
         {
             vm.ProjectFilePath = projectPath;
             try
             {
-                var manifestPath = System.IO.Path.Combine(projectPath, "toucan.project");
+                string manifestPath = System.IO.Path.Combine(projectPath, "toucan.project");
                 if (System.IO.File.Exists(manifestPath))
                 {
-                    var text = System.IO.File.ReadAllText(manifestPath);
-                    var root = Newtonsoft.Json.Linq.JObject.Parse(text);
-                    vm.ProjectPrimaryLanguage = root["primaryLanguage"]?.ToString() ?? string.Empty;
-                    var editorCfg = root["editorConfiguration"] as Newtonsoft.Json.Linq.JObject;
+                    string text = System.IO.File.ReadAllText(manifestPath);
+                    var root = JsonNode.Parse(text)?.AsObject();
+                    vm.ProjectPrimaryLanguage = root?["primaryLanguage"]?.ToString() ?? string.Empty;
+                    var editorCfg = root?["editorConfiguration"]?.AsObject();
                     if (editorCfg != null)
                     {
                         vm.ProjectSaveEmptyTranslations = (editorCfg["save_empty_translations"]?.ToString() ?? "true").Equals("true", StringComparison.InvariantCultureIgnoreCase);
                         vm.ProjectTranslationOrder = (editorCfg["translation_order"]?.ToString() ?? "alphabetical") == "primary_language" ? "Primary language" : "Alphabetically sorted";
-                        var templates = editorCfg["copy_templates"] as Newtonsoft.Json.Linq.JArray;
+                        var templates = editorCfg["copy_templates"]?.AsArray();
                         if (templates != null)
                         {
                             vm.ProjectCopyTemplate1 = templates.Count > 0 ? templates[0]?.ToString() ?? "" : "";
@@ -63,24 +63,38 @@ public partial class OptionDialog : FluentWindow
         DataContext = vm;
         KeybindingsListView.ItemsSource = KeybindingService.GetDefinitions();
 
-        vm.PageSizeText = importOptions?.PageSize.ToString(CultureInfo.InvariantCulture);
-        vm.TruncateSizeText = importOptions?.TruncateResultsOver.ToString(CultureInfo.InvariantCulture);
+        vm.PageSizeText = importOptions?.PageSize.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+        vm.TruncateSizeText = importOptions?.TruncateResultsOver.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
         vm.MaxItemsText = importOptions?.MaxItems.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
     }
 
     private void NavList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_pages == null) return;
-        var idx = NavList.SelectedIndex;
+        if (_pages == null)
+        {
+            return;
+        }
+
+        int idx = NavList.SelectedIndex;
         for (int i = 0; i < _pages.Length; i++)
+        {
             _pages[i].Visibility = i == idx ? Visibility.Visible : Visibility.Collapsed;
+        }
     }
 
     private void AddSuggestedLanguage_Click(object sender, RoutedEventArgs e)
     {
-        var lang = NewSuggestedLangBox.Text?.Trim();
-        if (string.IsNullOrWhiteSpace(lang)) return;
-        if (vm.SuggestedLanguages.Contains(lang)) return;
+        string? lang = NewSuggestedLangBox.Text?.Trim();
+        if (string.IsNullOrWhiteSpace(lang))
+        {
+            return;
+        }
+
+        if (vm.SuggestedLanguages.Contains(lang))
+        {
+            return;
+        }
+
         vm.SuggestedLanguages.Add(lang);
         NewSuggestedLangBox.Text = string.Empty;
     }

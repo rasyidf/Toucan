@@ -69,7 +69,7 @@ public class TranslationAnalyzerService : ITranslationAnalyzer
                     continue;
                 }
 
-                using var stream = await resp.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                using var stream = await resp.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
                 using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
                 var reply = doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString() ?? "[]";
 

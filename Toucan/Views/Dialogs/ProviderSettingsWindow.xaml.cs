@@ -1,36 +1,20 @@
 using System.Windows;
 using Toucan.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
 using Wpf.Ui.Controls;
 
 namespace Toucan.Views.Dialogs
 {
     public partial class ProviderSettingsWindow : FluentWindow
     {
-        public ProviderSettingsWindow()
+        public ProviderSettingsWindow(ProviderSettingsViewModel viewModel)
         {
             InitializeComponent();
-
-            // resolve dependencies and create the VM
-            var svc = Toucan.App.Services.GetService(typeof(Toucan.Services.IProviderSettingsService)) as Toucan.Services.IProviderSettingsService;
-            var secure = Toucan.App.Services.GetService(typeof(Toucan.Services.ISecureStorageService)) as Toucan.Services.ISecureStorageService;
-            var dialogs = Toucan.App.Services.GetService(typeof(Toucan.Services.IDialogService)) as Toucan.Services.IDialogService;
-
-            // Prefer DI instance if available, otherwise fall back to manual construction
-            if (App.Services != null)
-            {
-                DataContext = App.Services.GetService(typeof(ProviderSettingsViewModel)) as ProviderSettingsViewModel
-                              ?? new ProviderSettingsViewModel(svc, secure, dialogs);
-            }
-            else if (svc != null && secure != null && dialogs != null)
-            {
-                DataContext = new ProviderSettingsViewModel(svc, secure, dialogs);
-            }
+            DataContext = viewModel;
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = false;
+            DialogResult = false;
             Close();
         }
 
@@ -41,7 +25,7 @@ namespace Toucan.Views.Dialogs
                 vm.SaveCommand?.Execute(null);
             }
 
-            this.DialogResult = true;
+            DialogResult = true;
             Close();
         }
     }

@@ -8,6 +8,9 @@ namespace Toucan.Core.Extensions;
 
 public class JsonParser(string language, ILogger<JsonParser>? logger = null) : IParser
 {
+    private static readonly JsonSerializerOptions s_indentedOptions = new() { WriteIndented = true, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
+    private static readonly JsonSerializerOptions s_indentedSimpleOptions = new() { WriteIndented = true };
+
     private string _language = language;
 
     public IParser SetLanguage(string language)
@@ -49,7 +52,10 @@ public class JsonParser(string language, ILogger<JsonParser>? logger = null) : I
                     }
                     else
                     {
-                        logger?.LogDebug("Skipped empty object: {Path}", item.Path);
+                        if (logger?.IsEnabled(LogLevel.Debug) == true)
+                        {
+                            logger.LogDebug("Skipped empty object: {Path}", item.Path);
+                        }
                     }
                 }
                 else if (item.Element.ValueKind is JsonValueKind.String or JsonValueKind.Number or JsonValueKind.True or JsonValueKind.False)
@@ -63,7 +69,7 @@ public class JsonParser(string language, ILogger<JsonParser>? logger = null) : I
                 }
             }
 
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
         }
         finally
         {
@@ -79,7 +85,7 @@ public class JsonParser(string language, ILogger<JsonParser>? logger = null) : I
             for (int i = 0; i < items?.Count; i++)
                 items[i].ToJson(dyn, language);
 
-            var json = JsonSerializer.Serialize(dyn, new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull });
+            var json = JsonSerializer.Serialize(dyn, s_indentedOptions);
             File.WriteAllText(Path.Combine(path, language + ".json"), json);
         }
     }
@@ -92,7 +98,7 @@ public class JsonParser(string language, ILogger<JsonParser>? logger = null) : I
             foreach (var setting in kv.Value.Where(x => !string.IsNullOrEmpty(x.Value)).OrderBy(o => o.Namespace))
                 dict[setting.Namespace] = setting.Value;
 
-            var json = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(dict, s_indentedSimpleOptions);
             File.WriteAllText(Path.Combine(path, kv.Key + ".json"), json);
         }
     }

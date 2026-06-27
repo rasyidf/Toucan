@@ -1,18 +1,23 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
+using System.Text.Json.Nodes;
+using Toucan.Core.Contracts;
+using Toucan.Core.Models;
 using Toucan.Core.Options;
 using Toucan.Services;
 
 namespace Toucan.ViewModels;
 
-internal partial class OptionsViewModel : ObservableObject
+public partial class OptionsViewModel : ObservableObject
 {
     private readonly IPreferenceService _preferenceService;
+    private readonly IDialogService _dialogService;
 
-    public OptionsViewModel(IPreferenceService preferenceService)
+    public OptionsViewModel(IPreferenceService preferenceService, IDialogService dialogService)
     {
         _preferenceService = preferenceService;
+        _dialogService = dialogService;
         AppOptions = _preferenceService.Load();
 
         // initialize vm fields
@@ -38,12 +43,15 @@ internal partial class OptionsViewModel : ObservableObject
     private bool plainTextKeys;
 
     [ObservableProperty]
-    private System.Collections.ObjectModel.ObservableCollection<string> suggestedLanguages = new();
+    private System.Collections.ObjectModel.ObservableCollection<string> suggestedLanguages = [];
 
     [RelayCommand]
     private void RemoveSuggestedLanguage(string lang)
     {
-        if (!string.IsNullOrEmpty(lang)) SuggestedLanguages.Remove(lang);
+        if (!string.IsNullOrEmpty(lang))
+        {
+            _ = SuggestedLanguages.Remove(lang);
+        }
     }
 
     // Project-specific editor configuration (if a project manifest is available)
@@ -127,11 +135,22 @@ internal partial class OptionsViewModel : ObservableObject
     [RelayCommand]
     private void Save()
     {
-        if (!int.TryParse(PageSizeText, out int page)) page = AppOptions.PageSize;
-        if (!int.TryParse(TruncateSizeText, out int trunc)) trunc = AppOptions.TruncateResultsOver;
-        if (!int.TryParse(MaxItemsText, out int maxItems)) maxItems = AppOptions.MaxItems;
+        if (!int.TryParse(PageSizeText, out int page))
+        {
+            page = AppOptions.PageSize;
+        }
 
-        if (Enum.TryParse<Core.Models.SaveStyles>(Format, out var ss))
+        if (!int.TryParse(TruncateSizeText, out int trunc))
+        {
+            trunc = AppOptions.TruncateResultsOver;
+        }
+
+        if (!int.TryParse(MaxItemsText, out int maxItems))
+        {
+            maxItems = AppOptions.MaxItems;
+        }
+
+        if (Enum.TryParse<Core.Models.SaveStyles>(Format, out SaveStyles ss))
         { } // ponytail: SaveStyle is now per-project setting
 
         AppOptions.PageSize = page;
@@ -157,17 +176,18 @@ internal partial class OptionsViewModel : ObservableObject
                 if (System.IO.File.Exists(manifestPath))
                 {
                     var text = System.IO.File.ReadAllText(manifestPath);
-                    var root = Newtonsoft.Json.Linq.JObject.Parse(text);
+                    JsonObject root = System.Text.Json.Nodes.JsonNode.Parse(text)?.AsObject()
+                        ?? [];
 
-                    var editorCfg = root["editorConfiguration"] as Newtonsoft.Json.Linq.JObject ?? new Newtonsoft.Json.Linq.JObject();
+                    JsonObject editorCfg = root["editorConfiguration"]?.AsObject() ?? [];
                     editorCfg["save_empty_translations"] = ProjectSaveEmptyTranslations.ToString().ToLowerInvariant();
                     editorCfg["translation_order"] = ProjectTranslationOrder == "Primary language" ? "primary_language" : "alphabetical";
-                    editorCfg["copy_templates"] = new Newtonsoft.Json.Linq.JArray(ProjectCopyTemplate1 ?? string.Empty, ProjectCopyTemplate2 ?? string.Empty, ProjectCopyTemplate3 ?? string.Empty);
+                    editorCfg["copy_templates"] = new System.Text.Json.Nodes.JsonArray(ProjectCopyTemplate1 ?? string.Empty, ProjectCopyTemplate2 ?? string.Empty, ProjectCopyTemplate3 ?? string.Empty);
 
                     // attach back
                     root["editorConfiguration"] = editorCfg;
 
-                    System.IO.File.WriteAllText(manifestPath, root.ToString());
+                    System.IO.File.WriteAllText(manifestPath, root.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
                 }
             }
             catch
@@ -186,7 +206,7 @@ internal partial class OptionsViewModel : ObservableObject
         CloseAction?.Invoke(false);
     }
 
-    public Action<bool?> CloseAction { get; set; }
+    public Action<bool?>? CloseAction { get; set; }
 
     [RelayCommand]
     private void ConfigureLanguageCodes()
@@ -197,8 +217,7 @@ internal partial class OptionsViewModel : ObservableObject
     [RelayCommand]
     private void OpenProviderSettings()
     {
-        var ds = App.Services?.GetService(typeof(IDialogService)) as IDialogService;
-        ds?.ShowProviderSettings();
+        _ = _dialogService.ShowProviderSettings();
     }
 
     [RelayCommand]

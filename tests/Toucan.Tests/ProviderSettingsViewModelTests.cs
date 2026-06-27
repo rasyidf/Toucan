@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using Toucan.Core.Contracts;
+using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
+using Toucan.Core.Options;
 using Toucan.ViewModels;
 using Toucan.Services;
 using Xunit;
@@ -10,20 +13,45 @@ namespace Toucan.Tests
     public class FakeDialogService : IDialogService
     {
         public string? LastSelected { get; set; }
-        public string? SelectFolder(string initialPath)
+        public string? SelectFolder(string? initialPath)
         {
             return LastSelected;
         }
 
-        public bool? ShowDialog(System.Windows.Window dialog)
-        {
-            return true;
-        }
-
-        public string? SelectFile(string initialPath, string filter = "All Files (*.*)|*.*")
+        public string? SelectFile(string? initialPath, string filter = "All Files (*.*)|*.*")
         {
             return null;
         }
+
+        public string? ShowPrompt(string title, string message, string defaultValue = "") => null;
+
+        public bool ShowAbout() => true;
+
+        public bool ShowNewProject(IProjectService projectService, out NewProjectViewModel? resultVm)
+        {
+            resultVm = null;
+            return false;
+        }
+
+        public bool ShowOptions(AppOptions options, string currentPath, out AppOptions? updatedOptions)
+        {
+            updatedOptions = null;
+            return false;
+        }
+
+        public bool ShowPreTranslate(PreTranslateViewModel vm) => false;
+
+        public bool ShowProviderSettings() => false;
+
+        public bool ShowImportProject(out ImportProjectViewModel? resultVm)
+        {
+            resultVm = null;
+            return false;
+        }
+
+        public string? ShowLanguagePrompt(string title, string message, IEnumerable<TranslationItem>? existingTranslations) => null;
+
+        public void Shutdown() { }
     }
 
     public class FakeProviderSettingsService : IProviderSettingsService

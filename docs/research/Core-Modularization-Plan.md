@@ -8,7 +8,7 @@ Currently, a "framework" (i18next, Android, Flutter, .NET, etc.) is mapped direc
 - **Android** = XML format + folder convention (`res/values-{lang}/strings.xml`) + plurals via `<plurals>`
 - **Flutter ARB** = JSON with `@` metadata keys + `l10n.yaml` manifest
 - **.NET RESX** = XML format + assembly embedding + satellite assemblies
-- **BabelEdit** = metadata-only project file (`.babel` XML) + any underlying format
+- **`.babel` format** = metadata-only project file (`.babel` XML) + any underlying format
 - **Paraglide** = compiled i18n with `messages/{lang}.js` + type-safe codegen manifest
 
 Each framework has three independent concerns:
@@ -149,7 +149,7 @@ Implemented via `git` CLI subprocess calls (no libgit2 dependency needed).
 | **Gettext (PO)** | PO/POT | `locale/{lang}/LC_MESSAGES/{domain}.po` | Folder name | `msgctxt`, `#. comment`, plural forms header |
 | **Java** | .properties | `messages_{lang}.properties` | Filename suffix | ISO-8859-1, `# comment` lines |
 | **Paraglide** | JSON/TS | `messages/{lang}.json` | Filename | Compiled output, type manifest |
-| **BabelEdit** | Any (metadata-only project) | Defined in `.babel` XML manifest | From manifest | Approval flags, descriptions, packages |
+| **`.babel` format** | Any (metadata-only project) | Defined in `.babel` XML manifest | From manifest | Approval flags, descriptions, packages |
 | **Toucan native** | Any | Defined in `toucan.project` JSON manifest | From manifest | Approval, comments, packages |
 
 **Key insight:** Format ≠ Framework. Multiple frameworks use JSON, but differ in:

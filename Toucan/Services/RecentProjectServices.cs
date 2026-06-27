@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Toucan.Core.Contracts;
 using Toucan.Core.Models;
 
@@ -14,6 +14,12 @@ internal class RecentProjectService : IRecentProjectService
     private readonly string storageFile = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "Toucan", "recent_projects.json");
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNameCaseInsensitive = true
+    };
 
     private List<Project> recentProjects = [];
 
@@ -37,7 +43,7 @@ internal class RecentProjectService : IRecentProjectService
 
     public void Add(string projectPath)
     {
-        var existing = recentProjects.FirstOrDefault(p => p.Path == projectPath);
+        Project? existing = recentProjects.FirstOrDefault(p => p.Path == projectPath);
         if (existing != null)
         {
             existing.LastOpened = DateTime.Now;
@@ -63,14 +69,14 @@ internal class RecentProjectService : IRecentProjectService
 
     public void Remove(string projectPath)
     {
-        recentProjects.RemoveAll(p => p.Path == projectPath);
+        _ = recentProjects.RemoveAll(p => p.Path == projectPath);
         Save();
     }
 
     public void Save()
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(storageFile)!);
-        File.WriteAllText(storageFile, JsonConvert.SerializeObject(recentProjects, Formatting.Indented));
+        _ = Directory.CreateDirectory(Path.GetDirectoryName(storageFile)!);
+        File.WriteAllText(storageFile, JsonSerializer.Serialize(recentProjects, JsonOptions));
     }
 
     private void Load()
@@ -80,7 +86,7 @@ internal class RecentProjectService : IRecentProjectService
             try
             {
                 string json = File.ReadAllText(storageFile);
-                recentProjects = JsonConvert.DeserializeObject<List<Project>>(json) ?? [];
+                recentProjects = JsonSerializer.Deserialize<List<Project>>(json, JsonOptions) ?? [];
             }
             catch
             {

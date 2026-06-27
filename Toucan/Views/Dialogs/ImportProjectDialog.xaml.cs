@@ -18,7 +18,9 @@ public partial class ImportProjectDialog : FluentWindow
     private void Import_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.IsValid)
+        {
             DialogResult = true;
+        }
     }
 
     private void Cancel_Click(object sender, RoutedEventArgs e)

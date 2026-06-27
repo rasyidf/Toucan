@@ -1,4 +1,4 @@
-namespace Toucan.Services;
+namespace Toucan.Core.Contracts;
 
 public interface ISecureStorageService
 {

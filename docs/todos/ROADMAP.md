@@ -121,7 +121,7 @@
 
 **Done: 88 / 88 (100%)**
 
-**Feature parity vs BabelEdit: ~95%**
+**Feature parity vs professional i18n editors: ~95%**
 
 ---
 
