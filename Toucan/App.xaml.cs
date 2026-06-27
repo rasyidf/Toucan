@@ -91,6 +91,7 @@ public partial class App : Application
         services.AddSingleton<IPretranslationService, PretranslationService>();
         services.AddSingleton<Toucan.Core.Contracts.ITranslationMemory, Toucan.Core.Services.TranslationMemoryService>();
         services.AddSingleton<IPackageService, Toucan.Core.Services.PackageService>();
+        services.AddSingleton<Toucan.Core.Contracts.ISourceCodeService, Toucan.Core.Services.SourceCodeService>();
         services.AddSingleton<ITranslationProvider, Core.Services.Providers.MockTranslationProvider>();
         services.AddSingleton<ITranslationProvider, Core.Services.Providers.DeepLTranslationProvider>();
         services.AddSingleton<ITranslationProvider, Core.Services.Providers.GoogleTranslationProvider>();

@@ -98,6 +98,7 @@ internal partial class MainWindowViewModel : ObservableObject
     private readonly ITranslationStrategyFactory _strategyFactory;
     private readonly System.Func<NewProjectPrompt> _newProjectPromptFactory;
     private readonly Toucan.Core.Contracts.IValidationPipeline? _validationPipeline;
+    private readonly Toucan.Core.Contracts.ISourceCodeService? _sourceCodeService;
 
 
     public MainWindowViewModel(
@@ -111,7 +112,8 @@ internal partial class MainWindowViewModel : ObservableObject
         ITranslationStrategyFactory strategyFactory = null,
         System.Func<string, LanguageGroupViewModel> languageGroupFactory = null,
         System.Func<System.Collections.Generic.IEnumerable<string>, System.Collections.Generic.IEnumerable<TranslationItem>, Toucan.Core.Contracts.Services.IPretranslationService, PreTranslateViewModel> preTranslateFactory = null,
-        Toucan.Core.Contracts.IValidationPipeline validationPipeline = null)
+        Toucan.Core.Contracts.IValidationPipeline validationPipeline = null,
+        Toucan.Core.Contracts.ISourceCodeService sourceCodeService = null)
     {
         _recentFileService = recentFileService;
         _dialogService = dialogService;
@@ -125,6 +127,7 @@ internal partial class MainWindowViewModel : ObservableObject
         _languageGroupFactory = languageGroupFactory;
         _preTranslateFactory = preTranslateFactory;
         _validationPipeline = validationPipeline;
+        _sourceCodeService = sourceCodeService;
 
         AppOptions = _preferenceService.Load();
 
@@ -983,6 +986,84 @@ internal partial class MainWindowViewModel : ObservableObject
             await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
         }
     }
+
+    // --- Source Code Integration ---
+
+    [ObservableProperty]
+    private bool sourceCodeScanned;
+
+    [ObservableProperty]
+    private string sourceCodeStatus = string.Empty;
+
+    [RelayCommand]
+    private async Task ScanSourceCode()
+    {
+        if (_sourceCodeService == null || string.IsNullOrEmpty(CurrentPath)) return;
+
+        var settings = ProjectSettings.LoadFrom(CurrentPath);
+        var roots = settings?.SourceRoots ?? [];
+        // Default: scan project folder itself if no source roots configured
+        var scanPath = roots.Count > 0
+            ? Path.Combine(CurrentPath, roots[0])
+            : CurrentPath;
+
+        StatusText = "Scanning source code...";
+        var result = await _sourceCodeService.ScanAsync(scanPath).ConfigureAwait(true);
+        SourceCodeScanned = true;
+        SourceCodeStatus = $"{result.KeysFound} keys found in {result.FilesScanned} files ({result.Duration.TotalSeconds:F1}s)";
+        StatusText = SourceCodeStatus;
+    }
+
+    [RelayCommand]
+    private void FilterUsedKeys()
+    {
+        if (_sourceCodeService == null || !_sourceCodeService.HasScanData || AllTranslation == null) return;
+        var allKeys = AllTranslation.Select(t => t.Namespace).Distinct();
+        var unused = _sourceCodeService.GetUnusedKeys(allKeys).ToHashSet();
+        // Filter to show only USED keys
+        Search("", true); // reset first
+        FilteredBySourceUsage = "used";
+        OnPropertyChanged(nameof(FilteredBySourceUsage));
+    }
+
+    [RelayCommand]
+    private void FilterUnusedKeys()
+    {
+        if (_sourceCodeService == null || !_sourceCodeService.HasScanData || AllTranslation == null) return;
+        FilteredBySourceUsage = "unused";
+        OnPropertyChanged(nameof(FilteredBySourceUsage));
+    }
+
+    [RelayCommand]
+    private void ClearSourceFilter()
+    {
+        FilteredBySourceUsage = null;
+        Search("", true);
+    }
+
+    [RelayCommand]
+    private void OpenInEditor(string key)
+    {
+        if (_sourceCodeService == null) return;
+        var usages = _sourceCodeService.FindUsages(key).ToList();
+        if (usages.Count == 0) return;
+
+        var first = usages[0];
+        var settings = ProjectSettings.LoadFrom(CurrentPath);
+        var editor = settings?.ExternalEditor ?? "code --goto \"{file}:{line}\"";
+        var fullPath = Path.Combine(CurrentPath, first.FilePath);
+
+        var cmd = editor.Replace("{file}", fullPath).Replace("{line}", first.Line.ToString());
+        try { Process.Start(new ProcessStartInfo("cmd", $"/c {cmd}") { CreateNoWindow = true }); }
+        catch { /* non-critical */ }
+    }
+
+    /// <summary>Current source usage filter: null = off, "used", "unused".</summary>
+    public string? FilteredBySourceUsage { get; private set; }
+
+    /// <summary>Get source code usages for the selected key.</summary>
+    public IEnumerable<Toucan.Core.Contracts.KeyUsage> GetKeyUsages(string key)
+        => _sourceCodeService?.FindUsages(key) ?? [];
 
     [RelayCommand]
     private async Task OpenProjectFile()

@@ -50,6 +50,13 @@ public class ProjectSettings
     /// </summary>
     public Dictionary<string, string>? LanguageFilePaths { get; set; }
 
+    // --- Source code integration ---
+    /// <summary>Relative paths to source code directories (for key usage scanning).</summary>
+    public List<string> SourceRoots { get; set; } = [];
+
+    /// <summary>External editor command for "open in editor" (e.g., "code --goto {file}:{line}").</summary>
+    public string? ExternalEditor { get; set; }
+
     // --- Runtime (not serialized) ---
     [JsonIgnore] public string ProjectPath { get; set; } = string.Empty;
     [JsonIgnore] public bool IsDirty { get; set; }
