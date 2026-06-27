@@ -42,6 +42,14 @@ public class ProjectSettings
     // --- Language alias mapping (file-system code → display code) ---
     public Dictionary<string, string>? LanguageAliases { get; set; }
 
+    // --- Per-language file locations (override default path conventions) ---
+    /// <summary>
+    /// Custom file paths per language. Key = language code, Value = relative path from project root.
+    /// If a language is not listed here, the framework profile's default path is used.
+    /// Example: { "fr-FR": "custom/translations/french.json" }
+    /// </summary>
+    public Dictionary<string, string>? LanguageFilePaths { get; set; }
+
     // --- Runtime (not serialized) ---
     [JsonIgnore] public string ProjectPath { get; set; } = string.Empty;
     [JsonIgnore] public bool IsDirty { get; set; }
