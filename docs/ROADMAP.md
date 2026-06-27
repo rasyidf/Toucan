@@ -108,29 +108,29 @@
 
 ## Source Code Integration (Low Priority)
 
-- [ ] Source code view panel (show where key is used)
-- [ ] Extract translation IDs from source (`t('key')` patterns)
-- [ ] Filter: used / unused in source code
-- [ ] Double-click opens source in external editor
-- [ ] Wire source root configuration
-- [ ] Support `.tsx`, `.vue`, `.svelte`, `.py` scanning
+- [x] Source code view panel (show where key is used)
+- [x] Extract translation IDs from source (`t('key')` patterns)
+- [x] Filter: used / unused in source code
+- [x] Double-click opens source in external editor
+- [x] Wire source root configuration
+- [x] Support `.tsx`, `.vue`, `.svelte`, `.py` scanning
 
 ---
 
 ## Progress
 
-**Done: 82 / 88 (93%)**
+**Done: 88 / 88 (100%)**
 
-**Feature parity vs BabelEdit: ~92%**
+**Feature parity vs BabelEdit: ~95%**
 
 ---
 
 ## Recommended Next Sprint
 
 1. ConsistencyAI — check translations against source (L)
-2. MSIX installer (M)
-3. Auto-updater (M)
-4. Source code scanning — basic regex key extraction (L)
+2. AI-powered translation memory enhancement (M)
+3. MSIX installer (M)
+4. Auto-updater (M)
 5. Avalonia port feature parity (XL)
 
 ---
