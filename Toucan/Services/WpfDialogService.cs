@@ -83,6 +83,21 @@ public class WpfDialogService : IDialogService
         return true;
     }
 
+    public bool ShowImportProject(out ImportProjectViewModel? resultVm)
+    {
+        resultVm = null;
+        var profiles = App.Services?.GetService(typeof(IEnumerable<Toucan.Core.Contracts.IFrameworkProfile>)) as IEnumerable<Toucan.Core.Contracts.IFrameworkProfile>;
+        if (profiles == null) return false;
+        var vm = new ImportProjectViewModel(profiles, this);
+        var dialog = new ImportProjectDialog(vm) { Owner = Owner };
+        if (dialog.ShowDialog() == true)
+        {
+            resultVm = vm;
+            return true;
+        }
+        return false;
+    }
+
     public string? ShowLanguagePrompt(string title, string message, IEnumerable<TranslationItem>? existingTranslations)
     {
         var dialog = new LanguagePrompt(title, message, existingTranslations?.ToList()) { Owner = Owner };

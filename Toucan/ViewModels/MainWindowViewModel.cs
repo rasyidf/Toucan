@@ -97,6 +97,7 @@ internal partial class MainWindowViewModel : ObservableObject
     private readonly IProjectService _projectService;
     private readonly ITranslationStrategyFactory _strategyFactory;
     private readonly System.Func<NewProjectPrompt> _newProjectPromptFactory;
+    private readonly Toucan.Core.Contracts.IValidationPipeline? _validationPipeline;
 
 
     public MainWindowViewModel(
@@ -109,7 +110,8 @@ internal partial class MainWindowViewModel : ObservableObject
         IProjectService projectService = null,
         ITranslationStrategyFactory strategyFactory = null,
         System.Func<string, LanguageGroupViewModel> languageGroupFactory = null,
-        System.Func<System.Collections.Generic.IEnumerable<string>, System.Collections.Generic.IEnumerable<TranslationItem>, Toucan.Core.Contracts.Services.IPretranslationService, PreTranslateViewModel> preTranslateFactory = null)
+        System.Func<System.Collections.Generic.IEnumerable<string>, System.Collections.Generic.IEnumerable<TranslationItem>, Toucan.Core.Contracts.Services.IPretranslationService, PreTranslateViewModel> preTranslateFactory = null,
+        Toucan.Core.Contracts.IValidationPipeline validationPipeline = null)
     {
         _recentFileService = recentFileService;
         _dialogService = dialogService;
@@ -122,7 +124,7 @@ internal partial class MainWindowViewModel : ObservableObject
         _newProjectPromptFactory = null;
         _languageGroupFactory = languageGroupFactory;
         _preTranslateFactory = preTranslateFactory;
-        
+        _validationPipeline = validationPipeline;
 
         AppOptions = _preferenceService.Load();
 
@@ -968,6 +970,21 @@ internal partial class MainWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task ImportProject()
+    {
+        if (_dialogService.ShowImportProject(out var vm) && vm != null)
+        {
+            var result = vm.GetResult();
+            if (result == null) return;
+
+            CurrentPath = result.Value.Folder;
+            AppOptions.LastProjectPath = CurrentPath;
+            _recentFileService.Add(CurrentPath);
+            await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
+        }
+    }
+
+    [RelayCommand]
     private async Task OpenProjectFile()
     {
         string? selected = _dialogService.SelectFile(CurrentPath, "Toucan project|*.project|JSON files (*.json)|*.json|All Files (*.*)|*.*");
@@ -1057,8 +1074,29 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanSave))]
     private void Save()
     {
+        // Run validation before save
+        if (_validationPipeline != null && AllTranslation?.Count > 0)
+        {
+            var ctx = new Toucan.Core.Contracts.ValidationContext
+            {
+                Items = AllTranslation,
+                Settings = ProjectSettings.LoadFrom(CurrentPath) ?? ProjectSettings.CreateDefault(CurrentPath)
+            };
+            var errors = _validationPipeline.RunAll(ctx)
+                .Where(r => r.Severity == Toucan.Core.Contracts.ValidationSeverity.Error)
+                .ToList();
+
+            if (errors.Count > 0)
+            {
+                var msg = $"{errors.Count} validation error(s) found:\n" +
+                    string.Join("\n", errors.Take(5).Select(e => $"• [{e.Language}] {e.Namespace}: {e.Message}"));
+                if (errors.Count > 5) msg += $"\n... and {errors.Count - 5} more";
+                if (!_messageService.ShowConfirmation(msg + "\n\nSave anyway?", "Validation Errors"))
+                    return;
+            }
+        }
+
         IsDirty = false;
-        // ponytail: SaveStyle now lives in ProjectSettings. Use Json as fallback for legacy WPF path.
         _projectService?.Save(CurrentPath, SaveStyles.Json, CurrentTreeItems.ToList(), AllTranslation);
     }
 

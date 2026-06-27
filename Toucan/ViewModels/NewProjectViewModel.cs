@@ -16,6 +16,8 @@ public class FrameworkTile
     public string Description { get; init; } = "";
     public string Icon { get; init; } = "🌐";
     public SaveStyles Style { get; init; } = SaveStyles.Json;
+    /// <summary>Framework profile ID (matches IFrameworkProfile.Id). Null = use Style-based fallback.</summary>
+    public string? ProfileId { get; init; }
 }
 
 public partial class NewProjectViewModel : ObservableObject
@@ -40,20 +42,20 @@ public partial class NewProjectViewModel : ObservableObject
 
     public ObservableCollection<FrameworkTile> Frameworks { get; } = new()
     {
-        new() { Name = "i18next", Description = "JSON namespaced", Icon = "⚙", Style = SaveStyles.Namespaced },
-        new() { Name = "React", Description = "Flat JSON", Icon = "⚛", Style = SaveStyles.Json },
-        new() { Name = "Vue", Description = "vue-i18n JSON", Icon = "🟢", Style = SaveStyles.Json },
+        new() { Name = "i18next", Description = "JSON namespaced", Icon = "⚙", Style = SaveStyles.Namespaced, ProfileId = "i18next" },
+        new() { Name = "React", Description = "Flat JSON", Icon = "⚛", Style = SaveStyles.Json, ProfileId = "generic-json" },
+        new() { Name = "Vue", Description = "vue-i18n JSON", Icon = "🟢", Style = SaveStyles.Json, ProfileId = "generic-json" },
         new() { Name = "Angular", Description = "JSON / XLIFF", Icon = "🅰", Style = SaveStyles.Json },
         new() { Name = "Flutter", Description = "ARB format", Icon = "🐦", Style = SaveStyles.Arb },
         new() { Name = "Laravel", Description = "PHP / JSON", Icon = "🔷", Style = SaveStyles.LaravelPhp },
         new() { Name = ".NET", Description = "RESX resource", Icon = "🟣", Style = SaveStyles.Resx },
-        new() { Name = "Android", Description = "strings.xml", Icon = "🤖", Style = SaveStyles.AndroidXml },
+        new() { Name = "Android", Description = "strings.xml", Icon = "🤖", Style = SaveStyles.AndroidXml, ProfileId = "android" },
         new() { Name = "iOS", Description = ".strings", Icon = "🍎", Style = SaveStyles.IosStrings },
         new() { Name = "Ruby/Rails", Description = "YAML locale", Icon = "💎", Style = SaveStyles.Yaml },
         new() { Name = "Svelte", Description = "svelte-i18n", Icon = "🔶", Style = SaveStyles.Json },
         new() { Name = "Java", Description = ".properties", Icon = "☕", Style = SaveStyles.JavaProperties },
         new() { Name = "Gettext", Description = "PO files", Icon = "📝", Style = SaveStyles.Properties },
-        new() { Name = "Generic JSON", Description = "Flat JSON", Icon = "{ }", Style = SaveStyles.Json },
+        new() { Name = "Generic JSON", Description = "Flat JSON", Icon = "{ }", Style = SaveStyles.Json, ProfileId = "generic-json" },
         new() { Name = "Generic YAML", Description = "YAML files", Icon = "≡", Style = SaveStyles.Yaml },
         new() { Name = "CSV", Description = "CSV table", Icon = "📊", Style = SaveStyles.Csv },
     };
@@ -184,6 +186,13 @@ public partial class NewProjectViewModel : ObservableObject
             throw new InvalidOperationException("Project settings are not valid");
 
         var style = SelectedFramework?.Style ?? SaveStyles.Json;
-        _projectService.CreateProject(ProjectFolder, Languages, style, CreateManifest, ProjectName);
+        var settings = _projectService.CreateProject(ProjectFolder, Languages, style, CreateManifest, ProjectName);
+
+        // Persist framework profile ID in manifest if available
+        if (SelectedFramework?.ProfileId != null && settings != null)
+        {
+            settings.Framework = SelectedFramework.ProfileId;
+            settings.Save();
+        }
     }
 }

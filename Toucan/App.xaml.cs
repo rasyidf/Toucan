@@ -161,6 +161,25 @@ public partial class App : Application
         services.AddSingleton<LaravelPhpLoadStrategy>();
         services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<LaravelPhpLoadStrategy>());
 
+        // Framework profiles
+        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.GenericJsonProfile>();
+        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.I18nextProfile>();
+        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.AndroidProfile>();
+        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.FlutterArbProfile>();
+        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.DotNetResxProfile>();
+        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.IosProfile>();
+        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.GettextProfile>();
+        services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.RailsYamlProfile>();
+
+        // Validation pipeline
+        services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.MissingTranslationRule>();
+        services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.PlaceholderMismatchRule>();
+        services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.DuplicateKeyRule>();
+        services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.UntranslatedCopyRule>();
+        services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.EmptyValueRule>();
+        services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.WhitespaceMismatchRule>();
+        services.AddSingleton<Toucan.Core.Contracts.IValidationPipeline, Toucan.Core.Services.Validation.ValidationPipeline>();
+
         // Strategy factory and mode resolver
         services.AddSingleton<ITranslationStrategyFactory, TranslationStrategyFactory>();
         services.AddSingleton<IProjectModeResolver, ProjectModeResolver>();

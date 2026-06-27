@@ -28,6 +28,7 @@ public class ProjectSettings
 
     // --- Format / IO ---
     public SaveStyles SaveStyle { get; set; } = SaveStyles.Json;
+    public string? Framework { get; set; }
     public List<TranslationPackage> TranslationPackages { get; set; } = [];
 
     // --- Editor preferences (project-scoped) ---
