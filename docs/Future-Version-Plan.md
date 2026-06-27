@@ -1,6 +1,6 @@
 # Toucan v1.0 — Future Version Plan
 
-> Current state: v0.6.1, 88/88 roadmap features, ~95% BabelEdit parity
+> Current state: v0.7.0, 88/88 roadmap features, ~95% BabelEdit parity
 > Codebase: 249 C# files, 629 KB source, 3 projects (Core: 102 files, WPF: 85, Avalonia: 57)
 > Last sprint: +3,099 lines across 59 files
 

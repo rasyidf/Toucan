@@ -24,7 +24,7 @@ All notable changes to this project will be documented in this file.
 - **New Project StaticResource error** — BoolToVis converter moved before first usage
 - **Dialog button standardization** — consistent footer pattern across all dialogs
 
-## [0.6.1] — 2026-06-27
+## [0.7.0] — 2026-06-27
 
 ### Added
 - **Framework Profiles** — New `IFrameworkProfile` abstraction separating file format from project conventions
