@@ -67,7 +67,7 @@
 - [x] Preview before apply
 - [x] Suggestions panel (fuzzy-match existing translations)
 - [x] Pre-translate plural forms (i18next/ICU)
-- [ ] Translation memory (reuse across projects)
+- [x] Translation memory (reuse across projects)
 
 ## UI / UX
 
@@ -89,8 +89,8 @@
 
 - [x] Plural forms support (i18next `_one/_other`, ICU)
 - [x] Array support in JSON
-- [ ] Package support (multiple translation sets)
-- [ ] Drag & drop reorder in tree
+- [x] Package support (multiple translation sets)
+- [x] Drag & drop reorder in tree
 - [x] Multi-selection in tree (batch operations)
 
 ## Distribution & Platform
@@ -99,7 +99,7 @@
 - [ ] MSIX installer (Windows)
 - [ ] Auto-updater
 - [x] File association (`.toucan.project` → open app)
-- [ ] Translation file locations configurable per language
+- [x] Translation file locations configurable per language
 
 ## AI Features (Low Priority)
 
@@ -119,19 +119,19 @@
 
 ## Progress
 
-**Done: 78 / 88 (89%)**
+**Done: 82 / 88 (93%)**
 
-**Feature parity vs BabelEdit: ~88%**
+**Feature parity vs BabelEdit: ~92%**
 
 ---
 
 ## Recommended Next Sprint
 
-1. Translation memory — reuse across projects (M)
-2. Package support — multiple translation sets (L)
-3. MSIX installer (M)
-4. Drag & drop reorder in tree (S)
-5. Translation file locations configurable per language (S)
+1. ConsistencyAI — check translations against source (L)
+2. MSIX installer (M)
+3. Auto-updater (M)
+4. Source code scanning — basic regex key extraction (L)
+5. Avalonia port feature parity (XL)
 
 ---
 
