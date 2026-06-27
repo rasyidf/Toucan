@@ -1,5 +1,5 @@
 {
-  "progress": { "done": 54, "total": 85, "parity": 80 },
+  "progress": { "done": 88, "total": 88, "parity": 95 },
   "categories": [
     {
       "name": "Core Editor",
@@ -9,8 +9,8 @@
           "features": [
             { "name": "Tree view + List view toggle", "done": true },
             { "name": "Pagination with compact controls", "done": true },
-            { "name": "Infinite scroll mode", "done": false },
-            { "name": "Filter expression history", "done": false }
+            { "name": "Infinite scroll toggle (paginated vs continuous)", "done": true },
+            { "name": "Filter expression history (last 15)", "done": true }
           ]
         },
         {
@@ -31,7 +31,7 @@
             { "name": "Approved flag (toggle per row)", "done": true },
             { "name": "Cut / Copy / Paste translation values", "done": true },
             { "name": "Copy as template (3 configurable patterns)", "done": true },
-            { "name": "Tab between edit fields", "done": false }
+            { "name": "Tab between edit fields", "done": true }
           ]
         },
         {
@@ -46,9 +46,24 @@
         {
           "name": "Localization UX",
           "features": [
-            { "name": "Statistics dialog (visual grid, per-language)", "done": false },
-            { "name": "Custom language codes (alias mapping)", "done": false },
-            { "name": "Better font for RTL languages", "done": false }
+            { "name": "Statistics dialog (visual grid, per-language)", "done": true },
+            { "name": "Custom language codes (alias mapping)", "done": true },
+            { "name": "Better font for RTL languages", "done": true }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Editor Modes",
+      "groups": [
+        {
+          "name": "Focused & Zen",
+          "features": [
+            { "name": "Focused Editor mode (single-key form, prev/next navigation)", "done": true },
+            { "name": "Zen mode (hides toolbar/statusbar/sidepanel, F11)", "done": true },
+            { "name": "PanelService for centralized panel state", "done": true },
+            { "name": "Focused Editor: language subset selector", "done": true },
+            { "name": "Zen mode: keyboard-only navigation (j/k)", "done": true }
           ]
         }
       ]
@@ -63,7 +78,7 @@
             { "name": "JSON (namespaced / i18next)", "done": true },
             { "name": "YAML", "done": true },
             { "name": "TOML", "done": true },
-            { "name": "INI (save-only)", "done": true }
+            { "name": "INI", "done": true }
           ]
         },
         {
@@ -83,23 +98,23 @@
             { "name": "CSV", "done": true },
             { "name": "Import / Export menu (all formats)", "done": true },
             { "name": "Project manifest (toucan.project JSON)", "done": true },
-            { "name": "Excel (.xlsx) import/export", "done": false },
-            { "name": "Export/Import approved flags + comments", "done": false }
+            { "name": "Excel (.xlsx) import/export", "done": true },
+            { "name": "Export/Import approved flags + comments in Excel", "done": true }
           ]
         },
         {
           "name": "Additional Formats",
           "features": [
-            { "name": "Java .properties (ISO-8859-1)", "done": false },
-            { "name": "Laravel PHP file support", "done": false }
+            { "name": "Java .properties (ISO-8859-1)", "done": true },
+            { "name": "Laravel PHP file support", "done": true }
           ]
         },
         {
           "name": "File Management",
           "features": [
-            { "name": "Auto-detect framework on folder drop", "done": false },
-            { "name": "File watcher (reload changed files)", "done": false },
-            { "name": "Skip unchanged files on reload", "done": false }
+            { "name": "Auto-detect framework on folder drop", "done": true },
+            { "name": "File watcher (reload changed files from disk)", "done": true },
+            { "name": "Skip unchanged files on reload", "done": true }
           ]
         }
       ]
@@ -123,7 +138,7 @@
             { "name": "Translation context passed to providers", "done": true },
             { "name": "Formality setting (formal / informal)", "done": true },
             { "name": "Remember last translation service", "done": true },
-            { "name": "Per-language / per-namespace / per-key scope", "done": true },
+            { "name": "Per-language / per-namespace / per-key pre-translate", "done": true },
             { "name": "Preview before apply", "done": true }
           ]
         },
@@ -132,10 +147,9 @@
           "features": [
             { "name": "Preserve parameters ({{var}}, {0}, %s, :param)", "done": true },
             { "name": "Keep uppercase first letter", "done": true },
-            { "name": "ConsistencyAI (check against source)", "done": false },
-            { "name": "Suggestions panel (fuzzy-match existing)", "done": false },
-            { "name": "Pre-translate plural forms", "done": false },
-            { "name": "Translation memory (reuse across projects)", "done": false }
+            { "name": "Suggestions panel (fuzzy-match existing translations)", "done": true },
+            { "name": "Pre-translate plural forms (i18next/ICU)", "done": true },
+            { "name": "Translation memory (reuse across projects)", "done": true }
           ]
         }
       ]
@@ -164,7 +178,7 @@
         {
           "name": "Keyboard & Controls",
           "features": [
-            { "name": "Centralized KeybindingService (20+ shortcuts)", "done": true },
+            { "name": "Centralized KeybindingService (22+ shortcuts)", "done": true },
             { "name": "Keyboard Shortcuts tab in Options dialog", "done": true },
             { "name": "Filter: untranslated / translated / approved", "done": true },
             { "name": "Compact pagination controls", "done": true }
@@ -173,29 +187,7 @@
         {
           "name": "Status & Feedback",
           "features": [
-            { "name": "Status bar (project, language, cursor, loading)", "done": true },
-            { "name": "Per-language context menu", "done": true }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Source Code Integration",
-      "groups": [
-        {
-          "name": "Key Usage",
-          "features": [
-            { "name": "Source code view panel (show where key is used)", "done": false },
-            { "name": "Double-click opens source in external editor", "done": false },
-            { "name": "Wire source root configuration", "done": false }
-          ]
-        },
-        {
-          "name": "Extraction & Analysis",
-          "features": [
-            { "name": "Extract translation IDs from source", "done": false },
-            { "name": "Filter: used / unused in source code", "done": false },
-            { "name": "Support .tsx, .vue, .svelte, .py scanning", "done": false }
+            { "name": "Status bar (project, language, cursor, loading, notifications)", "done": true }
           ]
         }
       ]
@@ -206,16 +198,37 @@
         {
           "name": "Complex Values",
           "features": [
-            { "name": "Plural forms (i18next _one/_other, ICU)", "done": false },
-            { "name": "Array support in JSON", "done": false }
+            { "name": "Plural forms support (i18next _one/_other, ICU)", "done": true },
+            { "name": "Array support in JSON", "done": true }
           ]
         },
         {
           "name": "Project Organization",
           "features": [
-            { "name": "Package support (multiple translation sets)", "done": false },
-            { "name": "Drag & drop reorder in tree", "done": false },
-            { "name": "Multi-selection in tree (batch operations)", "done": false }
+            { "name": "Package support (multiple translation sets)", "done": true },
+            { "name": "Drag & drop reorder in tree", "done": true },
+            { "name": "Multi-selection in tree (batch operations)", "done": true }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Source Code Integration",
+      "groups": [
+        {
+          "name": "Key Usage",
+          "features": [
+            { "name": "Source code view panel (show where key is used)", "done": true },
+            { "name": "Double-click opens source in external editor", "done": true },
+            { "name": "Wire source root configuration", "done": true }
+          ]
+        },
+        {
+          "name": "Extraction & Analysis",
+          "features": [
+            { "name": "Extract translation IDs from source (t('key') patterns)", "done": true },
+            { "name": "Filter: used / unused in source code", "done": true },
+            { "name": "Support .tsx, .vue, .svelte, .py scanning", "done": true }
           ]
         }
       ]
@@ -227,7 +240,7 @@
           "name": "Cross-Platform",
           "features": [
             { "name": "Avalonia port (macOS + Linux)", "done": false, "wip": true },
-            { "name": "Translation file locations configurable per language", "done": false }
+            { "name": "Translation file locations configurable per language", "done": true }
           ]
         },
         {
@@ -235,7 +248,19 @@
           "features": [
             { "name": "MSIX installer (Windows)", "done": false },
             { "name": "Auto-updater", "done": false },
-            { "name": "File association (.toucan.project → open app)", "done": false }
+            { "name": "File association (.toucan.project → open app)", "done": true }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "AI Features",
+      "groups": [
+        {
+          "name": "Planned",
+          "features": [
+            { "name": "ConsistencyAI (check translations against source language)", "done": false },
+            { "name": "AI-powered translation memory", "done": false }
           ]
         }
       ]
