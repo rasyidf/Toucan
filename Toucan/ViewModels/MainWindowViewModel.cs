@@ -99,6 +99,7 @@ internal partial class MainWindowViewModel : ObservableObject
     private readonly System.Func<NewProjectPrompt> _newProjectPromptFactory;
     private readonly Toucan.Core.Contracts.IValidationPipeline? _validationPipeline;
     private readonly Toucan.Core.Contracts.ISourceCodeService? _sourceCodeService;
+    private readonly Toucan.Core.Contracts.ITranslationAnalyzer? _translationAnalyzer;
 
 
     public MainWindowViewModel(
@@ -113,7 +114,8 @@ internal partial class MainWindowViewModel : ObservableObject
         System.Func<string, LanguageGroupViewModel> languageGroupFactory = null,
         System.Func<System.Collections.Generic.IEnumerable<string>, System.Collections.Generic.IEnumerable<TranslationItem>, Toucan.Core.Contracts.Services.IPretranslationService, PreTranslateViewModel> preTranslateFactory = null,
         Toucan.Core.Contracts.IValidationPipeline validationPipeline = null,
-        Toucan.Core.Contracts.ISourceCodeService sourceCodeService = null)
+        Toucan.Core.Contracts.ISourceCodeService sourceCodeService = null,
+        Toucan.Core.Contracts.ITranslationAnalyzer translationAnalyzer = null)
     {
         _recentFileService = recentFileService;
         _dialogService = dialogService;
@@ -128,6 +130,7 @@ internal partial class MainWindowViewModel : ObservableObject
         _preTranslateFactory = preTranslateFactory;
         _validationPipeline = validationPipeline;
         _sourceCodeService = sourceCodeService;
+        _translationAnalyzer = translationAnalyzer;
 
         AppOptions = _preferenceService.Load();
 
@@ -1064,6 +1067,77 @@ internal partial class MainWindowViewModel : ObservableObject
     /// <summary>Get source code usages for the selected key.</summary>
     public IEnumerable<Toucan.Core.Contracts.KeyUsage> GetKeyUsages(string key)
         => _sourceCodeService?.FindUsages(key) ?? [];
+
+    // --- Translation Quality Analysis ---
+
+    public ObservableCollection<Toucan.Core.Contracts.AnalysisResult> AnalysisResults { get; } = new();
+
+    [RelayCommand]
+    private async Task AnalyzeTranslations()
+    {
+        if (_translationAnalyzer == null || AllTranslation == null || AllTranslation.Count == 0) return;
+
+        var settings = ProjectSettings.LoadFrom(CurrentPath);
+        var primaryLang = settings?.PrimaryLanguage ?? "en-US";
+        var appContext = AppOptions.Context;
+
+        if (string.IsNullOrWhiteSpace(appContext))
+        {
+            appContext = _dialogService.ShowPrompt("Application Context",
+                "Describe your application domain (e.g., 'Banking app for managing savings accounts and transactions').\nThis helps the analyzer check domain-specific terminology.",
+                appContext ?? "");
+            if (string.IsNullOrWhiteSpace(appContext)) return;
+            AppOptions.Context = appContext;
+            _preferenceService.Save(AppOptions);
+        }
+
+        // Build analysis items: pair source + each translation
+        var sourceMap = AllTranslation
+            .Where(i => i.Language == primaryLang && !string.IsNullOrEmpty(i.Value))
+            .ToDictionary(i => i.Namespace, i => i.Value);
+
+        var items = AllTranslation
+            .Where(i => i.Language != primaryLang && !string.IsNullOrEmpty(i.Value))
+            .Where(i => sourceMap.ContainsKey(i.Namespace))
+            .Select(i => new Toucan.Core.Contracts.AnalysisItem(i.Namespace, sourceMap[i.Namespace], i.Value, i.Language))
+            .ToList();
+
+        if (items.Count == 0) { _messageService.ShowMessage("No translations to analyze."); return; }
+
+        // Build provider options from saved settings
+        var providerOpts = new Dictionary<string, string>();
+        var settingsService = App.Services?.GetService(typeof(Toucan.Services.IProviderSettingsService)) as Toucan.Services.IProviderSettingsService;
+        if (settingsService != null)
+        {
+            var all = settingsService.LoadAppProviderSettings();
+            var match = all.FirstOrDefault(p => string.Equals(p.Provider, "OpenAI", StringComparison.OrdinalIgnoreCase));
+            if (match != null)
+            {
+                foreach (var kv in match.Options) providerOpts[kv.Key] = kv.Value;
+                foreach (var kv in match.Secrets) providerOpts[kv.Key] = kv.Value;
+            }
+        }
+
+        StatusText = "Analyzing translations...";
+        var request = new Toucan.Core.Contracts.AnalysisRequest
+        {
+            Items = items,
+            ApplicationContext = appContext,
+            SourceLanguage = primaryLang,
+            ProviderOptions = providerOpts
+        };
+
+        var progress = new Progress<PretranslationProgress>(p => StatusText = p.Message ?? $"Analyzing {p.Completed}/{p.Total}...");
+        var results = await _translationAnalyzer.AnalyzeAsync(request, progress).ConfigureAwait(true);
+
+        AnalysisResults.Clear();
+        foreach (var r in results.Where(r => r.Confidence >= 0.6))
+            AnalysisResults.Add(r);
+
+        StatusText = AnalysisResults.Count > 0
+            ? $"Analysis complete: {AnalysisResults.Count} issue(s) found"
+            : "Analysis complete: no issues found";
+    }
 
     [RelayCommand]
     private async Task OpenProjectFile()
