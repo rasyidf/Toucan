@@ -70,9 +70,30 @@
             <!-- Empty State -->
             <TextBlock Text="No recent projects"
                        Foreground="Gray"
-                       HorizontalAlignment="Center"
-                       Visibility="{Binding HasRecentProjects, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
-            <ui:Button Content="+ Create your first project" Command="{Binding NewFolderCommand}" HorizontalAlignment="Center" Margin="0,12,0,0" />
+                       HorizontalAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RecentProjects.Count}" Value="0">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+            <ui:Button Content="+ Create your first project" Command="{Binding NewFolderCommand}" HorizontalAlignment="Center" Margin="0,12,0,0">
+                <ui:Button.Style>
+                    <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RecentProjects.Count}" Value="0">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ui:Button.Style>
+            </ui:Button>
         </StackPanel>
 
         <!-- 4. Features Section (hidden — not appropriate for start screen) -->
