@@ -7,21 +7,17 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Width="450"
-    Height="208"
+    Height="220"
     MinWidth="250"
     MinHeight="200"
     MaxWidth="600"
-    MaxHeight="200"
+    MaxHeight="250"
     WindowBackdropType="Tabbed"
     WindowCornerPreference="Round"  
     ExtendsContentIntoTitleBar="True"
     WindowStartupLocation="CenterOwner"
     mc:Ignorable="d">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="16*" />
-            <ColumnDefinition Width="9*" />
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="titleBar" Height="auto" />
             <RowDefinition x:Name="contentRow" Height="*" />
@@ -29,32 +25,29 @@
         <ui:TitleBar
             x:Name="titleBarPrompt"
             Title="Add Translation Id"
-            Grid.ColumnSpan="2"
             VerticalAlignment="Center"
             ShowMaximize="false"
             ShowMinimize="false" />
         <Grid
             Grid.Row="1"
-            Grid.ColumnSpan="2"
-            Margin="0,2,0,0">
+            Margin="16,2,16,12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             <TextBlock
                 x:Name="messageLabel"
-                Height="49"
-                Margin="16,0,16,0"
-                VerticalAlignment="Top"
+                Margin="0,0,0,8"
+                TextWrapping="Wrap"
                 d:Text="Input" />
             <ui:TextBox
                 x:Name="ResponseTextBox"
-                Margin="16,52,16,0"
-                VerticalAlignment="Top" />
-            <ui:Button
-                Width="70"
-                Height="32"
-                Margin="0,0,16,10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Click="OKButton_Click"
-                Content="OK" />
+                Grid.Row="1" />
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                <ui:Button Width="90" Content="Cancel" Margin="0,0,8,0" Click="CancelDialog"/>
+                <ui:Button Width="90" Content="OK" Appearance="Primary" Click="OKButton_Click"/>
+            </StackPanel>
         </Grid>
     </Grid>
 </ui:FluentWindow>

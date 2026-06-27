@@ -81,10 +81,6 @@ public partial class App : Application
         services.AddSingleton<ISecureStorageService, SecureStorageService>();
         services.AddSingleton<IProviderSettingsService, ProviderSettingsService>();
 
-        // Secure storage and provider settings
-        services.AddSingleton<ISecureStorageService, SecureStorageService>();
-        services.AddSingleton<IProviderSettingsService, ProviderSettingsService>();
-
         // core file service
         services.AddSingleton<IFileService, FileService>();
 
@@ -98,6 +94,7 @@ public partial class App : Application
         services.AddSingleton<ITranslationProvider, Core.Services.Providers.GoogleTranslationProvider>();
         services.AddSingleton<ITranslationProvider, Core.Services.Providers.MicrosoftTranslationProvider>();
         services.AddSingleton<ITranslationProvider, Core.Services.Providers.OpenAITranslationProvider>();
+        services.AddSingleton<ITranslationProvider, Core.Services.Providers.CustomWebhookTranslationProvider>();
 
         // Save Strategies - register concrete types and interface mappings
         services.AddSingleton<JsonSaveStrategy>();

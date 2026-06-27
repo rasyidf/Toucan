@@ -9,6 +9,8 @@ namespace Toucan.Core.Services.Providers;
 
 public class GoogleTranslationProvider : ITranslationProvider
 {
+    private static readonly HttpClient s_http = new();
+
     public string Name => "Google";
 
     public async Task<IEnumerable<PretranslationItemResult>> PretranslateAsync(IEnumerable<PretranslationJob> jobs, PretranslationOptions? options = null, IProgress<PretranslationProgress>? progress = null, System.Threading.CancellationToken cancellationToken = default)
@@ -38,7 +40,6 @@ public class GoogleTranslationProvider : ITranslationProvider
             return results;
         }
 
-        using var client = new HttpClient();
         var list = jobs.ToList();
         var total = list.Count;
         var processed = 0;
@@ -72,7 +73,7 @@ public class GoogleTranslationProvider : ITranslationProvider
                     values.Add(new KeyValuePair<string, string>("source", sourceLang));
 
                 var content = new FormUrlEncodedContent(values);
-                var resp = await client.PostAsync(url, content).ConfigureAwait(false);
+                var resp = await s_http.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
                 if (!resp.IsSuccessStatusCode)
                 {
                     results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage, Provider = Name, Succeeded = false, ErrorMessage = $"HTTP {resp.StatusCode}" });

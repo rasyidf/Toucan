@@ -33,7 +33,7 @@ public class BulkActionService(IPretranslationService? pretranslationService = n
 
         var sb = new StringBuilder("Translation statistics:\n");
         foreach (var (language, total, missing) in byLanguage)
-            sb.AppendLine($"{language}: {total - missing}/{total} ({(int)((double)(total - missing) / total * 100)}% complete)");
+            sb.AppendLine($"{language}: {total - missing}/{total} ({(total == 0 ? 0 : (int)((double)(total - missing) / total * 100))}% complete)");
 
         return sb.ToString();
     }

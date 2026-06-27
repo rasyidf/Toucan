@@ -1,25 +1,24 @@
 using System;
-using System.Timers;
 using System.Windows;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Toucan.Core.Models;
 
 namespace Toucan.ViewModels;
 
-public partial class TranslationItemViewModel : ObservableObject, IDisposable
+public partial class TranslationItemViewModel : ObservableObject
 {
     private string _value = string.Empty;
     private string _valueBeforeEdit = string.Empty;
     private readonly TranslationItem? _model;
-    private Timer _debounceTimer;
+    private readonly DispatcherTimer _debounceTimer;
 
     public TranslationItemViewModel()
     {
         _model = null;
-        _debounceTimer = new Timer(500);
-        _debounceTimer.AutoReset = false;
-        _debounceTimer.Elapsed += (s, e) => SaveTranslation();
+        _debounceTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+        _debounceTimer.Tick += (s, e) => { _debounceTimer.Stop(); SaveTranslation(); };
     }
 
     public TranslationItemViewModel(TranslationItem model) : this()
@@ -37,8 +36,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         {
             if (_value != value)
             {
-                // Capture the value before this edit session starts
-                if (!_debounceTimer.Enabled)
+                if (!_debounceTimer.IsEnabled)
                     _valueBeforeEdit = _value;
                 _value = value;
                 OnPropertyChanged(nameof(Value));
@@ -50,11 +48,10 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
 
     public string Language { get; set; } = string.Empty;
 
-    /// <summary>ponytail: RTL-aware font for binding in XAML.</summary>
     public string FontFamily => Toucan.Core.RtlHelper.GetFontFamily(Language);
 
-    public System.Windows.FlowDirection FlowDirection =>
-        Toucan.Core.RtlHelper.IsRtl(Language) ? System.Windows.FlowDirection.RightToLeft : System.Windows.FlowDirection.LeftToRight;
+    public FlowDirection FlowDirection =>
+        Toucan.Core.RtlHelper.IsRtl(Language) ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
 
     public string Comment
     {
@@ -80,15 +77,9 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
 
     private void SaveTranslation()
     {
-        // Record undo action before writing to model
         if (_model != null && _valueBeforeEdit != _value)
             Services.UndoRedoService.Instance.Record(_model.Namespace, _model.Language, _valueBeforeEdit, _value);
-        _model?.Value = _value;
+        if (_model != null) _model.Value = _value;
         _valueBeforeEdit = _value;
-    }
-
-    public void Dispose()
-    {
-        _debounceTimer?.Dispose();
     }
 }

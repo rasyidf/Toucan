@@ -44,7 +44,7 @@ public class FileService(ILogger<FileService> logger) : IFileService
     public string ReadText(string folderPath, string fileName)
     {
         var path = Path.Combine(folderPath, fileName);
-        return File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8) : null!;
+        return File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8) : string.Empty;
     }
 
     public void SaveText(string folderPath, string fileName, string content)
@@ -56,7 +56,7 @@ public class FileService(ILogger<FileService> logger) : IFileService
     public byte[] ReadBytes(string folderPath, string fileName)
     {
         var path = Path.Combine(folderPath, fileName);
-        return File.Exists(path) ? File.ReadAllBytes(path) : null!;
+        return File.Exists(path) ? File.ReadAllBytes(path) : [];
     }
 
     public void SaveBytes(string folderPath, string fileName, byte[] content)
@@ -98,7 +98,7 @@ public class FileService(ILogger<FileService> logger) : IFileService
     public Task<string> ReadTextAsync(string folderPath, string fileName)
     {
         var path = Path.Combine(folderPath, fileName);
-        return File.Exists(path) ? File.ReadAllTextAsync(path, Encoding.UTF8) : Task.FromResult<string>(null!);
+        return File.Exists(path) ? File.ReadAllTextAsync(path, Encoding.UTF8) : Task.FromResult(string.Empty);
     }
 
     public Task SaveTextAsync(string folderPath, string fileName, string content)
@@ -110,7 +110,7 @@ public class FileService(ILogger<FileService> logger) : IFileService
     public Task<byte[]> ReadBytesAsync(string folderPath, string fileName)
     {
         var path = Path.Combine(folderPath, fileName);
-        return File.Exists(path) ? File.ReadAllBytesAsync(path) : Task.FromResult<byte[]>(null!);
+        return File.Exists(path) ? File.ReadAllBytesAsync(path) : Task.FromResult<byte[]>([]);
     }
 
     public Task SaveBytesAsync(string folderPath, string fileName, byte[] content)

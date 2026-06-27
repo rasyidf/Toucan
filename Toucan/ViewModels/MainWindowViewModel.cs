@@ -1006,7 +1006,7 @@ internal partial class MainWindowViewModel : ObservableObject
             AddMissingTranslations();
             RefreshTree();
             UpdateSummaryInfo();
-            IsDirty = true;
+            IsDirty = false;
             // update status bar default language from project manifest (toucan.project) if present
             try
             {

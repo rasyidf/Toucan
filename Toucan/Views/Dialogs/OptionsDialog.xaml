@@ -27,30 +27,56 @@
         <!-- Main: Sidebar + Content -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Sidebar Navigation -->
-            <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" Padding="8,12">
-                <ListBox x:Name="NavList" SelectedIndex="0" SelectionChanged="NavList_SelectionChanged"
-                         BorderThickness="0" Background="Transparent">
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <Setter Property="Padding" Value="12,8"/>
-                            <Setter Property="Margin" Value="0,1"/>
-                            <Setter Property="FontSize" Value="13"/>
-                            <Setter Property="Cursor" Value="Hand"/>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
-                    <ListBoxItem Content="General"/>
-                    <ListBoxItem Content="Editor"/>
-                    <ListBoxItem Content="Languages"/>
-                    <ListBoxItem Content="Translation"/>
-                    <ListBoxItem Content="Keyboard Shortcuts"/>
-                    <ListBoxItem Content="Project"/>
-                    <ListBoxItem Content="About"/>
-                </ListBox>
+            <!-- Sidebar Navigation using WPF-UI ListView -->
+            <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" Padding="8,12" CornerRadius="0">
+                <ui:ListView x:Name="NavList" SelectedIndex="0" SelectionChanged="NavList_SelectionChanged">
+                    <ui:ListViewItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Settings24" Margin="0,0,12,0"/>
+                            <TextBlock Text="General" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:ListViewItem>
+                    <ui:ListViewItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Edit24" Margin="0,0,12,0"/>
+                            <TextBlock Text="Editor" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:ListViewItem>
+                    <ui:ListViewItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Globe24" Margin="0,0,12,0"/>
+                            <TextBlock Text="Languages" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:ListViewItem>
+                    <ui:ListViewItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Translate24" Margin="0,0,12,0"/>
+                            <TextBlock Text="Translation" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:ListViewItem>
+                    <ui:ListViewItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Keyboard24" Margin="0,0,12,0"/>
+                            <TextBlock Text="Keyboard Shortcuts" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:ListViewItem>
+                    <ui:ListViewItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Folder24" Margin="0,0,12,0"/>
+                            <TextBlock Text="Project" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:ListViewItem>
+                    <ui:ListViewItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Info24" Margin="0,0,12,0"/>
+                            <TextBlock Text="About" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:ListViewItem>
+                </ui:ListView>
             </Border>
 
             <!-- Content Pages -->
@@ -203,26 +229,51 @@
                         </ListView>
                     </StackPanel>
 
-                    <!-- Page: Project -->
+                    <!-- Page: Project (separate page for project-specific settings) -->
                     <StackPanel x:Name="PageProject" Visibility="Collapsed">
-                        <TextBlock Text="Project" FontSize="24" FontWeight="Bold" Margin="0,0,0,16"/>
-                        <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,12">Project-specific settings. Only applied if a toucan.project manifest exists.</TextBlock>
+                        <TextBlock Text="Project Settings" FontSize="24" FontWeight="Bold" Margin="0,0,0,4"/>
+                        <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,16">These settings are stored in the project's toucan.project manifest and apply only to this project.</TextBlock>
 
                         <ui:CardControl Margin="0,0,0,4">
                             <ui:CardControl.Header>
-                                <TextBlock Text="Primary language" FontWeight="SemiBold"/>
+                                <StackPanel>
+                                    <TextBlock Text="Primary language" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Source language for translations" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
                             </ui:CardControl.Header>
                             <TextBox Width="160" Text="{Binding ProjectPrimaryLanguage, Mode=TwoWay}"/>
                         </ui:CardControl>
 
                         <ui:CardControl Margin="0,0,0,4">
                             <ui:CardControl.Header>
-                                <TextBlock Text="Save empty translations" FontWeight="SemiBold"/>
+                                <StackPanel>
+                                    <TextBlock Text="Save empty translations" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Write keys with empty values to output files" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
                             </ui:CardControl.Header>
                             <CheckBox IsChecked="{Binding ProjectSaveEmptyTranslations, Mode=TwoWay}"/>
                         </ui:CardControl>
 
-                        <CheckBox Content="Apply changes to project manifest" IsChecked="{Binding ApplyChangesToProject, Mode=TwoWay}" Margin="0,12,0,0"/>
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel>
+                                    <TextBlock Text="Translation order" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Key sort order when saving" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <ComboBox Width="180" SelectedValue="{Binding ProjectTranslationOrder, Mode=TwoWay}">
+                                <ComboBoxItem>Alphabetically sorted</ComboBoxItem>
+                                <ComboBoxItem>Primary language</ComboBoxItem>
+                            </ComboBox>
+                        </ui:CardControl>
+
+                        <TextBlock Text="Project Copy Templates" FontWeight="SemiBold" Margin="0,16,0,4"/>
+                        <TextBlock Text="Override app-level copy templates for this project" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding ProjectCopyTemplate1, Mode=TwoWay}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding ProjectCopyTemplate2, Mode=TwoWay}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding ProjectCopyTemplate3, Mode=TwoWay}" Margin="0,0,0,4"/>
+
+                        <CheckBox Content="Save changes to project manifest" IsChecked="{Binding ApplyChangesToProject, Mode=TwoWay}" Margin="0,16,0,0"/>
                     </StackPanel>
 
                     <!-- Page: About -->
@@ -243,9 +294,11 @@
         </Grid>
 
         <!-- Footer -->
-        <StackPanel Grid.Row="2" Margin="12,8,12,8" FlowDirection="RightToLeft" Orientation="Horizontal">
-            <ui:Button Margin="0,0,8,0" Command="{Binding CancelCommand}">Cancel</ui:Button>
-            <ui:Button Margin="0,0,8,0" Command="{Binding SaveCommand}" Appearance="Primary">OK</ui:Button>
-        </StackPanel>
+        <Border Grid.Row="2" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <ui:Button Content="Cancel" Width="90" Margin="0,0,8,0" Command="{Binding CancelCommand}"/>
+                <ui:Button Content="Save" Width="90" Appearance="Primary" Command="{Binding SaveCommand}"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </ui:FluentWindow>

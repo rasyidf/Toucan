@@ -28,41 +28,47 @@ public class JsonParser(string language, ILogger<JsonParser>? logger = null) : I
             yield break;
         }
 
-        var queue = new Queue<(string Path, JsonElement Element)>();
-
-        if (doc.RootElement.ValueKind == JsonValueKind.Object)
+        try
         {
-            foreach (var prop in doc.RootElement.EnumerateObject())
-                queue.Enqueue((prop.Name, prop.Value));
-        }
+            var queue = new Queue<(string Path, JsonElement Element)>();
 
-        while (queue.TryDequeue(out var item))
-        {
-            if (item.Element.ValueKind == JsonValueKind.Object)
+            if (doc.RootElement.ValueKind == JsonValueKind.Object)
             {
-                if (item.Element.EnumerateObject().Any())
+                foreach (var prop in doc.RootElement.EnumerateObject())
+                    queue.Enqueue((prop.Name, prop.Value));
+            }
+
+            while (queue.TryDequeue(out var item))
+            {
+                if (item.Element.ValueKind == JsonValueKind.Object)
                 {
-                    foreach (var prop in item.Element.EnumerateObject())
-                        queue.Enqueue((string.IsNullOrEmpty(item.Path) ? prop.Name : $"{item.Path}.{prop.Name}", prop.Value));
+                    if (item.Element.EnumerateObject().Any())
+                    {
+                        foreach (var prop in item.Element.EnumerateObject())
+                            queue.Enqueue((string.IsNullOrEmpty(item.Path) ? prop.Name : $"{item.Path}.{prop.Name}", prop.Value));
+                    }
+                    else
+                    {
+                        logger?.LogDebug("Skipped empty object: {Path}", item.Path);
+                    }
                 }
-                else
+                else if (item.Element.ValueKind is JsonValueKind.String or JsonValueKind.Number or JsonValueKind.True or JsonValueKind.False)
                 {
-                    logger?.LogDebug("Skipped empty object: {Path}", item.Path);
+                    yield return new TranslationItem
+                    {
+                        Namespace = item.Path,
+                        Value = item.Element.ValueKind == JsonValueKind.String ? item.Element.GetString() ?? "" : item.Element.ToString(),
+                        Language = _language
+                    };
                 }
             }
-            else if (item.Element.ValueKind is JsonValueKind.String or JsonValueKind.Number or JsonValueKind.True or JsonValueKind.False)
-            {
-                yield return new TranslationItem
-                {
-                    Namespace = item.Path,
-                    Value = item.Element.ValueKind == JsonValueKind.String ? item.Element.GetString() ?? "" : item.Element.ToString(),
-                    Language = _language
-                };
-            }
-        }
 
-        await Task.CompletedTask; // ponytail: keeps method async for IAsyncEnumerable contract
-        doc.Dispose();
+            await Task.CompletedTask;
+        }
+        finally
+        {
+            doc.Dispose();
+        }
     }
 
     public static void SaveNs(string path, List<NsTreeItem> items, List<string> languages)

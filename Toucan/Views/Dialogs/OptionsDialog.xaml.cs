@@ -39,6 +39,14 @@ public partial class OptionDialog : FluentWindow
                     if (editorCfg != null)
                     {
                         vm.ProjectSaveEmptyTranslations = (editorCfg["save_empty_translations"]?.ToString() ?? "true").Equals("true", StringComparison.InvariantCultureIgnoreCase);
+                        vm.ProjectTranslationOrder = (editorCfg["translation_order"]?.ToString() ?? "alphabetical") == "primary_language" ? "Primary language" : "Alphabetically sorted";
+                        var templates = editorCfg["copy_templates"] as Newtonsoft.Json.Linq.JArray;
+                        if (templates != null)
+                        {
+                            vm.ProjectCopyTemplate1 = templates.Count > 0 ? templates[0]?.ToString() ?? "" : "";
+                            vm.ProjectCopyTemplate2 = templates.Count > 1 ? templates[1]?.ToString() ?? "" : "";
+                            vm.ProjectCopyTemplate3 = templates.Count > 2 ? templates[2]?.ToString() ?? "" : "";
+                        }
                     }
                 }
             }

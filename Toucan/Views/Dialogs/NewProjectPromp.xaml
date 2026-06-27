@@ -147,22 +147,23 @@
         </ScrollViewer>
 
         <!-- Footer -->
-        <Border Grid.Row="2" Padding="20,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+        <Border Grid.Row="2" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <ui:Button Content="← Back" Visibility="{Binding IsStep1, Converter={StaticResource BoolToVis}}"
+                <ui:Button Content="← Back" Width="90"
+                           Visibility="{Binding IsStep1, Converter={StaticResource BoolToVis}}"
                            Command="{Binding PreviousStepCommand}"/>
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <ui:Button Content="Next →" Margin="0,0,8,0"
+                    <ui:Button Content="Next →" Width="90" Margin="0,0,8,0" Appearance="Primary"
                                Visibility="{Binding IsStep0, Converter={StaticResource BoolToVis}}"
-                               Command="{Binding NextStepCommand}" Appearance="Primary"/>
-                    <ui:Button x:Name="CreateButton" Content="Create" Appearance="Primary"
+                               Command="{Binding NextStepCommand}"/>
+                    <ui:Button x:Name="CreateButton" Content="Create" Width="90" Appearance="Primary"
                                Visibility="{Binding IsStep1, Converter={StaticResource BoolToVis}}"
-                               Width="90" Click="OKButton_Click" IsEnabled="{Binding IsValid}"/>
+                               Click="OKButton_Click" IsEnabled="{Binding IsValid}"/>
                 </StackPanel>
             </Grid>
         </Border>

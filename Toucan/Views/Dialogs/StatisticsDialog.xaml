@@ -40,7 +40,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <ProgressBar Height="8" Minimum="0" Maximum="100" Value="{Binding OverallPercent}"/>
+                <ProgressBar Height="8" Minimum="0" Maximum="100" Value="{Binding OverallPercent, Mode=OneWay}"/>
                 <TextBlock Grid.Column="1" Margin="8,0,0,0" FontWeight="SemiBold"
                            Text="{Binding OverallPercent, StringFormat='{}{0:F0}%'}"/>
             </Grid>

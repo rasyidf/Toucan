@@ -76,7 +76,11 @@ public class ProjectService(
         // Reverse alias mapping for file output
         if (project.LanguageAliases is { Count: > 0 })
         {
-            var reverse = project.LanguageAliases.ToDictionary(kv => kv.Value, kv => kv.Key);
+            // Build reverse map safely (last alias wins if multiple map to same file code)
+            var reverse = new Dictionary<string, string>();
+            foreach (var kv in project.LanguageAliases)
+                reverse[kv.Value] = kv.Key;
+
             var list = translations.ToList();
             foreach (var t in list)
                 if (reverse.TryGetValue(t.Language, out var fileCode))

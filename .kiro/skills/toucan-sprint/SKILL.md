@@ -11,12 +11,15 @@ Automates the implement → build → document → version → commit → push c
 
 Activate when the user says: "implement next features", "continue roadmap", "next sprint", "implement and ship", or similar.
 
+**Codefixing session**: When the user says "codefixing session", "fix mode", "no commit", or "don't commit" — skip steps 4-8 (no roadmap update, no version bump, no changelog, no commit, no push). Just implement fixes and verify they build.
+
 ## Workflow
 
 ### 1. Plan
 - Read `docs/ROADMAP.md` — find next unchecked `- [ ]` items
 - Present the plan (3-5 items per sprint based on effort)
 - Get user confirmation or adjustments
+- **Codefixing mode**: skip plan, just fix what the user reports
 
 ### 2. Implement
 - For each feature:
@@ -30,13 +33,14 @@ Activate when the user says: "implement next features", "continue roadmap", "nex
 - Run: `dotnet build Toucan\Toucan.csproj`
 - Must be 0 errors before proceeding
 - Fix any errors immediately
+- **Important**: Kill running Toucan.exe first if build fails with file-lock errors
 
-### 4. Update Roadmap
+### 4. Update Roadmap (skip in codefixing mode)
 - In `docs/ROADMAP.md`: change `- [ ]` to `- [x]` for completed items
 - Update the `Done: X / Y (Z%)` progress line
 - Update `Recommended Next Sprint` if completed items were listed there
 
-### 5. Bump Version
+### 5. Bump Version (skip in codefixing mode)
 - Increment patch (or minor for significant features) in:
   - `Toucan/Toucan.csproj` → `<AssemblyVersion>` + `<FileVersion>`
   - `Toucan/Properties/AssemblyInfo.cs` → `[assembly: AssemblyVersion]` + `[assembly: AssemblyFileVersion]`
@@ -44,27 +48,19 @@ Activate when the user says: "implement next features", "continue roadmap", "nex
   - Patch: bug fixes, small features
   - Minor: significant new capabilities (new editor mode, new format, new panel)
 
-### 6. Update Changelog
-- In `CHANGELOG.md`, add new version section at top:
+### 6. Update Changelog (always, even in codefixing mode)
+- In `CHANGELOG.md`, add fixes to the current version section (or create `[Unreleased]`):
   ```markdown
-  ## [X.Y.Z] — YYYY-MM-DD
-
-  ### Added
-  - **Feature name** — one-line description
-
-  ### Changed
-  - Description of changes
-
   ### Fixed
-  - Bug fixes if any
+  - Bug fixes description
   ```
 
-### 7. Commit (Split)
+### 7. Commit (skip in codefixing mode)
 Split into logical commits:
 1. `feat: <main feature group>` — implementation files
 2. `chore: bump version to X.Y.Z, update changelog and roadmap` — docs + version
 
-### 8. Push
+### 8. Push (skip in codefixing mode)
 ```
 git push origin main
 ```

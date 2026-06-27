@@ -9,7 +9,7 @@ public partial class SummaryItem : ObservableObject
 
     public string Language { get; set; }
 
-    public double Percentage => Math.Round(Math.Floor((Potential - Missing) / Potential * 100), 2);
+    public double Percentage => Potential == 0 ? 100 : Math.Round(Math.Floor((Potential - Missing) / Potential * 100), 2);
 
     public double Missing { get; set; }
 

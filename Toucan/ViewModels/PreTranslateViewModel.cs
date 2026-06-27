@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
+using Toucan.Services;
 
 namespace Toucan.ViewModels;
 
@@ -93,12 +94,11 @@ public partial class PreTranslateViewModel : ObservableObject
     [RelayCommand]
     private async Task Start()
     {
+        if (IsRunning) return;
+
         // Gather request and call pretranslation service if available
         if (_pretranslationService == null || _sourceItems == null)
-        {
-            // Nothing to do in this simplified flow
             return;
-        }
 
         var selectedLanguages = AvailableLanguages.Where(l => l.IsSelected).Select(l => l.Name).ToHashSet(StringComparer.InvariantCultureIgnoreCase);
 
@@ -186,10 +186,27 @@ public partial class PreTranslateViewModel : ObservableObject
         return Task.CompletedTask;
     }
 
-    private static Dictionary<string, string> BuildProviderOptions()
+    private Dictionary<string, string> BuildProviderOptions()
     {
-        var opts = Toucan.Core.Options.AppOptions.LoadFromDisk();
         var dict = new Dictionary<string, string>();
+
+        // Load saved provider config (api keys, endpoints, etc.)
+        var settingsService = App.Services?.GetService(typeof(IProviderSettingsService)) as IProviderSettingsService;
+        if (settingsService != null)
+        {
+            var all = settingsService.LoadAppProviderSettings();
+            var match = all.FirstOrDefault(p => string.Equals(p.Provider, SelectedProvider, StringComparison.OrdinalIgnoreCase));
+            if (match != null)
+            {
+                foreach (var kv in match.Options)
+                    dict[kv.Key] = kv.Value;
+                foreach (var kv in match.Secrets)
+                    dict[kv.Key] = kv.Value;
+            }
+        }
+
+        // Overlay global preferences (context, formality)
+        var opts = Toucan.Core.Options.AppOptions.LoadFromDisk();
         if (!string.IsNullOrWhiteSpace(opts.Context))
             dict["context"] = opts.Context;
         if (!string.IsNullOrWhiteSpace(opts.Formality) && opts.Formality != "Default")

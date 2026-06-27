@@ -35,10 +35,10 @@
 
         <!-- 2. Quick Actions -->
         <WrapPanel Grid.Row="1" Margin="0,0,0,24">
-            <ui:Button Icon="DocumentAdd16" Content="New Project" ToolTip="Create a new translation project" Command="{Binding NewProjectCommand}" MinWidth="180" Margin="4" />
-            <ui:Button Icon="FolderOpen16" Content="Open Project" ToolTip="Open an existing project file" Command="{Binding OpenProjectCommand}" MinWidth="180" Margin="4" />
+            <ui:Button Icon="DocumentAdd16" Content="New Project" ToolTip="Create a new translation project" Command="{Binding NewFolderCommand}" MinWidth="180" Margin="4" />
+            <ui:Button Icon="FolderOpen16" Content="Open Project" ToolTip="Open an existing project file" Command="{Binding OpenFolderCommand}" MinWidth="180" Margin="4" />
             <ui:Button Icon="ArrowImport20" Content="Import" ToolTip="Import translations from various formats" Command="{Binding ImportCommand}" MinWidth="180" Margin="4" />
-            <ui:Button Icon="BookQuestionMark20" Content="Documentation" ToolTip="Learn how to use Toucan effectively" Command="{Binding DocsCommand}" MinWidth="180" Margin="4" />
+            <ui:Button Icon="BookQuestionMark20" Content="Documentation" ToolTip="Learn how to use Toucan effectively" Command="{Binding HelpHomepageCommand}" MinWidth="180" Margin="4" />
         </WrapPanel>
 
         <!-- 3. Recent Projects -->
@@ -47,7 +47,13 @@
             <ItemsControl ItemsSource="{Binding RecentProjects}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <ui:Button Content="{Binding DisplayName}" Command="{Binding OpenProjectCommand}" Margin="0,2" />
+                        <ui:Button Content="{Binding Name}" 
+                                   ToolTip="{Binding Path}"
+                                   Command="{Binding DataContext.OpenRecentProjectCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                   CommandParameter="{Binding Path}"
+                                   HorizontalAlignment="Stretch"
+                                   HorizontalContentAlignment="Left"
+                                   Margin="0,2" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
                 <ItemsControl.Style>
@@ -66,7 +72,7 @@
                        Foreground="Gray"
                        HorizontalAlignment="Center"
                        Visibility="{Binding HasRecentProjects, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}" />
-            <ui:Button Content="+ Create your first project" Command="{Binding NewProjectCommand}" HorizontalAlignment="Center" Margin="0,12,0,0" />
+            <ui:Button Content="+ Create your first project" Command="{Binding NewFolderCommand}" HorizontalAlignment="Center" Margin="0,12,0,0" />
         </StackPanel>
 
         <!-- 4. Features Section -->

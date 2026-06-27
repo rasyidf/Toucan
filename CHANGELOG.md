@@ -2,6 +2,58 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] — 2026-06-27
+
+### Added
+- **2-step New Project wizard** — Step 1: framework + title + folder, Step 2: language manager
+- **WinUI sidebar preferences** — Settings dialog with 7-page sidebar navigation
+- **Suggested languages management** — configurable in Preferences → Languages
+- **Default project name** — auto-generated from selected framework
+
+### Fixed
+- **BAML runtime error** — window icon set via pack URI in code-behind
+- **KeyGesture crash** — bare J/K keys moved to PreviewKeyDown handler
+- **Start screen overlapping** — toolbar/panels hidden when start screen visible
+- **Start screen icon** — replaced globe emoji with logo image
+- **Recent projects empty names** — `Project.Name` trims trailing slashes
+- **Start screen buttons** — bound to correct MainWindowViewModel commands
+- **Recent projects list** — uses `Project.Name`/`Path` with `OpenRecentProjectCommand`
+- **Statistics dialog** — ProgressBar binding set to OneWay
+- **Recent menu style crash** — TargetType fixed to `{x:Type MenuItem}`
+- **Preferences null reference** — guard in `NavList_SelectionChanged` during init
+- **New Project StaticResource error** — BoolToVis converter moved before first usage
+- **Dialog button standardization** — consistent footer pattern across all dialogs
+
+## [0.6.1] — 2026-06-27
+
+### Fixed
+- **Critical: Socket exhaustion** — All translation providers now use a shared static `HttpClient` instead of creating one per call
+- **Critical: Cross-thread UI access** — `TranslationItemViewModel` debounce timer replaced with `DispatcherTimer` (fires on UI thread)
+- **High: JsonDocument memory leak** — `JsonParser.Parse` now disposes `JsonDocument` in `finally` block even if enumeration is abandoned
+- **High: PreTranslate race condition** — Added `IsRunning` guard to prevent double-invocation of Start command
+- **High: CancellationToken not passed** — Google and DeepL providers now pass cancellation token to HTTP calls
+- **High: FileService null returns** — `ReadText`/`ReadBytes` return empty values instead of `null!`
+- **High: ProjectService.Save crash** — Alias reverse mapping no longer throws on duplicate language codes
+- **Medium: Duplicate DI registrations** — Removed duplicate `ISecureStorageService`/`IProviderSettingsService` registrations
+- **Medium: IsDirty after load** — Project no longer marked dirty immediately after opening
+- **Medium: Division by zero** — `BulkActionService.GenerateStatistics` and `SummaryItem.Percentage` guard against zero totals
+- **Medium: MessageService crash** — Null-safe `MainWindow` access during startup/shutdown
+- **Medium: PO multi-line strings** — Parser now handles continuation lines and emits entries at EOF
+- **Medium: CSV escaped quotes** — `""` inside quoted fields now correctly parsed as literal `"`
+
+### Changed
+- **Translation providers** — All providers use per-request `HttpRequestMessage` for auth headers (thread-safe with shared client)
+- **Microsoft provider** — Implemented real Bing Translator API (batches up to 100 texts, region support)
+- **OpenAI provider** — Implemented real OpenAI-compatible API (custom endpoint/model, batches 20 texts as JSON array)
+- **Custom provider** — New webhook provider for custom HTTP translation endpoints
+- **Provider settings wiring** — `PreTranslateViewModel` now loads provider config (API keys, endpoints) from `ProviderSettingsService`
+- **Options dialog** — Sidebar navigation uses WPF-UI `ListView` with Fluent icons; Project settings separated to own page
+- **Google SDK removed** — Removed unused `Google.Cloud.Translation.V2` NuGet package (~6 DLLs / 500KB)
+
+### Added
+- **GitHub Pages documentation** — `docs/` folder with Vue-rendered roadmap, Lucide icons, Mermaid diagrams
+- **`CustomWebhookTranslationProvider`** — Supports any HTTP endpoint with configurable auth (Bearer or custom header)
+
 ## [0.6.0] — 2026-06-27
 
 ### Added

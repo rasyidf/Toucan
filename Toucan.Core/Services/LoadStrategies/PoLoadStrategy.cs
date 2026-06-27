@@ -30,27 +30,59 @@ public partial class PoLoadStrategy : ILoadStrategy
         string? currentCtxt = null;
         string? currentId = null;
         string? currentStr = null;
+        string? lastField = null; // tracks which field continuation lines belong to
 
         foreach (var rawLine in content.Split('\n'))
         {
             var line = rawLine.TrimEnd('\r');
 
             if (line.StartsWith("msgctxt "))
+            {
                 currentCtxt = ExtractQuoted(line[8..]);
+                lastField = "ctxt";
+            }
             else if (line.StartsWith("msgid "))
+            {
                 currentId = ExtractQuoted(line[6..]);
+                lastField = "id";
+            }
             else if (line.StartsWith("msgstr "))
             {
                 currentStr = ExtractQuoted(line[7..]);
-                // Emit entry
-                var key = currentCtxt ?? currentId ?? "";
-                if (!string.IsNullOrEmpty(key) && !string.IsNullOrEmpty(currentStr))
-                    result.Add(new TranslationItem { Language = language, Namespace = key, Value = currentStr });
+                lastField = "str";
+            }
+            else if (line.StartsWith('"') && line.EndsWith('"'))
+            {
+                // Continuation line — append to the last field
+                var cont = ExtractQuoted(line);
+                if (lastField == "ctxt") currentCtxt += cont;
+                else if (lastField == "id") currentId += cont;
+                else if (lastField == "str") currentStr += cont;
+            }
+            else if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
+            {
+                // Blank or comment = entry boundary — emit if we have a pending msgstr
+                if (currentStr != null)
+                {
+                    var key = currentCtxt ?? currentId ?? "";
+                    if (!string.IsNullOrEmpty(key))
+                        result.Add(new TranslationItem { Language = language, Namespace = key, Value = currentStr });
+                }
                 currentCtxt = null;
                 currentId = null;
                 currentStr = null;
+                lastField = null;
             }
         }
+
+        // Emit final entry (file may not end with blank line)
+        if (currentStr != null)
+        {
+            var key = currentCtxt ?? currentId ?? "";
+            if (!string.IsNullOrEmpty(key))
+                result.Add(new TranslationItem { Language = language, Namespace = key, Value = currentStr });
+        }
+
         return result;
     }
 

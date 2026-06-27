@@ -52,14 +52,27 @@ public class CsvLoadStrategy : ILoadStrategy
 
     private static string[] SplitCsv(string line, char sep)
     {
-        // Simple CSV split handling quoted fields
         var fields = new List<string>();
         bool inQuotes = false;
         var current = new System.Text.StringBuilder();
 
-        foreach (char c in line)
+        for (int i = 0; i < line.Length; i++)
         {
-            if (c == '"') { inQuotes = !inQuotes; continue; }
+            char c = line[i];
+            if (c == '"')
+            {
+                if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
+                {
+                    // Escaped quote ("") → literal "
+                    current.Append('"');
+                    i++;
+                }
+                else
+                {
+                    inQuotes = !inQuotes;
+                }
+                continue;
+            }
             if (c == sep && !inQuotes) { fields.Add(current.ToString()); current.Clear(); continue; }
             current.Append(c);
         }

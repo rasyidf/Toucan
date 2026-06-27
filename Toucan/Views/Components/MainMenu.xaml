@@ -32,7 +32,7 @@
                 InputGestureText="Ctrl+R"
                 ItemsSource="{Binding RecentProjects}">
                 <ui:MenuItem.ItemContainerStyle>
-                    <Style TargetType="ui:MenuItem">
+                    <Style TargetType="{x:Type MenuItem}">
                         <Setter Property="Header" Value="{Binding Path}"/>
                         <Setter Property="Command" Value="{Binding DataContext.OpenRecentProjectCommand, RelativeSource={RelativeSource AncestorType=Menu}}"/>
                         <Setter Property="CommandParameter" Value="{Binding Path}"/>
