@@ -26,6 +26,23 @@ All notable changes to this project will be documented in this file.
 
 ## [0.6.1] — 2026-06-27
 
+### Added
+- **Framework Profiles** — New `IFrameworkProfile` abstraction separating file format from project conventions
+  - 8 profiles: Generic JSON, i18next, Android, Flutter ARB, .NET RESX, iOS, Gettext, Rails YAML
+  - Auto-detection via `DetectionScore()` — highest-scoring profile wins
+  - File discovery, language extraction from paths, output path generation
+- **Validation Pipeline** — Pre-save verification with 6 built-in rules:
+  - Missing translations (keys in primary but empty in targets)
+  - Placeholder mismatch (different `{0}`, `{{var}}`, `%s` counts)
+  - Duplicate keys (same namespace + language)
+  - Untranslated copies (value identical to source)
+  - Empty values (blank strings)
+  - Whitespace mismatch (leading/trailing differences)
+- **Import Project dialog** — Auto-detects framework from existing folder, shows discovered files and languages, user can override detection
+- **Custom Webhook provider** — POST translations to any HTTP endpoint with configurable auth
+- **GitHub Pages documentation** — Vue-rendered roadmap with Lucide icons and Mermaid diagrams
+- **ProjectSettings.Framework** field — Persists detected/selected framework in manifest
+
 ### Fixed
 - **Critical: Socket exhaustion** — All translation providers now use a shared static `HttpClient` instead of creating one per call
 - **Critical: Cross-thread UI access** — `TranslationItemViewModel` debounce timer replaced with `DispatcherTimer` (fires on UI thread)
