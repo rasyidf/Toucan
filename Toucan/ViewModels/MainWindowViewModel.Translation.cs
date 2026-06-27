@@ -389,14 +389,14 @@ internal partial class MainWindowViewModel
     public string? FilteredBySourceUsage { get; private set; }
 
     /// <summary>Get source code usages for the selected key.</summary>
-    public IEnumerable<Toucan.Core.Contracts.KeyUsage> GetKeyUsages(string key)
+    public IEnumerable<KeyUsage> GetKeyUsages(string key)
     {
         return _sourceCodeService?.FindUsages(key) ?? [];
     }
 
     // --- Translation Quality Analysis ---
 
-    public ObservableCollection<Toucan.Core.Contracts.AnalysisResult> AnalysisResults { get; } = [];
+    public ObservableCollection<AnalysisResult> AnalysisResults { get; } = [];
 
     [RelayCommand]
     private async Task AnalyzeTranslations()
@@ -432,7 +432,7 @@ internal partial class MainWindowViewModel
         List<AnalysisItem> items = AllTranslation
             .Where(i => i.Language != primaryLang && !string.IsNullOrEmpty(i.Value))
             .Where(i => sourceMap.ContainsKey(i.Namespace))
-            .Select(i => new Toucan.Core.Contracts.AnalysisItem(i.Namespace, sourceMap[i.Namespace], i.Value, i.Language))
+            .Select(i => new AnalysisItem(i.Namespace, sourceMap[i.Namespace], i.Value, i.Language))
             .ToList();
 
         if (items.Count == 0) { _messageService.ShowMessage("No translations to analyze."); return; }

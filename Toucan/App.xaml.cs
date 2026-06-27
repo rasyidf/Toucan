@@ -94,10 +94,10 @@ public partial class App : Application
 
         // Pretranslation engine and a simple mock provider
         _ = services.AddSingleton<IPretranslationService, PretranslationService>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.ITranslationMemory, Toucan.Core.Services.TranslationMemoryService>();
-        _ = services.AddSingleton<IPackageService, Toucan.Core.Services.PackageService>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.ISourceCodeService, Toucan.Core.Services.SourceCodeService>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.ITranslationAnalyzer, Toucan.Core.Services.TranslationAnalyzerService>();
+        _ = services.AddSingleton<ITranslationMemory, TranslationMemoryService>();
+        _ = services.AddSingleton<IPackageService, PackageService>();
+        _ = services.AddSingleton<ISourceCodeService, SourceCodeService>();
+        _ = services.AddSingleton<ITranslationAnalyzer, TranslationAnalyzerService>();
         _ = services.AddSingleton<ITranslationProvider, Core.Services.Providers.MockTranslationProvider>();
         _ = services.AddSingleton<ITranslationProvider, Core.Services.Providers.DeepLTranslationProvider>();
         _ = services.AddSingleton<ITranslationProvider, Core.Services.Providers.GoogleTranslationProvider>();
@@ -171,23 +171,23 @@ public partial class App : Application
         _ = services.AddSingleton<ILoadStrategy>(sp => sp.GetRequiredService<LaravelPhpLoadStrategy>());
 
         // Framework profiles
-        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.GenericJsonProfile>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.I18nextProfile>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.AndroidProfile>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.FlutterArbProfile>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.DotNetResxProfile>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.IosProfile>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.GettextProfile>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IFrameworkProfile, Toucan.Core.Services.Frameworks.RailsYamlProfile>();
+        _ = services.AddSingleton<IFrameworkProfile, Core.Services.Frameworks.GenericJsonProfile>();
+        _ = services.AddSingleton<IFrameworkProfile, Core.Services.Frameworks.I18nextProfile>();
+        _ = services.AddSingleton<IFrameworkProfile, Core.Services.Frameworks.AndroidProfile>();
+        _ = services.AddSingleton<IFrameworkProfile, Core.Services.Frameworks.FlutterArbProfile>();
+        _ = services.AddSingleton<IFrameworkProfile, Core.Services.Frameworks.DotNetResxProfile>();
+        _ = services.AddSingleton<IFrameworkProfile, Core.Services.Frameworks.IosProfile>();
+        _ = services.AddSingleton<IFrameworkProfile, Core.Services.Frameworks.GettextProfile>();
+        _ = services.AddSingleton<IFrameworkProfile, Core.Services.Frameworks.RailsYamlProfile>();
 
         // Validation pipeline
-        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.MissingTranslationRule>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.PlaceholderMismatchRule>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.DuplicateKeyRule>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.UntranslatedCopyRule>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.EmptyValueRule>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationRule, Toucan.Core.Services.Validation.WhitespaceMismatchRule>();
-        _ = services.AddSingleton<Toucan.Core.Contracts.IValidationPipeline, Toucan.Core.Services.Validation.ValidationPipeline>();
+        _ = services.AddSingleton<IValidationRule, Core.Services.Validation.MissingTranslationRule>();
+        _ = services.AddSingleton<IValidationRule, Core.Services.Validation.PlaceholderMismatchRule>();
+        _ = services.AddSingleton<IValidationRule, Core.Services.Validation.DuplicateKeyRule>();
+        _ = services.AddSingleton<IValidationRule, Core.Services.Validation.UntranslatedCopyRule>();
+        _ = services.AddSingleton<IValidationRule, Core.Services.Validation.EmptyValueRule>();
+        _ = services.AddSingleton<IValidationRule, Core.Services.Validation.WhitespaceMismatchRule>();
+        _ = services.AddSingleton<IValidationPipeline, Core.Services.Validation.ValidationPipeline>();
 
         // Strategy factory and mode resolver
         _ = services.AddSingleton<ITranslationStrategyFactory, TranslationStrategyFactory>();
@@ -216,7 +216,7 @@ public partial class App : Application
         _ = services.AddTransient<ImportProjectViewModel>();
 
         // Factory for creating TranslationItemViewModel with a TranslationItem param
-        _ = services.AddTransient<System.Func<Toucan.Core.Models.TranslationItem, TranslationItemViewModel>>(sp => ti => ActivatorUtilities.CreateInstance<TranslationItemViewModel>(sp, ti));
+        _ = services.AddTransient<Func<TranslationItem, TranslationItemViewModel>>(sp => ti => ActivatorUtilities.CreateInstance<TranslationItemViewModel>(sp, ti));
 
         // Register StatusBarViewModel as a singleton so any part of the app that requests it
         // can share the same instance (status is app-global)
@@ -224,11 +224,11 @@ public partial class App : Application
 
         // Factories for viewmodels that require runtime parameters so code can resolve instances via DI
         _ = services.AddTransient<Func<string, LanguageGroupViewModel>>(sp => ns => ActivatorUtilities.CreateInstance<LanguageGroupViewModel>(sp, ns));
-        _ = services.AddTransient<Func<System.Windows.Window, AboutViewModel>>(sp => wnd => ActivatorUtilities.CreateInstance<AboutViewModel>(sp, wnd));
-        _ = services.AddTransient<Func<Toucan.Core.Models.Project, System.Action<string>, RecentProjectViewModel>>(sp => (proj, act) => ActivatorUtilities.CreateInstance<RecentProjectViewModel>(sp, proj, act));
-        _ = services.AddTransient<Func<System.Collections.Generic.IEnumerable<Toucan.Core.Models.TranslationItem>, LanguagePromptViewModel>>(sp => list => ActivatorUtilities.CreateInstance<LanguagePromptViewModel>(sp, list));
+        _ = services.AddTransient<Func<Window, AboutViewModel>>(sp => wnd => ActivatorUtilities.CreateInstance<AboutViewModel>(sp, wnd));
+        _ = services.AddTransient<Func<Project, Action<string>, RecentProjectViewModel>>(sp => (proj, act) => ActivatorUtilities.CreateInstance<RecentProjectViewModel>(sp, proj, act));
+        _ = services.AddTransient<Func<IEnumerable<TranslationItem>, LanguagePromptViewModel>>(sp => list => ActivatorUtilities.CreateInstance<LanguagePromptViewModel>(sp, list));
         // Factory for PreTranslateViewModel (languages + sourceItems + optional IPretranslationService)
-        _ = services.AddTransient<Func<System.Collections.Generic.IEnumerable<string>, System.Collections.Generic.IEnumerable<Toucan.Core.Models.TranslationItem>, Toucan.Core.Contracts.Services.IPretranslationService, PreTranslateViewModel>>(
+        _ = services.AddTransient<Func<IEnumerable<string>, IEnumerable<TranslationItem>, IPretranslationService, PreTranslateViewModel>>(
             sp => (langs, items, svc) => ActivatorUtilities.CreateInstance<PreTranslateViewModel>(sp, langs, items, svc));
 
         // Factory delegates for Views requiring runtime parameters

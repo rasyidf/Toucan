@@ -94,16 +94,16 @@ internal partial class MainWindowViewModel : ObservableObject
     private readonly IMessageService _messageService;
     private readonly IPreferenceService _preferenceService;
     private readonly IBulkActionService? _bulkActionService;
-    private readonly Toucan.Core.Contracts.Services.IPretranslationService? _pretranslationService;
-    private readonly System.Func<string, LanguageGroupViewModel>? _languageGroupFactory;
-    private readonly System.Func<System.Collections.Generic.IEnumerable<string>, System.Collections.Generic.IEnumerable<TranslationItem>, Toucan.Core.Contracts.Services.IPretranslationService, PreTranslateViewModel>? _preTranslateFactory;
+    private readonly IPretranslationService? _pretranslationService;
+    private readonly Func<string, LanguageGroupViewModel>? _languageGroupFactory;
+    private readonly Func<IEnumerable<string>, IEnumerable<TranslationItem>, IPretranslationService, PreTranslateViewModel>? _preTranslateFactory;
     private readonly IProjectService? _projectService;
     private readonly ITranslationStrategyFactory? _strategyFactory;
-    private readonly System.Func<NewProjectPrompt>? _newProjectPromptFactory;
-    private readonly Toucan.Core.Contracts.IValidationPipeline? _validationPipeline;
-    private readonly Toucan.Core.Contracts.ISourceCodeService? _sourceCodeService;
-    private readonly Toucan.Core.Contracts.ITranslationAnalyzer? _translationAnalyzer;
-    private readonly Toucan.Core.Contracts.IProviderSettingsService? _providerSettingsService;
+    private readonly Func<NewProjectPrompt>? _newProjectPromptFactory;
+    private readonly IValidationPipeline? _validationPipeline;
+    private readonly ISourceCodeService? _sourceCodeService;
+    private readonly ITranslationAnalyzer? _translationAnalyzer;
+    private readonly IProviderSettingsService? _providerSettingsService;
 
 
     public MainWindowViewModel(
@@ -112,15 +112,15 @@ internal partial class MainWindowViewModel : ObservableObject
         IMessageService messageService,
         IPreferenceService preferenceService,
         IBulkActionService? bulkActionService = null,
-        Toucan.Core.Contracts.Services.IPretranslationService? pretranslationService = null,
+        IPretranslationService? pretranslationService = null,
         IProjectService? projectService = null,
         ITranslationStrategyFactory? strategyFactory = null,
-        System.Func<string, LanguageGroupViewModel>? languageGroupFactory = null,
-        System.Func<System.Collections.Generic.IEnumerable<string>, System.Collections.Generic.IEnumerable<TranslationItem>, Toucan.Core.Contracts.Services.IPretranslationService, PreTranslateViewModel>? preTranslateFactory = null,
-        Toucan.Core.Contracts.IValidationPipeline? validationPipeline = null,
-        Toucan.Core.Contracts.ISourceCodeService? sourceCodeService = null,
-        Toucan.Core.Contracts.ITranslationAnalyzer? translationAnalyzer = null,
-        Toucan.Core.Contracts.IProviderSettingsService? providerSettingsService = null)
+        Func<string, LanguageGroupViewModel>? languageGroupFactory = null,
+        Func<IEnumerable<string>, IEnumerable<TranslationItem>, IPretranslationService, PreTranslateViewModel>? preTranslateFactory = null,
+        IValidationPipeline? validationPipeline = null,
+        ISourceCodeService? sourceCodeService = null,
+        ITranslationAnalyzer? translationAnalyzer = null,
+        IProviderSettingsService? providerSettingsService = null)
     {
         _recentFileService = recentFileService;
         _dialogService = dialogService;

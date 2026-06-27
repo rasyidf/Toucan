@@ -150,7 +150,7 @@ public partial class OptionsViewModel : ObservableObject
             maxItems = AppOptions.MaxItems;
         }
 
-        if (Enum.TryParse<Core.Models.SaveStyles>(Format, out SaveStyles ss))
+        if (Enum.TryParse(Format, out SaveStyles ss))
         { } // ponytail: SaveStyle is now per-project setting
 
         AppOptions.PageSize = page;
@@ -182,7 +182,7 @@ public partial class OptionsViewModel : ObservableObject
                     JsonObject editorCfg = root["editorConfiguration"]?.AsObject() ?? [];
                     editorCfg["save_empty_translations"] = ProjectSaveEmptyTranslations.ToString().ToLowerInvariant();
                     editorCfg["translation_order"] = ProjectTranslationOrder == "Primary language" ? "primary_language" : "alphabetical";
-                    editorCfg["copy_templates"] = new System.Text.Json.Nodes.JsonArray(ProjectCopyTemplate1 ?? string.Empty, ProjectCopyTemplate2 ?? string.Empty, ProjectCopyTemplate3 ?? string.Empty);
+                    editorCfg["copy_templates"] = new JsonArray(ProjectCopyTemplate1 ?? string.Empty, ProjectCopyTemplate2 ?? string.Empty, ProjectCopyTemplate3 ?? string.Empty);
 
                     // attach back
                     root["editorConfiguration"] = editorCfg;

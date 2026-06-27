@@ -34,7 +34,7 @@ public partial class NewProjectPrompt : FluentWindow
     }
 
     // DI constructor: resolves a fully configured NewProjectViewModel from DI
-    public NewProjectPrompt(ViewModels.NewProjectViewModel vm, string defaultValue = "")
+    public NewProjectPrompt(NewProjectViewModel vm, string defaultValue = "")
     {
         InitializeComponent();
         Title = "New Project";
@@ -58,10 +58,10 @@ public partial class NewProjectPrompt : FluentWindow
 
     public string ResponseText
     {
-        get => (DataContext as ViewModels.NewProjectViewModel)?.ProjectName ?? string.Empty;
+        get => (DataContext as NewProjectViewModel)?.ProjectName ?? string.Empty;
         set
         {
-            if (DataContext is ViewModels.NewProjectViewModel vm)
+            if (DataContext is NewProjectViewModel vm)
             {
                 vm.ProjectName = value;
             }
@@ -76,9 +76,9 @@ public partial class NewProjectPrompt : FluentWindow
 
     private void FrameworkTile_Checked(object sender, System.Windows.RoutedEventArgs e)
     {
-        if (sender is System.Windows.Controls.RadioButton rb && rb.Tag is ViewModels.FrameworkTile tile)
+        if (sender is System.Windows.Controls.RadioButton rb && rb.Tag is FrameworkTile tile)
         {
-            if (DataContext is ViewModels.NewProjectViewModel vm)
+            if (DataContext is NewProjectViewModel vm)
             {
                 vm.SelectedFramework = tile;
             }
@@ -87,7 +87,7 @@ public partial class NewProjectPrompt : FluentWindow
 
     private void OKButton_Click(object sender, System.Windows.RoutedEventArgs e)
     {
-        if (DataContext is not ViewModels.NewProjectViewModel vm)
+        if (DataContext is not NewProjectViewModel vm)
         {
             DialogResult = true;
             return;

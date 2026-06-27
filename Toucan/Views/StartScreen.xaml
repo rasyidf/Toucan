@@ -75,8 +75,8 @@
             <ui:Button Content="+ Create your first project" Command="{Binding NewFolderCommand}" HorizontalAlignment="Center" Margin="0,12,0,0" />
         </StackPanel>
 
-        <!-- 4. Features Section -->
-        <StackPanel Grid.Row="3">
+        <!-- 4. Features Section (hidden — not appropriate for start screen) -->
+        <StackPanel Grid.Row="3" Visibility="Collapsed">
             <TextBlock Text="🎯 Why Choose Toucan?" FontWeight="Bold" FontSize="16" Margin="0,0,0,12" />
             <WrapPanel>
                 <local:StartScreenCard Title="Fast &amp; Efficient" Description="Lightning-fast translation editing with real-time validation" Width="200" Margin="4" />

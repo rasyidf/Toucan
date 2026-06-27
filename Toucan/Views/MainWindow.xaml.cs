@@ -13,7 +13,7 @@ namespace Toucan;
 public partial class MainWindow : FluentWindow
 {
     internal MainWindowViewModel ViewModel { get; }
-    private readonly Services.FileWatcherService _fileWatcher = new();
+    private readonly FileWatcherService _fileWatcher = new();
 
     internal MainWindow(string startupPath, MainWindowViewModel viewModel, StatusBarViewModel statusViewModel)
     {

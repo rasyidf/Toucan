@@ -14,7 +14,7 @@ public partial class StartScreenViewModel : ObservableObject
 {
     private readonly IRecentProjectService _recentProjectService;
     private readonly IProjectService? _projectService;
-    private readonly System.Func<Toucan.Core.Models.Project, System.Action<string>, RecentProjectViewModel>? _recentProjectFactory;
+    private readonly System.Func<Project, System.Action<string>, RecentProjectViewModel>? _recentProjectFactory;
 
     // Observable list of recent projects
     [ObservableProperty]
@@ -23,7 +23,7 @@ public partial class StartScreenViewModel : ObservableObject
     // Whether to show "No recent project" state
     public bool HasRecentProjects => RecentProjects?.Count > 0;
 
-    public StartScreenViewModel(IRecentProjectService recentProjectService, IProjectService? projectService = null, System.Func<Toucan.Core.Models.Project, System.Action<string>, RecentProjectViewModel>? recentProjectFactory = null)
+    public StartScreenViewModel(IRecentProjectService recentProjectService, IProjectService? projectService = null, System.Func<Project, System.Action<string>, RecentProjectViewModel>? recentProjectFactory = null)
     {
         _recentProjectService = recentProjectService;
         _projectService = projectService;

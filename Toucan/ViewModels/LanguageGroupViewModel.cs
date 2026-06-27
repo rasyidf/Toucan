@@ -12,9 +12,9 @@ public partial class LanguageGroupViewModel : ObservableObject
 {
     public string Namespace { get; private set; }
     public ObservableCollection<TranslationItemViewModel> Translations { get; private set; } = [];
-    private readonly System.Func<Toucan.Core.Models.TranslationItem, TranslationItemViewModel> _translationItemFactory;
+    private readonly System.Func<TranslationItem, TranslationItemViewModel> _translationItemFactory;
 
-    public LanguageGroupViewModel(string ns, System.Func<Toucan.Core.Models.TranslationItem, TranslationItemViewModel>? translationItemFactory = null)
+    public LanguageGroupViewModel(string ns, System.Func<TranslationItem, TranslationItemViewModel>? translationItemFactory = null)
     {
         Namespace = ns;
         _translationItemFactory = translationItemFactory ?? (ti => new TranslationItemViewModel(ti));
