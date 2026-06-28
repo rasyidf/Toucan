@@ -104,6 +104,10 @@ internal partial class MainWindowViewModel : ObservableObject
     private readonly ISourceCodeService? _sourceCodeService;
     private readonly ITranslationAnalyzer? _translationAnalyzer;
     private readonly IProviderSettingsService? _providerSettingsService;
+    private readonly IUndoRedoService? _undoRedoService;
+    private readonly ITranslationManagementService? _translationManagement;
+    private readonly ILanguageManagementService? _languageManagementService;
+    private readonly IProjectLifecycleService? _lifecycleService;
 
 
     public MainWindowViewModel(
@@ -120,7 +124,11 @@ internal partial class MainWindowViewModel : ObservableObject
         IValidationPipeline? validationPipeline = null,
         ISourceCodeService? sourceCodeService = null,
         ITranslationAnalyzer? translationAnalyzer = null,
-        IProviderSettingsService? providerSettingsService = null)
+        IProviderSettingsService? providerSettingsService = null,
+        IUndoRedoService? undoRedoService = null,
+        ILanguageManagementService? languageManagementService = null,
+        IProjectLifecycleService? lifecycleService = null,
+        ITranslationManagementService? translationManagement = null)
     {
         _recentFileService = recentFileService;
         _dialogService = dialogService;
@@ -137,6 +145,16 @@ internal partial class MainWindowViewModel : ObservableObject
         _sourceCodeService = sourceCodeService;
         _translationAnalyzer = translationAnalyzer;
         _providerSettingsService = providerSettingsService;
+        _undoRedoService = undoRedoService;
+        _languageManagementService = languageManagementService;
+        _lifecycleService = lifecycleService;
+        _translationManagement = translationManagement;
+
+        // Subscribe to dirty state changes from the translation management service
+        if (_translationManagement != null)
+        {
+            _translationManagement.DirtyStateChanged += OnTranslationDirtyStateChanged;
+        }
 
         AppOptions = _preferenceService.Load();
 
@@ -321,5 +339,17 @@ internal partial class MainWindowViewModel : ObservableObject
         PagingController = new PaginationViewModel<LanguageGroupViewModel>(pageSize, currentData, maxItems);
         PagingController.Page = Math.Min(Math.Max(1, oldPage), PagingController.Pages);
         PagedUpdates();
+    }
+
+    /// <summary>
+    /// Exposes the dirty state from ITranslationManagementService for UI binding.
+    /// This is kept in sync via the DirtyStateChanged subscription.
+    /// </summary>
+    public bool HasUnsavedChanges => _translationManagement?.IsDirty ?? IsDirty;
+
+    private void OnTranslationDirtyStateChanged(object? sender, bool isDirty)
+    {
+        IsDirty = isDirty;
+        OnPropertyChanged(nameof(HasUnsavedChanges));
     }
 }

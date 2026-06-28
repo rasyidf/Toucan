@@ -6,60 +6,60 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
 
 ## Tasks
 
-- [ ] 1. Define core interfaces and data models
-  - [ ] 1.1 Create ITranslationManagementService interface and supporting types
+- [x] 1. Define core interfaces and data models
+  - [x] 1.1 Create ITranslationManagementService interface and supporting types
     - Create file `Toucan.Core/Contracts/Services/ITranslationManagementService.cs`
     - Define the interface with all methods: Initialize, NotifyValueChanged, NotifyCommentChanged, GetDirtyItems, MarkAllSaved, MarkSaved, IsItemDirty, Clear, AddItems, RemoveItems
     - Define `IsDirty` property and `DirtyStateChanged` event
     - Create internal `TranslationBaseline` class in `Toucan.Core/Models/TranslationBaseline.cs`
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 12.1_
 
-  - [ ] 1.2 Create IProjectLifecycleService interface and result types
+  - [x] 1.2 Create IProjectLifecycleService interface and result types
     - Create file `Toucan.Core/Contracts/Services/IProjectLifecycleService.cs`
     - Define the interface with OpenProjectAsync, CreateAndOpenProjectAsync, SaveProjectAsync, SaveProjectAsAsync, CloseProjectAsync
     - Define enums and records: ProjectOpenStatus, ProjectOpenResult, ProjectSaveStatus, ProjectSaveResult, CloseResult, ProjectChangedEventArgs, ProjectChangeType
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 2.1, 2.3, 3.1_
 
-  - [ ] 1.3 Create ILanguageManagementService interface and result types
+  - [x] 1.3 Create ILanguageManagementService interface and result types
     - Create file `Toucan.Core/Contracts/Services/ILanguageManagementService.cs`
     - Define the interface with AddLanguageAsync, RemoveLanguageAsync, GetLanguageFilePaths, ReorderLanguagesAsync
     - Define `LanguageOperationResult` record
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 12.2_
 
-  - [ ] 1.4 Create IAutoSaveService interface
+  - [x] 1.4 Create IAutoSaveService interface
     - Create file `Toucan.Core/Contracts/Services/IAutoSaveService.cs`
     - Define the interface with Start, Stop, ResetTimer, IsEnabled, AutoSaveFailed event
     - _Requirements: 7.1, 7.2, 7.5, 7.6_
 
-  - [ ] 1.5 Create IDiffMergeEngine interface and diff models
+  - [x] 1.5 Create IDiffMergeEngine interface and diff models
     - Create file `Toucan.Core/Contracts/Services/IDiffMergeEngine.cs`
     - Define the interface with ComputeDiff and ApplyNonConflicting methods
     - Define DiffEntry record, DiffCategory enum, DiffResult record, MergeResult record
     - _Requirements: 10.1, 10.2, 10.4, 10.5_
 
-  - [ ] 1.6 Create IAuditService interface and AuditMetadata model
+  - [x] 1.6 Create IAuditService interface and AuditMetadata model
     - Create file `Toucan.Core/Contracts/Services/IAuditService.cs`
     - Define the interface with RecordSave, RecordApproval, SetChangeType, GetMetadata, LoadFromSidecar, SaveToSidecar, Clear
     - Define ChangeType enum and AuditMetadata class
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_
 
-  - [ ] 1.7 Create IFileWatcherService interface (refactor)
+  - [x] 1.7 Create IFileWatcherService interface (refactor)
     - Create file `Toucan.Core/Contracts/Services/IFileWatcherService.cs`
     - Define the interface with Watch, Stop, TakeSnapshot methods and FilesChanged event
     - _Requirements: 9.1, 9.7, 12.6_
 
-  - [ ] 1.8 Create IUndoRedoService interface and refactor UndoRedoService for DI
+  - [x] 1.8 Create IUndoRedoService interface and refactor UndoRedoService for DI
     - Create file `Toucan.Core/Contracts/Services/IUndoRedoService.cs` with CanUndo, CanRedo, Record, Undo, Redo, Clear
     - Modify `Toucan/Services/UndoRedoService.cs` to implement `IUndoRedoService` and remove static `Lazy<UndoRedoService>` Instance property
     - _Requirements: 12.5_
 
-  - [ ] 1.9 Extend TranslationItem with audit metadata properties
+  - [x] 1.9 Extend TranslationItem with audit metadata properties
     - Add `LastModifiedUtc`, `ApprovedAtUtc`, and `ChangeType` properties to `Toucan.Core/Models/TranslationItem.cs`
     - Add `AutoSaveEnabled` and `AutoSaveIntervalSeconds` properties to existing ProjectSettings / project model
     - _Requirements: 6.1, 6.2, 6.3, 7.1, 7.2_
 
-- [ ] 2. Implement ITranslationManagementService (dirty tracking and collection management)
-  - [ ] 2.1 Implement TranslationManagementService core logic
+- [x] 2. Implement ITranslationManagementService (dirty tracking and collection management)
+  - [x] 2.1 Implement TranslationManagementService core logic
     - Create file `Toucan.Core/Services/TranslationManagementService.cs`
     - Implement Initialize: store baselines keyed by (Language, Namespace), mark all items clean
     - Implement NotifyValueChanged/NotifyCommentChanged with 500ms debounce using System.Threading.Timer
@@ -85,8 +85,8 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Use FsCheck to generate dirty project states
     - Simulate save failure (exception), assert dirty items, values, and baselines unchanged
 
-- [ ] 3. Implement IAuditService
-  - [ ] 3.1 Implement AuditService with sidecar persistence
+- [x] 3. Implement IAuditService
+  - [x] 3.1 Implement AuditService with sidecar persistence
     - Create file `Toucan.Core/Services/AuditService.cs`
     - Implement RecordSave: set LastModifiedUtc to DateTime.UtcNow
     - Implement RecordApproval: set ApprovedAtUtc to DateTime.UtcNow
@@ -113,8 +113,8 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Assert RecordApproval sets non-null UTC ApprovedAtUtc
     - Assert new items default to ChangeType.DirectEdit
 
-- [ ] 4. Implement comment persistence logic
-  - [ ] 4.1 Implement comment sidecar read/write in ProjectService
+- [x] 4. Implement comment persistence logic
+  - [x] 4.1 Implement comment sidecar read/write in ProjectService
     - Extend save flow to detect format support for inline comments (Xliff, Resx, PO, AndroidXml)
     - For unsupported formats: write `<filename>.comments.json` sidecar with schema `{ schemaVersion, comments: { namespace: comment } }`
     - On load: restore comments from inline or sidecar, matched by (Language, Namespace)
@@ -142,11 +142,11 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Add test to `tests/Toucan.Core.Tests/IO/CommentPersistenceTests.cs`
     - Generate comments > 2000 chars, save, reload, assert length == 2000 and first 2000 chars preserved
 
-- [ ] 5. Checkpoint - Ensure all tests pass
+- [x] 5. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 6. Implement ILanguageManagementService
-  - [ ] 6.1 Implement LanguageManagementService
+- [x] 6. Implement ILanguageManagementService
+  - [x] 6.1 Implement LanguageManagementService
     - Create file `Toucan.Core/Services/LanguageManagementService.cs`
     - Inject ITranslationManagementService, IProjectService, IFileWatcherService
     - Implement AddLanguageAsync: create empty-value TranslationItems for all existing namespaces, write language file to disk, update manifest languages list
@@ -177,8 +177,8 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Assert manifest languages array matches in-memory language set
     - Assert primaryLanguage fallback to first remaining language if removed
 
-- [ ] 7. Implement IDiffMergeEngine
-  - [ ] 7.1 Implement DiffMergeEngine three-way diff logic
+- [x] 7. Implement IDiffMergeEngine
+  - [x] 7.1 Implement DiffMergeEngine three-way diff logic
     - Create file `Toucan.Core/Services/DiffMergeEngine.cs`
     - Implement ComputeDiff: match by (Language, Namespace) composite key
     - Categorize: AddedOnDisk, ModifiedOnDisk, DeletedOnDisk, Conflicting per design spec
@@ -200,8 +200,8 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Generate DiffResults with only non-conflicting entries
     - Apply merge, assert AddedOnDisk items present, ModifiedOnDisk values updated, DeletedOnDisk items absent
 
-- [ ] 8. Implement IFileWatcherService refactor
-  - [ ] 8.1 Refactor FileWatcherService behind IFileWatcherService interface
+- [x] 8. Implement IFileWatcherService refactor
+  - [x] 8.1 Refactor FileWatcherService behind IFileWatcherService interface
     - Modify `Toucan/Services/FileWatcherService.cs` to implement `IFileWatcherService`
     - Implement Watch: start FileSystemWatcher on folder recursively, exclude .obj/.bin
     - Implement Stop: dispose FileSystemWatcher
@@ -217,8 +217,8 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Test debounce consolidates rapid changes
     - _Requirements: 9.1, 9.2, 9.7_
 
-- [ ] 9. Implement IAutoSaveService
-  - [ ] 9.1 Implement AutoSaveService with timer logic
+- [x] 9. Implement IAutoSaveService
+  - [x] 9.1 Implement AutoSaveService with timer logic
     - Create file `Toucan.Core/Services/AutoSaveService.cs`
     - Inject IProjectLifecycleService (via Lazy<> to break circular), ITranslationManagementService, IFileWatcherService
     - Implement Start: create System.Threading.Timer with clamped interval (10-600 seconds)
@@ -245,11 +245,11 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Test: no concurrent executions
     - _Requirements: 7.3, 7.6, 7.7, 7.8_
 
-- [ ] 10. Checkpoint - Ensure all tests pass
+- [x] 10. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 11. Implement IProjectLifecycleService (orchestration layer)
-  - [ ] 11.1 Implement ProjectLifecycleService unified open pipeline
+- [x] 11. Implement IProjectLifecycleService (orchestration layer)
+  - [x] 11.1 Implement ProjectLifecycleService unified open pipeline
     - Create file `Toucan.Core/Services/ProjectLifecycleService.cs`
     - Inject IProjectService, ITranslationManagementService, IFileWatcherService, IValidationPipeline, IAutoSaveService, IDiffMergeEngine, IAuditService, IDialogService, IRecentProjectService
     - Implement OpenProjectAsync: validate folder exists, parse manifest, load translations via IProjectService, initialize ITranslationManagementService, start IFileWatcherService, add to recent projects, load audit metadata
@@ -258,14 +258,14 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Handle manifest-invalid: show error, stay on current screen
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7_
 
-  - [ ] 11.2 Implement ProjectLifecycleService save flows
+  - [x] 11.2 Implement ProjectLifecycleService save flows
     - Implement SaveProjectAsync: run IValidationPipeline, persist via IProjectService, update manifest translationPackages, call IAuditService.SaveToSidecar, call ITranslationManagementService.MarkAllSaved, call IFileWatcherService.TakeSnapshot, reset auto-save timer
     - Implement SaveProjectAsAsync: persist to new folder, update project path, write new manifest, init watcher on new folder
     - Handle validation errors: return errors for UI prompt, abort if cancelled
     - Handle file system errors: return failure, retain dirty state
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 11.4, 12.3, 12.7, 12.9_
 
-  - [ ] 11.3 Implement ProjectLifecycleService close and unsaved-changes prompt
+  - [x] 11.3 Implement ProjectLifecycleService close and unsaved-changes prompt
     - Implement CloseProjectAsync: check IsDirty, show modal dialog (Save/Discard/Cancel)
     - Save path: call SaveProjectAsync, close on success, keep open on failure
     - Discard path: clear dirty state, stop file watcher, stop auto-save, clear services
@@ -273,7 +273,7 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Handle app exit scenario (same dialog)
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
-  - [ ] 11.4 Implement CreateAndOpenProjectAsync for new project flow
+  - [x] 11.4 Implement CreateAndOpenProjectAsync for new project flow
     - Create project folder, write Project_Manifest with languages and save style
     - Pass new folder to unified load pipeline
     - Implement default manifest generation for folders without existing toucan.project
@@ -300,8 +300,8 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Assert generated manifest contains all detected languages
     - Assert primaryLanguage == first detected language
 
-- [ ] 12. Implement save round-trip and external change detection integration
-  - [ ] 12.1 Implement external file change handling in ProjectLifecycleService
+- [x] 12. Implement save round-trip and external change detection integration
+  - [x] 12.1 Implement external file change handling in ProjectLifecycleService
     - Subscribe to IFileWatcherService.FilesChanged event
     - If not dirty: auto-reload affected files, update snapshot
     - If dirty: show notification with Reload/Merge/Ignore options
@@ -318,11 +318,11 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Save via ISaveStrategy to temp folder, reload
     - Assert same set of (Language, Namespace, Value) tuples
 
-- [ ] 13. Checkpoint - Ensure all tests pass
+- [x] 13. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 14. Register all new services in DI and refactor ViewModels
-  - [ ] 14.1 Register new services in App.xaml.cs ServiceCollection
+- [x] 14. Register all new services in DI and refactor ViewModels
+  - [x] 14.1 Register new services in App.xaml.cs ServiceCollection
     - Register IUndoRedoService / UndoRedoService as singleton
     - Register IFileWatcherService / FileWatcherService as singleton
     - Register ITranslationManagementService / TranslationManagementService as singleton
@@ -334,36 +334,36 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Remove any static UndoRedoService.Instance usage
     - _Requirements: 12.5, 12.6, 12.8_
 
-  - [ ] 14.2 Refactor MainWindowViewModel.File.cs to delegate to IProjectLifecycleService
+  - [x] 14.2 Refactor MainWindowViewModel.File.cs to delegate to IProjectLifecycleService
     - Inject IProjectLifecycleService into MainWindowViewModel
     - Replace inline open/save/close logic with calls to IProjectLifecycleService methods
     - Retain only RelayCommand declarations and UI bindings
     - Remove direct file I/O and collection mutation from ViewModel
     - _Requirements: 12.4_
 
-  - [ ] 14.3 Refactor MainWindowViewModel.Translation.cs to delegate to ITranslationManagementService
+  - [x] 14.3 Refactor MainWindowViewModel.Translation.cs to delegate to ITranslationManagementService
     - Inject ITranslationManagementService into MainWindowViewModel
     - Replace inline dirty tracking, value change handling with service calls
     - Subscribe to DirtyStateChanged for UI property updates
     - Remove per-item dirty logic from ViewModel
     - _Requirements: 12.4_
 
-  - [ ] 14.4 Refactor MainWindowViewModel.Edit.cs and LanguageManagerViewModel to delegate to ILanguageManagementService
+  - [x] 14.4 Refactor MainWindowViewModel.Edit.cs and LanguageManagerViewModel to delegate to ILanguageManagementService
     - Inject ILanguageManagementService into MainWindowViewModel and LanguageManagerViewModel
     - Replace inline language add/remove/reorder logic with service calls
     - Retain only command declarations and confirmation dialog triggers
     - _Requirements: 12.4_
 
-  - [ ] 14.5 Update all UndoRedoService consumers to use IUndoRedoService via DI
+  - [x] 14.5 Update all UndoRedoService consumers to use IUndoRedoService via DI
     - Replace all `UndoRedoService.Instance` references with injected `IUndoRedoService`
     - Update MainWindowViewModel.Edit.cs undo/redo commands to use injected service
     - _Requirements: 12.5_
 
-- [ ] 15. Checkpoint - Ensure all tests pass
+- [x] 15. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 16. Add FsCheck test generators and remaining property tests
-  - [ ] 16.1 Create FsCheck generators for TranslationItem and project structures
+- [x] 16. Add FsCheck test generators and remaining property tests
+  - [x] 16.1 Create FsCheck generators for TranslationItem and project structures
     - Create `tests/Toucan.Core.Tests/IO/Generators/TranslationItemGenerator.cs`
     - Generate items with random Language (pool of 5-10 codes), Namespace (dot-separated 1-4 deep), Value (unicode 0-500 chars), Comment (0-3000 chars)
     - Create `tests/Toucan.Core.Tests/IO/Generators/EditSequenceGenerator.cs` for random edit/save/undo/redo sequences
@@ -371,13 +371,13 @@ This plan implements the unified IO layer for Toucan's project lifecycle and tra
     - Add FsCheck and FsCheck.Xunit NuGet packages to `Toucan.Core.Tests.csproj`
     - _Requirements: All property tests depend on these generators_
 
-  - [ ] 16.2 Add NSubstitute and System.IO.Abstractions to test projects
+  - [x] 16.2 Add NSubstitute and System.IO.Abstractions to test projects
     - Add `NSubstitute` package to `Toucan.Core.Tests.csproj`
     - Add `System.IO.Abstractions` and `System.IO.Abstractions.TestingHelpers` packages
     - These are used for mocking interfaces and abstracting file system in tests
     - _Requirements: Test infrastructure_
 
-- [ ] 17. Final checkpoint - Ensure all tests pass
+- [x] 17. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

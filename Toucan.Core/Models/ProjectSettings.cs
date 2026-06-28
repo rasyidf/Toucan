@@ -57,6 +57,10 @@ public class ProjectSettings
     /// <summary>External editor command for "open in editor" (e.g., "code --goto {file}:{line}").</summary>
     public string? ExternalEditor { get; set; }
 
+    // --- Auto-save configuration ---
+    public bool AutoSaveEnabled { get; set; }
+    public int AutoSaveIntervalSeconds { get; set; } = 60; // Clamped to 10-600
+
     // --- Runtime (not serialized) ---
     [JsonIgnore] public string ProjectPath { get; set; } = string.Empty;
     [JsonIgnore] public bool IsDirty { get; set; }

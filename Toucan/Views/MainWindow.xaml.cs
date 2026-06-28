@@ -65,7 +65,7 @@ public partial class MainWindow : FluentWindow
                 }
             }
         };
-        _fileWatcher.FilesChanged += () => Dispatcher.Invoke(() =>
+        _fileWatcher.FilesChanged += (_, _) => Dispatcher.Invoke(() =>
         {
             if (System.Windows.MessageBox.Show("Files changed on disk. Reload?", "File Changed",
                 System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.Yes)

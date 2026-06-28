@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Toucan.Core.Contracts.Services;
 using Toucan.Core.Extensions;
 using Toucan.Core.Models;
 using Toucan.Extensions;
@@ -18,17 +19,17 @@ internal partial class MainWindowViewModel
     #region Add / Rename / Delete
 
     [RelayCommand]
-    private void NewLanguage()
+    private async Task NewLanguage()
     {
         var result = _dialogService.ShowLanguagePrompt("New Language", "Enter the translation language name below.", AllTranslation);
         if (result != null)
         {
-            AddLanguage(result);
+            await AddLanguageAsync(result).ConfigureAwait(true);
         }
     }
 
     [RelayCommand]
-    private void ManageLanguages()
+    private async Task ManageLanguages()
     {
         var primaryLang = Core.Models.ProjectSettings.LoadFrom(CurrentPath)?.PrimaryLanguage ?? "en-US";
         var result = _dialogService.ShowManageLanguages(AllTranslation, primaryLang);
@@ -37,23 +38,37 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        // Apply removals
+        // Delegate removals to the language management service
         foreach (var lang in result.RemovedLanguages)
         {
-            _ = AllTranslation.RemoveAll(t => t.Language == lang);
+            if (_languageManagementService != null)
+            {
+                await _languageManagementService.RemoveLanguageAsync(lang).ConfigureAwait(true);
+            }
+            else
+            {
+                _ = AllTranslation.RemoveAll(t => t.Language == lang);
+            }
         }
 
-        // Apply additions
+        // Delegate additions to the language management service
         foreach (var lang in result.AddedLanguages)
         {
-            if (!AllTranslation.Any(t => t.Language == lang))
+            if (_languageManagementService != null)
             {
-                AllTranslation.Add(new TranslationItem
+                await _languageManagementService.AddLanguageAsync(lang).ConfigureAwait(true);
+            }
+            else
+            {
+                if (!AllTranslation.Any(t => t.Language == lang))
                 {
-                    Namespace = "",
-                    Value = "",
-                    Language = lang
-                });
+                    AllTranslation.Add(new TranslationItem
+                    {
+                        Namespace = "",
+                        Value = "",
+                        Language = lang
+                    });
+                }
             }
         }
 
@@ -69,7 +84,7 @@ internal partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    private void DeleteLanguage(Core.Models.SummaryItem? item)
+    private async Task DeleteLanguage(Core.Models.SummaryItem? item)
     {
         if (item == null || string.IsNullOrEmpty(item.Language))
         {
@@ -81,7 +96,20 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        _ = AllTranslation.RemoveAll(t => t.Language == item.Language);
+        if (_languageManagementService != null)
+        {
+            var result = await _languageManagementService.RemoveLanguageAsync(item.Language).ConfigureAwait(true);
+            if (!result.Success)
+            {
+                _messageService.ShowMessage(result.ErrorMessage ?? "Failed to remove language.");
+                return;
+            }
+        }
+        else
+        {
+            _ = AllTranslation.RemoveAll(t => t.Language == item.Language);
+        }
+
         UpdateSummaryInfo();
         RefreshTree();
         Search("", true);
@@ -200,7 +228,7 @@ internal partial class MainWindowViewModel
         System.Windows.Clipboard.SetText(template.Replace("%1", SelectedNode.Namespace));
     }
 
-    public void AddLanguage(string newLanguage)
+    public async Task AddLanguageAsync(string newLanguage)
     {
         if (string.IsNullOrWhiteSpace(newLanguage))
         {
@@ -213,12 +241,24 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        AllTranslation.Add(new TranslationItem
+        if (_languageManagementService != null)
         {
-            Namespace = "",
-            Value = "",
-            Language = newLanguage
-        });
+            var result = await _languageManagementService.AddLanguageAsync(newLanguage).ConfigureAwait(true);
+            if (!result.Success)
+            {
+                _messageService.ShowMessage(result.ErrorMessage ?? "Failed to add language.");
+                return;
+            }
+        }
+        else
+        {
+            AllTranslation.Add(new TranslationItem
+            {
+                Namespace = "",
+                Value = "",
+                Language = newLanguage
+            });
+        }
 
         AddMissingTranslations();
         UpdateSummaryInfo();
@@ -226,6 +266,16 @@ internal partial class MainWindowViewModel
         Search("", true);
         // Ensure the UI paging is refreshed after adding translations
         Search("", true);
+    }
+
+    /// <summary>
+    /// Synchronous add language method kept for backward compatibility with non-async callers.
+    /// Delegates to the async version.
+    /// </summary>
+    public void AddLanguage(string newLanguage)
+    {
+        // Fire-and-forget for synchronous callers — the service call is best-effort here
+        _ = AddLanguageAsync(newLanguage);
     }
 
     public void RenameItem(NsTreeItem node, string newName)
@@ -463,7 +513,7 @@ internal partial class MainWindowViewModel
     [RelayCommand]
     private void Undo()
     {
-        var action = Services.UndoRedoService.Instance.Undo();
+        var action = _undoRedoService?.Undo();
         if (action == null)
         {
             return;
@@ -475,7 +525,7 @@ internal partial class MainWindowViewModel
     [RelayCommand]
     private void Redo()
     {
-        var action = Services.UndoRedoService.Instance.Redo();
+        var action = _undoRedoService?.Redo();
         if (action == null)
         {
             return;

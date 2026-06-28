@@ -1,3 +1,5 @@
+using Toucan.Core.Contracts.Services;
+
 namespace Toucan.Core.Models;
 
 public class TranslationItem
@@ -7,4 +9,9 @@ public class TranslationItem
     public string Value { get; set; } = string.Empty;
     public string Comment { get; set; } = string.Empty;
     public bool IsApproved { get; set; }
+
+    // Audit metadata
+    public DateTime? LastModifiedUtc { get; set; }
+    public DateTime? ApprovedAtUtc { get; set; }
+    public ChangeType ChangeType { get; set; } = ChangeType.DirectEdit;
 }

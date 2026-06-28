@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] — 2026-06-28
+
+### Added
+- **IProjectLifecycleService** — Unified open/save/close/save-as orchestration; all entry points (folder picker, file picker, recent, new project) funnel through a single load pipeline
+- **ITranslationManagementService** — In-memory translation collection with per-item dirty tracking via baseline comparison and 500ms debounce
+- **ILanguageManagementService** — Language add/remove/reorder with disk cleanup and manifest sync
+- **IAutoSaveService** — Timer-based periodic persistence with interval clamping (10–600s), SemaphoreSlim concurrency guard
+- **IDiffMergeEngine** — Three-way diff (base/mine/theirs) with categorization (Added/Modified/Deleted/Conflicting) and non-conflicting auto-merge
+- **IAuditService** — Per-item audit metadata (LastModified, Approved, ChangeType) with `.toucan-metadata.json` sidecar persistence
+- **ICommentPersistenceService** — Comment sidecar read/write for formats without inline comment support; 2000-char truncation, orphan discard
+- **IUnsavedChangesHandler** — UI-agnostic callback for Save/Discard/Cancel prompt on close
+- **IExternalChangeHandler** — UI-agnostic callback for Reload/Merge/Ignore prompt on external file changes
+- **TranslationBaseline model** — Stores last-saved value/comment per item for dirty detection
+- **EditAction model** — Extracted from UndoRedoService into Toucan.Core for cross-project use
+- **FsCheck generators** — TranslationItemGenerator, EditSequenceGenerator, DiffTripleGenerator for property-based testing
+- **CommentPersistenceServiceTests** — 30 unit tests covering sidecar round-trip, truncation, orphan handling
+
+### Changed
+- **UndoRedoService** — Refactored from static singleton to DI-registered `IUndoRedoService` interface
+- **FileWatcherService** — Refactored behind `IFileWatcherService` interface; changed event signature to `EventHandler`
+- **TranslationItem** — Extended with `LastModifiedUtc`, `ApprovedAtUtc`, `ChangeType` audit properties
+- **ProjectSettings** — Added `AutoSaveEnabled` and `AutoSaveIntervalSeconds` configuration properties
+- **App.xaml.cs** — All new services registered in DI container with factory patterns for circular dependencies
+- **MainWindowViewModel.File.cs** — Delegates open/save/close to IProjectLifecycleService; retains only RelayCommands and UI bindings
+- **MainWindowViewModel.Translation.cs** — Delegates dirty tracking to ITranslationManagementService; subscribes to DirtyStateChanged
+- **MainWindowViewModel.Edit.cs** — Delegates language operations to ILanguageManagementService; retains confirmation dialogs
+- **TranslationItemViewModel** — Receives IUndoRedoService via DI instead of static reference
+- **Toucan.Core.Tests.csproj** — Added FsCheck 3.3.2, NSubstitute 5.3.0, System.IO.Abstractions 22.1.1
+
 ## [0.7.0] — 2026-06-27
 
 ### Added
