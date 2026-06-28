@@ -1,6 +1,30 @@
-# Changelog
+ 4jj  ./;'l;p#';;lllllll';//
+   '
+   ;?:>
+   /"Changelog
 
 All notable changes to this project will be documented in this file.
+
+## [0.9.0] — 2026-06-28
+
+### Added
+- **FuzzySearchService** — Hybrid search engine combining exact, prefix, substring, and trigram-based Jaccard similarity matching against both translation keys and values
+- **IFuzzySearchService** interface — Contract for the fuzzy search engine with `Search()` and `ComputeTrigramSimilarity()` methods
+- **SearchMatch record** — Represents a search result with item, score, and match type
+- **SearchMatchType enum** — Classifies matches as Exact (1.0), Prefix (0.9), Contains (0.7), or Fuzzy (Jaccard score)
+- **Search TextBox in toolbar** — Right-aligned search input with Fluent styling, bound with `UpdateSourceTrigger=PropertyChanged`
+- **Search debounce** — 300ms DispatcherTimer-based debounce prevents excessive filtering during typing
+- **Result count indicator** — Status bar shows "Showing X of Y items" when a filter is active
+
+### Changed
+- **Search bar relocated** — Moved from window title bar to toolbar row for better accessibility
+- **Search logic** — Replaced namespace-only prefix filtering with full fuzzy search across keys and values
+- **MainWindowViewModel.Nav.cs** — `Search()` method now delegates to `IFuzzySearchService` with graceful fallback
+- **App.xaml.cs** — Registered `FuzzySearchService` as singleton in DI container
+
+### Removed
+- **SearchFilterTextbox from TitleBar** — Search input no longer lives in `TitleBar.TrailingContent`
+- **SearchFilterTextbox_PreviewKeyDown handler** — Enter-key binding no longer needed with PropertyChanged trigger
 
 ## [0.8.0] — 2026-06-28
 

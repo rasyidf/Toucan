@@ -92,6 +92,9 @@ public partial class App : Application
         // Bulk action service
         _ = services.AddSingleton<IBulkActionService, BulkActionService>();
 
+        // Fuzzy search service (stateless singleton for hybrid trigram + substring matching)
+        _ = services.AddSingleton<IFuzzySearchService, FuzzySearchService>();
+
         // Pretranslation engine and a simple mock provider
         _ = services.AddSingleton<IPretranslationService, PretranslationService>();
         _ = services.AddSingleton<ITranslationMemory, TranslationMemoryService>();
@@ -288,6 +291,7 @@ public partial class App : Application
         });
 
         var viewModel = _services.GetRequiredService<MainWindowViewModel>();
+        viewModel.FuzzySearchService = _services.GetRequiredService<IFuzzySearchService>();
         var statusBarViewModel = _services.GetRequiredService<StatusBarViewModel>();
         var mainWindow = new MainWindow(startupPath, viewModel, statusBarViewModel);
 

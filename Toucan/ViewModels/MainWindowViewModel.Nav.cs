@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Toucan.Core.Contracts.Services;
 using Toucan.Core.Extensions;
 using Toucan.Core.Models;
 using Toucan.Extensions;
@@ -16,61 +17,101 @@ namespace Toucan.ViewModels;
 /// </summary>
 internal partial class MainWindowViewModel
 {
+    /// <summary>
+    /// Fuzzy search service for hybrid matching against namespaces and values.
+    /// Set by DI registration (task 4.4).
+    /// </summary>
+    internal IFuzzySearchService? FuzzySearchService { get; set; }
+
+    private System.Windows.Threading.DispatcherTimer? _searchDebounceTimer;
+
     #region Search & Filter
 
     internal void Search(string ns, bool alwaysPaging = false)
     {
-
-        bool isPartial = false;
-        List<TranslationItem> matchedTranslations = AllTranslation.ToList();
-        List<TranslationItem> translationItems;
-
-
-        int TranslationCount = 0;
-        if (string.IsNullOrWhiteSpace(ns))
+        if (FuzzySearchService == null)
         {
-            translationItems = matchedTranslations.ToList();
-        }
-        else if (!ns.EndsWith(".", StringComparison.InvariantCultureIgnoreCase))
-        {
-            translationItems = matchedTranslations.Where(o => o.Namespace == ns).ToList();
-        }
-        else
-        {
-            List<TranslationItem> translations = matchedTranslations.Where(o => o.Namespace.StartsWith(ns, StringComparison.InvariantCulture)).ToList();
-
-            if (!alwaysPaging && (translations.Count / 3 > AppOptions.TruncateResultsOver))
+            // Fallback: show all items if service not available
+            var allItems = AllTranslation.ToList();
+            var allNs = allItems.ToNamespaces().ToList();
+            List<LanguageGroupViewModel> groups = [];
+            foreach (string n in allNs)
             {
-                isPartial = true;
-                translationItems = translations.Take(AppOptions.TruncateResultsOver).ToList();
-                TranslationCount = translations.Count;
+                var vm = _languageGroupFactory != null ? _languageGroupFactory(n) : new LanguageGroupViewModel(n);
+                vm.LoadTranslations(allItems.Where(o => o.Namespace == n).ToList());
+                groups.Add(vm);
+            }
+            PagingController.SwapData(groups, false);
+
+            // Update status text with result count (fallback branch)
+            if (!string.IsNullOrWhiteSpace(ns))
+            {
+                var totalItems = AllTranslation.Select(t => t.Namespace).Distinct().Count();
+                StatusText = $"Showing {allNs.Count} of {totalItems} items";
             }
             else
             {
-                translationItems = translations.ToList();
+                var totalItems = AllTranslation.Select(t => t.Namespace).Distinct().Count();
+                StatusText = $"{totalItems} items";
             }
+
+            PagedUpdates();
+            return;
         }
 
-        List<string> namespaces = translationItems.ToNamespaces().ToList();
-        List<string> languages = AllTranslation.ToLanguages().ToList();
+        var searchResults = FuzzySearchService.Search(AllTranslation, ns);
 
+        // Get distinct namespaces from search results, preserving score order
+        var matchedNamespaces = searchResults
+            .Select(m => m.Item.Namespace)
+            .Distinct()
+            .ToList();
+
+        bool isPartial = false;
+        if (!alwaysPaging && matchedNamespaces.Count > AppOptions.TruncateResultsOver)
+        {
+            isPartial = true;
+            matchedNamespaces = matchedNamespaces.Take(AppOptions.TruncateResultsOver).ToList();
+        }
 
         List<LanguageGroupViewModel> languageGroups = [];
-        foreach (string n in namespaces)
+        foreach (string n in matchedNamespaces)
         {
             var languageGroupVm = _languageGroupFactory != null ? _languageGroupFactory(n) : new LanguageGroupViewModel(n);
-            languageGroupVm.LoadTranslations(matchedTranslations.Where(o => o.Namespace == n).ToList());
+            languageGroupVm.LoadTranslations(AllTranslation.Where(o => o.Namespace == n).ToList());
             languageGroups.Add(languageGroupVm);
         }
 
         PagingController.SwapData(languageGroups, isPartial);
+
+        // Update status text with result count
+        if (!string.IsNullOrWhiteSpace(ns))
+        {
+            var totalItems = AllTranslation.Select(t => t.Namespace).Distinct().Count();
+            StatusText = $"Showing {matchedNamespaces.Count} of {totalItems} items";
+        }
+        else
+        {
+            var totalItems = AllTranslation.Select(t => t.Namespace).Distinct().Count();
+            StatusText = $"{totalItems} items";
+        }
+
         PagedUpdates();
     }
 
     partial void OnSearchTextChanged(string value)
     {
-        // keep existing behaviour: search on text changes
-        Search(value, false);
+        _searchDebounceTimer?.Stop();
+        _searchDebounceTimer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(300)
+        };
+        _searchDebounceTimer.Tick += (s, e) =>
+        {
+            _searchDebounceTimer.Stop();
+            Search(value, false);
+        };
+        _searchDebounceTimer.Start();
     }
 
     internal void ShowAll(string Path)
