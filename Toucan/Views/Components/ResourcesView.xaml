@@ -8,9 +8,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Toucan.Core.Models;assembly=Toucan.Core"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    d:Background="White"
     d:DesignHeight="450"
     d:DesignWidth="329.592"
-    d:Foreground="White"
     mc:Ignorable="d">
     <UserControl.Resources>
         <HierarchicalDataTemplate x:Key="ChildTemplate" ItemsSource="{Binding Path=Items}">
@@ -102,9 +102,9 @@
                     <ui:ListView
                         x:Name="ListNamespace"
                         VerticalAlignment="Stretch"
-                        Visibility="{Binding IsTreeView, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"
                         ItemsSource="{Binding CurrentTreeItems, Converter={StaticResource TreeItemsFlatten}}"
-                        SelectionChanged="ListNamespace_SelectionChanged">
+                        SelectionChanged="ListNamespace_SelectionChanged"
+                        Visibility="{Binding IsTreeView, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
                         <ui:ListView.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:NsFlatItem}">
                                 <StackPanel Margin="4,2" Orientation="Horizontal">

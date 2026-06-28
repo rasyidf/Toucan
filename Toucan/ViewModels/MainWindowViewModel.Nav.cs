@@ -188,6 +188,7 @@ internal partial class MainWindowViewModel
     [RelayCommand]
     private void ClearFilter()
     {
+        ActiveLanguageFilter = null;
         SearchText = string.Empty;
         Search("", true);
     }
@@ -195,7 +196,84 @@ internal partial class MainWindowViewModel
     [RelayCommand]
     private void ShowAll()
     {
+        ActiveLanguageFilter = null;
         Search("", true);
+    }
+
+    #endregion
+
+    #region Language Status Filtering
+
+    /// <summary>
+    /// Active language+status filter. Format: "status:languageCode" (e.g. "translated:en", "empty:fr").
+    /// Null means no active language filter.
+    /// </summary>
+    [ObservableProperty]
+    private string? activeLanguageFilter;
+
+    /// <summary>
+    /// Filters the translation list by language and status.
+    /// Parameter format: "status:languageCode" where status is translated|empty|needsreview|approved.
+    /// </summary>
+    [RelayCommand]
+    private void FilterByLanguageStatus(string? parameter)
+    {
+        if (string.IsNullOrEmpty(parameter))
+        {
+            return;
+        }
+
+        var colonIndex = parameter.IndexOf(':');
+        if (colonIndex <= 0 || colonIndex >= parameter.Length - 1)
+        {
+            return;
+        }
+
+        var status = parameter[..colonIndex].ToLowerInvariant();
+        var language = parameter[(colonIndex + 1)..];
+
+        if (string.IsNullOrEmpty(language))
+        {
+            return;
+        }
+
+        // Get items for this specific language
+        var languageItems = AllTranslation
+            .Where(t => t.Language == language && !string.IsNullOrWhiteSpace(t.Namespace))
+            .ToList();
+
+        List<TranslationItem> matched = status switch
+        {
+            "translated" => languageItems.Where(t => !string.IsNullOrEmpty(t.Value)).ToList(),
+            "empty" => languageItems.Where(t => string.IsNullOrEmpty(t.Value)).ToList(),
+            "needsreview" => languageItems.Where(t => !string.IsNullOrEmpty(t.Value) && !t.IsApproved).ToList(),
+            "approved" => languageItems.Where(t => t.IsApproved).ToList(),
+            _ => languageItems
+        };
+
+        ActiveLanguageFilter = parameter;
+        StatusText = $"Filter: {status} ({language}) — {matched.Count} item(s)";
+
+        if (matched.Count == 0)
+        {
+            PagingController.SwapData(new List<LanguageGroupViewModel>(), false);
+            PagedUpdates();
+            return;
+        }
+
+        // Build display groups from matched namespaces
+        List<string> namespaces = matched.Select(t => t.Namespace).Distinct().OrderBy(n => n).ToList();
+        List<LanguageGroupViewModel> groups = [];
+        foreach (string n in namespaces)
+        {
+            var vm = _languageGroupFactory != null ? _languageGroupFactory(n) : new LanguageGroupViewModel(n);
+            // Load all languages for this namespace so the editor shows full context
+            vm.LoadTranslations(AllTranslation.Where(o => o.Namespace == n).ToList());
+            groups.Add(vm);
+        }
+
+        PagingController.SwapData(groups, false);
+        PagedUpdates();
     }
 
     #endregion

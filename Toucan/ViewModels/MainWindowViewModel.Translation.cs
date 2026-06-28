@@ -292,6 +292,39 @@ internal partial class MainWindowViewModel
         _ = SummaryInfo.Details.Remove(item);
     }
 
+    [RelayCommand]
+    private void ApproveAllForLanguage(SummaryItem? item)
+    {
+        if (item == null || string.IsNullOrEmpty(item.Language))
+        {
+            return;
+        }
+
+        var languageItems = AllTranslation
+            .Where(t => t.Language == item.Language && !string.IsNullOrEmpty(t.Value) && !t.IsApproved)
+            .ToList();
+
+        if (languageItems.Count == 0)
+        {
+            _messageService.ShowMessage("No items to approve.");
+            return;
+        }
+
+        if (!_messageService.ShowConfirmation($"Approve {languageItems.Count} translated item(s) for '{item.Language}'?"))
+        {
+            return;
+        }
+
+        foreach (var t in languageItems)
+        {
+            t.IsApproved = true;
+        }
+
+        UpdateSummaryInfo();
+        IsDirty = true;
+        StatusText = $"Approved {languageItems.Count} item(s) for {item.Language}.";
+    }
+
     #endregion
 
     #region Source Code & Analysis

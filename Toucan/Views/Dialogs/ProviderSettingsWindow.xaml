@@ -1,116 +1,206 @@
-<ui:FluentWindow x:Class="Toucan.Views.Dialogs.ProviderSettingsWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:Toucan.ViewModels"
-        mc:Ignorable="d"
-        Title="Provider Settings" Height="420" Width="720" WindowStartupLocation="CenterOwner">
+<ui:FluentWindow
+    x:Class="Toucan.Views.Dialogs.ProviderSettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:vm="clr-namespace:Toucan.ViewModels"
+    Title="Provider Settings"
+    Width="777"
+    Height="619"
+    WindowStartupLocation="CenterOwner"
+    mc:Ignorable="d">
 
     <DockPanel LastChildFill="True">
-        <!-- Title bar -->
-        <ui:TitleBar DockPanel.Dock="Top" Height="44" Title="Provider Settings" Padding="8,6">
+        <!--  Title bar  -->
+        <ui:TitleBar
+            Title="Provider Settings"
+            Height="44"
+            Padding="8,6"
+            DockPanel.Dock="Top">
             <ui:TitleBar.Header>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="🔧" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                     <StackPanel>
-                        <TextBlock Text="Provider Settings" FontWeight="SemiBold" FontSize="13" />
-                        <TextBlock Text="Manage translation providers, options and secrets" FontSize="11" Foreground="Gray" />
+                        <TextBlock
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Text="Provider Settings" />
+                        <TextBlock
+                            FontSize="11"
+                            Foreground="Gray"
+                            Text="Manage translation providers, options and secrets" />
                     </StackPanel>
                 </StackPanel>
             </ui:TitleBar.Header>
         </ui:TitleBar>
 
         <Grid Margin="12">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="0">
-            <TextBlock Text="Scope" FontWeight="SemiBold" Margin="0,0,0,6" />
-            <CheckBox Content="Project (override)" IsChecked="{Binding ProjectScope}" Margin="0,0,0,8" />
+            <StackPanel Grid.Column="0">
+                <TextBlock
+                    Margin="0,0,0,6"
+                    FontWeight="SemiBold"
+                    Text="Scope" />
+                <CheckBox
+                    Margin="0,0,0,8"
+                    Content="Project (override)"
+                    IsChecked="{Binding ProjectScope}" />
 
-            <TextBlock Text="Project folder (optional)" FontWeight="SemiBold" Margin="0,8,0,6" />
-            <StackPanel Orientation="Horizontal">
-                <TextBox Text="{Binding ProjectPath, UpdateSourceTrigger=PropertyChanged}" Width="160" />
-                <Button Content="..." Width="32" Margin="6,0,0,0" Command="{Binding SelectProjectFolderCommand}" />
-            </StackPanel>
-
-            <TextBlock Text="Providers" FontWeight="SemiBold" Margin="0,12,0,6" />
-            <ListBox ItemsSource="{Binding Providers}" SelectedItem="{Binding Selected}" Height="220">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Border Padding="6" Margin="2" CornerRadius="4" Background="Transparent">
-                            <StackPanel>
-                                <TextBlock Text="{Binding Provider}" FontWeight="Bold" />
-                                <TextBlock Text="{Binding Provider, FallbackValue='(no id)'}" FontSize="11" Foreground="Gray" />
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,6,0,0">
-                <Button Content="Add" Width="80" Margin="0,0,6,0" Command="{Binding AddProviderCommand}" />
-                <Button Content="Remove" Width="80" Command="{Binding RemoveSelectedCommand}" />
-            </StackPanel>
-        </StackPanel>
-
-        <Border Grid.Column="1" Background="#10101010" CornerRadius="4" Padding="8">
-            <ScrollViewer>
-                <StackPanel>
-                    <TextBlock Text="Selected Provider" FontWeight="SemiBold" Margin="0,0,0,6" />
-
-                    <StackPanel Orientation="Horizontal" Margin="0,4">
-                        <TextBlock Text="Provider id: " Width="120" />
-                        <TextBox Text="{Binding Selected.Provider, UpdateSourceTrigger=PropertyChanged}" Width="300" />
-                    </StackPanel>
-
-                    <TextBlock Text="Options" FontWeight="SemiBold" Margin="0,12,0,6" />
-                    <ItemsControl ItemsSource="{Binding Selected.Options}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,3">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="160" />
-                                        <ColumnDefinition Width="6" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding Key}" Grid.Column="0" VerticalAlignment="Center" Foreground="Gray" />
-                                    <TextBlock Text=":" Grid.Column="1" VerticalAlignment="Center" Foreground="Gray" />
-                                    <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" />
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <TextBlock Text="Secrets" FontWeight="SemiBold" Margin="0,12,0,6" />
-                    <ItemsControl ItemsSource="{Binding Selected.Secrets}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,3">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="160" />
-                                        <ColumnDefinition Width="6" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding Key}" Grid.Column="0" VerticalAlignment="Center" Foreground="Gray" />
-                                    <TextBlock Text=":" Grid.Column="1" VerticalAlignment="Center" Foreground="Gray" />
-                                    <PasswordBox Grid.Column="2" PasswordChar="●" />
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-                        <Button Content="Cancel" Width="90" Margin="0,0,8,0" Click="Cancel_Click" />
-                        <Button Content="Save" Width="90" Click="Save_Click" Background="#FF3A7BD5" Foreground="White" />
-                    </StackPanel>
+                <TextBlock
+                    Margin="0,8,0,6"
+                    FontWeight="SemiBold"
+                    Text="Project folder (optional)" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Width="160" Text="{Binding ProjectPath, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button
+                        Width="32"
+                        Margin="6,0,0,0"
+                        Command="{Binding SelectProjectFolderCommand}"
+                        Content="..." />
                 </StackPanel>
-            </ScrollViewer>
-        </Border>
-    </Grid>
+
+                <TextBlock
+                    Margin="0,12,0,6"
+                    FontWeight="SemiBold"
+                    Text="Providers" />
+                <ListBox
+                    Height="220"
+                    ItemsSource="{Binding Providers}"
+                    SelectedItem="{Binding Selected}" d:ItemsSource="{d:SampleData ItemCount=2}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Margin="2"
+                                Padding="6"
+                                Background="Transparent"
+                                CornerRadius="4">
+                                <StackPanel>
+                                    <TextBlock FontWeight="Bold" Text="{Binding Provider}" />
+                                    <TextBlock
+                                        FontSize="11"
+                                        Foreground="Gray"
+                                        Text="{Binding Provider, FallbackValue='(no id)'}" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <StackPanel
+                    Margin="0,6,0,0"
+                    HorizontalAlignment="Left"
+                    Orientation="Horizontal">
+                    <Button
+                        Width="80"
+                        Margin="0,0,6,0"
+                        Command="{Binding AddProviderCommand}"
+                        Content="Add" />
+                    <Button
+                        Width="80"
+                        Command="{Binding RemoveSelectedCommand}"
+                        Content="Remove" />
+                </StackPanel>
+            </StackPanel>
+
+            <Border
+                Grid.Column="1"
+                Padding="8"
+                Background="#10101010"
+                CornerRadius="4">
+                <ScrollViewer>
+                    <StackPanel>
+                        <TextBlock
+                            Margin="0,0,0,6"
+                            FontWeight="SemiBold"
+                            Text="Selected Provider" />
+
+                        <StackPanel Margin="0,4" Orientation="Horizontal">
+                            <TextBlock Width="120" Text="Provider id: " />
+                            <TextBox Width="300" Text="{Binding Selected.Provider, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+
+                        <TextBlock
+                            Margin="0,12,0,6"
+                            FontWeight="SemiBold"
+                            Text="Options" />
+                        <ItemsControl ItemsSource="{Binding Selected.Options}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="160" />
+                                            <ColumnDefinition Width="6" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Foreground="Gray"
+                                            Text="{Binding Key}" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            Foreground="Gray"
+                                            Text=":" />
+                                        <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock
+                            Margin="0,12,0,6"
+                            FontWeight="SemiBold"
+                            Text="Secrets" />
+                        <ItemsControl ItemsSource="{Binding Selected.Secrets}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="160" />
+                                            <ColumnDefinition Width="6" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Foreground="Gray"
+                                            Text="{Binding Key}" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            Foreground="Gray"
+                                            Text=":" />
+                                        <PasswordBox Grid.Column="2" PasswordChar="●" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <StackPanel
+                            Margin="0,12,0,0"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal">
+                            <Button
+                                Width="90"
+                                Margin="0,0,8,0"
+                                Click="Cancel_Click"
+                                Content="Cancel" />
+                            <Button
+                                Width="90"
+                                Background="#FF3A7BD5"
+                                Click="Save_Click"
+                                Content="Save"
+                                Foreground="White" />
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
     </DockPanel>
 </ui:FluentWindow>

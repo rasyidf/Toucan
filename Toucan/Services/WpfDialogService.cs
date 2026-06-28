@@ -122,6 +122,13 @@ public class WpfDialogService : IDialogService
         return dialog.ShowDialog() == true ? dialog.ResponseText : null;
     }
 
+    public LanguageManagerViewModel? ShowManageLanguages(IEnumerable<TranslationItem> allTranslations, string? primaryLanguage = null)
+    {
+        var vm = new LanguageManagerViewModel(allTranslations, primaryLanguage);
+        ManageLanguagesDialog dialog = new(vm) { Owner = Owner };
+        return dialog.ShowDialog() == true ? vm : null;
+    }
+
     public void Shutdown()
     {
         Application.Current?.Shutdown();

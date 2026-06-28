@@ -23,6 +23,9 @@ public interface IDialogService
     bool ShowImportProject(out ImportProjectViewModel? resultVm);
     string? ShowLanguagePrompt(string title, string message, IEnumerable<TranslationItem>? existingTranslations);
 
+    // Language management dialog (returns ViewModel with changes or null if cancelled)
+    LanguageManagerViewModel? ShowManageLanguages(IEnumerable<TranslationItem> allTranslations, string? primaryLanguage = null);
+
     // Application lifecycle
     void Shutdown();
 }

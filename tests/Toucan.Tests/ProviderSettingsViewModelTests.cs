@@ -51,6 +51,8 @@ namespace Toucan.Tests
 
         public string? ShowLanguagePrompt(string title, string message, IEnumerable<TranslationItem>? existingTranslations) => null;
 
+        public LanguageManagerViewModel? ShowManageLanguages(IEnumerable<TranslationItem> allTranslations, string? primaryLanguage = null) => null;
+
         public void Shutdown() { }
     }
 

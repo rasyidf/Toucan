@@ -5,154 +5,162 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    mc:Ignorable="d"
+    Margin="{StaticResource PanelMargin}"
+    d:Background="White"
     d:DesignHeight="32"
     d:DesignWidth="600"
-    Margin="{StaticResource PanelMargin}">
-    <ui:Card Padding="{StaticResource ToolbarButtonMargin}"
-             Margin="{StaticResource PanelMargin}">
+    mc:Ignorable="d">
+    <ui:Card Margin="{StaticResource PanelMargin}" Padding="{StaticResource ToolbarButtonMargin}">
 
-        <StackPanel Orientation="Horizontal"
-                    Margin="{StaticResource PanelMargin}">
+        <StackPanel Margin="{StaticResource PanelMargin}" Orientation="Horizontal">
 
-            <!-- Group: File actions (new/open/save) -->
-            <ui:Button Margin="{StaticResource ToolbarButtonMargin}"
-                       Padding="{StaticResource ToolbarButtonPadding}"
-                       Appearance="Transparent"
-                       Command="{Binding NewFolderCommand}"
-                       ToolTip="New Project">
+            <!--  Group: File actions (new/open/save)  -->
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
+                Command="{Binding NewFolderCommand}"
+                ToolTip="New Project">
                 <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="DocumentAdd20"/>
+                    <ui:SymbolIcon Symbol="DocumentAdd20" />
                 </ui:Button.Icon>
             </ui:Button>
 
-            <!-- Open: main button + drop-down (split) -->
+            <!--  Open: main button + drop-down (split)  -->
             <StackPanel Orientation="Horizontal">
-                <ui:Button Margin="{StaticResource ToolbarButtonMargin}"
-                           Padding="{StaticResource ToolbarButtonPadding}"
-                           Command="{Binding OpenFolderCommand}"
-                           Appearance="Transparent"
-                           ToolTip="Open project/folder">
+                <ui:Button
+                    Margin="{StaticResource ToolbarButtonMargin}"
+                    Padding="{StaticResource ToolbarButtonPadding}"
+                    Appearance="Transparent"
+                    Command="{Binding OpenFolderCommand}"
+                    ToolTip="Open project/folder">
                     <ui:Button.Icon>
-                        <ui:SymbolIcon Symbol="FolderOpen20"/>
+                        <ui:SymbolIcon Symbol="FolderOpen20" />
                     </ui:Button.Icon>
                 </ui:Button>
-                <Button x:Name="OpenDropDown"
-                        Margin="0,0,6,0"
-                        Padding="6,4"
-                        Click="OpenDropDown_Click"
-                        ToolTip="Open options"
-                        Background="Transparent"
-                        BorderBrush="{x:Null}">
+                <Button
+                    x:Name="OpenDropDown"
+                    Margin="0,0,6,0"
+                    Padding="6,4"
+                    Background="Transparent"
+                    BorderBrush="{x:Null}"
+                    Click="OpenDropDown_Click"
+                    ToolTip="Open options">
                     <Button.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Open folder"
-                                      Command="{Binding OpenFolderCommand}"/>
-                            <MenuItem Header="Open project file"
-                                      Command="{Binding OpenProjectFileCommand}"/>
-                            <MenuItem Header="Open recent"
-                                      Command="{Binding OpenRecentCommand}"/>
+                            <MenuItem Command="{Binding OpenFolderCommand}" Header="Open folder" />
+                            <MenuItem Command="{Binding OpenProjectFileCommand}" Header="Open project file" />
+                            <MenuItem Command="{Binding OpenRecentCommand}" Header="Open recent" />
                         </ContextMenu>
                     </Button.ContextMenu>
                     <TextBlock FontWeight="Bold">▾</TextBlock>
                 </Button>
             </StackPanel>
 
-            <ui:Button Margin="{StaticResource ToolbarButtonMargin}"
-                       Padding="{StaticResource ToolbarButtonPadding}"
-                       Command="{Binding SaveCommand}"
-                       Appearance="Transparent"
-                       ToolTip="Save project">
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
+                Command="{Binding SaveCommand}"
+                ToolTip="Save project">
                 <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Save20"/>
+                    <ui:SymbolIcon Symbol="Save20" />
                 </ui:Button.Icon>
             </ui:Button>
 
-            <Separator Margin="{StaticResource ToolbarSeparatorMargin}"/>
+            <Separator Margin="{StaticResource ToolbarSeparatorMargin}" />
 
-            <!-- Group: Edit (add/remove ids) -->
-            <ui:Button Margin="{StaticResource ToolbarButtonMargin}"
-                       Padding="{StaticResource ToolbarButtonPadding}"
-                       Command="{Binding NewItemCommand}"
-                       Appearance="Transparent"
-                       ToolTip="Add ID">
+            <!--  Group: Edit (add/remove ids)  -->
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
+                Command="{Binding NewItemCommand}"
+                ToolTip="Add ID">
                 <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Add20"/>
+                    <ui:SymbolIcon Symbol="Add20" />
                 </ui:Button.Icon>
             </ui:Button>
-            <ui:Button Margin="{StaticResource ToolbarButtonMargin}"
-                       Padding="{StaticResource ToolbarButtonPadding}"
-                       Command="{Binding DeleteItemCommand}"
-                       Appearance="Transparent"
-                       ToolTip="Remove ID">
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
+                Command="{Binding DeleteItemCommand}"
+                ToolTip="Remove ID">
                 <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Delete20"/>
-                </ui:Button.Icon>
-            </ui:Button>
-
-            <Separator Margin="{StaticResource ToolbarSeparatorMargin}"/>
-
-            <!-- Group: Filters / pre-translate / statistics -->
-            <ui:Button Margin="{StaticResource ToolbarButtonMargin}"
-                       Padding="{StaticResource ToolbarButtonPadding}"
-                       Appearance="Transparent"
-                       Command="{Binding ToggleLanguagesVisibilityCommand}"
-                       ToolTip="Project languages">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Book20"/>
+                    <ui:SymbolIcon Symbol="Delete20" />
                 </ui:Button.Icon>
             </ui:Button>
 
-            <ui:Button Margin="{StaticResource ToolbarButtonMargin}"
-                       Padding="{StaticResource ToolbarButtonPadding}"
-                       Appearance="Transparent"
-                       Command="{Binding ShowPreferencesCommand}"
-                       ToolTip="Configuration">
+            <Separator Margin="{StaticResource ToolbarSeparatorMargin}" />
+
+            <!--  Group: Filters / pre-translate / statistics  -->
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
+                Command="{Binding ToggleLanguagesVisibilityCommand}"
+                ToolTip="Project languages">
                 <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Settings20"/>
+                    <ui:SymbolIcon Symbol="Book20" />
                 </ui:Button.Icon>
             </ui:Button>
 
-            <ui:Button Margin="{StaticResource ToolbarButtonMargin}"
-                       Padding="{StaticResource ToolbarButtonPadding}"
-                       Command="{Binding PreTranslateBulkCommand}"
-                       Appearance="Transparent"
-                       ToolTip="Pre-translate">
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
+                Command="{Binding ShowPreferencesCommand}"
+                ToolTip="Configuration">
                 <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Translate20"/>
+                    <ui:SymbolIcon Symbol="Settings20" />
                 </ui:Button.Icon>
             </ui:Button>
 
-            <ui:Button Margin="{StaticResource ToolbarButtonMargin}"
-                       Padding="{StaticResource ToolbarButtonPadding}"
-                       Command="{Binding GenerateStatisticsBulkCommand}"
-                       Appearance="Transparent"
-                       ToolTip="Statistics">
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
+                Command="{Binding PreTranslateBulkCommand}"
+                ToolTip="Pre-translate">
                 <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="ChartMultiple20"/>
+                    <ui:SymbolIcon Symbol="Translate20" />
                 </ui:Button.Icon>
             </ui:Button>
 
-            <Separator Margin="{StaticResource ToolbarSeparatorMargin}"/>
-
-            <!-- Group: Source and filter -->
-            <ui:Button Margin="{StaticResource ToolbarButtonMargin}"
-                       Padding="{StaticResource ToolbarButtonPadding}"
-                       Command="{Binding ToggleAdvancedOptionsCommand}"
-                       Appearance="Transparent"
-                       ToolTip="Show source">
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
+                Command="{Binding GenerateStatisticsBulkCommand}"
+                ToolTip="Statistics">
                 <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Code20"/>
+                    <ui:SymbolIcon Symbol="ChartMultiple20" />
                 </ui:Button.Icon>
             </ui:Button>
 
-            <ui:Button Margin="{StaticResource ToolbarButtonMargin}"
-                       Padding="{StaticResource ToolbarButtonPadding}"
-                       Appearance="Transparent"
-                       Command="{Binding SetFilterCommand}"
-                       ToolTip="Set Filter">
+            <Separator Margin="{StaticResource ToolbarSeparatorMargin}" />
+
+            <!--  Group: Source and filter  -->
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
+                Command="{Binding ToggleAdvancedOptionsCommand}"
+                ToolTip="Show source">
                 <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Filter20"/>
+                    <ui:SymbolIcon Symbol="Code20" />
+                </ui:Button.Icon>
+            </ui:Button>
+
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
+                Command="{Binding SetFilterCommand}"
+                ToolTip="Set Filter">
+                <ui:Button.Icon>
+                    <ui:SymbolIcon Symbol="Filter20" />
                 </ui:Button.Icon>
             </ui:Button>
 

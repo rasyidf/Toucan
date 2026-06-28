@@ -1,5 +1,6 @@
 ﻿using Toucan.Extensions;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Toucan.Core.Models;
 
@@ -29,8 +30,10 @@ public partial class SummaryInfoViewModel : ObservableObject
 
     public void Update(IEnumerable<TranslationItem> settings)
     {
-        var allNamespace = settings.ToNamespaces().ToList();
-        var allLanguages = settings.ToLanguages().ToList();
+        // Only consider items with real namespaces for language listing
+        var parsableSettings = settings.ForParse().ToList();
+        var allNamespace = parsableSettings.ToNamespaces().ToList();
+        var allLanguages = parsableSettings.ToLanguages().ToList();
 
         Languages = allLanguages.Count;
         Translations = allNamespace.Count;
@@ -38,15 +41,25 @@ public partial class SummaryInfoViewModel : ObservableObject
         Details.Clear();
         foreach (var language in allLanguages)
         {
-            var languageNamespaces = settings.ToNamespaces(language).ToList();
+            var languageItems = parsableSettings.Where(t => t.Language == language).ToList();
+            var languageNamespaces = parsableSettings.ToNamespaces(language).ToList();
             double missingLanguageCount = allNamespace.Except(languageNamespaces).Count();
+
+            int translated = languageItems.Count(t => !string.IsNullOrEmpty(t.Value));
+            int empty = (int)Translations - translated;
+            int approved = languageItems.Count(t => t.IsApproved);
+            int needsReview = translated - approved;
 
             Details.Add(new SummaryItem
             {
                 IsExpanded = false,
                 Language = language,
                 Potential = Translations,
-                Missing = missingLanguageCount
+                Missing = missingLanguageCount,
+                Translated = translated,
+                Empty = empty,
+                Approved = approved,
+                NeedsReview = needsReview < 0 ? 0 : needsReview
             });
         }
     }

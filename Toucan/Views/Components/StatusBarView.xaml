@@ -1,12 +1,15 @@
-<UserControl x:Class="Toucan.Views.StatusBarView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-             xmlns:converters="clr-namespace:Toucan.Converters"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             Height="32"
-             mc:Ignorable="d">
+<UserControl
+    x:Class="Toucan.Views.StatusBarView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:Toucan.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Height="32"
+    d:Background="White"
+    d:DesignWidth="582"
+    mc:Ignorable="d">
 
     <UserControl.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -14,7 +17,7 @@
 
     <StatusBar MinHeight="32" Padding="2">
         <StatusBar.ItemsPanel>
-                <ItemsPanelTemplate>
+            <ItemsPanelTemplate>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -32,52 +35,61 @@
             </ItemsPanelTemplate>
         </StatusBar.ItemsPanel>
 
-        <!-- Git / Branch -->
+        <!--  Git / Branch  -->
         <StatusBarItem Visibility="{Binding IsGitVisible, Converter={StaticResource BoolToVis}}">
             <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="BranchFork24" />
         </StatusBarItem>
 
-        <!-- Project name / mode -->
+        <!--  Project name / mode  -->
         <StatusBarItem Grid.Column="1" Margin="0,0,4,0">
             <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding ModeText}" />
         </StatusBarItem>
 
-        <!-- Home icon -->
+        <!--  Home icon  -->
         <StatusBarItem Grid.Column="2" Margin="4,0,4,0">
             <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="Home24" />
         </StatusBarItem>
 
-        <!-- Activity icon -->
+        <!--  Save Mode  -->
         <StatusBarItem Grid.Column="3" Margin="4,0,4,0">
             <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="Fire24" />
         </StatusBarItem>
 
-        <!-- Project name -->
+        <!--  Project name  -->
         <StatusBarItem Grid.Column="4" Margin="4,0,4,0">
             <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding ProjectName}" />
         </StatusBarItem>
- 
-        <!-- Status text -->
+
+        <!--  Status text  -->
         <StatusBarItem Grid.Column="5">
             <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding StatusText}" />
         </StatusBarItem>
 
-        <!-- Default language (app or project primary) -->
+        <!--  Default language (app or project primary)  -->
         <StatusBarItem Grid.Column="6" Margin="4,0,4,0">
-            <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding DefaultLanguage}" />
+            <TextBlock
+                d:Text="en-us"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                Text="{Binding DefaultLanguage}" />
         </StatusBarItem>
 
-        <!-- Cursor/selection position -->
+        <!--  Cursor/selection position  -->
         <StatusBarItem Grid.Column="7" Margin="4,0,4,0">
-            <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding CursorPosition}" />
+            <TextBlock
+                d:Text="Line: 0, 0"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                Text="{Binding CursorPosition}" />
         </StatusBarItem>
 
-        <!-- Loading -->
+        <!--  Loading  -->
         <StatusBarItem Grid.Column="9" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
-            <ProgressBar Width="80" Height="12" IsIndeterminate="True" />
+            <ui:ProgressRing
+                Width="12"
+                Height="12"
+                IsIndeterminate="True" />
         </StatusBarItem>
-        
-        <!-- Notification count -->
+
+        <!--  Notification count  -->
         <StatusBarItem Grid.Column="8" HorizontalAlignment="Right">
             <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding NotificationCount}" />
         </StatusBarItem>

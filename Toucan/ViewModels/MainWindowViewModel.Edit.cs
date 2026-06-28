@@ -28,6 +28,68 @@ internal partial class MainWindowViewModel
     }
 
     [RelayCommand]
+    private void ManageLanguages()
+    {
+        var primaryLang = Core.Models.ProjectSettings.LoadFrom(CurrentPath)?.PrimaryLanguage ?? "en-US";
+        var result = _dialogService.ShowManageLanguages(AllTranslation, primaryLang);
+        if (result == null)
+        {
+            return;
+        }
+
+        // Apply removals
+        foreach (var lang in result.RemovedLanguages)
+        {
+            _ = AllTranslation.RemoveAll(t => t.Language == lang);
+        }
+
+        // Apply additions
+        foreach (var lang in result.AddedLanguages)
+        {
+            if (!AllTranslation.Any(t => t.Language == lang))
+            {
+                AllTranslation.Add(new TranslationItem
+                {
+                    Namespace = "",
+                    Value = "",
+                    Language = lang
+                });
+            }
+        }
+
+        if (result.RemovedLanguages.Count > 0 || result.AddedLanguages.Count > 0)
+        {
+            AddMissingTranslations();
+            UpdateSummaryInfo();
+            RefreshTree();
+            Search("", true);
+            IsDirty = true;
+            StatusText = $"Languages updated: +{result.AddedLanguages.Count} added, -{result.RemovedLanguages.Count} removed.";
+        }
+    }
+
+    [RelayCommand]
+    private void DeleteLanguage(Core.Models.SummaryItem? item)
+    {
+        if (item == null || string.IsNullOrEmpty(item.Language))
+        {
+            return;
+        }
+
+        if (!_messageService.ShowConfirmation($"Delete all translations for '{item.Language}'?\nThis action cannot be undone."))
+        {
+            return;
+        }
+
+        _ = AllTranslation.RemoveAll(t => t.Language == item.Language);
+        UpdateSummaryInfo();
+        RefreshTree();
+        Search("", true);
+        IsDirty = true;
+        StatusText = $"Language '{item.Language}' deleted.";
+    }
+
+    [RelayCommand]
     private void NewItem()
     {
         string ns = SelectedNode?.Namespace ?? "";

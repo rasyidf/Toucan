@@ -1,0 +1,203 @@
+<ui:FluentWindow
+    x:Class="Toucan.Views.Dialogs.ManageLanguagesDialog"
+    x:Name="LanguageManagerRoot"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:vm="clr-namespace:Toucan.ViewModels"
+    xmlns:converters="clr-namespace:Toucan.Converters"
+    Title="Manage Languages"
+    Width="520"
+    Height="480"
+    MinWidth="420"
+    MinHeight="380"
+    WindowStartupLocation="CenterOwner"
+    WindowBackdropType="Tabbed"
+    WindowCornerPreference="Round"
+    ExtendsContentIntoTitleBar="True"
+    d:DataContext="{d:DesignInstance Type=vm:LanguageManagerViewModel}"
+    mc:Ignorable="d">
+
+    <ui:FluentWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:InvertBoolConverter x:Key="InvertBool" />
+    </ui:FluentWindow.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Title Bar -->
+        <ui:TitleBar
+            Title="Manage Languages"
+            ShowMaximize="False"
+            ShowMinimize="False" />
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="16,8,16,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Add Language Section -->
+            <Grid Grid.Row="0" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <ui:AutoSuggestBox
+                    x:Name="AddLanguageBox"
+                    PlaceholderText="Search language to add (e.g., fr, French, de-DE)"
+                    Icon="LocalLanguage20"
+                    ClearButtonEnabled="True"
+                    Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                    ItemsSource="{Binding FilteredCultures}"
+                    DisplayMemberPath="Language"
+                    SuggestionChosen="AddLanguageBox_SuggestionChosen" />
+
+                <ui:Button
+                    Grid.Column="1"
+                    Margin="8,0,0,0"
+                    Padding="8,6"
+                    Appearance="Primary"
+                    Click="AddButton_Click"
+                    ToolTip="Add selected language">
+                    <ui:SymbolIcon Symbol="Add16" />
+                </ui:Button>
+            </Grid>
+
+            <!-- Language List -->
+            <ui:DynamicScrollViewer Grid.Row="1">
+                <ItemsControl ItemsSource="{Binding Languages}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:LanguageEntry}">
+                            <Border
+                                Margin="0,2"
+                                Padding="10,8"
+                                CornerRadius="6"
+                                Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ui:FluentWindow}}">
+                                <Border.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Set as Primary"
+                                                  Command="{Binding PlacementTarget.Tag.SetPrimaryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                        <MenuItem Header="Move Up"
+                                                  Command="{Binding PlacementTarget.Tag.MoveUpCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                        <MenuItem Header="Move Down"
+                                                  Command="{Binding PlacementTarget.Tag.MoveDownCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                        <Separator />
+                                        <MenuItem Header="Remove Language"
+                                                  Command="{Binding PlacementTarget.Tag.RemoveLanguageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  IsEnabled="{Binding IsPrimary, Converter={StaticResource InvertBool}}" />
+                                    </ContextMenu>
+                                </Border.ContextMenu>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Language Info -->
+                                    <StackPanel VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock
+                                                FontWeight="SemiBold"
+                                                Text="{Binding DisplayName}" />
+                                            <ui:Badge
+                                                Margin="8,0,0,0"
+                                                Visibility="{Binding IsPrimary, Converter={StaticResource BoolToVis}}"
+                                                Appearance="Caution">
+                                                <TextBlock Text="Primary" FontSize="10" />
+                                            </ui:Badge>
+                                        </StackPanel>
+                                        <TextBlock
+                                            Margin="0,2,0,0"
+                                            FontSize="11"
+                                            Opacity="0.6"
+                                            Text="{Binding Code}" />
+                                    </StackPanel>
+
+                                    <!-- Stats -->
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Margin="12,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="11"
+                                        Opacity="0.7"
+                                        Text="{Binding Summary}" />
+
+                                    <!-- Remove Button -->
+                                    <ui:Button
+                                        Grid.Column="2"
+                                        Padding="4"
+                                        Appearance="Transparent"
+                                        Command="{Binding DataContext.RemoveLanguageCommand, ElementName=LanguageManagerRoot}"
+                                        CommandParameter="{Binding}"
+                                        IsEnabled="{Binding IsPrimary, Converter={StaticResource InvertBool}}"
+                                        ToolTip="Remove language">
+                                        <ui:SymbolIcon Symbol="Delete16" FontSize="14" />
+                                    </ui:Button>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ui:DynamicScrollViewer>
+
+            <!-- Info text -->
+            <TextBlock
+                Grid.Row="2"
+                Margin="0,8,0,0"
+                FontSize="11"
+                Opacity="0.5"
+                TextWrapping="Wrap"
+                Text="Right-click a language for more options. The primary language cannot be removed." />
+        </Grid>
+
+        <!-- Footer Buttons -->
+        <Grid Grid.Row="2" Margin="16,12,16,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock
+                VerticalAlignment="Center"
+                FontSize="11"
+                Opacity="0.6">
+                <Run Text="{Binding Languages.Count, Mode=OneWay}" />
+                <Run Text="language(s)" />
+            </TextBlock>
+
+            <ui:Button
+                Grid.Column="1"
+                Margin="0,0,8,0"
+                Padding="16,8"
+                Content="Cancel"
+                Click="CancelButton_Click" />
+
+            <ui:Button
+                Grid.Column="2"
+                Padding="16,8"
+                Appearance="Primary"
+                Content="Save"
+                Click="SaveButton_Click" />
+        </Grid>
+    </Grid>
+</ui:FluentWindow>
