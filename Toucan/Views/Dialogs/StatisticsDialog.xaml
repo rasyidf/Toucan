@@ -6,64 +6,139 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="Translation Statistics" Width="480" Height="400"
+    Title="Translation Statistics" Width="520" Height="500"
+    MinWidth="420" MinHeight="350"
     WindowStartupLocation="CenterOwner"
     WindowBackdropType="Mica"
     WindowCornerPreference="Round"
     ExtendsContentIntoTitleBar="True"
-    ResizeMode="NoResize">
+    ResizeMode="CanResize">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="48"/>
         </Grid.RowDefinitions>
 
         <ui:TitleBar Title="Statistics" ShowMaximize="False" ShowMinimize="False"/>
 
-        <Grid Grid.Row="1" Margin="16,8,16,8">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,12">
+            <StackPanel>
+                <!-- Overall Summary Card -->
+                <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                        BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-            <!-- Summary -->
-            <StackPanel Margin="0,0,0,12">
-                <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding Title}"/>
-                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding Summary}" Margin="0,4,0,0"/>
+                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="Overview"/>
+                        <TextBlock Grid.Row="1" Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   FontSize="12" Text="{Binding Summary}" Margin="0,2,0,10"/>
+
+                        <!-- Overall progress bar -->
+                        <Grid Grid.Row="2">
+                            <ProgressBar Height="10" Minimum="0" Maximum="100"
+                                         Value="{Binding OverallPercent, Mode=OneWay}"
+                                         Foreground="{Binding OverallColor}"/>
+                        </Grid>
+
+                        <!-- Stats row -->
+                        <Grid Grid.Row="3" Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock FontSize="20" FontWeight="Bold" Text="{Binding OverallPercentText}"/>
+                                <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Complete"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock FontSize="20" FontWeight="Bold" Text="{Binding TotalKeys}"/>
+                                <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Keys"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock FontSize="20" FontWeight="Bold" Text="{Binding TotalLanguages}"/>
+                                <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Languages"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="3">
+                                <TextBlock FontSize="20" FontWeight="Bold" Text="{Binding TotalApproved}"/>
+                                <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Approved"/>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Per-language section -->
+                <TextBlock FontSize="13" FontWeight="SemiBold" Text="Per Language" Margin="0,0,0,8"/>
+
+                <ItemsControl ItemsSource="{Binding Languages}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                                    BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,6">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Language name + percentage -->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock FontWeight="SemiBold" FontSize="13" Text="{Binding Language}" VerticalAlignment="Center"/>
+                                            <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                                       Text="{Binding DisplayName}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" FontSize="14" FontWeight="Bold"
+                                                   Text="{Binding Percent, StringFormat='{}{0:F0}%'}"
+                                                   Foreground="{Binding StatusColor}"/>
+                                    </Grid>
+
+                                    <!-- Progress bar -->
+                                    <ProgressBar Grid.Row="1" Height="6" Minimum="0" Maximum="100"
+                                                 Value="{Binding Percent}" Margin="0,6,0,6"
+                                                 Foreground="{Binding StatusColor}"/>
+
+                                    <!-- Detail stats -->
+                                    <Grid Grid.Row="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                                            <Run Text="{Binding Translated, Mode=OneWay}"/>
+                                            <Run Text=" translated"/>
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="1" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                                            <Run Text="{Binding Missing, Mode=OneWay}"/>
+                                            <Run Text=" missing"/>
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="2" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                                            <Run Text="{Binding Approved, Mode=OneWay}"/>
+                                            <Run Text=" approved"/>
+                                        </TextBlock>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
-
-            <!-- Overall progress -->
-            <Grid Grid.Row="1" Margin="0,0,0,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <ProgressBar Height="8" Minimum="0" Maximum="100" Value="{Binding OverallPercent, Mode=OneWay}"/>
-                <TextBlock Grid.Column="1" Margin="8,0,0,0" FontWeight="SemiBold"
-                           Text="{Binding OverallPercent, StringFormat='{}{0:F0}%'}"/>
-            </Grid>
-
-            <!-- Per-language breakdown -->
-            <ListView Grid.Row="2" ItemsSource="{Binding Languages}" x:Name="StatsListView">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Language" Width="100" DisplayMemberBinding="{Binding Language}"/>
-                        <GridViewColumn Header="Translated" Width="80" DisplayMemberBinding="{Binding Translated}"/>
-                        <GridViewColumn Header="Missing" Width="80" DisplayMemberBinding="{Binding Missing}"/>
-                        <GridViewColumn Header="Total" Width="70" DisplayMemberBinding="{Binding Total}"/>
-                        <GridViewColumn Header="%" Width="60">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Percent, StringFormat='{}{0:F0}%'}" FontWeight="SemiBold"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </Grid>
+        </ScrollViewer>
 
         <ui:Button Grid.Row="2" Content="Close" HorizontalAlignment="Right" Margin="16,8,16,12" Click="Close_Click"/>
     </Grid>
