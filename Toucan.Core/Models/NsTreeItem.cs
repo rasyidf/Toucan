@@ -38,8 +38,29 @@ public class NsTreeItem
     public IEnumerable<TranslationItem>? Settings { get; set; }
     public List<TranslationItem>? HeldSetttings { get; set; }
 
-    public bool HasItems => _storage.Count > 0;
+    /// <summary>Number of direct children (available without materializing lazy-loaded items).</summary>
+    public int ChildCount => HeldSetttings != null ? EstimateChildCount() : _storage.Count;
+
+    public bool HasItems => _storage.Count > 0 || HeldSetttings != null;
     public bool HasParent => Parent != null;
+
+    private int EstimateChildCount()
+    {
+        // ponytail: count distinct first-level segments without full tree build
+        if (HeldSetttings == null || HeldSetttings.Count == 0) return 0;
+        var prefixLen = string.IsNullOrEmpty(Namespace) ? 0 : Namespace.Length + 1;
+        var children = new HashSet<string>();
+        foreach (var item in HeldSetttings)
+        {
+            var ns = item.Namespace;
+            if (ns.Length <= prefixLen) continue;
+            var dotIdx = ns.IndexOf('.', prefixLen);
+            var segment = dotIdx < 0 ? ns[prefixLen..] : ns[prefixLen..dotIdx];
+            children.Add(segment);
+            if (children.Count > 50) break; // early exit for perf — we know there are children
+        }
+        return children.Count;
+    }
 
     public void ToJson(Dictionary<string, object> parent, string language)
     {

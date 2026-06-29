@@ -19,16 +19,29 @@ public class TranslationMemoryService : ITranslationMemory
 
     public int Count => _entries.Count;
 
+    // ponytail: pre-indexed trigrams per language pair for O(1) candidate lookup instead of O(n) scan
+    private readonly Dictionary<(string, string), List<int>> _langPairIndex = [];
+    private bool _indexDirty = true;
+
+    private bool _loaded;
+
     public TranslationMemoryService()
     {
+        // ponytail: defer disk I/O until first access for faster app startup
+    }
+
+    private void EnsureLoaded()
+    {
+        if (_loaded) return;
+        _loaded = true;
         Load();
     }
 
     public void Add(string sourceText, string targetText, string sourceLanguage, string targetLanguage)
     {
+        EnsureLoaded();
         if (string.IsNullOrWhiteSpace(sourceText) || string.IsNullOrWhiteSpace(targetText)) return;
 
-        // Deduplicate: update if exact source+langs match exists
         var existing = _entries.FindIndex(e =>
             e.SourceText == sourceText && e.SourceLanguage == sourceLanguage && e.TargetLanguage == targetLanguage);
         if (existing >= 0)
@@ -37,7 +50,8 @@ public class TranslationMemoryService : ITranslationMemory
             _entries.Add(new(sourceText, targetText, sourceLanguage, targetLanguage, DateTime.UtcNow));
 
         _dirty = true;
-        if (_entries.Count % 50 == 0) Save(); // periodic flush
+        _indexDirty = true;
+        if (_entries.Count % 50 == 0) Save();
     }
 
     public void AddRange(IEnumerable<TranslationMemoryEntry> entries)
@@ -50,15 +64,47 @@ public class TranslationMemoryService : ITranslationMemory
     public IEnumerable<TranslationMemoryMatch> Search(string sourceText, string sourceLanguage, string targetLanguage, int maxResults = 5)
     {
         if (string.IsNullOrWhiteSpace(sourceText)) return [];
+        EnsureLoaded();
 
-        var candidates = _entries
-            .Where(e => e.SourceLanguage == sourceLanguage && e.TargetLanguage == targetLanguage)
+        // Fast path: exact match
+        var exact = _entries.FirstOrDefault(e =>
+            e.SourceText == sourceText && e.SourceLanguage == sourceLanguage && e.TargetLanguage == targetLanguage);
+        if (exact != null)
+            return [new TranslationMemoryMatch(exact.SourceText, exact.TargetText, 1.0)];
+
+        // Use language pair index for faster candidate selection
+        EnsureIndex();
+        var key = (sourceLanguage, targetLanguage);
+        if (!_langPairIndex.TryGetValue(key, out var indices))
+            return [];
+
+        // Only compute similarity for entries in the right language pair
+        var candidates = indices
+            .Select(i => _entries[i])
             .Select(e => new TranslationMemoryMatch(e.SourceText, e.TargetText, Similarity(sourceText, e.SourceText)))
             .Where(m => m.Similarity > 0.5)
             .OrderByDescending(m => m.Similarity)
             .Take(maxResults);
 
         return candidates;
+    }
+
+    private void EnsureIndex()
+    {
+        if (!_indexDirty) return;
+        _langPairIndex.Clear();
+        for (int i = 0; i < _entries.Count; i++)
+        {
+            var e = _entries[i];
+            var key = (e.SourceLanguage, e.TargetLanguage);
+            if (!_langPairIndex.TryGetValue(key, out var list))
+            {
+                list = [];
+                _langPairIndex[key] = list;
+            }
+            list.Add(i);
+        }
+        _indexDirty = false;
     }
 
     public void Clear()
