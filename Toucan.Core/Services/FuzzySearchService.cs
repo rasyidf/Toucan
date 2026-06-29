@@ -49,8 +49,12 @@ public class FuzzySearchService : IFuzzySearchService
     /// <inheritdoc />
     public double ComputeTrigramSimilarity(string source, string target)
     {
-        var sourceTrigrams = GetTrigrams(source);
-        var targetTrigrams = GetTrigrams(target);
+        if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(target))
+            return 0.0;
+
+        // ponytail: use int-packed trigrams to avoid string allocations entirely
+        var sourceTrigrams = GetPackedTrigrams(source);
+        var targetTrigrams = GetPackedTrigrams(target);
 
         if (sourceTrigrams.Count == 0 || targetTrigrams.Count == 0)
             return 0.0;
@@ -115,6 +119,7 @@ public class FuzzySearchService : IFuzzySearchService
 
     /// <summary>
     /// Returns all 3-character substrings (trigrams) of the input string, lowercased.
+    /// Kept for backward compatibility / test access.
     /// </summary>
     internal static HashSet<string> GetTrigrams(string s)
     {
@@ -127,6 +132,28 @@ public class FuzzySearchService : IFuzzySearchService
         for (int i = 0; i <= lower.Length - 3; i++)
         {
             set.Add(lower.Substring(i, 3));
+        }
+
+        return set;
+    }
+
+    /// <summary>
+    /// Zero-allocation trigram computation: packs 3 chars into a single long.
+    /// Avoids creating thousands of 3-char strings during search.
+    /// </summary>
+    private static HashSet<long> GetPackedTrigrams(string s)
+    {
+        if (s.Length < 3) return [];
+
+        var set = new HashSet<long>(s.Length);
+        ReadOnlySpan<char> span = s.AsSpan();
+
+        for (int i = 0; i <= span.Length - 3; i++)
+        {
+            long packed = ((long)char.ToLowerInvariant(span[i]) << 32)
+                        | ((long)char.ToLowerInvariant(span[i + 1]) << 16)
+                        | char.ToLowerInvariant(span[i + 2]);
+            set.Add(packed);
         }
 
         return set;

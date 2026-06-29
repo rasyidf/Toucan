@@ -147,22 +147,32 @@ public class TranslationMemoryService : ITranslationMemory
         if (a == b) return 1.0;
         if (string.IsNullOrEmpty(a) || string.IsNullOrEmpty(b)) return 0.0;
 
-        // Trigram-based similarity for speed (avoids O(n*m) Levenshtein on long strings)
-        var triA = GetTrigrams(a.ToUpperInvariant());
-        var triB = GetTrigrams(b.ToUpperInvariant());
+        // ponytail: packed-long trigrams — zero string allocations
+        var triA = GetPackedTrigrams(a);
+        var triB = GetPackedTrigrams(b);
         if (triA.Count == 0 || triB.Count == 0) return 0.0;
 
-        var intersection = triA.Intersect(triB).Count();
-        var union = triA.Union(triB).Count();
+        int intersection = 0;
+        foreach (var t in triA)
+            if (triB.Contains(t)) intersection++;
+
+        int union = triA.Count + triB.Count - intersection;
         return union == 0 ? 0.0 : (double)intersection / union;
     }
 
-    private static HashSet<string> GetTrigrams(string s)
+    private static HashSet<long> GetPackedTrigrams(string s)
     {
-        var set = new HashSet<string>();
+        if (s.Length < 3) return [];
         var padded = $"  {s} ";
-        for (int i = 0; i <= padded.Length - 3; i++)
-            set.Add(padded.Substring(i, 3));
+        var set = new HashSet<long>(padded.Length);
+        ReadOnlySpan<char> span = padded.AsSpan();
+        for (int i = 0; i <= span.Length - 3; i++)
+        {
+            long packed = ((long)char.ToLowerInvariant(span[i]) << 32)
+                        | ((long)char.ToLowerInvariant(span[i + 1]) << 16)
+                        | char.ToLowerInvariant(span[i + 2]);
+            set.Add(packed);
+        }
         return set;
     }
 }

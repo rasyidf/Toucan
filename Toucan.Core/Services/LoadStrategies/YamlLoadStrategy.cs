@@ -26,36 +26,36 @@ public class YamlLoadStrategy : ILoadStrategy
 
     private static List<TranslationItem> ParseYaml(string language, string[] lines)
     {
-        var result = new List<TranslationItem>();
+        var result = new List<TranslationItem>(lines.Length / 2);
         var pathStack = new List<(int Indent, string Key)>();
 
         foreach (var rawLine in lines)
         {
-            if (string.IsNullOrWhiteSpace(rawLine) || rawLine.TrimStart().StartsWith('#') || rawLine.TrimStart() == "---")
-                continue;
+            if (string.IsNullOrWhiteSpace(rawLine)) continue;
 
-            int indent = rawLine.Length - rawLine.TrimStart().Length;
-            var content = rawLine.TrimStart();
+            ReadOnlySpan<char> span = rawLine.AsSpan();
+            var trimmed = span.TrimStart();
+            if (trimmed.IsEmpty || trimmed[0] == '#' || trimmed.StartsWith("---")) continue;
 
-            var colonIdx = content.IndexOf(':');
+            int indent = span.Length - trimmed.Length;
+
+            var colonIdx = trimmed.IndexOf(':');
             if (colonIdx <= 0) continue;
 
-            var key = content[..colonIdx].Trim();
-            var value = content[(colonIdx + 1)..].Trim();
+            var key = trimmed[..colonIdx].Trim().ToString();
+            var valueSpan = trimmed[(colonIdx + 1)..].Trim();
 
             // Pop stack to current indent level
             while (pathStack.Count > 0 && pathStack[^1].Indent >= indent)
                 pathStack.RemoveAt(pathStack.Count - 1);
 
-            if (string.IsNullOrEmpty(value))
+            if (valueSpan.IsEmpty)
             {
-                // Parent node
                 pathStack.Add((indent, key));
             }
             else
             {
-                // Leaf node — strip quotes
-                value = StripQuotes(value);
+                var value = StripQuotes(valueSpan.ToString());
                 var ns = string.Join('.', pathStack.Select(p => p.Key).Append(key));
                 result.Add(new TranslationItem { Language = language, Namespace = ns, Value = value });
             }
