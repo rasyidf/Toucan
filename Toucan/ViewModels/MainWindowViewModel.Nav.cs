@@ -67,13 +67,6 @@ internal partial class MainWindowViewModel
             .Distinct()
             .ToList();
 
-        bool isPartial = false;
-        if (!alwaysPaging && matchedNamespaces.Count > AppOptions.TruncateResultsOver)
-        {
-            isPartial = true;
-            matchedNamespaces = matchedNamespaces.Take(AppOptions.TruncateResultsOver).ToList();
-        }
-
         List<LanguageGroupViewModel> languageGroups = [];
         foreach (string n in matchedNamespaces)
         {
@@ -82,7 +75,7 @@ internal partial class MainWindowViewModel
             languageGroups.Add(languageGroupVm);
         }
 
-        PagingController.SwapData(languageGroups, isPartial);
+        PagingController.SwapData(languageGroups);
 
         // Update status text with result count
         if (!string.IsNullOrWhiteSpace(ns))

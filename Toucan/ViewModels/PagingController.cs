@@ -35,21 +35,14 @@ public partial class PaginationViewModel<T> : ObservableObject
         get
         {
             if (Data == null || Data.Count == 0)
-            {
                 return "No Results";
-            }
 
-            if (!HasPages && !IsPartial)
-            {
-                return $"Showing All | {Data.Count}";
-            }
+            if (!HasPages)
+                return $"Showing All | {Data.Count} items";
 
             int start = ((Page - 1) * PageSize) + 1;
             int end = Math.Min(((Page - 1) * PageSize) + PageSize, Data.Count);
-
-            return IsPartial && TotalItems > Data.Count
-                ? $"Showing Page {Page} of {Pages} | {start}-{end} of {Data.Count} (truncated from {TotalItems})"
-                : $"Showing Page {Page} of {Pages} | {start}-{end} of {Data.Count}";
+            return $"Page {Page} of {Pages} | {start}–{end} of {Data.Count}";
         }
     }
 
@@ -148,19 +141,10 @@ public partial class PaginationViewModel<T> : ObservableObject
     {
         var list = data?.ToList() ?? [];
         TotalItems = list.Count;
+        IsPartial = isPartial;
+        Data = new ObservableCollection<T>(list);
 
-        if (TotalItems > MaxItems)
-        {
-            IsPartial = true;
-            Data = new ObservableCollection<T>(list.Take(MaxItems));
-        }
-        else
-        {
-            IsPartial = isPartial;
-            Data = new ObservableCollection<T>(list);
-        }
-
-        // Recalculate pages based on truncated Data
+        // Recalculate pages based on full data
         Pages = ComputePages(Data.Count, PageSize);
         Page = Math.Min(Math.Max(1, Page), Pages);
         UpdatePageData();
