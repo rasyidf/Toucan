@@ -32,7 +32,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Sidebar Navigation using WPF-UI ListView -->
-            <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" Padding="8,12" CornerRadius="0">
+            <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" Padding="4,8" CornerRadius="0">
                 <ui:ListView x:Name="NavList" SelectedIndex="0" SelectionChanged="NavList_SelectionChanged">
                     <ui:ListViewItem>
                         <StackPanel Orientation="Horizontal">
@@ -80,11 +80,11 @@
             </Border>
 
             <!-- Content Pages -->
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="24,16">
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="16,12">
                 <Grid>
                     <!-- Page: General -->
                     <StackPanel x:Name="PageGeneral" Visibility="Visible">
-                        <TextBlock Text="General" FontSize="24" FontWeight="Bold" Margin="0,0,0,16"/>
+                        <TextBlock Text="General" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
 
                         <ui:CardControl Margin="0,0,0,4">
                             <ui:CardControl.Header>
@@ -136,7 +136,7 @@
 
                     <!-- Page: Editor -->
                     <StackPanel x:Name="PageEditor" Visibility="Collapsed">
-                        <TextBlock Text="Editor" FontSize="24" FontWeight="Bold" Margin="0,0,0,16"/>
+                        <TextBlock Text="Editor" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
 
                         <ui:CardControl Margin="0,0,0,4">
                             <ui:CardControl.Header>
@@ -154,7 +154,7 @@
 
                     <!-- Page: Languages -->
                     <StackPanel x:Name="PageLanguages" Visibility="Collapsed">
-                        <TextBlock Text="Languages" FontSize="24" FontWeight="Bold" Margin="0,0,0,16"/>
+                        <TextBlock Text="Languages" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
 
                         <TextBlock Text="Suggested Languages" FontWeight="SemiBold" Margin="0,0,0,4"/>
                         <TextBlock Text="These languages appear when clicking 'Add suggested' in the New Project dialog." FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
@@ -190,7 +190,7 @@
 
                     <!-- Page: Translation -->
                     <StackPanel x:Name="PageTranslation" Visibility="Collapsed">
-                        <TextBlock Text="Translation" FontSize="24" FontWeight="Bold" Margin="0,0,0,16"/>
+                        <TextBlock Text="Translation" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
 
                         <ui:CardControl Margin="0,0,0,4">
                             <ui:CardControl.Header>
@@ -216,7 +216,7 @@
 
                     <!-- Page: Keyboard Shortcuts -->
                     <StackPanel x:Name="PageShortcuts" Visibility="Collapsed">
-                        <TextBlock Text="Keyboard Shortcuts" FontSize="24" FontWeight="Bold" Margin="0,0,0,16"/>
+                        <TextBlock Text="Keyboard Shortcuts" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
                         <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8">All keyboard shortcuts. Customization coming soon.</TextBlock>
                         <ListView x:Name="KeybindingsListView" MaxHeight="350">
                             <ListView.View>
@@ -231,7 +231,7 @@
 
                     <!-- Page: Project (separate page for project-specific settings) -->
                     <StackPanel x:Name="PageProject" Visibility="Collapsed">
-                        <TextBlock Text="Project Settings" FontSize="24" FontWeight="Bold" Margin="0,0,0,4"/>
+                        <TextBlock Text="Project Settings" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,4"/>
                         <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,16">These settings are stored in the project's toucan.project manifest and apply only to this project.</TextBlock>
 
                         <ui:CardControl Margin="0,0,0,4">
@@ -278,7 +278,7 @@
 
                     <!-- Page: About -->
                     <StackPanel x:Name="PageAbout" Visibility="Collapsed">
-                        <TextBlock Text="About" FontSize="24" FontWeight="Bold" Margin="0,0,0,16"/>
+                        <TextBlock Text="About" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                             <Image Source="/Assets/Images/logo.png" Width="48" Height="48" Margin="0,0,12,0"/>
                             <StackPanel VerticalAlignment="Center">

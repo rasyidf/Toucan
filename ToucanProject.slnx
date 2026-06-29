@@ -13,6 +13,7 @@
   <Project Path="tests/Toucan.Core.Tests/Toucan.Core.Tests.csproj" />
   <Project Path="tests/Toucan.Tests/Toucan.Tests.csproj" />
   <Project Path="Toucan.Avalonia/Toucan.Avalonia.csproj" />
+  <Project Path="Toucan.CLI/Toucan.CLI.csproj" />
   <Project Path="Toucan.Core/Toucan.Core.csproj">
     <Platform Solution="*|x64" Project="x64" />
     <Platform Solution="*|x86" Project="x86" />

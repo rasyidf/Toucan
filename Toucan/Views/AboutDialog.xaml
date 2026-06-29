@@ -20,7 +20,7 @@
         <ui:TitleBar ShowMinimize="False" ShowMaximize="False" Height="30" Grid.RowSpan="2"/>
         <DockPanel Margin="4,4,4,0" Grid.Row="1">
             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                <Image Width="64" Height="64" Margin="0 0 20 0" Source="/Views/logo.png"  />
+                <Image Width="64" Height="64" Margin="0 0 20 0" Source="/Assets/Images/logo.png"  />
                 <StackPanel>
                     <TextBlock FontSize="24" FontWeight="Bold" Text="Toucan" />
                     <TextBlock FontSize="16" Text="{Binding ViewModel.AppVersion, FallbackValue=0.0.1}" />

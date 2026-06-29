@@ -31,8 +31,8 @@ public class ProjectService(
         }
         settings.ProjectPath = folder;
 
-        // Load translations
-        var translations = Load(folder);
+        // Load translations using the detected/configured format
+        var translations = Load(folder, settings.SaveStyle);
 
         // Apply language aliases
         if (settings.LanguageAliases is { Count: > 0 })
@@ -124,6 +124,11 @@ public class ProjectService(
 
     public List<TranslationItem> Load(string folder)
     {
+        return Load(folder, SaveStyles.Json);
+    }
+
+    private List<TranslationItem> Load(string folder, SaveStyles style)
+    {
         if (string.IsNullOrEmpty(folder)) return [];
 
         var variant = modeResolver.Resolve(folder);
@@ -133,6 +138,11 @@ public class ProjectService(
             if (loader != null) return loader.Load(folder).ToList();
         }
 
+        // Use the detected format's load strategy (not just Json fallback)
+        var strategy = strategyFactory.GetLoadStrategy(style);
+        if (strategy != null) return strategy.Load(folder).ToList();
+
+        // Final fallback: try Json
         return (strategyFactory.GetLoadStrategy(SaveStyles.Json)?.Load(folder) ?? []).ToList();
     }
 
