@@ -13,17 +13,17 @@ public partial class TranslationItemViewModel : ObservableObject
     private string _value = string.Empty;
     private string _valueBeforeEdit = string.Empty;
     private readonly TranslationItem? _model;
-    private readonly DispatcherTimer _debounceTimer;
     private readonly IUndoRedoService? _undoRedoService;
+
+    // ponytail: lazy timer — only created when user actually edits. Eliminates 300+ idle timers.
+    private DispatcherTimer? _debounceTimer;
 
     public TranslationItemViewModel()
     {
         _model = null;
-        _debounceTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
-        _debounceTimer.Tick += (s, e) => { _debounceTimer.Stop(); SaveTranslation(); };
     }
 
-    public TranslationItemViewModel(TranslationItem model, IUndoRedoService? undoRedoService = null) : this()
+    public TranslationItemViewModel(TranslationItem model, IUndoRedoService? undoRedoService = null)
     {
         _undoRedoService = undoRedoService;
         _model = model;
@@ -39,10 +39,11 @@ public partial class TranslationItemViewModel : ObservableObject
         {
             if (_value != value)
             {
+                // Lazy-create timer on first edit
+                _debounceTimer ??= CreateTimer();
+
                 if (!_debounceTimer.IsEnabled)
-                {
                     _valueBeforeEdit = _value;
-                }
 
                 _value = value;
                 OnPropertyChanged(nameof(Value));
@@ -72,28 +73,27 @@ public partial class TranslationItemViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ToggleApproved()
-    {
-        IsApproved = !IsApproved;
-    }
+    private void ToggleApproved() => IsApproved = !IsApproved;
 
     [RelayCommand]
     private void CopyTranslation()
     {
         if (!string.IsNullOrEmpty(Value))
-        {
             Clipboard.SetText(Value);
-        }
     }
 
     private void SaveTranslation()
     {
         if (_model != null && _valueBeforeEdit != _value)
-        {
             _undoRedoService?.Record(_model.Namespace, _model.Language, _valueBeforeEdit, _value);
-        }
-
-        _ = _model?.Value = _value;
+        if (_model != null) _model.Value = _value;
         _valueBeforeEdit = _value;
+    }
+
+    private DispatcherTimer CreateTimer()
+    {
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+        timer.Tick += (_, _) => { timer.Stop(); SaveTranslation(); };
+        return timer;
     }
 }

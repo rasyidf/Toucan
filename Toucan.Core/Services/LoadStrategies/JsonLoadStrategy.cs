@@ -10,17 +10,24 @@ public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoad
 {
     public SaveStyles Style => SaveStyles.Json;
 
+    private static readonly HashSet<string> s_excludedDirs = new(StringComparer.OrdinalIgnoreCase)
+        { ".toucan", ".git", "node_modules", ".next", "dist", "build", "out", "obj", "bin", ".idea", ".vscode" };
+
+    private static readonly HashSet<string> s_excludedFiles = new(StringComparer.OrdinalIgnoreCase)
+        { "toucan.project", "package.json", "package-lock.json", "tsconfig.json", "global.json", "appsettings.json" };
+
     public IEnumerable<TranslationItem> Load(string folder)
     {
         if (string.IsNullOrEmpty(folder)) return [];
 
-        var files = Directory.GetFiles(folder, "*.json", SearchOption.AllDirectories);
+        var files = EnumerateJsonFiles(folder);
         var items = new List<TranslationItem>();
 
         foreach (var filePath in files)
         {
             var filename = Path.GetFileName(filePath);
             var (lang, prefix) = GetLanguageAndPrefix(folder, filePath);
+            if (string.IsNullOrEmpty(lang)) continue; // Skip files where language can't be determined
             var folderOfFile = Path.GetDirectoryName(filePath) ?? folder;
             var content = fileService.ReadText(folderOfFile, filename);
 
@@ -77,6 +84,29 @@ public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoad
 
     private static bool IsLanguageCandidate(string segment) =>
         !string.IsNullOrWhiteSpace(segment) && LanguagePattern().IsMatch(segment);
+
+    private static IEnumerable<string> EnumerateJsonFiles(string root)
+    {
+        var stack = new Stack<string>();
+        stack.Push(root);
+
+        while (stack.Count > 0)
+        {
+            var dir = stack.Pop();
+            foreach (var sub in Directory.GetDirectories(dir))
+            {
+                var name = Path.GetFileName(sub);
+                if (!s_excludedDirs.Contains(name))
+                    stack.Push(sub);
+            }
+            foreach (var file in Directory.GetFiles(dir, "*.json"))
+            {
+                var fileName = Path.GetFileName(file);
+                if (!s_excludedFiles.Contains(fileName))
+                    yield return file;
+            }
+        }
+    }
 
     [GeneratedRegex(@"^[a-z]{2}(-[A-Za-z0-9]+)?$", RegexOptions.IgnoreCase)]
     private static partial Regex LanguagePattern();
