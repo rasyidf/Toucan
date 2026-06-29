@@ -1,0 +1,18 @@
+<UserControl x:Class="Toucan.Views.Components.SettingsCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             x:Name="Root"
+             Margin="0,0,0,4">
+    <ui:CardControl>
+        <ui:CardControl.Header>
+            <StackPanel>
+                <TextBlock FontWeight="SemiBold" Text="{Binding Title, ElementName=Root}"/>
+                <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                           Text="{Binding Description, ElementName=Root}"
+                           Visibility="{Binding Description, ElementName=Root, Converter={StaticResource NullToCollapsed}}"/>
+            </StackPanel>
+        </ui:CardControl.Header>
+        <ContentPresenter Content="{Binding ActionContent, ElementName=Root}"/>
+    </ui:CardControl>
+</UserControl>

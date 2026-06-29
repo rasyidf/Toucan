@@ -1,60 +1,155 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
+using System.Text.Json;
 
 namespace Toucan.Services;
 
 /// <summary>
-/// Manages visibility of all editor panels (suggestions, focused editor, zen mode).
-/// ponytail: singleton observable — panels bind directly to these properties.
+/// VS Code-style panel management service.
+/// Manages visibility of all editor panels with layout persistence.
+/// Each panel can be individually toggled. Zen mode hides all chrome.
+/// Layout state is saved to disk and restored on next launch.
 /// </summary>
 internal partial class PanelService : ObservableObject
 {
+    // ponytail: backward-compat singleton until all callers are migrated to DI
     private static readonly Lazy<PanelService> s_instance = new(() => new PanelService());
     public static PanelService Instance => s_instance.Value;
 
+    private static readonly string s_layoutPath = System.IO.Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "layout.json");
+
+    // --- Sidebar Panels (left) ---
+    [ObservableProperty] private bool resourcesVisible = true;
+    [ObservableProperty] private bool languagesVisible = true;
+
+    // --- Main Panels (center) ---
+    [ObservableProperty] private bool editorVisible = true;
     [ObservableProperty] private bool suggestionsVisible;
     [ObservableProperty] private bool focusedEditorVisible;
-    [ObservableProperty] private bool zenMode;
+
+    // --- Chrome ---
     [ObservableProperty] private bool toolbarVisible = true;
     [ObservableProperty] private bool statusBarVisible = true;
     [ObservableProperty] private bool sidePanelVisible = true;
 
-    public void ToggleSuggestions()
+    // --- Modes ---
+    [ObservableProperty] private bool zenMode;
+
+    // --- Sidebar width (for splitter memory) ---
+    [ObservableProperty] private double sidebarWidth = 320;
+    [ObservableProperty] private double languagesPanelHeight = 280;
+
+    public PanelService()
     {
-        SuggestionsVisible = !SuggestionsVisible;
+        LoadLayout();
     }
 
-    public void ToggleFocusedEditor()
+    // --- Toggle Commands (bindable from menu/toolbar/keybindings) ---
+
+    [RelayCommand] private void ToggleResources() => ResourcesVisible = !ResourcesVisible;
+    [RelayCommand] private void ToggleLanguages() => LanguagesVisible = !LanguagesVisible;
+    [RelayCommand] private void ToggleEditor() => EditorVisible = !EditorVisible;
+    [RelayCommand] private void ToggleSuggestions() => SuggestionsVisible = !SuggestionsVisible;
+    [RelayCommand] private void ToggleFocusedEditor() => FocusedEditorVisible = !FocusedEditorVisible;
+    [RelayCommand] private void ToggleToolbar() => ToolbarVisible = !ToolbarVisible;
+    [RelayCommand] private void ToggleStatusBar() => StatusBarVisible = !StatusBarVisible;
+    [RelayCommand]
+    private void ToggleSidebar()
     {
-        FocusedEditorVisible = !FocusedEditorVisible;
+        SidePanelVisible = !SidePanelVisible;
+        if (!SidePanelVisible) { ResourcesVisible = false; LanguagesVisible = false; }
+        else { ResourcesVisible = true; LanguagesVisible = true; }
     }
 
-    public void EnterZenMode()
+    // --- Zen Mode ---
+
+    [RelayCommand]
+    public void ToggleZenMode()
+    {
+        if (ZenMode) ExitZenMode();
+        else EnterZenMode();
+    }
+
+    private void EnterZenMode()
     {
         ZenMode = true;
         ToolbarVisible = false;
         StatusBarVisible = false;
         SidePanelVisible = false;
+        ResourcesVisible = false;
+        LanguagesVisible = false;
         SuggestionsVisible = false;
     }
 
-    public void ExitZenMode()
+    private void ExitZenMode()
     {
         ZenMode = false;
         ToolbarVisible = true;
         StatusBarVisible = true;
         SidePanelVisible = true;
+        ResourcesVisible = true;
+        LanguagesVisible = true;
     }
 
-    public void ToggleZenMode()
+    // --- Layout Persistence ---
+
+    public void SaveLayout()
     {
-        if (ZenMode)
+        try
         {
-            ExitZenMode();
+            var state = new LayoutState
+            {
+                ResourcesVisible = ResourcesVisible,
+                LanguagesVisible = LanguagesVisible,
+                EditorVisible = EditorVisible,
+                SuggestionsVisible = SuggestionsVisible,
+                ToolbarVisible = ToolbarVisible,
+                StatusBarVisible = StatusBarVisible,
+                SidePanelVisible = SidePanelVisible,
+                SidebarWidth = SidebarWidth,
+                LanguagesPanelHeight = LanguagesPanelHeight
+            };
+            var dir = System.IO.Path.GetDirectoryName(s_layoutPath)!;
+            System.IO.Directory.CreateDirectory(dir);
+            System.IO.File.WriteAllText(s_layoutPath, JsonSerializer.Serialize(state));
         }
-        else
+        catch { /* non-critical */ }
+    }
+
+    private void LoadLayout()
+    {
+        try
         {
-            EnterZenMode();
+            if (!System.IO.File.Exists(s_layoutPath)) return;
+            var json = System.IO.File.ReadAllText(s_layoutPath);
+            var state = JsonSerializer.Deserialize<LayoutState>(json);
+            if (state == null) return;
+
+            ResourcesVisible = state.ResourcesVisible;
+            LanguagesVisible = state.LanguagesVisible;
+            EditorVisible = state.EditorVisible;
+            SuggestionsVisible = state.SuggestionsVisible;
+            ToolbarVisible = state.ToolbarVisible;
+            StatusBarVisible = state.StatusBarVisible;
+            SidePanelVisible = state.SidePanelVisible;
+            SidebarWidth = state.SidebarWidth > 0 ? state.SidebarWidth : 320;
+            LanguagesPanelHeight = state.LanguagesPanelHeight > 0 ? state.LanguagesPanelHeight : 280;
         }
+        catch { /* start with defaults */ }
+    }
+
+    private sealed class LayoutState
+    {
+        public bool ResourcesVisible { get; set; } = true;
+        public bool LanguagesVisible { get; set; } = true;
+        public bool EditorVisible { get; set; } = true;
+        public bool SuggestionsVisible { get; set; }
+        public bool ToolbarVisible { get; set; } = true;
+        public bool StatusBarVisible { get; set; } = true;
+        public bool SidePanelVisible { get; set; } = true;
+        public double SidebarWidth { get; set; } = 320;
+        public double LanguagesPanelHeight { get; set; } = 280;
     }
 }
