@@ -298,11 +298,9 @@ internal partial class MainWindowViewModel : ObservableObject
         IEnumerable<NsTreeItem> nodes = AppOptions?.PlainTextKeys == true
             ? Toucan.Extensions.TranslationItemExtensions.ToNsTreeFlat(AllTranslation.ForParse())
             : AllTranslation.ForParse().ToNsTree();
-        CurrentTreeItems.Clear();
-        foreach (NsTreeItem node in nodes)
-        {
-            CurrentTreeItems.Add(node);
-        }
+
+        // Replace the collection reference to trigger converter re-evaluation (flat list binding)
+        CurrentTreeItems = new ObservableCollection<NsTreeItem>(nodes);
     }
 
     [RelayCommand]
