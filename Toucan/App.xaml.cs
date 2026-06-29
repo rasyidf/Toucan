@@ -92,6 +92,9 @@ public partial class App : Application
         // Bulk action service
         _ = services.AddSingleton<IBulkActionService, BulkActionService>();
 
+        // Fuzzy search service (stateless singleton for hybrid trigram + substring matching)
+        _ = services.AddSingleton<IFuzzySearchService, FuzzySearchService>();
+
         // Pretranslation engine and a simple mock provider
         _ = services.AddSingleton<IPretranslationService, PretranslationService>();
         _ = services.AddSingleton<ITranslationMemory, TranslationMemoryService>();
@@ -196,6 +199,51 @@ public partial class App : Application
         // Project service
         _ = services.AddSingleton<IProjectService, ProjectService>();
 
+        // Undo/Redo service (DI singleton, replaces static Instance pattern)
+        _ = services.AddSingleton<IUndoRedoService, UndoRedoService>();
+
+        // File watcher service
+        _ = services.AddSingleton<IFileWatcherService, FileWatcherService>();
+
+        // Translation management service
+        _ = services.AddSingleton<ITranslationManagementService, TranslationManagementService>();
+
+        // Audit service
+        _ = services.AddSingleton<IAuditService, AuditService>();
+
+        // Comment persistence service
+        _ = services.AddSingleton<ICommentPersistenceService, CommentPersistenceService>();
+
+        // Language management service (registered as both interface and concrete type)
+        _ = services.AddSingleton<LanguageManagementService>();
+        _ = services.AddSingleton<ILanguageManagementService>(sp => sp.GetRequiredService<LanguageManagementService>());
+
+        // Diff/Merge engine
+        _ = services.AddSingleton<IDiffMergeEngine, DiffMergeEngine>();
+
+        // Auto-save service (uses factory to provide Lazy<IProjectLifecycleService> for circular dependency)
+        _ = services.AddSingleton<IAutoSaveService>(sp => new AutoSaveService(
+            new Lazy<IProjectLifecycleService>(() => sp.GetRequiredService<IProjectLifecycleService>()),
+            sp.GetRequiredService<ITranslationManagementService>(),
+            sp.GetRequiredService<IFileWatcherService>(),
+            sp.GetRequiredService<ILogger<AutoSaveService>>()));
+
+        // Project lifecycle service (factory to handle nullable optional dependencies)
+        _ = services.AddSingleton<IProjectLifecycleService>(sp => new ProjectLifecycleService(
+            sp.GetRequiredService<IProjectService>(),
+            sp.GetRequiredService<ITranslationManagementService>(),
+            sp.GetRequiredService<IFileWatcherService>(),
+            sp.GetRequiredService<IValidationPipeline>(),
+            sp.GetRequiredService<IAutoSaveService>(),
+            sp.GetRequiredService<IDiffMergeEngine>(),
+            sp.GetRequiredService<IAuditService>(),
+            sp.GetRequiredService<IRecentProjectService>(),
+            sp.GetRequiredService<ICommentPersistenceService>(),
+            sp.GetRequiredService<LanguageManagementService>(),
+            null, // IUnsavedChangesHandler — set later by WPF layer
+            null, // IExternalChangeHandler — set later by WPF layer
+            sp.GetRequiredService<ILogger<ProjectLifecycleService>>()));
+
         // Register MainWindowViewModel and other UI ViewModels
         _ = services.AddTransient<MainWindowViewModel>();
         _ = services.AddTransient<NewProjectViewModel>();
@@ -243,6 +291,7 @@ public partial class App : Application
         });
 
         var viewModel = _services.GetRequiredService<MainWindowViewModel>();
+        viewModel.FuzzySearchService = _services.GetRequiredService<IFuzzySearchService>();
         var statusBarViewModel = _services.GetRequiredService<StatusBarViewModel>();
         var mainWindow = new MainWindow(startupPath, viewModel, statusBarViewModel);
 

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Windows;
 using System.Windows.Threading;
+using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 
 namespace Toucan.ViewModels;
@@ -13,6 +14,7 @@ public partial class TranslationItemViewModel : ObservableObject
     private string _valueBeforeEdit = string.Empty;
     private readonly TranslationItem? _model;
     private readonly DispatcherTimer _debounceTimer;
+    private readonly IUndoRedoService? _undoRedoService;
 
     public TranslationItemViewModel()
     {
@@ -21,8 +23,9 @@ public partial class TranslationItemViewModel : ObservableObject
         _debounceTimer.Tick += (s, e) => { _debounceTimer.Stop(); SaveTranslation(); };
     }
 
-    public TranslationItemViewModel(TranslationItem model) : this()
+    public TranslationItemViewModel(TranslationItem model, IUndoRedoService? undoRedoService = null) : this()
     {
+        _undoRedoService = undoRedoService;
         _model = model;
         _value = model?.Value ?? string.Empty;
         _valueBeforeEdit = _value;
@@ -87,7 +90,7 @@ public partial class TranslationItemViewModel : ObservableObject
     {
         if (_model != null && _valueBeforeEdit != _value)
         {
-            Services.UndoRedoService.Instance.Record(_model.Namespace, _model.Language, _valueBeforeEdit, _value);
+            _undoRedoService?.Record(_model.Namespace, _model.Language, _valueBeforeEdit, _value);
         }
 
         _ = _model?.Value = _value;

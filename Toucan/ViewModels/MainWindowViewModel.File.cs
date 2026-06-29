@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
@@ -43,10 +42,7 @@ internal partial class MainWindowViewModel
 
             try
             {
-                CurrentPath = vm.ProjectFolder;
-                AppOptions.LastProjectPath = CurrentPath;
-                _recentFileService.Add(CurrentPath);
-                await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
+                await OpenProjectViaLifecycleAsync(vm.ProjectFolder).ConfigureAwait(true);
             }
             catch (Exception ex)
             {
@@ -62,10 +58,7 @@ internal partial class MainWindowViewModel
 
         if (selected != null)
         {
-            CurrentPath = selected;
-            AppOptions.LastProjectPath = selected;
-            _recentFileService.Add(selected);
-            await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
+            await OpenProjectViaLifecycleAsync(selected).ConfigureAwait(true);
         }
         else
         {
@@ -84,10 +77,7 @@ internal partial class MainWindowViewModel
                 return;
             }
 
-            CurrentPath = result.Value.Folder;
-            AppOptions.LastProjectPath = CurrentPath;
-            _recentFileService.Add(CurrentPath);
-            await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
+            await OpenProjectViaLifecycleAsync(result.Value.Folder).ConfigureAwait(true);
         }
     }
 
@@ -110,12 +100,126 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        CurrentPath = directory;
-        AppOptions.LastProjectPath = directory;
-        _recentFileService.Add(directory);
-        await LoadFolderAsync(directory).ConfigureAwait(true);
+        await OpenProjectViaLifecycleAsync(directory).ConfigureAwait(true);
     }
 
+    /// <summary>
+    /// Delegates project opening to IProjectLifecycleService, then updates UI state on success.
+    /// All open paths (folder picker, file picker, recent, new project, import) funnel through here.
+    /// </summary>
+    private async Task OpenProjectViaLifecycleAsync(string path)
+    {
+        if (_lifecycleService != null)
+        {
+            IsLoading = true;
+            ShowStartScreen = false;
+            StatusText = "Loading project...";
+
+            try
+            {
+                var result = await _lifecycleService.OpenProjectAsync(path).ConfigureAwait(true);
+
+                if (result.Status == ProjectOpenStatus.Success)
+                {
+                    CurrentPath = path;
+                    AppOptions.LastProjectPath = path;
+                    UpdateUiAfterProjectLoad(path);
+                }
+                else if (result.Status == ProjectOpenStatus.Cancelled)
+                {
+                    // User cancelled unsaved-changes prompt, restore previous state
+                    if (string.IsNullOrEmpty(CurrentPath))
+                        ShowStartScreen = true;
+                }
+                else
+                {
+                    _messageService.ShowMessage(result.ErrorMessage ?? $"Failed to open project: {result.Status}");
+                    if (string.IsNullOrEmpty(CurrentPath))
+                        ShowStartScreen = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _messageService.ShowMessage($"Error loading project: {ex.Message}");
+                if (string.IsNullOrEmpty(CurrentPath))
+                    ShowStartScreen = true;
+            }
+            finally
+            {
+                IsLoading = false;
+                StatusText = "Ready";
+            }
+        }
+        else
+        {
+            // Fallback: use legacy LoadFolderAsync if lifecycle service is not available
+            CurrentPath = path;
+            AppOptions.LastProjectPath = path;
+            _recentFileService.Add(path);
+            await LoadFolderAsync(path).ConfigureAwait(true);
+        }
+    }
+
+    /// <summary>
+    /// Updates UI state after a successful project load from the lifecycle service.
+    /// Pulls translations from ITranslationManagementService and refreshes tree/summary/paging.
+    /// </summary>
+    private void UpdateUiAfterProjectLoad(string path)
+    {
+        // Get translations from the management service (lifecycle service already initialized it)
+        if (_translationManagement != null)
+        {
+            AllTranslation = _translationManagement.Translations.ToList();
+        }
+
+        AddMissingTranslations();
+        RefreshTree();
+        UpdateSummaryInfo();
+        IsDirty = false;
+
+        // Update status bar default language from project manifest
+        try
+        {
+            var manifestPath = Path.Combine(path, "toucan.project");
+            if (File.Exists(manifestPath))
+            {
+                var txt = File.ReadAllText(manifestPath);
+                try
+                {
+                    var root = System.Text.Json.Nodes.JsonNode.Parse(txt)?.AsObject();
+                    var primary = root?["primaryLanguage"]?.GetValue<string>();
+                    if (!string.IsNullOrWhiteSpace(primary))
+                    {
+                        StatusBarService.Instance.UpdateDefaultLanguage(primary);
+                    }
+                }
+                catch { }
+            }
+            else
+            {
+                var firstLang = AllTranslation?.ToLanguages().FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(firstLang))
+                {
+                    StatusBarService.Instance.UpdateDefaultLanguage(firstLang);
+                }
+            }
+        }
+        catch { }
+
+        // Populate paging controller for loaded data
+        Search("", true);
+
+        // Ensure project name shown in status bar
+        try
+        {
+            StatusBarService.Instance.UpdateProjectName(Path.GetFileName(path) ?? path ?? "Toucan Project");
+        }
+        catch { }
+    }
+
+    /// <summary>
+    /// Legacy load method used as fallback when IProjectLifecycleService is not available.
+    /// </summary>
     private async Task LoadFolderAsync(string path)
     {
         if (_projectService == null)
@@ -136,16 +240,17 @@ internal partial class MainWindowViewModel
             RefreshTree();
             UpdateSummaryInfo();
             IsDirty = false;
-            // update status bar default language from project manifest (toucan.project) if present
+
+            // Update status bar default language from project manifest
             try
             {
-                var manifestPath = System.IO.Path.Combine(path, "toucan.project");
-                if (System.IO.File.Exists(manifestPath))
+                var manifestPath = Path.Combine(path, "toucan.project");
+                if (File.Exists(manifestPath))
                 {
-                    var txt = System.IO.File.ReadAllText(manifestPath);
+                    var txt = File.ReadAllText(manifestPath);
                     try
                     {
-                        var root = JsonNode.Parse(txt)?.AsObject();
+                        var root = System.Text.Json.Nodes.JsonNode.Parse(txt)?.AsObject();
                         var primary = root?["primaryLanguage"]?.GetValue<string>();
                         if (!string.IsNullOrWhiteSpace(primary))
                         {
@@ -156,7 +261,6 @@ internal partial class MainWindowViewModel
                 }
                 else
                 {
-                    // fallback: use first language in loaded translations if available
                     var firstLang = AllTranslation?.ToLanguages().FirstOrDefault();
                     if (!string.IsNullOrWhiteSpace(firstLang))
                     {
@@ -165,12 +269,12 @@ internal partial class MainWindowViewModel
                 }
             }
             catch { }
-            // Populate paging controller for loaded data
+
             Search("", true);
-            // ensure project name shown in status bar
+
             try
             {
-                StatusBarService.Instance.UpdateProjectName(System.IO.Path.GetFileName(path) ?? path ?? "Toucan Project");
+                StatusBarService.Instance.UpdateProjectName(Path.GetFileName(path) ?? path ?? "Toucan Project");
             }
             catch { }
         }
@@ -186,36 +290,54 @@ internal partial class MainWindowViewModel
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
-    private void Save()
+    private async Task Save()
     {
-        // Run validation before save
-        if (_validationPipeline != null && AllTranslation?.Count > 0)
+        if (_lifecycleService != null)
         {
-            ValidationContext ctx = new()
-            {
-                Items = AllTranslation,
-                Settings = ProjectSettings.LoadFrom(CurrentPath) ?? ProjectSettings.CreateDefault(CurrentPath)
-            };
-            List<ValidationResult> errors = _validationPipeline.RunAll(ctx)
-                .Where(r => r.Severity == Toucan.Core.Contracts.ValidationSeverity.Error)
-                .ToList();
+            var result = await _lifecycleService.SaveProjectAsync().ConfigureAwait(true);
 
-            if (errors.Count > 0)
+            switch (result.Status)
             {
-                var msg = $"{errors.Count} validation error(s) found:\n" +
-                    string.Join("\n", errors.Take(5).Select(e => $"• [{e.Language}] {e.Namespace}: {e.Message}"));
-                if (errors.Count > 5)
-                {
-                    msg += $"\n... and {errors.Count - 5} more";
-                }
+                case ProjectSaveStatus.Success:
+                    IsDirty = false;
+                    break;
 
-                if (!_messageService.ShowConfirmation(msg + "\n\nSave anyway?", "Validation Errors"))
-                {
-                    return;
-                }
+                case ProjectSaveStatus.ValidationErrors:
+                    // Show validation errors and let user decide
+                    var errors = result.Errors ?? [];
+                    var msg = $"{errors.Count} validation error(s) found:\n" +
+                        string.Join("\n", errors.Take(5).Select(e => $"• [{e.Language}] {e.Namespace}: {e.Message}"));
+                    if (errors.Count > 5)
+                        msg += $"\n... and {errors.Count - 5} more";
+
+                    if (_messageService.ShowConfirmation(msg + "\n\nSave anyway?", "Validation Errors"))
+                    {
+                        // Force save by calling the legacy path (bypasses validation)
+                        SaveLegacy();
+                    }
+                    break;
+
+                case ProjectSaveStatus.FileSystemError:
+                    _messageService.ShowMessage($"Save failed: {result.ErrorMessage}");
+                    break;
+
+                case ProjectSaveStatus.Cancelled:
+                    break;
             }
         }
+        else
+        {
+            // Fallback: legacy save logic
+            SaveLegacy();
+        }
+    }
 
+    /// <summary>
+    /// Legacy save logic used as fallback when lifecycle service is unavailable,
+    /// or when a force-save is needed after user confirms validation errors.
+    /// </summary>
+    private void SaveLegacy()
+    {
         IsDirty = false;
         _projectService?.Save(CurrentPath, SaveStyles.Json, CurrentTreeItems.ToList(), AllTranslation ?? []);
     }
@@ -226,20 +348,57 @@ internal partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    private void SaveTo()
+    private async Task SaveTo()
     {
         var selected = _dialogService.SelectFolder(CurrentPath);
-        if (selected != null)
+        if (selected == null)
+            return;
+
+        if (_lifecycleService != null)
+        {
+            var result = await _lifecycleService.SaveProjectAsAsync(selected).ConfigureAwait(true);
+            if (result.Status == ProjectSaveStatus.Success)
+            {
+                CurrentPath = selected;
+                AppOptions.LastProjectPath = selected;
+                IsDirty = false;
+            }
+            else if (result.Status != ProjectSaveStatus.Cancelled)
+            {
+                _messageService.ShowMessage($"Save As failed: {result.ErrorMessage}");
+            }
+        }
+        else
         {
             CurrentPath = selected;
-            Save();
+            SaveLegacy();
         }
     }
 
     [RelayCommand]
-    private void CloseProject()
+    private async Task CloseProject()
     {
-        // Reset all project-related data and UI state
+        if (_lifecycleService != null)
+        {
+            var result = await _lifecycleService.CloseProjectAsync().ConfigureAwait(true);
+            if (result == CloseResult.Closed)
+            {
+                ResetUiAfterClose();
+            }
+            // If cancelled, do nothing — user chose not to close
+        }
+        else
+        {
+            // Legacy close logic
+            ResetUiAfterClose();
+        }
+    }
+
+    /// <summary>
+    /// Resets all UI state after a project is closed.
+    /// </summary>
+    private void ResetUiAfterClose()
+    {
         AllTranslation = [];
         CurrentPath = string.Empty;
         SelectedNode = null!;
@@ -247,12 +406,10 @@ internal partial class MainWindowViewModel
         StatusText = string.Empty;
         ShowStartScreen = true;
 
-        // Clear collected tree and paging controller
         CurrentTreeItems.Clear();
         PagingController?.SwapData(new List<LanguageGroupViewModel>());
         PageButtons.Clear();
 
-        // Reset summary and UI
         RefreshTree();
         UpdateSummaryInfo();
     }
@@ -260,7 +417,14 @@ internal partial class MainWindowViewModel
     [RelayCommand]
     private async Task Refresh()
     {
-        await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
+        if (_lifecycleService != null && !string.IsNullOrEmpty(CurrentPath))
+        {
+            await OpenProjectViaLifecycleAsync(CurrentPath).ConfigureAwait(true);
+        }
+        else
+        {
+            await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
+        }
     }
 
     [RelayCommand]
@@ -283,8 +447,7 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        CurrentPath = path;
-        await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
+        await OpenProjectViaLifecycleAsync(path).ConfigureAwait(true);
     }
 
     // Recent projects collection for flyout menu binding
@@ -312,10 +475,7 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        CurrentPath = path;
-        AppOptions.LastProjectPath = path;
-        _recentFileService.Add(path);
-        await LoadFolderAsync(CurrentPath).ConfigureAwait(true);
+        await OpenProjectViaLifecycleAsync(path).ConfigureAwait(true);
     }
 
     [RelayCommand]
@@ -520,7 +680,7 @@ internal partial class MainWindowViewModel
 
         try
         {
-            var file = System.IO.Path.Combine(path, "translations.xlsx");
+            var file = Path.Combine(path, "translations.xlsx");
             Toucan.Core.Services.ExcelService.Export(file, AllTranslation);
             StatusText = $"Exported to {file}";
         }

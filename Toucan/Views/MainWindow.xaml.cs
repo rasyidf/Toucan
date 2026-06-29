@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Data;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
 using Toucan.Services;
@@ -65,7 +64,7 @@ public partial class MainWindow : FluentWindow
                 }
             }
         };
-        _fileWatcher.FilesChanged += () => Dispatcher.Invoke(() =>
+        _fileWatcher.FilesChanged += (_, _) => Dispatcher.Invoke(() =>
         {
             if (System.Windows.MessageBox.Show("Files changed on disk. Reload?", "File Changed",
                 System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.Yes)
@@ -152,9 +151,6 @@ public partial class MainWindow : FluentWindow
         SystemThemeWatcher.Watch(this, WindowBackdropType.Tabbed, true);
     }
 
-    // Search is now driven by the view-model SearchText property binding.
-
-
     private void NextPage(object sender, RoutedEventArgs e)
     {
         ViewModel.NextPageCommand.Execute(null);
@@ -186,12 +182,4 @@ public partial class MainWindow : FluentWindow
         ViewModel.ShowAll(ViewModel.SearchText);
     }
 
-    private void SearchFilterTextbox_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-    {
-        if (e.Key == System.Windows.Input.Key.Enter)
-        {
-            BindingExpression binding = ((System.Windows.Controls.TextBox)sender).GetBindingExpression(System.Windows.Controls.TextBox.TextProperty);
-            binding?.UpdateSource();
-        }
-    }
 }

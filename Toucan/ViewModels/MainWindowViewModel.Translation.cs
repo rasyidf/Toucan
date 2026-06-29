@@ -24,6 +24,26 @@ namespace Toucan.ViewModels;
 /// </summary>
 internal partial class MainWindowViewModel
 {
+    /// <summary>
+    /// Notifies the translation management service about bulk value changes.
+    /// Called after bulk operations (pre-translate, approve, etc.) to update dirty tracking.
+    /// Falls back to setting IsDirty directly if the service is unavailable.
+    /// </summary>
+    private void NotifyBulkValueChanges(IEnumerable<TranslationItem> items)
+    {
+        if (_translationManagement != null)
+        {
+            foreach (var item in items)
+            {
+                _translationManagement.NotifyValueChanged(item, item.Value);
+            }
+        }
+        else
+        {
+            IsDirty = true;
+        }
+    }
+
     #region Pre-Translation & Bulk Actions
 
     [RelayCommand]
@@ -49,7 +69,7 @@ internal partial class MainWindowViewModel
                 if (result)
                 {
                     UpdateSummaryInfo();
-                    IsDirty = true;
+                    NotifyBulkValueChanges(AllTranslation);
                     StatusText = "Pre-translation completed.";
                 }
 
@@ -65,7 +85,7 @@ internal partial class MainWindowViewModel
             // Ensure continuation runs on the UI context so we can update UI-bound properties safely
             await _bulkActionService.PreTranslateAsync(AllTranslation).ConfigureAwait(true);
             UpdateSummaryInfo();
-            IsDirty = true;
+            NotifyBulkValueChanges(AllTranslation);
             StatusText = "Pre-translation completed.";
         }
         catch (Exception ex)
@@ -123,7 +143,7 @@ internal partial class MainWindowViewModel
             List<TranslationItem> toTranslate = AllTranslation.Where(t => t.Language == item.Language).ToList();
             await _bulkActionService.PreTranslateAsync(toTranslate).ConfigureAwait(true);
             UpdateSummaryInfo();
-            IsDirty = true;
+            NotifyBulkValueChanges(toTranslate);
             StatusText = $"Pre-translation completed for {item.Language}.";
         }
         catch (Exception ex)
@@ -176,7 +196,7 @@ internal partial class MainWindowViewModel
 
             await _bulkActionService.PreTranslateAsync(toTranslate).ConfigureAwait(true);
             UpdateSummaryInfo();
-            IsDirty = true;
+            NotifyBulkValueChanges(toTranslate);
             StatusText = $"Pre-translation completed for {item.Language} (namespace: {ns}).";
         }
         catch (Exception ex)
@@ -229,7 +249,7 @@ internal partial class MainWindowViewModel
 
             await _bulkActionService.PreTranslateAsync(toTranslate).ConfigureAwait(true);
             UpdateSummaryInfo();
-            IsDirty = true;
+            NotifyBulkValueChanges(toTranslate);
             StatusText = $"Pre-translation completed for {item.Language} (key: {key}).";
         }
         catch (Exception ex)
@@ -321,7 +341,9 @@ internal partial class MainWindowViewModel
         }
 
         UpdateSummaryInfo();
-        IsDirty = true;
+        // Approval changes need persistence but aren't tracked by value/comment baselines.
+        // Notify the service about the items so dirty state is raised if not already dirty.
+        NotifyBulkValueChanges(languageItems);
         StatusText = $"Approved {languageItems.Count} item(s) for {item.Language}.";
     }
 
@@ -616,15 +638,21 @@ internal partial class MainWindowViewModel
 
         var baseKey = PluralService.GetBaseKey(SelectedNode.Namespace);
         List<string> languages = AllTranslation.ToLanguages().ToList();
-        var added = 0;
+        List<TranslationItem> allAdded = [];
         foreach (var lang in languages)
         {
             var missing = PluralService.GenerateMissingForms(baseKey, lang, AllTranslation);
             AllTranslation.AddRange(missing);
-            added += missing.Count;
+            allAdded.AddRange(missing);
         }
-        if (added > 0) { RefreshTree(); UpdateSummaryInfo(); IsDirty = true; }
-        StatusText = added > 0 ? $"Generated {added} plural forms for '{baseKey}'" : "All plural forms already exist.";
+        if (allAdded.Count > 0)
+        {
+            RefreshTree();
+            UpdateSummaryInfo();
+            _translationManagement?.AddItems(allAdded);
+            IsDirty = true;
+        }
+        StatusText = allAdded.Count > 0 ? $"Generated {allAdded.Count} plural forms for '{baseKey}'" : "All plural forms already exist.";
     }
 
     [RelayCommand]
@@ -637,15 +665,21 @@ internal partial class MainWindowViewModel
 
         var baseKey = GenderService.GetBaseKey(SelectedNode.Namespace);
         List<string> languages = AllTranslation.ToLanguages().ToList();
-        var added = 0;
+        List<TranslationItem> allAdded = [];
         foreach (var lang in languages)
         {
             var missing = GenderService.GenerateMissingForms(baseKey, lang, AllTranslation);
             AllTranslation.AddRange(missing);
-            added += missing.Count;
+            allAdded.AddRange(missing);
         }
-        if (added > 0) { RefreshTree(); UpdateSummaryInfo(); IsDirty = true; }
-        StatusText = added > 0 ? $"Generated {added} gender forms for '{baseKey}'" : "All gender forms already exist.";
+        if (allAdded.Count > 0)
+        {
+            RefreshTree();
+            UpdateSummaryInfo();
+            _translationManagement?.AddItems(allAdded);
+            IsDirty = true;
+        }
+        StatusText = allAdded.Count > 0 ? $"Generated {allAdded.Count} gender forms for '{baseKey}'" : "All gender forms already exist.";
     }
 
     #endregion

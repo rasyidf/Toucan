@@ -1,23 +1,16 @@
-using System;
 using System.Collections.Generic;
+
+using Toucan.Core.Contracts.Services;
+using Toucan.Core.Models;
 
 namespace Toucan.Services;
 
 /// <summary>
-/// A single undoable edit action.
-/// </summary>
-internal record EditAction(string Namespace, string Language, string OldValue, string NewValue);
-
-/// <summary>
 /// Simple undo/redo stack for translation value edits.
-/// ponytail: global singleton, no framework — just two stacks.
-/// Upgrade path: per-field granularity, grouping batch edits.
+/// Registered as singleton in DI — injected wherever needed.
 /// </summary>
-internal class UndoRedoService
+public class UndoRedoService : IUndoRedoService
 {
-    private static readonly Lazy<UndoRedoService> s_instance = new(() => new UndoRedoService());
-    public static UndoRedoService Instance => s_instance.Value;
-
     private readonly Stack<EditAction> _undoStack = new();
     private readonly Stack<EditAction> _redoStack = new();
     private const int MaxHistory = 200;

@@ -48,22 +48,6 @@
                     <views:MainMenu/>
                 </StackPanel>
             </ui:TitleBar.Header>
-            <ui:TitleBar.TrailingContent>
-                <ui:TextBox
-                    x:Name="SearchFilterTextbox"
-                    Width="206"
-                    Height="32"
-                    MinWidth="100"
-                    Padding="0,6,0,8"
-                    HorizontalAlignment="Left"
-                    Background="#0F020202"
-                    Icon="Search16"
-                    IconPlacement="Right"
-                    PlaceholderText="Search..."
-                    PreviewKeyDown="SearchFilterTextbox_PreviewKeyDown"
-                    Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
-
-            </ui:TitleBar.TrailingContent>
         </ui:TitleBar>
 
 

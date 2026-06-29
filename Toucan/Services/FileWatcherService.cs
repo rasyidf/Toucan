@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Toucan.Core.Contracts.Services;
 
 namespace Toucan.Services;
 
@@ -9,7 +10,7 @@ namespace Toucan.Services;
 /// ponytail: simple FileSystemWatcher wrapper. Debounces rapid changes.
 /// Only fires FilesChanged if timestamps actually differ from snapshot.
 /// </summary>
-internal class FileWatcherService : IDisposable
+public class FileWatcherService : IFileWatcherService, IDisposable
 {
     private FileSystemWatcher? _watcher;
     private System.Timers.Timer? _debounce;
@@ -17,7 +18,7 @@ internal class FileWatcherService : IDisposable
     private string _folder = "";
     private readonly Dictionary<string, DateTime> _snapshots = [];
 
-    public event Action? FilesChanged;
+    public event EventHandler? FilesChanged;
 
     public void Watch(string folder)
     {
@@ -46,7 +47,7 @@ internal class FileWatcherService : IDisposable
             _pending = false;
             if (HasChanges())
             {
-                FilesChanged?.Invoke();
+                FilesChanged?.Invoke(this, EventArgs.Empty);
             }
         };
     }

@@ -11,8 +11,8 @@
     d:DesignWidth="600"
     mc:Ignorable="d">
     <ui:Card Margin="{StaticResource PanelMargin}" Padding="{StaticResource ToolbarButtonMargin}">
-
-        <StackPanel Margin="{StaticResource PanelMargin}" Orientation="Horizontal">
+        <Grid>
+            <StackPanel Margin="{StaticResource PanelMargin}" Orientation="Horizontal" HorizontalAlignment="Left">
 
             <!--  Group: File actions (new/open/save)  -->
             <ui:Button
@@ -164,6 +164,13 @@
                 </ui:Button.Icon>
             </ui:Button>
 
-        </StackPanel>
+            </StackPanel>
+            <ui:TextBox HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       Width="220"
+                       Icon="Search16"
+                       PlaceholderText="Search..."
+                       Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        </Grid>
     </ui:Card>
 </UserControl>
