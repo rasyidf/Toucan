@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Text.Json.Nodes;
 using System.Windows;
@@ -20,7 +20,7 @@ public partial class OptionDialog : FluentWindow
     {
         InitializeComponent();
 
-        _pages = [PageGeneral, PageEditor, PageLanguages, PageTranslation, PageShortcuts, PageProject, PageAbout];
+        _pages = [PageGeneral, PageAppearance, PageEditor, PageTranslation, PageShortcuts, PageLanguages, PageProject, PageAbout];
 
         vm = viewModel;
 
