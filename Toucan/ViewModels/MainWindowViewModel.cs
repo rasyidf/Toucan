@@ -355,11 +355,30 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void ShowPreferences()
     {
+        var previousLanguage = AppOptions.AppLanguage;
+
         if (_dialogService.ShowOptions(AppOptions, CurrentPath, out var updated) && updated != null)
         {
             AppOptions = updated;
             try { StatusBarService.Instance.UpdateDefaultLanguage(AppOptions.DefaultLanguage ?? "en-US"); } catch { }
             App.ApplyTheme(AppOptions.Theme);
+
+            // Prompt restart if app language changed
+            if (!string.Equals(previousLanguage, AppOptions.AppLanguage, StringComparison.OrdinalIgnoreCase))
+            {
+                if (_messageService.ShowConfirmation("Language changed. Restart now to apply?", "Restart Required"))
+                {
+                    // Save and restart
+                    AppOptions.ToDisk();
+                    var exePath = Environment.ProcessPath ?? System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+                    if (exePath != null)
+                    {
+                        System.Diagnostics.Process.Start(exePath);
+                    }
+                    _dialogService.Shutdown();
+                    return;
+                }
+            }
         }
         // Recreate paging controller with new options
         int oldPage = PagingController?.Page ?? 1;
