@@ -12,6 +12,7 @@ public class AppOptions
 {
     // --- UI preferences ---
     public string DefaultLanguage { get; set; } = "en-US";
+    public string Theme { get; set; } = "System";
     public int PageSize { get; set; } = 15;
     public int MaxItems { get; set; } = 5000;
     public int TruncateResultsOver { get; set; } = 5000;

@@ -106,6 +106,20 @@
                         <ui:CardControl Margin="0,0,0,4">
                             <ui:CardControl.Header>
                                 <StackPanel>
+                                    <TextBlock Text="Theme" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Application color scheme" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <ComboBox Width="140" SelectedValue="{Binding Theme, Mode=TwoWay}" SelectedValuePath="Content">
+                                <ComboBoxItem>System</ComboBoxItem>
+                                <ComboBoxItem>Light</ComboBoxItem>
+                                <ComboBoxItem>Dark</ComboBoxItem>
+                            </ComboBox>
+                        </ui:CardControl>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel>
                                     <TextBlock Text="Page size" FontWeight="SemiBold"/>
                                     <TextBlock Text="Items per page in translation view" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
                                 </StackPanel>

@@ -359,6 +359,7 @@ internal partial class MainWindowViewModel : ObservableObject
         {
             AppOptions = updated;
             try { StatusBarService.Instance.UpdateDefaultLanguage(AppOptions.DefaultLanguage ?? "en-US"); } catch { }
+            App.ApplyTheme(AppOptions.Theme);
         }
         // Recreate paging controller with new options
         int oldPage = PagingController?.Page ?? 1;

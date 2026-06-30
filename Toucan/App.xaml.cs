@@ -22,6 +22,29 @@ namespace Toucan;
 /// </summary>
 public partial class App : Application
 {
+    /// <summary>
+    /// Applies the specified theme. Called on startup and when user changes theme in Options.
+    /// </summary>
+    internal static void ApplyTheme(string? theme)
+    {
+        var appTheme = theme?.ToLowerInvariant() switch
+        {
+            "dark" => Wpf.Ui.Appearance.ApplicationTheme.Dark,
+            "light" => Wpf.Ui.Appearance.ApplicationTheme.Light,
+            _ => Wpf.Ui.Appearance.ApplicationTheme.Unknown // "System" — let WPF-UI follow OS
+        };
+
+        if (appTheme == Wpf.Ui.Appearance.ApplicationTheme.Unknown)
+        {
+            // Follow system theme
+            Wpf.Ui.Appearance.ApplicationThemeManager.ApplySystemTheme();
+        }
+        else
+        {
+            Wpf.Ui.Appearance.ApplicationThemeManager.Apply(appTheme);
+        }
+    }
+
     private static void ReportUnhandledException(Exception ex, string source)
     {
         try
@@ -305,6 +328,10 @@ public partial class App : Application
 
         var viewModel = _services.GetRequiredService<MainWindowViewModel>();
         viewModel.FuzzySearchService = _services.GetRequiredService<IFuzzySearchService>();
+
+        // Apply saved theme
+        ApplyTheme(viewModel.AppOptions.Theme);
+
         var statusBarViewModel = _services.GetRequiredService<StatusBarViewModel>();
         var mainWindow = new MainWindow(startupPath, viewModel, statusBarViewModel);
 

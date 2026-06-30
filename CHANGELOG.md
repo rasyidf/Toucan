@@ -5,6 +5,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0] — 2026-06-30
+
+### Added
+- **Theme switcher** — Light/Dark/System theme selection in Settings → Options
+- Theme persisted to `settings.json` and applied on startup via `ApplicationThemeManager`
+- Theme applied immediately when changed in Options (no restart needed)
+
 ## [0.11.0] — 2026-06-30
 
 ### Added
