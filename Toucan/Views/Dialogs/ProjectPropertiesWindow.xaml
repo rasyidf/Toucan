@@ -1,0 +1,349 @@
+<ui:FluentWindow
+    x:Class="Toucan.Views.Dialogs.ProjectPropertiesWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:converters="clr-namespace:Toucan.Converters"
+    Title="Project Properties"
+    Width="680"
+    Height="660"
+    MinWidth="550" MinHeight="500"
+    ExtendsContentIntoTitleBar="True"
+    WindowBackdropType="Mica"
+    WindowCornerPreference="Round"
+    WindowStartupLocation="CenterOwner"
+    ResizeMode="CanResize"
+    mc:Ignorable="d">
+
+    <ui:FluentWindow.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </ui:FluentWindow.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="52"/>
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Title="Project Properties" Grid.Row="0" ShowHelp="False" ShowMaximize="False" ShowMinimize="False"/>
+
+        <!-- Main: Sidebar + Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar Navigation -->
+            <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" Padding="4,8" CornerRadius="0">
+                <ui:ListView x:Name="NavList" SelectedIndex="0" SelectionChanged="NavList_SelectionChanged">
+                    <ui:ListViewItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Info24" Margin="0,0,10,0"/>
+                            <TextBlock Text="Identity" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:ListViewItem>
+                    <ui:ListViewItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Translate24" Margin="0,0,10,0"/>
+                            <TextBlock Text="Translation" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:ListViewItem>
+                    <ui:ListViewItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Edit24" Margin="0,0,10,0"/>
+                            <TextBlock Text="Editor" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:ListViewItem>
+                    <ui:ListViewItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="ToggleRight24" Margin="0,0,10,0"/>
+                            <TextBlock Text="Features" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:ListViewItem>
+                    <ui:ListViewItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Code24" Margin="0,0,10,0"/>
+                            <TextBlock Text="Source Code" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:ListViewItem>
+                </ui:ListView>
+            </Border>
+
+            <!-- Content Pages -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="16,12">
+                <Grid>
+                    <!-- Page: Identity -->
+                    <StackPanel x:Name="PageIdentity" Visibility="Visible">
+                        <TextBlock Text="Project Identity" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Rename24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Project name" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Display name for this translation project" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <ui:TextBox Width="220" Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="My Project"/>
+                        </ui:CardControl>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="TextDescription24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Description" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Brief description of the project" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <ui:TextBox Width="220" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Optional description"/>
+                        </ui:CardControl>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="LocalLanguage24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Primary language" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Source language for translations" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <ComboBox Width="140" ItemsSource="{Binding Languages}" SelectedValue="{Binding PrimaryLanguage, Mode=TwoWay}" IsEditable="True" Text="{Binding PrimaryLanguage, Mode=TwoWay}"/>
+                        </ui:CardControl>
+
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Project Languages</TextBlock>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"
+                                       Text="Languages in this project"/>
+                            <ui:Button Content="Manage Languages" Margin="12,0,0,0" Appearance="Transparent" Padding="8,2"
+                                       Command="{Binding ManageLanguagesCommand}" FontSize="11"/>
+                        </StackPanel>
+
+                        <Border BorderThickness="1" BorderBrush="{DynamicResource ControlElevationBorderBrush}" CornerRadius="4" MinHeight="60" MaxHeight="120" Margin="0,0,0,4">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding Languages}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" Margin="10,3" FontSize="12"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Page: Translation -->
+                    <StackPanel x:Name="PageTranslation" Visibility="Collapsed">
+                        <TextBlock Text="Translation" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="CloudSync24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Default provider" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Translation service for this project" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ComboBox Width="140" SelectedValue="{Binding DefaultProvider, Mode=TwoWay}" SelectedValuePath="Content" IsEditable="True" Text="{Binding DefaultProvider, Mode=TwoWay}">
+                                    <ComboBoxItem>Google</ComboBoxItem>
+                                    <ComboBoxItem>DeepL</ComboBoxItem>
+                                    <ComboBoxItem>Microsoft</ComboBoxItem>
+                                    <ComboBoxItem>OpenAI</ComboBoxItem>
+                                    <ComboBoxItem>Custom</ComboBoxItem>
+                                </ComboBox>
+                                <ui:Button Margin="8,0,0,0" Padding="8,4" Command="{Binding OpenProviderSettingsCommand}" ToolTip="Configure providers">
+                                    <ui:Button.Icon>
+                                        <ui:SymbolIcon Symbol="Settings20"/>
+                                    </ui:Button.Icon>
+                                </ui:Button>
+                            </StackPanel>
+                        </ui:CardControl>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="TextGrammarWand24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Formality" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Tone for machine translations (project override)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <ComboBox Width="140" SelectedValue="{Binding Formality, Mode=TwoWay}" SelectedValuePath="Content">
+                                <ComboBoxItem>Default</ComboBoxItem>
+                                <ComboBoxItem>Formal</ComboBoxItem>
+                                <ComboBoxItem>Informal</ComboBoxItem>
+                            </ComboBox>
+                        </ui:CardControl>
+
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Project Context</TextBlock>
+                        <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"
+                                   Text="Provide context to improve translation quality for this project. Overrides the app-level context."/>
+                        <TextBox Height="100" AcceptsReturn="True" TextWrapping="Wrap"
+                                 Text="{Binding Context, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+
+                    <!-- Page: Editor -->
+                    <StackPanel x:Name="PageEditor" Visibility="Collapsed">
+                        <TextBlock Text="Editor" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Save24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Save empty translations" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Write keys with empty values to output files" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <CheckBox IsChecked="{Binding SaveEmptyTranslations, Mode=TwoWay}"/>
+                        </ui:CardControl>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="ArrowSort24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Translation order" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Key sort order when saving files" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <ComboBox Width="180" SelectedValue="{Binding TranslationOrder, Mode=TwoWay}" SelectedValuePath="Content">
+                                <ComboBoxItem>Alphabetically sorted</ComboBoxItem>
+                                <ComboBoxItem>Primary language</ComboBoxItem>
+                            </ComboBox>
+                        </ui:CardControl>
+
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Copy Templates</TextBlock>
+                        <TextBlock Text="Use %1 as placeholder for the key namespace" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
+
+                        <TextBox Text="{Binding CopyTemplate1, Mode=TwoWay}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding CopyTemplate2, Mode=TwoWay}" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding CopyTemplate3, Mode=TwoWay}" Margin="0,0,0,4"/>
+
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Hidden Namespaces</TextBlock>
+                        <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,6"
+                                   Text="These namespaces are excluded from the editor and statistics"/>
+                        <ItemsControl ItemsSource="{Binding HiddenNamespaces}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" CornerRadius="3" Padding="8,4" Margin="0,0,0,2">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding}" FontSize="12" VerticalAlignment="Center"/>
+                                            <ui:Button Grid.Column="1" Padding="3,2" Appearance="Transparent"
+                                                       Command="{Binding DataContext.RemoveHiddenNamespaceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                       CommandParameter="{Binding}">
+                                                <ui:SymbolIcon Symbol="Dismiss16" FontSize="10"/>
+                                            </ui:Button>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Page: Features -->
+                    <StackPanel x:Name="PageFeatures" Visibility="Collapsed">
+                        <TextBlock Text="Features" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Comment24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Comments" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Enable translation comments and notes" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <CheckBox IsChecked="{Binding CommentsEnabled, Mode=TwoWay}"/>
+                        </ui:CardControl>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Save24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Auto-save" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Automatically save project at regular intervals" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <CheckBox IsChecked="{Binding AutoSaveEnabled, Mode=TwoWay}"/>
+                        </ui:CardControl>
+
+                        <ui:CardControl Margin="0,0,0,4"
+                                        Visibility="{Binding AutoSaveEnabled, Converter={StaticResource BoolToVis}}">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Timer24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Auto-save interval" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Seconds between saves (10–600)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <TextBox Width="80" Text="{Binding AutoSaveIntervalText, Mode=TwoWay}"/>
+                        </ui:CardControl>
+                    </StackPanel>
+
+                    <!-- Page: Source Code -->
+                    <StackPanel x:Name="PageSourceCode" Visibility="Collapsed">
+                        <TextBlock Text="Source Code" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Folder24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Source roots" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Directories to scan for key usage (semicolon-separated)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <ui:TextBox Width="260" Text="{Binding SourceRoots, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="src;lib"/>
+                        </ui:CardControl>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Open24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="External editor" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Command to open files (use {file} and {line})" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <ui:TextBox Width="260" Text="{Binding ExternalEditor, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="code --goto {file}:{line}"/>
+                        </ui:CardControl>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <ui:Button Content="Cancel" Width="90" Margin="0,0,8,0" Command="{Binding CancelCommand}"/>
+                <ui:Button Content="Save" Width="90" Appearance="Primary" Command="{Binding SaveCommand}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</ui:FluentWindow>

@@ -95,8 +95,8 @@ public partial class NewProjectPrompt : FluentWindow
 
         if (!vm.IsValid)
         {
-            // a basic validation alert
-            _ = System.Windows.MessageBox.Show("Please set a project name and folder.", "Invalid", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            var msgBox = new Wpf.Ui.Controls.MessageBox { Title = "Invalid", Content = "Please set a project name and folder.", PrimaryButtonText = "OK", CloseButtonText = string.Empty };
+            _ = msgBox.ShowDialogAsync();
             return;
         }
 
@@ -108,7 +108,8 @@ public partial class NewProjectPrompt : FluentWindow
         }
         catch (System.Exception ex)
         {
-            _ = System.Windows.MessageBox.Show($"Failed to create project: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            var msgBox = new Wpf.Ui.Controls.MessageBox { Title = "Error", Content = $"Failed to create project: {ex.Message}", PrimaryButtonText = "OK", CloseButtonText = string.Empty };
+            _ = msgBox.ShowDialogAsync();
         }
     }
 }

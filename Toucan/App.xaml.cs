@@ -137,6 +137,7 @@ public partial class App : Application
         // provider settings + secure storage for API keys
         _ = services.AddSingleton<ISecureStorageService, SecureStorageService>();
         _ = services.AddSingleton<IProviderSettingsService, ProviderSettingsService>();
+        _ = services.AddSingleton<ITranslationProviderRegistry, TranslationProviderRegistry>();
 
         // core file service
         _ = services.AddSingleton<IFileService, FileService>();
@@ -329,7 +330,7 @@ public partial class App : Application
         _ = services.AddTransient<Func<IEnumerable<TranslationItem>, LanguagePromptViewModel>>(sp => list => ActivatorUtilities.CreateInstance<LanguagePromptViewModel>(sp, list));
         // Factory for PreTranslateViewModel (languages + sourceItems + optional IPretranslationService)
         _ = services.AddTransient<Func<IEnumerable<string>, IEnumerable<TranslationItem>, IPretranslationService, PreTranslateViewModel>>(
-            sp => (langs, items, svc) => ActivatorUtilities.CreateInstance<PreTranslateViewModel>(sp, langs, items, svc));
+            sp => (langs, items, svc) => new PreTranslateViewModel(langs, items, svc, sp.GetRequiredService<IDialogService>(), sp.GetRequiredService<IProviderSettingsService>()));
 
         // Factory delegates for Views requiring runtime parameters
         _ = services.AddTransient<Func<IEnumerable<TranslationItem>, Window?, StatisticsDialog>>(sp => (translations, owner) => new StatisticsDialog(translations, owner));

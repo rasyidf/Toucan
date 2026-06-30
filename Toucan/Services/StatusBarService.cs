@@ -37,6 +37,8 @@ internal class StatusBarService : IStatusBarService
     public void UpdateDefaultLanguage(string lang) { if (_vm != null) _vm.DefaultLanguage = lang; }
     public void ShowNotificationBadge(int count) { if (_vm != null) _vm.ShowNotification(count); }
 
+    public void UpdateSessionDirtyCount(int count) { if (_vm != null) _vm.SessionDirtyCount = count; }
+
     public void UpdateSourceControl(string branch, int changes, IEnumerable<string>? summary = null)
     {
         _vm?.UpdateSourceControl(branch, changes, summary);

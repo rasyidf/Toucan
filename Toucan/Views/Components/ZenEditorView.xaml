@@ -99,19 +99,29 @@
 
         <!-- Center: focused translation item -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      Padding="48,24">
-            <ContentControl
-                x:Name="ZenContent"
-                MaxWidth="800"
-                HorizontalAlignment="Center"
-                Content="{Binding ZenCurrentItem, Mode=OneWay}">
-                <ContentControl.ContentTemplate>
-                    <DataTemplate>
-                        <views:TranslationItemView DataContext="{Binding}" />
-                    </DataTemplate>
-                </ContentControl.ContentTemplate>
-            </ContentControl>
+                      HorizontalScrollBarVisibility="Disabled">
+            <Border Padding="32,32" HorizontalAlignment="Stretch">
+                <Border
+                    MinWidth="500"
+                    MaxWidth="900"
+                    HorizontalAlignment="Center"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="24,20">
+                    <ContentControl
+                        x:Name="ZenContent"
+                        HorizontalAlignment="Stretch"
+                        Content="{Binding ZenCurrentItem, Mode=OneWay}">
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate>
+                                <views:TranslationItemView DataContext="{Binding}" />
+                            </DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                </Border>
+            </Border>
         </ScrollViewer>
 
         <!-- Bottom: language filter indicator -->

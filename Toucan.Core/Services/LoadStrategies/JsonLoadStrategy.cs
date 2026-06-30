@@ -87,6 +87,11 @@ public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoad
 
     private static IEnumerable<string> EnumerateJsonFiles(string root)
     {
+        // ponytail: if root itself has lang-code subdirs (en/, id/, etc.), skip nested 'locales/' dir
+        // to avoid loading the same translations twice from different paths.
+        var hasLangDirsAtRoot = Directory.GetDirectories(root)
+            .Any(d => LanguagePattern().IsMatch(Path.GetFileName(d)));
+
         var stack = new Stack<string>();
         stack.Push(root);
 
@@ -96,8 +101,12 @@ public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoad
             foreach (var sub in Directory.GetDirectories(dir))
             {
                 var name = Path.GetFileName(sub);
-                if (!s_excludedDirs.Contains(name))
-                    stack.Push(sub);
+                if (s_excludedDirs.Contains(name))
+                    continue;
+                // Skip nested 'locales' dir when root already has lang dirs (avoids duplicates)
+                if (hasLangDirsAtRoot && dir == root && name.Equals("locales", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                stack.Push(sub);
             }
             foreach (var file in Directory.GetFiles(dir, "*.json"))
             {

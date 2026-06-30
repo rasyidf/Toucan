@@ -172,6 +172,15 @@ internal partial class MainWindowViewModel
             AllTranslation = _translationManagement.Translations.ToList();
         }
 
+        // Load hidden namespaces from project settings
+        var projSettings = ProjectSettings.LoadFrom(path);
+        HiddenNamespaces.Clear();
+        if (projSettings?.HiddenNamespaces is { Count: > 0 })
+        {
+            foreach (var ns in projSettings.HiddenNamespaces)
+                HiddenNamespaces.Add(ns);
+        }
+
         AddMissingTranslations();
         RefreshTree();
         UpdateSummaryInfo();
@@ -300,6 +309,9 @@ internal partial class MainWindowViewModel
             {
                 case ProjectSaveStatus.Success:
                     IsDirty = false;
+                    SessionDirtyKeys.Clear();
+                    SessionDirtyCount = 0;
+                    ClearDirtyGroups();
                     break;
 
                 case ProjectSaveStatus.ValidationErrors:
@@ -339,6 +351,9 @@ internal partial class MainWindowViewModel
     private void SaveLegacy()
     {
         IsDirty = false;
+        SessionDirtyKeys.Clear();
+        SessionDirtyCount = 0;
+        ClearDirtyGroups();
         _projectService?.Save(CurrentPath, SaveStyles.Json, CurrentTreeItems.ToList(), AllTranslation ?? []);
     }
 

@@ -20,6 +20,7 @@ public interface IDialogService
     bool ShowOptions(AppOptions options, string currentPath, out AppOptions? updatedOptions);
     bool ShowPreTranslate(PreTranslateViewModel vm);
     bool ShowProviderSettings();
+    bool ShowProjectProperties(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null);
     bool ShowImportProject(out ImportProjectViewModel? resultVm);
     string? ShowLanguagePrompt(string title, string message, IEnumerable<TranslationItem>? existingTranslations);
 

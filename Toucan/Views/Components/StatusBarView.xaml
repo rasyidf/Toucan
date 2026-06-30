@@ -162,6 +162,11 @@
                 <TextBlock Margin="4,0,0,0" VerticalAlignment="Center"
                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                            Text="{Binding ProjectName}" />
+                <Border Margin="6,0,0,0" CornerRadius="6" Padding="5,1"
+                        Background="{DynamicResource SystemFillColorCautionBrush}"
+                        Visibility="{Binding SessionDirtyCount, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{Binding SessionDirtyCount, StringFormat='● {0}'}" FontSize="10" Foreground="White" VerticalAlignment="Center"/>
+                </Border>
             </StackPanel>
 
             <!-- ═══ STATUS TEXT ═══ -->
@@ -170,17 +175,19 @@
                        Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" />
 
             <!-- ═══ DEFAULT LANGUAGE PANEL ═══ -->
-            <Button Grid.Column="4" Style="{StaticResource StatusPanelButton}">
-                <Button.ToolTip>
-                    <ToolTip>
-                        <StackPanel MinWidth="140">
-                            <TextBlock FontWeight="SemiBold" Text="Language" Margin="0,0,0,4" />
-                            <TextBlock Text="{Binding DefaultLanguage, StringFormat='Default: {0}'}" />
-                            <TextBlock Margin="0,4,0,0" FontSize="11" Opacity="0.6"
-                                       Text="Change in Settings → Options" />
-                        </StackPanel>
-                    </ToolTip>
-                </Button.ToolTip>
+            <Button Grid.Column="4" Style="{StaticResource StatusPanelButton}"
+                    Click="DefaultLanguage_Click">
+                <Button.ContextMenu>
+                    <ContextMenu x:Name="LanguageContextMenu" ItemsSource="{Binding AvailableLanguages}">
+                        <ContextMenu.ItemContainerStyle>
+                            <Style TargetType="MenuItem">
+                                <Setter Property="Header" Value="{Binding}"/>
+                                <Setter Property="Command" Value="{Binding DataContext.ChangeDefaultLanguageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                <Setter Property="CommandParameter" Value="{Binding}"/>
+                            </Style>
+                        </ContextMenu.ItemContainerStyle>
+                    </ContextMenu>
+                </Button.ContextMenu>
                 <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                            Text="{Binding DefaultLanguage}" />
             </Button>

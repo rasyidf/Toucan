@@ -62,9 +62,9 @@
   <data name="Status_Loading" xml:space="preserve"><value>Memuat...</value></data>
   <data name="Status_PreTranslateComplete" xml:space="preserve"><value>Pra-terjemahan selesai.</value></data>
   <data name="Status_NoTranslationsLoaded" xml:space="preserve"><value>Tidak ada terjemahan yang dimuat.</value></data>
-  <data name="Mode_Edit" xml:space="preserve"><value>✏ Ubah</value></data>
-  <data name="Mode_Review" xml:space="preserve"><value>👁 Tinjau</value></data>
-  <data name="Mode_Audit" xml:space="preserve"><value>✓ Audit</value></data>
+  <data name="Mode_Edit" xml:space="preserve"><value>Ubah</value></data>
+  <data name="Mode_Review" xml:space="preserve"><value>Tinjau</value></data>
+  <data name="Mode_Audit" xml:space="preserve"><value>Audit</value></data>
   <data name="LangStatus_Translated" xml:space="preserve"><value>Diterjemahkan</value></data>
   <data name="LangStatus_Empty" xml:space="preserve"><value>Kosong</value></data>
   <data name="LangStatus_NeedsReview" xml:space="preserve"><value>Perlu Tinjauan</value></data>

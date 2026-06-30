@@ -82,6 +82,10 @@
                 Command="{Binding ShowPreferencesCommand}"
                 Header="Preferences"
                 Icon="{ui:SymbolIcon Settings20}" />
+            <ui:MenuItem
+                Command="{Binding ShowProjectPropertiesCommand}"
+                Header="Project Properties"
+                Icon="{ui:SymbolIcon Folder20}" />
             <Separator />
             <ui:MenuItem
                 Command="{Binding ExitCommand}"

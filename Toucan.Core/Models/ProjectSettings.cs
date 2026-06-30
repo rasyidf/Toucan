@@ -39,6 +39,14 @@ public class ProjectSettings
     // --- Provider overrides (project-scoped) ---
     public string? DefaultProvider { get; set; }
 
+    // --- Translation context ---
+    public string? Context { get; set; }
+    public string? Formality { get; set; }
+    public bool CommentsEnabled { get; set; } = true;
+
+    /// <summary>Namespace prefixes hidden from the editor view and statistics.</summary>
+    public List<string> HiddenNamespaces { get; set; } = [];
+
     // --- Language alias mapping (file-system code → display code) ---
     public Dictionary<string, string>? LanguageAliases { get; set; }
 

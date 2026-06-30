@@ -43,6 +43,10 @@ internal partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<NsTreeItem> currentTreeItems = [];
 
+    /// <summary>Breadcrumb path segments for the currently selected node.</summary>
+    [ObservableProperty]
+    private ObservableCollection<string> selectedNodePath = [];
+
 
     [ObservableProperty]
     private AppOptions appOptions;
@@ -74,6 +78,15 @@ internal partial class MainWindowViewModel : ObservableObject
 
     [ObservableProperty]
     private bool showAdvancedOptions = false;
+
+    [ObservableProperty]
+    private ObservableCollection<string> hiddenNamespaces = [];
+
+    /// <summary>Keys modified in the current session (cleared on save).</summary>
+    public HashSet<string> SessionDirtyKeys { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    [ObservableProperty]
+    private int sessionDirtyCount;
 
     [ObservableProperty]
     private ObservableCollection<NsTreeItem> selectedNodes = [];
@@ -390,6 +403,16 @@ internal partial class MainWindowViewModel : ObservableObject
         PagedUpdates();
     }
 
+    [RelayCommand]
+    private void ShowProjectProperties()
+    {
+        if (string.IsNullOrWhiteSpace(CurrentPath)) return;
+
+        var settings = ProjectSettings.LoadFrom(CurrentPath) ?? ProjectSettings.CreateDefault(CurrentPath);
+        var languages = AllTranslation?.Select(t => t.Language).Where(l => !string.IsNullOrEmpty(l)).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(l => l).ToList();
+        _dialogService.ShowProjectProperties(settings, languages);
+    }
+
     /// <summary>
     /// Exposes the dirty state from ITranslationManagementService for UI binding.
     /// This is kept in sync via the DirtyStateChanged subscription.
@@ -400,6 +423,71 @@ internal partial class MainWindowViewModel : ObservableObject
     {
         IsDirty = isDirty;
         OnPropertyChanged(nameof(HasUnsavedChanges));
+
+        // Track session dirty keys from the management service
+        if (_translationManagement != null && isDirty)
+        {
+            foreach (var item in _translationManagement.GetDirtyItems())
+            {
+                if (!string.IsNullOrEmpty(item.Namespace))
+                    SessionDirtyKeys.Add(item.Namespace);
+            }
+            SessionDirtyCount = SessionDirtyKeys.Count;
+            // Mark matching groups as dirty
+            MarkDirtyGroups();
+        }
+    }
+
+    private bool IsNamespaceHidden(string? ns)
+    {
+        if (string.IsNullOrEmpty(ns) || HiddenNamespaces.Count == 0) return false;
+        return HiddenNamespaces.Any(h => ns.StartsWith(h, StringComparison.OrdinalIgnoreCase));
+    }
+
+    [RelayCommand]
+    private void HideNamespace(string? ns)
+    {
+        if (string.IsNullOrWhiteSpace(ns) || HiddenNamespaces.Contains(ns)) return;
+        HiddenNamespaces.Add(ns);
+        var settings = ProjectSettings.LoadFrom(CurrentPath);
+        if (settings != null) { settings.HiddenNamespaces = [.. HiddenNamespaces]; settings.Save(); }
+        RefreshTree();
+    }
+
+    [RelayCommand]
+    private void UnhideNamespace(string? ns)
+    {
+        if (string.IsNullOrWhiteSpace(ns)) return;
+        HiddenNamespaces.Remove(ns);
+        var settings = ProjectSettings.LoadFrom(CurrentPath);
+        if (settings != null) { settings.HiddenNamespaces = [.. HiddenNamespaces]; settings.Save(); }
+        RefreshTree();
+    }
+
+    /// <summary>Marks LanguageGroupViewModels in PagingController.Data as dirty if their namespace is in SessionDirtyKeys.</summary>
+    private void MarkDirtyGroups()
+    {
+        var data = PagingController?.Data;
+        if (data == null) return;
+        foreach (var g in data)
+        {
+            if (!g.IsDirty && SessionDirtyKeys.Contains(g.Namespace))
+                g.IsDirty = true;
+        }
+    }
+
+    /// <summary>Clears session dirty state on all groups.</summary>
+    private void ClearDirtyGroups()
+    {
+        var data = PagingController?.Data;
+        if (data == null) return;
+        foreach (var g in data)
+            g.IsDirty = false;
+    }
+
+    partial void OnSessionDirtyCountChanged(int value)
+    {
+        try { StatusBarService.Instance.UpdateSessionDirtyCount(value); } catch { }
     }
 
     /// <summary>

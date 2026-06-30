@@ -41,7 +41,7 @@ internal partial class MainWindowViewModel
             if (!string.IsNullOrWhiteSpace(ns))
             {
                 var totalItems = AllTranslation.Select(t => t.Namespace).Distinct().Count();
-                StatusText = $"Showing {groups.Count} of {totalItems} items";
+                StatusText = string.Empty;
             }
             else
             {
@@ -67,7 +67,7 @@ internal partial class MainWindowViewModel
         if (!string.IsNullOrWhiteSpace(ns))
         {
             var totalItems = AllTranslation.Select(t => t.Namespace).Distinct().Count();
-            StatusText = $"Showing {languageGroups.Count} of {totalItems} items";
+            StatusText = string.Empty;
         }
         else
         {
@@ -91,6 +91,13 @@ internal partial class MainWindowViewModel
         {
             if (consumed.Contains(n))
                 continue;
+
+            // Skip hidden namespaces
+            if (IsNamespaceHidden(n))
+            {
+                consumed.Add(n);
+                continue;
+            }
 
             if (PluralService.IsPluralKey(n))
             {
@@ -361,10 +368,13 @@ internal partial class MainWindowViewModel
         if (value != null)
         {
             StatusBarService.Instance.UpdateCursor("Selected: " + value.Namespace);
+            SelectedNodePath = new ObservableCollection<string>(
+                (value.Namespace ?? "").Split('.', StringSplitOptions.RemoveEmptyEntries));
         }
         else
         {
             StatusBarService.Instance.UpdateCursor("Ln 0, Col 0");
+            SelectedNodePath = [];
         }
     }
 

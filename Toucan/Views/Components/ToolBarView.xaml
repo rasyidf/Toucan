@@ -133,6 +133,17 @@
                 Margin="{StaticResource ToolbarButtonMargin}"
                 Padding="{StaticResource ToolbarButtonPadding}"
                 Appearance="Transparent"
+                Command="{Binding ShowProjectPropertiesCommand}"
+                ToolTip="Project Properties">
+                <ui:Button.Icon>
+                    <ui:SymbolIcon Symbol="DocumentSettings20" />
+                </ui:Button.Icon>
+            </ui:Button>
+
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
                 Command="{Binding PreTranslateBulkCommand}"
                 ToolTip="Pre-translate">
                 <ui:Button.Icon>

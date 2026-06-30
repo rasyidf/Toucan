@@ -72,12 +72,6 @@
                     </ui:ListViewItem>
                     <ui:ListViewItem>
                         <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Folder24" Margin="0,0,12,0"/>
-                            <TextBlock Text="Project" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </ui:ListViewItem>
-                    <ui:ListViewItem>
-                        <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Info24" Margin="0,0,12,0"/>
                             <TextBlock Text="About" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -329,124 +323,125 @@
                         <TextBlock Text="Languages" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
 
                         <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Suggested Languages</TextBlock>
-                        <TextBlock Text="These languages appear when clicking 'Add suggested' in the New Project dialog." FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="These languages appear when clicking 'Add suggested' in the New Project dialog." FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,12"/>
 
-                        <Border BorderThickness="1" BorderBrush="{DynamicResource ControlElevationBorderBrush}" CornerRadius="4" MinHeight="100" MaxHeight="200" Margin="0,0,0,8">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                <ItemsControl x:Name="SuggestedLanguagesList" ItemsSource="{Binding SuggestedLanguages}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="8,3">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding}" FontSize="12" VerticalAlignment="Center"/>
-                                                <ui:Button Grid.Column="1" Padding="4,2" Appearance="Transparent"
-                                                           Command="{Binding DataContext.RemoveSuggestedLanguageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                           CommandParameter="{Binding}">
-                                                    <ui:SymbolIcon Symbol="Dismiss16" FontSize="10"/>
-                                                </ui:Button>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </Border>
-
-                        <StackPanel Orientation="Horizontal">
-                            <ui:TextBox x:Name="NewSuggestedLangBox" Width="200" PlaceholderText="e.g. de-DE" Margin="0,0,8,0"/>
-                            <ui:Button Content="Add" Click="AddSuggestedLanguage_Click"/>
-                        </StackPanel>
-                    </StackPanel>
-
-                    <!-- Page: Project -->
-                    <StackPanel x:Name="PageProject" Visibility="Collapsed">
-                        <TextBlock Text="Project Settings" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                        <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,16">These settings are stored in the project's toucan.project manifest and apply only to this project.</TextBlock>
-
-                        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Language &amp; Output</TextBlock>
-
-                        <ui:CardControl Margin="0,0,0,4">
+                        <!-- Add language input (Fluent card style) -->
+                        <ui:CardControl Margin="0,0,0,12">
                             <ui:CardControl.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="LocalLanguage24" Margin="0,0,12,0"/>
+                                    <ui:SymbolIcon Symbol="Add24" Margin="0,0,12,0"/>
                                     <StackPanel>
-                                        <TextBlock Text="Primary language" FontWeight="SemiBold"/>
-                                        <TextBlock Text="Source language for translations" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Add language" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Type a language code and press Add" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
                                     </StackPanel>
                                 </StackPanel>
                             </ui:CardControl.Header>
-                            <TextBox Width="160" Text="{Binding ProjectPrimaryLanguage, Mode=TwoWay}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:TextBox x:Name="NewSuggestedLangBox" Width="140" PlaceholderText="e.g. de-DE"/>
+                                <ui:Button Content="Add" Margin="8,0,0,0" Appearance="Primary" Click="AddSuggestedLanguage_Click"/>
+                            </StackPanel>
                         </ui:CardControl>
 
-                        <ui:CardControl Margin="0,0,0,4">
-                            <ui:CardControl.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="Save24" Margin="0,0,12,0"/>
-                                    <StackPanel>
-                                        <TextBlock Text="Save empty translations" FontWeight="SemiBold"/>
-                                        <TextBlock Text="Write keys with empty values to output files" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </ui:CardControl.Header>
-                            <CheckBox IsChecked="{Binding ProjectSaveEmptyTranslations, Mode=TwoWay}"/>
-                        </ui:CardControl>
-
-                        <ui:CardControl Margin="0,0,0,4">
-                            <ui:CardControl.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="ArrowSort24" Margin="0,0,12,0"/>
-                                    <StackPanel>
-                                        <TextBlock Text="Translation order" FontWeight="SemiBold"/>
-                                        <TextBlock Text="Key sort order when saving" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </ui:CardControl.Header>
-                            <ComboBox Width="180" SelectedValue="{Binding ProjectTranslationOrder, Mode=TwoWay}">
-                                <ComboBoxItem>Alphabetically sorted</ComboBoxItem>
-                                <ComboBoxItem>Primary language</ComboBoxItem>
-                            </ComboBox>
-                        </ui:CardControl>
-
-                        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Project Copy Templates</TextBlock>
-                        <TextBlock Text="Override app-level copy templates for this project" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
-
-                        <TextBox Text="{Binding ProjectCopyTemplate1, Mode=TwoWay}" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding ProjectCopyTemplate2, Mode=TwoWay}" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding ProjectCopyTemplate3, Mode=TwoWay}" Margin="0,0,0,4"/>
-
-                        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Translation Context</TextBlock>
-
-                        <ui:CardControl Margin="0,0,0,4">
-                            <ui:CardControl.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="Info24" Margin="0,0,12,0"/>
-                                    <StackPanel>
-                                        <TextBlock Text="Project context" FontWeight="SemiBold"/>
-                                        <TextBlock Text="Project-level context overrides the app context for pre-translation. Set it in the toucan.project manifest." FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </ui:CardControl.Header>
-                        </ui:CardControl>
-
-                        <CheckBox Content="Save changes to project manifest" IsChecked="{Binding ApplyChangesToProject, Mode=TwoWay}" Margin="0,16,0,0"/>
+                        <!-- Language list (card-style items) -->
+                        <ItemsControl x:Name="SuggestedLanguagesList" ItemsSource="{Binding SuggestedLanguages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                            CornerRadius="4" Margin="0,2" Padding="12,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <ui:SymbolIcon Symbol="Globe16" Margin="0,0,10,0" VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding}" FontSize="13" VerticalAlignment="Center"/>
+                                            <ui:Button Grid.Column="2" Padding="4,2" Appearance="Transparent"
+                                                       ToolTip="Remove"
+                                                       Command="{Binding DataContext.RemoveSuggestedLanguageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                       CommandParameter="{Binding}">
+                                                <ui:SymbolIcon Symbol="Dismiss16" FontSize="12"/>
+                                            </ui:Button>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
 
                     <!-- Page: About -->
                     <StackPanel x:Name="PageAbout" Visibility="Collapsed">
-                        <TextBlock Text="About" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,8,0,16">
-                            <Image Source="/Assets/Images/logo.png" Width="64" Height="64" Margin="0,0,16,0"/>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="Toucan" FontSize="22" FontWeight="Bold"/>
-                                <TextBlock Text="Professional i18n editor" FontSize="13" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="About" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                        <!-- App info card -->
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Assets/Images/logo.png" Width="36" Height="36" Margin="0,0,12,0"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Toucan" FontSize="14" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Version 0.10.0" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <ui:Button Content="Copy" Padding="12,6" Command="{Binding CopyVersionCommand}"/>
+                        </ui:CardControl>
+
+                        <ui:CardAction Margin="0,0,0,4" IsChevronVisible="True">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Heart24" Margin="0,0,12,0"/>
+                                <TextBlock Text="Sponsor on GitHub" VerticalAlignment="Center"/>
                             </StackPanel>
-                        </StackPanel>
-                        <TextBlock Text="Version 0.10.0" Margin="0,0,0,4"/>
-                        <TextBlock Text="© 2025 rasyid.dev" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,12"/>
-                        <ui:HyperlinkButton Content="GitHub Repository" NavigateUri="https://github.com/rasyidf/Toucan" Margin="0,0,0,4"/>
-                        <ui:HyperlinkButton Content="Report an Issue" NavigateUri="https://github.com/rasyidf/Toucan/issues"/>
+                        </ui:CardAction>
+
+                        <!-- Help and support -->
+                        <TextBlock Text="Help and support" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10"/>
+
+                        <ui:CardAction Margin="0,0,0,4" IsChevronVisible="True"
+                                       Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/rasyidf/Toucan/wiki">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Book24" Margin="0,0,12,0"/>
+                                <TextBlock Text="Documentation" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ui:CardAction>
+
+                        <ui:CardAction Margin="0,0,0,4" IsChevronVisible="True"
+                                       Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/rasyidf/Toucan/discussions">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="ChatMultiple24" Margin="0,0,12,0"/>
+                                <TextBlock Text="Questions &amp; discussions" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ui:CardAction>
+
+                        <ui:CardAction Margin="0,0,0,4" IsChevronVisible="True"
+                                       Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/rasyidf/Toucan/issues">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="PersonFeedback24" Margin="0,0,12,0"/>
+                                <TextBlock Text="Feedback" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ui:CardAction>
+
+                        <ui:CardAction Margin="0,0,0,4" IsChevronVisible="True"
+                                       Command="{Binding OpenLogLocationCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Folder24" Margin="0,0,12,0"/>
+                                <TextBlock Text="Open log location" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ui:CardAction>
+
+                        <!-- Open source -->
+                        <TextBlock Text="Open source" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10"/>
+
+                        <ui:CardAction Margin="0,0,0,4" IsChevronVisible="True"
+                                       Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/rasyidf/Toucan">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Code24" Margin="0,0,12,0"/>
+                                <TextBlock Text="Source code on GitHub" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ui:CardAction>
+
+                        <TextBlock Text="© 2025 rasyid.dev · MIT License" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,12,0,0"/>
                     </StackPanel>
                 </Grid>
             </ScrollViewer>

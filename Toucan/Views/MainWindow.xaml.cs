@@ -95,10 +95,11 @@ public partial class MainWindow : FluentWindow
                 }
             }
         };
-        _fileWatcher.FilesChanged += (_, _) => Dispatcher.Invoke(() =>
+        _fileWatcher.FilesChanged += (_, _) => Dispatcher.Invoke(async () =>
         {
-            if (System.Windows.MessageBox.Show("Files changed on disk. Reload?", "File Changed",
-                System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question) == System.Windows.MessageBoxResult.Yes)
+            var msgBox = new Wpf.Ui.Controls.MessageBox { Title = "File Changed", Content = "Files changed on disk. Reload?", PrimaryButtonText = "Yes", CloseButtonText = "No" };
+            var result = await msgBox.ShowDialogAsync();
+            if (result == Wpf.Ui.Controls.MessageBoxResult.Primary)
             {
                 ViewModel.RefreshCommand.Execute(null);
             }

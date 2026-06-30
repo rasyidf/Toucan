@@ -241,4 +241,28 @@ public partial class OptionsViewModel : ObservableObject
     {
         // future: implement file picker
     }
+
+    [RelayCommand]
+    private void OpenUrl(string? url)
+    {
+        if (!string.IsNullOrWhiteSpace(url))
+        {
+            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true }); }
+            catch { }
+        }
+    }
+
+    [RelayCommand]
+    private void CopyVersion()
+    {
+        try { System.Windows.Clipboard.SetText("Toucan 0.10.0"); } catch { }
+    }
+
+    [RelayCommand]
+    private void OpenLogLocation()
+    {
+        var logDir = AppDomain.CurrentDomain.BaseDirectory ?? ".";
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(logDir) { UseShellExecute = true }); }
+        catch { }
+    }
 }

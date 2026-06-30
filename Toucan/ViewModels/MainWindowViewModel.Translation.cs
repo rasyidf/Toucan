@@ -37,12 +37,21 @@ internal partial class MainWindowViewModel
             foreach (var item in items)
             {
                 _translationManagement.NotifyValueChanged(item, item.Value);
+                if (!string.IsNullOrEmpty(item.Namespace))
+                    SessionDirtyKeys.Add(item.Namespace);
             }
         }
         else
         {
+            foreach (var item in items)
+            {
+                if (!string.IsNullOrEmpty(item.Namespace))
+                    SessionDirtyKeys.Add(item.Namespace);
+            }
             IsDirty = true;
         }
+        SessionDirtyCount = SessionDirtyKeys.Count;
+        MarkDirtyGroups();
     }
 
     #region Pre-Translation & Bulk Actions
@@ -64,7 +73,7 @@ internal partial class MainWindowViewModel
                 // gather language list
                 List<string> languages = AllTranslation.ToLanguages().ToList();
 
-                var vm = _preTranslateFactory != null ? _preTranslateFactory(languages, AllTranslation, _pretranslationService) : new PreTranslateViewModel(languages, AllTranslation, _pretranslationService);
+                var vm = _preTranslateFactory != null ? _preTranslateFactory(languages, AllTranslation, _pretranslationService) : new PreTranslateViewModel(languages, AllTranslation, _pretranslationService, _dialogService, _providerSettingsService);
                 bool result = _dialogService.ShowPreTranslate(vm);
 
                 if (result)
@@ -112,7 +121,8 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        StatisticsDialog dialog = new(AllTranslation, System.Windows.Application.Current?.MainWindow);
+        var filtered = AllTranslation.Where(t => !IsNamespaceHidden(t.Namespace)).ToList();
+        StatisticsDialog dialog = new(filtered, System.Windows.Application.Current?.MainWindow);
         _ = dialog.ShowDialog();
     }
 

@@ -20,5 +20,8 @@ internal partial class StatusBarViewModel : ObservableObject
     [ObservableProperty]
     private int notificationCount;
 
+    [ObservableProperty]
+    private int sessionDirtyCount;
+
     public void ShowNotification(int count) => NotificationCount = count;
 }

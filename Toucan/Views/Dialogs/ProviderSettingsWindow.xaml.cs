@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using Toucan.ViewModels;
 using Wpf.Ui.Controls;
 
@@ -27,6 +28,16 @@ namespace Toucan.Views.Dialogs
 
             DialogResult = true;
             Close();
+        }
+
+        private void AddProvider_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button btn && btn.ContextMenu != null)
+            {
+                btn.ContextMenu.PlacementTarget = btn;
+                btn.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                btn.ContextMenu.IsOpen = true;
+            }
         }
     }
 }
