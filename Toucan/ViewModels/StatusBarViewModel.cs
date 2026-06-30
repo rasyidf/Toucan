@@ -2,19 +2,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Toucan.ViewModels;
 
+/// <summary>
+/// Status bar view model split across partial classes per panel concern.
+/// This file holds shared state (project name, status text, loading indicator).
+/// </summary>
 internal partial class StatusBarViewModel : ObservableObject
 {
     [ObservableProperty]
-    private string modeText = "Development *";
-
-    [ObservableProperty]
     private string projectName = "Toucan Project";
-
-    [ObservableProperty]
-    private string cursorPosition = "Ln 0, Col 0";
-
-    [ObservableProperty]
-    private string defaultLanguage = "en-US";
 
     [ObservableProperty]
     private string statusText = "Ready";
@@ -22,33 +17,8 @@ internal partial class StatusBarViewModel : ObservableObject
     [ObservableProperty]
     private bool isLoading;
 
-    // Generic counters for later: TODO add Git integration and language stats
-    [ObservableProperty]
-    private int errors;
-
-    [ObservableProperty]
-    private int warnings;
-
-    [ObservableProperty]
-    private int gitChanges;
-
     [ObservableProperty]
     private int notificationCount;
 
-    [ObservableProperty]
-    private bool isGitVisible = false; // keep git code but hidden by default
-
-    // TODO: Consider exposing ICommand for opening Git view or navigating to warnings
-    public void ShowNotification(int count)
-    {
-        NotificationCount = count;
-    }
-
-    // TODO: wire up to the real Git service. This should update GitChanges, errors and warnings.
-    public void UpdateGitStats(int changes, int errorCount, int warningCount)
-    {
-        GitChanges = changes;
-        Errors = errorCount;
-        Warnings = warningCount;
-    }
+    public void ShowNotification(int count) => NotificationCount = count;
 }

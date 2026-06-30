@@ -5,6 +5,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.0] — 2026-06-30
+
+### Added
+- **Splash screen** — Shows `splash.png` immediately on startup before DI initialization
+- **Inspector panel: Suggestions tab** — Wired to show similar translations when a key is selected
+- **Inspector panel: Details tab** — Shows key ID, comment, language statuses, and audit metadata
+- **Translation ID filter** — Local filter TextBox in the editor panel for filtering translation keys
+- **Plural key grouping** — Plural variants (`_one`, `_other`, `_zero`, etc.) merged into a single visual card
+- **Mode selector pill style** — Segmented control replaces circular radio buttons for Edit/Review/Audit
+- **TreeView virtualization** — Enabled `VirtualizingStackPanel` with recycling for large key trees
+- **View menu toggles** — Added Toggle Sidebar, Inspector, Toolbar, and Status Bar to Views menu
+- **Panel column collapse** — Sidebar and Inspector columns collapse to zero width when hidden
+
+### Fixed
+- **Default language ComboBox** — Was passing `ComboBoxItem` object instead of language string (added `SelectedValuePath="Content"`)
+- **App crash on startup** — `AssemblyInfo.cs` version mismatch with csproj caused silent `FileNotFoundException`
+- **Language binding crash** — Removed circular `FrameworkElement.Language` binding that caused `XamlParseException`
+- **Sidebar not collapsing** — Column width now set via code-behind (WPF `ColumnDefinition` ignores Style triggers)
+- **Startup layout** — Saved panel visibility state now applied to column widths on launch
+
+### Changed
+- **Toolbar** — Removed redundant Search TextBox (filter in editor panel replaces it); Open button restyled as split button with recent projects flyout
+- **Memory leaks fixed** — Reused DispatcherTimers in `OnSearchTextChanged` and `RefreshTree`; `TranslationItemViewModel` implements `IDisposable`; `LanguageGroupViewModel.LoadTranslations` disposes old items; `MainWindow.Closing` unsubscribes events and disposes resources
+- **Show All button** — Restyled as flat button with accent color and hover effect
+- **PaginationControl** — Status bar row index fixed after filter TextBox addition
+
+### Removed
+- **Toolbar Search TextBox** — Replaced by in-panel "Filter translation IDs" input
+- **Unused `ViewAsProperty`** — Dead dependency property removed from `TranslationDetailsView`
+
 ## [0.9.0] — 2026-06-28
 
 ### Added

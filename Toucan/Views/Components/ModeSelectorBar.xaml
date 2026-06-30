@@ -1,0 +1,100 @@
+<UserControl
+    x:Class="Toucan.Views.ModeSelectorBar"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:Toucan.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:viewmodels="clr-namespace:Toucan.ViewModels"
+    d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
+    d:DesignHeight="32"
+    d:DesignWidth="240"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <!-- Segmented control pill style for RadioButton -->
+        <Style x:Key="SegmentedPill" TargetType="RadioButton">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="12,5" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border
+                            x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                            <ContentPresenter
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                <Setter Property="FontWeight" Value="SemiBold" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <!-- Segmented control container -->
+    <Border
+        Height="30"
+        CornerRadius="6"
+        Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+        BorderThickness="1"
+        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+        Padding="2">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <RadioButton
+                Grid.Column="0"
+                Content="✏ Edit"
+                IsChecked="{Binding IsEditorMode, Mode=OneWay}"
+                Command="{Binding SwitchToEditorModeCommand}"
+                ToolTip="Editor Mode (Ctrl+Alt+1)"
+                GroupName="EditorMode"
+                Style="{StaticResource SegmentedPill}" />
+
+            <RadioButton
+                Grid.Column="1"
+                Content="👁 Review"
+                IsChecked="{Binding IsReviewMode, Mode=OneWay}"
+                Command="{Binding SwitchToReviewModeCommand}"
+                ToolTip="Review Mode (Ctrl+Alt+2)"
+                GroupName="EditorMode"
+                Style="{StaticResource SegmentedPill}" />
+
+            <RadioButton
+                Grid.Column="2"
+                Content="✓ Audit"
+                IsChecked="{Binding IsAuditMode, Mode=OneWay}"
+                Command="{Binding SwitchToAuditModeCommand}"
+                ToolTip="Audit Mode (Ctrl+Alt+3)"
+                GroupName="EditorMode"
+                Style="{StaticResource SegmentedPill}" />
+        </Grid>
+    </Border>
+</UserControl>

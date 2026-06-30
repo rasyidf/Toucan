@@ -17,9 +17,7 @@
         <converters:StringEqualsConverter x:Key="StringEqualsConverter" />
     </Window.Resources>
 
-    <Window.DataContext>
-        <vm:PreTranslateViewModel />
-    </Window.DataContext>
+    <!-- DataContext set in code-behind from injected VM -->
 
     <DockPanel LastChildFill="True">
         <ui:TitleBar
@@ -146,13 +144,13 @@
                                 x:Name="CancelButton"
                                 Width="90"
                                 Margin="0,0,8,0"
-                                Command="{Binding CancelCommand}"
+                                Click="CancelButton_Click"
                                 Content="Cancel" />
                             <Button
                                 x:Name="StartButton"
                                 Width="120"
                                 Background="#FF3A7BD5"
-                                Command="{Binding StartCommand}"
+                                Click="StartButton_Click"
                                 Content="Preview"
                                 Foreground="White" />
                         </StackPanel>
@@ -209,7 +207,7 @@
                                     Header="Language" />
                                 <GridViewColumn
                                     Width="200"
-                                    DisplayMemberBinding="{Binding SourceValue}"
+                                    DisplayMemberBinding="{Binding SourceText}"
                                     Header="Source" />
                                 <GridViewColumn
                                     Width="200"
@@ -242,7 +240,7 @@
                         Text="Note: Your source language strings may be sent to the provider service." />
                     <Button
                         Width="120"
-                        Command="{Binding CommitCommand}"
+                        Click="ApplyButton_Click"
                         Content="Apply Preview" />
                 </StackPanel>
             </Grid>

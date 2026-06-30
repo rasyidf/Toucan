@@ -6,6 +6,7 @@
     xmlns:local="clr-namespace:Toucan.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:services="clr-namespace:Toucan.Services"
     d:DesignHeight="39.817"
     d:DesignWidth="705.829"
     mc:Ignorable="d">
@@ -203,6 +204,11 @@
             <ui:MenuItem Header="Focused Editor" Icon="{ui:SymbolIcon EditSettings20}" Command="{Binding ToggleFocusedEditorCommand}" InputGestureText="Ctrl+E"/>
             <ui:MenuItem Header="Zen Mode" Icon="{ui:SymbolIcon FullScreenMaximize20}" Command="{Binding ToggleZenModeCommand}" InputGestureText="F11"/>
             <ui:MenuItem Header="Infinite Scroll" Icon="{ui:SymbolIcon ArrowRepeatAll20}" Command="{Binding ToggleInfiniteScrollCommand}"/>
+            <Separator />
+            <ui:MenuItem Header="Toggle Sidebar" Icon="{ui:SymbolIcon PanelLeft20}" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleSidebarCommand}" InputGestureText="Ctrl+B"/>
+            <ui:MenuItem Header="Toggle Inspector" Icon="{ui:SymbolIcon PanelRight20}" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleInspectorCommand}" InputGestureText="Ctrl+Shift+I"/>
+            <ui:MenuItem Header="Toggle Toolbar" Icon="{ui:SymbolIcon Navigation20}" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleToolbarCommand}"/>
+            <ui:MenuItem Header="Toggle Status Bar" Icon="{ui:SymbolIcon SubtractCircle20}" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleStatusBarCommand}"/>
             <Separator />
             <ui:MenuItem Header="Suggestions Panel" Icon="{ui:SymbolIcon Lightbulb20}" Command="{Binding ToggleSuggestionsCommand}"/>
             <ui:MenuItem Header="Show machine translations" Command="{Binding ToggleShowMachineTranslationsCommand}" />

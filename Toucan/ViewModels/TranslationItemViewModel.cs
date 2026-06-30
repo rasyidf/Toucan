@@ -8,7 +8,7 @@ using Toucan.Core.Models;
 
 namespace Toucan.ViewModels;
 
-public partial class TranslationItemViewModel : ObservableObject
+public partial class TranslationItemViewModel : ObservableObject, IDisposable
 {
     private string _value = string.Empty;
     private string _valueBeforeEdit = string.Empty;
@@ -95,5 +95,14 @@ public partial class TranslationItemViewModel : ObservableObject
         var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
         timer.Tick += (_, _) => { timer.Stop(); SaveTranslation(); };
         return timer;
+    }
+
+    public void Dispose()
+    {
+        if (_debounceTimer != null)
+        {
+            _debounceTimer.Stop();
+            _debounceTimer = null;
+        }
     }
 }

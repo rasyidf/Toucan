@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Text.Json;
+using Toucan.ViewModels;
 
 namespace Toucan.Services;
 
@@ -29,6 +30,9 @@ internal partial class PanelService : ObservableObject
     [ObservableProperty] private bool suggestionsVisible;
     [ObservableProperty] private bool focusedEditorVisible;
 
+    // --- Right Panel (inspector) ---
+    [ObservableProperty] private bool inspectorVisible = true;
+
     // --- Chrome ---
     [ObservableProperty] private bool toolbarVisible = true;
     [ObservableProperty] private bool statusBarVisible = true;
@@ -36,6 +40,9 @@ internal partial class PanelService : ObservableObject
 
     // --- Modes ---
     [ObservableProperty] private bool zenMode;
+
+    // --- Editor Mode ---
+    [ObservableProperty] private EditorMode editorMode = EditorMode.Editor;
 
     // --- Sidebar width (for splitter memory) ---
     [ObservableProperty] private double sidebarWidth = 320;
@@ -53,6 +60,7 @@ internal partial class PanelService : ObservableObject
     [RelayCommand] private void ToggleEditor() => EditorVisible = !EditorVisible;
     [RelayCommand] private void ToggleSuggestions() => SuggestionsVisible = !SuggestionsVisible;
     [RelayCommand] private void ToggleFocusedEditor() => FocusedEditorVisible = !FocusedEditorVisible;
+    [RelayCommand] private void ToggleInspector() => InspectorVisible = !InspectorVisible;
     [RelayCommand] private void ToggleToolbar() => ToolbarVisible = !ToolbarVisible;
     [RelayCommand] private void ToggleStatusBar() => StatusBarVisible = !StatusBarVisible;
     [RelayCommand]
@@ -81,6 +89,7 @@ internal partial class PanelService : ObservableObject
         ResourcesVisible = false;
         LanguagesVisible = false;
         SuggestionsVisible = false;
+        InspectorVisible = false;
     }
 
     private void ExitZenMode()
@@ -91,6 +100,7 @@ internal partial class PanelService : ObservableObject
         SidePanelVisible = true;
         ResourcesVisible = true;
         LanguagesVisible = true;
+        InspectorVisible = true;
     }
 
     // --- Layout Persistence ---
@@ -105,11 +115,13 @@ internal partial class PanelService : ObservableObject
                 LanguagesVisible = LanguagesVisible,
                 EditorVisible = EditorVisible,
                 SuggestionsVisible = SuggestionsVisible,
+                InspectorVisible = InspectorVisible,
                 ToolbarVisible = ToolbarVisible,
                 StatusBarVisible = StatusBarVisible,
                 SidePanelVisible = SidePanelVisible,
                 SidebarWidth = SidebarWidth,
-                LanguagesPanelHeight = LanguagesPanelHeight
+                LanguagesPanelHeight = LanguagesPanelHeight,
+                EditorMode = EditorMode
             };
             var dir = System.IO.Path.GetDirectoryName(s_layoutPath)!;
             System.IO.Directory.CreateDirectory(dir);
@@ -131,11 +143,13 @@ internal partial class PanelService : ObservableObject
             LanguagesVisible = state.LanguagesVisible;
             EditorVisible = state.EditorVisible;
             SuggestionsVisible = state.SuggestionsVisible;
+            InspectorVisible = state.InspectorVisible;
             ToolbarVisible = state.ToolbarVisible;
             StatusBarVisible = state.StatusBarVisible;
             SidePanelVisible = state.SidePanelVisible;
             SidebarWidth = state.SidebarWidth > 0 ? state.SidebarWidth : 320;
             LanguagesPanelHeight = state.LanguagesPanelHeight > 0 ? state.LanguagesPanelHeight : 280;
+            EditorMode = state.EditorMode;
         }
         catch { /* start with defaults */ }
     }
@@ -146,10 +160,12 @@ internal partial class PanelService : ObservableObject
         public bool LanguagesVisible { get; set; } = true;
         public bool EditorVisible { get; set; } = true;
         public bool SuggestionsVisible { get; set; }
+        public bool InspectorVisible { get; set; } = true;
         public bool ToolbarVisible { get; set; } = true;
         public bool StatusBarVisible { get; set; } = true;
         public bool SidePanelVisible { get; set; } = true;
         public double SidebarWidth { get; set; } = 320;
         public double LanguagesPanelHeight { get; set; } = 280;
+        public EditorMode EditorMode { get; set; } = EditorMode.Editor;
     }
 }

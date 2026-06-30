@@ -558,13 +558,20 @@ internal partial class MainWindowViewModel
     private void RefreshSuggestions()
     {
         Suggestions.Clear();
-        if (AllTranslation == null || SelectedNode == null)
+        if (AllTranslation == null || AllTranslation.Count == 0)
+        {
+            return;
+        }
+
+        // Use SelectedGroup (translation list selection) or fall back to SelectedNode (tree selection)
+        var ns = SelectedGroup?.Namespace ?? SelectedNode?.Namespace;
+        if (string.IsNullOrEmpty(ns))
         {
             return;
         }
 
         // ponytail: naive fuzzy match — find translations with similar namespace or value
-        var current = AllTranslation.FirstOrDefault(t => t.Namespace == SelectedNode.Namespace);
+        var current = AllTranslation.FirstOrDefault(t => t.Namespace == ns);
         if (current == null || string.IsNullOrWhiteSpace(current.Value))
         {
             return;
@@ -580,6 +587,73 @@ internal partial class MainWindowViewModel
         foreach (var s in similar)
         {
             Suggestions.Add(s);
+        }
+    }
+
+    #endregion
+
+    #region Selected Key Details (Inspector Details tab)
+
+    /// <summary>Namespace/ID of the currently selected key.</summary>
+    [ObservableProperty]
+    private string selectedKeyNamespace = string.Empty;
+
+    /// <summary>Comment on the currently selected key (from the primary language item).</summary>
+    [ObservableProperty]
+    private string selectedKeyComment = string.Empty;
+
+    /// <summary>Languages with translations for the selected key and their values.</summary>
+    [ObservableProperty]
+    private ObservableCollection<string> selectedKeyLanguages = [];
+
+    /// <summary>Audit info string for the selected key.</summary>
+    [ObservableProperty]
+    private string selectedKeyAuditInfo = string.Empty;
+
+    /// <summary>True when a key is selected and detail data is available.</summary>
+    [ObservableProperty]
+    private bool hasSelectedKeyDetails;
+
+    private void RefreshSelectedKeyDetails()
+    {
+        var ns = SelectedGroup?.Namespace ?? SelectedNode?.Namespace;
+        if (string.IsNullOrEmpty(ns) || AllTranslation == null || AllTranslation.Count == 0)
+        {
+            HasSelectedKeyDetails = false;
+            SelectedKeyNamespace = string.Empty;
+            SelectedKeyComment = string.Empty;
+            SelectedKeyLanguages.Clear();
+            SelectedKeyAuditInfo = string.Empty;
+            return;
+        }
+
+        HasSelectedKeyDetails = true;
+        SelectedKeyNamespace = ns;
+
+        var items = AllTranslation.Where(t => t.Namespace == ns).ToList();
+        var primary = items.FirstOrDefault();
+        SelectedKeyComment = primary?.Comment ?? string.Empty;
+
+        SelectedKeyLanguages.Clear();
+        foreach (var item in items.OrderBy(t => t.Language))
+        {
+            var status = string.IsNullOrEmpty(item.Value) ? "⚠ empty" : (item.IsApproved ? "✓ approved" : "● translated");
+            SelectedKeyLanguages.Add($"{item.Language}: {status}");
+        }
+
+        // Audit info from the first item with metadata
+        var audited = items.FirstOrDefault(t => t.LastModifiedUtc.HasValue);
+        if (audited != null)
+        {
+            SelectedKeyAuditInfo = $"Last modified: {audited.LastModifiedUtc:g}\nChange type: {audited.ChangeType}";
+            if (audited.ApprovedAtUtc.HasValue)
+            {
+                SelectedKeyAuditInfo += $"\nApproved: {audited.ApprovedAtUtc:g}";
+            }
+        }
+        else
+        {
+            SelectedKeyAuditInfo = "No audit data";
         }
     }
 

@@ -30,6 +30,10 @@ internal partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private NsTreeItem? selectedNode;
 
+    /// <summary>Currently selected translation group in the editor list.</summary>
+    [ObservableProperty]
+    private LanguageGroupViewModel? selectedGroup;
+
     [ObservableProperty]
     private SummaryInfoViewModel summaryInfo = new();
 
@@ -157,6 +161,9 @@ internal partial class MainWindowViewModel : ObservableObject
         }
 
         AppOptions = _preferenceService.Load();
+
+        // Restore editor mode from persisted layout
+        EditorMode = Services.PanelService.Instance.EditorMode;
 
         // Initialize PagingController after loading options
         int pageSize = AppOptions.PageSize <= 0 ? 30 : AppOptions.PageSize;
@@ -293,7 +300,31 @@ internal partial class MainWindowViewModel : ObservableObject
             }
         }
     }
+    // ponytail: debounce guard for RefreshTree — prevents redundant rebuilds during bulk operations.
+    // Ceiling: if called <300ms apart, only the last call runs. Upgrade: batched tree diff.
+    private System.Windows.Threading.DispatcherTimer? _treeRefreshTimer;
+    private string _pendingTreeSelection = "";
+
     internal void RefreshTree(string selectNamespace = "")
+    {
+        _pendingTreeSelection = selectNamespace;
+        if (_treeRefreshTimer == null)
+        {
+            _treeRefreshTimer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(50)
+            };
+            _treeRefreshTimer.Tick += (s, e) =>
+            {
+                _treeRefreshTimer.Stop();
+                RefreshTreeCore(_pendingTreeSelection);
+            };
+        }
+        _treeRefreshTimer.Stop();
+        _treeRefreshTimer.Start();
+    }
+
+    private void RefreshTreeCore(string selectNamespace)
     {
         IEnumerable<NsTreeItem> nodes = AppOptions?.PlainTextKeys == true
             ? Toucan.Extensions.TranslationItemExtensions.ToNsTreeFlat(AllTranslation.ForParse())
@@ -349,5 +380,18 @@ internal partial class MainWindowViewModel : ObservableObject
     {
         IsDirty = isDirty;
         OnPropertyChanged(nameof(HasUnsavedChanges));
+    }
+
+    /// <summary>
+    /// Unsubscribes event handlers to prevent leaks. Called on window close.
+    /// </summary>
+    internal void Cleanup()
+    {
+        if (_translationManagement != null)
+        {
+            _translationManagement.DirtyStateChanged -= OnTranslationDirtyStateChanged;
+        }
+        _searchDebounceTimer?.Stop();
+        _treeRefreshTimer?.Stop();
     }
 }

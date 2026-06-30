@@ -44,6 +44,19 @@ public partial class App : Application
 
     private void Application_Startup(object sender, StartupEventArgs e)
     {
+        // Show splash screen immediately (before DI and window initialization)
+        SplashScreen? splash = null;
+        try
+        {
+            splash = new SplashScreen("assets/images/splash.png");
+            splash.Show(false);
+        }
+        catch
+        {
+            // ponytail: if resource not found, skip splash silently — don't block startup
+            splash = null;
+        }
+
         // Global exception handlers to capture runtime issues (helps debug crashes like AllowsTransparency errors)
         DispatcherUnhandledException += (s, ea) =>
         {
@@ -299,5 +312,8 @@ public partial class App : Application
         FileAssociationService.Register();
 
         mainWindow.Show();
+
+        // Fade out splash after main window is visible
+        splash?.Close(TimeSpan.FromMilliseconds(300));
     }
 }

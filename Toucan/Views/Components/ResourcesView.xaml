@@ -122,6 +122,9 @@
                         ItemTemplate="{StaticResource NameTemplate}"
                         ItemsSource="{Binding CurrentTreeItems}"
                         SelectedItemChanged="TreeNamespace_SelectedItemChanged"
+                        VirtualizingStackPanel.IsVirtualizing="True"
+                        VirtualizingStackPanel.VirtualizationMode="Recycling"
+                        ScrollViewer.CanContentScroll="True"
                         Visibility="{Binding IsTreeView, Converter={StaticResource BoolToVis}}" />
 
                 </Grid>

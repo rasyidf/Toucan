@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Toucan.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:services="clr-namespace:Toucan.Services"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:viewmodels="clr-namespace:Toucan.ViewModels"
     x:Name="LanguagesPanel"
@@ -21,7 +22,7 @@
         <converters:BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
 
-    <Grid Visibility="{Binding LanguagesVisible, Converter={StaticResource BoolToVis}}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
@@ -67,8 +68,8 @@
                         Margin="{StaticResource ToolbarButtonMargin}"
                         Padding="{StaticResource ToolbarButtonPadding}"
                         Appearance="Transparent"
-                        Command="{Binding ToggleLanguagesVisibilityCommand}"
-                        ToolTip="Hide Languages Panel">
+                        Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleInspectorCommand}"
+                        ToolTip="Hide Inspector Panel">
                         <ui:SymbolIcon FontSize="12" Symbol="Dismiss16" />
                     </ui:Button>
                 </StackPanel>

@@ -93,7 +93,7 @@
                                     <TextBlock Text="Language for new projects" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
                                 </StackPanel>
                             </ui:CardControl.Header>
-                            <ComboBox Width="140" SelectedValue="{Binding DefaultLanguage, Mode=TwoWay}">
+                            <ComboBox Width="140" SelectedValue="{Binding DefaultLanguage, Mode=TwoWay}" SelectedValuePath="Content">
                                 <ComboBoxItem>en-US</ComboBoxItem>
                                 <ComboBoxItem>en</ComboBoxItem>
                                 <ComboBoxItem>fr-FR</ComboBoxItem>

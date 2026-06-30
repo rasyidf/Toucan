@@ -2,137 +2,281 @@
     x:Class="Toucan.Views.TranslationItemView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:Toucan.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Toucan.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:services="clr-namespace:Toucan.Services"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    Margin="0,4"
+    xmlns:vm="clr-namespace:Toucan.ViewModels"
+    Margin="0,2"
     d:Background="White"
-    d:DesignHeight="150"
+    d:DesignHeight="120"
     d:DesignWidth="563"
     mc:Ignorable="d">
 
-    <ui:Card
-        Padding="{StaticResource CardContentPadding}"
-        VerticalAlignment="Stretch"
-        Grid.IsSharedSizeScope="True">
-        <StackPanel>
-            <Grid x:Name="Header" Margin="{StaticResource SectionMargin}">
+    <UserControl.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:StringToXmlLanguageConverter x:Key="LangConverter" />
+    </UserControl.Resources>
+
+    <Border
+        Padding="12,8"
+        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+        BorderThickness="0,0,0,1">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" /> <!-- Header: namespace + actions -->
+                <RowDefinition Height="*" />    <!-- Language rows -->
+            </Grid.RowDefinitions>
+
+            <!-- ═══ HEADER ROW ═══ -->
+            <Grid Grid.Row="0" Margin="0,0,0,6">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
+                <!-- Namespace key -->
                 <TextBlock
                     Grid.Column="0"
-                    Margin="2,0"
                     VerticalAlignment="Center"
-                    d:Text="namespace.item.child_key_name"
-                    FontSize="14"
+                    FontSize="12"
                     FontWeight="SemiBold"
+                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                     Text="{Binding Namespace}"
-                    TextWrapping="Wrap" />
+                    TextTrimming="CharacterEllipsis" />
 
-                <StackPanel
-                    Grid.Column="1"
-                    HorizontalAlignment="Right"
-                    Orientation="Horizontal">
-
+                <!-- Header actions -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <!-- Translate: Editor mode only -->
                     <ui:Button
-                        Margin="{StaticResource ToolbarButtonMargin}"
-                        Padding="{StaticResource ToolbarButtonPadding}"
+                        Padding="4"
                         Appearance="Transparent"
                         Command="{Binding TranslateKeyCommand}"
-                        ToolTip="Translate this key">
-                        <ui:SymbolIcon Symbol="Translate16" />
+                        ToolTip="Pre-translate this key">
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
+                        <ui:SymbolIcon FontSize="14" Symbol="Translate16" />
                     </ui:Button>
+
+                    <!-- Copy namespace -->
                     <ui:Button
-                        Padding="{StaticResource ToolbarButtonPadding}"
-                        HorizontalAlignment="Right"
+                        Padding="4"
                         Appearance="Transparent"
                         Command="{Binding CopyNamespaceCommand}"
                         ToolTip="Copy key path">
-                        <ui:SymbolIcon Symbol="Copy16" />
+                        <ui:SymbolIcon FontSize="14" Symbol="Copy16" />
                     </ui:Button>
                 </StackPanel>
             </Grid>
 
-            <Rectangle
-                Height="1"
-                Margin="0,0,0,8"
-                Fill="{DynamicResource TextControlBorderThemeBrush}"
-                Opacity="0.2" />
-
+            <!-- ═══ LANGUAGE ROWS (normal single-key card) ═══ -->
             <ItemsControl
-                d:ItemsSource="{d:SampleData ItemCount=3}"
+                Grid.Row="1"
                 ItemsSource="{Binding Translations}"
-                KeyboardNavigation.TabNavigation="Continue">
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="ContentPresenter">
-                        <Setter Property="Margin" Value="0,0,0,6" />
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
-
+                KeyboardNavigation.TabNavigation="Continue"
+                Visibility="{Binding IsPluralGroup, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid Margin="0,2">
+                        <Grid Margin="0,2" x:Name="LangRow">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="LanguageLabel" />
-                                <ColumnDefinition Width="12" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="32" />  <!-- Language label -->
+                                <ColumnDefinition Width="8" />   <!-- Spacer -->
+                                <ColumnDefinition Width="*" />   <!-- TextBox -->
+                                <ColumnDefinition Width="Auto" /> <!-- Copy (hover-only) -->
+                                <ColumnDefinition Width="Auto" /> <!-- Approve (Review only) -->
                             </Grid.ColumnDefinitions>
 
+                            <!-- Language code -->
                             <TextBlock
                                 Grid.Column="0"
                                 Margin="0,6,0,0"
                                 VerticalAlignment="Top"
+                                FontSize="11"
                                 FontWeight="Medium"
-                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                 Text="{Binding Language}" />
 
+                            <!-- Value editor -->
                             <ui:TextBox
                                 Grid.Column="2"
-                                MinHeight="32"
+                                MinHeight="28"
+                                MinWidth="120"
                                 Padding="6,4"
                                 VerticalAlignment="Stretch"
                                 AcceptsReturn="True"
                                 AcceptsTab="False"
                                 IsTabStop="True"
                                 KeyUp="LanguageValue_KeyUp"
-                                SpellCheck.IsEnabled="True"
+                                SpellCheck.IsEnabled="False"
                                 Tag="{Binding}"
                                 Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                TextWrapping="Wrap" />
+                                TextWrapping="Wrap">
+                                <ui:TextBox.Style>
+                                    <Style TargetType="ui:TextBox" BasedOn="{StaticResource {x:Type ui:TextBox}}">
+                                        <Setter Property="IsReadOnly" Value="False" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
+                                                <Setter Property="IsReadOnly" Value="True" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ui:TextBox.Style>
+                            </ui:TextBox>
 
+                            <!-- Copy button: only visible on row hover -->
                             <ui:Button
                                 Grid.Column="3"
-                                Margin="6,0,0,0"
-                                Padding="6"
+                                Margin="4,0,0,0"
+                                Padding="4"
                                 VerticalAlignment="Top"
                                 Appearance="Transparent"
                                 Command="{Binding CopyTranslationCommand}"
                                 ToolTip="Copy translation">
-                                <ui:SymbolIcon Symbol="Copy16" />
+                                <ui:Button.Style>
+                                    <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                        <Setter Property="Visibility" Value="Hidden" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsMouseOver, ElementName=LangRow}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ui:Button.Style>
+                                <ui:SymbolIcon FontSize="12" Symbol="Copy16" />
                             </ui:Button>
 
+                            <!-- Approve toggle: Review mode only -->
                             <ToggleButton
                                 Grid.Column="4"
                                 Margin="2,0,0,0"
                                 Padding="4"
                                 VerticalAlignment="Top"
-                                Background="Transparent"
                                 BorderThickness="0"
                                 IsChecked="{Binding IsApproved, Mode=TwoWay}"
-                                ToolTip="Approved">
-                                <ui:SymbolIcon Symbol="CheckmarkCircle16" />
+                                ToolTip="Approve translation">
+                                <ToggleButton.Style>
+                                    <Style TargetType="ToggleButton">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <!-- Only show in Review mode -->
+                                            <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                            <!-- Highlight unapproved in Review -->
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}" />
+                                                    <Condition Binding="{Binding IsApproved}" Value="False" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Background" Value="{DynamicResource SystemFillColorCautionBackgroundBrush}" />
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ToggleButton.Style>
+                                <ui:SymbolIcon FontSize="12" Symbol="CheckmarkCircle16" />
                             </ToggleButton>
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-        </StackPanel>
-    </ui:Card>
+            <!-- ═══ PLURAL VARIANTS (grouped card) ═══ -->
+            <ItemsControl
+                Grid.Row="1"
+                ItemsSource="{Binding PluralVariants}"
+                KeyboardNavigation.TabNavigation="Continue"
+                Visibility="{Binding IsPluralGroup, Converter={StaticResource BoolToVis}}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,4,0,0">
+                            <!-- Variant header (e.g. "one", "other") -->
+                            <TextBlock
+                                FontSize="11"
+                                FontWeight="Medium"
+                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                Margin="0,2,0,2"
+                                Text="{Binding Category, StringFormat='_{0}'}" />
+
+                            <!-- Translations for this variant -->
+                            <ItemsControl ItemsSource="{Binding Translations}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,2" x:Name="PluralLangRow">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="32" />
+                                                <ColumnDefinition Width="8" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                Margin="0,6,0,0"
+                                                VerticalAlignment="Top"
+                                                FontSize="11"
+                                                FontWeight="Medium"
+                                                Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                                Text="{Binding Language}" />
+
+                                            <ui:TextBox
+                                                Grid.Column="2"
+                                                MinHeight="28"
+                                                MinWidth="120"
+                                                Padding="6,4"
+                                                VerticalAlignment="Stretch"
+                                                AcceptsReturn="True"
+                                                AcceptsTab="False"
+                                                IsTabStop="True"
+                                                SpellCheck.IsEnabled="False"
+                                                Tag="{Binding}"
+                                                Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                                TextWrapping="Wrap" />
+
+                                            <ui:Button
+                                                Grid.Column="3"
+                                                Margin="4,0,0,0"
+                                                Padding="4"
+                                                VerticalAlignment="Top"
+                                                Appearance="Transparent"
+                                                Command="{Binding CopyTranslationCommand}"
+                                                ToolTip="Copy translation">
+                                                <ui:Button.Style>
+                                                    <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                                        <Setter Property="Visibility" Value="Hidden" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsMouseOver, ElementName=PluralLangRow}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ui:Button.Style>
+                                                <ui:SymbolIcon FontSize="12" Symbol="Copy16" />
+                                            </ui:Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </Grid>
+    </Border>
 </UserControl>

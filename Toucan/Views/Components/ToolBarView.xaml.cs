@@ -17,7 +17,9 @@ namespace Toucan.Views
         {
             if (sender is FrameworkElement fe && fe.ContextMenu != null)
             {
+                fe.ContextMenu.DataContext = DataContext;
                 fe.ContextMenu.PlacementTarget = fe;
+                fe.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
                 fe.ContextMenu.IsOpen = true;
             }
         }

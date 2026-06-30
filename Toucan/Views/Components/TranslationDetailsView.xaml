@@ -18,44 +18,76 @@
     <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" CornerRadius="6,6,0,0">
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <ui:DynamicScrollViewer x:Name="ContentScroller">
-                <StackPanel x:Name="PagingContainer">
-                    <StackPanel.Resources>
-                        <Style TargetType="{x:Type StackPanel}">
-                            <Style.Resources>
-                                <Style TargetType="{x:Type TextBlock}">
-                                    <Setter Property="FontWeight" Value="Bold" />
-                                    <Setter Property="Margin" Value="0,0,0,5" />
-                                </Style>
-                                <Style TargetType="{x:Type Separator}">
-                                    <Setter Property="Margin" Value="0,10,0,5" />
-                                </Style>
-                                <Style TargetType="{x:Type TextBox}">
-                                    <Setter Property="Margin" Value="0,0,0,3" />
-                                </Style>
-                            </Style.Resources>
-                            <Setter Property="Margin" Value="5" />
-                        </Style>
-                    </StackPanel.Resources>
 
-                    <StackPanel>
-                        <ItemsControl x:Name="languageGroupContainer" ItemsSource="{Binding PagingController.PageData}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <local:TranslationItemView DataContext="{Binding}" UpdateLanguageValue="LanguageValue_KeyUp" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </StackPanel>
-            </ui:DynamicScrollViewer>
+            <!-- Local filter for translation IDs -->
+            <Border Padding="5,4" Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                <ui:TextBox
+                    x:Name="IdFilterBox"
+                    Icon="Filter16"
+                    PlaceholderText="Filter translation IDs..."
+                    Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    FontSize="12" />
+            </Border>
+
+            <!-- ponytail: ListBox with VirtualizingStackPanel replaces ItemsControl for UI virtualization.
+                 Only visible items create their visual tree. Selection chrome suppressed via style. -->
+            <ListBox
+                x:Name="languageGroupContainer"
+                Grid.Row="1"
+                ItemsSource="{Binding PagingController.PageData}"
+                SelectedItem="{Binding SelectedGroup, Mode=TwoWay}"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Recycling"
+                VirtualizingPanel.ScrollUnit="Pixel"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                Background="Transparent"
+                BorderThickness="0"
+                Padding="5"
+                SelectionMode="Single"
+                HorizontalContentAlignment="Stretch">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border
+                                        x:Name="Bd"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="Transparent"
+                                        BorderThickness="2,0,0,0"
+                                        Padding="0">
+                                        <ContentPresenter />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource SystemAccentColorPrimaryBrush}" />
+                                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <local:TranslationItemView DataContext="{Binding}" UpdateLanguageValue="LanguageValue_KeyUp" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
 
             <StatusBar
                 x:Name="RootStatusBar"
-                Grid.Row="3"
+                Grid.Row="2"
                 MinHeight="0"
                 Margin="0"
                 Padding="4,2">

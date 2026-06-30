@@ -40,7 +40,13 @@ internal static class KeybindingService
         new("Edit", "Copy Template 2", "Ctrl+2"),
         new("Edit", "Copy Template 3", "Ctrl+3"),
         new("View", "Focused Editor", "Ctrl+E"),
-        new("View", "Zen Mode", "F11"),
+        new("View", "Fullscreen", "F11"),
+        new("View", "Zen Mode", "Ctrl+Shift+Enter"),
+        new("View", "Toggle Sidebar", "Ctrl+B"),
+        new("View", "Toggle Inspector", "Ctrl+Shift+I"),
+        new("View", "Editor Mode", "Ctrl+Alt+1"),
+        new("View", "Review Mode", "Ctrl+Alt+2"),
+        new("View", "Audit Mode", "Ctrl+Alt+3"),
         new("View", "Zen Next (j)", "J"),
         new("View", "Zen Previous (k)", "K"),
     ];
@@ -83,13 +89,33 @@ internal static class KeybindingService
 
         // Editor modes
         Bind(bindings, Key.E, ModifierKeys.Control, vm.ToggleFocusedEditorCommand);
-        Bind(bindings, Key.F11, ModifierKeys.None, vm.ToggleZenModeCommand);
+        Bind(bindings, Key.Enter, ModifierKeys.Control | ModifierKeys.Shift, vm.ToggleZenModeCommand);
+
+        // Fullscreen (F11) — requires window reference, use a routed command relay
+        Bind(bindings, Key.F11, ModifierKeys.None, vm.ToggleFullscreenCommand);
+
+        // Panel toggles
+        Bind(bindings, Key.B, ModifierKeys.Control, PanelService.Instance.ToggleSidebarCommand);
+        Bind(bindings, Key.I, ModifierKeys.Control | ModifierKeys.Shift, PanelService.Instance.ToggleInspectorCommand);
+
+        // Editor mode switching (Ctrl+Alt+1/2/3)
+        Bind(bindings, Key.D1, ModifierKeys.Control | ModifierKeys.Alt, vm.SwitchToEditorModeCommand);
+        Bind(bindings, Key.D2, ModifierKeys.Control | ModifierKeys.Alt, vm.SwitchToReviewModeCommand);
+        Bind(bindings, Key.D3, ModifierKeys.Control | ModifierKeys.Alt, vm.SwitchToAuditModeCommand);
         // ponytail: J/K without modifiers can't use KeyGesture — handled via PreviewKeyDown in Window
     }
 
     /// <summary>Call from Window.PreviewKeyDown to handle bare-key Zen navigation.</summary>
     public static void HandleZenKeys(KeyEventArgs e, MainWindowViewModel vm)
     {
+        // In Zen mode, Escape exits zen (takes priority over ClearFilter)
+        if (vm.ZenMode && e.Key == Key.Escape)
+        {
+            vm.ToggleZenModeCommand.Execute(null);
+            e.Handled = true;
+            return;
+        }
+
         if (!vm.ZenMode && !vm.FocusedEditorMode)
         {
             return;
@@ -100,8 +126,8 @@ internal static class KeybindingService
             return;
         }
 
-        if (e.Key == Key.J) { vm.ZenNextCommand.Execute(null); e.Handled = true; }
-        else if (e.Key == Key.K) { vm.ZenPreviousCommand.Execute(null); e.Handled = true; }
+        if (e.Key == Key.J || e.Key == Key.Down) { vm.ZenNextCommand.Execute(null); e.Handled = true; }
+        else if (e.Key == Key.K || e.Key == Key.Up) { vm.ZenPreviousCommand.Execute(null); e.Handled = true; }
     }
 
     private static void Bind(InputBindingCollection bindings, Key key, ModifierKeys modifiers, ICommand command)

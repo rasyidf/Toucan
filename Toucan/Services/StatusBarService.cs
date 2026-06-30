@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Toucan.Core.Models;
 using Toucan.ViewModels;
 
 namespace Toucan.Services;
@@ -13,100 +15,42 @@ internal interface IStatusBarService
     void UpdateCursor(string cursorPosition);
     void UpdateDefaultLanguage(string language);
     void ShowNotificationBadge(int count);
-    void UpdateGitStats(int changes, int errors, int warnings);
+    void UpdateSourceControl(string branch, int changes, IEnumerable<string>? summary = null);
+    void UpdateStatistics(int totalKeys, int translated, int errors, int warnings, IEnumerable<SummaryItem>? perLanguage = null);
 }
 
 internal class StatusBarService : IStatusBarService
 {
-    private StatusBarViewModel? _statusBarViewModel;
+    private StatusBarViewModel? _vm;
 
-    // Simple singleton-style access (keep scoped for the app)
     public static StatusBarService Instance => field ??= new StatusBarService();
 
-    private StatusBarService()
+    private StatusBarService() { }
+
+    public void Register(StatusBarViewModel vm) => _vm = vm ?? throw new ArgumentNullException(nameof(vm));
+    public void Unregister() => _vm = null;
+
+    public void SetLoading(bool isLoading) { if (_vm != null) _vm.IsLoading = isLoading; }
+    public void UpdateStatus(string text) { if (_vm != null) _vm.StatusText = text; }
+    public void UpdateProjectName(string name) { if (_vm != null) _vm.ProjectName = name; }
+    public void UpdateCursor(string pos) { if (_vm != null) _vm.CursorPosition = pos; }
+    public void UpdateDefaultLanguage(string lang) { if (_vm != null) _vm.DefaultLanguage = lang; }
+    public void ShowNotificationBadge(int count) { if (_vm != null) _vm.ShowNotification(count); }
+
+    public void UpdateSourceControl(string branch, int changes, IEnumerable<string>? summary = null)
     {
+        _vm?.UpdateSourceControl(branch, changes, summary);
     }
 
-    public void Register(StatusBarViewModel vm)
+    public void UpdateStatistics(int totalKeys, int translated, int errors, int warnings, IEnumerable<SummaryItem>? perLanguage = null)
     {
-        _statusBarViewModel = vm ?? throw new ArgumentNullException(nameof(vm));
+        _vm?.UpdateStatistics(totalKeys, translated, errors, warnings, perLanguage);
     }
 
-    public void Unregister()
-    {
-        _statusBarViewModel = null!; // Safe: all methods guard against null _statusBarViewModel
-    }
-
-    public void SetLoading(bool isLoading)
-    {
-        if (_statusBarViewModel == null)
-        {
-            return;
-        }
-
-        _statusBarViewModel.IsLoading = isLoading;
-    }
-
-    public void UpdateStatus(string text)
-    {
-        if (_statusBarViewModel == null)
-        {
-            return;
-        }
-
-        _statusBarViewModel.StatusText = text;
-    }
-
-    public void UpdateProjectName(string projectName)
-    {
-        if (_statusBarViewModel == null)
-        {
-            return;
-        }
-
-        _statusBarViewModel.ProjectName = projectName;
-    }
-
-    public void UpdateCursor(string cursorPosition)
-    {
-        if (_statusBarViewModel == null)
-        {
-            return;
-        }
-
-        _statusBarViewModel.CursorPosition = cursorPosition;
-    }
-
-    public void UpdateDefaultLanguage(string language)
-    {
-        if (_statusBarViewModel == null)
-        {
-            return;
-        }
-
-        _statusBarViewModel.DefaultLanguage = language;
-    }
-
-    public void ShowNotificationBadge(int count)
-    {
-        if (_statusBarViewModel == null)
-        {
-            return;
-        }
-
-        _statusBarViewModel.ShowNotification(count);
-    }
-
+    // ponytail: legacy shim kept to avoid breaking existing callers during migration
     public void UpdateGitStats(int changes, int errors, int warnings)
     {
-        if (_statusBarViewModel == null)
-        {
-            return;
-        }
-
-        _statusBarViewModel.UpdateGitStats(changes, errors, warnings);
-
-        // TODO: Add IoC or event aggregator notifications so other modules can update the status bar.
-        // TODO: Integrate with GitService or libgit2sharp to get branch, changed files, ahead/behind, etc.
+        _vm?.UpdateSourceControl(_vm.BranchName, changes);
+        _vm?.UpdateStatistics(_vm.TotalKeys, _vm.TranslatedKeys, errors, warnings);
     }
 }

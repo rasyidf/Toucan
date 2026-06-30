@@ -5,93 +5,205 @@
     xmlns:converters="clr-namespace:Toucan.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:services="clr-namespace:Toucan.Services"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:vm="clr-namespace:Toucan.ViewModels"
     Height="32"
-    d:Background="White"
-    d:DesignWidth="582"
+    d:DesignWidth="800"
     mc:Ignorable="d">
 
     <UserControl.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <Style x:Key="StatusPanelButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="6,2" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
     </UserControl.Resources>
 
-    <StatusBar MinHeight="32" Padding="2">
-        <StatusBar.ItemsPanel>
-            <ItemsPanelTemplate>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                </Grid>
-            </ItemsPanelTemplate>
-        </StatusBar.ItemsPanel>
+    <Border Padding="4,0" Background="{DynamicResource ControlFillColorDefaultBrush}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" /> <!-- Source Control -->
+                <ColumnDefinition Width="Auto" /> <!-- Statistics -->
+                <ColumnDefinition Width="Auto" /> <!-- Mode / Project -->
+                <ColumnDefinition Width="*" />   <!-- Status text -->
+                <ColumnDefinition Width="Auto" /> <!-- Default Language -->
+                <ColumnDefinition Width="Auto" /> <!-- Cursor -->
+                <ColumnDefinition Width="Auto" /> <!-- Notifications -->
+                <ColumnDefinition Width="Auto" /> <!-- Loading -->
+            </Grid.ColumnDefinitions>
 
-        <!--  Git / Branch  -->
-        <StatusBarItem Visibility="{Binding IsGitVisible, Converter={StaticResource BoolToVis}}">
-            <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="BranchFork24" />
-        </StatusBarItem>
+            <!-- ═══ SOURCE CONTROL PANEL ═══ -->
+            <Button Grid.Column="0" Style="{StaticResource StatusPanelButton}"
+                    Visibility="{Binding IsGitVisible, Converter={StaticResource BoolToVis}}">
+                <Button.ToolTip>
+                    <ToolTip>
+                        <StackPanel MinWidth="200" MaxWidth="300">
+                            <TextBlock FontWeight="SemiBold" Text="Source Control" Margin="0,0,0,6" />
+                            <TextBlock Text="{Binding BranchName, StringFormat='Branch: {0}'}" />
+                            <TextBlock Text="{Binding GitChanges, StringFormat='{}{0} changed file(s)'}" Margin="0,4,0,6" />
+                            <ItemsControl ItemsSource="{Binding ChangesSummary}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontSize="11" Opacity="0.8" Margin="0,1" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ToolTip>
+                </Button.ToolTip>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="BranchFork24" FontSize="14"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Margin="4,0,0,0" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Text="{Binding BranchName}" />
+                    <TextBlock Margin="4,0,0,0" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Text="{Binding GitChanges, StringFormat='({0})'}" />
+                </StackPanel>
+            </Button>
 
-        <!--  Project name / mode  -->
-        <StatusBarItem Grid.Column="1" Margin="0,0,4,0">
-            <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding ModeText}" />
-        </StatusBarItem>
+            <!-- ═══ STATISTICS PANEL ═══ -->
+            <Button Grid.Column="1" Style="{StaticResource StatusPanelButton}">
+                <Button.ToolTip>
+                    <ToolTip>
+                        <StackPanel MinWidth="220" MaxWidth="340">
+                            <TextBlock FontWeight="SemiBold" Text="Translation Statistics" Margin="0,0,0,6" />
+                            <TextBlock Text="{Binding TotalKeys, StringFormat='Total keys: {0}'}" />
+                            <TextBlock Text="{Binding TranslatedKeys, StringFormat='Translated: {0}'}" Margin="0,2,0,0" />
+                            <TextBlock Text="{Binding Errors, StringFormat='Errors: {0}'}" Margin="0,2,0,0" Foreground="#E74C3C" />
+                            <TextBlock Text="{Binding Warnings, StringFormat='Warnings: {0}'}" Margin="0,2,0,6" Foreground="#F39C12" />
+                            <ItemsControl ItemsSource="{Binding LanguageStats}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="55" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding Language}" FontSize="11" />
+                                            <ProgressBar Grid.Column="1" Height="4" Margin="4,0"
+                                                         Minimum="0" Maximum="100"
+                                                         Value="{Binding Percentage, Mode=OneWay}" />
+                                            <TextBlock Grid.Column="2" Text="{Binding TranslatedStats}" FontSize="10" Opacity="0.7" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ToolTip>
+                </Button.ToolTip>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Translate24" FontSize="14"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Margin="4,0,0,0" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Text="{Binding TranslationProgress}" />
+                    <!-- Errors badge -->
+                    <Border Margin="6,0,0,0" CornerRadius="6" Padding="4,0"
+                            Background="#E74C3C"
+                            Visibility="{Binding Errors, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="{Binding Errors}" FontSize="10" Foreground="White" VerticalAlignment="Center" />
+                    </Border>
+                    <!-- Warnings badge -->
+                    <Border Margin="4,0,0,0" CornerRadius="6" Padding="4,0"
+                            Background="#F39C12"
+                            Visibility="{Binding Warnings, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="{Binding Warnings}" FontSize="10" Foreground="White" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+            </Button>
 
-        <!--  Home icon  -->
-        <StatusBarItem Grid.Column="2" Margin="4,0,4,0">
-            <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="Home24" />
-        </StatusBarItem>
+            <!-- ═══ MODE / PROJECT ═══ -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
+                <!-- Editor mode badge -->
+                <Border
+                    Margin="0,0,6,0"
+                    Padding="6,2"
+                    CornerRadius="3"
+                    VerticalAlignment="Center">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
+                                    <Setter Property="Background" Value="{DynamicResource SystemFillColorSuccessBackgroundBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
+                                    <Setter Property="Background" Value="{DynamicResource SystemFillColorCautionBackgroundBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock FontSize="10" FontWeight="Medium"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="EDITOR" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
+                                        <Setter Property="Text" Value="REVIEW" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
+                                        <Setter Property="Text" Value="AUDIT" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Border>
+                <ui:SymbolIcon Symbol="Home24" FontSize="14"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                <TextBlock Margin="4,0,0,0" VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                           Text="{Binding ProjectName}" />
+            </StackPanel>
 
-        <!--  Save Mode  -->
-        <StatusBarItem Grid.Column="3" Margin="4,0,4,0">
-            <ui:SymbolIcon Foreground="{DynamicResource TextFillColorSecondaryBrush}" Symbol="Fire24" />
-        </StatusBarItem>
+            <!-- ═══ STATUS TEXT ═══ -->
+            <TextBlock Grid.Column="3" VerticalAlignment="Center" Margin="8,0"
+                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                       Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" />
 
-        <!--  Project name  -->
-        <StatusBarItem Grid.Column="4" Margin="4,0,4,0">
-            <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding ProjectName}" />
-        </StatusBarItem>
+            <!-- ═══ DEFAULT LANGUAGE PANEL ═══ -->
+            <Button Grid.Column="4" Style="{StaticResource StatusPanelButton}">
+                <Button.ToolTip>
+                    <ToolTip>
+                        <StackPanel MinWidth="140">
+                            <TextBlock FontWeight="SemiBold" Text="Language" Margin="0,0,0,4" />
+                            <TextBlock Text="{Binding DefaultLanguage, StringFormat='Default: {0}'}" />
+                            <TextBlock Margin="0,4,0,0" FontSize="11" Opacity="0.6"
+                                       Text="Change in Settings → Options" />
+                        </StackPanel>
+                    </ToolTip>
+                </Button.ToolTip>
+                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                           Text="{Binding DefaultLanguage}" />
+            </Button>
 
-        <!--  Status text  -->
-        <StatusBarItem Grid.Column="5">
-            <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding StatusText}" />
-        </StatusBarItem>
+            <!-- ═══ CURSOR POSITION ═══ -->
+            <TextBlock Grid.Column="5" VerticalAlignment="Center" Margin="8,0"
+                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                       Text="{Binding CursorPosition}" />
 
-        <!--  Default language (app or project primary)  -->
-        <StatusBarItem Grid.Column="6" Margin="4,0,4,0">
-            <TextBlock
-                d:Text="en-us"
-                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                Text="{Binding DefaultLanguage}" />
-        </StatusBarItem>
+            <!-- ═══ NOTIFICATION BADGE ═══ -->
+            <Border Grid.Column="6" CornerRadius="8" Padding="5,1" Margin="4,0"
+                    VerticalAlignment="Center"
+                    Background="{DynamicResource SystemAccentColorPrimaryBrush}"
+                    Visibility="{Binding NotificationCount, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{Binding NotificationCount}" FontSize="10"
+                           HorizontalAlignment="Center" Foreground="White" />
+            </Border>
 
-        <!--  Cursor/selection position  -->
-        <StatusBarItem Grid.Column="7" Margin="4,0,4,0">
-            <TextBlock
-                d:Text="Line: 0, 0"
-                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                Text="{Binding CursorPosition}" />
-        </StatusBarItem>
-
-        <!--  Loading  -->
-        <StatusBarItem Grid.Column="9" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
-            <ui:ProgressRing
-                Width="12"
-                Height="12"
-                IsIndeterminate="True" />
-        </StatusBarItem>
-
-        <!--  Notification count  -->
-        <StatusBarItem Grid.Column="8" HorizontalAlignment="Right">
-            <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding NotificationCount}" />
-        </StatusBarItem>
-    </StatusBar>
+            <!-- ═══ LOADING INDICATOR ═══ -->
+            <ui:ProgressRing Grid.Column="7" Width="14" Height="14" Margin="4,0"
+                             VerticalAlignment="Center"
+                             IsIndeterminate="True"
+                             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" />
+        </Grid>
+    </Border>
 </UserControl>

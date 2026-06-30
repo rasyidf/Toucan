@@ -27,7 +27,38 @@ public partial class MainWindow : FluentWindow
         DataContext = ViewModel;
         Services.KeybindingService.Apply(this, ViewModel);
         PreviewKeyDown += (s, e) => Services.KeybindingService.HandleZenKeys(e, ViewModel);
+        ViewModel.FullscreenRequested = ToggleFullscreen;
         UpdateStartupOptions(startupPath);
+
+        // Collapse/expand sidebar and inspector columns when panel visibility changes
+        Services.PanelService.Instance.PropertyChanged += (s, ea) =>
+        {
+            if (ea.PropertyName == nameof(Services.PanelService.SidePanelVisible))
+            {
+                sidebarColumn.Width = Services.PanelService.Instance.SidePanelVisible
+                    ? new GridLength(320) : new GridLength(0);
+            }
+            else if (ea.PropertyName == nameof(Services.PanelService.InspectorVisible))
+            {
+                inspectorColumn.Width = Services.PanelService.Instance.InspectorVisible
+                    ? new GridLength(280) : new GridLength(0);
+            }
+            else if (ea.PropertyName == nameof(Services.PanelService.ZenMode))
+            {
+                // Zen mode collapses both; exiting restores both
+                if (Services.PanelService.Instance.ZenMode)
+                {
+                    sidebarColumn.Width = new GridLength(0);
+                    inspectorColumn.Width = new GridLength(0);
+                }
+                // ExitZenMode sets SidePanelVisible/InspectorVisible=true which triggers the above
+            }
+        };
+        // Apply saved panel state on startup
+        if (!Services.PanelService.Instance.SidePanelVisible)
+            sidebarColumn.Width = new GridLength(0);
+        if (!Services.PanelService.Instance.InspectorVisible)
+            inspectorColumn.Width = new GridLength(0);
 
         ViewModel.PagingController.UpdatePageSize(ViewModel.AppOptions.PageSize);
 
@@ -182,4 +213,24 @@ public partial class MainWindow : FluentWindow
         ViewModel.ShowAll(ViewModel.SearchText);
     }
 
+    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+        PanelService.Instance.SaveLayout();
+        StatusBarService.Instance.Unregister();
+        _fileWatcher.Dispose();
+        ViewModel.Cleanup();
+    }
+
+    /// <summary>Toggle between maximized (fullscreen) and normal window state.</summary>
+    internal void ToggleFullscreen()
+    {
+        if (WindowState == WindowState.Maximized)
+        {
+            WindowState = WindowState.Normal;
+        }
+        else
+        {
+            WindowState = WindowState.Maximized;
+        }
+    }
 }

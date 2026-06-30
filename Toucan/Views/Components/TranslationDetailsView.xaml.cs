@@ -18,8 +18,6 @@ public partial class TranslationDetailsView : UserControl
     public event RoutedEventHandler? ShowAllClick;
     public event RoutedEventHandler? UpdateLanguageValue;
 
-    public static readonly DependencyProperty ViewAsProperty = DependencyProperty.Register("ViewAs", typeof(string), typeof(TranslationDetailsView), new PropertyMetadata(""));
-
 
     public TranslationDetailsView()
     {

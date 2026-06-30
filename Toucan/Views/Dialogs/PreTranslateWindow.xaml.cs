@@ -33,6 +33,15 @@ public partial class PreTranslateWindow : FluentWindow
         {
             await vm.StartCommand.ExecuteAsync(null);
         }
+        // ponytail: don't close — user needs to see preview results before committing
+    }
+
+    private void ApplyButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is PreTranslateViewModel vm)
+        {
+            vm.CommitCommand?.Execute(null);
+        }
 
         DialogResult = true;
         Close();

@@ -4,6 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:services="clr-namespace:Toucan.Services"
+    xmlns:views="clr-namespace:Toucan.Views"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Margin="{StaticResource PanelMargin}"
     d:Background="White"
@@ -26,36 +28,45 @@
                 </ui:Button.Icon>
             </ui:Button>
 
-            <!--  Open: main button + drop-down (split)  -->
-            <StackPanel Orientation="Horizontal">
-                <ui:Button
-                    Margin="{StaticResource ToolbarButtonMargin}"
-                    Padding="{StaticResource ToolbarButtonPadding}"
-                    Appearance="Transparent"
-                    Command="{Binding OpenFolderCommand}"
-                    ToolTip="Open project/folder">
-                    <ui:Button.Icon>
-                        <ui:SymbolIcon Symbol="FolderOpen20" />
-                    </ui:Button.Icon>
-                </ui:Button>
-                <Button
-                    x:Name="OpenDropDown"
-                    Margin="0,0,6,0"
-                    Padding="6,4"
-                    Background="Transparent"
-                    BorderBrush="{x:Null}"
-                    Click="OpenDropDown_Click"
-                    ToolTip="Open options">
-                    <Button.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Command="{Binding OpenFolderCommand}" Header="Open folder" />
-                            <MenuItem Command="{Binding OpenProjectFileCommand}" Header="Open project file" />
-                            <MenuItem Command="{Binding OpenRecentCommand}" Header="Open recent" />
-                        </ContextMenu>
-                    </Button.ContextMenu>
-                    <TextBlock FontWeight="Bold">▾</TextBlock>
-                </Button>
-            </StackPanel>
+            <!--  Open: split button with recent projects flyout  -->
+            <Border
+                Margin="{StaticResource ToolbarButtonMargin}"
+                CornerRadius="4"
+                Background="Transparent"
+                BorderThickness="0">
+                <StackPanel Orientation="Horizontal">
+                    <ui:Button
+                        Padding="{StaticResource ToolbarButtonPadding}"
+                        Appearance="Transparent"
+                        Command="{Binding OpenFolderCommand}"
+                        ToolTip="Open project/folder (Ctrl+O)">
+                        <ui:Button.Icon>
+                            <ui:SymbolIcon Symbol="FolderOpen20" />
+                        </ui:Button.Icon>
+                    </ui:Button>
+                    <ui:Button
+                        x:Name="OpenDropDown"
+                        Padding="2,4"
+                        Appearance="Transparent"
+                        ToolTip="Open recent projects"
+                        Click="OpenDropDown_Click">
+                        <ui:Button.ContextMenu>
+                            <ContextMenu
+                                ItemsSource="{Binding RecentProjects}"
+                                MinWidth="220">
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Header" Value="{Binding Path}" />
+                                        <Setter Property="Command" Value="{Binding DataContext.OpenRecentProjectCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                        <Setter Property="CommandParameter" Value="{Binding Path}" />
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
+                            </ContextMenu>
+                        </ui:Button.ContextMenu>
+                        <ui:SymbolIcon Symbol="ChevronDown16" FontSize="10" />
+                    </ui:Button>
+                </StackPanel>
+            </Border>
 
             <ui:Button
                 Margin="{StaticResource ToolbarButtonMargin}"
@@ -164,13 +175,35 @@
                 </ui:Button.Icon>
             </ui:Button>
 
+            <Separator Margin="{StaticResource ToolbarSeparatorMargin}" />
+
+            <!--  Group: Panels  -->
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
+                Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleSidebarCommand}"
+                ToolTip="Toggle Sidebar (Ctrl+B)">
+                <ui:Button.Icon>
+                    <ui:SymbolIcon Symbol="PanelLeft20" />
+                </ui:Button.Icon>
+            </ui:Button>
+
+            <ui:Button
+                Margin="{StaticResource ToolbarButtonMargin}"
+                Padding="{StaticResource ToolbarButtonPadding}"
+                Appearance="Transparent"
+                Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleInspectorCommand}"
+                ToolTip="Toggle Inspector (Ctrl+Shift+I)">
+                <ui:Button.Icon>
+                    <ui:SymbolIcon Symbol="PanelRight20" />
+                </ui:Button.Icon>
+            </ui:Button>
+
             </StackPanel>
-            <ui:TextBox HorizontalAlignment="Right"
-                       VerticalAlignment="Center"
-                       Width="220"
-                       Icon="Search16"
-                       PlaceholderText="Search..."
-                       Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <views:ModeSelectorBar VerticalAlignment="Center" Margin="0,0,8,0" />
+            </StackPanel>
         </Grid>
     </ui:Card>
 </UserControl>

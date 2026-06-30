@@ -7,6 +7,7 @@ using System.Linq;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Extensions;
 using Toucan.Core.Models;
+using Toucan.Core.Services;
 using Toucan.Extensions;
 using Toucan.Services;
 
@@ -34,20 +35,13 @@ internal partial class MainWindowViewModel
             // Fallback: show all items if service not available
             var allItems = AllTranslation.ToList();
             var allNs = allItems.ToNamespaces().ToList();
-            List<LanguageGroupViewModel> groups = [];
-            foreach (string n in allNs)
-            {
-                var vm = _languageGroupFactory != null ? _languageGroupFactory(n) : new LanguageGroupViewModel(n);
-                vm.LoadTranslations(allItems.Where(o => o.Namespace == n).ToList());
-                groups.Add(vm);
-            }
+            var groups = BuildLanguageGroups(allNs, allItems);
             PagingController.SwapData(groups, false);
 
-            // Update status text with result count (fallback branch)
             if (!string.IsNullOrWhiteSpace(ns))
             {
                 var totalItems = AllTranslation.Select(t => t.Namespace).Distinct().Count();
-                StatusText = $"Showing {allNs.Count} of {totalItems} items";
+                StatusText = $"Showing {groups.Count} of {totalItems} items";
             }
             else
             {
@@ -67,21 +61,13 @@ internal partial class MainWindowViewModel
             .Distinct()
             .ToList();
 
-        List<LanguageGroupViewModel> languageGroups = [];
-        foreach (string n in matchedNamespaces)
-        {
-            var languageGroupVm = _languageGroupFactory != null ? _languageGroupFactory(n) : new LanguageGroupViewModel(n);
-            languageGroupVm.LoadTranslations(AllTranslation.Where(o => o.Namespace == n).ToList());
-            languageGroups.Add(languageGroupVm);
-        }
-
+        var languageGroups = BuildLanguageGroups(matchedNamespaces, AllTranslation);
         PagingController.SwapData(languageGroups);
 
-        // Update status text with result count
         if (!string.IsNullOrWhiteSpace(ns))
         {
             var totalItems = AllTranslation.Select(t => t.Namespace).Distinct().Count();
-            StatusText = $"Showing {matchedNamespaces.Count} of {totalItems} items";
+            StatusText = $"Showing {languageGroups.Count} of {totalItems} items";
         }
         else
         {
@@ -92,18 +78,67 @@ internal partial class MainWindowViewModel
         PagedUpdates();
     }
 
+    /// <summary>
+    /// Builds display groups from a list of namespaces, merging plural variants
+    /// (e.g. key_one, key_other) under a single card with the base key as title.
+    /// </summary>
+    private List<LanguageGroupViewModel> BuildLanguageGroups(List<string> namespaces, IEnumerable<TranslationItem> allItems)
+    {
+        List<LanguageGroupViewModel> groups = [];
+        HashSet<string> consumed = [];
+
+        foreach (string n in namespaces)
+        {
+            if (consumed.Contains(n))
+                continue;
+
+            if (PluralService.IsPluralKey(n))
+            {
+                // Find all sibling plural variants present in the namespace list
+                var baseKey = PluralService.GetBaseKey(n);
+                var siblings = namespaces
+                    .Where(ns => !consumed.Contains(ns) && PluralService.IsPluralKey(ns) && PluralService.GetBaseKey(ns) == baseKey)
+                    .ToList();
+
+                if (siblings.Count > 1)
+                {
+                    // Merge into a single plural group card
+                    foreach (var s in siblings) consumed.Add(s);
+
+                    var vm = _languageGroupFactory != null ? _languageGroupFactory(baseKey) : new LanguageGroupViewModel(baseKey);
+                    var variantGroups = siblings
+                        .Select(s => allItems.Where(t => t.Namespace == s).GroupBy(_ => s).First());
+                    vm.LoadPluralVariants(variantGroups);
+                    groups.Add(vm);
+                    continue;
+                }
+            }
+
+            // Normal single-key card
+            consumed.Add(n);
+            var groupVm = _languageGroupFactory != null ? _languageGroupFactory(n) : new LanguageGroupViewModel(n);
+            groupVm.LoadTranslations(allItems.Where(o => o.Namespace == n).ToList());
+            groups.Add(groupVm);
+        }
+
+        return groups;
+    }
+
     partial void OnSearchTextChanged(string value)
     {
-        _searchDebounceTimer?.Stop();
-        _searchDebounceTimer = new System.Windows.Threading.DispatcherTimer
+        if (_searchDebounceTimer == null)
         {
-            Interval = TimeSpan.FromMilliseconds(300)
-        };
-        _searchDebounceTimer.Tick += (s, e) =>
-        {
-            _searchDebounceTimer.Stop();
-            Search(value, false);
-        };
+            _searchDebounceTimer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(300)
+            };
+            _searchDebounceTimer.Tick += (s, e) =>
+            {
+                _searchDebounceTimer.Stop();
+                Search(SearchText, false);
+            };
+        }
+        _searchDebounceTimer.Stop();
         _searchDebounceTimer.Start();
     }
 
@@ -333,6 +368,16 @@ internal partial class MainWindowViewModel
         }
     }
 
+    /// <summary>
+    /// When the user selects a translation group in the editor list, refresh
+    /// the Inspector panel (Suggestions + Details tabs).
+    /// </summary>
+    partial void OnSelectedGroupChanged(LanguageGroupViewModel? value)
+    {
+        RefreshSuggestions();
+        RefreshSelectedKeyDetails();
+    }
+
     #endregion
 
     #region Pagination
@@ -460,6 +505,83 @@ internal partial class MainWindowViewModel
     [ObservableProperty]
     private bool infiniteScroll;
 
+    /// <summary>Current editor operating mode (Editor, Review, Audit).</summary>
+    [ObservableProperty]
+    private EditorMode editorMode = EditorMode.Editor;
+
+    /// <summary>True when EditorMode is Audit (convenience for XAML bindings).</summary>
+    public bool IsAuditMode => EditorMode == EditorMode.Audit;
+
+    /// <summary>True when EditorMode is Review (convenience for XAML bindings).</summary>
+    public bool IsReviewMode => EditorMode == EditorMode.Review;
+
+    /// <summary>True when EditorMode is Editor (convenience for XAML bindings).</summary>
+    public bool IsEditorMode => EditorMode == EditorMode.Editor;
+
+    partial void OnEditorModeChanged(EditorMode value)
+    {
+        OnPropertyChanged(nameof(IsAuditMode));
+        OnPropertyChanged(nameof(IsReviewMode));
+        OnPropertyChanged(nameof(IsEditorMode));
+        // Sync to PanelService so XAML DataTriggers (bound to PanelService.Instance.EditorMode) update
+        Services.PanelService.Instance.EditorMode = value;
+    }
+
+    /// <summary>The item currently displayed in Zen mode (from PagingController.Data at FocusedIndex).</summary>
+    public LanguageGroupViewModel? ZenCurrentItem
+    {
+        get
+        {
+            var data = PagingController?.Data;
+            if (data == null || data.Count == 0) return null;
+            var idx = Math.Clamp(FocusedIndex, 0, data.Count - 1);
+            return data[idx];
+        }
+    }
+
+    /// <summary>Whether a focused language filter is active.</summary>
+    public bool HasFocusedLanguageFilter => FocusedLanguages.Count > 0;
+
+    /// <summary>Display string for the focused language filter.</summary>
+    public string FocusedLanguagesDisplay =>
+        FocusedLanguages.Count == 0 ? "All languages" : string.Join(", ", FocusedLanguages);
+
+    partial void OnFocusedIndexChanged(int value)
+    {
+        OnPropertyChanged(nameof(ZenCurrentItem));
+    }
+
+    partial void OnZenModeChanged(bool value)
+    {
+        // Sync PanelService visibility (hide/show chrome)
+        if (value && !Services.PanelService.Instance.ZenMode)
+        {
+            Services.PanelService.Instance.ToggleZenMode();
+        }
+        else if (!value && Services.PanelService.Instance.ZenMode)
+        {
+            Services.PanelService.Instance.ToggleZenMode();
+        }
+
+        if (value)
+        {
+            // Ensure focused index is valid
+            var max = PagingController?.Data?.Count ?? 0;
+            if (FocusedIndex >= max && max > 0)
+                FocusedIndex = max - 1;
+            OnPropertyChanged(nameof(ZenCurrentItem));
+        }
+    }
+
+    [RelayCommand]
+    private void SwitchToEditorMode() => EditorMode = EditorMode.Editor;
+
+    [RelayCommand]
+    private void SwitchToReviewMode() => EditorMode = EditorMode.Review;
+
+    [RelayCommand]
+    private void SwitchToAuditMode() => EditorMode = EditorMode.Audit;
+
     /// <summary>Languages selected for Focused Editor mode. Null/empty = show all.</summary>
     [ObservableProperty]
     private ObservableCollection<string> focusedLanguages = [];
@@ -529,7 +651,6 @@ internal partial class MainWindowViewModel
     private void ToggleZenMode()
     {
         ZenMode = !ZenMode;
-        Services.PanelService.Instance.ToggleZenMode();
     }
 
     [RelayCommand]
@@ -557,20 +678,42 @@ internal partial class MainWindowViewModel
     [RelayCommand]
     private void ToggleInfiniteScroll()
     {
+        var totalItems = PagingController?.Data?.Count ?? 0;
+
+        if (!InfiniteScroll && totalItems > 500)
+        {
+            // ponytail: warn before disabling pagination on large sets — prevents UI freeze.
+            // Ceiling: 500 items is ~15 full cards visible, rest virtualized, but all bindings fire.
+            var proceed = _messageService.ShowConfirmation(
+                $"You have {totalItems} items. Disabling pagination may cause slow scrolling. Continue?");
+            if (!proceed) return;
+        }
+
         InfiniteScroll = !InfiniteScroll;
         if (InfiniteScroll)
         {
             // Show all items without pagination
-            PagingController.SwapData(PagingController.Data?.ToList() ?? [], false);
-            PagingController.UpdatePageSize(int.MaxValue);
+            PagingController?.SwapData(PagingController.Data?.ToList() ?? [], false);
+            PagingController?.UpdatePageSize(int.MaxValue);
         }
         else
         {
             int pageSize = AppOptions?.PageSize <= 0 ? 30 : AppOptions!.PageSize; // Null-forgiving: condition above guarantees AppOptions is non-null
-            PagingController.UpdatePageSize(pageSize);
+            PagingController?.UpdatePageSize(pageSize);
         }
         PagedUpdates();
     }
+
+    [RelayCommand]
+    private void ToggleFullscreen()
+    {
+        // ponytail: delegate to MainWindow since WindowState is a view concern.
+        // The command is here so KeybindingService can bind it; MainWindow hooks this.
+        FullscreenRequested?.Invoke();
+    }
+
+    /// <summary>Raised when the ToggleFullscreen command fires. MainWindow subscribes to toggle WindowState.</summary>
+    internal Action? FullscreenRequested;
 
     #endregion
 }
