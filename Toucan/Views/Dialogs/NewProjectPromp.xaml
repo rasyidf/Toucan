@@ -20,7 +20,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="52"/>
         </Grid.RowDefinitions>
 
         <ui:TitleBar Title="New Project" ShowMaximize="False" ShowMinimize="False"/>

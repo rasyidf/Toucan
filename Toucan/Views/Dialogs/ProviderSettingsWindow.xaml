@@ -12,13 +12,18 @@
     WindowStartupLocation="CenterOwner"
     mc:Ignorable="d">
 
-    <DockPanel LastChildFill="True">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="52"/>
+        </Grid.RowDefinitions>
+
         <!--  Title bar  -->
         <ui:TitleBar
             Title="Provider Settings"
             Height="44"
-            Padding="8,6"
-            DockPanel.Dock="Top">
+            Padding="8,6">
             <ui:TitleBar.Header>
                 <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                     <StackPanel>
@@ -35,7 +40,7 @@
             </ui:TitleBar.Header>
         </ui:TitleBar>
 
-        <Grid Margin="12">
+        <Grid Grid.Row="1" Margin="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="220" />
                 <ColumnDefinition Width="*" />
@@ -181,26 +186,17 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-
-                        <StackPanel
-                            Margin="0,12,0,0"
-                            HorizontalAlignment="Right"
-                            Orientation="Horizontal">
-                            <Button
-                                Width="90"
-                                Margin="0,0,8,0"
-                                Click="Cancel_Click"
-                                Content="Cancel" />
-                            <Button
-                                Width="90"
-                                Background="#FF3A7BD5"
-                                Click="Save_Click"
-                                Content="Save"
-                                Foreground="White" />
-                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
         </Grid>
-    </DockPanel>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <ui:Button Content="Cancel" Width="90" Margin="0,0,8,0" Click="Cancel_Click"/>
+                <ui:Button Content="Save" Width="90" Appearance="Primary" Click="Save_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
 </ui:FluentWindow>

@@ -17,7 +17,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="48"/>
+            <RowDefinition Height="52"/>
         </Grid.RowDefinitions>
 
         <ui:TitleBar Title="Statistics" ShowMaximize="False" ShowMinimize="False"/>
@@ -140,6 +140,10 @@
             </StackPanel>
         </ScrollViewer>
 
-        <ui:Button Grid.Row="2" Content="Close" HorizontalAlignment="Right" Margin="16,8,16,12" Click="Close_Click"/>
+        <Border Grid.Row="2" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <ui:Button Content="Close" Width="90" Appearance="Primary" Click="Close_Click"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </ui:FluentWindow>

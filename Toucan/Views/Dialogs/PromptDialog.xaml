@@ -19,8 +19,9 @@
     mc:Ignorable="d">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="titleBar" Height="auto" />
+            <RowDefinition x:Name="titleBar" Height="Auto" />
             <RowDefinition x:Name="contentRow" Height="*" />
+            <RowDefinition Height="52" />
         </Grid.RowDefinitions>
         <ui:TitleBar
             x:Name="titleBarPrompt"
@@ -34,7 +35,6 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <TextBlock
                 x:Name="messageLabel"
@@ -44,10 +44,13 @@
             <ui:TextBox
                 x:Name="ResponseTextBox"
                 Grid.Row="1" />
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+        </Grid>
+        <!-- Footer -->
+        <Border Grid.Row="2" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <ui:Button Width="90" Content="Cancel" Margin="0,0,8,0" Click="CancelDialog"/>
                 <ui:Button Width="90" Content="OK" Appearance="Primary" Click="OKButton_Click"/>
             </StackPanel>
-        </Grid>
+        </Border>
     </Grid>
 </ui:FluentWindow>

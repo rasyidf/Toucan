@@ -93,10 +93,11 @@
         </ScrollViewer>
 
         <!-- Footer -->
-        <StackPanel Grid.Row="2" Margin="12,8,12,8" FlowDirection="RightToLeft" Orientation="Horizontal">
-            <ui:Button Margin="0,0,8,0" Click="Cancel_Click">Cancel</ui:Button>
-            <ui:Button Margin="0,0,8,0" Appearance="Primary" Click="Import_Click"
-                       IsEnabled="{Binding IsValid}">Import</ui:Button>
-        </StackPanel>
+        <Border Grid.Row="2" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <ui:Button Content="Cancel" Width="90" Margin="0,0,8,0" Click="Cancel_Click"/>
+                <ui:Button Content="Import" Width="90" Appearance="Primary" Click="Import_Click" IsEnabled="{Binding IsValid}"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </ui:FluentWindow>

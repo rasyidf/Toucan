@@ -29,7 +29,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="52" />
         </Grid.RowDefinitions>
 
         <!-- Title Bar -->
@@ -169,35 +169,25 @@
                 Text="Right-click a language for more options. The primary language cannot be removed." />
         </Grid>
 
-        <!-- Footer Buttons -->
-        <Grid Grid.Row="2" Margin="16,12,16,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <TextBlock
-                VerticalAlignment="Center"
-                FontSize="11"
-                Opacity="0.6">
-                <Run Text="{Binding Languages.Count, Mode=OneWay}" />
-                <Run Text="language(s)" />
-            </TextBlock>
-
-            <ui:Button
-                Grid.Column="1"
-                Margin="0,0,8,0"
-                Padding="16,8"
-                Content="Cancel"
-                Click="CancelButton_Click" />
-
-            <ui:Button
-                Grid.Column="2"
-                Padding="16,8"
-                Appearance="Primary"
-                Content="Save"
-                Click="SaveButton_Click" />
-        </Grid>
+        <!-- Footer -->
+        <Border Grid.Row="2" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    VerticalAlignment="Center"
+                    FontSize="11"
+                    Opacity="0.6">
+                    <Run Text="{Binding Languages.Count, Mode=OneWay}" />
+                    <Run Text="language(s)" />
+                </TextBlock>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <ui:Button Content="Cancel" Width="90" Margin="0,0,8,0" Click="CancelButton_Click"/>
+                    <ui:Button Content="Save" Width="90" Appearance="Primary" Click="SaveButton_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </ui:FluentWindow>

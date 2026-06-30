@@ -16,55 +16,48 @@
     mc:Ignorable="d" d:DesignHeight="227.911" d:DesignWidth="470.458">
     <!-- DataContext will be set from code-behind to pass existing languages for filtering -->
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="16*" />
-            <ColumnDefinition Width="9*" />
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="titleBar" Height="auto" />
+            <RowDefinition x:Name="titleBar" Height="Auto" />
             <RowDefinition x:Name="contentRow" Height="*" />
+            <RowDefinition Height="52" />
         </Grid.RowDefinitions>
         <ui:TitleBar
             x:Name="titleBarPrompt"
             Title="Add Language"
-            Grid.ColumnSpan="2"
             VerticalAlignment="Center"
             ShowMaximize="false"
             ShowMinimize="false" />
         <Grid
             Grid.Row="1"
-            Grid.ColumnSpan="2"
-            Margin="0,2,0,0">
+            Margin="16,2,16,12">
             <Grid.RowDefinitions>
-                <RowDefinition Height="27*"/>
-                <RowDefinition Height="8*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <TextBlock
                 x:Name="messageLabel"
                 Height="34"
-                Margin="16,0,16,0"
+                Margin="0,0,0,0"
                 VerticalAlignment="Top"
                 d:Text="Input" />
 
             <ui:AutoSuggestBox
-                x:Name="ResponseLanguage" 
+                x:Name="ResponseLanguage"
+                Grid.Row="1"
                 ClearButtonEnabled="True"
-                    Margin="16,0,16,26"  
+                Margin="0,0,0,0"
                 Icon="LocalLanguage20"
-                ItemsSource="{Binding FilteredView, Mode=OneWay}" 
+                ItemsSource="{Binding FilteredView, Mode=OneWay}"
                 DisplayMemberPath="Language"
                 Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                PlaceholderText="Search or type a language code (eg. en, en-US)" VerticalAlignment="Bottom" >  
-            </ui:AutoSuggestBox>
-
-            <ui:Button
-                Width="70"
-                Height="32"
-                Margin="0,0,16,10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Click="OKButton_Click"
-                Content="OK" Grid.Row="1" />
+                PlaceholderText="Search or type a language code (eg. en, en-US)"
+                VerticalAlignment="Top" />
         </Grid>
+        <!-- Footer -->
+        <Border Grid.Row="2" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <ui:Button Width="90" Content="OK" Appearance="Primary" Click="OKButton_Click"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </ui:FluentWindow>
