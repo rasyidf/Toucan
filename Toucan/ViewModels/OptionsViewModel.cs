@@ -255,7 +255,7 @@ public partial class OptionsViewModel : ObservableObject
     [RelayCommand]
     private void CopyVersion()
     {
-        try { System.Windows.Clipboard.SetText("Toucan 0.10.0"); } catch { }
+        try { System.Windows.Clipboard.SetText("Toucan 0.14.0"); } catch { }
     }
 
     [RelayCommand]

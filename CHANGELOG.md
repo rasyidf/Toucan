@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.11.0] - 2026-06-30
+## [0.14.0] - 2026-06-30
 
 ### Added
 - **Provider Settings integration** — Providers (Google, DeepL, Microsoft, OpenAI, Custom Webhook) now have proper schema definitions with default values. API keys are stored encrypted via DPAPI. Pre-translation works out of the box once an API key is saved.

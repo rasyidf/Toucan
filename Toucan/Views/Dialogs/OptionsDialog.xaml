@@ -381,7 +381,7 @@
                                     <Image Source="/Assets/Images/logo.png" Width="36" Height="36" Margin="0,0,12,0"/>
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="Toucan" FontSize="14" FontWeight="SemiBold"/>
-                                        <TextBlock Text="Version 0.10.0" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="Version 0.14.0" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
                                     </StackPanel>
                                 </StackPanel>
                             </ui:CardControl.Header>
