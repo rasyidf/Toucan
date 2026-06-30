@@ -120,6 +120,19 @@
                         <ui:CardControl Margin="0,0,0,4">
                             <ui:CardControl.Header>
                                 <StackPanel>
+                                    <TextBlock Text="App language" FontWeight="SemiBold"/>
+                                    <TextBlock Text="UI language (requires restart)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <ComboBox Width="140" SelectedValue="{Binding AppLanguage, Mode=TwoWay}" SelectedValuePath="Content">
+                                <ComboBoxItem>en-US</ComboBoxItem>
+                                <ComboBoxItem>id-ID</ComboBoxItem>
+                            </ComboBox>
+                        </ui:CardControl>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel>
                                     <TextBlock Text="Page size" FontWeight="SemiBold"/>
                                     <TextBlock Text="Items per page in translation view" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
                                 </StackPanel>

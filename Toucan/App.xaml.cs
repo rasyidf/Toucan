@@ -45,6 +45,22 @@ public partial class App : Application
         }
     }
 
+    /// <summary>
+    /// Sets the UI culture for localized resource strings.
+    /// Must be called before any UI is loaded to take full effect.
+    /// </summary>
+    internal static void ApplyLanguage(string? language)
+    {
+        if (string.IsNullOrEmpty(language)) return;
+        try
+        {
+            var culture = new System.Globalization.CultureInfo(language);
+            System.Threading.Thread.CurrentThread.CurrentUICulture = culture;
+            System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
+        }
+        catch { /* invalid culture code — ignore */ }
+    }
+
     private static void ReportUnhandledException(Exception ex, string source)
     {
         try
@@ -331,6 +347,9 @@ public partial class App : Application
 
         // Apply saved theme
         ApplyTheme(viewModel.AppOptions.Theme);
+
+        // Apply saved UI language
+        ApplyLanguage(viewModel.AppOptions.AppLanguage);
 
         var statusBarViewModel = _services.GetRequiredService<StatusBarViewModel>();
         var mainWindow = new MainWindow(startupPath, viewModel, statusBarViewModel);

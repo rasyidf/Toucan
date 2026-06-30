@@ -28,6 +28,7 @@ public partial class OptionsViewModel : ObservableObject
         MaxItemsText = AppOptions.MaxItems.ToString();
         DefaultLanguage = AppOptions.DefaultLanguage ?? "en-US";
         Theme = AppOptions.Theme ?? "System";
+        AppLanguage = AppOptions.AppLanguage ?? "en-US";
         PlainTextKeys = AppOptions.PlainTextKeys;
         CopyTemplate1 = AppOptions.CopyTemplate1 ?? "%1";
         CopyTemplate2 = AppOptions.CopyTemplate2 ?? string.Empty;
@@ -42,6 +43,9 @@ public partial class OptionsViewModel : ObservableObject
 
     [ObservableProperty]
     private string theme;
+
+    [ObservableProperty]
+    private string appLanguage;
 
     [ObservableProperty]
     private bool plainTextKeys;
@@ -162,6 +166,7 @@ public partial class OptionsViewModel : ObservableObject
         AppOptions.MaxItems = maxItems;
         AppOptions.DefaultLanguage = DefaultLanguage;
         AppOptions.Theme = Theme;
+        AppOptions.AppLanguage = AppLanguage;
         AppOptions.PlainTextKeys = PlainTextKeys;
         AppOptions.CopyTemplate1 = CopyTemplate1;
         AppOptions.CopyTemplate2 = CopyTemplate2;

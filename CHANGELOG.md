@@ -5,6 +5,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.13.0] — 2026-06-30
+
+### Added
+- **App i18n infrastructure** — `Toucan.Locales.Strings` resource class with `ResourceManager`-backed localization
+- **Strings.resx** (en-US) — 45+ key UI strings extracted: menus, panels, tooltips, status messages, mode labels
+- **Strings.id-ID.resx** — Full Indonesian translation of all UI strings
+- **App language picker** — ComboBox in Settings → Options → General for selecting UI language
+- **AppLanguage option** — Persisted to `settings.json`, applied as `CurrentUICulture` on startup
+
+### Changed
+- App sets `CurrentUICulture` on startup from saved language preference (requires restart for full effect)
+
 ## [0.12.0] — 2026-06-30
 
 ### Added
