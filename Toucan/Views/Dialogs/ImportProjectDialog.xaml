@@ -27,31 +27,62 @@
                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,20"/>
 
                 <!-- Folder picker -->
-                <TextBlock Text="Project Folder" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                <Grid Margin="0,0,0,16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Text="{Binding Folder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
-                    <ui:Button Grid.Column="1" Margin="8,0,0,0" Command="{Binding BrowseFolderCommand}">
+                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" Text="Project Folder"/>
+
+                <ui:CardControl Margin="0,0,0,16">
+                    <ui:CardControl.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Folder24" Margin="0,0,12,0"/>
+                            <StackPanel>
+                                <TextBlock Text="Folder path" FontWeight="SemiBold"/>
+                                <TextBlock Text="Root folder containing your translation files" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <ui:Button Command="{Binding BrowseFolderCommand}">
                         <ui:SymbolIcon Symbol="FolderOpen24"/>
                     </ui:Button>
-                </Grid>
+                </ui:CardControl>
+
+                <TextBox Text="{Binding Folder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
 
                 <!-- Detected framework -->
-                <TextBlock Text="Detected Framework" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                <ComboBox ItemsSource="{Binding AvailableProfiles}"
-                          SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
-                          DisplayMemberPath="DisplayName"
-                          Margin="0,0,0,4" MinWidth="200"/>
-                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,0,0,16">
-                    <Run Text="Auto-detected:"/>
-                    <Run Text="{Binding DetectedProfile.DisplayName, Mode=OneWay, FallbackValue='(none)'}"/>
-                </TextBlock>
+                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" Text="Detected Framework"/>
+
+                <ui:CardControl Margin="0,0,0,4">
+                    <ui:CardControl.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="AppGeneric24" Margin="0,0,12,0"/>
+                            <StackPanel>
+                                <TextBlock Text="Framework profile" FontWeight="SemiBold"/>
+                                <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                                    <Run Text="Auto-detected:"/>
+                                    <Run Text="{Binding DetectedProfile.DisplayName, Mode=OneWay, FallbackValue='(none)'}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                    <ComboBox ItemsSource="{Binding AvailableProfiles}"
+                              SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
+                              DisplayMemberPath="DisplayName"
+                              MinWidth="200"/>
+                </ui:CardControl>
 
                 <!-- Discovered files -->
-                <TextBlock Text="Discovered Files" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8" Text="Discovered Files"/>
+
+                <ui:CardControl Margin="0,0,0,4">
+                    <ui:CardControl.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="DocumentBulletList24" Margin="0,0,12,0"/>
+                            <StackPanel>
+                                <TextBlock Text="Translation files" FontWeight="SemiBold"/>
+                                <TextBlock Text="Files detected in the selected folder" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                </ui:CardControl>
+
                 <Border BorderThickness="1" BorderBrush="{DynamicResource ControlElevationBorderBrush}"
                         CornerRadius="4" MaxHeight="150" Margin="0,0,0,12">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -74,7 +105,8 @@
                 </Border>
 
                 <!-- Detected languages -->
-                <TextBlock Text="Languages" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" Text="Languages"/>
+
                 <ItemsControl ItemsSource="{Binding DetectedLanguages}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>

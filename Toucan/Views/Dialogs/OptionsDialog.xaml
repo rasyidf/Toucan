@@ -229,8 +229,18 @@
                                 <ComboBoxItem>en</ComboBoxItem>
                                 <ComboBoxItem>fr-FR</ComboBoxItem>
                                 <ComboBoxItem>es-ES</ComboBoxItem>
+                                <ComboBoxItem>de-DE</ComboBoxItem>
                                 <ComboBoxItem>id-ID</ComboBoxItem>
                                 <ComboBoxItem>zh-CN</ComboBoxItem>
+                                <ComboBoxItem>ja-JP</ComboBoxItem>
+                                <ComboBoxItem>ko-KR</ComboBoxItem>
+                                <ComboBoxItem>pt-BR</ComboBoxItem>
+                                <ComboBoxItem>ar-SA</ComboBoxItem>
+                                <ComboBoxItem>hi-IN</ComboBoxItem>
+                                <ComboBoxItem>ru-RU</ComboBoxItem>
+                                <ComboBoxItem>th-TH</ComboBoxItem>
+                                <ComboBoxItem>vi-VN</ComboBoxItem>
+                                <ComboBoxItem>tr-TR</ComboBoxItem>
                             </ComboBox>
                         </ui:CardControl>
 
@@ -405,6 +415,20 @@
                         <TextBox Text="{Binding ProjectCopyTemplate1, Mode=TwoWay}" Margin="0,0,0,4"/>
                         <TextBox Text="{Binding ProjectCopyTemplate2, Mode=TwoWay}" Margin="0,0,0,4"/>
                         <TextBox Text="{Binding ProjectCopyTemplate3, Mode=TwoWay}" Margin="0,0,0,4"/>
+
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Translation Context</TextBlock>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Info24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Project context" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Project-level context overrides the app context for pre-translation. Set it in the toucan.project manifest." FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                        </ui:CardControl>
 
                         <CheckBox Content="Save changes to project manifest" IsChecked="{Binding ApplyChangesToProject, Mode=TwoWay}" Margin="0,16,0,0"/>
                     </StackPanel>

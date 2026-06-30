@@ -47,20 +47,28 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0">
-                <TextBlock
-                    Margin="0,0,0,6"
-                    FontWeight="SemiBold"
-                    Text="Scope" />
+                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" Text="Configuration"/>
+
+                <ui:CardControl Margin="0,0,0,8">
+                    <ui:CardControl.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Shield24" Margin="0,0,12,0"/>
+                            <StackPanel>
+                                <TextBlock Text="Scope" FontWeight="SemiBold"/>
+                                <TextBlock Text="Override at project level" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ui:CardControl.Header>
+                </ui:CardControl>
+
                 <CheckBox
                     Margin="0,0,0,8"
                     Content="Project (override)"
                     IsChecked="{Binding ProjectScope}" />
 
-                <TextBlock
-                    Margin="0,8,0,6"
-                    FontWeight="SemiBold"
-                    Text="Project folder (optional)" />
-                <StackPanel Orientation="Horizontal">
+                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,8,0,8" Text="Project Folder"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                     <TextBox Width="160" Text="{Binding ProjectPath, UpdateSourceTrigger=PropertyChanged}" />
                     <Button
                         Width="32"
@@ -69,10 +77,8 @@
                         Content="..." />
                 </StackPanel>
 
-                <TextBlock
-                    Margin="0,12,0,6"
-                    FontWeight="SemiBold"
-                    Text="Providers" />
+                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" Text="Providers"/>
+
                 <ListBox
                     Height="220"
                     ItemsSource="{Binding Providers}"
@@ -112,83 +118,102 @@
                 </StackPanel>
             </StackPanel>
 
-            <Border
-                Grid.Column="1"
-                Padding="8"
-                Background="#10101010"
-                CornerRadius="4">
-                <ScrollViewer>
-                    <StackPanel>
-                        <TextBlock
-                            Margin="0,0,0,6"
-                            FontWeight="SemiBold"
-                            Text="Selected Provider" />
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Margin="12,0,0,0">
+                <StackPanel>
+                    <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" Text="Selected Provider"/>
 
-                        <StackPanel Margin="0,4" Orientation="Horizontal">
-                            <TextBlock Width="120" Text="Provider id: " />
-                            <TextBox Width="300" Text="{Binding Selected.Provider, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
+                    <ui:CardControl Margin="0,0,0,8">
+                        <ui:CardControl.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="CloudSync24" Margin="0,0,12,0"/>
+                                <StackPanel>
+                                    <TextBlock Text="Provider ID" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Unique identifier for this provider" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ui:CardControl.Header>
+                        <TextBox Width="200" Text="{Binding Selected.Provider, UpdateSourceTrigger=PropertyChanged}" />
+                    </ui:CardControl>
 
-                        <TextBlock
-                            Margin="0,12,0,6"
-                            FontWeight="SemiBold"
-                            Text="Options" />
-                        <ItemsControl ItemsSource="{Binding Selected.Options}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="0,3">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="160" />
-                                            <ColumnDefinition Width="6" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock
-                                            Grid.Column="0"
-                                            VerticalAlignment="Center"
-                                            Foreground="Gray"
-                                            Text="{Binding Key}" />
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            VerticalAlignment="Center"
-                                            Foreground="Gray"
-                                            Text=":" />
-                                        <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                    <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,8,0,8" Text="Options"/>
 
-                        <TextBlock
-                            Margin="0,12,0,6"
-                            FontWeight="SemiBold"
-                            Text="Secrets" />
-                        <ItemsControl ItemsSource="{Binding Selected.Secrets}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="0,3">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="160" />
-                                            <ColumnDefinition Width="6" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock
-                                            Grid.Column="0"
-                                            VerticalAlignment="Center"
-                                            Foreground="Gray"
-                                            Text="{Binding Key}" />
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            VerticalAlignment="Center"
-                                            Foreground="Gray"
-                                            Text=":" />
-                                        <PasswordBox Grid.Column="2" PasswordChar="●" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </ScrollViewer>
-            </Border>
+                    <ui:CardControl Margin="0,0,0,4">
+                        <ui:CardControl.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Options24" Margin="0,0,12,0"/>
+                                <StackPanel>
+                                    <TextBlock Text="Provider options" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Configuration key-value pairs" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ui:CardControl.Header>
+                    </ui:CardControl>
+
+                    <ItemsControl ItemsSource="{Binding Selected.Options}" Margin="0,4,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160" />
+                                        <ColumnDefinition Width="6" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Foreground="Gray"
+                                        Text="{Binding Key}" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Foreground="Gray"
+                                        Text=":" />
+                                    <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8" Text="Secrets"/>
+
+                    <ui:CardControl Margin="0,0,0,4">
+                        <ui:CardControl.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Key24" Margin="0,0,12,0"/>
+                                <StackPanel>
+                                    <TextBlock Text="API keys &amp; secrets" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Sensitive credentials (stored securely)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ui:CardControl.Header>
+                    </ui:CardControl>
+
+                    <ItemsControl ItemsSource="{Binding Selected.Secrets}" Margin="0,4,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160" />
+                                        <ColumnDefinition Width="6" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Foreground="Gray"
+                                        Text="{Binding Key}" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Foreground="Gray"
+                                        Text=":" />
+                                    <PasswordBox Grid.Column="2" PasswordChar="●" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
 
         <!-- Footer -->
