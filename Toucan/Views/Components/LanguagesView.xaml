@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:services="clr-namespace:Toucan.Services"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:loc="clr-namespace:Toucan.Locales"
     xmlns:viewmodels="clr-namespace:Toucan.ViewModels"
     x:Name="LanguagesPanel"
     d:Background="White"
@@ -43,7 +44,7 @@
                     VerticalAlignment="Center"
                     FontSize="12"
                     FontWeight="SemiBold"
-                    Text="Languages" />
+                    Text="{x:Static loc:Strings.Panel_Languages}" />
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <ui:Button
@@ -227,7 +228,7 @@
                                             Margin="4,0,0,0"
                                             VerticalAlignment="Center"
                                             FontSize="11"
-                                            Text="Translated" />
+                                            Text="{x:Static loc:Strings.LangStatus_Translated}" />
                                         <ui:Badge Grid.Column="2" Appearance="Success">
                                             <TextBlock FontSize="10" Text="{Binding Translated}" />
                                         </ui:Badge>
@@ -285,7 +286,7 @@
                                             Margin="4,0,0,0"
                                             VerticalAlignment="Center"
                                             FontSize="11"
-                                            Text="Empty" />
+                                            Text="{x:Static loc:Strings.LangStatus_Empty}" />
                                         <ui:Badge Grid.Column="2" Appearance="Caution">
                                             <TextBlock FontSize="10" Text="{Binding Empty}" />
                                         </ui:Badge>
@@ -343,7 +344,7 @@
                                             Margin="4,0,0,0"
                                             VerticalAlignment="Center"
                                             FontSize="11"
-                                            Text="Needs Review" />
+                                            Text="{x:Static loc:Strings.LangStatus_NeedsReview}" />
                                         <ui:Badge Grid.Column="2" Appearance="Info">
                                             <TextBlock FontSize="10" Text="{Binding NeedsReview}" />
                                         </ui:Badge>
@@ -397,7 +398,7 @@
                                             Margin="4,0,0,0"
                                             VerticalAlignment="Center"
                                             FontSize="11"
-                                            Text="Approved" />
+                                            Text="{x:Static loc:Strings.LangStatus_Approved}" />
                                         <ui:Badge Grid.Column="2" Appearance="Success">
                                             <TextBlock FontSize="10" Text="{Binding Approved}" />
                                         </ui:Badge>

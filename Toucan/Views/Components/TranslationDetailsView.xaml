@@ -8,6 +8,7 @@
     xmlns:local="clr-namespace:Toucan.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:loc="clr-namespace:Toucan.Locales"
     d:Background="White"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -28,7 +29,7 @@
                 <ui:TextBox
                     x:Name="IdFilterBox"
                     Icon="Filter16"
-                    PlaceholderText="Filter translation IDs..."
+                    PlaceholderText="{x:Static loc:Strings.Editor_FilterPlaceholder}"
                     Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     FontSize="12" />
             </Border>

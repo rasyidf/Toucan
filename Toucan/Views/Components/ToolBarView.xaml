@@ -7,6 +7,7 @@
     xmlns:services="clr-namespace:Toucan.Services"
     xmlns:views="clr-namespace:Toucan.Views"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:loc="clr-namespace:Toucan.Locales"
     Margin="{StaticResource PanelMargin}"
     d:Background="White"
     d:DesignHeight="32"
@@ -22,7 +23,7 @@
                 Padding="{StaticResource ToolbarButtonPadding}"
                 Appearance="Transparent"
                 Command="{Binding NewFolderCommand}"
-                ToolTip="New Project">
+                ToolTip="{x:Static loc:Strings.Tooltip_NewProject}">
                 <ui:Button.Icon>
                     <ui:SymbolIcon Symbol="DocumentAdd20" />
                 </ui:Button.Icon>
@@ -39,7 +40,7 @@
                         Padding="{StaticResource ToolbarButtonPadding}"
                         Appearance="Transparent"
                         Command="{Binding OpenFolderCommand}"
-                        ToolTip="Open project/folder (Ctrl+O)">
+                        ToolTip="{x:Static loc:Strings.Tooltip_OpenProject}">
                         <ui:Button.Icon>
                             <ui:SymbolIcon Symbol="FolderOpen20" />
                         </ui:Button.Icon>
@@ -73,7 +74,7 @@
                 Padding="{StaticResource ToolbarButtonPadding}"
                 Appearance="Transparent"
                 Command="{Binding SaveCommand}"
-                ToolTip="Save project">
+                ToolTip="{x:Static loc:Strings.Tooltip_Save}">
                 <ui:Button.Icon>
                     <ui:SymbolIcon Symbol="Save20" />
                 </ui:Button.Icon>
@@ -183,7 +184,7 @@
                 Padding="{StaticResource ToolbarButtonPadding}"
                 Appearance="Transparent"
                 Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleSidebarCommand}"
-                ToolTip="Toggle Sidebar (Ctrl+B)">
+                ToolTip="{x:Static loc:Strings.Tooltip_ToggleSidebar}">
                 <ui:Button.Icon>
                     <ui:SymbolIcon Symbol="PanelLeft20" />
                 </ui:Button.Icon>
@@ -194,7 +195,7 @@
                 Padding="{StaticResource ToolbarButtonPadding}"
                 Appearance="Transparent"
                 Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleInspectorCommand}"
-                ToolTip="Toggle Inspector (Ctrl+Shift+I)">
+                ToolTip="{x:Static loc:Strings.Tooltip_ToggleInspector}">
                 <ui:Button.Icon>
                     <ui:SymbolIcon Symbol="PanelRight20" />
                 </ui:Button.Icon>

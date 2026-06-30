@@ -6,6 +6,7 @@
     xmlns:local="clr-namespace:Toucan.Views.Components"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:loc="clr-namespace:Toucan.Locales"
     d:Background="White"
     d:DesignHeight="28"
     d:DesignWidth="500"
@@ -139,7 +140,7 @@
             Margin="4,0"
             Padding="8,2"
             Command="{Binding ShowAllCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-            Content="Show All"
+            Content="{x:Static loc:Strings.Editor_ShowAll}"
             FontSize="11"
             Cursor="Hand"
             IsEnabled="{Binding IsPartial, RelativeSource={RelativeSource AncestorType=UserControl}}">

@@ -14,6 +14,7 @@ using Toucan.Core.Models;
 using Toucan.Core.Options;
 using Toucan.Core.Services;
 using Toucan.Extensions;
+using Toucan.Locales;
 using Toucan.Services;
 using Toucan.Views.Dialogs;
 
@@ -53,7 +54,7 @@ internal partial class MainWindowViewModel
         {
             if (AllTranslation == null || AllTranslation.Count == 0)
             {
-                _messageService.ShowMessage("No translations loaded to pre-translate.");
+                _messageService.ShowMessage(Strings.Status_NoTranslationsLoaded);
                 return;
             }
 
@@ -70,7 +71,7 @@ internal partial class MainWindowViewModel
                 {
                     UpdateSummaryInfo();
                     NotifyBulkValueChanges(AllTranslation);
-                    StatusText = "Pre-translation completed.";
+                    StatusText = Strings.Status_PreTranslateComplete;
                 }
 
                 return;
@@ -86,7 +87,7 @@ internal partial class MainWindowViewModel
             await _bulkActionService.PreTranslateAsync(AllTranslation).ConfigureAwait(true);
             UpdateSummaryInfo();
             NotifyBulkValueChanges(AllTranslation);
-            StatusText = "Pre-translation completed.";
+            StatusText = Strings.Status_PreTranslateComplete;
         }
         catch (Exception ex)
         {

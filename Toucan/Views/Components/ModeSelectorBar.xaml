@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:loc="clr-namespace:Toucan.Locales"
     xmlns:viewmodels="clr-namespace:Toucan.ViewModels"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
     d:DesignHeight="32"
@@ -71,7 +72,7 @@
 
             <RadioButton
                 Grid.Column="0"
-                Content="✏ Edit"
+                Content="{x:Static loc:Strings.Mode_Edit}"
                 IsChecked="{Binding IsEditorMode, Mode=OneWay}"
                 Command="{Binding SwitchToEditorModeCommand}"
                 ToolTip="Editor Mode (Ctrl+Alt+1)"
@@ -80,7 +81,7 @@
 
             <RadioButton
                 Grid.Column="1"
-                Content="👁 Review"
+                Content="{x:Static loc:Strings.Mode_Review}"
                 IsChecked="{Binding IsReviewMode, Mode=OneWay}"
                 Command="{Binding SwitchToReviewModeCommand}"
                 ToolTip="Review Mode (Ctrl+Alt+2)"
@@ -89,7 +90,7 @@
 
             <RadioButton
                 Grid.Column="2"
-                Content="✓ Audit"
+                Content="{x:Static loc:Strings.Mode_Audit}"
                 IsChecked="{Binding IsAuditMode, Mode=OneWay}"
                 Command="{Binding SwitchToAuditModeCommand}"
                 ToolTip="Audit Mode (Ctrl+Alt+3)"

@@ -6,13 +6,14 @@
     xmlns:local="clr-namespace:Toucan.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:loc="clr-namespace:Toucan.Locales"
     xmlns:services="clr-namespace:Toucan.Services"
     d:DesignHeight="39.817"
     d:DesignWidth="705.829"
     mc:Ignorable="d">
 
     <Menu HorizontalAlignment="Left" Background="{x:Null}">
-        <ui:MenuItem AutomationProperties.AccessKey="F" Header="_File">
+        <ui:MenuItem AutomationProperties.AccessKey="F" Header="{x:Static loc:Strings.Menu_File}">
             <ui:MenuItem
                 Width="250"
                 Command="{Binding NewFolderCommand}"
@@ -87,7 +88,7 @@
                 Header="_Exit"
                 InputGestureText="Alt+F4" />
         </ui:MenuItem>
-        <ui:MenuItem Name="itemMenu" Header="_Edit">
+        <ui:MenuItem Name="itemMenu" Header="{x:Static loc:Strings.Menu_Edit}">
             <ui:MenuItem
                 MinWidth="190"
                 Command="{Binding UndoCommand}"
@@ -163,7 +164,7 @@
             <ui:MenuItem Header="Generate Gender Forms" Command="{Binding GenerateGenderFormsCommand}" Icon="{ui:SymbolIcon People20}" />
             <ui:MenuItem Header="Validate Placeholders" Command="{Binding ValidatePlaceholdersCommand}" Icon="{ui:SymbolIcon CheckmarkSquare20}" />
         </ui:MenuItem>
-        <ui:MenuItem Header="Find">
+        <ui:MenuItem Header="{x:Static loc:Strings.Menu_Find}">
             <ui:MenuItem
                 Header="Find"
                 Icon="{ui:SymbolIcon Search20}"
@@ -197,7 +198,7 @@
                 Icon="{ui:SymbolIcon FilterDismiss20}"
                 Command="{Binding ClearFilterCommand}" />
         </ui:MenuItem>
-        <ui:MenuItem Header="Views">
+        <ui:MenuItem Header="{x:Static loc:Strings.Menu_Views}">
             <ui:MenuItem Header="Tree View" Icon="{ui:SymbolIcon TextBulletListTree20}" Command="{Binding SwitchToTreeViewCommand}" />
             <ui:MenuItem Header="List View" Icon="{ui:SymbolIcon List20}" Command="{Binding SwitchToListViewCommand}" />
             <Separator />
@@ -216,7 +217,7 @@
             <ui:MenuItem Header="Statistics" Command="{Binding GenerateStatisticsBulkCommand}" />
         </ui:MenuItem>
 
-        <ui:MenuItem Header="Help">
+        <ui:MenuItem Header="{x:Static loc:Strings.Menu_Help}">
             <ui:MenuItem
                 Width="150"
                 Command="{Binding HelpHomepageCommand}"

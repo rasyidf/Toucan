@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:loc="clr-namespace:Toucan.Locales"
     xmlns:c="clr-namespace:Toucan.Converters"
     xmlns:services="clr-namespace:Toucan.Services"
     xmlns:views="clr-namespace:Toucan.Views"
@@ -41,7 +42,7 @@
                     VerticalAlignment="Center"
                     FontSize="12"
                     FontWeight="SemiBold"
-                    Text="Inspector" />
+                    Text="{x:Static loc:Strings.Panel_Inspector}" />
 
                 <ui:Button
                     Grid.Column="1"
@@ -59,12 +60,12 @@
         <TabControl Grid.Row="1" BorderThickness="0" Padding="0"
                     x:Name="InspectorTabs">
             <!-- Stats Tab -->
-            <TabItem Header="Stats" Padding="8,4">
+            <TabItem Header="{x:Static loc:Strings.Inspector_Stats}" Padding="8,4">
                 <views:LanguagesView />
             </TabItem>
 
             <!-- Suggestions Tab -->
-            <TabItem Header="Suggestions" Padding="8,4">
+            <TabItem Header="{x:Static loc:Strings.Inspector_Suggestions}" Padding="8,4">
                 <Grid Margin="8">
                     <!-- Empty state -->
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -75,7 +76,7 @@
                             HorizontalAlignment="Center"
                             FontSize="12"
                             Opacity="0.6"
-                            Text="Select a key to see suggestions" />
+                            Text="{x:Static loc:Strings.Inspector_SelectKeySuggestions}" />
                     </StackPanel>
 
                     <!-- Content -->
@@ -109,7 +110,7 @@
                             FontSize="11"
                             Opacity="0.5"
                             Margin="0,8,0,0"
-                            Text="No similar translations found">
+                            Text="{x:Static loc:Strings.Inspector_NoSuggestions}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Visibility" Value="Collapsed" />
@@ -126,7 +127,7 @@
             </TabItem>
 
             <!-- Details Tab -->
-            <TabItem Header="Details" Padding="8,4">
+            <TabItem Header="{x:Static loc:Strings.Inspector_Details}" Padding="8,4">
                 <Grid Margin="8">
                     <!-- Empty state -->
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -137,7 +138,7 @@
                             HorizontalAlignment="Center"
                             FontSize="12"
                             Opacity="0.6"
-                            Text="Select a key to see details" />
+                            Text="{x:Static loc:Strings.Inspector_SelectKey}" />
                     </StackPanel>
 
                     <!-- Content -->
