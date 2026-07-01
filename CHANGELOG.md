@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.15.0] - 2026-07-01
+
+### Added
+- **Modular StatusBar architecture** — Status bar is now composed of independent panels (`IStatusBarPanel`) managed by a `StatusBarPanelRegistry`. Each panel can be shown/hidden, reordered, and clicked.
+- **10 built-in panels**: VCS (branch + changes + sync), Translation Stats (progress + per-language breakdown), Mode (EDITOR/REVIEW/AUDIT badge), Project (name + dirty count), Status (ephemeral text), Language (primary + switcher), Encoding (UTF-8), Line Endings (LF/CRLF toggle), Notifications (badge), Loading (spinner).
+- **Dynamic panel rendering** — StatusBarView uses `ItemsControl` with implicit `DataTemplate` per panel type. Left/Center/Right alignment groups rendered independently.
+- **Panel click actions** — Each panel has a `ClickCommand`: VCS opens summary, Stats opens statistics dialog, Language opens switcher, Line Endings toggles LF↔CRLF, etc.
+- **Panel registry API** — `StatusBarPanelRegistry.Register()`, `.Unregister()`, `.SetVisibility()`, `.Reorder()` — external services can add custom panels at runtime.
+- **Rich tooltips** — VCS shows branch + change summary, Stats shows per-language progress bars, all panels have contextual tooltips.
+
+### Changed
+- **StatusBarViewModel** — Collapsed from 4 partial files into a single file backed by panel instances. Backward-compatible: existing callers (`StatusBarService.UpdateStatus()`, `.UpdateDefaultLanguage()`, etc.) still work unchanged.
+- **StatusBarView.xaml** — Replaced hardcoded 8-column Grid with 3-column layout (Left/Center/Right) using `ItemsControl` bound to registry collections.
+
 ## [0.14.2] - 2026-07-01
 
 ### Improved
