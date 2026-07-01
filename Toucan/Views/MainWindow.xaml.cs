@@ -12,10 +12,11 @@ namespace Toucan;
 public partial class MainWindow : FluentWindow
 {
     internal MainWindowViewModel ViewModel { get; }
-    private readonly FileWatcherService _fileWatcher = new();
+    private readonly Toucan.Core.Contracts.Services.IFileWatcherService _fileWatcher;
 
-    internal MainWindow(string startupPath, MainWindowViewModel viewModel, StatusBarViewModel statusViewModel)
+    internal MainWindow(string startupPath, MainWindowViewModel viewModel, StatusBarViewModel statusViewModel, Toucan.Core.Contracts.Services.IFileWatcherService fileWatcher)
     {
+        _fileWatcher = fileWatcher;
 
         InitializeComponent();
 
@@ -214,11 +215,48 @@ public partial class MainWindow : FluentWindow
         ViewModel.ShowAll(ViewModel.SearchText);
     }
 
-    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
+        if (ViewModel.HasUnsavedChanges)
+        {
+            e.Cancel = true; // prevent close while we ask
+            var msgBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = "Unsaved Changes",
+                Content = "You have unsaved changes. Do you want to save before closing?",
+                PrimaryButtonText = "Save",
+                SecondaryButtonText = "Discard",
+                CloseButtonText = "Cancel"
+            };
+            var result = await msgBox.ShowDialogAsync();
+            if (result == Wpf.Ui.Controls.MessageBoxResult.Primary)
+            {
+                // Save then close
+                if (ViewModel.SaveCommand.CanExecute(null))
+                    ViewModel.SaveCommand.Execute(null);
+            }
+            else if (result == Wpf.Ui.Controls.MessageBoxResult.Secondary)
+            {
+                // Discard — proceed with close
+            }
+            else
+            {
+                // Cancel — abort close
+                return;
+            }
+
+            // Actually close now
+            PanelService.Instance.SaveLayout();
+            StatusBarService.Instance.Unregister();
+            _fileWatcher.Stop();
+            ViewModel.Cleanup();
+            Application.Current.Shutdown();
+            return;
+        }
+
         PanelService.Instance.SaveLayout();
         StatusBarService.Instance.Unregister();
-        _fileWatcher.Dispose();
+        _fileWatcher.Stop();
         ViewModel.Cleanup();
     }
 

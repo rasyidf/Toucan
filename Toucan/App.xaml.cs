@@ -353,7 +353,7 @@ public partial class App : Application
         ApplyLanguage(viewModel.AppOptions.AppLanguage);
 
         var statusBarViewModel = _services.GetRequiredService<StatusBarViewModel>();
-        var mainWindow = new MainWindow(startupPath, viewModel, statusBarViewModel);
+        var mainWindow = new MainWindow(startupPath, viewModel, statusBarViewModel, _services.GetRequiredService<Toucan.Core.Contracts.Services.IFileWatcherService>());
 
         // Register file association (per-user, no elevation needed)
         FileAssociationService.Register();

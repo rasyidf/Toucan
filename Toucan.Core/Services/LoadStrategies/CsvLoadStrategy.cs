@@ -11,8 +11,8 @@ public class CsvLoadStrategy : ILoadStrategy
 
     public IEnumerable<TranslationItem> Load(string folder)
     {
-        var files = Directory.GetFiles(folder, "*.csv", SearchOption.AllDirectories)
-            .Concat(Directory.GetFiles(folder, "*.tsv", SearchOption.AllDirectories));
+        var files = FileEnumerator.EnumerateFiles(folder, "*.csv")
+            .Concat(FileEnumerator.EnumerateFiles(folder, "*.tsv"));
 
         var items = new List<TranslationItem>();
         foreach (var file in files)

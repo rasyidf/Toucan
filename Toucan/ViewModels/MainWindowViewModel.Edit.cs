@@ -290,9 +290,13 @@ internal partial class MainWindowViewModel
 
         AllTranslation.ForParse().ToList().ForEach(item =>
         {
-            if (item.Namespace.StartsWith(oldNs, StringComparison.InvariantCulture))
+            if (item.Namespace == oldNs)
             {
-                item.Namespace = item.Namespace.Replace(oldNs, newNs, StringComparison.InvariantCulture);
+                item.Namespace = newNs;
+            }
+            else if (item.Namespace.StartsWith(oldNs + ".", StringComparison.InvariantCulture))
+            {
+                item.Namespace = newNs + item.Namespace[oldNs.Length..];
             }
         });
 
@@ -316,7 +320,7 @@ internal partial class MainWindowViewModel
             _ = siblings.Remove(node);
         }
 
-        _ = AllTranslation.RemoveAll(o => o?.Namespace?.StartsWith(node.Namespace) ?? false);
+        _ = AllTranslation.RemoveAll(o => o?.Namespace == node.Namespace || (o?.Namespace?.StartsWith(node.Namespace + ".") ?? false));
         RefreshTree();
         Search("", true);
     }
@@ -328,7 +332,7 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        if (AllTranslation.NoEmpty().Any(setting => setting.Namespace.Contains(newNamespace)))
+        if (AllTranslation.NoEmpty().Any(setting => setting.Namespace == newNamespace))
         {
             _messageService.ShowMessage("Duplicate name");
             return;

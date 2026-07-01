@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
@@ -103,7 +104,7 @@ public partial class NewProjectViewModel : ObservableObject
     private readonly string _defaultBaseFolder;
 
     [RelayCommand]
-    private void NextStep()
+    private async Task NextStep()
     {
         if (WizardStep == 0 && SelectedFramework != null && !string.IsNullOrWhiteSpace(ProjectFolder))
         {
@@ -126,7 +127,7 @@ public partial class NewProjectViewModel : ObservableObject
                     SecondaryButtonText = "Open Existing",
                     CloseButtonText = "Cancel"
                 };
-                var result = msg.ShowDialogAsync().GetAwaiter().GetResult();
+                var result = await msg.ShowDialogAsync();
                 if (result == Wpf.Ui.Controls.MessageBoxResult.Secondary)
                 {
                     // Signal to caller to open existing project instead

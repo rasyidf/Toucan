@@ -10,9 +10,6 @@ public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoad
 {
     public SaveStyles Style => SaveStyles.Json;
 
-    private static readonly HashSet<string> s_excludedDirs = new(StringComparer.OrdinalIgnoreCase)
-        { ".toucan", ".git", "node_modules", ".next", "dist", "build", "out", "obj", "bin", ".idea", ".vscode" };
-
     private static readonly HashSet<string> s_excludedFiles = new(StringComparer.OrdinalIgnoreCase)
         { "toucan.project", "package.json", "package-lock.json", "tsconfig.json", "global.json", "appsettings.json" };
 
@@ -20,7 +17,12 @@ public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoad
     {
         if (string.IsNullOrEmpty(folder)) return [];
 
-        var files = EnumerateJsonFiles(folder);
+        var files = FileEnumerator.EnumerateFiles(
+            folder,
+            "*.json",
+            EnumerateOptions.SkipNestedLocaleDirs,
+            s_excludedFiles);
+
         var items = new List<TranslationItem>();
 
         foreach (var filePath in files)
@@ -84,38 +86,6 @@ public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoad
 
     private static bool IsLanguageCandidate(string segment) =>
         !string.IsNullOrWhiteSpace(segment) && LanguagePattern().IsMatch(segment);
-
-    private static IEnumerable<string> EnumerateJsonFiles(string root)
-    {
-        // ponytail: if root itself has lang-code subdirs (en/, id/, etc.), skip nested 'locales/' dir
-        // to avoid loading the same translations twice from different paths.
-        var hasLangDirsAtRoot = Directory.GetDirectories(root)
-            .Any(d => LanguagePattern().IsMatch(Path.GetFileName(d)));
-
-        var stack = new Stack<string>();
-        stack.Push(root);
-
-        while (stack.Count > 0)
-        {
-            var dir = stack.Pop();
-            foreach (var sub in Directory.GetDirectories(dir))
-            {
-                var name = Path.GetFileName(sub);
-                if (s_excludedDirs.Contains(name))
-                    continue;
-                // Skip nested 'locales' dir when root already has lang dirs (avoids duplicates)
-                if (hasLangDirsAtRoot && dir == root && name.Equals("locales", StringComparison.OrdinalIgnoreCase))
-                    continue;
-                stack.Push(sub);
-            }
-            foreach (var file in Directory.GetFiles(dir, "*.json"))
-            {
-                var fileName = Path.GetFileName(file);
-                if (!s_excludedFiles.Contains(fileName))
-                    yield return file;
-            }
-        }
-    }
 
     [GeneratedRegex(@"^[a-z]{2}(-[A-Za-z0-9]+)?$", RegexOptions.IgnoreCase)]
     private static partial Regex LanguagePattern();

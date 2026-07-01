@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.14.2] - 2026-07-01
+
+### Improved
+- **Centralized FileEnumerator** — Extracted `Toucan.Core\Services\FileEnumerator.cs` with flags-based `EnumerateOptions`. All load strategies (JSON, CSV, YAML, PHP) now use a single file crawler with shared directory exclusion list. `SkipNestedLocaleDirs` flag auto-detects when root has language-code subdirs and skips nested `locales/`, `i18n/`, `translations/`, `lang/` directories to prevent duplicates.
+- **UpdateSummaryInfo per-keystroke** — `TranslationDetailsView` now debounces the update event (300ms idle) instead of firing on every KeyUp.
+- **JSON key order instability** — `JsonSaveStrategy` now sorts items by namespace before writing, producing stable key order across saves (reduces VCS noise).
+- **Placeholder count validation** — `PlaceholderService.Validate` now uses count-aware comparison instead of set-based `Except`. Detects when a placeholder appears more times in source than target.
+
+## [0.14.1] - 2026-07-01
+
+### Fixed
+- **Tree corruption on rename** — `RenameItem` used `string.Replace` which corrupted unrelated keys sharing a substring (e.g., renaming "app" mangled "application"). Now uses exact prefix + dot delimiter matching.
+- **Tree corruption on delete** — `DeleteItem` used bare `StartsWith` which deleted sibling keys (e.g., deleting "app" also deleted "appSettings"). Now requires exact match or dot-separated child.
+- **NsTreeItem lazy-load flattening** — The `Items` getter was flattening grandchildren into the current node via `AddRange(child.Items)`. Children now retain their subtree structure.
+- **YAML round-trip data loss** — Save strategy now properly escapes `\n`/`\r`/`\t` in double-quoted values, quotes YAML reserved words (`true`, `false`, `yes`, `no`, `null`), and preserves keys that are both parents and leaf values. Load strategy now supports multi-line block scalars (`|` and `>`).
+- **Undo history corruption** — After 200 edits, the undo stack cap logic reversed item order (newest ended up at bottom). Now iterates in reverse when repopulating.
+- **Dirty tracking bypass** — `TranslationItemViewModel.SaveTranslation()` now calls `ITranslationManagementService.NotifyValueChanged()` so the project correctly shows unsaved state.
+- **Silent data loss on close** — `Window_Closing` now prompts Save/Discard/Cancel when unsaved changes exist, instead of silently discarding edits.
+- **Source code scan thread-safety** — Replaced `List<KeyUsage>` with `ConcurrentBag<KeyUsage>` in parallel scan. Fixed case-sensitive directory exclusion on Windows (now uses `StringComparer.OrdinalIgnoreCase`).
+- **Provider mock fallback** — All providers (OpenAI, Google, DeepL, Microsoft) now report `Succeeded = false` with "No API key configured" instead of silently injecting fake `[provider/lang]` translations.
+- **Provider language code truncation** — Removed `Split('-')[0]` that stripped regional variants. Full BCP-47 codes (e.g., `zh-CN`, `pt-BR`, `EN-US`) are now passed to translation APIs.
+- **Google Translate HTML entities** — Response text is now decoded via `WebUtility.HtmlDecode()` to fix garbled apostrophes and ampersands.
+- **Statusbar language selector empty** — `AvailableLanguages` collection is now populated from project languages after load, so the inline language switcher works.
+- **Duplicate FileWatcherService** — MainWindow now uses the DI-registered singleton `IFileWatcherService` instead of creating its own instance. External-change detection is consistent with the lifecycle service.
+- **CreateNewItem false duplicate** — Replaced `Namespace.Contains(newNamespace)` with exact `==` match. Creating "app" is no longer blocked by "wrapper.app.title".
+- **Delete/F2/Escape in TextBox** — `HandleZenKeys` now guards these keys when a TextBox has focus, preventing accidental item deletion or rename while typing.
+- **FileWatcherService race condition** — Replaced `bool _pending` with `Interlocked.CompareExchange` to prevent missed/double-fired change events from concurrent threads.
+- **PreTranslateViewModel CTS leak** — Previous `CancellationTokenSource` is now disposed before creating a new one on each Start().
+- **Provider settings lost on switch** — `RebuildFieldItems` now flushes field edits to the *previous* selection before clearing, so switching providers no longer discards unsaved config.
+- **NewProjectViewModel deadlock** — Converted `NextStep()` from sync (`GetAwaiter().GetResult()`) to `async Task`, eliminating potential UI thread deadlock on the existing-project dialog.
+
 ## [0.14.0] - 2026-06-30
 
 ### Added

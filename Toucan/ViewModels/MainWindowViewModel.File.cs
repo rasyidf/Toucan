@@ -215,6 +215,14 @@ internal partial class MainWindowViewModel
         }
         catch { }
 
+        // Populate statusbar available languages for inline switching
+        if (StatusBarService.Instance is { } sbs && sbs.GetViewModel() is { } sbVm && AllTranslation != null)
+        {
+            sbVm.AvailableLanguages.Clear();
+            foreach (var lang in AllTranslation.ToLanguages())
+                sbVm.AvailableLanguages.Add(lang);
+        }
+
         // Populate paging controller for loaded data
         Search("", true);
 

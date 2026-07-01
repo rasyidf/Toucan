@@ -56,9 +56,9 @@ public partial class ProviderSettingsViewModel : ObservableObject
         LoadAppSettings();
     }
 
-    partial void OnSelectedChanged(ProviderSettings? value)
+    partial void OnSelectedChanged(ProviderSettings? oldValue, ProviderSettings? newValue)
     {
-        RebuildFieldItems();
+        RebuildFieldItems(oldValue);
     }
 
     [RelayCommand]
@@ -239,9 +239,19 @@ public partial class ProviderSettingsViewModel : ObservableObject
     /// <summary>
     /// Rebuilds the OptionItems and SecretItems collections from the currently selected provider.
     /// </summary>
-    private void RebuildFieldItems()
+    private void RebuildFieldItems(ProviderSettings? previousSelection = null)
     {
-        // First, flush previous selection's edits
+        // Flush previous selection's edits before switching
+        if (previousSelection != null && OptionItems.Count > 0)
+        {
+            previousSelection.Options.Clear();
+            foreach (var item in OptionItems.Where(i => !string.IsNullOrWhiteSpace(i.Key)))
+                previousSelection.Options[item.Key] = item.Value;
+            previousSelection.Secrets.Clear();
+            foreach (var item in SecretItems.Where(i => !string.IsNullOrWhiteSpace(i.Key)))
+                previousSelection.Secrets[item.Key] = item.Value;
+        }
+
         OptionItems.Clear();
         SecretItems.Clear();
 

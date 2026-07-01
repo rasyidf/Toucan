@@ -29,6 +29,7 @@ internal class StatusBarService : IStatusBarService
 
     public void Register(StatusBarViewModel vm) => _vm = vm ?? throw new ArgumentNullException(nameof(vm));
     public void Unregister() => _vm = null;
+    public StatusBarViewModel? GetViewModel() => _vm;
 
     public void SetLoading(bool isLoading) { if (_vm != null) _vm.IsLoading = isLoading; }
     public void UpdateStatus(string text) { if (_vm != null) _vm.StatusText = text; }

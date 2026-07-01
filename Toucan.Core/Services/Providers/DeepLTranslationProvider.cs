@@ -28,7 +28,7 @@ public class DeepLTranslationProvider : ITranslationProvider
 
         if (string.IsNullOrWhiteSpace(apiKey))
         {
-            // fallback to mock style
+            // fallback — report failure, not mock translations
             foreach (var job in jobs)
             {
                 results.Add(new PretranslationItemResult
@@ -37,8 +37,9 @@ public class DeepLTranslationProvider : ITranslationProvider
                     Language = job.TargetLanguage ?? string.Empty,
                     Provider = Name,
                     SourceText = job.SourceText,
-                    Succeeded = !string.IsNullOrEmpty(job.SourceText),
-                    TranslatedValue = !string.IsNullOrEmpty(job.SourceText) ? $"[deepl/{job.TargetLanguage}] {job.SourceText}" : null
+                    Succeeded = false,
+                    TranslatedValue = null,
+                    ErrorMessage = "No API key configured"
                 });
             }
 
@@ -65,8 +66,8 @@ public class DeepLTranslationProvider : ITranslationProvider
 
             try
             {
-                var src = job.SourceLanguage?.Split('-')[0].ToUpperInvariant() ?? string.Empty;
-                var tgt = job.TargetLanguage?.Split('-')[0].ToUpperInvariant() ?? string.Empty;
+                var src = string.IsNullOrEmpty(job.SourceLanguage) ? string.Empty : job.SourceLanguage.ToUpperInvariant();
+                var tgt = job.TargetLanguage?.ToUpperInvariant() ?? string.Empty;
 
                 var values = new List<KeyValuePair<string, string>>
                 {

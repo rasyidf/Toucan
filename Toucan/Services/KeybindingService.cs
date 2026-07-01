@@ -105,7 +105,7 @@ internal static class KeybindingService
         // ponytail: J/K without modifiers can't use KeyGesture — handled via PreviewKeyDown in Window
     }
 
-    /// <summary>Call from Window.PreviewKeyDown to handle bare-key Zen navigation.</summary>
+    /// <summary>Call from Window.PreviewKeyDown to handle bare-key Zen navigation and TextBox-safe shortcuts.</summary>
     public static void HandleZenKeys(KeyEventArgs e, MainWindowViewModel vm)
     {
         // In Zen mode, Escape exits zen (takes priority over ClearFilter)
@@ -116,12 +116,19 @@ internal static class KeybindingService
             return;
         }
 
+        // Guard: don't intercept Delete/F2/Escape when a TextBox has focus
+        bool isTextBoxFocused = e.OriginalSource is System.Windows.Controls.TextBox;
+        if (isTextBoxFocused && (e.Key == Key.Delete || e.Key == Key.F2 || e.Key == Key.Escape))
+        {
+            return; // let the TextBox handle these keys normally
+        }
+
         if (!vm.ZenMode && !vm.FocusedEditorMode)
         {
             return;
         }
         // Don't intercept if a TextBox has focus
-        if (e.OriginalSource is System.Windows.Controls.TextBox)
+        if (isTextBoxFocused)
         {
             return;
         }
