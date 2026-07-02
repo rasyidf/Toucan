@@ -361,6 +361,18 @@ public partial class App : Application
         lifecycleService.SetUnsavedChangesHandler(new WpfUnsavedChangesHandler(mainWindow));
         lifecycleService.SetExternalChangeHandler(new WpfExternalChangeHandler(mainWindow));
 
+        // Register built-in side panels in the registry
+        var sideRegistry = SidePanelRegistry.Instance;
+        sideRegistry.Register(new BuiltInSidePanel("explorer", "Explorer", "FolderOpen20", SidePanelSlot.Left, 10));
+        sideRegistry.Register(new BuiltInSidePanel("source-code", "Source Code", "Code20", SidePanelSlot.Left, 20));
+        sideRegistry.Register(new BuiltInSidePanel("search", "Search", "Search20", SidePanelSlot.Left, 30));
+        sideRegistry.Register(new BuiltInSidePanel("source-control", "Source Control", "BranchFork20", SidePanelSlot.Left, 40));
+        sideRegistry.Register(new BuiltInSidePanel("issues", "Issues", "Warning20", SidePanelSlot.Left, 35));
+        sideRegistry.Register(new BuiltInSidePanel("inspector", "Inspector", "Info20", SidePanelSlot.Right, 10));
+        sideRegistry.Register(new BuiltInSidePanel("machine-translation", "Translation", "Translate20", SidePanelSlot.Right, 20));
+        sideRegistry.Register(new BuiltInSidePanel("translation-memory", "Memory", "Library20", SidePanelSlot.Right, 30));
+        sideRegistry.Register(new BuiltInSidePanel("dictionary", "Dictionary", "Book20", SidePanelSlot.Right, 40));
+
         // Register file association (per-user, no elevation needed)
         FileAssociationService.Register();
 
@@ -448,5 +460,22 @@ file sealed class WpfExternalChangeHandler(Window owner) : IExternalChangeHandle
         };
         var result = await msgBox.ShowDialogAsync();
         return result == Wpf.Ui.Controls.MessageBoxResult.Primary ? conflicts : null;
+    }
+}
+
+internal sealed class BuiltInSidePanel : Toucan.Core.Models.SidePanelBase
+{
+    public override string Id { get; }
+    public override string Title { get; }
+    public override string Icon { get; }
+    public override Toucan.Core.Models.SidePanelSlot DefaultSlot { get; }
+
+    public BuiltInSidePanel(string id, string title, string icon, Toucan.Core.Models.SidePanelSlot slot, int order)
+    {
+        Id = id;
+        Title = title;
+        Icon = icon;
+        DefaultSlot = slot;
+        Order = order;
     }
 }

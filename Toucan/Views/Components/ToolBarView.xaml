@@ -14,7 +14,7 @@
     d:DesignWidth="600"
     mc:Ignorable="d">
     <Border
-        Padding="8,4"
+        Padding="4,2"
         BorderThickness="0,0,0,1"
         BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
         <Grid>

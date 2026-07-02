@@ -20,6 +20,9 @@ public interface ISourceCodeService
 
     /// <summary>Whether a scan has been completed.</summary>
     bool HasScanData { get; }
+
+    /// <summary>Get all keys found during the last scan.</summary>
+    IEnumerable<string> GetAllKeys();
 }
 
 /// <summary>A single usage of a translation key in source code.</summary>

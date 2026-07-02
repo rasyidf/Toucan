@@ -22,28 +22,11 @@
 
     <Grid Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Panel Header -->
-        <Border Padding="10,4,6,4" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"
-                           Text="{x:Static loc:Strings.Panel_Inspector}" />
-                <ui:Button Grid.Column="1" Padding="4" Appearance="Transparent"
-                           Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleInspectorCommand}">
-                    <ui:SymbolIcon FontSize="11" Symbol="Dismiss16" />
-                </ui:Button>
-            </Grid>
-        </Border>
-
         <!-- Styled TabControl -->
-        <TabControl x:Name="InspectorTabs" Grid.Row="1" BorderThickness="0" Padding="0" Background="Transparent">
+        <TabControl x:Name="InspectorTabs" Grid.Row="0" BorderThickness="0" Padding="0" Background="Transparent">
             <TabControl.Resources>
                 <Style TargetType="TabItem">
                     <Setter Property="Background" Value="Transparent"/>

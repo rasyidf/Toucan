@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:services="clr-namespace:Toucan.Services"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:components="clr-namespace:Toucan.Views.Components"
     xmlns:views="clr-namespace:Toucan.Views"
     Width="858"
     Height="650"
@@ -82,37 +83,39 @@
               Grid.RowSpan="1"
               Visibility="{Binding ShowStartScreen, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="sidebarColumn"
-                                  Width="200"/>
-                <ColumnDefinition x:Name="sidebarSplitterColumn"
-                                  Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition x:Name="inspectorSplitterColumn"
-                                  Width="Auto"/>
-                <ColumnDefinition x:Name="inspectorColumn"
-                                  Width="200"/>
+                <ColumnDefinition Width="36"/>   <!-- Left Activity Bar -->
+                <ColumnDefinition x:Name="sidebarColumn" Width="200"/>
+                <ColumnDefinition Width="Auto"/> <!-- Splitter -->
+                <ColumnDefinition Width="*"/>    <!-- Center -->
+                <ColumnDefinition Width="Auto"/> <!-- Splitter -->
+                <ColumnDefinition x:Name="inspectorColumn" Width="200"/>
+                <ColumnDefinition Width="36"/>   <!-- Right Activity Bar -->
             </Grid.ColumnDefinitions>
 
-            <!-- Left sidebar: tree only -->
-            <Grid Visibility="{Binding SidePanelVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}">
-                <views:ResourcesView x:Name="resourcesView"
-                                     Visibility="{Binding ResourcesVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}"
-                                     SelectionChanged="TreeNamespace_SelectedItemChanged"
-                                     ListSelectionChanged="ResourcesView_ListSelectionChanged"/>
-            </Grid>
+            <!-- Left Activity Bar -->
+            <components:ActivityBar Grid.Column="0"
+                Panels="{Binding SideRegistry.LeftSlotPanels, Source={x:Static services:PanelService.Instance}}"
+                ActivateCommand="{Binding ActivateLeftPanelCommand, Source={x:Static services:PanelService.Instance}}"
+                Visibility="{Binding ShowStartScreen, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
+
+            <!-- Left sidebar: dynamic panel content -->
+            <components:PanelHost x:Name="leftPanelHost" Grid.Column="1"
+                PanelTitle="{Binding SideRegistry.ActiveLeftPanel.Title, Source={x:Static services:PanelService.Instance}, FallbackValue=EXPLORER}"
+                HideCommand="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleSidebarCommand}"
+                Visibility="{Binding SideRegistry.LeftSlotVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}"/>
 
             <!-- Left splitter -->
             <GridSplitter
-                Grid.Column="1"
+                Grid.Column="2"
                 Width="2"
                 HorizontalAlignment="Stretch"
                 Background="{DynamicResource SubtleFillColorSecondaryBrush}"
-                Visibility="{Binding SidePanelVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}"/>
+                Visibility="{Binding SideRegistry.LeftSlotVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}"/>
 
             <!-- Center: translation editor -->
             <views:TranslationDetailsView
                 x:Name="translationDetailsView"
-                Grid.Column="2"
+                Grid.Column="3"
                 FirstPageClick="FirstPage"
                 LastPageClick="LastPage"
                 NextPageClick="NextPage"
@@ -122,17 +125,27 @@
 
             <!-- Right splitter -->
             <GridSplitter
-                Grid.Column="3"
+                Grid.Column="4"
                 Width="2"
                 HorizontalAlignment="Stretch"
                 Background="{DynamicResource SubtleFillColorSecondaryBrush}"
-                Visibility="{Binding InspectorVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}"/>
+                Visibility="{Binding SideRegistry.RightSlotVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}"/>
 
-            <!-- Right inspector pane -->
-            <views:InspectorView
-                x:Name="inspectorView"
-                Grid.Column="4"
-                Visibility="{Binding InspectorVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}"/>
+            <!-- Right panel: dynamic panel content -->
+            <components:PanelHost x:Name="rightPanelHost" Grid.Column="5"
+                PanelTitle="{Binding SideRegistry.ActiveRightPanel.Title, Source={x:Static services:PanelService.Instance}, FallbackValue=INSPECTOR}"
+                HideCommand="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleInspectorCommand}"
+                Visibility="{Binding SideRegistry.RightSlotVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}"/>
+
+            <!-- Right Activity Bar -->
+            <components:ActivityBar Grid.Column="6"
+                Panels="{Binding SideRegistry.RightSlotPanels, Source={x:Static services:PanelService.Instance}}"
+                ActivateCommand="{Binding ActivateRightPanelCommand, Source={x:Static services:PanelService.Instance}}"
+                Visibility="{Binding ShowStartScreen, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
+                <components:ActivityBar.LayoutTransform>
+                    <ScaleTransform ScaleX="-1"/>
+                </components:ActivityBar.LayoutTransform>
+            </components:ActivityBar>
 
         </Grid>
 

@@ -19,7 +19,7 @@ public partial class OptionDialog : FluentWindow
     {
         InitializeComponent();
 
-        _pages = [PageGeneral, PageAppearance, PageEditor, PageTranslation, PageShortcuts, PageLanguages, PageAbout];
+        _pages = [PageGeneral, PageAppearance, PageEditor, PageTranslation, PageShortcuts, PageLanguages, PageIntegration, PageAbout];
 
         vm = viewModel;
 

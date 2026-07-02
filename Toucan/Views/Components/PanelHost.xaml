@@ -1,0 +1,66 @@
+<UserControl x:Class="Toucan.Views.Components.PanelHost"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    x:Name="PanelHostRoot">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Panel header: title + ellipsis menu -->
+        <Border Grid.Row="0" Padding="10,6,4,6" BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Title (uppercase, muted like VS Code) -->
+                <TextBlock Grid.Column="0"
+                           Text="{Binding PanelTitle, ElementName=PanelHostRoot}"
+                           FontSize="11" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                           VerticalAlignment="Center"/>
+
+                <!-- Ellipsis menu button -->
+                <Button Grid.Column="1" Background="Transparent" BorderThickness="0"
+                        Padding="6,4" Cursor="Hand" ToolTip="Panel options"
+                        Click="EllipsisMenu_Click" x:Name="EllipsisButton">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Opacity" Value="0.5"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="Bd" Background="Transparent" Padding="{TemplateBinding Padding}" CornerRadius="3">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
+                                                <Setter Property="Opacity" Value="1.0"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                    <ui:SymbolIcon Symbol="MoreHorizontal20" FontSize="14"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    <Button.ContextMenu>
+                        <ContextMenu x:Name="PanelOptionsMenu">
+                            <MenuItem Header="Hide Panel" Click="HidePanel_Click"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Panel content -->
+        <ContentPresenter Grid.Row="1" Content="{Binding PanelContent, ElementName=PanelHostRoot}" />
+    </Grid>
+</UserControl>
