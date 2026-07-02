@@ -23,7 +23,7 @@ public class GenericJsonProfile : IFrameworkProfile
         foreach (var file in Directory.GetFiles(rootFolder, "*.json"))
         {
             var name = Path.GetFileNameWithoutExtension(file);
-            if (name == "toucan.project" || name == "package" || name == "tsconfig") continue;
+            if (name is "toucan" or "package" or "tsconfig") continue;
             var lang = ExtractLanguage(Path.GetRelativePath(rootFolder, file));
             if (lang != null)
                 yield return new DiscoveredFile(file, Path.GetRelativePath(rootFolder, file), lang);
@@ -34,7 +34,7 @@ public class GenericJsonProfile : IFrameworkProfile
     {
         var name = Path.GetFileNameWithoutExtension(relativePath);
         // Skip known non-translation files
-        if (name is "toucan.project" or "package" or "package-lock" or "tsconfig") return null;
+        if (name is "toucan" or "package" or "package-lock" or "tsconfig") return null;
         return name;
     }
 
@@ -46,7 +46,7 @@ public class GenericJsonProfile : IFrameworkProfile
         // Lowest priority — always matches if JSON files exist
         if (!Directory.Exists(rootFolder)) return 0;
         return Directory.GetFiles(rootFolder, "*.json").Any(f =>
-            Path.GetFileNameWithoutExtension(f) != "toucan.project" &&
+            Path.GetFileNameWithoutExtension(f) != "toucan" &&
             Path.GetFileNameWithoutExtension(f) != "package") ? 1 : 0;
     }
 }

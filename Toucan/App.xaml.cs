@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
@@ -87,7 +88,7 @@ public partial class App : Application
         SplashScreen? splash = null;
         try
         {
-            splash = new SplashScreen("assets/images/splash.png");
+            splash = new SplashScreen("Assets/Images/splash.png");
             splash.Show(false);
         }
         catch
@@ -353,7 +354,12 @@ public partial class App : Application
         ApplyLanguage(viewModel.AppOptions.AppLanguage);
 
         var statusBarViewModel = _services.GetRequiredService<StatusBarViewModel>();
-        var mainWindow = new MainWindow(startupPath, viewModel, statusBarViewModel, _services.GetRequiredService<Toucan.Core.Contracts.Services.IFileWatcherService>());
+        var lifecycleService = (Toucan.Core.Services.ProjectLifecycleService)_services.GetRequiredService<Toucan.Core.Contracts.Services.IProjectLifecycleService>();
+        var mainWindow = new MainWindow(startupPath, viewModel, statusBarViewModel, _services.GetRequiredService<Toucan.Core.Contracts.Services.IFileWatcherService>(), lifecycleService);
+
+        // Wire UI-layer handlers onto the lifecycle service now that the window exists
+        lifecycleService.SetUnsavedChangesHandler(new WpfUnsavedChangesHandler(mainWindow));
+        lifecycleService.SetExternalChangeHandler(new WpfExternalChangeHandler(mainWindow));
 
         // Register file association (per-user, no elevation needed)
         FileAssociationService.Register();
@@ -361,6 +367,86 @@ public partial class App : Application
         mainWindow.Show();
 
         // Fade out splash after main window is visible
-        splash?.Close(TimeSpan.FromMilliseconds(300));
+        splash?.Close(TimeSpan.FromMilliseconds(100));
+    }
+}
+
+/// <summary>
+/// Shows a WPF UI MessageBox prompting save/discard/cancel for unsaved changes.
+/// </summary>
+file sealed class WpfUnsavedChangesHandler(Window owner) : IUnsavedChangesHandler
+{
+    public async Task<UnsavedChangesChoice> PromptAsync()
+    {
+        // Must run on the UI thread
+        if (!owner.Dispatcher.CheckAccess())
+        {
+            return await owner.Dispatcher.InvokeAsync(() => PromptAsync()).Task.Unwrap();
+        }
+
+        var msgBox = new Wpf.Ui.Controls.MessageBox
+        {
+            Title = "Unsaved Changes",
+            Content = "You have unsaved changes. Do you want to save before continuing?",
+            PrimaryButtonText = "Save",
+            SecondaryButtonText = "Discard",
+            CloseButtonText = "Cancel"
+        };
+        var result = await msgBox.ShowDialogAsync();
+        return result switch
+        {
+            Wpf.Ui.Controls.MessageBoxResult.Primary => UnsavedChangesChoice.Save,
+            Wpf.Ui.Controls.MessageBoxResult.Secondary => UnsavedChangesChoice.Discard,
+            _ => UnsavedChangesChoice.Cancel
+        };
+    }
+}
+
+/// <summary>
+/// Shows a WPF UI MessageBox prompting reload/ignore for external file changes.
+/// </summary>
+file sealed class WpfExternalChangeHandler(Window owner) : IExternalChangeHandler
+{
+    public async Task<ExternalChangeChoice> PromptAsync()
+    {
+        if (!owner.Dispatcher.CheckAccess())
+        {
+            return await owner.Dispatcher.InvokeAsync(() => PromptAsync()).Task.Unwrap();
+        }
+
+        var msgBox = new Wpf.Ui.Controls.MessageBox
+        {
+            Title = "External Changes Detected",
+            Content = "Files were modified outside Toucan. What would you like to do?",
+            PrimaryButtonText = "Reload",
+            SecondaryButtonText = "Merge",
+            CloseButtonText = "Ignore"
+        };
+        var result = await msgBox.ShowDialogAsync();
+        return result switch
+        {
+            Wpf.Ui.Controls.MessageBoxResult.Primary => ExternalChangeChoice.Reload,
+            Wpf.Ui.Controls.MessageBoxResult.Secondary => ExternalChangeChoice.Merge,
+            _ => ExternalChangeChoice.Ignore
+        };
+    }
+
+    public async Task<IReadOnlyList<DiffEntry>?> ShowConflictResolutionAsync(IReadOnlyList<DiffEntry> conflicts)
+    {
+        if (!owner.Dispatcher.CheckAccess())
+        {
+            return await owner.Dispatcher.InvokeAsync(() => ShowConflictResolutionAsync(conflicts)).Task.Unwrap();
+        }
+
+        // ponytail: simple "accept theirs" or cancel for now; full diff UI is a v1.1 item
+        var msgBox = new Wpf.Ui.Controls.MessageBox
+        {
+            Title = "Merge Conflicts",
+            Content = $"{conflicts.Count} conflict(s) found. Accept all incoming (disk) changes?",
+            PrimaryButtonText = "Accept Theirs",
+            CloseButtonText = "Cancel"
+        };
+        var result = await msgBox.ShowDialogAsync();
+        return result == Wpf.Ui.Controls.MessageBoxResult.Primary ? conflicts : null;
     }
 }

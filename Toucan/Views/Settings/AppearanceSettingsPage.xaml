@@ -1,0 +1,47 @@
+<UserControl
+    x:Class="Toucan.Views.Settings.AppearanceSettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <StackPanel>
+        <TextBlock Text="Appearance" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Theme</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="DarkTheme24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="App theme" FontWeight="SemiBold"/>
+                        <TextBlock Text="Select Light, Dark, or follow system setting" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ComboBox Width="140" SelectedValue="{Binding Theme, Mode=TwoWay}" SelectedValuePath="Content">
+                <ComboBoxItem>System</ComboBoxItem>
+                <ComboBoxItem>Light</ComboBoxItem>
+                <ComboBoxItem>Dark</ComboBoxItem>
+            </ComboBox>
+        </ui:CardControl>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Window</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Window24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Backdrop type" FontWeight="SemiBold"/>
+                        <TextBlock Text="Window material effect" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ComboBox Width="140" SelectedValue="{Binding BackdropType, Mode=TwoWay}" SelectedValuePath="Content">
+                <ComboBoxItem>Mica</ComboBoxItem>
+                <ComboBoxItem>Acrylic</ComboBoxItem>
+                <ComboBoxItem>None</ComboBoxItem>
+            </ComboBox>
+        </ui:CardControl>
+    </StackPanel>
+</UserControl>

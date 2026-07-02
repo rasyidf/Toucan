@@ -346,7 +346,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     #region Help
 
-    [RelayCommand] private void HelpHomepage() => OpenUrl("https://rasyid.dev");
+    [RelayCommand] private void HelpHomepage() => OpenUrl("https://toucan.rasyid.dev");
 
     [RelayCommand]
     private async Task HelpAbout()

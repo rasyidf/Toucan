@@ -1,6 +1,73 @@
 # Changelog
 
-## [0.15.0] - 2026-07-01
+## [0.15.0] - 2026-07-02
+
+### UI Revamp
+- Three-pane VS Code-style layout (sidebar, editor, inspector)
+- Editor modes: Editor, Review, Audit with mode selector and auto-filter
+- Zen mode overlay with J/K navigation
+- Snipping Tool-style minimal toolbar with pill-grouped buttons
+- Photos-style footer action bar (borderless buttons, contextual actions)
+- Segmented menu bar (File, Edit, Tools, Find, View, Help)
+- Toolbar hidden on start screen, Mica backdrop visible
+- Default sidebar widths 200px (1:3:1 ratio)
+
+### Component Extraction
+- Split OptionsDialog into 8 page UserControls (Views/Settings/)
+- Split NewProjectPrompt into FrameworkStep + LanguagesStep
+- Extracted LanguageGroupCard + TranslationRow from LanguagesView (400→92 lines)
+- New reusable components: DialogFooter, SettingsCard, PanelHeader, LanguageChip
+- Design tokens standardized (DesignTokens.xaml)
+- Accessibility pass on all dialogs (AutomationProperties, FocusManager, Mica)
+
+### System Integration
+- Project manifest renamed: `toucan.project` → `toucan.tproj` (.tproj extension)
+- FileAssociationService: Install/Clear/IsInstalled API, OpenWithProgids
+- File open dialog supports .tproj filter
+- Startup args now handle file paths (resolves to parent directory)
+
+### CLI
+- Added `toucan translate` command (batch pre-translate with provider selection, dry-run, language targeting)
+- Updated help with translate options and examples
+
+### Bug Fixes (U1–U5)
+- U1: OptionsViewModel BrowseSourceRoot/BrowseSourceEditor/ConfigureLanguageCodes now functional
+- U2: IUnsavedChangesHandler wired — prompts save/discard/cancel on close
+- U3: FilterUsedKeys/FilterUnusedKeys now actually filters based on source scan
+- U4: ShowMachineTranslations toggle filters to unapproved+filled items
+- U5: Shortcuts page shows info banner about read-only status
+
+### Branding
+- Logo color: purple → blue (#2196F3)
+- Copyright: 2023–2026
+- AssemblyInfo/csproj: description updated to "Professional translation resource editor"
+- Homepage/docs URLs → https://toucan.rasyid.dev
+- Splash screen: fixed 78-byte placeholder, replaced with real image
+- Version bumped to 0.15.0
+- LICENSE.txt: filled in placeholder with real name/years
+- Branding doc (docs/branding.md) rewritten with current design decisions
+
+### Documentation
+- Full docs reorganization: deleted 12 stale files, merged content, renamed to lowercase-dash
+- README rewritten with accurate feature list and roadmap
+- UI revamp plan finalized (all phases complete except Phase 5 performance)
+- UI polish plan completed
+- Panel extension system plan documented (docs/todos/panel-extension-plan.md)
+
+### Additional Fixes
+- TitleBar icon: fixed crash by using `ui:ImageIcon` (correct `IconElement` type for WPF UI 4.x)
+- Window Title property set — taskbar now shows "Toucan"
+- Menu toggle states: checkable items show current state (tree/list, zen, panels, etc.)
+- Menu disabled states: Edit/Tools/Find/Save/Close/Reveal/Properties disabled when no project loaded
+- Start screen: recent projects now clickable with hover state and delete button
+- Start screen: added Quick Tips section with keyboard shortcuts hints
+- Start screen: "Open last project on startup" checkbox (persists to settings.json)
+- Replaced all emoji with Fluent icons (🕒→History20, ⚡→Flash20, ✕→Dismiss16)
+- ResourcesView: removed ui:Card wrapper for proper edge-to-edge content
+- StatusBar: fixed vertical centering (32px height, VerticalAlignment=Center on grid)
+- Footer buttons: custom PanelButton template with subtle CornerRadius=4 hover/pressed states
+
+## [0.14.3] - 2026-07-01
 
 ### Added
 - **Modular StatusBar architecture** — Status bar is now composed of independent panels (`IStatusBarPanel`) managed by a `StatusBarPanelRegistry`. Each panel can be shown/hidden, reordered, and clicked.

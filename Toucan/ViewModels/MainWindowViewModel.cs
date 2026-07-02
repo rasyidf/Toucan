@@ -51,6 +51,21 @@ internal partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private AppOptions appOptions;
 
+    /// <summary>Convenience property for start screen checkbox. Persists immediately.</summary>
+    public bool OpenLastProjectOnStartup
+    {
+        get => AppOptions?.OpenLastProjectOnStartup ?? true;
+        set
+        {
+            if (AppOptions != null && AppOptions.OpenLastProjectOnStartup != value)
+            {
+                AppOptions.OpenLastProjectOnStartup = value;
+                AppOptions.ToDisk();
+                OnPropertyChanged();
+            }
+        }
+    }
+
     [ObservableProperty]
     private string currentPath = string.Empty;
 
@@ -190,8 +205,7 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void HelpHomepage()
     {
-        // Redirect to Rasyid.dev
-        OpenUrl("https://rasyid.dev");
+        OpenUrl("https://toucan.rasyid.dev");
     }
 
 

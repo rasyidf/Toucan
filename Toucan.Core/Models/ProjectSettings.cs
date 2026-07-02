@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Toucan.Core.Models;
 
 /// <summary>
-/// Per-project settings stored in toucan.project file.
+/// Per-project settings stored in toucan.tproj file.
 /// Contains everything about this specific translation project.
 /// </summary>
 public class ProjectSettings
@@ -75,7 +75,7 @@ public class ProjectSettings
 
     public static ProjectSettings? LoadFrom(string folder)
     {
-        var file = Path.Combine(folder, "toucan.project");
+        var file = Path.Combine(folder, "toucan.tproj");
         if (!File.Exists(file)) return null;
 
         try
@@ -104,7 +104,7 @@ public class ProjectSettings
         if (string.IsNullOrEmpty(ProjectPath)) return;
         Directory.CreateDirectory(ProjectPath);
         var json = JsonSerializer.Serialize(this, s_options);
-        File.WriteAllText(Path.Combine(ProjectPath, "toucan.project"), json);
+        File.WriteAllText(Path.Combine(ProjectPath, "toucan.tproj"), json);
         IsDirty = false;
     }
 }

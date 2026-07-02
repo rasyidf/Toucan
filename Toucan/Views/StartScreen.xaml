@@ -19,15 +19,16 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- 1. Header -->
         <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,24">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Image Source="/Assets/Images/logo.png" Width="40" Height="40" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                <TextBlock Text="Toucan" FontSize="36" FontWeight="Bold" Foreground="#695CF5" VerticalAlignment="Center" />
+                <TextBlock Text="Toucan" FontSize="36" FontWeight="Bold" Foreground="#2196F3" VerticalAlignment="Center" />
             </StackPanel>
-            <TextBlock Text="Professional i18n editor for modern development teams."
+            <TextBlock Text="Professional i18n editor — 14 formats, AI translation, offline-first."
                        FontSize="14"
                        HorizontalAlignment="Center"
                        Foreground="Gray" />
@@ -43,17 +44,67 @@
 
         <!-- 3. Recent Projects -->
         <StackPanel Grid.Row="2" Margin="0,0,0,48">
-            <TextBlock Text="🕒 Recent Projects" FontWeight="SemiBold" FontSize="16" Margin="0,0,0,12" />
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                <ui:SymbolIcon Symbol="History20" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Recent Projects" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center"/>
+            </StackPanel>
             <ItemsControl ItemsSource="{Binding RecentProjects}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <ui:Button Content="{Binding Name}" 
-                                   ToolTip="{Binding Path}"
-                                   Command="{Binding DataContext.OpenRecentProjectCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                   CommandParameter="{Binding Path}"
-                                   HorizontalAlignment="Stretch"
-                                   HorizontalContentAlignment="Left"
-                                   Margin="0,2" />
+                        <Border x:Name="ItemBorder"
+                                Background="Transparent"
+                                CornerRadius="4"
+                                Padding="12,8"
+                                Margin="0,2"
+                                Cursor="Hand"
+                                MouseLeftButtonUp="RecentProject_Click"
+                                Tag="{Binding Path}">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Left: Folder icon + text -->
+                                <ui:SymbolIcon Grid.Column="0" Symbol="Folder20" VerticalAlignment="Center" Margin="0,0,12,0" FontSize="20" />
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Path}" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+
+                                <!-- Right: Delete (visible on hover) -->
+                                <ui:Button Grid.Column="2"
+                                           ToolTip="Remove from recent"
+                                           Appearance="Transparent"
+                                           Padding="6"
+                                           VerticalAlignment="Center"
+                                           Tag="{Binding Path}"
+                                           Click="RemoveRecent_Click">
+                                    <ui:Button.Style>
+                                        <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=ItemBorder}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ui:Button.Style>
+                                    <ui:SymbolIcon Symbol="Delete20" FontSize="14" />
+                                </ui:Button>
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
                 <ItemsControl.Style>
@@ -96,16 +147,36 @@
             </ui:Button>
         </StackPanel>
 
-        <!-- 4. Features Section (hidden — not appropriate for start screen) -->
-        <StackPanel Grid.Row="3" Visibility="Collapsed">
-            <TextBlock Text="🎯 Why Choose Toucan?" FontWeight="Bold" FontSize="16" Margin="0,0,0,12" />
-            <WrapPanel>
-                <local:StartScreenCard Title="Fast &amp; Efficient" Description="Lightning-fast translation editing with real-time validation" Width="200" Margin="4" />
-                <local:StartScreenCard Title="Multi-format Export" Description="Export to PO, JSON, YAML, CSV and platform formats" Width="200" Margin="4" />
-                <local:StartScreenCard Title="Namespace Support" Description="Organize translations with hierarchical namespaces" Width="200" Margin="4" />
-                <local:StartScreenCard Title="Team Collaboration" Description="Built for teams with progress tracking and validation" Width="200" Margin="4" />
-            </WrapPanel>
-        </StackPanel>
+        <!-- 4. Quick Tips -->
+        <Border Grid.Row="3"
+                Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                CornerRadius="6"
+                Padding="12"
+                Margin="0,0,0,12">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <ui:SymbolIcon Symbol="Info16" FontSize="11" Margin="0,0,6,0" Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+                    <TextBlock Text="Tip: Drop a folder onto the window to open it as a project" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <ui:SymbolIcon Symbol="Info16" FontSize="11" Margin="0,0,6,0" Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+                    <TextBlock Text="Tip: Use Ctrl+Shift+N to create a new project anywhere" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Info16" FontSize="11" Margin="0,0,6,0" Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+                    <TextBlock Text="Tip: Toucan auto-detects your i18n framework (i18next, Android, Flutter, .NET, and more)" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- 5. Startup preference -->
+        <CheckBox Grid.Row="4" 
+                  Content="Open last project on startup"
+                  HorizontalAlignment="Center"
+                  Margin="0,16,0,0"
+                  IsChecked="{Binding OpenLastProjectOnStartup, Mode=TwoWay}"
+                  Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                  FontSize="12"/>
 
     </Grid>
 </UserControl>

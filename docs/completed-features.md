@@ -96,7 +96,7 @@
 ## Distribution & Platform
 
 - [ ] Avalonia port (macOS + Linux) — started
-- [ ] MSIX installer (Windows)
+- [x] MSIX installer (Windows)
 - [ ] Auto-updater
 - [x] File association (`.toucan.project` → open app)
 - [x] Translation file locations configurable per language

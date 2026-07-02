@@ -13,16 +13,14 @@ public partial class MainWindow : FluentWindow
 {
     internal MainWindowViewModel ViewModel { get; }
     private readonly Toucan.Core.Contracts.Services.IFileWatcherService _fileWatcher;
+    private readonly Toucan.Core.Contracts.Services.IProjectLifecycleService? _lifecycleService;
 
-    internal MainWindow(string startupPath, MainWindowViewModel viewModel, StatusBarViewModel statusViewModel, Toucan.Core.Contracts.Services.IFileWatcherService fileWatcher)
+    internal MainWindow(string startupPath, MainWindowViewModel viewModel, StatusBarViewModel statusViewModel, Toucan.Core.Contracts.Services.IFileWatcherService fileWatcher, Toucan.Core.Contracts.Services.IProjectLifecycleService? lifecycleService = null)
     {
         _fileWatcher = fileWatcher;
+        _lifecycleService = lifecycleService;
 
         InitializeComponent();
-
-        // ponytail: set icon via pack URI to avoid BAML TypeConverter error
-        Icon = new System.Windows.Media.Imaging.BitmapImage(
-            new System.Uri("pack://application:,,,/Assets/Images/WindowIcon.ico"));
 
         ViewModel = viewModel;
         DataContext = ViewModel;
@@ -96,28 +94,33 @@ public partial class MainWindow : FluentWindow
                 }
             }
         };
-        _fileWatcher.FilesChanged += (_, _) => Dispatcher.Invoke(async () =>
-        {
-            var msgBox = new Wpf.Ui.Controls.MessageBox { Title = "File Changed", Content = "Files changed on disk. Reload?", PrimaryButtonText = "Yes", CloseButtonText = "No" };
-            var result = await msgBox.ShowDialogAsync();
-            if (result == Wpf.Ui.Controls.MessageBoxResult.Primary)
-            {
-                ViewModel.RefreshCommand.Execute(null);
-            }
-        });
+        // ponytail: FilesChanged now handled by IExternalChangeHandler wired to the lifecycle service
         ViewModel.PagedUpdates();
     }
+
+    private bool _hasExplicitStartupPath;
 
     private void UpdateStartupOptions(string startupPath)
     {
         ViewModel.AppOptions = AppOptions.LoadFromDisk();
-        ViewModel.CurrentPath = ViewModel.AppOptions.LastProjectPath ?? string.Empty;
 
         if (!string.IsNullOrEmpty(startupPath))
         {
+            // Explicit path from command-line — always open
+            _hasExplicitStartupPath = true;
             ViewModel.CurrentPath = startupPath;
             ViewModel.AppOptions.LastProjectPath = ViewModel.CurrentPath;
             ViewModel.AppOptions.ToDisk();
+        }
+        else if (ViewModel.AppOptions.OpenLastProjectOnStartup)
+        {
+            // Auto-open last project if setting is enabled
+            ViewModel.CurrentPath = ViewModel.AppOptions.LastProjectPath ?? string.Empty;
+        }
+        else
+        {
+            // Show start screen
+            ViewModel.CurrentPath = string.Empty;
         }
     }
 
@@ -168,12 +171,24 @@ public partial class MainWindow : FluentWindow
 
     private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
-        // Auto-open last project on startup
-        if (!string.IsNullOrEmpty(ViewModel.CurrentPath) && System.IO.Directory.Exists(ViewModel.CurrentPath))
+        // Open project if a path was set (either explicit arg or auto-open last)
+        if (!string.IsNullOrEmpty(ViewModel.CurrentPath))
         {
-            if (ViewModel.OpenRecentProjectCommand.CanExecute(ViewModel.CurrentPath))
+            var path = ViewModel.CurrentPath;
+
+            // If a file was passed (e.g. .tproj), resolve to its directory
+            if (System.IO.File.Exists(path))
             {
-                await ViewModel.OpenRecentProjectCommand.ExecuteAsync(ViewModel.CurrentPath).ConfigureAwait(true);
+                path = System.IO.Path.GetDirectoryName(path) ?? path;
+                ViewModel.CurrentPath = path;
+            }
+
+            if (System.IO.Directory.Exists(path))
+            {
+                if (ViewModel.OpenRecentProjectCommand.CanExecute(path))
+                {
+                    await ViewModel.OpenRecentProjectCommand.ExecuteAsync(path).ConfigureAwait(true);
+                }
             }
         }
 
@@ -217,35 +232,15 @@ public partial class MainWindow : FluentWindow
 
     private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
-        if (ViewModel.HasUnsavedChanges)
+        // Delegate unsaved-changes prompt to the lifecycle service (which uses IUnsavedChangesHandler)
+        if (_lifecycleService is not null && _lifecycleService.IsProjectOpen)
         {
-            e.Cancel = true; // prevent close while we ask
-            var msgBox = new Wpf.Ui.Controls.MessageBox
-            {
-                Title = "Unsaved Changes",
-                Content = "You have unsaved changes. Do you want to save before closing?",
-                PrimaryButtonText = "Save",
-                SecondaryButtonText = "Discard",
-                CloseButtonText = "Cancel"
-            };
-            var result = await msgBox.ShowDialogAsync();
-            if (result == Wpf.Ui.Controls.MessageBoxResult.Primary)
-            {
-                // Save then close
-                if (ViewModel.SaveCommand.CanExecute(null))
-                    ViewModel.SaveCommand.Execute(null);
-            }
-            else if (result == Wpf.Ui.Controls.MessageBoxResult.Secondary)
-            {
-                // Discard — proceed with close
-            }
-            else
-            {
-                // Cancel — abort close
+            e.Cancel = true;
+            var result = await _lifecycleService.CloseProjectAsync();
+            if (result == Toucan.Core.Contracts.Services.CloseResult.Cancelled)
                 return;
-            }
 
-            // Actually close now
+            // Close succeeded — clean up and shut down
             PanelService.Instance.SaveLayout();
             StatusBarService.Instance.Unregister();
             _fileWatcher.Stop();

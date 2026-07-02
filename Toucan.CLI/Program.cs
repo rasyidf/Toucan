@@ -15,11 +15,12 @@ namespace Toucan.CLI;
 /// Commands:
 ///   toucan check [folder]        — Run validation rules, exit code 1 on errors
 ///   toucan stats [folder]        — Print translation progress per language
+///   toucan translate [folder]    — Batch pre-translate untranslated items
 ///   toucan export [folder] -f fmt — Export to a different format
 ///   toucan list-formats          — List supported formats
 ///   toucan list-keys [folder]    — List all translation keys (for AI tools)
 ///   toucan get [folder] [key]    — Get value for a key across languages (JSON output)
-///   toucan set [folder] [key] [lang] [value] — Set a translation value
+///   toucan set [folder] [key] [lang] [value] — Set a single translation
 /// </summary>
 internal static class Program
 {
@@ -34,6 +35,7 @@ internal static class Program
         {
             "check" => RunCheck(folder),
             "stats" => RunStats(folder),
+            "translate" => RunTranslate(folder, args),
             "export" => RunExport(folder, args),
             "list-formats" => RunListFormats(),
             "list-keys" => RunListKeys(folder),
@@ -191,6 +193,98 @@ internal static class Program
         return 0;
     }
 
+    private static int RunTranslate(string folder, string[] args)
+    {
+        var providerName = GetArg(args, "-p") ?? GetArg(args, "--provider") ?? "mock";
+        var targetLang = GetArg(args, "-l") ?? GetArg(args, "--lang");
+        var overwrite = args.Contains("--overwrite");
+        var dryRun = args.Contains("--dry-run");
+
+        var (settings, translations) = LoadProject(folder);
+        if (translations.Count == 0) { Console.Error.WriteLine("No translations found."); return 1; }
+
+        var primary = settings.PrimaryLanguage;
+        var sourceItems = translations.Where(t => t.Language == primary && !string.IsNullOrEmpty(t.Value)).ToList();
+        if (sourceItems.Count == 0) { Console.Error.WriteLine($"No source translations in primary language ({primary})."); return 1; }
+
+        // Determine target languages
+        var allLangs = translations.Select(t => t.Language).Distinct().Where(l => l != primary).ToList();
+        List<string> targetLangs = targetLang != null ? [targetLang] : allLangs;
+
+        // Build jobs: untranslated items (or all if --overwrite)
+        var jobs = new List<PretranslationJob>();
+        foreach (var lang in targetLangs)
+        {
+            foreach (var src in sourceItems)
+            {
+                var existing = translations.FirstOrDefault(t => t.Language == lang && t.Namespace == src.Namespace);
+                if (!overwrite && existing != null && !string.IsNullOrEmpty(existing.Value)) continue;
+                jobs.Add(new PretranslationJob(src.Namespace, src.Value, primary, lang));
+            }
+        }
+
+        if (jobs.Count == 0) { Console.WriteLine("Nothing to translate — all items are already filled."); return 0; }
+        Console.WriteLine($"Translating {jobs.Count} items using '{providerName}' provider...");
+
+        // Resolve provider
+        var provider = CreateProvider(providerName);
+        if (provider == null) { Console.Error.WriteLine($"Unknown provider: {providerName}. Available: mock, google, deepl, microsoft, openai"); return 1; }
+
+        // Run translation
+        var options = new PretranslationOptions { Overwrite = overwrite, PreviewOnly = dryRun };
+        var progress = new Progress<PretranslationProgress>(p =>
+            Console.Write($"\r  [{p.Completed}/{p.Total}]"));
+
+        var results = provider.PretranslateAsync(jobs, options, progress, CancellationToken.None).GetAwaiter().GetResult().ToList();
+        Console.WriteLine();
+
+        var succeeded = results.Count(r => r.Succeeded);
+        var failed = results.Count(r => !r.Succeeded);
+        Console.WriteLine($"  {succeeded} translated, {failed} failed");
+
+        if (dryRun)
+        {
+            Console.WriteLine("\n  --dry-run: no files written. Preview:");
+            foreach (var r in results.Where(r => r.Succeeded).Take(10))
+                Console.WriteLine($"    {r.Language}/{r.Namespace}: \"{r.TranslatedValue}\"");
+            if (succeeded > 10) Console.WriteLine($"    ... and {succeeded - 10} more");
+            return 0;
+        }
+
+        // Apply results
+        foreach (var r in results.Where(r => r.Succeeded && r.TranslatedValue != null))
+        {
+            var item = translations.FirstOrDefault(t => t.Language == r.Language && t.Namespace == r.Namespace);
+            if (item != null)
+                item.Value = r.TranslatedValue!;
+            else
+                translations.Add(new TranslationItem { Namespace = r.Namespace, Language = r.Language, Value = r.TranslatedValue! });
+        }
+
+        // Save
+        var strategies = CreateSaveStrategies();
+        var strategy = strategies.FirstOrDefault(s => s.Style == settings.SaveStyle) ?? strategies.First();
+        var ctx = new SaveContext
+        {
+            LanguageDictionary = translations.GroupBy(t => t.Language).ToDictionary(g => g.Key, g => (IEnumerable<TranslationItem>)g.ToList()),
+            NsTreeItems = [],
+            Languages = translations.Select(t => t.Language).Distinct().ToList()
+        };
+        strategy.Save(folder, ctx);
+        Console.WriteLine($"  Saved to {folder}");
+        return failed > 0 ? 1 : 0;
+    }
+
+    private static ITranslationProvider? CreateProvider(string name) => name.ToLowerInvariant() switch
+    {
+        "mock" => new Toucan.Core.Services.Providers.MockTranslationProvider(),
+        "google" => new Toucan.Core.Services.Providers.GoogleTranslationProvider(),
+        "deepl" => new Toucan.Core.Services.Providers.DeepLTranslationProvider(),
+        "microsoft" => new Toucan.Core.Services.Providers.MicrosoftTranslationProvider(),
+        "openai" => new Toucan.Core.Services.Providers.OpenAITranslationProvider(),
+        _ => null
+    };
+
     // --- Helpers ---
 
     private static (ProjectSettings, List<TranslationItem>) LoadProject(string folder)
@@ -267,19 +361,28 @@ internal static class Program
             Commands:
               check [folder]              Run validation, exit 1 on errors (CI/CD)
               stats [folder]              Print translation progress per language
+              translate [folder]          Batch pre-translate untranslated items
               export [folder] -f <format> Export translations to another format
               list-formats                List all supported file formats
               list-keys [folder]          List all translation keys (one per line)
               get [folder] <key>          Get translations for a key (JSON)
               set [folder] <key> <lang> <value>  Set a single translation
 
-            Options:
+            Translate options:
+              -p, --provider <name>  Provider: mock, google, deepl, microsoft, openai
+              -l, --lang <code>      Target language (default: all non-primary)
+              --overwrite            Overwrite existing translations
+              --dry-run              Preview without saving
+
+            Export options:
               -f, --format <fmt>   Target format for export
               -o, --output <dir>   Output directory for export
 
             Examples:
               toucan check ./locales
               toucan stats .
+              toucan translate . -p google -l fr-FR
+              toucan translate . -p deepl --dry-run
               toucan export . -f Yaml -o ./out
               toucan get . app.title
               toucan set . app.title fr-FR "Mon Application"

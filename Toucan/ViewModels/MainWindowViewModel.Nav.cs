@@ -30,39 +30,35 @@ internal partial class MainWindowViewModel
 
     internal void Search(string ns, bool alwaysPaging = false)
     {
+        List<string> matchedNamespaces;
+
         if (FuzzySearchService == null)
         {
             // Fallback: show all items if service not available
-            var allItems = AllTranslation.ToList();
-            var allNs = allItems.ToNamespaces().ToList();
-            var groups = BuildLanguageGroups(allNs, allItems);
-            PagingController.SwapData(groups, false);
+            matchedNamespaces = AllTranslation.ToList().ToNamespaces().ToList();
+        }
+        else
+        {
+            var searchResults = FuzzySearchService.Search(AllTranslation, ns);
 
-            if (!string.IsNullOrWhiteSpace(ns))
-            {
-                var totalItems = AllTranslation.Select(t => t.Namespace).Distinct().Count();
-                StatusText = string.Empty;
-            }
-            else
-            {
-                var totalItems = AllTranslation.Select(t => t.Namespace).Distinct().Count();
-                StatusText = $"{totalItems} items";
-            }
-
-            PagedUpdates();
-            return;
+            // Get distinct namespaces from search results, preserving score order
+            matchedNamespaces = searchResults
+                .Select(m => m.Item.Namespace)
+                .Distinct()
+                .ToList();
         }
 
-        var searchResults = FuzzySearchService.Search(AllTranslation, ns);
-
-        // Get distinct namespaces from search results, preserving score order
-        var matchedNamespaces = searchResults
-            .Select(m => m.Item.Namespace)
-            .Distinct()
-            .ToList();
+        // ponytail: apply source-code usage filter if active
+        if (FilteredBySourceUsage != null && _sourceCodeService != null && _sourceCodeService.HasScanData)
+        {
+            var unusedKeys = _sourceCodeService.GetUnusedKeys(matchedNamespaces).ToHashSet(StringComparer.Ordinal);
+            matchedNamespaces = FilteredBySourceUsage == "unused"
+                ? matchedNamespaces.Where(k => unusedKeys.Contains(k)).ToList()
+                : matchedNamespaces.Where(k => !unusedKeys.Contains(k)).ToList();
+        }
 
         var languageGroups = BuildLanguageGroups(matchedNamespaces, AllTranslation);
-        PagingController.SwapData(languageGroups);
+        PagingController.SwapData(languageGroups, alwaysPaging);
 
         if (!string.IsNullOrWhiteSpace(ns))
         {
@@ -71,8 +67,10 @@ internal partial class MainWindowViewModel
         }
         else
         {
-            var totalItems = AllTranslation.Select(t => t.Namespace).Distinct().Count();
-            StatusText = $"{totalItems} items";
+            var totalItems = matchedNamespaces.Count;
+            StatusText = FilteredBySourceUsage != null
+                ? $"{totalItems} items ({FilteredBySourceUsage} in source)"
+                : $"{totalItems} items";
         }
 
         PagedUpdates();
@@ -519,6 +517,9 @@ internal partial class MainWindowViewModel
     [ObservableProperty]
     private EditorMode editorMode = EditorMode.Editor;
 
+    /// <summary>Saved SearchText before entering Review mode, restored on exit.</summary>
+    private string? _preReviewFilter;
+
     /// <summary>True when EditorMode is Audit (convenience for XAML bindings).</summary>
     public bool IsAuditMode => EditorMode == EditorMode.Audit;
 
@@ -528,13 +529,33 @@ internal partial class MainWindowViewModel
     /// <summary>True when EditorMode is Editor (convenience for XAML bindings).</summary>
     public bool IsEditorMode => EditorMode == EditorMode.Editor;
 
-    partial void OnEditorModeChanged(EditorMode value)
+    partial void OnEditorModeChanged(EditorMode oldValue, EditorMode newValue)
     {
+        // ponytail: auto-filter on Review entry/exit — shows only actionable items in review.
+        if (newValue == EditorMode.Review)
+        {
+            _preReviewFilter = SearchText;
+            // Show unapproved/untranslated items inline (same logic as ShowUntranslated but also includes unapproved)
+            if (AllTranslation != null && AllTranslation.Count > 0)
+            {
+                var matched = AllTranslation
+                    .Where(t => string.IsNullOrWhiteSpace(t.Value) || !t.IsApproved)
+                    .ToList();
+                FilterAndDisplay(matched, "All items are approved and translated.");
+            }
+        }
+        else if (oldValue == EditorMode.Review)
+        {
+            SearchText = _preReviewFilter ?? string.Empty;
+            _preReviewFilter = null;
+            Search(SearchText, true);
+        }
+
         OnPropertyChanged(nameof(IsAuditMode));
         OnPropertyChanged(nameof(IsReviewMode));
         OnPropertyChanged(nameof(IsEditorMode));
         // Sync to PanelService so XAML DataTriggers (bound to PanelService.Instance.EditorMode) update
-        Services.PanelService.Instance.EditorMode = value;
+        Services.PanelService.Instance.EditorMode = newValue;
     }
 
     /// <summary>The item currently displayed in Zen mode (from PagingController.Data at FocusedIndex).</summary>

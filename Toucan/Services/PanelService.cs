@@ -45,7 +45,7 @@ internal partial class PanelService : ObservableObject
     [ObservableProperty] private EditorMode editorMode = EditorMode.Editor;
 
     // --- Sidebar width (for splitter memory) ---
-    [ObservableProperty] private double sidebarWidth = 320;
+    [ObservableProperty] private double sidebarWidth = 200;
     [ObservableProperty] private double languagesPanelHeight = 280;
 
     public PanelService()
@@ -147,7 +147,7 @@ internal partial class PanelService : ObservableObject
             ToolbarVisible = state.ToolbarVisible;
             StatusBarVisible = state.StatusBarVisible;
             SidePanelVisible = state.SidePanelVisible;
-            SidebarWidth = state.SidebarWidth > 0 ? state.SidebarWidth : 320;
+            SidebarWidth = state.SidebarWidth > 0 ? state.SidebarWidth : 200;
             LanguagesPanelHeight = state.LanguagesPanelHeight > 0 ? state.LanguagesPanelHeight : 280;
             EditorMode = state.EditorMode;
         }
@@ -164,7 +164,7 @@ internal partial class PanelService : ObservableObject
         public bool ToolbarVisible { get; set; } = true;
         public bool StatusBarVisible { get; set; } = true;
         public bool SidePanelVisible { get; set; } = true;
-        public double SidebarWidth { get; set; } = 320;
+        public double SidebarWidth { get; set; } = 200;
         public double LanguagesPanelHeight { get; set; } = 280;
         public EditorMode EditorMode { get; set; } = EditorMode.Editor;
     }

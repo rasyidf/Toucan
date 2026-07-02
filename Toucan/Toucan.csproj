@@ -14,7 +14,7 @@
     <NeutralLanguage>en</NeutralLanguage>
     <Title>Toucan Editor</Title>
     <Company>rasyid.dev</Company>
-    <Copyright>Copyright © Rasyidf 2025-2026</Copyright>
+    <Copyright>Copyright © Rasyidf 2023-2026</Copyright>
     <PackageProjectUrl>https://github.com/rasyidf/Toucan</PackageProjectUrl>
     <PackageIcon>logo.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -71,10 +71,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Update="Assets\Images\logo.png">
+    <Resource Update="Assets\Images\logo.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
-    </None>
+    </Resource>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

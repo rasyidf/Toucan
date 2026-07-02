@@ -84,7 +84,7 @@ internal partial class MainWindowViewModel
     [RelayCommand]
     private async Task OpenProjectFile()
     {
-        string? selected = _dialogService.SelectFile(CurrentPath, "Toucan project|*.project|JSON files (*.json)|*.json|All Files (*.*)|*.*");
+        string? selected = _dialogService.SelectFile(CurrentPath, "Toucan project|*.tproj|JSON files (*.json)|*.json|All Files (*.*)|*.*");
 
         if (string.IsNullOrEmpty(selected))
         {
@@ -189,7 +189,7 @@ internal partial class MainWindowViewModel
         // Update status bar default language from project manifest
         try
         {
-            var manifestPath = Path.Combine(path, "toucan.project");
+            var manifestPath = Path.Combine(path, "toucan.tproj");
             if (File.Exists(manifestPath))
             {
                 var txt = File.ReadAllText(manifestPath);
@@ -261,7 +261,7 @@ internal partial class MainWindowViewModel
             // Update status bar default language from project manifest
             try
             {
-                var manifestPath = Path.Combine(path, "toucan.project");
+                var manifestPath = Path.Combine(path, "toucan.tproj");
                 if (File.Exists(manifestPath))
                 {
                     var txt = File.ReadAllText(manifestPath);
@@ -510,6 +510,14 @@ internal partial class MainWindowViewModel
         }
 
         RecentProjects.Clear();
+    }
+
+    [RelayCommand]
+    private void RemoveRecentProject(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return;
+        _recentFileService.Remove(path);
+        RefreshRecentProjects();
     }
 
     [RelayCommand]

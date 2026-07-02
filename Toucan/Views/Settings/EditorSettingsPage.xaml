@@ -1,0 +1,61 @@
+<UserControl
+    x:Class="Toucan.Views.Settings.EditorSettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <StackPanel>
+        <TextBlock Text="Editor" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Behavior</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="TextT24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Plain text keys" FontWeight="SemiBold"/>
+                        <TextBlock Text="Display keys as plain text instead of formatted" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <CheckBox IsChecked="{Binding PlainTextKeys, Mode=TwoWay}"/>
+        </ui:CardControl>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="LocalLanguage24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Default language" FontWeight="SemiBold"/>
+                        <TextBlock Text="Language for new projects" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ComboBox Width="140" SelectedValue="{Binding DefaultLanguage, Mode=TwoWay}" SelectedValuePath="Content">
+                <ComboBoxItem>en-US</ComboBoxItem>
+                <ComboBoxItem>en</ComboBoxItem>
+                <ComboBoxItem>fr-FR</ComboBoxItem>
+                <ComboBoxItem>es-ES</ComboBoxItem>
+                <ComboBoxItem>de-DE</ComboBoxItem>
+                <ComboBoxItem>id-ID</ComboBoxItem>
+                <ComboBoxItem>zh-CN</ComboBoxItem>
+                <ComboBoxItem>ja-JP</ComboBoxItem>
+                <ComboBoxItem>ko-KR</ComboBoxItem>
+                <ComboBoxItem>pt-BR</ComboBoxItem>
+                <ComboBoxItem>ar-SA</ComboBoxItem>
+                <ComboBoxItem>hi-IN</ComboBoxItem>
+                <ComboBoxItem>ru-RU</ComboBoxItem>
+                <ComboBoxItem>th-TH</ComboBoxItem>
+                <ComboBoxItem>vi-VN</ComboBoxItem>
+                <ComboBoxItem>tr-TR</ComboBoxItem>
+            </ComboBox>
+        </ui:CardControl>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Copy Templates</TextBlock>
+        <TextBlock Text="Use %1 as placeholder for the key namespace" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
+
+        <TextBox Text="{Binding CopyTemplate1, Mode=TwoWay}" Margin="0,0,0,4"/>
+        <TextBox Text="{Binding CopyTemplate2, Mode=TwoWay}" Margin="0,0,0,4"/>
+        <TextBox Text="{Binding CopyTemplate3, Mode=TwoWay}" Margin="0,0,0,4"/>
+    </StackPanel>
+</UserControl>

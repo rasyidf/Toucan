@@ -25,11 +25,11 @@
 - [ ] TM import/export (TMX format)
 - [ ] Shared TM across team (file-based, no server needed)
 
-### CLI Tool
-- [ ] `toucan check` — run validation rules, exit code for CI
-- [ ] `toucan translate` — batch pre-translate from CLI
-- [ ] `toucan export` — export to any supported format
-- [ ] `toucan stats` — print translation progress summary
+### CLI Tool ✅ DONE (v0.15.0)
+- [x] `toucan check` — run validation rules, exit code for CI
+- [x] `toucan translate` — batch pre-translate from CLI
+- [x] `toucan export` — export to any supported format
+- [x] `toucan stats` — print translation progress summary
 
 ---
 
@@ -41,15 +41,25 @@
 - [ ] Review history per key (who approved, when)
 - [ ] Filter by status in main view
 
-### Git Integration
+### Git Integration (StatusBar + UI)
 - [ ] Show diff since last commit per key
 - [ ] Highlight keys added on current branch
 - [ ] Auto-commit on save (opt-in)
 - [ ] PR description generator (summarize changes)
+- [ ] StatusBar: detect repo via libgit2sharp or Git CLI, show branch name + state
+- [ ] StatusBar: file change counts badge (staged/unstaged/ignored)
+- [ ] StatusBar: commands for stage/unstage, commit, push/pull
+- [ ] StatusBar: clickable areas with tooltips for branch/notifications/warnings
+- [ ] StatusBar: notification badge integrated with MessageService
 
 ### Webhook Notifications
 - [ ] On save: notify external systems (Slack, Teams, custom URL)
 - [ ] Configurable per project
+
+### Pretranslation Enhancements
+- [ ] Background worker + queue processor for large projects (persistence, job tracking)
+- [ ] Audit logs of pre-translations, confidence scoring, review workflows
+- [ ] Integration with third-party TMS (Crowdin, Lokalise) and glossary sync
 
 ---
 

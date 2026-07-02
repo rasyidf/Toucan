@@ -11,7 +11,7 @@ public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoad
     public SaveStyles Style => SaveStyles.Json;
 
     private static readonly HashSet<string> s_excludedFiles = new(StringComparer.OrdinalIgnoreCase)
-        { "toucan.project", "package.json", "package-lock.json", "tsconfig.json", "global.json", "appsettings.json" };
+        { "toucan.tproj", "package.json", "package-lock.json", "tsconfig.json", "global.json", "appsettings.json" };
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

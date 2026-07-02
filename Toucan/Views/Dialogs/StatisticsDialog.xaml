@@ -13,7 +13,7 @@
     WindowCornerPreference="Round"
     ExtendsContentIntoTitleBar="True"
     ResizeMode="CanResize">
-    <Grid>
+    <Grid FocusManager.FocusedElement="{Binding ElementName=CloseButton}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -142,7 +142,7 @@
 
         <Border Grid.Row="2" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <ui:Button Content="Close" Width="90" Appearance="Primary" Click="Close_Click"/>
+                <ui:Button x:Name="CloseButton" Content="Close" Width="90" Appearance="Primary" Click="Close_Click"/>
             </StackPanel>
         </Border>
     </Grid>

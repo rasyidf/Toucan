@@ -11,7 +11,7 @@
     WindowCornerPreference="Round"
     WindowStartupLocation="CenterOwner"
     ResizeMode="CanResize">
-    <Grid>
+    <Grid FocusManager.FocusedElement="{Binding ElementName=FolderPathBox}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -39,12 +39,12 @@
                             </StackPanel>
                         </StackPanel>
                     </ui:CardControl.Header>
-                    <ui:Button Command="{Binding BrowseFolderCommand}">
+                    <ui:Button Command="{Binding BrowseFolderCommand}" ToolTip="Browse for folder" AutomationProperties.Name="Browse for folder">
                         <ui:SymbolIcon Symbol="FolderOpen24"/>
                     </ui:Button>
                 </ui:CardControl>
 
-                <TextBox Text="{Binding Folder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
+                <TextBox x:Name="FolderPathBox" Text="{Binding Folder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
 
                 <!-- Detected framework -->
                 <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" Text="Detected Framework"/>

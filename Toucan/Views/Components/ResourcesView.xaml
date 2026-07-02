@@ -37,11 +37,9 @@
         <converters:BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
 
-    <ui:Card
-        Margin="0"
+    <Border
         Padding="0"
-        VerticalAlignment="Stretch"
-        VerticalContentAlignment="Stretch">
+        VerticalAlignment="Stretch">
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="42" />
@@ -152,5 +150,5 @@
                 </Grid>
             </Border>
         </Grid>
-    </ui:Card>
+    </Border>
 </UserControl>

@@ -21,8 +21,8 @@ public partial class NewProjectPrompt : FluentWindow
 
         DataContext = vm;
         // give keyboard focus to the project name textbox when available
-        _ = (ProjectNameTextBox?.Focus());
-        ProjectNameTextBox?.SelectAll();
+        _ = (FrameworkStepControl?.ProjectNameTextBox?.Focus());
+        FrameworkStepControl?.ProjectNameTextBox?.SelectAll();
 
         RoutedCommand saveCommand = new();
         _ = saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
@@ -44,8 +44,8 @@ public partial class NewProjectPrompt : FluentWindow
         }
 
         DataContext = vm;
-        _ = (ProjectNameTextBox?.Focus());
-        ProjectNameTextBox?.SelectAll();
+        _ = (FrameworkStepControl?.ProjectNameTextBox?.Focus());
+        FrameworkStepControl?.ProjectNameTextBox?.SelectAll();
 
         RoutedCommand saveCommand = new();
         _ = saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
@@ -72,17 +72,6 @@ public partial class NewProjectPrompt : FluentWindow
     private void CancelDialog(object sender, System.Windows.RoutedEventArgs e)
     {
         DialogResult = false;
-    }
-
-    private void FrameworkTile_Checked(object sender, System.Windows.RoutedEventArgs e)
-    {
-        if (sender is System.Windows.Controls.RadioButton rb && rb.Tag is FrameworkTile tile)
-        {
-            if (DataContext is NewProjectViewModel vm)
-            {
-                vm.SelectedFramework = tile;
-            }
-        }
     }
 
     private void OKButton_Click(object sender, System.Windows.RoutedEventArgs e)

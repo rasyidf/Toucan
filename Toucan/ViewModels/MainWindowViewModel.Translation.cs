@@ -400,12 +400,9 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        var allKeys = AllTranslation.Select(t => t.Namespace).Distinct();
-        HashSet<string> unused = _sourceCodeService.GetUnusedKeys(allKeys).ToHashSet();
-        // Filter to show only USED keys
-        Search("", true); // reset first
         FilteredBySourceUsage = "used";
         OnPropertyChanged(nameof(FilteredBySourceUsage));
+        Search(SearchText ?? "", true);
     }
 
     [RelayCommand]
@@ -418,13 +415,15 @@ internal partial class MainWindowViewModel
 
         FilteredBySourceUsage = "unused";
         OnPropertyChanged(nameof(FilteredBySourceUsage));
+        Search(SearchText ?? "", true);
     }
 
     [RelayCommand]
     private void ClearSourceFilter()
     {
         FilteredBySourceUsage = null;
-        Search("", true);
+        OnPropertyChanged(nameof(FilteredBySourceUsage));
+        Search(SearchText ?? "", true);
     }
 
     [RelayCommand]
@@ -778,9 +777,29 @@ internal partial class MainWindowViewModel
     private void ToggleShowMachineTranslations()
     {
         ShowMachineTranslations = !ShowMachineTranslations;
-        // ponytail: placeholder toggle — visual indicator only for now
-        // upgrade path: filter/highlight machine-translated values when metadata is tracked
-        StatusText = ShowMachineTranslations ? "Showing machine translations" : "Machine translations hidden";
+
+        if (ShowMachineTranslations)
+        {
+            if (AllTranslation == null || AllTranslation.Count == 0)
+            {
+                StatusText = "No translations loaded.";
+                return;
+            }
+
+            List<TranslationItem> matched = AllTranslation
+                .Where(t => t.ChangeType == ChangeType.Suggestion)
+                .ToList();
+
+            FilterAndDisplay(matched, "No machine-translated items found.");
+            StatusText = matched.Count > 0
+                ? $"Showing {matched.Count} machine-translated items"
+                : "No machine-translated items found.";
+        }
+        else
+        {
+            Search("", true);
+            StatusText = "Showing all translations";
+        }
     }
 
     #endregion

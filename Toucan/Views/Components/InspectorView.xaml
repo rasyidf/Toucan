@@ -43,7 +43,7 @@
         </Border>
 
         <!-- Styled TabControl -->
-        <TabControl Grid.Row="1" BorderThickness="0" Padding="0" Background="Transparent">
+        <TabControl x:Name="InspectorTabs" Grid.Row="1" BorderThickness="0" Padding="0" Background="Transparent">
             <TabControl.Resources>
                 <Style TargetType="TabItem">
                     <Setter Property="Background" Value="Transparent"/>
@@ -168,6 +168,40 @@
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
+            </TabItem>
+
+            <!-- Validation Tab -->
+            <TabItem Header="Validation">
+                <Grid Margin="8,6">
+                    <!-- Empty state -->
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock FontSize="11" Opacity="0.5" Text="No validation issues"
+                                   HorizontalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ValidationWarnings.Count, FallbackValue=0}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- Warning cards -->
+                    <ItemsControl ItemsSource="{Binding ValidationWarnings, FallbackValue={x:Null}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                        CornerRadius="3" Padding="8,5" Margin="0,0,0,3">
+                                    <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="12"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
             </TabItem>
         </TabControl>
     </Grid>

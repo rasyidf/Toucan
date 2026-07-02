@@ -4,7 +4,6 @@ using System.Text.Json.Nodes;
 using System.Windows;
 using System.Windows.Controls;
 using Toucan.Core.Options;
-using Toucan.Services;
 using Toucan.ViewModels;
 using Wpf.Ui.Controls;
 
@@ -14,7 +13,7 @@ public partial class OptionDialog : FluentWindow
 {
     public AppOptions? Config { get; private set; }
     private readonly OptionsViewModel vm;
-    private readonly StackPanel[] _pages;
+    private readonly UIElement[] _pages;
 
     public OptionDialog(AppOptions importOptions, string projectPath, OptionsViewModel viewModel)
     {
@@ -29,7 +28,7 @@ public partial class OptionDialog : FluentWindow
             vm.ProjectFilePath = projectPath;
             try
             {
-                string manifestPath = System.IO.Path.Combine(projectPath, "toucan.project");
+                string manifestPath = System.IO.Path.Combine(projectPath, "toucan.tproj");
                 if (System.IO.File.Exists(manifestPath))
                 {
                     string text = System.IO.File.ReadAllText(manifestPath);
@@ -61,7 +60,6 @@ public partial class OptionDialog : FluentWindow
         };
 
         DataContext = vm;
-        KeybindingsListView.ItemsSource = KeybindingService.GetDefinitions();
 
         vm.PageSizeText = importOptions?.PageSize.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
         vm.TruncateSizeText = importOptions?.TruncateResultsOver.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
@@ -82,20 +80,4 @@ public partial class OptionDialog : FluentWindow
         }
     }
 
-    private void AddSuggestedLanguage_Click(object sender, RoutedEventArgs e)
-    {
-        string? lang = NewSuggestedLangBox.Text?.Trim();
-        if (string.IsNullOrWhiteSpace(lang))
-        {
-            return;
-        }
-
-        if (vm.SuggestedLanguages.Contains(lang))
-        {
-            return;
-        }
-
-        vm.SuggestedLanguages.Add(lang);
-        NewSuggestedLangBox.Text = string.Empty;
-    }
 }

@@ -18,10 +18,33 @@
         <Style x:Key="PanelButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="6,2" />
+            <Setter Property="Padding" Value="6,4" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <!-- ═══ VCS Panel Template ═══ -->
@@ -194,41 +217,71 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Border Padding="4,0" Background="{DynamicResource ControlFillColorDefaultBrush}">
-        <Grid>
+    <!-- ponytail: Footer action bar — left quick actions, center status, right info panels. No mode badge here (lives in toolbar's ModeSelectorBar). -->
+    <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="4,0">
+        <Grid VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" /> <!-- Left panels -->
-                <ColumnDefinition Width="*" />   <!-- Center panels (status text) -->
-                <ColumnDefinition Width="Auto" /> <!-- Right panels -->
+                <ColumnDefinition Width="Auto" /> <!-- Left: quick actions -->
+                <ColumnDefinition Width="*" />   <!-- Center: status text -->
+                <ColumnDefinition Width="Auto" /> <!-- Right: info panels -->
             </Grid.ColumnDefinitions>
 
-            <!-- ═══ LEFT PANELS ═══ -->
-            <ItemsControl Grid.Column="0" ItemsSource="{Binding Registry.LeftPanels}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+            <!-- ═══ LEFT: Contextual Quick Actions (borderless, flat icons) ═══ -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource PanelButton}"
+                        Command="{Binding PreTranslateBulkCommand}"
+                        ToolTip="Pre-translate all">
+                    <ui:SymbolIcon Symbol="Translate20" FontSize="14" />
+                </Button>
+                <Button Style="{StaticResource PanelButton}"
+                        Command="{Binding ValidatePlaceholdersCommand}"
+                        ToolTip="Validate placeholders">
+                    <ui:SymbolIcon Symbol="CheckmarkSquare20" FontSize="14" />
+                </Button>
+                <Button Style="{StaticResource PanelButton}"
+                        Command="{Binding GenerateStatisticsBulkCommand}"
+                        ToolTip="Statistics">
+                    <ui:SymbolIcon Symbol="ChartMultiple20" FontSize="14" />
+                </Button>
+                <Button Style="{StaticResource PanelButton}"
+                        Command="{Binding ToggleAdvancedOptionsCommand}"
+                        ToolTip="Source code view">
+                    <ui:SymbolIcon Symbol="Code20" FontSize="14" />
+                </Button>
+            </StackPanel>
 
-            <!-- ═══ CENTER PANELS ═══ -->
-            <ItemsControl Grid.Column="1" ItemsSource="{Binding Registry.CenterPanels}"
-                          HorizontalAlignment="Stretch" Margin="8,0">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+            <!-- ═══ CENTER: Status text + loading ═══ -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ItemsControl ItemsSource="{Binding Registry.CenterPanels}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
 
-            <!-- ═══ RIGHT PANELS ═══ -->
-            <ItemsControl Grid.Column="2" ItemsSource="{Binding Registry.RightPanels}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+            <!-- ═══ RIGHT: Info panels (project, vcs, language, encoding, notifications) ═══ -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <ItemsControl ItemsSource="{Binding Registry.LeftPanels}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding Registry.RightPanels}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
         </Grid>
     </Border>
 </UserControl>

@@ -12,6 +12,9 @@
     Height="520"
     MinWidth="650" MinHeight="400"
     WindowStartupLocation="CenterOwner"
+    ExtendsContentIntoTitleBar="True"
+    WindowBackdropType="Mica"
+    WindowCornerPreference="Round"
     ResizeMode="CanResize"
     mc:Ignorable="d">
 
@@ -19,7 +22,7 @@
         <converters:BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </ui:FluentWindow.Resources>
 
-    <Grid>
+    <Grid FocusManager.FocusedElement="{Binding ElementName=ProviderCombo}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -30,7 +33,7 @@
         <ui:TitleBar Title="Pre-Translate" Height="40" Padding="8,4">
             <ui:TitleBar.Header>
                 <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                    <TextBlock Margin="0,0,8,0" VerticalAlignment="Center" FontSize="14" Text="⚡"/>
+                    <ui:SymbolIcon Symbol="Flash20" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="14"/>
                     <TextBlock FontSize="13" FontWeight="SemiBold" Text="Pre-Translate" VerticalAlignment="Center"/>
                 </StackPanel>
             </ui:TitleBar.Header>
@@ -49,14 +52,14 @@
                     <!-- Provider -->
                     <TextBlock FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6" Text="Provider"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <ComboBox Width="160" SelectedValue="{Binding SelectedProvider, Mode=TwoWay}" SelectedValuePath="Content" IsEditable="False">
+                        <ComboBox x:Name="ProviderCombo" Width="160" SelectedValue="{Binding SelectedProvider, Mode=TwoWay}" SelectedValuePath="Content" IsEditable="False">
                             <ComboBoxItem>Google</ComboBoxItem>
                             <ComboBoxItem>DeepL</ComboBoxItem>
                             <ComboBoxItem>Microsoft</ComboBoxItem>
                             <ComboBoxItem>OpenAI</ComboBoxItem>
                             <ComboBoxItem>Custom</ComboBoxItem>
                         </ComboBox>
-                        <ui:Button Margin="6,0,0,0" Padding="6,6" Command="{Binding OpenProviderSettingsCommand}" ToolTip="Provider settings">
+                        <ui:Button Margin="6,0,0,0" Padding="6,6" Command="{Binding OpenProviderSettingsCommand}" ToolTip="Provider settings" AutomationProperties.Name="Provider settings">
                             <ui:Button.Icon>
                                 <ui:SymbolIcon Symbol="Settings20"/>
                             </ui:Button.Icon>

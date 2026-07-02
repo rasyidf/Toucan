@@ -13,6 +13,7 @@
     Height="650"
     MinWidth="800"
     MinHeight="600"
+    Title="Toucan"
     d:DesignHeight="450"
     ui:Design.Background="white"
     ui:Design.Foreground="#0a0a0a"
@@ -34,47 +35,70 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="titleBar"
-                    Height="auto"/>
+                           Height="auto"/>
             <RowDefinition x:Name="toolBarRow"
-                    Height="auto"/>
+                           Height="auto"/>
             <RowDefinition x:Name="contentRow"
-                    Height="*"/>
+                           Height="*"/>
             <RowDefinition x:Name="footerRow"
-                    Height="32"/>
+                           Height="32"/>
 
         </Grid.RowDefinitions>
-        <ui:TitleBar Title="Toucan"> 
+        <ui:TitleBar Title="Toucan">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="/Assets/Images/logo.png" Width="18" Height="18"/>
+            </ui:TitleBar.Icon>
             <ui:TitleBar.Header>
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="/Assets/Images/logo.png" Width="18" Height="18" Margin="8,0,4,0" VerticalAlignment="Center"/>
-                    <views:MainMenu/>
-                </StackPanel>
+                <views:MainMenu/>
             </ui:TitleBar.Header>
         </ui:TitleBar>
 
 
         <views:ToolBarView Grid.Row="1"
                            HorizontalAlignment="Stretch"
-                           VerticalAlignment="Center"
-                           Visibility="{Binding ToolbarVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}" />
+                           VerticalAlignment="Center">
+            <views:ToolBarView.Style>
+                <Style TargetType="UserControl">
+                    <Setter Property="Visibility"
+                            Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ToolbarVisible, Source={x:Static services:PanelService.Instance}}"
+                                     Value="False">
+                            <Setter Property="Visibility"
+                                    Value="Collapsed"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ShowStartScreen}"
+                                     Value="True">
+                            <Setter Property="Visibility"
+                                    Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </views:ToolBarView.Style>
+        </views:ToolBarView>
 
-        <Grid x:Name="contentGrid" Grid.Row="2"
-                Grid.RowSpan="1"
-                Visibility="{Binding ShowStartScreen, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
+        <Grid x:Name="contentGrid"
+              Grid.Row="2"
+              Grid.RowSpan="1"
+              Visibility="{Binding ShowStartScreen, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="sidebarColumn" Width="320"/>
-                <ColumnDefinition x:Name="sidebarSplitterColumn" Width="Auto"/>
+                <ColumnDefinition x:Name="sidebarColumn"
+                                  Width="200"/>
+                <ColumnDefinition x:Name="sidebarSplitterColumn"
+                                  Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition x:Name="inspectorSplitterColumn" Width="Auto"/>
-                <ColumnDefinition x:Name="inspectorColumn" Width="280"/>
+                <ColumnDefinition x:Name="inspectorSplitterColumn"
+                                  Width="Auto"/>
+                <ColumnDefinition x:Name="inspectorColumn"
+                                  Width="200"/>
             </Grid.ColumnDefinitions>
 
             <!-- Left sidebar: tree only -->
             <Grid Visibility="{Binding SidePanelVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}">
                 <views:ResourcesView x:Name="resourcesView"
-                        Visibility="{Binding ResourcesVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}"
-                        SelectionChanged="TreeNamespace_SelectedItemChanged"
-                        ListSelectionChanged="ResourcesView_ListSelectionChanged"/>
+                                     Visibility="{Binding ResourcesVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}"
+                                     SelectionChanged="TreeNamespace_SelectedItemChanged"
+                                     ListSelectionChanged="ResourcesView_ListSelectionChanged"/>
             </Grid>
 
             <!-- Left splitter -->
@@ -117,7 +141,6 @@
             x:Name="startScreen"
             Grid.Row="1"
             Grid.RowSpan="2"
-            Background="{DynamicResource ApplicationBackgroundBrush}"
             Visibility="{Binding ShowStartScreen, Converter={StaticResource BoolToVis}}"/>
 
         <!--  Zen mode overlay - covers all chrome when active -->
@@ -130,8 +153,8 @@
 
 
         <views:StatusBarView x:Name="RootStatusBar"
-                Grid.Row="3"
-                Visibility="{Binding StatusBarVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}"/>
+                             Grid.Row="3"
+                             Visibility="{Binding StatusBarVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToVis}}"/>
 
     </Grid>
 </ui:FluentWindow>

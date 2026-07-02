@@ -115,7 +115,7 @@ public partial class NewProjectViewModel : ObservableObject
             }
 
             // Check if folder already has a toucan.project (existing project)
-            var manifestPath = System.IO.Path.Combine(ProjectFolder, "toucan.project");
+            var manifestPath = System.IO.Path.Combine(ProjectFolder, "toucan.tproj");
             if (System.IO.File.Exists(manifestPath))
             {
                 // ponytail: prompt user — import existing or overwrite

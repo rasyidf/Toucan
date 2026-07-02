@@ -11,6 +11,9 @@
     Width="820"
     Height="640"
     WindowStartupLocation="CenterOwner"
+    ExtendsContentIntoTitleBar="True"
+    WindowBackdropType="Mica"
+    WindowCornerPreference="Round"
     mc:Ignorable="d">
 
     <ui:FluentWindow.Resources>
@@ -18,7 +21,7 @@
         <BooleanToVisibilityConverter x:Key="SysBoolToVis"/>
     </ui:FluentWindow.Resources>
 
-    <Grid>
+    <Grid FocusManager.FocusedElement="{Binding ElementName=ProviderListBox}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -74,7 +77,9 @@
                             Width="32"
                             Margin="6,0,0,0"
                             Command="{Binding SelectProjectFolderCommand}"
-                            Content="..." />
+                            Content="..."
+                            ToolTip="Browse for project folder"
+                            AutomationProperties.Name="Browse for project folder" />
                     </StackPanel>
                 </StackPanel>
 
@@ -83,6 +88,7 @@
 
                 <!-- Provider list -->
                 <ListBox
+                    x:Name="ProviderListBox"
                     Grid.Row="2"
                     ItemsSource="{Binding Providers}"
                     SelectedItem="{Binding Selected}">
@@ -160,8 +166,9 @@
                                             Command="{Binding DataContext.RemoveOptionCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}"
                                             Visibility="{Binding IsSchemaField, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"
-                                            ToolTip="Remove">
-                                        <TextBlock Text="✕" FontSize="12"/>
+                                            ToolTip="Remove"
+                                            AutomationProperties.Name="Remove option">
+                                        <ui:SymbolIcon Symbol="Dismiss16" FontSize="12"/>
                                     </Button>
                                 </Grid>
                             </DataTemplate>
@@ -203,8 +210,9 @@
                                             Command="{Binding DataContext.RemoveSecretCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}"
                                             Visibility="{Binding IsSchemaField, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"
-                                            ToolTip="Remove">
-                                        <TextBlock Text="✕" FontSize="12"/>
+                                            ToolTip="Remove"
+                                            AutomationProperties.Name="Remove secret">
+                                        <ui:SymbolIcon Symbol="Dismiss16" FontSize="12"/>
                                     </Button>
                                 </Grid>
                             </DataTemplate>

@@ -31,7 +31,7 @@
             <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="16,0">
                 <StackPanel>
                     <TextBlock TextWrapping="Wrap">
-					Toucan is a simple and easy-to-use app for editing language files. It supports various file formats, including CSV, JSON, and XML.
+					Toucan is a professional translation resource editor for developers and localization teams. It supports 14 formats including JSON, YAML, PO, RESX, Android XML, iOS .strings, XLIFF, ARB, CSV, TOML, INI, Java .properties, Laravel PHP, and Excel.
                     </TextBlock>
                     <TextBlock Margin="0 10 0 0">
 					Developed by:

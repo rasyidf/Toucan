@@ -6,11 +6,11 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Toucan")]
-[assembly: AssemblyDescription("Toucan - i18n Editor")]
+[assembly: AssemblyDescription("Toucan — Professional translation resource editor")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("rasyid.dev")]
 [assembly: AssemblyProduct("Toucan")]
-[assembly: AssemblyCopyright("Copyright © Rasyidf 2023")]
+[assembly: AssemblyCopyright("Copyright © Rasyidf 2023-2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

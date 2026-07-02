@@ -18,6 +18,17 @@ public partial class ProjectLifecycleService
     /// </summary>
     private IReadOnlyList<TranslationItem> _lastSavedSnapshot = [];
 
+    private IUnsavedChangesHandler? _unsavedChangesHandler = unsavedChangesHandler;
+
+    /// <summary>
+    /// Sets the unsaved changes handler. Called during service configuration
+    /// to allow UI-layer implementations to be wired after construction.
+    /// </summary>
+    public void SetUnsavedChangesHandler(IUnsavedChangesHandler? handler)
+    {
+        _unsavedChangesHandler = handler;
+    }
+
     /// <summary>
     /// Sets the external change handler. Called during service configuration
     /// to allow UI-layer implementations to be wired after construction.
