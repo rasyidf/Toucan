@@ -1,5 +1,6 @@
-﻿using System.Windows;
+using System.Windows;
 using Toucan.Core.Contracts;
+using Wpf.Ui.Controls;
 
 namespace Toucan.Services;
 
@@ -9,21 +10,30 @@ internal class MessageService : IMessageService
 
     public void ShowMessage(string message, string title = "Info")
     {
-        if (Owner != null)
+        var msgBox = new Wpf.Ui.Controls.MessageBox
         {
-            _ = MessageBox.Show(Owner, message, title);
-        }
-        else
-        {
-            _ = MessageBox.Show(message, title);
-        }
+            Title = title,
+            Content = message,
+            Owner = Owner,
+            PrimaryButtonText = "OK",
+            CloseButtonText = string.Empty
+        };
+
+        _ = msgBox.ShowDialogAsync();
     }
 
     public bool ShowConfirmation(string message, string title = "Confirm")
     {
-        MessageBoxResult result = Owner != null
-            ? MessageBox.Show(Owner, message, title, MessageBoxButton.YesNo)
-            : MessageBox.Show(message, title, MessageBoxButton.YesNo);
-        return result == MessageBoxResult.Yes;
+        var msgBox = new Wpf.Ui.Controls.MessageBox
+        {
+            Title = title,
+            Content = message,
+            Owner = Owner,
+            PrimaryButtonText = "Yes",
+            CloseButtonText = "No"
+        };
+
+        var result = msgBox.ShowDialogAsync().GetAwaiter().GetResult();
+        return result == Wpf.Ui.Controls.MessageBoxResult.Primary;
     }
 }

@@ -21,8 +21,8 @@ public partial class NewProjectPrompt : FluentWindow
 
         DataContext = vm;
         // give keyboard focus to the project name textbox when available
-        _ = (ProjectNameTextBox?.Focus());
-        ProjectNameTextBox?.SelectAll();
+        _ = (FrameworkStepControl?.ProjectNameTextBox?.Focus());
+        FrameworkStepControl?.ProjectNameTextBox?.SelectAll();
 
         RoutedCommand saveCommand = new();
         _ = saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
@@ -44,8 +44,8 @@ public partial class NewProjectPrompt : FluentWindow
         }
 
         DataContext = vm;
-        _ = (ProjectNameTextBox?.Focus());
-        ProjectNameTextBox?.SelectAll();
+        _ = (FrameworkStepControl?.ProjectNameTextBox?.Focus());
+        FrameworkStepControl?.ProjectNameTextBox?.SelectAll();
 
         RoutedCommand saveCommand = new();
         _ = saveCommand.InputGestures.Add(new KeyGesture(Key.Enter, ModifierKeys.None));
@@ -74,17 +74,6 @@ public partial class NewProjectPrompt : FluentWindow
         DialogResult = false;
     }
 
-    private void FrameworkTile_Checked(object sender, System.Windows.RoutedEventArgs e)
-    {
-        if (sender is System.Windows.Controls.RadioButton rb && rb.Tag is FrameworkTile tile)
-        {
-            if (DataContext is NewProjectViewModel vm)
-            {
-                vm.SelectedFramework = tile;
-            }
-        }
-    }
-
     private void OKButton_Click(object sender, System.Windows.RoutedEventArgs e)
     {
         if (DataContext is not NewProjectViewModel vm)
@@ -95,8 +84,8 @@ public partial class NewProjectPrompt : FluentWindow
 
         if (!vm.IsValid)
         {
-            // a basic validation alert
-            _ = System.Windows.MessageBox.Show("Please set a project name and folder.", "Invalid", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            var msgBox = new Wpf.Ui.Controls.MessageBox { Title = "Invalid", Content = "Please set a project name and folder.", PrimaryButtonText = "OK", CloseButtonText = string.Empty };
+            _ = msgBox.ShowDialogAsync();
             return;
         }
 
@@ -108,7 +97,8 @@ public partial class NewProjectPrompt : FluentWindow
         }
         catch (System.Exception ex)
         {
-            _ = System.Windows.MessageBox.Show($"Failed to create project: {ex.Message}", "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            var msgBox = new Wpf.Ui.Controls.MessageBox { Title = "Error", Content = $"Failed to create project: {ex.Message}", PrimaryButtonText = "OK", CloseButtonText = string.Empty };
+            _ = msgBox.ShowDialogAsync();
         }
     }
 }

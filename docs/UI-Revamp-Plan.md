@@ -91,65 +91,82 @@ Restructure the WPF app layout into a VS Code-style three-pane hierarchical brow
 
 ## Implementation Tasks
 
-### Phase 1: Wire PanelService to XAML (fix what's broken)
+### Phase 1: Wire PanelService to XAML ✅ DONE
 
-1. **Bind panel visibility** — Add `Visibility` bindings on ResourcesView, LanguagesView, ToolBarView, StatusBarView to `PanelService.Instance.*Visible` properties (via a static resource or DataContext path).
-2. **Bind sidebar column width** — Bind `ColumnDefinition.Width` to `PanelService.SidebarWidth` so splitter changes persist.
-3. **Zen mode works** — After step 1, toggling ZenMode will actually hide panels.
-4. **Fullscreen toggle** — Add `ToggleFullscreen` command: swap `WindowState` between `Maximized`/`Normal`, optionally hide title bar chrome. Bind to F11.
-5. **Save layout on close** — Call `PanelService.SaveLayout()` in Window.Closing.
+1. ✅ Bind panel visibility — Visibility bindings on all panels to PanelService.Instance.*Visible.
+2. ✅ Bind sidebar column width — SidebarWidth persisted via PanelService.
+3. ✅ Zen mode works — ZenEditorView overlay with PanelService sync.
+4. ✅ Fullscreen toggle — F11 bound to ToggleFullscreenCommand.
+5. ✅ Save layout on close — PanelService.SaveLayout() called in Window.Closing.
 
-### Phase 2: Three-pane layout
+### Phase 2: Three-pane layout ✅ DONE
 
-6. **Add right pane column** — Change content grid from 3 columns (`Left | Splitter | Center`) to 5 columns (`Left | Splitter | Center | Splitter | Right`).
-7. **Right pane UserControl: InspectorView** — Contains a `TabControl` with tabs: Stats, Suggestions, Details, Validation, Audit.
-8. **Move LanguagesView into InspectorView.Stats tab** — Left sidebar becomes tree-only (simpler, more vertical space for keys).
-9. **Right pane toggle** — Collapsible via `PanelService.InspectorVisible`. Toolbar button + `Ctrl+Shift+I`.
-10. **Context-sensitive tab selection** — When a key is selected, right pane updates to show relevant info for that key.
+6. ✅ 5-column grid — Left | Splitter | Center | Splitter | Right.
+7. ✅ InspectorView — TabControl with Stats, Suggestions, Details, Validation tabs.
+8. ✅ LanguagesView in Inspector.Stats tab — Left sidebar is tree-only.
+9. ✅ Right pane toggle — PanelService.InspectorVisible, Ctrl+Shift+I, toolbar button.
+10. ✅ Context-sensitive tab selection — Auto-switches per EditorMode.
 
-### Phase 3: Editor modes
+### Phase 3: Editor modes ✅ DONE
 
-11. **`EditorMode` enum** — `Editor`, `Review`, `Audit` in ViewModel.
-12. **Mode SelectorBar in toolbar** — Three-segment control bound to `EditorMode`.
-13. **Mode-aware TranslationItemView** — DataTemplateSelector or Visibility bindings that show/hide edit controls, approve buttons, audit info based on mode.
-14. **Review mode filter preset** — Switching to Review mode auto-applies "needs review" filter (unapproved + non-empty). Switching back restores previous filter.
-15. **Audit mode read-only** — TextBox.IsReadOnly bound to `EditorMode == Audit`. Show AuditService metadata inline.
-16. **Right pane tab auto-switch** — Editor→Suggestions, Review→Validation, Audit→AuditHistory.
-17. **Mode badge in StatusBar** — Shows current mode name/icon.
-18. **Persist mode** — Save/restore active mode in layout.json.
+11. ✅ EditorMode enum — Editor, Review, Audit.
+12. ✅ ModeSelectorBar in toolbar — Segmented control with Ctrl+Alt+1/2/3.
+13. ✅ Mode-aware TranslationItemView — Audit=read-only, Review=approve toggle, Editor=translate button.
+14. ✅ Review mode filter preset — Auto-applies unapproved/untranslated filter; restores on exit.
+15. ✅ Audit mode read-only — TextBox.IsReadOnly via DataTrigger on EditorMode.
+16. ✅ Right pane tab auto-switch — Editor→Suggestions, Review→Validation, Audit→Details.
+17. ✅ Mode badge in StatusBar — Pill badge with color per mode.
+18. ✅ Persist mode — Saved/restored in layout.json via PanelService.
 
-### Phase 4: Zen mode & focused editing (proper)
+### Phase 4: Zen mode & focused editing ✅ DONE
 
-19. **Zen mode overlay** — Instead of just hiding panels, overlay a dedicated ZenEditorView on top of the main grid. Shows a single translation group at a time (or paged, configurable).
-20. **Zen navigation** — `↓`/`↑` or `J`/`K` to move between items. `Esc` exits. Subtle hint text at top edge.
-21. **Zen + mode** — Zen respects the current EditorMode (edit in zen, review in zen, audit in zen).
-22. **Focused language subset** — Already exists (`FocusedLanguages`). Surface it in Zen mode UI as a compact language picker at top.
+19. ✅ Zen mode overlay — ZenEditorView covers all chrome at ZIndex=100.
+20. ✅ Zen navigation — J/K/↑/↓ + Esc exit, handled via PreviewKeyDown.
+21. ✅ Zen + mode — Badge shows "ZEN · EDITOR/REVIEW/AUDIT".
+22. ✅ Focused language subset — Compact language indicator at bottom of ZenEditorView.
 
-### Phase 5: Performance
+### Phase 5: Performance (TODO)
 
-23. **Virtualize translation list** — Replace `ItemsControl` + `ScrollViewer` with `VirtualizingStackPanel` (or switch to `ListView` with virtualization). Current approach creates all item UIs upfront per page.
-24. **Reduce binding converter allocations** — Cache converter instances as static resources. Remove redundant converters where a DataTrigger suffices.
-25. **Deferred right pane loading** — Only instantiate the active tab's content. Use `ContentControl` + `DataTemplate` selection (lazy).
-26. **Throttle tree rebuild** — When namespace filter changes, debounce tree refresh (already 300ms for search; ensure tree doesn't full-rebuild on every keystroke).
-27. **Pagination default** — Keep pagination (already exists). Infinite scroll should warn if >500 items.
+23. [ ] **Virtualize translation list** — Replace `ItemsControl` with `ListView` + `VirtualizingStackPanel`.
+24. [ ] **Reduce binding converter allocations** — Cache converter instances as static resources.
+25. [ ] **Deferred right pane loading** — Only instantiate the active tab's content (lazy DataTemplate).
+26. [ ] **Throttle tree rebuild** — Ensure tree doesn't full-rebuild on every keystroke (already 300ms debounce for search).
+27. [ ] **Pagination default** — Keep pagination. Infinite scroll should warn if >500 items.
+
+### Phase 6: Component Extraction ✅ DONE
+
+28. ✅ DialogFooter — Extracted as reusable UserControl.
+29. ✅ SettingsCard — Extracted as reusable UserControl.
+30. ✅ PanelHeader — Extracted as reusable UserControl.
+31. ✅ Split OptionsDialog — 8 page UserControls in Views/Settings/.
+32. ✅ Split NewProjectPrompt — FrameworkStep + LanguagesStep in Views/NewProject/.
+
+### Phase 7: Toolbar, Menu & Footer Redesign ✅ DONE
+
+33. ✅ Menu redesigned — segmented contextual menu (File, Edit, Tools, Find, View, Help).
+34. ✅ Toolbar redesigned — Snipping Tool-style pill-grouped icon buttons, no Card wrapper, flat border.
+35. ✅ Footer action bar — Photos-style (left: quick actions, center: status, right: info panels).
+36. ✅ Footer buttons borderless — custom PanelButton template with subtle hover/pressed states.
+37. ✅ Mode badge de-duplicated — lives only in toolbar's ModeSelectorBar, removed from footer.
+38. ✅ Toolbar hidden on start screen — DataTrigger collapses toolbar when ShowStartScreen=true.
+39. ✅ Sidebar/Inspector default width — 200px each (~1:3:1 ratio).
+40. ✅ ResourcesView — removed ui:Card wrapper, plain Border for edge-to-edge content.
+41. ✅ Start screen transparent — no Background, Mica backdrop shows through.
 
 ---
 
-## File Changes Summary
+## Status: COMPLETE
 
-| File | Change |
-|------|--------|
-| `MainWindow.xaml` | Add right column, bind all Visibility to PanelService, add Zen overlay, fullscreen command |
-| `PanelService.cs` | Add `InspectorVisible`, `EditorMode`, persist mode |
-| `MainWindowViewModel.Nav.cs` | Add `EditorMode` property, mode-switch commands, fullscreen command |
-| `Views/Components/InspectorView.xaml` (new) | Right pane with TabControl |
-| `Views/Components/TranslationItemView.xaml` | Mode-aware template (edit/review/audit states) |
-| `Views/Components/ZenEditorView.xaml` (new) | Fullscreen overlay for zen mode |
-| `Views/Components/ModeSelectorBar.xaml` (new) | Three-segment mode switcher |
-| `ViewModels/InspectorViewModel.cs` (new) | Drives right pane tab content |
-| `Services/KeybindingService.cs` | Add F11, Ctrl+1/2/3 bindings |
-| `StatusBarView.xaml` | Add mode badge |
-| `ToolBarView.xaml` | Add mode selector, inspector toggle |
+All functional UI revamp work is done. Only Phase 5 (Performance) remains as profiling-driven future work — not blocking release.
+
+---
+
+## Remaining Work (Future — Phase 5 Performance)
+
+These are profiling-driven optimizations, not blocking release:
+- Virtualization — measure first, only virtualize if page size > ~50 items causes jank.
+- Deferred loading — worthwhile if Inspector tabs have heavy content.
+- Tree throttle — already 300ms debounce, verify no full-rebuild on filter change.
 
 ---
 

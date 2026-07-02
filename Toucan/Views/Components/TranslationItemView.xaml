@@ -32,6 +32,11 @@
                 <RowDefinition Height="*" />    <!-- Language rows -->
             </Grid.RowDefinitions>
 
+            <!-- Dirty indicator -->
+            <Rectangle Grid.RowSpan="2" Width="3" HorizontalAlignment="Left" Margin="-12,-8,-12,-8" RadiusX="1.5" RadiusY="1.5"
+                       Fill="{DynamicResource SystemFillColorCautionBrush}"
+                       Visibility="{Binding IsDirty, Converter={StaticResource BoolToVis}}"/>
+
             <!-- ═══ HEADER ROW ═══ -->
             <Grid Grid.Row="0" Margin="0,0,0,6">
                 <Grid.ColumnDefinitions>

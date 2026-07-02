@@ -1,0 +1,77 @@
+<UserControl x:Class="Toucan.Views.NewProject.FrameworkStep"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20,8,20,8">
+            <TextBlock Text="Step 1: Project setup" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+            <!-- Project Name -->
+            <TextBlock Text="Project Name" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,4"/>
+            <ui:TextBox x:Name="ProjectNameTextBox"
+                        Text="{Binding ProjectName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        PlaceholderText="My Translation Project"
+                        Margin="0,0,0,10"/>
+
+            <!-- Project Folder -->
+            <TextBlock Text="Project Folder" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,4"/>
+            <Grid Margin="0,0,0,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ui:TextBox Text="{Binding ProjectFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            PlaceholderText="Select folder..."/>
+                <ui:Button Grid.Column="1" Content="Browse..." Margin="6,0,0,0"
+                           Command="{Binding BrowseFolderCommand}"/>
+            </Grid>
+
+            <!-- Framework -->
+            <TextBlock Text="Framework" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6"/>
+            <TextBlock Text="Select the framework used in your project:" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
+
+            <!-- Framework tile grid -->
+            <ItemsControl ItemsSource="{Binding Frameworks}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton GroupName="Framework"
+                                     IsChecked="{Binding IsSelected, Mode=TwoWay, RelativeSource={RelativeSource Self}}"
+                                     Checked="FrameworkTile_Checked"
+                                     Tag="{Binding}" Margin="2" Padding="0">
+                            <RadioButton.Template>
+                                <ControlTemplate TargetType="RadioButton">
+                                    <Border x:Name="TileBorder" Width="80" Height="60" CornerRadius="5"
+                                            BorderThickness="1"
+                                            BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                                            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                            Padding="4" Cursor="Hand">
+                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding Icon}" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{Binding Name}" FontSize="10" FontWeight="SemiBold" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding Description}" FontSize="8" Foreground="{DynamicResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="TileBorder" Property="BorderBrush" Value="{DynamicResource SystemAccentColorPrimaryBrush}"/>
+                                            <Setter TargetName="TileBorder" Property="BorderThickness" Value="2"/>
+                                            <Setter TargetName="TileBorder" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="TileBorder" Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </RadioButton.Template>
+                        </RadioButton>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

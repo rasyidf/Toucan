@@ -15,6 +15,9 @@ public partial class LanguageGroupViewModel : ObservableObject
     public ObservableCollection<TranslationItemViewModel> Translations { get; private set; } = [];
     private readonly System.Func<TranslationItem, TranslationItemViewModel> _translationItemFactory;
 
+    [ObservableProperty]
+    private bool isDirty;
+
     /// <summary>
     /// When this group represents merged plural variants, each variant is stored here.
     /// Key = plural category (e.g. "one", "other"), Value = translations for that variant.

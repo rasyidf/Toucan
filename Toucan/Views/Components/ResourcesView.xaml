@@ -37,14 +37,13 @@
         <converters:BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
 
-    <ui:Card
-        Margin="0"
+    <Border
         Padding="0"
-        VerticalAlignment="Stretch"
-        VerticalContentAlignment="Stretch">
+        VerticalAlignment="Stretch">
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="42" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -83,8 +82,13 @@
                 </ui:Button>
             </StackPanel>
 
+            <!-- Breadcrumb navigation -->
+            <ui:BreadcrumbBar Grid.Row="1" Grid.ColumnSpan="2" Margin="8,0,8,4"
+                              ItemsSource="{Binding SelectedNodePath}"
+                              FontSize="11"/>
+
             <Border
-                Grid.Row="1"
+                Grid.Row="2"
                 Grid.ColumnSpan="2"
                 Padding="6"
                 Background="Transparent">
@@ -106,6 +110,13 @@
                         ItemsSource="{Binding CurrentTreeItems, Converter={StaticResource TreeItemsFlatten}}"
                         SelectionChanged="ListNamespace_SelectionChanged"
                         Visibility="{Binding IsTreeView, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
+                        <ui:ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Hide this namespace"
+                                          Command="{Binding DataContext.HideNamespaceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                          CommandParameter="{Binding SelectedNode.Namespace}"/>
+                            </ContextMenu>
+                        </ui:ListView.ContextMenu>
                         <ui:ListView.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:NsFlatItem}">
                                 <StackPanel Margin="4,2" Orientation="Horizontal">
@@ -126,10 +137,18 @@
                         VirtualizingStackPanel.IsVirtualizing="True"
                         VirtualizingStackPanel.VirtualizationMode="Recycling"
                         ScrollViewer.CanContentScroll="True"
-                        Visibility="{Binding IsTreeView, Converter={StaticResource BoolToVis}}" />
+                        Visibility="{Binding IsTreeView, Converter={StaticResource BoolToVis}}">
+                        <TreeView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Hide this namespace"
+                                          Command="{Binding DataContext.HideNamespaceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                          CommandParameter="{Binding SelectedNode.Namespace}"/>
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
+                    </TreeView>
 
                 </Grid>
             </Border>
         </Grid>
-    </ui:Card>
+    </Border>
 </UserControl>

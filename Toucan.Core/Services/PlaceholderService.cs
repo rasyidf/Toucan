@@ -55,14 +55,32 @@ public static partial class PlaceholderService
         return results.OrderBy(r => r.Position).ToList();
     }
 
-    /// <summary>Validates that target has same placeholders as source.</summary>
+    /// <summary>Validates that target has same placeholders as source (including counts).</summary>
     public static PlaceholderValidation Validate(string source, string target)
     {
         var sourcePlaceholders = Extract(source).Select(p => p.Text).ToList();
         var targetPlaceholders = Extract(target).Select(p => p.Text).ToList();
 
-        var missing = sourcePlaceholders.Except(targetPlaceholders).ToList();
-        var extra = targetPlaceholders.Except(sourcePlaceholders).ToList();
+        // Count-aware comparison: group by text, compare counts
+        var sourceGroups = sourcePlaceholders.GroupBy(p => p).ToDictionary(g => g.Key, g => g.Count());
+        var targetGroups = targetPlaceholders.GroupBy(p => p).ToDictionary(g => g.Key, g => g.Count());
+
+        var missing = new List<string>();
+        var extra = new List<string>();
+
+        foreach (var (placeholder, count) in sourceGroups)
+        {
+            var targetCount = targetGroups.GetValueOrDefault(placeholder, 0);
+            for (int i = 0; i < count - targetCount; i++)
+                missing.Add(placeholder);
+        }
+
+        foreach (var (placeholder, count) in targetGroups)
+        {
+            var sourceCount = sourceGroups.GetValueOrDefault(placeholder, 0);
+            for (int i = 0; i < count - sourceCount; i++)
+                extra.Add(placeholder);
+        }
 
         return new PlaceholderValidation
         {

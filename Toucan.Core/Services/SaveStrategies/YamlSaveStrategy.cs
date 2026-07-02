@@ -59,9 +59,20 @@ public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
             }
             else
             {
-                // Nested structure
-                sb.AppendLine($"{new string(' ', indent)}{rootKey}:");
-                
+                // Nested structure — emit the root key's own value first if it exists
+                var selfItem = items.FirstOrDefault(kvp => kvp.Key == rootKey);
+                if (selfItem.Key != null && !string.IsNullOrEmpty(selfItem.Value))
+                {
+                    // ponytail: YAML can't represent a key that is both a scalar and a mapping parent.
+                    // Store as a special __self child so round-trip doesn't lose it.
+                    sb.AppendLine($"{new string(' ', indent)}{rootKey}:");
+                    sb.AppendLine($"{new string(' ', indent + 2)}__self: {EscapeYamlValue(selfItem.Value)}");
+                }
+                else
+                {
+                    sb.AppendLine($"{new string(' ', indent)}{rootKey}:");
+                }
+
                 var nested = new Dictionary<string, string>();
                 foreach (var item in items)
                 {
@@ -102,14 +113,30 @@ public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
         if (string.IsNullOrEmpty(input))
             return "\"\"";
 
-        // Quote strings that contain special YAML characters or start with special chars
-        if (input.Contains(':') || input.Contains('#') || input.Contains('{') || 
+        // Values that YAML would interpret as special types need quoting
+        bool needsQuote = input.Contains(':') || input.Contains('#') || input.Contains('{') || 
             input.Contains('[') || input.Contains('|') || input.Contains('>') ||
-            input.Contains('\n') || input.Contains('\'') || input.Contains('"') ||
-            input.StartsWith(' ') || input.EndsWith(' '))
+            input.Contains('\n') || input.Contains('\r') || input.Contains('\t') ||
+            input.Contains('\'') || input.Contains('"') ||
+            input.StartsWith(' ') || input.EndsWith(' ') ||
+            input.StartsWith('*') || input.StartsWith('&') || input.StartsWith('!') ||
+            input.StartsWith('@') || input.StartsWith('`') ||
+            string.Equals(input, "true", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(input, "false", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(input, "null", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(input, "yes", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(input, "no", StringComparison.OrdinalIgnoreCase);
+
+        if (needsQuote)
         {
-            // Use double quotes and escape internal quotes
-            return $"\"{input.Replace("\\", "\\\\").Replace("\"", "\\\"")}\"";
+            // Escape backslashes, quotes, and control characters
+            var escaped = input
+                .Replace("\\", "\\\\")
+                .Replace("\"", "\\\"")
+                .Replace("\n", "\\n")
+                .Replace("\r", "\\r")
+                .Replace("\t", "\\t");
+            return $"\"{escaped}\"";
         }
 
         return input;

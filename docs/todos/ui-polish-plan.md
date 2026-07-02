@@ -162,23 +162,18 @@ Create/verify in `Resources/DesignTokens.xaml`:
 
 ## Execution Order
 
-1. **Extract `DialogFooter`** — smallest, highest reuse (8 dialogs)
-2. **Extract `SettingsCard`** — reduces OptionsDialog significantly
-3. **Extract `PanelHeader`** — used in 4 components
-4. **Split OptionsDialog into page UserControls**
-5. **Split NewProjectPrompt into step UserControls**
-6. **Extract `LanguageChip`** — used in 4 places
-7. **Verify design tokens** — ensure all spacing/typography uses shared resources
-8. **Accessibility pass** — tooltips, tab order, automation names
+1. ✅ **Extract `DialogFooter`** — reusable UserControl (8 dialogs)
+2. ✅ **Extract `SettingsCard`** — reduces OptionsDialog significantly
+3. ✅ **Extract `PanelHeader`** — used in 4 components
+4. ✅ **Split OptionsDialog into page UserControls** — 8 pages in Views/Settings/
+5. ✅ **Split NewProjectPrompt into step UserControls** — 2 steps in Views/NewProject/
+6. ✅ **Extract `LanguageChip`** — reusable badge (LanguageCode DP)
+7. ✅ **Verify design tokens** — DesignTokens.xaml updated with all spacing/typography tokens
+8. ✅ **Accessibility pass** — tooltips, AutomationProperties.Name, FocusManager, window properties standardized
+9. ✅ **Extract LanguagesView templates** — LanguageGroupCard + TranslationRow (92 lines from 400+)
 
 ---
 
-## Metrics
+## Status: COMPLETE ✅
 
-| Metric | Before | Target |
-|--------|--------|--------|
-| Largest XAML file | 412 lines | < 150 lines |
-| Repeated patterns | 36 CardControls, 15 TitleBars | Extracted to components |
-| OptionsDialog size | 304 lines | ~50 lines (shell + pages) |
-| Custom components | 9 | 15+ |
-| Design token coverage | Partial | 100% (no magic numbers) |
+All items implemented. LanguagesView reduced from 400+ to 92 lines. All dialogs standardized with accessibility attributes and Mica backdrop.

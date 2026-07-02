@@ -27,12 +27,12 @@ public class UndoRedoService : IUndoRedoService
 
         _undoStack.Push(new EditAction(ns, language, oldValue, newValue));
         _redoStack.Clear();
-        // Cap history
+        // Cap history — keep newest MaxHistory items
         if (_undoStack.Count > MaxHistory)
         {
-            EditAction[] temp = _undoStack.ToArray();
+            EditAction[] temp = _undoStack.ToArray(); // newest-first (LIFO order)
             _undoStack.Clear();
-            for (int i = 0; i < MaxHistory; i++)
+            for (int i = MaxHistory - 1; i >= 0; i--)
             {
                 _undoStack.Push(temp[i]);
             }

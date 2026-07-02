@@ -1,15 +1,11 @@
-﻿using System.Windows.Controls;
+using System.Windows.Controls;
 
-namespace Toucan.Views
+namespace Toucan.Views;
+
+public partial class MainMenu : UserControl
 {
-    /// <summary>
-    /// Interaction logic for MainMenu.xaml
-    /// </summary>
-    public partial class MainMenu : UserControl
+    public MainMenu()
     {
-        public MainMenu()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

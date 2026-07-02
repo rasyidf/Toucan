@@ -34,13 +34,13 @@
                     FontSize="12" />
             </Border>
 
-            <!-- ponytail: ListBox with VirtualizingStackPanel replaces ItemsControl for UI virtualization.
-                 Only visible items create their visual tree. Selection chrome suppressed via style. -->
+            <!-- Normal list view (hidden in focused mode) -->
             <ListBox
                 x:Name="languageGroupContainer"
                 Grid.Row="1"
                 ItemsSource="{Binding PagingController.PageData}"
                 SelectedItem="{Binding SelectedGroup, Mode=TwoWay}"
+                Visibility="{Binding FocusedEditorMode, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}"
                 VirtualizingPanel.IsVirtualizing="True"
                 VirtualizingPanel.VirtualizationMode="Recycling"
                 VirtualizingPanel.ScrollUnit="Pixel"
@@ -85,6 +85,52 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+
+            <!-- Focused Editor mode: single item with navigation -->
+            <Grid Grid.Row="1"
+                  Visibility="{Binding FocusedEditorMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Navigation bar -->
+                <Border Padding="8,4" Background="{DynamicResource SubtleFillColorTertiaryBrush}">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <ui:Button Padding="6,4" Appearance="Transparent" Command="{Binding FocusedPreviousCommand}" ToolTip="Previous (K/↑)">
+                                <ui:SymbolIcon Symbol="ChevronUp20"/>
+                            </ui:Button>
+                            <ui:Button Padding="6,4" Appearance="Transparent" Command="{Binding FocusedNextCommand}" ToolTip="Next (J/↓)">
+                                <ui:SymbolIcon Symbol="ChevronDown20"/>
+                            </ui:Button>
+                            <TextBlock Margin="12,0,0,0" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                                <Run Text="{Binding FocusedIndex, Mode=OneWay, StringFormat='{}{0}'}"/><Run Text=" / "/><Run Text="{Binding PagingController.Data.Count, Mode=OneWay, FallbackValue=0}"/>
+                            </TextBlock>
+                        </StackPanel>
+                        <ui:Button HorizontalAlignment="Right" Padding="6,4" Appearance="Transparent"
+                                   Command="{Binding ToggleFocusedEditorCommand}" ToolTip="Exit focused mode">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Dismiss16" Margin="0,0,4,0"/>
+                                <TextBlock Text="Exit" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ui:Button>
+                    </Grid>
+                </Border>
+
+                <!-- Single focused item -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="12">
+                    <ContentControl
+                        HorizontalAlignment="Stretch"
+                        Content="{Binding ZenCurrentItem, Mode=OneWay}">
+                        <ContentControl.ContentTemplate>
+                            <DataTemplate>
+                                <local:TranslationItemView DataContext="{Binding}" UpdateLanguageValue="LanguageValue_KeyUp"/>
+                            </DataTemplate>
+                        </ContentControl.ContentTemplate>
+                    </ContentControl>
+                </ScrollViewer>
+            </Grid>
 
             <StatusBar
                 x:Name="RootStatusBar"

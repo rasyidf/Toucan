@@ -10,201 +10,164 @@
     xmlns:loc="clr-namespace:Toucan.Locales"
     Margin="{StaticResource PanelMargin}"
     d:Background="White"
-    d:DesignHeight="32"
+    d:DesignHeight="36"
     d:DesignWidth="600"
     mc:Ignorable="d">
-    <ui:Card Margin="{StaticResource PanelMargin}" Padding="{StaticResource ToolbarButtonMargin}">
+    <Border
+        Padding="8,4"
+        BorderThickness="0,0,0,1"
+        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
         <Grid>
-            <StackPanel Margin="{StaticResource PanelMargin}" Orientation="Horizontal" HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
 
-            <!--  Group: File actions (new/open/save)  -->
-            <ui:Button
-                Margin="{StaticResource ToolbarButtonMargin}"
-                Padding="{StaticResource ToolbarButtonPadding}"
-                Appearance="Transparent"
-                Command="{Binding NewFolderCommand}"
-                ToolTip="{x:Static loc:Strings.Tooltip_NewProject}">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="DocumentAdd20" />
-                </ui:Button.Icon>
-            </ui:Button>
+                <!--  Group: File (New, Open+Chevron, Save)  -->
+                <Border
+                    Margin="{StaticResource ToolbarButtonMargin}"
+                    Padding="2"
+                    CornerRadius="6"
+                    Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:Button
+                            Padding="{StaticResource ToolbarButtonPadding}"
+                            Appearance="Transparent"
+                            Command="{Binding NewFolderCommand}"
+                            ToolTip="{x:Static loc:Strings.Tooltip_NewProject}">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="DocumentAdd20" />
+                            </ui:Button.Icon>
+                        </ui:Button>
+                        <ui:Button
+                            Padding="{StaticResource ToolbarButtonPadding}"
+                            Appearance="Transparent"
+                            Command="{Binding OpenFolderCommand}"
+                            ToolTip="{x:Static loc:Strings.Tooltip_OpenProject}">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="FolderOpen20" />
+                            </ui:Button.Icon>
+                        </ui:Button>
+                        <ui:Button
+                            x:Name="OpenDropDown"
+                            Padding="2,4"
+                            Appearance="Transparent"
+                            ToolTip="Open recent projects"
+                            Click="OpenDropDown_Click">
+                            <ui:Button.ContextMenu>
+                                <ContextMenu
+                                    ItemsSource="{Binding RecentProjects}"
+                                    MinWidth="220">
+                                    <ContextMenu.ItemContainerStyle>
+                                        <Style TargetType="MenuItem">
+                                            <Setter Property="Header" Value="{Binding Path}" />
+                                            <Setter Property="Command" Value="{Binding DataContext.OpenRecentProjectCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                            <Setter Property="CommandParameter" Value="{Binding Path}" />
+                                        </Style>
+                                    </ContextMenu.ItemContainerStyle>
+                                </ContextMenu>
+                            </ui:Button.ContextMenu>
+                            <ui:SymbolIcon Symbol="ChevronDown16" FontSize="10" />
+                        </ui:Button>
+                        <ui:Button
+                            Padding="{StaticResource ToolbarButtonPadding}"
+                            Appearance="Transparent"
+                            Command="{Binding SaveCommand}"
+                            ToolTip="{x:Static loc:Strings.Tooltip_Save}">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="Save20" />
+                            </ui:Button.Icon>
+                        </ui:Button>
+                    </StackPanel>
+                </Border>
 
-            <!--  Open: split button with recent projects flyout  -->
-            <Border
-                Margin="{StaticResource ToolbarButtonMargin}"
-                CornerRadius="4"
-                Background="Transparent"
-                BorderThickness="0">
-                <StackPanel Orientation="Horizontal">
-                    <ui:Button
-                        Padding="{StaticResource ToolbarButtonPadding}"
-                        Appearance="Transparent"
-                        Command="{Binding OpenFolderCommand}"
-                        ToolTip="{x:Static loc:Strings.Tooltip_OpenProject}">
-                        <ui:Button.Icon>
-                            <ui:SymbolIcon Symbol="FolderOpen20" />
-                        </ui:Button.Icon>
-                    </ui:Button>
-                    <ui:Button
-                        x:Name="OpenDropDown"
-                        Padding="2,4"
-                        Appearance="Transparent"
-                        ToolTip="Open recent projects"
-                        Click="OpenDropDown_Click">
-                        <ui:Button.ContextMenu>
-                            <ContextMenu
-                                ItemsSource="{Binding RecentProjects}"
-                                MinWidth="220">
-                                <ContextMenu.ItemContainerStyle>
-                                    <Style TargetType="MenuItem">
-                                        <Setter Property="Header" Value="{Binding Path}" />
-                                        <Setter Property="Command" Value="{Binding DataContext.OpenRecentProjectCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
-                                        <Setter Property="CommandParameter" Value="{Binding Path}" />
-                                    </Style>
-                                </ContextMenu.ItemContainerStyle>
-                            </ContextMenu>
-                        </ui:Button.ContextMenu>
-                        <ui:SymbolIcon Symbol="ChevronDown16" FontSize="10" />
-                    </ui:Button>
-                </StackPanel>
-            </Border>
+                <!--  Group: Edit (Add ID, Delete ID)  -->
+                <Border
+                    Margin="{StaticResource ToolbarButtonMargin}"
+                    Padding="2"
+                    CornerRadius="6"
+                    Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:Button
+                            Padding="{StaticResource ToolbarButtonPadding}"
+                            Appearance="Transparent"
+                            Command="{Binding NewItemCommand}"
+                            ToolTip="Add ID">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="Add20" />
+                            </ui:Button.Icon>
+                        </ui:Button>
+                        <ui:Button
+                            Padding="{StaticResource ToolbarButtonPadding}"
+                            Appearance="Transparent"
+                            Command="{Binding DeleteItemCommand}"
+                            ToolTip="Remove ID">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="Delete20" />
+                            </ui:Button.Icon>
+                        </ui:Button>
+                    </StackPanel>
+                </Border>
 
-            <ui:Button
-                Margin="{StaticResource ToolbarButtonMargin}"
-                Padding="{StaticResource ToolbarButtonPadding}"
-                Appearance="Transparent"
-                Command="{Binding SaveCommand}"
-                ToolTip="{x:Static loc:Strings.Tooltip_Save}">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Save20" />
-                </ui:Button.Icon>
-            </ui:Button>
+                <!--  Group: Translate (Pre-translate, Filter)  -->
+                <Border
+                    Margin="{StaticResource ToolbarButtonMargin}"
+                    Padding="2"
+                    CornerRadius="6"
+                    Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:Button
+                            Padding="{StaticResource ToolbarButtonPadding}"
+                            Appearance="Transparent"
+                            Command="{Binding PreTranslateBulkCommand}"
+                            ToolTip="Pre-translate">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="Translate20" />
+                            </ui:Button.Icon>
+                        </ui:Button>
+                        <ui:Button
+                            Padding="{StaticResource ToolbarButtonPadding}"
+                            Appearance="Transparent"
+                            Command="{Binding SetFilterCommand}"
+                            ToolTip="Set Filter">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="Filter20" />
+                            </ui:Button.Icon>
+                        </ui:Button>
+                    </StackPanel>
+                </Border>
 
-            <Separator Margin="{StaticResource ToolbarSeparatorMargin}" />
-
-            <!--  Group: Edit (add/remove ids)  -->
-            <ui:Button
-                Margin="{StaticResource ToolbarButtonMargin}"
-                Padding="{StaticResource ToolbarButtonPadding}"
-                Appearance="Transparent"
-                Command="{Binding NewItemCommand}"
-                ToolTip="Add ID">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Add20" />
-                </ui:Button.Icon>
-            </ui:Button>
-            <ui:Button
-                Margin="{StaticResource ToolbarButtonMargin}"
-                Padding="{StaticResource ToolbarButtonPadding}"
-                Appearance="Transparent"
-                Command="{Binding DeleteItemCommand}"
-                ToolTip="Remove ID">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Delete20" />
-                </ui:Button.Icon>
-            </ui:Button>
-
-            <Separator Margin="{StaticResource ToolbarSeparatorMargin}" />
-
-            <!--  Group: Filters / pre-translate / statistics  -->
-            <ui:Button
-                Margin="{StaticResource ToolbarButtonMargin}"
-                Padding="{StaticResource ToolbarButtonPadding}"
-                Appearance="Transparent"
-                Command="{Binding ToggleLanguagesVisibilityCommand}"
-                ToolTip="Project languages">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Book20" />
-                </ui:Button.Icon>
-            </ui:Button>
-
-            <ui:Button
-                Margin="{StaticResource ToolbarButtonMargin}"
-                Padding="{StaticResource ToolbarButtonPadding}"
-                Appearance="Transparent"
-                Command="{Binding ShowPreferencesCommand}"
-                ToolTip="Configuration">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Settings20" />
-                </ui:Button.Icon>
-            </ui:Button>
-
-            <ui:Button
-                Margin="{StaticResource ToolbarButtonMargin}"
-                Padding="{StaticResource ToolbarButtonPadding}"
-                Appearance="Transparent"
-                Command="{Binding PreTranslateBulkCommand}"
-                ToolTip="Pre-translate">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Translate20" />
-                </ui:Button.Icon>
-            </ui:Button>
-
-            <ui:Button
-                Margin="{StaticResource ToolbarButtonMargin}"
-                Padding="{StaticResource ToolbarButtonPadding}"
-                Appearance="Transparent"
-                Command="{Binding GenerateStatisticsBulkCommand}"
-                ToolTip="Statistics">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="ChartMultiple20" />
-                </ui:Button.Icon>
-            </ui:Button>
-
-            <Separator Margin="{StaticResource ToolbarSeparatorMargin}" />
-
-            <!--  Group: Source and filter  -->
-            <ui:Button
-                Margin="{StaticResource ToolbarButtonMargin}"
-                Padding="{StaticResource ToolbarButtonPadding}"
-                Appearance="Transparent"
-                Command="{Binding ToggleAdvancedOptionsCommand}"
-                ToolTip="Show source">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Code20" />
-                </ui:Button.Icon>
-            </ui:Button>
-
-            <ui:Button
-                Margin="{StaticResource ToolbarButtonMargin}"
-                Padding="{StaticResource ToolbarButtonPadding}"
-                Appearance="Transparent"
-                Command="{Binding SetFilterCommand}"
-                ToolTip="Set Filter">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="Filter20" />
-                </ui:Button.Icon>
-            </ui:Button>
-
-            <Separator Margin="{StaticResource ToolbarSeparatorMargin}" />
-
-            <!--  Group: Panels  -->
-            <ui:Button
-                Margin="{StaticResource ToolbarButtonMargin}"
-                Padding="{StaticResource ToolbarButtonPadding}"
-                Appearance="Transparent"
-                Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleSidebarCommand}"
-                ToolTip="{x:Static loc:Strings.Tooltip_ToggleSidebar}">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="PanelLeft20" />
-                </ui:Button.Icon>
-            </ui:Button>
-
-            <ui:Button
-                Margin="{StaticResource ToolbarButtonMargin}"
-                Padding="{StaticResource ToolbarButtonPadding}"
-                Appearance="Transparent"
-                Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleInspectorCommand}"
-                ToolTip="{x:Static loc:Strings.Tooltip_ToggleInspector}">
-                <ui:Button.Icon>
-                    <ui:SymbolIcon Symbol="PanelRight20" />
-                </ui:Button.Icon>
-            </ui:Button>
+                <!--  Group: Panels (Toggle Sidebar, Toggle Inspector)  -->
+                <Border
+                    Margin="{StaticResource ToolbarButtonMargin}"
+                    Padding="2"
+                    CornerRadius="6"
+                    Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:Button
+                            Padding="{StaticResource ToolbarButtonPadding}"
+                            Appearance="Transparent"
+                            Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleSidebarCommand}"
+                            ToolTip="{x:Static loc:Strings.Tooltip_ToggleSidebar}">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="PanelLeft20" />
+                            </ui:Button.Icon>
+                        </ui:Button>
+                        <ui:Button
+                            Padding="{StaticResource ToolbarButtonPadding}"
+                            Appearance="Transparent"
+                            Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleInspectorCommand}"
+                            ToolTip="{x:Static loc:Strings.Tooltip_ToggleInspector}">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="PanelRight20" />
+                            </ui:Button.Icon>
+                        </ui:Button>
+                    </StackPanel>
+                </Border>
 
             </StackPanel>
+
+            <!--  ModeSelectorBar on the right  -->
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
                 <views:ModeSelectorBar VerticalAlignment="Center" Margin="0,0,8,0" />
             </StackPanel>
         </Grid>
-    </ui:Card>
+    </Border>
 </UserControl>

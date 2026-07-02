@@ -1,0 +1,54 @@
+<UserControl
+    x:Class="Toucan.Views.Settings.LanguagesSettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <StackPanel>
+        <TextBlock Text="Languages" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Suggested Languages</TextBlock>
+        <TextBlock Text="These languages appear when clicking 'Add suggested' in the New Project dialog." FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,12"/>
+
+        <ui:CardControl Margin="0,0,0,12">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Add24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Add language" FontWeight="SemiBold"/>
+                        <TextBlock Text="Type a language code and press Add" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <StackPanel Orientation="Horizontal">
+                <ui:TextBox x:Name="NewSuggestedLangBox" Width="140" PlaceholderText="e.g. de-DE"/>
+                <ui:Button Content="Add" Margin="8,0,0,0" Appearance="Primary" Click="AddSuggestedLanguage_Click"/>
+            </StackPanel>
+        </ui:CardControl>
+
+        <ItemsControl x:Name="SuggestedLanguagesList" ItemsSource="{Binding SuggestedLanguages}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                            CornerRadius="4" Margin="0,2" Padding="12,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Symbol="Globe16" Margin="0,0,10,0" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding}" FontSize="13" VerticalAlignment="Center"/>
+                            <ui:Button Grid.Column="2" Padding="4,2" Appearance="Transparent"
+                                       ToolTip="Remove"
+                                       Command="{Binding DataContext.RemoveSuggestedLanguageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       CommandParameter="{Binding}">
+                                <ui:SymbolIcon Symbol="Dismiss16" FontSize="12"/>
+                            </ui:Button>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>

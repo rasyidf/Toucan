@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
@@ -21,7 +22,7 @@ public class GoogleTranslationProvider : ITranslationProvider
             apiKey = _api;
         apiKey ??= Environment.GetEnvironmentVariable("GOOGLE_TRANSLATE_API_KEY");
 
-        // Http fallback: if no API key available, return mock-style translations so app remains usable in offline/dev
+        // Http fallback: if no API key available, report failure so app doesn't save mock translations
         if (string.IsNullOrWhiteSpace(apiKey))
         {
             foreach (var job in jobs)
@@ -32,8 +33,9 @@ public class GoogleTranslationProvider : ITranslationProvider
                     Language = job.TargetLanguage,
                     Provider = Name,
                     SourceText = job.SourceText,
-                    Succeeded = !string.IsNullOrEmpty(job.SourceText),
-                    TranslatedValue = !string.IsNullOrEmpty(job.SourceText) ? $"[google/{job.TargetLanguage}] {job.SourceText}" : null
+                    Succeeded = false,
+                    TranslatedValue = null,
+                    ErrorMessage = "No API key configured"
                 });
             }
 
@@ -61,8 +63,8 @@ public class GoogleTranslationProvider : ITranslationProvider
 
             try
             {
-                var targetLang = job.TargetLanguage.Split('-')[0];
-                var sourceLang = string.IsNullOrEmpty(job.SourceLanguage) ? null : job.SourceLanguage.Split('-')[0];
+                var targetLang = job.TargetLanguage;
+                var sourceLang = string.IsNullOrEmpty(job.SourceLanguage) ? null : job.SourceLanguage;
 
                 var url = "https://translation.googleapis.com/language/translate/v2?key=" + Uri.EscapeDataString(apiKey);
 
@@ -82,7 +84,7 @@ public class GoogleTranslationProvider : ITranslationProvider
 
                 using var stream = await resp.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
                 using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
-                var translated = doc.RootElement.GetProperty("data").GetProperty("translations")[0].GetProperty("translatedText").GetString();
+                var translated = WebUtility.HtmlDecode(doc.RootElement.GetProperty("data").GetProperty("translations")[0].GetProperty("translatedText").GetString());
 
                 results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage, Provider = Name, SourceText = job.SourceText, Succeeded = true, TranslatedValue = translated });
                 processed++;

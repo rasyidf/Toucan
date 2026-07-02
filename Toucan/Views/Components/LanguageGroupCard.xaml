@@ -1,0 +1,154 @@
+<UserControl
+    x:Class="Toucan.Views.Components.LanguageGroupCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:components="clr-namespace:Toucan.Views.Components"
+    xmlns:converters="clr-namespace:Toucan.Converters"
+    xmlns:loc="clr-namespace:Toucan.Locales"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    x:Name="Root">
+
+    <UserControl.Resources>
+        <converters:LanguageNameConverter x:Key="LanguageConverter" />
+    </UserControl.Resources>
+
+    <ui:CardExpander
+        Margin="1,2"
+        Padding="1"
+        CornerRadius="4"
+        IsExpanded="{Binding IsExpanded}"
+        Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+
+        <!--  Right-click context menu on the card  -->
+        <ui:CardExpander.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Pre-translate">
+                    <MenuItem
+                        Command="{Binding PlacementTarget.Tag.PreTranslateLanguageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                        CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                        Header="Entire Language" />
+                    <MenuItem
+                        Command="{Binding PlacementTarget.Tag.PreTranslateNamespaceCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                        CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                        Header="By Namespace..." />
+                    <MenuItem
+                        Command="{Binding PlacementTarget.Tag.PreTranslateKeyCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                        CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                        Header="By Key..." />
+                </MenuItem>
+                <Separator />
+                <MenuItem
+                    Command="{Binding PlacementTarget.Tag.ApproveAllForLanguageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                    CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                    Header="Approve All" />
+                <MenuItem
+                    Command="{Binding PlacementTarget.Tag.GenerateStatisticsForLanguageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                    CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                    Header="Statistics" />
+                <Separator />
+                <MenuItem
+                    Command="{Binding PlacementTarget.Tag.DeleteLanguageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                    CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                    Header="Delete Language" />
+                <MenuItem
+                    Command="{Binding PlacementTarget.Tag.ManageLanguagesCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                    Header="Manage Languages..." />
+            </ContextMenu>
+        </ui:CardExpander.ContextMenu>
+
+        <!--  Header: language name left, progress+stats right  -->
+        <ui:CardExpander.Header>
+            <Grid Margin="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    FontSize="12"
+                    FontWeight="SemiBold"
+                    Text="{Binding Language, Converter={StaticResource LanguageConverter}}" />
+
+                <ProgressBar
+                    Grid.Column="2"
+                    Height="3"
+                    VerticalAlignment="Center"
+                    Maximum="100"
+                    Value="{Binding Percentage, FallbackValue=0, Mode=OneWay}" />
+
+                <TextBlock
+                    Grid.Column="3"
+                    Margin="6,0,0,0"
+                    VerticalAlignment="Center"
+                    FontSize="11"
+                    Opacity="0.7"
+                    Text="{Binding Percentage, StringFormat=\{0:F0\}%, FallbackValue=0%}" />
+
+                <TextBlock
+                    Grid.Column="4"
+                    Margin="4,0,0,0"
+                    VerticalAlignment="Center"
+                    FontSize="11"
+                    Opacity="0.5"
+                    Text="{Binding TranslatedStats}" />
+            </Grid>
+        </ui:CardExpander.Header>
+
+        <!--  Expanded: clickable status breakdown  -->
+        <StackPanel Margin="0">
+            <components:TranslationRow
+                BadgeAppearance="Success"
+                Count="{Binding Translated}"
+                FilterCommand="{Binding DataContext.FilterByLanguageStatusCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                FilterStatusKey="translated"
+                Icon="Checkmark16"
+                IconColor="#4CAF50"
+                Label="{x:Static loc:Strings.LangStatus_Translated}"
+                LanguageCode="{Binding Language}"
+                SecondaryCommand="{Binding DataContext.ApproveAllForLanguageCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                SecondaryCommandParameter="{Binding}"
+                SecondaryHeader="Approve All Translated" />
+
+            <components:TranslationRow
+                BadgeAppearance="Caution"
+                Count="{Binding Empty}"
+                FilterCommand="{Binding DataContext.FilterByLanguageStatusCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                FilterStatusKey="empty"
+                Icon="Warning16"
+                IconColor="#FF9800"
+                Label="{x:Static loc:Strings.LangStatus_Empty}"
+                LanguageCode="{Binding Language}"
+                SecondaryCommand="{Binding DataContext.PreTranslateLanguageCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                SecondaryCommandParameter="{Binding}"
+                SecondaryHeader="Pre-translate Missing" />
+
+            <components:TranslationRow
+                BadgeAppearance="Info"
+                Count="{Binding NeedsReview}"
+                FilterCommand="{Binding DataContext.FilterByLanguageStatusCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                FilterStatusKey="needsreview"
+                Icon="ChatWarning16"
+                IconColor="#2196F3"
+                Label="{x:Static loc:Strings.LangStatus_NeedsReview}"
+                LanguageCode="{Binding Language}"
+                SecondaryCommand="{Binding DataContext.ApproveAllForLanguageCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                SecondaryCommandParameter="{Binding}"
+                SecondaryHeader="Approve All" />
+
+            <components:TranslationRow
+                BadgeAppearance="Success"
+                Count="{Binding Approved}"
+                FilterCommand="{Binding DataContext.FilterByLanguageStatusCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                FilterStatusKey="approved"
+                Icon="ShieldCheckmark16"
+                IconColor="#8BC34A"
+                Label="{x:Static loc:Strings.LangStatus_Approved}"
+                LanguageCode="{Binding Language}" />
+        </StackPanel>
+    </ui:CardExpander>
+</UserControl>

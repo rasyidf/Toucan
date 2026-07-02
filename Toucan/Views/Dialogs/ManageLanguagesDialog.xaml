@@ -14,7 +14,7 @@
     MinWidth="420"
     MinHeight="380"
     WindowStartupLocation="CenterOwner"
-    WindowBackdropType="Tabbed"
+    WindowBackdropType="Mica"
     WindowCornerPreference="Round"
     ExtendsContentIntoTitleBar="True"
     d:DataContext="{d:DesignInstance Type=vm:LanguageManagerViewModel}"
@@ -25,7 +25,7 @@
         <converters:InvertBoolConverter x:Key="InvertBool" />
     </ui:FluentWindow.Resources>
 
-    <Grid>
+    <Grid FocusManager.FocusedElement="{Binding ElementName=AddLanguageBox}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -69,7 +69,8 @@
                     Padding="8,6"
                     Appearance="Primary"
                     Click="AddButton_Click"
-                    ToolTip="Add selected language">
+                    ToolTip="Add selected language"
+                    AutomationProperties.Name="Add selected language">
                     <ui:SymbolIcon Symbol="Add16" />
                 </ui:Button>
             </Grid>
@@ -149,7 +150,8 @@
                                         Command="{Binding DataContext.RemoveLanguageCommand, ElementName=LanguageManagerRoot}"
                                         CommandParameter="{Binding}"
                                         IsEnabled="{Binding IsPrimary, Converter={StaticResource InvertBool}}"
-                                        ToolTip="Remove language">
+                                        ToolTip="Remove language"
+                                        AutomationProperties.Name="Remove language">
                                         <ui:SymbolIcon Symbol="Delete16" FontSize="14" />
                                     </ui:Button>
                                 </Grid>

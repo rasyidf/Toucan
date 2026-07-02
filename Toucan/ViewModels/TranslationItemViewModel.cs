@@ -14,6 +14,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     private string _valueBeforeEdit = string.Empty;
     private readonly TranslationItem? _model;
     private readonly IUndoRedoService? _undoRedoService;
+    private readonly ITranslationManagementService? _translationManagement;
 
     // ponytail: lazy timer — only created when user actually edits. Eliminates 300+ idle timers.
     private DispatcherTimer? _debounceTimer;
@@ -23,9 +24,10 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         _model = null;
     }
 
-    public TranslationItemViewModel(TranslationItem model, IUndoRedoService? undoRedoService = null)
+    public TranslationItemViewModel(TranslationItem model, IUndoRedoService? undoRedoService = null, ITranslationManagementService? translationManagement = null)
     {
         _undoRedoService = undoRedoService;
+        _translationManagement = translationManagement;
         _model = model;
         _value = model?.Value ?? string.Empty;
         _valueBeforeEdit = _value;
@@ -86,7 +88,14 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     {
         if (_model != null && _valueBeforeEdit != _value)
             _undoRedoService?.Record(_model.Namespace, _model.Language, _valueBeforeEdit, _value);
-        if (_model != null) _model.Value = _value;
+        if (_model != null)
+        {
+            // Notify the management service so dirty tracking picks up the change
+            if (_translationManagement != null)
+                _translationManagement.NotifyValueChanged(_model, _value);
+            else
+                _model.Value = _value;
+        }
         _valueBeforeEdit = _value;
     }
 

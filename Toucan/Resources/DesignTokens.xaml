@@ -9,13 +9,17 @@
     <sys:Double x:Key="XLargeSpacing">16</sys:Double>
 
     <!-- Margins (Thickness) -->
-    <Thickness x:Key="ToolbarButtonMargin">4,0</Thickness>
-    <Thickness x:Key="ToolbarSeparatorMargin">6,0</Thickness>
+    <Thickness x:Key="ToolbarButtonMargin">2,0,2,0</Thickness>
+    <Thickness x:Key="ToolbarSeparatorMargin">4,4,4,4</Thickness>
     <Thickness x:Key="CardContentPadding">8</Thickness>
-    <Thickness x:Key="PanelMargin">0</Thickness>
+    <Thickness x:Key="PanelMargin">4,4,4,4</Thickness>
     <Thickness x:Key="SectionMargin">0,0,0,8</Thickness>
     <Thickness x:Key="DialogContentMargin">16,0,16,0</Thickness>
     <Thickness x:Key="DialogFooterMargin">12,8,12,8</Thickness>
+    <Thickness x:Key="DialogPadding">24,16,24,16</Thickness>
+    <Thickness x:Key="CardSpacing">0,0,0,4</Thickness>
+    <Thickness x:Key="SectionSpacing">0,16,0,0</Thickness>
+    <Thickness x:Key="FooterMargin">12,8,12,8</Thickness>
 
     <!-- Corner Radius -->
     <CornerRadius x:Key="SmallRadius">2</CornerRadius>
@@ -24,10 +28,16 @@
     <CornerRadius x:Key="XLargeRadius">8</CornerRadius>
 
     <!-- Sizing -->
-    <Thickness x:Key="ToolbarButtonPadding">4</Thickness>
+    <Thickness x:Key="ToolbarButtonPadding">6,4,6,4</Thickness>
     <sys:Double x:Key="IconSize">16</sys:Double>
     <sys:Double x:Key="TitleBarSearchWidth">206</sys:Double>
     <sys:Double x:Key="TitleBarSearchHeight">32</sys:Double>
     <sys:Double x:Key="LeftPanelWidth">320</sys:Double>
+
+    <!-- Typography -->
+    <sys:Double x:Key="PageTitleFontSize">24</sys:Double>
+    <sys:Double x:Key="SectionTitleFontSize">14</sys:Double>
+    <sys:Double x:Key="CaptionFontSize">11</sys:Double>
+    <sys:Double x:Key="BodyFontSize">13</sys:Double>
 
 </ResourceDictionary>

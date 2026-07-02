@@ -15,7 +15,8 @@ public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy
         foreach (var (language, list) in context.LanguageDictionary)
         {
             var root = new Dictionary<string, object>();
-            foreach (var item in list.NoEmpty())
+            // ponytail: sort by namespace so JSON keys are stable across saves (reduces VCS noise)
+            foreach (var item in list.NoEmpty().OrderBy(i => i.Namespace, StringComparer.Ordinal))
             {
                 SetNestedValue(root, item.Namespace, item.Value ?? string.Empty);
             }

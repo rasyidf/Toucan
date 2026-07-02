@@ -76,7 +76,7 @@ public class ProviderSettingsService : IProviderSettingsService
                 foreach (string key in keys)
                 {
                     string cipher = s.Secrets[key];
-                    s.Secrets[key] = _secure.Unprotect(cipher);
+                    s.Secrets[key] = string.IsNullOrEmpty(cipher) ? string.Empty : _secure.Unprotect(cipher);
                 }
             }
 
@@ -90,12 +90,14 @@ public class ProviderSettingsService : IProviderSettingsService
 
     private void SaveToFile(string file, IEnumerable<ProviderSettings> settings)
     {
-        // encrypt secrets before writing
+        // encrypt secrets before writing (skip empty values — no point encrypting nothing)
         var copy = settings.Select(s => new ProviderSettings
         {
             Provider = s.Provider,
             Options = new Dictionary<string, string>(s.Options),
-            Secrets = s.Secrets.ToDictionary(kvp => kvp.Key, kvp => _secure.Protect(kvp.Value))
+            Secrets = s.Secrets.ToDictionary(
+                kvp => kvp.Key,
+                kvp => string.IsNullOrEmpty(kvp.Value) ? string.Empty : _secure.Protect(kvp.Value))
         }).ToList();
 
         string json = JsonSerializer.Serialize(copy, JsonOptions);

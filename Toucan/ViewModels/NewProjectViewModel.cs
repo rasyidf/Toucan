@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
@@ -78,6 +79,10 @@ public partial class NewProjectViewModel : ObservableObject
         _dialogService = dialogService;
         SelectedFramework = Frameworks[0];
 
+        // ponytail: default folder in Documents/Toucan so user can click Next without browsing
+        _defaultBaseFolder = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan");
+
         try
         {
             AppOptions opts = Toucan.Core.Options.AppOptions.LoadFromDisk();
@@ -90,11 +95,16 @@ public partial class NewProjectViewModel : ObservableObject
             Languages.Add("en-US");
         }
 
+        ProjectName = "my-project";
+        ProjectFolder = System.IO.Path.Combine(_defaultBaseFolder, ProjectName);
+
         Languages?.CollectionChanged += (s, e) => OnPropertyChanged(nameof(IsValid));
     }
 
+    private readonly string _defaultBaseFolder;
+
     [RelayCommand]
-    private void NextStep()
+    private async Task NextStep()
     {
         if (WizardStep == 0 && SelectedFramework != null && !string.IsNullOrWhiteSpace(ProjectFolder))
         {
@@ -104,11 +114,41 @@ public partial class NewProjectViewModel : ObservableObject
                 ProjectName = SelectedFramework.Name + "-i18n";
             }
 
+            // Check if folder already has a toucan.project (existing project)
+            var manifestPath = System.IO.Path.Combine(ProjectFolder, "toucan.tproj");
+            if (System.IO.File.Exists(manifestPath))
+            {
+                // ponytail: prompt user — import existing or overwrite
+                var msg = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = "Existing Project Found",
+                    Content = $"The folder already contains a Toucan project.\n\nUse 'Open' to import the existing project, or 'Overwrite' to create a new one.",
+                    PrimaryButtonText = "Overwrite",
+                    SecondaryButtonText = "Open Existing",
+                    CloseButtonText = "Cancel"
+                };
+                var result = await msg.ShowDialogAsync();
+                if (result == Wpf.Ui.Controls.MessageBoxResult.Secondary)
+                {
+                    // Signal to caller to open existing project instead
+                    _openExistingPath = ProjectFolder;
+                    return;
+                }
+                if (result != Wpf.Ui.Controls.MessageBoxResult.Primary)
+                {
+                    return; // cancelled
+                }
+            }
+
             WizardStep = 1;
             OnPropertyChanged(nameof(IsStep0));
             OnPropertyChanged(nameof(IsStep1));
         }
     }
+
+    /// <summary>If set after NextStep, the caller should open this path instead of creating a new project.</summary>
+    public string? OpenExistingPath => _openExistingPath;
+    private string? _openExistingPath;
 
     [RelayCommand]
     private void PreviousStep()
@@ -181,7 +221,16 @@ public partial class NewProjectViewModel : ObservableObject
         }
     }
 
-    partial void OnProjectNameChanged(string value) => OnPropertyChanged(nameof(IsValid));
+    partial void OnProjectNameChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsValid));
+        // Auto-update folder path if it's still using the default base
+        if (!string.IsNullOrWhiteSpace(value) && !string.IsNullOrEmpty(_defaultBaseFolder) &&
+            (string.IsNullOrWhiteSpace(ProjectFolder) || ProjectFolder.StartsWith(_defaultBaseFolder, StringComparison.OrdinalIgnoreCase)))
+        {
+            ProjectFolder = System.IO.Path.Combine(_defaultBaseFolder, value.Trim().Replace(' ', '-'));
+        }
+    }
     partial void OnProjectFolderChanged(string value) => OnPropertyChanged(nameof(IsValid));
 
     partial void OnSelectedFrameworkChanged(FrameworkTile? value)

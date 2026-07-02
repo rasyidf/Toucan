@@ -1,80 +1,119 @@
 <div align="center">
   <img width="64" height="64" src="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png" alt="Toucan Icon" style="margin-bottom: 8px"/>
   <h1 style="font-size: 36px; line-height: 1.2; font-weight: 700; margin-top: 0; margin-bottom: 8px;">Toucan</h1>
-  <p>A modern, user-friendly <strong>JSON Language Resource (i18n) Editor</strong> designed for <strong>Windows</strong>.</p>
-  <p>Toucan simplifies the process of managing and translating internationalization files, making localization easier for developers and translators.</p>
+  <p>A professional <strong>translation resource editor</strong> for developers and localization teams.</p>
+  <p>14 formats · 4 AI providers · translation memory · source code scanning · offline-first.</p>
 </div>
 
-![Main Screenshot of Toucan](https://user-images.githubusercontent.com/28984914/232173538-302fa946-5bb5-47a0-aafa-fa0d335639c5.png)
+---
 
-## Key Benefits
+## What is Toucan?
 
-* **Boost Localization Speed:** Manage multiple language translations side-by-side in one clear interface.
-* **Intuitive Workflow:** Edit JSON resource files directly without manual file manipulation.
-* **Designed for Windows:** A native application experience that integrates seamlessly with your desktop environment.
-* **Future-Proof:** Built with planned features like AI-powered suggestions and translation memory to further enhance efficiency.
+Toucan is a desktop i18n editor that handles every format your project uses — JSON, YAML, PO, RESX, Android XML, iOS .strings, XLIFF, ARB, CSV, TOML, INI, Java .properties, Laravel PHP, and Excel. It provides a unified workspace where you can translate, review, and validate all your language files without switching tools.
+
+Built for Windows with WPF and Fluent Design (Mica backdrop, system theme).
 
 ---
 
-## Features
+## Key Features
 
-1.  **JSON Language Resource Editing:** Clean, structured editing of JSON i18n files.
-2.  **Support for Multiple Languages:** Translate and manage all your project languages within a single view.
-3.  **Default language preferences:** Set a per-user default language in Settings → Options. New projects will default to this language (default: en-US).
-3.  **User-Friendly Interface:** A clear, modern design focusing on translator efficiency.
-4.  **In-line Translation Editor:** Easily edit source and target language values side-by-side.
-5.  **Translation Suggestions using AI** (Awaiting Implementation)
-6.  **Translation Memory** for frequently used phrases (Awaiting Implementation)
-7.  **Import/Export Options** for language resources (Awaiting Implementation)
-8.  **Version Control** for language resources (Awaiting Implementation)
-9.  **Integrations** with popular translation platforms (Awaiting Implementation)
+### Multi-Format Support
+Load and save 14 translation formats. Auto-detect framework on folder drop (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, and more). Import from `.babel` projects.
 
----
+### Editor Modes
+- **Editor** — translate with inline suggestions and translation memory
+- **Review** — approve/reject with validation warnings, auto-filters unapproved items
+- **Audit** — read-only view with approval state and change history
 
-## Installation
+### Machine Translation
+Pre-translate using Google Translate, DeepL, Microsoft Translator, or OpenAI. Preview before applying. Preserves placeholders (`{{var}}`, `{0}`, `%s`, `:param`), respects formality settings, and supports per-key/namespace/language targeting.
 
-Toucan is available for download on Windows.
+### Translation Memory
+Fuzzy matching with zero-allocation trigram engine. Reuses translations across projects. Suggests matches as you type.
 
-1.  Download the latest installer-executable from the **[Releases page on GitHub](https://github.com/rasyidf/Toucan/releases)**.
-2.  Run the downloaded file and follow the installation instructions.
+### Validation Pipeline
+6 built-in rules: missing translations, placeholder mismatches, duplicate keys, untranslated copies, empty values, whitespace mismatches. Runs on save and on-demand.
 
----
+### Source Code Integration
+Scans your codebase for `t('key')` patterns across `.tsx`, `.vue`, `.svelte`, `.py` and more. Filter used/unused keys. Double-click opens the source file in your editor.
 
-## How to Use
+### Three-Pane Layout
+VS Code-style workspace: tree/list sidebar · translation editor (paginated or infinite scroll) · inspector panel (stats, suggestions, details, validation). Zen mode for distraction-free editing.
 
-Get started with Toucan in a few simple steps:
+### Plural & Array Support
+i18next `_one/_other` suffixes and ICU plural forms. Array values in JSON. Gender form generation.
 
-1.  **Install** the application (see Installation section above).
-2.  **Open** an existing language resource folder containing your JSON files, or **create a new one** within the app.
-3.  **Translate** the key values in the target language columns.
-4.  **Save** your changes. Toucan automatically manages and updates your JSON files.
-
-For details about configuring translation providers (where API keys are stored and how to use app-level vs project-level overrides) see docs/Provider-Settings.md. For information about the pre-translation preview and progress UI see docs/Pretranslation-Preview.md.
+### Packages
+Manage multiple translation sets per project (e.g., `ui.json`, `errors.json`, `emails.json`).
 
 ---
 
-## Contribute
+## Quick Start
 
-We welcome contributions! Whether you're reporting a bug, suggesting a feature, or submitting a pull request, your help is appreciated.
+1. Download the latest release from **[GitHub Releases](https://github.com/rasyidf/Toucan/releases)**
+2. Run the installer
+3. Open a folder containing your translation files, or create a new project
+4. Translate, review, save
 
-* Report bugs or suggest features on our **[GitHub Issues tracker](https://github.com/rasyidf/Toucan/issues)**.
-* Send pull requests to our **[GitHub repository](https://github.com/rasyidf/Toucan)**.
+Toucan auto-detects your framework and organizes files accordingly.
+
+---
+
+## Configuration
+
+- **Provider settings:** App-level or project-level API keys, encrypted with DPAPI. See [docs/provider-settings.md](docs/provider-settings.md).
+- **Pre-translation preview:** Dry-run mode with explicit commit step. See [docs/pretranslation-preview.md](docs/pretranslation-preview.md).
+- **Default language:** Set per-user in Settings → Options (default: en-US).
+
+---
+
+## Roadmap
+
+### v1.0 (current) — Stability & Polish
+All 88 planned features complete. Focus on test coverage, performance profiling, and MSIX packaging.
+
+### v1.1 — Quality of Life
+- Auto-updater (stable/preview channels)
+- ConsistencyAI (batch-check translations for tone, placeholders, accuracy)
+- Enhanced translation memory (embedding-based similarity, inline ghost text, TMX import/export)
+- CLI tool (`toucan check`, `toucan translate`, `toucan export`, `toucan stats`)
+
+### v1.2 — Collaboration
+- Review workflow (Draft → Review → Approved → Published)
+- Git integration (branch awareness, diff per key, auto-commit)
+- Webhook notifications
+
+### v1.3 — Cross-Platform
+- Avalonia port (macOS + Linux)
+- Shared ViewModel layer
+
+### v2.0 — Extensibility
+- Plugin system (.dll assemblies, custom formats, custom providers, custom validation rules)
+- Platform imports (Crowdin, Lokalise, Phrase, Transifex)
+
+See [docs/todos/future-roadmap.md](docs/todos/future-roadmap.md) for full details.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| UI | WPF + [WPF UI](https://github.com/lepoco/wpfui) (Fluent Design) |
+| Architecture | MVVM (CommunityToolkit.Mvvm) |
+| Core | .NET 10, System.Text.Json |
+| Providers | Google, DeepL, Microsoft, OpenAI, Custom Webhook |
+| Format Engine | Strategy pattern (ILoadStrategy / ISaveStrategy) |
+
+---
+
+## Contributing
+
+- Report bugs or request features on **[GitHub Issues](https://github.com/rasyidf/Toucan/issues)**
+- Pull requests welcome at **[github.com/rasyidf/Toucan](https://github.com/rasyidf/Toucan)**
 
 ---
 
 ## License
 
-Toucan is released under the **[MIT License](https://opensource.org/licenses/MIT)**.
-
----
-
-## Screenshots
-
-A closer look at the application interface:
-
-| Multi-Language View | Detail Editing View |
-| :---: | :---: |
-| ![Additional Screenshot 1](https://user-images.githubusercontent.com/28984914/232173511-a9bc8b54-cf52-4c40-a371-9fdbd9ecb1af.png) | ![Additional Screenshot 2](https://user-images.githubusercontent.com/28984914/232173526-f044ddc9-cdd2-44f4-ae32-bd07973850a3.png) |
-| ![Additional Screenshot 3](https://user-images.githubusercontent.com/28984914/232173616-9c6b637d-6fbe-427a-82e5-eb9dedc7ee2d.png) | |
-
-<br>
+[MIT](LICENSE.txt) © Rasyidf 2023–2026

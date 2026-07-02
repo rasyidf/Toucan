@@ -19,8 +19,8 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="12,5" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Padding" Value="8,3" />
+            <Setter Property="FontSize" Value="11" />
             <Setter Property="FontWeight" Value="Normal" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="VerticalAlignment" Value="Center" />
@@ -57,8 +57,8 @@
 
     <!-- Segmented control container -->
     <Border
-        Height="30"
-        CornerRadius="6"
+        Height="26"
+        CornerRadius="5"
         Background="{DynamicResource SubtleFillColorSecondaryBrush}"
         BorderThickness="1"
         BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"

@@ -8,229 +8,176 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:vm="clr-namespace:Toucan.ViewModels"
     Title="Pre-Translate"
-    Width="600"
-    Height="620"
+    Width="780"
+    Height="520"
+    MinWidth="650" MinHeight="400"
     WindowStartupLocation="CenterOwner"
+    ExtendsContentIntoTitleBar="True"
+    WindowBackdropType="Mica"
+    WindowCornerPreference="Round"
+    ResizeMode="CanResize"
     mc:Ignorable="d">
 
-    <Window.Resources>
-        <converters:StringEqualsConverter x:Key="StringEqualsConverter" />
-    </Window.Resources>
+    <ui:FluentWindow.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </ui:FluentWindow.Resources>
 
-    <!-- DataContext set in code-behind from injected VM -->
-
-    <Grid>
+    <Grid FocusManager.FocusedElement="{Binding ElementName=ProviderCombo}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="52"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="48"/>
         </Grid.RowDefinitions>
 
-        <ui:TitleBar
-            Title="Pre-Translate"
-            Height="44"
-            Padding="8,6">
+        <ui:TitleBar Title="Pre-Translate" Height="40" Padding="8,4">
             <ui:TitleBar.Header>
                 <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                    <TextBlock
-                        Margin="0,0,8,0"
-                        VerticalAlignment="Center"
-                        FontSize="15"
-                        Text="⚡" />
-                    <StackPanel>
-                        <TextBlock
-                            FontSize="13"
-                            FontWeight="SemiBold"
-                            Text="Pre-Translate" />
-                        <TextBlock
-                            FontSize="11"
-                            Foreground="Gray"
-                            Text="Quickly generate or preview translations for target languages" />
-                    </StackPanel>
+                    <ui:SymbolIcon Symbol="Flash20" Margin="0,0,8,0" VerticalAlignment="Center" FontSize="14"/>
+                    <TextBlock FontSize="13" FontWeight="SemiBold" Text="Pre-Translate" VerticalAlignment="Center"/>
                 </StackPanel>
             </ui:TitleBar.Header>
         </ui:TitleBar>
 
-        <ScrollViewer Grid.Row="1" Padding="16,12" VerticalScrollBarVisibility="Auto">
-            <StackPanel>
-                <!-- Provider Selection -->
-                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" Text="Translation Service"/>
+        <!-- Main dual-panel layout -->
+        <Grid Grid.Row="1" Margin="12,8,12,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-                <ui:CardControl Margin="0,0,0,4">
-                    <ui:CardControl.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="CloudSync24" Margin="0,0,12,0"/>
-                            <StackPanel>
-                                <TextBlock Text="Provider" FontWeight="SemiBold"/>
-                                <TextBlock Text="Select the translation service to use" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </ui:CardControl.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <RadioButton
-                            Margin="6,0"
-                            Content="Google"
-                            IsChecked="{Binding SelectedProvider, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Google}" />
-                        <RadioButton
-                            Margin="6,0"
-                            Content="DeepL"
-                            IsChecked="{Binding SelectedProvider, Converter={StaticResource StringEqualsConverter}, ConverterParameter=DeepL}" />
-                        <RadioButton
-                            Margin="6,0"
-                            Content="Microsoft"
-                            IsChecked="{Binding SelectedProvider, Converter={StaticResource StringEqualsConverter}, ConverterParameter=Microsoft}" />
-                        <RadioButton
-                            Margin="6,0"
-                            Content="OpenAI"
-                            IsChecked="{Binding SelectedProvider, Converter={StaticResource StringEqualsConverter}, ConverterParameter=OpenAI}" />
-                        <Button
-                            Width="30"
-                            Height="24"
-                            Margin="12,0,0,0"
-                            Command="{Binding OpenProviderSettingsCommand}"
-                            Content="⚙"
-                            ToolTip="Provider settings" />
+            <!-- LEFT: Configuration -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
+                <StackPanel>
+                    <!-- Provider -->
+                    <TextBlock FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6" Text="Provider"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <ComboBox x:Name="ProviderCombo" Width="160" SelectedValue="{Binding SelectedProvider, Mode=TwoWay}" SelectedValuePath="Content" IsEditable="False">
+                            <ComboBoxItem>Google</ComboBoxItem>
+                            <ComboBoxItem>DeepL</ComboBoxItem>
+                            <ComboBoxItem>Microsoft</ComboBoxItem>
+                            <ComboBoxItem>OpenAI</ComboBoxItem>
+                            <ComboBoxItem>Custom</ComboBoxItem>
+                        </ComboBox>
+                        <ui:Button Margin="6,0,0,0" Padding="6,6" Command="{Binding OpenProviderSettingsCommand}" ToolTip="Provider settings" AutomationProperties.Name="Provider settings">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="Settings20"/>
+                            </ui:Button.Icon>
+                        </ui:Button>
                     </StackPanel>
-                </ui:CardControl>
 
-                <!-- Target Languages -->
-                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8" Text="Target Languages"/>
+                    <!-- Languages -->
+                    <TextBlock FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6" Text="Target Languages"/>
+                    <Border BorderThickness="1" BorderBrush="{DynamicResource ControlElevationBorderBrush}" CornerRadius="4" Margin="0,0,0,12" MaxHeight="140">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding AvailableLanguages}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="8,2"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
 
-                <ui:CardControl Margin="0,0,0,4">
-                    <ui:CardControl.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Translate24" Margin="0,0,12,0"/>
-                            <StackPanel>
-                                <TextBlock Text="Languages to translate" FontWeight="SemiBold"/>
-                                <TextBlock Text="Select which languages to generate translations for" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </ui:CardControl.Header>
-                </ui:CardControl>
+                    <!-- Options -->
+                    <TextBlock FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6" Text="Options"/>
+                    <StackPanel Margin="0,0,0,8">
+                        <CheckBox Content="Reset Approved flag" IsChecked="{Binding ResetApproved}" Margin="0,2"/>
+                        <CheckBox Content="Translate selected only" IsChecked="{Binding TranslateSelectedOnly}" Margin="0,2"/>
+                        <CheckBox Content="Overwrite existing" IsChecked="{Binding OverwriteExisting}" Margin="0,2"/>
+                    </StackPanel>
 
-                <Border BorderThickness="1" BorderBrush="{DynamicResource ControlElevationBorderBrush}" CornerRadius="4" Margin="0,0,0,8">
-                    <ScrollViewer Height="100" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding AvailableLanguages}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="8,2"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Border>
-
-                <!-- Options -->
-                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8" Text="Options"/>
-
-                <ui:CardControl Margin="0,0,0,4">
-                    <ui:CardControl.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Options24" Margin="0,0,12,0"/>
-                            <StackPanel>
-                                <TextBlock Text="Translation options" FontWeight="SemiBold"/>
-                                <TextBlock Text="Control how translations are applied" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </ui:CardControl.Header>
-                </ui:CardControl>
-
-                <StackPanel Margin="8,4">
-                    <CheckBox
-                        Margin="0,0,18,0"
-                        Content="Reset Approved flag"
-                        IsChecked="{Binding ResetApproved}" />
-                    <CheckBox
-                        Margin="0,0,18,0"
-                        Content="Translate selected items only"
-                        IsChecked="{Binding TranslateSelectedOnly}" />
-                    <CheckBox Content="Overwrite existing translations" IsChecked="{Binding OverwriteExisting}" />
+                    <TextBlock FontSize="10" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"
+                               Text="Source strings may be sent to the provider service."/>
                 </StackPanel>
+            </ScrollViewer>
 
-                <!-- Progress -->
-                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8" Text="Progress"/>
+            <!-- RIGHT: Preview results -->
+            <Grid Grid.Column="1" Margin="8,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                <ProgressBar
-                    Height="14"
-                    Margin="0,0,0,6"
-                    Maximum="100"
-                    Minimum="0"
-                    Value="{Binding ProgressPercent, Mode=OneWay, FallbackValue=0, TargetNullValue=0}" />
+                <TextBlock FontSize="12" FontWeight="SemiBold" Margin="0,0,0,6" Text="Preview"/>
 
-                <Border
-                    Padding="6"
-                    Margin="0,0,0,6"
-                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{DynamicResource ControlElevationBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="4"
-                    MinHeight="120"
-                    MaxHeight="160">
-                    <ListView
-                        HorizontalAlignment="Stretch"
-                        AlternationCount="2"
-                        ItemsSource="{Binding PreviewResults}">
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Padding" Value="4" />
-                                <Setter Property="Background" Value="Transparent" />
-                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                <Style.Triggers>
-                                    <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                        <Setter Property="Background" Value="#10FFFFFF" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn
-                                    Width="160"
-                                    DisplayMemberBinding="{Binding Namespace}"
-                                    Header="Namespace" />
-                                <GridViewColumn
-                                    Width="80"
-                                    DisplayMemberBinding="{Binding Language}"
-                                    Header="Language" />
-                                <GridViewColumn
-                                    Width="200"
-                                    DisplayMemberBinding="{Binding SourceText}"
-                                    Header="Source" />
-                                <GridViewColumn
-                                    Width="200"
-                                    DisplayMemberBinding="{Binding TranslatedValue}"
-                                    Header="Proposed" />
-                                <GridViewColumn Width="100" Header="Status">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock
-                                                Foreground="Gray"
-                                                Text="{Binding ErrorMessage}"
-                                                TextTrimming="CharacterEllipsis" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                <Border Grid.Row="1"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header row -->
+                        <Border Padding="10,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="2.5*"/>
+                                    <ColumnDefinition Width="2.5*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Key" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Grid.Column="1" Text="Lang" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Grid.Column="2" Text="Source" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Grid.Column="3" Text="Proposed" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Data rows -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding PreviewResults}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="10,5" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="2*"/>
+                                                    <ColumnDefinition Width="40"/>
+                                                    <ColumnDefinition Width="2.5*"/>
+                                                    <ColumnDefinition Width="2.5*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Namespace}" FontSize="12" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Language}" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding SourceText}" FontSize="12" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding TranslatedValue}" FontSize="12" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource SystemFillColorSuccessBrush}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
                 </Border>
+            </Grid>
+        </Grid>
 
-                <TextBlock
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    FontSize="11"
-                    Foreground="Gray"
-                    Text="Note: Your source language strings may be sent to the provider service." />
-            </StackPanel>
-        </ScrollViewer>
+        <!-- Progress bar -->
+        <StackPanel Grid.Row="2" Margin="12,6,12,0">
+            <ProgressBar
+                Height="4"
+                Maximum="100"
+                Minimum="0"
+                Value="{Binding ProgressPercent, Mode=OneWay, FallbackValue=0, TargetNullValue=0}" />
+        </StackPanel>
 
         <!-- Footer -->
-        <Border Grid.Row="2" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <ui:Button x:Name="CancelButton" Content="Cancel" Width="90" Margin="0,0,8,0" Click="CancelButton_Click"/>
-                <ui:Button x:Name="StartButton" Content="Preview" Width="90" Margin="0,0,8,0" Appearance="Primary" Click="StartButton_Click"/>
-                <ui:Button Content="Apply Preview" Width="120" Click="ApplyButton_Click"/>
-            </StackPanel>
+        <Border Grid.Row="3" Padding="12,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+            <Grid>
+                <TextBlock VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                           Text="{Binding ProgressCompleted, StringFormat='{}{0} items processed'}"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <ui:Button Content="Cancel" Width="80" Margin="0,0,6,0" Click="CancelButton_Click"/>
+                    <ui:Button Content="Preview" Width="80" Margin="0,0,6,0" Appearance="Primary" Click="StartButton_Click"/>
+                    <ui:Button Content="Apply" Width="80" Click="ApplyButton_Click"/>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </ui:FluentWindow>

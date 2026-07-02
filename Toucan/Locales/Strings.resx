@@ -170,13 +170,13 @@
   </data>
   <!-- ═══ Mode selector ═══ -->
   <data name="Mode_Edit" xml:space="preserve">
-    <value>✏ Edit</value>
+    <value>Edit</value>
   </data>
   <data name="Mode_Review" xml:space="preserve">
-    <value>👁 Review</value>
+    <value>Review</value>
   </data>
   <data name="Mode_Audit" xml:space="preserve">
-    <value>✓ Audit</value>
+    <value>Audit</value>
   </data>
   <!-- ═══ Language status ═══ -->
   <data name="LangStatus_Translated" xml:space="preserve">

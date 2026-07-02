@@ -182,7 +182,7 @@ public partial class OptionsViewModel : ObservableObject
         {
             try
             {
-                var manifestPath = System.IO.Path.Combine(ProjectFilePath, "toucan.project");
+                var manifestPath = System.IO.Path.Combine(ProjectFilePath, "toucan.tproj");
                 if (System.IO.File.Exists(manifestPath))
                 {
                     var text = System.IO.File.ReadAllText(manifestPath);
@@ -221,7 +221,22 @@ public partial class OptionsViewModel : ObservableObject
     [RelayCommand]
     private void ConfigureLanguageCodes()
     {
-        // future: implement language code configuration
+        var input = _dialogService.ShowPrompt(
+            "Add Languages",
+            "Enter comma-separated language codes (e.g. fr-FR, de-DE, ja-JP):",
+            string.Empty);
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return;
+        }
+
+        foreach (var code in input.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (!SuggestedLanguages.Contains(code))
+            {
+                SuggestedLanguages.Add(code);
+            }
+        }
     }
 
     [RelayCommand]
@@ -233,12 +248,46 @@ public partial class OptionsViewModel : ObservableObject
     [RelayCommand]
     private void BrowseSourceRoot()
     {
-        // future: implement folder picker
+        var result = _dialogService.SelectFolder(string.IsNullOrWhiteSpace(SourceRoot) ? null : SourceRoot);
+        if (result is not null)
+        {
+            SourceRoot = result;
+        }
     }
 
     [RelayCommand]
     private void BrowseSourceEditor()
     {
-        // future: implement file picker
+        var result = _dialogService.SelectFile(
+            string.IsNullOrWhiteSpace(SourceCodeEditor) ? null : System.IO.Path.GetDirectoryName(SourceCodeEditor),
+            "Executables (*.exe)|*.exe|All Files (*.*)|*.*");
+        if (result is not null)
+        {
+            SourceCodeEditor = result;
+        }
+    }
+
+    [RelayCommand]
+    private void OpenUrl(string? url)
+    {
+        if (!string.IsNullOrWhiteSpace(url))
+        {
+            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url) { UseShellExecute = true }); }
+            catch { }
+        }
+    }
+
+    [RelayCommand]
+    private void CopyVersion()
+    {
+        try { System.Windows.Clipboard.SetText("Toucan 0.15.0"); } catch { }
+    }
+
+    [RelayCommand]
+    private void OpenLogLocation()
+    {
+        var logDir = AppDomain.CurrentDomain.BaseDirectory ?? ".";
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(logDir) { UseShellExecute = true }); }
+        catch { }
     }
 }

@@ -35,6 +35,7 @@ public class AppOptions
     public List<string> SuggestedLanguages { get; set; } = ["en-US", "id-ID", "zh-CN", "fr-FR", "es-ES"];
     // --- Last session state ---
     public string? LastProjectPath { get; set; }
+    public bool OpenLastProjectOnStartup { get; set; } = true;
 
     private static readonly string s_path = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan");

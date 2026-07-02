@@ -12,10 +12,10 @@ public class ManifestLoadStrategy(IFileService fileService, ILogger<ManifestLoad
 
     public IEnumerable<TranslationItem> Load(string folder)
     {
-        var manifestPath = Path.Combine(folder, "toucan.project");
+        var manifestPath = Path.Combine(folder, "toucan.tproj");
         if (!File.Exists(manifestPath)) return [];
 
-        var text = fileService.ReadText(folder, "toucan.project");
+        var text = fileService.ReadText(folder, "toucan.tproj");
         if (string.IsNullOrWhiteSpace(text)) return [];
 
         try

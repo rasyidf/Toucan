@@ -83,18 +83,20 @@ public partial class LanguagePrompt : FluentWindow
     {
         DialogResult = false;
     }
-    private void OKButton_Click(object sender, System.Windows.RoutedEventArgs e)
+    private async void OKButton_Click(object sender, System.Windows.RoutedEventArgs e)
     {
         string? response = ResponseText;
         if (string.IsNullOrWhiteSpace(response))
         {
-            _ = System.Windows.MessageBox.Show("Please select or enter a language.");
+            var msgBox = new Wpf.Ui.Controls.MessageBox { Title = "Validation", Content = "Please select or enter a language.", PrimaryButtonText = "OK", CloseButtonText = string.Empty };
+            await msgBox.ShowDialogAsync();
             return;
         }
         // If existing language passed and the new language already exists — warn and don't close.
         if (LanguageList != null && LanguageList.Any(l => string.Equals(l.Language, response, System.StringComparison.InvariantCultureIgnoreCase)))
         {
-            _ = System.Windows.MessageBox.Show("Language already exists.");
+            var msgBox = new Wpf.Ui.Controls.MessageBox { Title = "Validation", Content = "Language already exists.", PrimaryButtonText = "OK", CloseButtonText = string.Empty };
+            await msgBox.ShowDialogAsync();
             return;
         }
         DialogResult = true;

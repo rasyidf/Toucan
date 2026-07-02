@@ -140,6 +140,7 @@ public partial class PreTranslateViewModel : ObservableObject
             return;
         }
 
+        _cts?.Dispose();
         _cts = new System.Threading.CancellationTokenSource();
         IsRunning = true;
         ProgressCompleted = 0;

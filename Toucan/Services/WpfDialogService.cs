@@ -96,6 +96,13 @@ public class WpfDialogService : IDialogService
         return true;
     }
 
+    public bool ShowProjectProperties(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null)
+    {
+        var vm = new ProjectPropertiesViewModel(settings, this, discoveredLanguages);
+        ProjectPropertiesWindow dialog = new(vm) { Owner = Owner };
+        return dialog.ShowDialog() == true;
+    }
+
     public bool ShowImportProject(out ImportProjectViewModel? resultVm)
     {
         resultVm = null;

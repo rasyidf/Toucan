@@ -13,8 +13,8 @@ namespace Toucan.Core.Services;
 /// </summary>
 public partial class SourceCodeService : ISourceCodeService
 {
-    private readonly ConcurrentDictionary<string, List<KeyUsage>> _usagesByKey = new();
-    private readonly HashSet<string> _allFoundKeys = [];
+    private readonly ConcurrentDictionary<string, ConcurrentBag<KeyUsage>> _usagesByKey = new();
+    private readonly ConcurrentDictionary<string, byte> _allFoundKeys = new();
 
     private static readonly string[] s_extensions =
         [".TS", ".TSX", ".JS", ".JSX", ".VUE", ".SVELTE", ".PY", ".CS", ".KT", ".JAVA", ".SWIFT", ".DART", ".RB", ".PHP", ".GO"];
@@ -22,7 +22,10 @@ public partial class SourceCodeService : ISourceCodeService
     private static readonly string[] s_excludeDirs =
         ["node_modules", ".git", "dist", "build", "out", ".next", "__pycache__", "bin", "obj", "Pods", ".dart_tool"];
 
-    public bool HasScanData => _allFoundKeys.Count > 0;
+    private static readonly HashSet<string> s_excludeDirsSet =
+        new(s_excludeDirs, StringComparer.OrdinalIgnoreCase);
+
+    public bool HasScanData => !_allFoundKeys.IsEmpty;
 
     public async Task<SourceCodeScanResult> ScanAsync(string sourceRoot, CancellationToken cancellationToken = default)
     {
@@ -56,8 +59,8 @@ public partial class SourceCodeService : ISourceCodeService
                         if (string.IsNullOrWhiteSpace(key)) continue;
 
                         var usage = new KeyUsage(key, relPath, i + 1, lines[i].Trim());
-                        _usagesByKey.GetOrAdd(key, _ => new List<KeyUsage>()).Add(usage);
-                        lock (_allFoundKeys) _allFoundKeys.Add(key);
+                        _usagesByKey.GetOrAdd(key, _ => new ConcurrentBag<KeyUsage>()).Add(usage);
+                        _allFoundKeys.TryAdd(key, 0);
                         Interlocked.Increment(ref totalUsages);
                     }
                 }
@@ -75,16 +78,16 @@ public partial class SourceCodeService : ISourceCodeService
     }
 
     public IEnumerable<KeyUsage> FindUsages(string key)
-        => _usagesByKey.TryGetValue(key, out var list) ? list : [];
+        => _usagesByKey.TryGetValue(key, out var bag) ? bag : [];
 
     public IEnumerable<string> GetUndefinedKeys(IEnumerable<string> translationKeys)
     {
         var defined = translationKeys.ToHashSet();
-        return _allFoundKeys.Where(k => !defined.Contains(k));
+        return _allFoundKeys.Keys.Where(k => !defined.Contains(k));
     }
 
     public IEnumerable<string> GetUnusedKeys(IEnumerable<string> translationKeys)
-        => translationKeys.Where(k => !_allFoundKeys.Contains(k));
+        => translationKeys.Where(k => !_allFoundKeys.ContainsKey(k));
 
     private static IEnumerable<string> EnumerateSourceFiles(string root)
     {
@@ -97,7 +100,7 @@ public partial class SourceCodeService : ISourceCodeService
             foreach (var sub in Directory.GetDirectories(dir))
             {
                 var name = Path.GetFileName(sub);
-                if (!s_excludeDirs.Contains(name))
+                if (!s_excludeDirsSet.Contains(name))
                     stack.Push(sub);
             }
             foreach (var file in Directory.GetFiles(dir))

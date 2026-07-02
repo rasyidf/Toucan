@@ -6,11 +6,11 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Toucan")]
-[assembly: AssemblyDescription("Toucan - i18n Editor")]
+[assembly: AssemblyDescription("Toucan — Professional translation resource editor")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("rasyid.dev")]
 [assembly: AssemblyProduct("Toucan")]
-[assembly: AssemblyCopyright("Copyright © Rasyidf 2023")]
+[assembly: AssemblyCopyright("Copyright © Rasyidf 2023-2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -49,5 +49,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.13.0.0")]
-[assembly: AssemblyFileVersion("0.13.0.0")]
+[assembly: AssemblyVersion("0.15.0.0")]
+[assembly: AssemblyFileVersion("0.15.0.0")]

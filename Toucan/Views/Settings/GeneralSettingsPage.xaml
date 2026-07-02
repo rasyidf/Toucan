@@ -1,0 +1,68 @@
+<UserControl
+    x:Class="Toucan.Views.Settings.GeneralSettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <StackPanel>
+        <TextBlock Text="General" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Language</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="LocalLanguage24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="App language" FontWeight="SemiBold"/>
+                        <TextBlock Text="UI language (requires restart)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ComboBox Width="140" SelectedValue="{Binding AppLanguage, Mode=TwoWay}" SelectedValuePath="Content">
+                <ComboBoxItem>en-US</ComboBoxItem>
+                <ComboBoxItem>id-ID</ComboBoxItem>
+            </ComboBox>
+        </ui:CardControl>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Pagination</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="DocumentOnePage24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Page size" FontWeight="SemiBold"/>
+                        <TextBlock Text="Items per page in translation view" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <TextBox Width="80" Text="{Binding PageSizeText, Mode=TwoWay}"/>
+        </ui:CardControl>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="NumberSymbol24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Max items" FontWeight="SemiBold"/>
+                        <TextBlock Text="Maximum items to load" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <TextBox Width="80" Text="{Binding MaxItemsText, Mode=TwoWay}"/>
+        </ui:CardControl>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Cut24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Pagination limit" FontWeight="SemiBold"/>
+                        <TextBlock Text="Truncate results over this count" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <TextBox Width="80" Text="{Binding TruncateSizeText, Mode=TwoWay}"/>
+        </ui:CardControl>
+    </StackPanel>
+</UserControl>

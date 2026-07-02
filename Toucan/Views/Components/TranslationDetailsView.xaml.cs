@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Toucan.Core.Models;
 using Toucan.ViewModels;
 
@@ -18,10 +19,14 @@ public partial class TranslationDetailsView : UserControl
     public event RoutedEventHandler? ShowAllClick;
     public event RoutedEventHandler? UpdateLanguageValue;
 
+    // ponytail: debounce UpdateLanguageValue so summary recalc doesn't fire per-keystroke
+    private readonly DispatcherTimer _updateDebounce;
 
     public TranslationDetailsView()
     {
         InitializeComponent();
+        _updateDebounce = new DispatcherTimer { Interval = System.TimeSpan.FromMilliseconds(300) };
+        _updateDebounce.Tick += (_, _) => { _updateDebounce.Stop(); UpdateLanguageValue?.Invoke(this, new RoutedEventArgs()); };
     }
 
     private void FirstPage(object sender, RoutedEventArgs e)
@@ -68,7 +73,8 @@ public partial class TranslationDetailsView : UserControl
             vm.Value = txtBox.Text;
         }
 
-        // Notify parent (e.g. MainWindow) that a language value was updated so it can mark changes
-        UpdateLanguageValue?.Invoke(this, new RoutedEventArgs());
+        // Debounce: restart timer on each keystroke, fires once after 300ms idle
+        _updateDebounce.Stop();
+        _updateDebounce.Start();
     }
 }

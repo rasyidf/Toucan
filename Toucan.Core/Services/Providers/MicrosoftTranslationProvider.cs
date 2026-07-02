@@ -38,7 +38,7 @@ public class MicrosoftTranslationProvider : ITranslationProvider
         if (string.IsNullOrWhiteSpace(apiKey))
         {
             foreach (var job in jobs)
-                results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage, Provider = Name, SourceText = job.SourceText, Succeeded = !string.IsNullOrEmpty(job.SourceText), TranslatedValue = !string.IsNullOrEmpty(job.SourceText) ? $"[microsoft/{job.TargetLanguage}] {job.SourceText}" : null });
+                results.Add(new PretranslationItemResult { Namespace = job.Namespace ?? string.Empty, Language = job.TargetLanguage, Provider = Name, SourceText = job.SourceText, Succeeded = false, TranslatedValue = null, ErrorMessage = "No API key configured" });
             return results;
         }
 
@@ -59,8 +59,8 @@ public class MicrosoftTranslationProvider : ITranslationProvider
             {
                 if (cancellationToken.IsCancellationRequested) break;
 
-                var sourceLang = chunk[0].SourceLanguage?.Split('-')[0];
-                var url = $"{endpoint}/translate?api-version=3.0&to={Uri.EscapeDataString(targetLang.Split('-')[0])}";
+                var sourceLang = chunk[0].SourceLanguage;
+                var url = $"{endpoint}/translate?api-version=3.0&to={Uri.EscapeDataString(targetLang)}";
                 if (!string.IsNullOrEmpty(sourceLang))
                     url += $"&from={Uri.EscapeDataString(sourceLang)}";
 

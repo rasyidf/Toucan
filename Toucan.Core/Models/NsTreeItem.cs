@@ -21,14 +21,13 @@ public class NsTreeItem
             if (!IsLoaded && HeldSetttings != null)
             {
                 HeldSetttings.ProcessNs(this, Namespace);
-                var copy = _storage.ToList();
-                _storage.Clear();
-                foreach (var child in copy)
+                // ponytail: re-parent children — don't flatten via AddRange(child.Items)
+                foreach (var child in _storage)
                 {
                     child.Parent = this;
-                    _storage.AddRange(child.Items);
                 }
                 HeldSetttings = null;
+                IsLoaded = true;
             }
             return _storage;
         }

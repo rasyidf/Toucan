@@ -84,7 +84,7 @@ internal partial class MainWindowViewModel
     [RelayCommand]
     private async Task OpenProjectFile()
     {
-        string? selected = _dialogService.SelectFile(CurrentPath, "Toucan project|*.project|JSON files (*.json)|*.json|All Files (*.*)|*.*");
+        string? selected = _dialogService.SelectFile(CurrentPath, "Toucan project|*.tproj|JSON files (*.json)|*.json|All Files (*.*)|*.*");
 
         if (string.IsNullOrEmpty(selected))
         {
@@ -172,6 +172,15 @@ internal partial class MainWindowViewModel
             AllTranslation = _translationManagement.Translations.ToList();
         }
 
+        // Load hidden namespaces from project settings
+        var projSettings = ProjectSettings.LoadFrom(path);
+        HiddenNamespaces.Clear();
+        if (projSettings?.HiddenNamespaces is { Count: > 0 })
+        {
+            foreach (var ns in projSettings.HiddenNamespaces)
+                HiddenNamespaces.Add(ns);
+        }
+
         AddMissingTranslations();
         RefreshTree();
         UpdateSummaryInfo();
@@ -180,7 +189,7 @@ internal partial class MainWindowViewModel
         // Update status bar default language from project manifest
         try
         {
-            var manifestPath = Path.Combine(path, "toucan.project");
+            var manifestPath = Path.Combine(path, "toucan.tproj");
             if (File.Exists(manifestPath))
             {
                 var txt = File.ReadAllText(manifestPath);
@@ -205,6 +214,14 @@ internal partial class MainWindowViewModel
             }
         }
         catch { }
+
+        // Populate statusbar available languages for inline switching
+        if (StatusBarService.Instance is { } sbs && sbs.GetViewModel() is { } sbVm && AllTranslation != null)
+        {
+            sbVm.AvailableLanguages.Clear();
+            foreach (var lang in AllTranslation.ToLanguages())
+                sbVm.AvailableLanguages.Add(lang);
+        }
 
         // Populate paging controller for loaded data
         Search("", true);
@@ -244,7 +261,7 @@ internal partial class MainWindowViewModel
             // Update status bar default language from project manifest
             try
             {
-                var manifestPath = Path.Combine(path, "toucan.project");
+                var manifestPath = Path.Combine(path, "toucan.tproj");
                 if (File.Exists(manifestPath))
                 {
                     var txt = File.ReadAllText(manifestPath);
@@ -300,6 +317,9 @@ internal partial class MainWindowViewModel
             {
                 case ProjectSaveStatus.Success:
                     IsDirty = false;
+                    SessionDirtyKeys.Clear();
+                    SessionDirtyCount = 0;
+                    ClearDirtyGroups();
                     break;
 
                 case ProjectSaveStatus.ValidationErrors:
@@ -339,6 +359,9 @@ internal partial class MainWindowViewModel
     private void SaveLegacy()
     {
         IsDirty = false;
+        SessionDirtyKeys.Clear();
+        SessionDirtyCount = 0;
+        ClearDirtyGroups();
         _projectService?.Save(CurrentPath, SaveStyles.Json, CurrentTreeItems.ToList(), AllTranslation ?? []);
     }
 
@@ -487,6 +510,14 @@ internal partial class MainWindowViewModel
         }
 
         RecentProjects.Clear();
+    }
+
+    [RelayCommand]
+    private void RemoveRecentProject(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return;
+        _recentFileService.Remove(path);
+        RefreshRecentProjects();
     }
 
     [RelayCommand]

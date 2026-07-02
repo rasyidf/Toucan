@@ -6,14 +6,15 @@
     xmlns:local="clr-namespace:Toucan"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" xmlns:vm="clr-namespace:Toucan.ViewModels"
-    Height="200"
-    d:Width="400"
-    d:Height="400"  
+    Width="400"
+    Height="180"
+    MinWidth="320"
+    MaxWidth="500"
     WindowStartupLocation="CenterOwner"
     WindowBackdropType="Tabbed"
     WindowCornerPreference="Round"  
     ExtendsContentIntoTitleBar="True" 
-    mc:Ignorable="d" d:DesignHeight="227.911" d:DesignWidth="470.458">
+    mc:Ignorable="d">
     <!-- DataContext will be set from code-behind to pass existing languages for filtering -->
     <Grid>
         <Grid.RowDefinitions>

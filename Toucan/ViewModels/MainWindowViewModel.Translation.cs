@@ -37,12 +37,21 @@ internal partial class MainWindowViewModel
             foreach (var item in items)
             {
                 _translationManagement.NotifyValueChanged(item, item.Value);
+                if (!string.IsNullOrEmpty(item.Namespace))
+                    SessionDirtyKeys.Add(item.Namespace);
             }
         }
         else
         {
+            foreach (var item in items)
+            {
+                if (!string.IsNullOrEmpty(item.Namespace))
+                    SessionDirtyKeys.Add(item.Namespace);
+            }
             IsDirty = true;
         }
+        SessionDirtyCount = SessionDirtyKeys.Count;
+        MarkDirtyGroups();
     }
 
     #region Pre-Translation & Bulk Actions
@@ -64,7 +73,7 @@ internal partial class MainWindowViewModel
                 // gather language list
                 List<string> languages = AllTranslation.ToLanguages().ToList();
 
-                var vm = _preTranslateFactory != null ? _preTranslateFactory(languages, AllTranslation, _pretranslationService) : new PreTranslateViewModel(languages, AllTranslation, _pretranslationService);
+                var vm = _preTranslateFactory != null ? _preTranslateFactory(languages, AllTranslation, _pretranslationService) : new PreTranslateViewModel(languages, AllTranslation, _pretranslationService, _dialogService, _providerSettingsService);
                 bool result = _dialogService.ShowPreTranslate(vm);
 
                 if (result)
@@ -112,7 +121,8 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        StatisticsDialog dialog = new(AllTranslation, System.Windows.Application.Current?.MainWindow);
+        var filtered = AllTranslation.Where(t => !IsNamespaceHidden(t.Namespace)).ToList();
+        StatisticsDialog dialog = new(filtered, System.Windows.Application.Current?.MainWindow);
         _ = dialog.ShowDialog();
     }
 
@@ -390,12 +400,9 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        var allKeys = AllTranslation.Select(t => t.Namespace).Distinct();
-        HashSet<string> unused = _sourceCodeService.GetUnusedKeys(allKeys).ToHashSet();
-        // Filter to show only USED keys
-        Search("", true); // reset first
         FilteredBySourceUsage = "used";
         OnPropertyChanged(nameof(FilteredBySourceUsage));
+        Search(SearchText ?? "", true);
     }
 
     [RelayCommand]
@@ -408,13 +415,15 @@ internal partial class MainWindowViewModel
 
         FilteredBySourceUsage = "unused";
         OnPropertyChanged(nameof(FilteredBySourceUsage));
+        Search(SearchText ?? "", true);
     }
 
     [RelayCommand]
     private void ClearSourceFilter()
     {
         FilteredBySourceUsage = null;
-        Search("", true);
+        OnPropertyChanged(nameof(FilteredBySourceUsage));
+        Search(SearchText ?? "", true);
     }
 
     [RelayCommand]
@@ -768,9 +777,29 @@ internal partial class MainWindowViewModel
     private void ToggleShowMachineTranslations()
     {
         ShowMachineTranslations = !ShowMachineTranslations;
-        // ponytail: placeholder toggle — visual indicator only for now
-        // upgrade path: filter/highlight machine-translated values when metadata is tracked
-        StatusText = ShowMachineTranslations ? "Showing machine translations" : "Machine translations hidden";
+
+        if (ShowMachineTranslations)
+        {
+            if (AllTranslation == null || AllTranslation.Count == 0)
+            {
+                StatusText = "No translations loaded.";
+                return;
+            }
+
+            List<TranslationItem> matched = AllTranslation
+                .Where(t => t.ChangeType == ChangeType.Suggestion)
+                .ToList();
+
+            FilterAndDisplay(matched, "No machine-translated items found.");
+            StatusText = matched.Count > 0
+                ? $"Showing {matched.Count} machine-translated items"
+                : "No machine-translated items found.";
+        }
+        else
+        {
+            Search("", true);
+            StatusText = "Showing all translations";
+        }
     }
 
     #endregion

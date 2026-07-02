@@ -14,7 +14,7 @@ public class FileWatcherService : IFileWatcherService, IDisposable
 {
     private FileSystemWatcher? _watcher;
     private System.Timers.Timer? _debounce;
-    private bool _pending;
+    private int _pending; // 0 = idle, 1 = pending; use Interlocked for thread-safety
     private string _folder = "";
     private readonly Dictionary<string, DateTime> _snapshots = [];
 
@@ -44,7 +44,7 @@ public class FileWatcherService : IFileWatcherService, IDisposable
         _debounce = new System.Timers.Timer(2000) { AutoReset = false };
         _debounce.Elapsed += (_, _) =>
         {
-            _pending = false;
+            System.Threading.Interlocked.Exchange(ref _pending, 0);
             if (HasChanges())
             {
                 FilesChanged?.Invoke(this, EventArgs.Empty);
@@ -102,9 +102,8 @@ public class FileWatcherService : IFileWatcherService, IDisposable
             return;
         }
 
-        if (!_pending)
+        if (System.Threading.Interlocked.CompareExchange(ref _pending, 1, 0) == 0)
         {
-            _pending = true;
             _debounce?.Stop();
             _debounce?.Start();
         }

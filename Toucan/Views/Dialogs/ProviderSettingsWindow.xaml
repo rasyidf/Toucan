@@ -6,13 +6,22 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:vm="clr-namespace:Toucan.ViewModels"
+    xmlns:converters="clr-namespace:Toucan.Converters"
     Title="Provider Settings"
-    Width="777"
-    Height="619"
+    Width="820"
+    Height="640"
     WindowStartupLocation="CenterOwner"
+    ExtendsContentIntoTitleBar="True"
+    WindowBackdropType="Mica"
+    WindowCornerPreference="Round"
     mc:Ignorable="d">
 
-    <Grid>
+    <ui:FluentWindow.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <BooleanToVisibilityConverter x:Key="SysBoolToVis"/>
+    </ui:FluentWindow.Resources>
+
+    <Grid FocusManager.FocusedElement="{Binding ElementName=ProviderListBox}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -33,8 +42,8 @@
                             Text="Provider Settings" />
                         <TextBlock
                             FontSize="11"
-                            Foreground="Gray"
-                            Text="Manage translation providers, options and secrets" />
+                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                            Text="Configure translation provider credentials and options" />
                     </StackPanel>
                 </StackPanel>
             </ui:TitleBar.Header>
@@ -42,176 +51,179 @@
 
         <Grid Grid.Row="1" Margin="12">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="240" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0">
-                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" Text="Configuration"/>
+            <!-- LEFT PANEL: scope + provider list -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <ui:CardControl Margin="0,0,0,8">
-                    <ui:CardControl.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Shield24" Margin="0,0,12,0"/>
-                            <StackPanel>
-                                <TextBlock Text="Scope" FontWeight="SemiBold"/>
-                                <TextBlock Text="Override at project level" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </ui:CardControl.Header>
-                </ui:CardControl>
-
-                <CheckBox
-                    Margin="0,0,0,8"
-                    Content="Project (override)"
-                    IsChecked="{Binding ProjectScope}" />
-
-                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,8,0,8" Text="Project Folder"/>
-
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                    <TextBox Width="160" Text="{Binding ProjectPath, UpdateSourceTrigger=PropertyChanged}" />
-                    <Button
-                        Width="32"
-                        Margin="6,0,0,0"
-                        Command="{Binding SelectProjectFolderCommand}"
-                        Content="..." />
+                <!-- Scope toggle -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                    <TextBlock FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" Text="Scope"/>
+                    <CheckBox
+                        Content="Project override"
+                        IsChecked="{Binding ProjectScope}" />
+                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0"
+                                Visibility="{Binding ProjectScope, Converter={StaticResource BoolToVis}}">
+                        <TextBox Width="150" Text="{Binding ProjectPath, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button
+                            Width="32"
+                            Margin="6,0,0,0"
+                            Command="{Binding SelectProjectFolderCommand}"
+                            Content="..."
+                            ToolTip="Browse for project folder"
+                            AutomationProperties.Name="Browse for project folder" />
+                    </StackPanel>
                 </StackPanel>
 
-                <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" Text="Providers"/>
+                <!-- Provider list header -->
+                <TextBlock Grid.Row="1" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" Text="Providers"/>
 
+                <!-- Provider list -->
                 <ListBox
-                    Height="220"
+                    x:Name="ProviderListBox"
+                    Grid.Row="2"
                     ItemsSource="{Binding Providers}"
-                    SelectedItem="{Binding Selected}" d:ItemsSource="{d:SampleData ItemCount=2}">
+                    SelectedItem="{Binding Selected}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border
-                                Margin="2"
-                                Padding="6"
-                                Background="Transparent"
-                                CornerRadius="4">
-                                <StackPanel>
-                                    <TextBlock FontWeight="Bold" Text="{Binding Provider}" />
-                                    <TextBlock
-                                        FontSize="11"
-                                        Foreground="Gray"
-                                        Text="{Binding Provider, FallbackValue='(no id)'}" />
-                                </StackPanel>
-                            </Border>
+                            <StackPanel Margin="4,4">
+                                <TextBlock FontWeight="SemiBold" Text="{Binding Provider}" />
+                            </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
 
-                <StackPanel
-                    Margin="0,6,0,0"
-                    HorizontalAlignment="Left"
-                    Orientation="Horizontal">
+                <!-- Add/Remove buttons -->
+                <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,8,0,0">
                     <Button
-                        Width="80"
+                        x:Name="AddProviderButton"
+                        Content="Add"
                         Margin="0,0,6,0"
-                        Command="{Binding AddProviderCommand}"
-                        Content="Add" />
+                        Click="AddProvider_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu x:Name="AddProviderMenu"
+                                         ItemsSource="{Binding AvailableDefinitions}">
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Header" Value="{Binding DisplayName}"/>
+                                        <Setter Property="Command" Value="{Binding DataContext.AddProviderCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                        <Setter Property="CommandParameter" Value="{Binding}"/>
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
                     <Button
-                        Width="80"
-                        Command="{Binding RemoveSelectedCommand}"
-                        Content="Remove" />
+                        Content="Remove"
+                        Command="{Binding RemoveSelectedCommand}" />
                 </StackPanel>
-            </StackPanel>
+            </Grid>
 
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Margin="12,0,0,0">
-                <StackPanel>
-                    <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" Text="Selected Provider"/>
+            <!-- RIGHT PANEL: selected provider details -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Margin="16,0,0,0">
+                <StackPanel DataContext="{Binding}">
+                    <!-- Provider header -->
+                    <StackPanel Margin="0,0,0,12">
+                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding Selected.Provider, FallbackValue='No provider selected'}" />
+                        <TextBlock FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   Text="{Binding SelectedDefinition.Description, FallbackValue='Select a provider from the list'}" />
+                    </StackPanel>
 
-                    <ui:CardControl Margin="0,0,0,8">
-                        <ui:CardControl.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <ui:SymbolIcon Symbol="CloudSync24" Margin="0,0,12,0"/>
-                                <StackPanel>
-                                    <TextBlock Text="Provider ID" FontWeight="SemiBold"/>
-                                    <TextBlock Text="Unique identifier for this provider" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </ui:CardControl.Header>
-                        <TextBox Width="200" Text="{Binding Selected.Provider, UpdateSourceTrigger=PropertyChanged}" />
-                    </ui:CardControl>
+                    <!-- Options section -->
+                    <TextBlock FontSize="13" FontWeight="SemiBold" Margin="0,0,0,4" Text="Options"/>
+                    <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"
+                               Text="Non-secret configuration (endpoints, models, regions)"/>
 
-                    <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,8,0,8" Text="Options"/>
-
-                    <ui:CardControl Margin="0,0,0,4">
-                        <ui:CardControl.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <ui:SymbolIcon Symbol="Options24" Margin="0,0,12,0"/>
-                                <StackPanel>
-                                    <TextBlock Text="Provider options" FontWeight="SemiBold"/>
-                                    <TextBlock Text="Configuration key-value pairs" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </ui:CardControl.Header>
-                    </ui:CardControl>
-
-                    <ItemsControl ItemsSource="{Binding Selected.Options}" Margin="0,4,0,0">
+                    <ItemsControl ItemsSource="{Binding OptionItems}">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate DataType="{x:Type vm:KeyValueItem}">
                                 <Grid Margin="0,3">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="160" />
-                                        <ColumnDefinition Width="6" />
+                                        <ColumnDefinition Width="130" />
+                                        <ColumnDefinition Width="8" />
                                         <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock
-                                        Grid.Column="0"
-                                        VerticalAlignment="Center"
-                                        Foreground="Gray"
-                                        Text="{Binding Key}" />
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        VerticalAlignment="Center"
-                                        Foreground="Gray"
-                                        Text=":" />
-                                    <TextBox Grid.Column="2" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+                                    <ui:TextBox Grid.Column="0"
+                                                Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
+                                                IsReadOnly="{Binding IsSchemaField}"
+                                                PlaceholderText="key" />
+                                    <ui:TextBox Grid.Column="2"
+                                                Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                                PlaceholderText="{Binding Hint}" />
+                                    <Button Grid.Column="3"
+                                            Width="28" Height="28"
+                                            Margin="4,0,0,0"
+                                            Padding="0"
+                                            Command="{Binding DataContext.RemoveOptionCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
+                                            Visibility="{Binding IsSchemaField, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"
+                                            ToolTip="Remove"
+                                            AutomationProperties.Name="Remove option">
+                                        <ui:SymbolIcon Symbol="Dismiss16" FontSize="12"/>
+                                    </Button>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8" Text="Secrets"/>
+                    <Button Margin="0,6,0,0"
+                            Command="{Binding AddOptionCommand}"
+                            Content="+ Add option"
+                            FontSize="12"
+                            Padding="8,4" />
 
-                    <ui:CardControl Margin="0,0,0,4">
-                        <ui:CardControl.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <ui:SymbolIcon Symbol="Key24" Margin="0,0,12,0"/>
-                                <StackPanel>
-                                    <TextBlock Text="API keys &amp; secrets" FontWeight="SemiBold"/>
-                                    <TextBlock Text="Sensitive credentials (stored securely)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </ui:CardControl.Header>
-                    </ui:CardControl>
+                    <!-- Secrets section -->
+                    <TextBlock FontSize="13" FontWeight="SemiBold" Margin="0,20,0,4" Text="Secrets"/>
+                    <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"
+                               Text="API keys and tokens (stored encrypted via DPAPI)"/>
 
-                    <ItemsControl ItemsSource="{Binding Selected.Secrets}" Margin="0,4,0,0">
+                    <ItemsControl ItemsSource="{Binding SecretItems}">
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate DataType="{x:Type vm:KeyValueItem}">
                                 <Grid Margin="0,3">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="160" />
-                                        <ColumnDefinition Width="6" />
+                                        <ColumnDefinition Width="130" />
+                                        <ColumnDefinition Width="8" />
                                         <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock
-                                        Grid.Column="0"
-                                        VerticalAlignment="Center"
-                                        Foreground="Gray"
-                                        Text="{Binding Key}" />
-                                    <TextBlock
-                                        Grid.Column="1"
-                                        VerticalAlignment="Center"
-                                        Foreground="Gray"
-                                        Text=":" />
-                                    <PasswordBox Grid.Column="2" PasswordChar="●" />
+                                    <ui:TextBox Grid.Column="0"
+                                                Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
+                                                IsReadOnly="{Binding IsSchemaField}"
+                                                PlaceholderText="key" />
+                                    <ui:TextBox Grid.Column="2"
+                                                Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                                PlaceholderText="{Binding Hint}" />
+                                    <Button Grid.Column="3"
+                                            Width="28" Height="28"
+                                            Margin="4,0,0,0"
+                                            Padding="0"
+                                            Command="{Binding DataContext.RemoveSecretCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
+                                            Visibility="{Binding IsSchemaField, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"
+                                            ToolTip="Remove"
+                                            AutomationProperties.Name="Remove secret">
+                                        <ui:SymbolIcon Symbol="Dismiss16" FontSize="12"/>
+                                    </Button>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+
+                    <Button Margin="0,6,0,0"
+                            Command="{Binding AddSecretCommand}"
+                            Content="+ Add secret"
+                            FontSize="12"
+                            Padding="8,4" />
                 </StackPanel>
             </ScrollViewer>
         </Grid>

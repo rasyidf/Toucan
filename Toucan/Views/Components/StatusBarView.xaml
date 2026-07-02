@@ -5,70 +5,69 @@
     xmlns:converters="clr-namespace:Toucan.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:services="clr-namespace:Toucan.Services"
+    xmlns:panels="clr-namespace:Toucan.ViewModels.StatusBarPanels"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    xmlns:vm="clr-namespace:Toucan.ViewModels"
+    xmlns:models="clr-namespace:Toucan.Core.Models;assembly=Toucan.Core"
     Height="32"
     d:DesignWidth="800"
     mc:Ignorable="d">
 
     <UserControl.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BoolToVis" />
-        <Style x:Key="StatusPanelButton" TargetType="Button">
+
+        <Style x:Key="PanelButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="6,2" />
+            <Setter Property="Padding" Value="6,4" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
-    </UserControl.Resources>
 
-    <Border Padding="4,0" Background="{DynamicResource ControlFillColorDefaultBrush}">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" /> <!-- Source Control -->
-                <ColumnDefinition Width="Auto" /> <!-- Statistics -->
-                <ColumnDefinition Width="Auto" /> <!-- Mode / Project -->
-                <ColumnDefinition Width="*" />   <!-- Status text -->
-                <ColumnDefinition Width="Auto" /> <!-- Default Language -->
-                <ColumnDefinition Width="Auto" /> <!-- Cursor -->
-                <ColumnDefinition Width="Auto" /> <!-- Notifications -->
-                <ColumnDefinition Width="Auto" /> <!-- Loading -->
-            </Grid.ColumnDefinitions>
-
-            <!-- ═══ SOURCE CONTROL PANEL ═══ -->
-            <Button Grid.Column="0" Style="{StaticResource StatusPanelButton}"
-                    Visibility="{Binding IsGitVisible, Converter={StaticResource BoolToVis}}">
-                <Button.ToolTip>
-                    <ToolTip>
-                        <StackPanel MinWidth="200" MaxWidth="300">
-                            <TextBlock FontWeight="SemiBold" Text="Source Control" Margin="0,0,0,6" />
-                            <TextBlock Text="{Binding BranchName, StringFormat='Branch: {0}'}" />
-                            <TextBlock Text="{Binding GitChanges, StringFormat='{}{0} changed file(s)'}" Margin="0,4,0,6" />
-                            <ItemsControl ItemsSource="{Binding ChangesSummary}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" FontSize="11" Opacity="0.8" Margin="0,1" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </ToolTip>
-                </Button.ToolTip>
+        <!-- ═══ VCS Panel Template ═══ -->
+        <DataTemplate DataType="{x:Type panels:VcsPanel}">
+            <Button Style="{StaticResource PanelButton}" Command="{Binding ClickCommand}"
+                    Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}"
+                    ToolTip="{Binding ToolTip}">
                 <StackPanel Orientation="Horizontal">
-                    <ui:SymbolIcon Symbol="BranchFork24" FontSize="14"
-                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                    <TextBlock Margin="4,0,0,0" VerticalAlignment="Center"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                               Text="{Binding BranchName}" />
-                    <TextBlock Margin="4,0,0,0" VerticalAlignment="Center"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                               Text="{Binding GitChanges, StringFormat='({0})'}" />
+                    <ui:SymbolIcon Symbol="BranchFork24" FontSize="14" />
+                    <TextBlock Margin="4,0,0,0" VerticalAlignment="Center" Text="{Binding Content}" />
+                    <Border Margin="4,0,0,0" CornerRadius="6" Padding="4,0"
+                            Background="{DynamicResource SystemFillColorCautionBrush}"
+                            Visibility="{Binding Badge, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="{Binding Badge}" FontSize="10" Foreground="White" VerticalAlignment="Center" />
+                    </Border>
                 </StackPanel>
             </Button>
+        </DataTemplate>
 
-            <!-- ═══ STATISTICS PANEL ═══ -->
-            <Button Grid.Column="1" Style="{StaticResource StatusPanelButton}">
+        <!-- ═══ Translation Stats Panel Template ═══ -->
+        <DataTemplate DataType="{x:Type panels:TranslationStatsPanel}">
+            <Button Style="{StaticResource PanelButton}" Command="{Binding ClickCommand}"
+                    Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}">
                 <Button.ToolTip>
                     <ToolTip>
                         <StackPanel MinWidth="220" MaxWidth="340">
@@ -99,18 +98,13 @@
                     </ToolTip>
                 </Button.ToolTip>
                 <StackPanel Orientation="Horizontal">
-                    <ui:SymbolIcon Symbol="Translate24" FontSize="14"
-                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                    <TextBlock Margin="4,0,0,0" VerticalAlignment="Center"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                               Text="{Binding TranslationProgress}" />
-                    <!-- Errors badge -->
-                    <Border Margin="6,0,0,0" CornerRadius="6" Padding="4,0"
+                    <ui:SymbolIcon Symbol="Translate24" FontSize="14" />
+                    <TextBlock Margin="4,0,0,0" VerticalAlignment="Center" Text="{Binding Content}" />
+                    <Border Margin="4,0,0,0" CornerRadius="6" Padding="4,0"
                             Background="#E74C3C"
                             Visibility="{Binding Errors, Converter={StaticResource BoolToVis}}">
                         <TextBlock Text="{Binding Errors}" FontSize="10" Foreground="White" VerticalAlignment="Center" />
                     </Border>
-                    <!-- Warnings badge -->
                     <Border Margin="4,0,0,0" CornerRadius="6" Padding="4,0"
                             Background="#F39C12"
                             Visibility="{Binding Warnings, Converter={StaticResource BoolToVis}}">
@@ -118,92 +112,176 @@
                     </Border>
                 </StackPanel>
             </Button>
+        </DataTemplate>
 
-            <!-- ═══ MODE / PROJECT ═══ -->
-            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
-                <!-- Editor mode badge -->
-                <Border
-                    Margin="0,0,6,0"
-                    Padding="6,2"
-                    CornerRadius="3"
-                    VerticalAlignment="Center">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
-                                    <Setter Property="Background" Value="{DynamicResource SystemFillColorSuccessBackgroundBrush}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
-                                    <Setter Property="Background" Value="{DynamicResource SystemFillColorCautionBackgroundBrush}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <TextBlock FontSize="10" FontWeight="Medium"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Text" Value="EDITOR" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
-                                        <Setter Property="Text" Value="REVIEW" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
-                                        <Setter Property="Text" Value="AUDIT" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+        <!-- ═══ Mode Panel Template ═══ -->
+        <DataTemplate DataType="{x:Type panels:ModePanel}">
+            <Button Style="{StaticResource PanelButton}" Command="{Binding ClickCommand}"
+                    Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}"
+                    ToolTip="{Binding ToolTip}">
+                <Border Padding="6,2" CornerRadius="3"
+                        Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                    <TextBlock Text="{Binding Content}" FontSize="10" FontWeight="Medium" />
                 </Border>
-                <ui:SymbolIcon Symbol="Home24" FontSize="14"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                <TextBlock Margin="4,0,0,0" VerticalAlignment="Center"
-                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                           Text="{Binding ProjectName}" />
-            </StackPanel>
-
-            <!-- ═══ STATUS TEXT ═══ -->
-            <TextBlock Grid.Column="3" VerticalAlignment="Center" Margin="8,0"
-                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                       Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" />
-
-            <!-- ═══ DEFAULT LANGUAGE PANEL ═══ -->
-            <Button Grid.Column="4" Style="{StaticResource StatusPanelButton}">
-                <Button.ToolTip>
-                    <ToolTip>
-                        <StackPanel MinWidth="140">
-                            <TextBlock FontWeight="SemiBold" Text="Language" Margin="0,0,0,4" />
-                            <TextBlock Text="{Binding DefaultLanguage, StringFormat='Default: {0}'}" />
-                            <TextBlock Margin="0,4,0,0" FontSize="11" Opacity="0.6"
-                                       Text="Change in Settings → Options" />
-                        </StackPanel>
-                    </ToolTip>
-                </Button.ToolTip>
-                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                           Text="{Binding DefaultLanguage}" />
             </Button>
+        </DataTemplate>
 
-            <!-- ═══ CURSOR POSITION ═══ -->
-            <TextBlock Grid.Column="5" VerticalAlignment="Center" Margin="8,0"
+        <!-- ═══ Project Panel Template ═══ -->
+        <DataTemplate DataType="{x:Type panels:ProjectPanel}">
+            <Button Style="{StaticResource PanelButton}" Command="{Binding ClickCommand}"
+                    Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}"
+                    ToolTip="{Binding ToolTip}">
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Home24" FontSize="14" />
+                    <TextBlock Margin="4,0,0,0" VerticalAlignment="Center" Text="{Binding Content}" />
+                    <Border Margin="6,0,0,0" CornerRadius="6" Padding="5,1"
+                            Background="{DynamicResource SystemFillColorCautionBrush}"
+                            Visibility="{Binding Badge, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="{Binding Badge}" FontSize="10" Foreground="White" VerticalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </Button>
+        </DataTemplate>
+
+        <!-- ═══ Status Panel Template (center text) ═══ -->
+        <DataTemplate DataType="{x:Type panels:StatusPanel}">
+            <TextBlock VerticalAlignment="Center" Margin="8,0"
                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                       Text="{Binding CursorPosition}" />
+                       Text="{Binding Content}" TextTrimming="CharacterEllipsis"
+                       Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}" />
+        </DataTemplate>
 
-            <!-- ═══ NOTIFICATION BADGE ═══ -->
-            <Border Grid.Column="6" CornerRadius="8" Padding="5,1" Margin="4,0"
-                    VerticalAlignment="Center"
-                    Background="{DynamicResource SystemAccentColorPrimaryBrush}"
-                    Visibility="{Binding NotificationCount, Converter={StaticResource BoolToVis}}">
-                <TextBlock Text="{Binding NotificationCount}" FontSize="10"
-                           HorizontalAlignment="Center" Foreground="White" />
-            </Border>
+        <!-- ═══ Language Panel Template ═══ -->
+        <DataTemplate DataType="{x:Type panels:LanguagePanel}">
+            <Button x:Name="LangButton" Style="{StaticResource PanelButton}"
+                    Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}"
+                    ToolTip="{Binding ToolTip}"
+                    Click="LanguagePanel_Click">
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="LocalLanguage24" FontSize="14" />
+                    <TextBlock Margin="4,0,0,0" VerticalAlignment="Center" Text="{Binding Content}" />
+                </StackPanel>
+                <Button.ContextMenu>
+                    <ContextMenu ItemsSource="{Binding AvailableLanguages}">
+                        <ContextMenu.ItemContainerStyle>
+                            <Style TargetType="MenuItem">
+                                <Setter Property="Header" Value="{Binding}"/>
+                                <Setter Property="Command" Value="{Binding DataContext.ClickCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                <Setter Property="CommandParameter" Value="{Binding}"/>
+                            </Style>
+                        </ContextMenu.ItemContainerStyle>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+        </DataTemplate>
 
-            <!-- ═══ LOADING INDICATOR ═══ -->
-            <ui:ProgressRing Grid.Column="7" Width="14" Height="14" Margin="4,0"
+        <!-- ═══ Encoding Panel Template ═══ -->
+        <DataTemplate DataType="{x:Type panels:EncodingPanel}">
+            <Button Style="{StaticResource PanelButton}" Command="{Binding ClickCommand}"
+                    Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}"
+                    ToolTip="{Binding ToolTip}">
+                <TextBlock Text="{Binding Content}" />
+            </Button>
+        </DataTemplate>
+
+        <!-- ═══ Line Endings Panel Template ═══ -->
+        <DataTemplate DataType="{x:Type panels:LineEndingsPanel}">
+            <Button Style="{StaticResource PanelButton}" Command="{Binding ClickCommand}"
+                    Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}"
+                    ToolTip="{Binding ToolTip}">
+                <TextBlock Text="{Binding Content}" />
+            </Button>
+        </DataTemplate>
+
+        <!-- ═══ Notifications Panel Template ═══ -->
+        <DataTemplate DataType="{x:Type panels:NotificationsPanel}">
+            <Button Style="{StaticResource PanelButton}" Command="{Binding ClickCommand}"
+                    Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}"
+                    ToolTip="{Binding ToolTip}">
+                <Border CornerRadius="8" Padding="5,1"
+                        Background="{DynamicResource SystemAccentColorPrimaryBrush}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Alert24" FontSize="12" Foreground="White" />
+                        <TextBlock Margin="3,0,0,0" Text="{Binding Badge}" FontSize="10" Foreground="White" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </Button>
+        </DataTemplate>
+
+        <!-- ═══ Loading Panel Template ═══ -->
+        <DataTemplate DataType="{x:Type panels:LoadingPanel}">
+            <ui:ProgressRing Width="14" Height="14" Margin="4,0"
                              VerticalAlignment="Center"
                              IsIndeterminate="True"
-                             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" />
+                             Visibility="{Binding IsVisible, Converter={StaticResource BoolToVis}}" />
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <!-- ponytail: Footer action bar — left quick actions, center status, right info panels. No mode badge here (lives in toolbar's ModeSelectorBar). -->
+    <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="4,0">
+        <Grid VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" /> <!-- Left: quick actions -->
+                <ColumnDefinition Width="*" />   <!-- Center: status text -->
+                <ColumnDefinition Width="Auto" /> <!-- Right: info panels -->
+            </Grid.ColumnDefinitions>
+
+            <!-- ═══ LEFT: Contextual Quick Actions (borderless, flat icons) ═══ -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource PanelButton}"
+                        Command="{Binding PreTranslateBulkCommand}"
+                        ToolTip="Pre-translate all">
+                    <ui:SymbolIcon Symbol="Translate20" FontSize="14" />
+                </Button>
+                <Button Style="{StaticResource PanelButton}"
+                        Command="{Binding ValidatePlaceholdersCommand}"
+                        ToolTip="Validate placeholders">
+                    <ui:SymbolIcon Symbol="CheckmarkSquare20" FontSize="14" />
+                </Button>
+                <Button Style="{StaticResource PanelButton}"
+                        Command="{Binding GenerateStatisticsBulkCommand}"
+                        ToolTip="Statistics">
+                    <ui:SymbolIcon Symbol="ChartMultiple20" FontSize="14" />
+                </Button>
+                <Button Style="{StaticResource PanelButton}"
+                        Command="{Binding ToggleAdvancedOptionsCommand}"
+                        ToolTip="Source code view">
+                    <ui:SymbolIcon Symbol="Code20" FontSize="14" />
+                </Button>
+            </StackPanel>
+
+            <!-- ═══ CENTER: Status text + loading ═══ -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ItemsControl ItemsSource="{Binding Registry.CenterPanels}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+
+            <!-- ═══ RIGHT: Info panels (project, vcs, language, encoding, notifications) ═══ -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <ItemsControl ItemsSource="{Binding Registry.LeftPanels}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding Registry.RightPanels}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
         </Grid>
     </Border>
 </UserControl>

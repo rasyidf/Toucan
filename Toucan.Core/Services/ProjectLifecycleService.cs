@@ -374,9 +374,9 @@ public partial class ProjectLifecycleService(
         {
             // Determine the user's choice — default to Save if no handler is set
             var choice = UnsavedChangesChoice.Save;
-            if (unsavedChangesHandler != null)
+            if (_unsavedChangesHandler != null)
             {
-                choice = await unsavedChangesHandler.PromptAsync().ConfigureAwait(false);
+                choice = await _unsavedChangesHandler.PromptAsync().ConfigureAwait(false);
             }
 
             switch (choice)

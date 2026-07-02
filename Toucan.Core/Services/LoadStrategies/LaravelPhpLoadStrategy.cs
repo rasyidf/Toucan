@@ -10,7 +10,7 @@ public class LaravelPhpLoadStrategy : ILoadStrategy
 
     public IEnumerable<TranslationItem> Load(string folder)
     {
-        var files = Directory.GetFiles(folder, "*.php", SearchOption.AllDirectories);
+        var files = FileEnumerator.EnumerateFiles(folder, "*.php");
         var items = new List<TranslationItem>();
 
         foreach (var file in files)

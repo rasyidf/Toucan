@@ -29,6 +29,7 @@ internal class StatusBarService : IStatusBarService
 
     public void Register(StatusBarViewModel vm) => _vm = vm ?? throw new ArgumentNullException(nameof(vm));
     public void Unregister() => _vm = null;
+    public StatusBarViewModel? GetViewModel() => _vm;
 
     public void SetLoading(bool isLoading) { if (_vm != null) _vm.IsLoading = isLoading; }
     public void UpdateStatus(string text) { if (_vm != null) _vm.StatusText = text; }
@@ -36,6 +37,8 @@ internal class StatusBarService : IStatusBarService
     public void UpdateCursor(string pos) { if (_vm != null) _vm.CursorPosition = pos; }
     public void UpdateDefaultLanguage(string lang) { if (_vm != null) _vm.DefaultLanguage = lang; }
     public void ShowNotificationBadge(int count) { if (_vm != null) _vm.ShowNotification(count); }
+
+    public void UpdateSessionDirtyCount(int count) { if (_vm != null) _vm.SessionDirtyCount = count; }
 
     public void UpdateSourceControl(string branch, int changes, IEnumerable<string>? summary = null)
     {
