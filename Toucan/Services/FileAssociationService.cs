@@ -24,13 +24,44 @@ internal static class FileAssociationService
             string? exePath = Process.GetCurrentProcess().MainModule?.FileName;
             if (string.IsNullOrEmpty(exePath)) return;
 
+            // Use a document icon if available, otherwise fall back to app icon index 1
+            var appDir = System.IO.Path.GetDirectoryName(exePath)!;
+            var docIconPath = System.IO.Path.Combine(appDir, "document.ico");
+            var iconRef = System.IO.File.Exists(docIconPath)
+                ? $"\"{docIconPath}\",0"
+                : $"\"{exePath}\",1";
+
+            // Extract embedded document.ico to app directory if not present
+            if (!System.IO.File.Exists(docIconPath))
+            {
+                try
+                {
+                    var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                    using var stream = assembly.GetManifestResourceStream("Toucan.Assets.Images.document.ico");
+                    if (stream != null)
+                    {
+                        using var fs = System.IO.File.Create(docIconPath);
+                        stream.CopyTo(fs);
+                    }
+                    else
+                    {
+                        // No embedded document icon — use app icon
+                        iconRef = $"\"{exePath}\",0";
+                    }
+                }
+                catch
+                {
+                    iconRef = $"\"{exePath}\",0";
+                }
+            }
+
             // Register ProgId with description, icon, and open command
             using var progKey = Registry.CurrentUser.CreateSubKey(@"Software\Classes\" + ProgId);
             progKey?.SetValue("", Description);
             progKey?.SetValue("FriendlyTypeName", FileTypeName);
 
             using var iconKey = progKey?.CreateSubKey("DefaultIcon");
-            iconKey?.SetValue("", $"\"{exePath}\",0");
+            iconKey?.SetValue("", iconRef);
 
             using var cmdKey = progKey?.CreateSubKey(@"shell\open\command");
             cmdKey?.SetValue("", $"\"{exePath}\" \"%1\"");

@@ -42,7 +42,6 @@
         VerticalAlignment="Stretch">
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
-                <RowDefinition Height="42" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
@@ -50,14 +49,8 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock
-                x:Name="textBlockHeader"
-                Height="16"
-                Margin="8,0,0,0"
-                VerticalAlignment="Center"
-                FontWeight="SemiBold"
-                Text="{x:Static loc:Strings.Panel_TranslationIDs}" />
-            <StackPanel Grid.Column="1" Orientation="Horizontal">
+            <!-- Action buttons -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,4">
                 <ui:Button
                     Margin="{StaticResource ToolbarButtonMargin}"
                     Padding="{StaticResource ToolbarButtonPadding}"
@@ -82,13 +75,8 @@
                 </ui:Button>
             </StackPanel>
 
-            <!-- Breadcrumb navigation -->
-            <ui:BreadcrumbBar Grid.Row="1" Grid.ColumnSpan="2" Margin="8,0,8,4"
-                              ItemsSource="{Binding SelectedNodePath}"
-                              FontSize="11"/>
-
             <Border
-                Grid.Row="2"
+                Grid.Row="1"
                 Grid.ColumnSpan="2"
                 Padding="6"
                 Background="Transparent">

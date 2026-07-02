@@ -370,6 +370,9 @@ internal partial class MainWindowViewModel
     [ObservableProperty]
     private string sourceCodeStatus = string.Empty;
 
+    /// <summary>All key usages found during the last source scan, exposed for the SourceCodePanel.</summary>
+    public ObservableCollection<KeyUsage> SourceCodeUsages { get; } = [];
+
     [RelayCommand]
     private async Task ScanSourceCode()
     {
@@ -390,6 +393,16 @@ internal partial class MainWindowViewModel
         SourceCodeScanned = true;
         SourceCodeStatus = $"{result.KeysFound} keys found in {result.FilesScanned} files ({result.Duration.TotalSeconds:F1}s)";
         StatusText = SourceCodeStatus;
+
+        // Populate the usages collection for the panel
+        SourceCodeUsages.Clear();
+        foreach (var key in _sourceCodeService.GetAllKeys())
+        {
+            foreach (var usage in _sourceCodeService.FindUsages(key))
+            {
+                SourceCodeUsages.Add(usage);
+            }
+        }
     }
 
     [RelayCommand]
@@ -671,6 +684,12 @@ internal partial class MainWindowViewModel
 
     #region Validation (Placeholders, Plural, Gender)
 
+    public ObservableCollection<ValidationIssueItem> ValidationIssues { get; } = [];
+    public bool HasValidationIssues => ValidationIssues.Count > 0;
+
+    [RelayCommand]
+    private void RunValidation() => ValidatePlaceholders();
+
     [RelayCommand]
     private void ValidatePlaceholders()
     {
@@ -679,9 +698,10 @@ internal partial class MainWindowViewModel
             return;
         }
 
+        ValidationIssues.Clear();
+
         List<string> languages = AllTranslation.ToLanguages().ToList();
         var primary = languages.FirstOrDefault() ?? "en";
-        List<string> issues = new();
 
         List<TranslationItem> sourceItems = AllTranslation.Where(t => t.Language == primary && !string.IsNullOrEmpty(t.Value)).ToList();
         foreach (var source in sourceItems)
@@ -697,18 +717,20 @@ internal partial class MainWindowViewModel
                 var result = PlaceholderService.Validate(source.Value, target.Value);
                 if (!result.IsValid)
                 {
-                    issues.Add($"{source.Namespace} [{lang}]: missing={string.Join(",", result.Missing)} extra={string.Join(",", result.Extra)}");
+                    var msg = $"[{lang}] missing={string.Join(",", result.Missing)} extra={string.Join(",", result.Extra)}";
+                    ValidationIssues.Add(new ValidationIssueItem(source.Namespace, msg));
                 }
             }
         }
 
-        if (issues.Count == 0)
+        OnPropertyChanged(nameof(HasValidationIssues));
+
+        // Activate Issues panel
+        Toucan.Core.Services.SidePanelRegistry.Instance.Activate("issues");
+
+        if (ValidationIssues.Count == 0)
         {
             _messageService.ShowMessage("All placeholders are consistent across translations.");
-        }
-        else
-        {
-            _messageService.ShowMessage($"{issues.Count} placeholder issue(s):\n" + string.Join("\n", issues.Take(20)));
         }
     }
 
@@ -804,3 +826,6 @@ internal partial class MainWindowViewModel
 
     #endregion
 }
+
+/// <summary>A single validation issue for display in the Issues panel.</summary>
+public record ValidationIssueItem(string Key, string Message);

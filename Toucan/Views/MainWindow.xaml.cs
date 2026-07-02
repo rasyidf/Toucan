@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
+using Toucan.Core.Services;
 using Toucan.Services;
 using Toucan.ViewModels;
 using Wpf.Ui.Appearance;
@@ -29,20 +30,22 @@ public partial class MainWindow : FluentWindow
         ViewModel.FullscreenRequested = ToggleFullscreen;
         UpdateStartupOptions(startupPath);
 
-        // Collapse/expand sidebar and inspector columns when panel visibility changes
+        // Wire side panel content switching
+        var sideRegistry = Toucan.Core.Services.SidePanelRegistry.Instance;
+        sideRegistry.PropertyChanged += (s, ea) =>
+        {
+            if (ea.PropertyName == nameof(sideRegistry.ActiveLeftPanel))
+                UpdateLeftPanelContent(sideRegistry.ActiveLeftPanel?.Id);
+            else if (ea.PropertyName == nameof(sideRegistry.ActiveRightPanel))
+                UpdateRightPanelContent(sideRegistry.ActiveRightPanel?.Id);
+            else if (ea.PropertyName == nameof(sideRegistry.LeftSlotVisible))
+                sidebarColumn.Width = sideRegistry.LeftSlotVisible ? new GridLength(320) : new GridLength(0);
+            else if (ea.PropertyName == nameof(sideRegistry.RightSlotVisible))
+                inspectorColumn.Width = sideRegistry.RightSlotVisible ? new GridLength(280) : new GridLength(0);
+        };
         Services.PanelService.Instance.PropertyChanged += (s, ea) =>
         {
-            if (ea.PropertyName == nameof(Services.PanelService.SidePanelVisible))
-            {
-                sidebarColumn.Width = Services.PanelService.Instance.SidePanelVisible
-                    ? new GridLength(320) : new GridLength(0);
-            }
-            else if (ea.PropertyName == nameof(Services.PanelService.InspectorVisible))
-            {
-                inspectorColumn.Width = Services.PanelService.Instance.InspectorVisible
-                    ? new GridLength(280) : new GridLength(0);
-            }
-            else if (ea.PropertyName == nameof(Services.PanelService.ZenMode))
+            if (ea.PropertyName == nameof(Services.PanelService.ZenMode))
             {
                 // Zen mode collapses both; exiting restores both
                 if (Services.PanelService.Instance.ZenMode)
@@ -50,19 +53,19 @@ public partial class MainWindow : FluentWindow
                     sidebarColumn.Width = new GridLength(0);
                     inspectorColumn.Width = new GridLength(0);
                 }
-                // ExitZenMode sets SidePanelVisible/InspectorVisible=true which triggers the above
+                // ExitZenMode sets LeftSlotVisible/RightSlotVisible=true which triggers the above
             }
         };
         // Apply saved panel state on startup
-        if (!Services.PanelService.Instance.SidePanelVisible)
+        if (!sideRegistry.LeftSlotVisible)
             sidebarColumn.Width = new GridLength(0);
-        if (!Services.PanelService.Instance.InspectorVisible)
+        if (!sideRegistry.RightSlotVisible)
             inspectorColumn.Width = new GridLength(0);
+        // Set initial content
+        UpdateLeftPanelContent(sideRegistry.ActiveLeftPanel?.Id);
+        UpdateRightPanelContent(sideRegistry.ActiveRightPanel?.Id);
 
         ViewModel.PagingController.UpdatePageSize(ViewModel.AppOptions.PageSize);
-
-        // wire up list selection from resources view
-        resourcesView.ListSelectionChanged += ResourcesView_ListSelectionChanged;
 
         // wire up statusbar view model and service
         // initialize from main view model
@@ -73,6 +76,13 @@ public partial class MainWindow : FluentWindow
         statusViewModel.DefaultLanguage = ViewModel.AppOptions?.DefaultLanguage ?? "en-US";
         StatusBarService.Instance.Register(statusViewModel);
         RootStatusBar.DataContext = statusViewModel;
+
+        // Wire project panel click to open project properties
+        statusViewModel.Project.ProjectPropertiesRequested += (_, _) =>
+        {
+            if (ViewModel.ShowProjectPropertiesCommand.CanExecute(null))
+                ViewModel.ShowProjectPropertiesCommand.Execute(null);
+        };
 
         // forward basic updates from the main VM to the status bar
         ViewModel.PropertyChanged += (s, ea) =>
@@ -122,6 +132,40 @@ public partial class MainWindow : FluentWindow
             // Show start screen
             ViewModel.CurrentPath = string.Empty;
         }
+    }
+
+    private void UpdateLeftPanelContent(string? panelId)
+    {
+        leftPanelHost.PanelContent = panelId switch
+        {
+            "explorer" => CreateExplorerPanel(),
+            "source-code" => new Views.Panels.SourceCodePanel(),
+            "search" => new Views.Panels.SearchPanel(),
+            "issues" => new Views.Panels.IssuesPanel(),
+            "source-control" => new Views.Panels.SourceControlPanel(),
+            _ => null!
+        };
+    }
+
+    private void UpdateRightPanelContent(string? panelId)
+    {
+        rightPanelHost.PanelContent = panelId switch
+        {
+            "inspector" => new Views.Panels.InspectorPanel(),
+            "machine-translation" => new Views.Panels.MachineTranslationPanel(),
+            "translation-memory" => new Views.Panels.TranslationMemoryPanel(),
+            "dictionary" => new Views.Panels.DictionaryPanel(),
+            _ => null!
+        };
+    }
+
+    private Views.Panels.ExplorerPanel CreateExplorerPanel()
+    {
+        var panel = new Views.Panels.ExplorerPanel();
+        var rv = panel.ResourcesContent;
+        rv.SelectionChanged += TreeNamespace_SelectedItemChanged;
+        rv.ListSelectionChanged += ResourcesView_ListSelectionChanged;
+        return panel;
     }
 
     private void TreeNamespace_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)

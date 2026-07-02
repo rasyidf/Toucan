@@ -80,6 +80,8 @@ public partial class SourceCodeService : ISourceCodeService
     public IEnumerable<KeyUsage> FindUsages(string key)
         => _usagesByKey.TryGetValue(key, out var bag) ? bag : [];
 
+    public IEnumerable<string> GetAllKeys() => _allFoundKeys.Keys;
+
     public IEnumerable<string> GetUndefinedKeys(IEnumerable<string> translationKeys)
     {
         var defined = translationKeys.ToHashSet();

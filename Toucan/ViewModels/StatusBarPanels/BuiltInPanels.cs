@@ -167,11 +167,9 @@ public partial class ProjectPanel : StatusBarPanelBase
     public override ICommand? ClickCommand => OpenProjectPropertiesCommand;
 
     [RelayCommand]
-    private void OpenProjectProperties() { /* ponytail: triggers project properties dialog */ }
+    private void OpenProjectProperties() => ProjectPropertiesRequested?.Invoke(this, EventArgs.Empty);
 
-#pragma warning disable CS0067
     public event EventHandler? ProjectPropertiesRequested;
-#pragma warning restore CS0067
 
     public void Update(string name, int dirty = 0)
     {

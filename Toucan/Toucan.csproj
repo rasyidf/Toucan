@@ -45,6 +45,7 @@
     <Resource Include="Assets\Images\translation.png" />
     <Resource Include="Assets\Images\logo.png" />
     <Resource Include="Assets\Images\splash.png" />
+    <EmbeddedResource Include="Assets\Images\document.ico" Condition="Exists('Assets\Images\document.ico')" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Locales\Strings.resx">

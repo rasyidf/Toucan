@@ -2,6 +2,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Text.Json;
+using Toucan.Core.Models;
+using Toucan.Core.Services;
 using Toucan.ViewModels;
 
 namespace Toucan.Services;
@@ -17,6 +19,8 @@ internal partial class PanelService : ObservableObject
     // ponytail: backward-compat singleton until all callers are migrated to DI
     private static readonly Lazy<PanelService> s_instance = new(() => new PanelService());
     public static PanelService Instance => s_instance.Value;
+
+    public SidePanelRegistry SideRegistry => SidePanelRegistry.Instance;
 
     private static readonly string s_layoutPath = System.IO.Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "layout.json");
@@ -60,13 +64,20 @@ internal partial class PanelService : ObservableObject
     [RelayCommand] private void ToggleEditor() => EditorVisible = !EditorVisible;
     [RelayCommand] private void ToggleSuggestions() => SuggestionsVisible = !SuggestionsVisible;
     [RelayCommand] private void ToggleFocusedEditor() => FocusedEditorVisible = !FocusedEditorVisible;
-    [RelayCommand] private void ToggleInspector() => InspectorVisible = !InspectorVisible;
+    [RelayCommand] private void ToggleInspector()
+    {
+        InspectorVisible = !InspectorVisible;
+        SideRegistry.RightSlotVisible = InspectorVisible;
+    }
     [RelayCommand] private void ToggleToolbar() => ToolbarVisible = !ToolbarVisible;
     [RelayCommand] private void ToggleStatusBar() => StatusBarVisible = !StatusBarVisible;
+    [RelayCommand] private void ActivateLeftPanel(string id) => SideRegistry.Toggle(id);
+    [RelayCommand] private void ActivateRightPanel(string id) => SideRegistry.Toggle(id);
     [RelayCommand]
     private void ToggleSidebar()
     {
         SidePanelVisible = !SidePanelVisible;
+        SideRegistry.LeftSlotVisible = SidePanelVisible;
         if (!SidePanelVisible) { ResourcesVisible = false; LanguagesVisible = false; }
         else { ResourcesVisible = true; LanguagesVisible = true; }
     }
@@ -90,6 +101,8 @@ internal partial class PanelService : ObservableObject
         LanguagesVisible = false;
         SuggestionsVisible = false;
         InspectorVisible = false;
+        SideRegistry.LeftSlotVisible = false;
+        SideRegistry.RightSlotVisible = false;
     }
 
     private void ExitZenMode()
@@ -101,6 +114,8 @@ internal partial class PanelService : ObservableObject
         ResourcesVisible = true;
         LanguagesVisible = true;
         InspectorVisible = true;
+        SideRegistry.LeftSlotVisible = true;
+        SideRegistry.RightSlotVisible = true;
     }
 
     // --- Layout Persistence ---
@@ -121,7 +136,9 @@ internal partial class PanelService : ObservableObject
                 SidePanelVisible = SidePanelVisible,
                 SidebarWidth = SidebarWidth,
                 LanguagesPanelHeight = LanguagesPanelHeight,
-                EditorMode = EditorMode
+                EditorMode = EditorMode,
+                ActiveLeftPanelId = SideRegistry.ActiveLeftPanel?.Id ?? "explorer",
+                ActiveRightPanelId = SideRegistry.ActiveRightPanel?.Id ?? "inspector"
             };
             var dir = System.IO.Path.GetDirectoryName(s_layoutPath)!;
             System.IO.Directory.CreateDirectory(dir);
@@ -150,6 +167,10 @@ internal partial class PanelService : ObservableObject
             SidebarWidth = state.SidebarWidth > 0 ? state.SidebarWidth : 200;
             LanguagesPanelHeight = state.LanguagesPanelHeight > 0 ? state.LanguagesPanelHeight : 280;
             EditorMode = state.EditorMode;
+            if (!string.IsNullOrEmpty(state.ActiveLeftPanelId))
+                SideRegistry.Activate(state.ActiveLeftPanelId);
+            if (!string.IsNullOrEmpty(state.ActiveRightPanelId))
+                SideRegistry.Activate(state.ActiveRightPanelId);
         }
         catch { /* start with defaults */ }
     }
@@ -167,5 +188,7 @@ internal partial class PanelService : ObservableObject
         public double SidebarWidth { get; set; } = 200;
         public double LanguagesPanelHeight { get; set; } = 280;
         public EditorMode EditorMode { get; set; } = EditorMode.Editor;
+        public string ActiveLeftPanelId { get; set; } = "explorer";
+        public string ActiveRightPanelId { get; set; } = "inspector";
     }
 }

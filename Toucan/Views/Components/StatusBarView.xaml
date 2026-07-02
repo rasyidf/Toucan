@@ -229,28 +229,15 @@
                 <ColumnDefinition Width="Auto" /> <!-- Right: info panels -->
             </Grid.ColumnDefinitions>
 
-            <!-- ═══ LEFT: Contextual Quick Actions (borderless, flat icons) ═══ -->
+            <!-- ═══ LEFT: Project info panels ═══ -->
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Style="{StaticResource PanelButton}"
-                        Command="{Binding PreTranslateBulkCommand}"
-                        ToolTip="Pre-translate all">
-                    <ui:SymbolIcon Symbol="Translate20" FontSize="14" />
-                </Button>
-                <Button Style="{StaticResource PanelButton}"
-                        Command="{Binding ValidatePlaceholdersCommand}"
-                        ToolTip="Validate placeholders">
-                    <ui:SymbolIcon Symbol="CheckmarkSquare20" FontSize="14" />
-                </Button>
-                <Button Style="{StaticResource PanelButton}"
-                        Command="{Binding GenerateStatisticsBulkCommand}"
-                        ToolTip="Statistics">
-                    <ui:SymbolIcon Symbol="ChartMultiple20" FontSize="14" />
-                </Button>
-                <Button Style="{StaticResource PanelButton}"
-                        Command="{Binding ToggleAdvancedOptionsCommand}"
-                        ToolTip="Source code view">
-                    <ui:SymbolIcon Symbol="Code20" FontSize="14" />
-                </Button>
+                <ItemsControl ItemsSource="{Binding Registry.LeftPanels}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
             </StackPanel>
 
             <!-- ═══ CENTER: Status text + loading ═══ -->
@@ -265,15 +252,8 @@
                 </ItemsControl>
             </StackPanel>
 
-            <!-- ═══ RIGHT: Info panels (project, vcs, language, encoding, notifications) ═══ -->
+            <!-- ═══ RIGHT: Language, encoding, notifications ═══ -->
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                <ItemsControl ItemsSource="{Binding Registry.LeftPanels}" VerticalAlignment="Center">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
                 <ItemsControl ItemsSource="{Binding Registry.RightPanels}" VerticalAlignment="Center">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

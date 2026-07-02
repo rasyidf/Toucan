@@ -1,0 +1,119 @@
+<UserControl x:Class="Toucan.Views.Panels.TranslationMemoryPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:converters="clr-namespace:Toucan.Converters">
+    <UserControl.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,8">
+            <ui:Button DockPanel.Dock="Right"
+                       Appearance="Secondary"
+                       Icon="{ui:SymbolIcon Delete24}"
+                       ToolTip="Clear Translation Memory"
+                       Command="{Binding ToggleSuggestionsCommand}"
+                       Padding="4"
+                       VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <ui:SymbolIcon Symbol="Library24" FontSize="16" Margin="0,0,6,0"/>
+                <TextBlock Text="Translation Memory"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Current key context -->
+        <TextBlock Grid.Row="1"
+                   Margin="0,0,0,8"
+                   FontSize="11"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                   Visibility="{Binding HasSelectedKeyDetails, Converter={StaticResource BoolToVis}}">
+            <Run Text="Key: "/><Run Text="{Binding SelectedKeyNamespace, Mode=OneWay}"/>
+        </TextBlock>
+
+        <!-- Empty state: no key selected -->
+        <StackPanel Grid.Row="2"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Visibility="{Binding HasSelectedKeyDetails, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
+            <ui:SymbolIcon Symbol="Library24" FontSize="32" Opacity="0.3" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+            <TextBlock Text="Select a translation key to see TM matches"
+                       FontSize="11"
+                       Opacity="0.5"
+                       HorizontalAlignment="Center"
+                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+        </StackPanel>
+
+        <!-- Empty state: no matches found -->
+        <StackPanel Grid.Row="2"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding HasSelectedKeyDetails}" Value="True"/>
+                                <Condition Binding="{Binding Suggestions.Count}" Value="0"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+            <ui:SymbolIcon Symbol="SearchInfo24" FontSize="32" Opacity="0.3" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+            <TextBlock Text="No similar translations found in memory"
+                       FontSize="11"
+                       Opacity="0.5"
+                       HorizontalAlignment="Center"
+                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+        </StackPanel>
+
+        <!-- Matches list -->
+        <ListBox Grid.Row="2"
+                 ItemsSource="{Binding Suggestions}"
+                 BorderThickness="0"
+                 Background="Transparent"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.Style>
+                <Style TargetType="ListBox" BasedOn="{StaticResource {x:Type ListBox}}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasSelectedKeyDetails}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Suggestions.Count}" Value="0">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.Style>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="6,4"
+                            Margin="0,2"
+                            CornerRadius="4"
+                            Background="{DynamicResource ControlFillColorDefaultBrush}">
+                        <TextBlock Text="{Binding}"
+                                   FontSize="11"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   ToolTip="Click to copy"/>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>
