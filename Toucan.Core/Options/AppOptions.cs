@@ -33,6 +33,10 @@ public class AppOptions
     public bool PlainTextKeys { get; set; }
     public List<string> FilterHistory { get; set; } = [];
     public List<string> SuggestedLanguages { get; set; } = ["en-US", "id-ID", "zh-CN", "fr-FR", "es-ES"];
+
+    // --- Translation Memory ---
+    public double TmSimilarityThreshold { get; set; } = 0.7;
+    public bool TmGlobalScope { get; set; } = true;
     // --- Last session state ---
     public string? LastProjectPath { get; set; }
     public bool OpenLastProjectOnStartup { get; set; } = true;

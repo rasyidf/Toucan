@@ -79,6 +79,34 @@
             </ui:TitleBar.TrailingContent>
         </ui:TitleBar>
 
+        <!-- Bulk action toolbar — visible only in multi-select mode -->
+        <Border Grid.Row="1" Padding="8,4" Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                Visibility="{Binding IsMultiSelectMode, Converter={StaticResource BoolToVis}}"
+                Panel.ZIndex="10" VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock VerticalAlignment="Center" Margin="0,0,12,0">
+                    <Run Text="{Binding SelectionCount, Mode=OneWay}"/>
+                    <Run Text=" selected"/>
+                </TextBlock>
+                <ui:Button Content="Select All" Appearance="Secondary" Margin="0,0,4,0" Padding="8,2"
+                           Command="{Binding BulkSelectAllCommand}"/>
+                <ui:Button Content="Deselect" Appearance="Secondary" Margin="0,0,4,0" Padding="8,2"
+                           Command="{Binding BulkDeselectAllCommand}"/>
+                <ui:Button Content="Delete" Appearance="Danger" Margin="0,0,4,0" Padding="8,2"
+                           Command="{Binding BulkDeleteCommand}"/>
+                <ui:Button Content="Move" Appearance="Secondary" Margin="0,0,4,0" Padding="8,2"
+                           Command="{Binding BulkMoveToNamespaceCommand}"/>
+                <ui:Button Content="Translate" Appearance="Secondary" Margin="0,0,4,0" Padding="8,2"
+                           Command="{Binding BulkTranslateCommand}"/>
+                <ui:Button Content="Approve" Appearance="Secondary" Margin="0,0,4,0" Padding="8,2"
+                           Command="{Binding BulkApproveCommand}"/>
+                <ui:Button Content="Copy to Lang" Appearance="Secondary" Margin="0,0,4,0" Padding="8,2"
+                           Command="{Binding BulkCopyToLanguageCommand}"/>
+                <ui:Button Content="Exit" Appearance="Transparent" Padding="8,2"
+                           Command="{Binding ToggleMultiSelectCommand}"/>
+            </StackPanel>
+        </Border>
+
         <Grid x:Name="contentGrid"
               Grid.Row="1"
               Grid.RowSpan="1"

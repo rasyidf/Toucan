@@ -146,8 +146,14 @@ public partial class App : Application
         // Bulk action service
         _ = services.AddSingleton<IBulkActionService, BulkActionService>();
 
+        // Bulk operation service (stateless helpers for multi-select ops)
+        _ = services.AddSingleton<BulkOperationService>();
+
         // Fuzzy search service (stateless singleton for hybrid trigram + substring matching)
         _ = services.AddSingleton<IFuzzySearchService, FuzzySearchService>();
+
+        // Search & Replace service (stateless, FG-07)
+        _ = services.AddSingleton<ISearchAndReplaceService, SearchAndReplaceService>();
 
         // Pretranslation engine and a simple mock provider
         _ = services.AddSingleton<IPretranslationService, PretranslationService>();
@@ -346,6 +352,9 @@ public partial class App : Application
 
         var viewModel = _services.GetRequiredService<MainWindowViewModel>();
         viewModel.FuzzySearchService = _services.GetRequiredService<IFuzzySearchService>();
+        viewModel.SearchAndReplaceService = _services.GetRequiredService<ISearchAndReplaceService>();
+        viewModel.BulkOperationService = _services.GetRequiredService<BulkOperationService>();
+        viewModel.SetTranslationMemory(_services.GetRequiredService<ITranslationMemory>());
 
         // Apply saved theme
         ApplyTheme(viewModel.AppOptions.Theme);

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.17.0] - 2026-07-03
+
+### Added
+- **Search & Replace (FG-07)** — global search across all keys/values/languages with regex support, scope filtering, replace preview, and search history.
+- **Bulk Operations (FG-08)** — multi-select mode with bulk delete, move to namespace, pre-translate, approve, and copy source→target language.
+- **Custom Validation Rules (FG-09)** — configurable per-project rules (max length, forbidden words, regex patterns) with severity levels and auto-fix suggestions.
+- **TM Enhancements (FG-03)** — TMX import/export, TM entry management (view/delete/clear), ghost text suggestion property, configurable similarity threshold and scope.
+
 ## [0.16.1] - 2026-07-03
 
 ### Improved

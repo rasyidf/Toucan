@@ -1,5 +1,9 @@
 {
-  "progress": { "done": 88, "total": 88, "parity": 100 },
+  "progress": {
+    "done": 88,
+    "total": 88,
+    "parity": 100
+  },
   "categories": [
     {
       "name": "Core Editor",
@@ -7,48 +11,114 @@
         {
           "name": "Views & Navigation",
           "features": [
-            { "name": "Tree view + List view toggle", "done": true },
-            { "name": "Pagination with compact controls", "done": true },
-            { "name": "Infinite scroll toggle (paginated vs continuous)", "done": true },
-            { "name": "Filter expression history (last 15)", "done": true }
+            {
+              "name": "Tree view + List view toggle",
+              "done": true
+            },
+            {
+              "name": "Pagination with compact controls",
+              "done": true
+            },
+            {
+              "name": "Infinite scroll toggle (paginated vs continuous)",
+              "done": true
+            },
+            {
+              "name": "Filter expression history (last 15)",
+              "done": true
+            }
           ]
         },
         {
           "name": "Key Management",
           "features": [
-            { "name": "Add / Remove / Rename / Duplicate translation IDs", "done": true },
-            { "name": "Add / Remove languages", "done": true },
-            { "name": "Auto-select newly added ID", "done": true },
-            { "name": "Plain text keys mode (no dot-splitting)", "done": true }
+            {
+              "name": "Add / Remove / Rename / Duplicate translation IDs",
+              "done": true
+            },
+            {
+              "name": "Add / Remove languages",
+              "done": true
+            },
+            {
+              "name": "Auto-select newly added ID",
+              "done": true
+            },
+            {
+              "name": "Plain text keys mode (no dot-splitting)",
+              "done": true
+            }
           ]
         },
         {
           "name": "Editing",
           "features": [
-            { "name": "Load/save JSON (flat + namespaced)", "done": true },
-            { "name": "Undo / Redo (Ctrl+Z / Ctrl+Y)", "done": true },
-            { "name": "Comment field per translation", "done": true },
-            { "name": "Approved flag (toggle per row)", "done": true },
-            { "name": "Cut / Copy / Paste translation values", "done": true },
-            { "name": "Copy as template (3 configurable patterns)", "done": true },
-            { "name": "Tab between edit fields", "done": true }
+            {
+              "name": "Load/save JSON (flat + namespaced)",
+              "done": true
+            },
+            {
+              "name": "Undo / Redo (Ctrl+Z / Ctrl+Y)",
+              "done": true
+            },
+            {
+              "name": "Comment field per translation",
+              "done": true
+            },
+            {
+              "name": "Approved flag (toggle per row)",
+              "done": true
+            },
+            {
+              "name": "Cut / Copy / Paste translation values",
+              "done": true
+            },
+            {
+              "name": "Copy as template (3 configurable patterns)",
+              "done": true
+            },
+            {
+              "name": "Tab between edit fields",
+              "done": true
+            }
           ]
         },
         {
           "name": "Text Processing",
           "features": [
-            { "name": "Spell checking (WPF native)", "done": true },
-            { "name": "Word-wrapping for long IDs", "done": true },
-            { "name": "Convert case (lower / upper / sentence / title)", "done": true },
-            { "name": "Remove whitespace (trim / line-by-line / simplify)", "done": true }
+            {
+              "name": "Spell checking (WPF native)",
+              "done": true
+            },
+            {
+              "name": "Word-wrapping for long IDs",
+              "done": true
+            },
+            {
+              "name": "Convert case (lower / upper / sentence / title)",
+              "done": true
+            },
+            {
+              "name": "Remove whitespace (trim / line-by-line / simplify)",
+              "done": true
+            }
           ]
         },
         {
           "name": "Localization UX",
           "features": [
-            { "name": "Statistics dialog (visual grid, per-language)", "done": true },
-            { "name": "Custom language codes (alias mapping)", "done": true },
-            { "name": "Better font for RTL languages", "done": true }
+            {
+              "name": "Statistics dialog (visual grid, per-language)",
+              "done": true
+            },
+            {
+              "name": "Custom language codes (alias mapping)",
+              "done": true
+            },
+            {
+              "name": "Better font for RTL languages",
+              "done": true
+            }
           ]
         }
       ]
@@ -59,11 +129,26 @@
         {
           "name": "Focused & Zen",
           "features": [
-            { "name": "Focused Editor mode (single-key form, prev/next navigation)", "done": true },
-            { "name": "Zen mode (hides toolbar/statusbar/sidepanel, F11)", "done": true },
-            { "name": "PanelService for centralized panel state", "done": true },
-            { "name": "Focused Editor: language subset selector", "done": true },
-            { "name": "Zen mode: keyboard-only navigation (j/k)", "done": true }
+            {
+              "name": "Focused Editor mode (single-key form, prev/next navigation)",
+              "done": true
+            },
+            {
+              "name": "Zen mode (hides toolbar/statusbar/sidepanel, F11)",
+              "done": true
+            },
+            {
+              "name": "PanelService for centralized panel state",
+              "done": true
+            },
+            {
+              "name": "Focused Editor: language subset selector",
+              "done": true
+            },
+            {
+              "name": "Zen mode: keyboard-only navigation (j/k)",
+              "done": true
+            }
           ]
         }
       ]
@@ -74,47 +159,110 @@
         {
           "name": "Structured Formats",
           "features": [
-            { "name": "JSON (flat)", "done": true },
-            { "name": "JSON (namespaced / i18next)", "done": true },
-            { "name": "YAML", "done": true },
-            { "name": "TOML", "done": true },
-            { "name": "INI", "done": true }
+            {
+              "name": "JSON (flat)",
+              "done": true
+            },
+            {
+              "name": "JSON (namespaced / i18next)",
+              "done": true
+            },
+            {
+              "name": "YAML",
+              "done": true
+            },
+            {
+              "name": "TOML",
+              "done": true
+            },
+            {
+              "name": "INI",
+              "done": true
+            }
           ]
         },
         {
           "name": "Platform Formats",
           "features": [
-            { "name": "PO / Gettext", "done": true },
-            { "name": "RESX (.NET)", "done": true },
-            { "name": "Android XML", "done": true },
-            { "name": "iOS .strings", "done": true },
-            { "name": "XLIFF", "done": true },
-            { "name": "ARB (Flutter)", "done": true }
+            {
+              "name": "PO / Gettext",
+              "done": true
+            },
+            {
+              "name": "RESX (.NET)",
+              "done": true
+            },
+            {
+              "name": "Android XML",
+              "done": true
+            },
+            {
+              "name": "iOS .strings",
+              "done": true
+            },
+            {
+              "name": "XLIFF",
+              "done": true
+            },
+            {
+              "name": "ARB (Flutter)",
+              "done": true
+            }
           ]
         },
         {
           "name": "Exchange Formats",
           "features": [
-            { "name": "CSV", "done": true },
-            { "name": "Import / Export menu (all formats)", "done": true },
-            { "name": "Project manifest (toucan.project JSON)", "done": true },
-            { "name": "Excel (.xlsx) import/export", "done": true },
-            { "name": "Export/Import approved flags + comments in Excel", "done": true }
+            {
+              "name": "CSV",
+              "done": true
+            },
+            {
+              "name": "Import / Export menu (all formats)",
+              "done": true
+            },
+            {
+              "name": "Project manifest (toucan.project JSON)",
+              "done": true
+            },
+            {
+              "name": "Excel (.xlsx) import/export",
+              "done": true
+            },
+            {
+              "name": "Export/Import approved flags + comments in Excel",
+              "done": true
+            }
           ]
         },
         {
           "name": "Additional Formats",
           "features": [
-            { "name": "Java .properties (ISO-8859-1)", "done": true },
-            { "name": "Laravel PHP file support", "done": true }
+            {
+              "name": "Java .properties (ISO-8859-1)",
+              "done": true
+            },
+            {
+              "name": "Laravel PHP file support",
+              "done": true
+            }
           ]
         },
         {
           "name": "File Management",
           "features": [
-            { "name": "Auto-detect framework on folder drop", "done": true },
-            { "name": "File watcher (reload changed files from disk)", "done": true },
-            { "name": "Skip unchanged files on reload", "done": true }
+            {
+              "name": "Auto-detect framework on folder drop",
+              "done": true
+            },
+            {
+              "name": "File watcher (reload changed files from disk)",
+              "done": true
+            },
+            {
+              "name": "Skip unchanged files on reload",
+              "done": true
+            }
           ]
         }
       ]
@@ -125,31 +273,76 @@
         {
           "name": "Providers",
           "features": [
-            { "name": "Google Translate", "done": true },
-            { "name": "DeepL", "done": true },
-            { "name": "Microsoft Translator", "done": true },
-            { "name": "OpenAI (GPT)", "done": true },
-            { "name": "Provider settings dialog", "done": true }
+            {
+              "name": "Google Translate",
+              "done": true
+            },
+            {
+              "name": "DeepL",
+              "done": true
+            },
+            {
+              "name": "Microsoft Translator",
+              "done": true
+            },
+            {
+              "name": "OpenAI (GPT)",
+              "done": true
+            },
+            {
+              "name": "Provider settings dialog",
+              "done": true
+            }
           ]
         },
         {
           "name": "Translation Options",
           "features": [
-            { "name": "Translation context passed to providers", "done": true },
-            { "name": "Formality setting (formal / informal)", "done": true },
-            { "name": "Remember last translation service", "done": true },
-            { "name": "Per-language / per-namespace / per-key pre-translate", "done": true },
-            { "name": "Preview before apply", "done": true }
+            {
+              "name": "Translation context passed to providers",
+              "done": true
+            },
+            {
+              "name": "Formality setting (formal / informal)",
+              "done": true
+            },
+            {
+              "name": "Remember last translation service",
+              "done": true
+            },
+            {
+              "name": "Per-language / per-namespace / per-key pre-translate",
+              "done": true
+            },
+            {
+              "name": "Preview before apply",
+              "done": true
+            }
           ]
         },
         {
           "name": "Smart Processing",
           "features": [
-            { "name": "Preserve parameters ({{var}}, {0}, %s, :param)", "done": true },
-            { "name": "Keep uppercase first letter", "done": true },
-            { "name": "Suggestions panel (fuzzy-match existing translations)", "done": true },
-            { "name": "Pre-translate plural forms (i18next/ICU)", "done": true },
-            { "name": "Translation memory (reuse across projects)", "done": true }
+            {
+              "name": "Preserve parameters ({{var}}, {0}, %s, :param)",
+              "done": true
+            },
+            {
+              "name": "Keep uppercase first letter",
+              "done": true
+            },
+            {
+              "name": "Suggestions panel (fuzzy-match existing translations)",
+              "done": true
+            },
+            {
+              "name": "Pre-translate plural forms (i18next/ICU)",
+              "done": true
+            },
+            {
+              "name": "Translation memory (reuse across projects)",
+              "done": true
+            }
           ]
         }
       ]
@@ -160,34 +353,73 @@
         {
           "name": "Design",
           "features": [
-            { "name": "WPF UI Fluent (Mica backdrop, system theme)", "done": true },
-            { "name": "Design system tokens (shared ResourceDictionary)", "done": true },
-            { "name": "Toucan icon in TitleBar", "done": true }
+            {
+              "name": "WPF UI Fluent (Mica backdrop, system theme)",
+              "done": true
+            },
+            {
+              "name": "Design system tokens (shared ResourceDictionary)",
+              "done": true
+            },
+            {
+              "name": "Toucan icon in TitleBar",
+              "done": true
+            }
           ]
         },
         {
           "name": "Navigation & Workflow",
           "features": [
-            { "name": "Framework tile grid for new projects (16 frameworks)", "done": true },
-            { "name": "Start screen with quick actions", "done": true },
-            { "name": "Recent projects flyout (last 10, clear)", "done": true },
-            { "name": "Auto-open last project on startup", "done": true },
-            { "name": "Reveal in Explorer", "done": true }
+            {
+              "name": "Framework tile grid for new projects (16 frameworks)",
+              "done": true
+            },
+            {
+              "name": "Start screen with quick actions",
+              "done": true
+            },
+            {
+              "name": "Recent projects flyout (last 10, clear)",
+              "done": true
+            },
+            {
+              "name": "Auto-open last project on startup",
+              "done": true
+            },
+            {
+              "name": "Reveal in Explorer",
+              "done": true
+            }
           ]
         },
         {
           "name": "Keyboard & Controls",
           "features": [
-            { "name": "Centralized KeybindingService (22+ shortcuts)", "done": true },
-            { "name": "Keyboard Shortcuts tab in Options dialog", "done": true },
-            { "name": "Filter: untranslated / translated / approved", "done": true },
-            { "name": "Compact pagination controls", "done": true }
+            {
+              "name": "Centralized KeybindingService (22+ shortcuts)",
+              "done": true
+            },
+            {
+              "name": "Keyboard Shortcuts tab in Options dialog",
+              "done": true
+            },
+            {
+              "name": "Filter: untranslated / translated / approved",
+              "done": true
+            },
+            {
+              "name": "Compact pagination controls",
+              "done": true
+            }
           ]
         },
         {
           "name": "Status & Feedback",
           "features": [
-            { "name": "Status bar (project, language, cursor, loading, notifications)", "done": true }
+            {
+              "name": "Status bar (project, language, cursor, loading, notifications)",
+              "done": true
+            }
           ]
         }
       ]
@@ -198,16 +430,31 @@
         {
           "name": "Complex Values",
           "features": [
-            { "name": "Plural forms support (i18next _one/_other, ICU)", "done": true },
-            { "name": "Array support in JSON", "done": true }
+            {
+              "name": "Plural forms support (i18next _one/_other, ICU)",
+              "done": true
+            },
+            {
+              "name": "Array support in JSON",
+              "done": true
+            }
           ]
         },
         {
           "name": "Project Organization",
           "features": [
-            { "name": "Package support (multiple translation sets)", "done": true },
-            { "name": "Drag & drop reorder in tree", "done": true },
-            { "name": "Multi-selection in tree (batch operations)", "done": true }
+            {
+              "name": "Package support (multiple translation sets)",
+              "done": true
+            },
+            {
+              "name": "Drag & drop reorder in tree",
+              "done": true
+            },
+            {
+              "name": "Multi-selection in tree (batch operations)",
+              "done": true
+            }
           ]
         }
       ]
@@ -218,17 +465,35 @@
         {
           "name": "Key Usage",
           "features": [
-            { "name": "Source code view panel (show where key is used)", "done": true },
-            { "name": "Double-click opens source in external editor", "done": true },
-            { "name": "Wire source root configuration", "done": true }
+            {
+              "name": "Source code view panel (show where key is used)",
+              "done": true
+            },
+            {
+              "name": "Double-click opens source in external editor",
+              "done": true
+            },
+            {
+              "name": "Wire source root configuration",
+              "done": true
+            }
           ]
         },
         {
           "name": "Extraction & Analysis",
           "features": [
-            { "name": "Extract translation IDs from source (t('key') patterns)", "done": true },
-            { "name": "Filter: used / unused in source code", "done": true },
-            { "name": "Support .tsx, .vue, .svelte, .py scanning", "done": true }
+            {
+              "name": "Extract translation IDs from source (t('key') patterns)",
+              "done": true
+            },
+            {
+              "name": "Filter: used / unused in source code",
+              "done": true
+            },
+            {
+              "name": "Support .tsx, .vue, .svelte, .py scanning",
+              "done": true
+            }
           ]
         }
       ]
@@ -239,16 +504,32 @@
         {
           "name": "Cross-Platform",
           "features": [
-            { "name": "Avalonia port (macOS + Linux)", "done": false, "wip": true },
-            { "name": "Translation file locations configurable per language", "done": true }
+            {
+              "name": "Avalonia port (macOS + Linux)",
+              "done": false,
+              "wip": true
+            },
+            {
+              "name": "Translation file locations configurable per language",
+              "done": true
+            }
           ]
         },
         {
           "name": "Installation & Updates",
           "features": [
-            { "name": "MSIX installer (Windows)", "done": false },
-            { "name": "Auto-updater", "done": false },
-            { "name": "File association (.toucan.project → open app)", "done": true }
+            {
+              "name": "MSIX installer (Windows)",
+              "done": false
+            },
+            {
+              "name": "Auto-updater",
+              "done": false
+            },
+            {
+              "name": "File association (.toucan.project → open app)",
+              "done": true
+            }
           ]
         }
       ]
@@ -259,11 +540,615 @@
         {
           "name": "Planned",
           "features": [
-            { "name": "AI Context Analyzer (check translations against source language)", "done": false },
-            { "name": "AI-powered translation memory", "done": false }
+            {
+              "name": "AI Context Analyzer (check translations against source language)",
+              "done": false
+            },
+            {
+              "name": "AI-powered translation memory",
+              "done": false
+            }
           ]
         }
       ]
     }
-  ]
+  ],
+  "upcoming": {
+    "description": "Feature groups for v0.17 → v1.0. Pick 2-4 per sprint.",
+    "groups": [
+      {
+        "id": "FG-01",
+        "name": "MSIX Packaging & Distribution",
+        "effort": "M",
+        "impact": "High",
+        "depends": [],
+        "features": [
+          {
+            "name": "MSIX package build",
+            "done": false
+          },
+          {
+            "name": "Code signing (dev + release certs)",
+            "done": false
+          },
+          {
+            "name": "GitHub Releases CI/CD workflow",
+            "done": false
+          },
+          {
+            "name": "Installer UX (icon, start menu, uninstall)",
+            "done": false
+          },
+          {
+            "name": "Portable mode (no install, single folder)",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "FG-02",
+        "name": "Auto-Updater",
+        "effort": "M",
+        "impact": "High",
+        "depends": [
+          "FG-01"
+        ],
+        "features": [
+          {
+            "name": "Check for updates on startup",
+            "done": false
+          },
+          {
+            "name": "In-app update notification with changelog",
+            "done": false
+          },
+          {
+            "name": "Download + apply update (restart)",
+            "done": false
+          },
+          {
+            "name": "Update channel (stable / preview)",
+            "done": false
+          },
+          {
+            "name": "Version check endpoint (GitHub API or JSON)",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "FG-03",
+        "name": "Translation Memory Enhancements",
+        "effort": "M",
+        "impact": "High",
+        "depends": [],
+        "features": [
+          {
+            "name": "Auto-suggest from TM while typing (ghost text)",
+            "done": true
+          },
+          {
+            "name": "TM import/export (TMX format)",
+            "done": true
+          },
+          {
+            "name": "TM entry management (view, delete, edit)",
+            "done": true
+          },
+          {
+            "name": "Per-project vs global TM scope toggle",
+            "done": true
+          },
+          {
+            "name": "Minimum similarity threshold setting",
+            "done": true
+          }
+        ]
+      },
+      {
+        "id": "FG-04",
+        "name": "ConsistencyAI",
+        "effort": "L",
+        "impact": "High",
+        "depends": [],
+        "features": [
+          {
+            "name": "Batch check translations via AI",
+            "done": false
+          },
+          {
+            "name": "Flag mistranslations, tone shifts, grammar",
+            "done": false
+          },
+          {
+            "name": "Results panel with accept/dismiss/re-translate",
+            "done": false
+          },
+          {
+            "name": "Configurable strictness",
+            "done": false
+          },
+          {
+            "name": "Provider selection (OpenAI, webhook)",
+            "done": false
+          },
+          {
+            "name": "Progress indicator for batch ops",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "FG-05",
+        "name": "Review Workflow",
+        "effort": "M",
+        "impact": "Medium",
+        "depends": [],
+        "features": [
+          {
+            "name": "Status lifecycle: Draft → Review → Approved → Published",
+            "done": false
+          },
+          {
+            "name": "Status stored per key per language",
+            "done": false
+          },
+          {
+            "name": "Batch approve/reject with comments",
+            "done": false
+          },
+          {
+            "name": "Review history per key",
+            "done": false
+          },
+          {
+            "name": "Filter by status in editor",
+            "done": false
+          },
+          {
+            "name": "Status badge in translation row",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "FG-06",
+        "name": "Git Integration (Basic)",
+        "effort": "M",
+        "impact": "Medium",
+        "depends": [],
+        "features": [
+          {
+            "name": "Detect git repo",
+            "done": false
+          },
+          {
+            "name": "Show branch name in StatusBar",
+            "done": false
+          },
+          {
+            "name": "Highlight keys changed since last commit",
+            "done": false
+          },
+          {
+            "name": "Diff per key (old vs new)",
+            "done": false
+          },
+          {
+            "name": "Auto-commit on save (opt-in)",
+            "done": false
+          },
+          {
+            "name": "Source Control panel: staged/unstaged list",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "FG-07",
+        "name": "Search & Replace",
+        "effort": "S",
+        "impact": "Medium",
+        "depends": [],
+        "features": [
+          {
+            "name": "Global search across keys + values + languages",
+            "done": true
+          },
+          {
+            "name": "Find & replace with preview",
+            "done": true
+          },
+          {
+            "name": "Regex support",
+            "done": true
+          },
+          {
+            "name": "Scope: namespace / all / specific languages",
+            "done": true
+          },
+          {
+            "name": "Search history (last 20)",
+            "done": true
+          }
+        ]
+      },
+      {
+        "id": "FG-08",
+        "name": "Bulk Operations",
+        "effort": "S",
+        "impact": "Medium",
+        "depends": [],
+        "features": [
+          {
+            "name": "Multi-select keys (Ctrl+Click, Shift+Click)",
+            "done": true
+          },
+          {
+            "name": "Bulk delete selected keys",
+            "done": true
+          },
+          {
+            "name": "Bulk move to namespace",
+            "done": true
+          },
+          {
+            "name": "Bulk pre-translate selected",
+            "done": true
+          },
+          {
+            "name": "Bulk approve/reject selected",
+            "done": true
+          },
+          {
+            "name": "Bulk copy source → target language",
+            "done": true
+          }
+        ]
+      },
+      {
+        "id": "FG-09",
+        "name": "Improved Validation",
+        "effort": "S",
+        "impact": "Medium",
+        "depends": [],
+        "features": [
+          {
+            "name": "Custom validation rules (regex, per project)",
+            "done": true
+          },
+          {
+            "name": "Max length validation",
+            "done": true
+          },
+          {
+            "name": "Forbidden words list",
+            "done": true
+          },
+          {
+            "name": "Validation severity per rule",
+            "done": true
+          },
+          {
+            "name": "Auto-fix suggestions",
+            "done": true
+          },
+          {
+            "name": "Real-time validation (on-type underline)",
+            "done": true
+          }
+        ]
+      },
+      {
+        "id": "FG-10",
+        "name": "Onboarding & UX Polish",
+        "effort": "S",
+        "impact": "Medium",
+        "depends": [],
+        "features": [
+          {
+            "name": "First-run wizard",
+            "done": false
+          },
+          {
+            "name": "Tooltip tour for new users",
+            "done": false
+          },
+          {
+            "name": "Empty state improvements (all panels)",
+            "done": false
+          },
+          {
+            "name": "Keyboard shortcut overlay",
+            "done": false
+          },
+          {
+            "name": "Command palette (Ctrl+Shift+P)",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "FG-11",
+        "name": "Editor Improvements",
+        "effort": "S",
+        "impact": "Medium",
+        "depends": [],
+        "features": [
+          {
+            "name": "Inline editing (double-click cell)",
+            "done": false
+          },
+          {
+            "name": "Side-by-side language comparison",
+            "done": false
+          },
+          {
+            "name": "Character + word count in status bar",
+            "done": false
+          },
+          {
+            "name": "Auto-resize text area",
+            "done": false
+          },
+          {
+            "name": "Markdown preview for markup translations",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "FG-12",
+        "name": "Export & Reporting",
+        "effort": "S",
+        "impact": "Low-Medium",
+        "depends": [],
+        "features": [
+          {
+            "name": "Translation progress report (PDF/HTML)",
+            "done": false
+          },
+          {
+            "name": "Missing translations report per language",
+            "done": false
+          },
+          {
+            "name": "Unused keys report (from source scan)",
+            "done": false
+          },
+          {
+            "name": "Change log export (since date X)",
+            "done": false
+          },
+          {
+            "name": "Statistics dashboard panel",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "FG-13",
+        "name": "Performance & Scale",
+        "effort": "M",
+        "impact": "Low-Medium",
+        "depends": [],
+        "features": [
+          {
+            "name": "Virtual scrolling for 10k+ keys",
+            "done": false
+          },
+          {
+            "name": "Lazy loading of language files",
+            "done": false
+          },
+          {
+            "name": "Background save (non-blocking)",
+            "done": false
+          },
+          {
+            "name": "Indexed search for large datasets",
+            "done": false
+          },
+          {
+            "name": "Memory profiling + optimization",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "FG-14",
+        "name": "Webhook Provider",
+        "effort": "S",
+        "impact": "Low-Medium",
+        "depends": [],
+        "features": [
+          {
+            "name": "Custom webhook provider for pre-translation",
+            "done": false
+          },
+          {
+            "name": "Configurable URL, headers, body template",
+            "done": false
+          },
+          {
+            "name": "Response mapping (JSON path extraction)",
+            "done": false
+          },
+          {
+            "name": "Retry logic + timeout",
+            "done": false
+          },
+          {
+            "name": "On-save webhook notification",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "FG-15",
+        "name": "Glossary & Terminology",
+        "effort": "M",
+        "impact": "Medium",
+        "depends": [],
+        "features": [
+          {
+            "name": "Project glossary (term → translation per language)",
+            "done": false
+          },
+          {
+            "name": "Glossary enforcement in validation",
+            "done": false
+          },
+          {
+            "name": "Auto-suggest from glossary while typing",
+            "done": false
+          },
+          {
+            "name": "Import/export glossary (CSV, TBX)",
+            "done": false
+          },
+          {
+            "name": "Dictionary panel shows glossary matches",
+            "done": false
+          }
+        ]
+      },
+      {
+        "id": "FG-16",
+        "name": "Test Coverage & CI",
+        "effort": "M",
+        "impact": "Low",
+        "depends": [],
+        "features": [
+          {
+            "name": "Unit tests for Core services (80%+ coverage)",
+            "done": false
+          },
+          {
+            "name": "Integration tests for load/save round-trip",
+            "done": false
+          },
+          {
+            "name": "ViewModel tests for key workflows",
+            "done": false
+          },
+          {
+            "name": "GitHub Actions CI pipeline",
+            "done": false
+          },
+          {
+            "name": "Code coverage reporting",
+            "done": false
+          }
+        ]
+      }
+    ]
+  },
+  "future": {
+    "description": "Nice-to-have and hard items. Deferred past v1.0.",
+    "groups": [
+      {
+        "name": "Cross-Platform (Avalonia)",
+        "features": [
+          {
+            "name": "Complete Avalonia port (macOS + Linux)"
+          },
+          {
+            "name": "Shared ViewModel layer extraction"
+          },
+          {
+            "name": "macOS: native menu bar, system accent colors"
+          },
+          {
+            "name": "Linux: AppImage + Flatpak, XDG compliance"
+          }
+        ]
+      },
+      {
+        "name": "Plugin System",
+        "features": [
+          {
+            "name": "Plugin API: load .dll assemblies at runtime"
+          },
+          {
+            "name": "Custom format plugins"
+          },
+          {
+            "name": "Custom validation rules (per-project)"
+          },
+          {
+            "name": "Custom providers"
+          },
+          {
+            "name": "Plugin manifest + discovery"
+          }
+        ]
+      },
+      {
+        "name": "Platform Imports",
+        "features": [
+          {
+            "name": "Import from Crowdin (API)"
+          },
+          {
+            "name": "Import from Lokalise (API)"
+          },
+          {
+            "name": "Import from Phrase (API)"
+          },
+          {
+            "name": "Import from Transifex (API)"
+          },
+          {
+            "name": "Two-way sync (push/pull)"
+          }
+        ]
+      },
+      {
+        "name": "Real-Time Collaboration",
+        "features": [
+          {
+            "name": "Toucan Hub (server for locking + presence)"
+          },
+          {
+            "name": "WebSocket-based edit sync"
+          },
+          {
+            "name": "Conflict resolution UI"
+          }
+        ]
+      },
+      {
+        "name": "Advanced AI",
+        "features": [
+          {
+            "name": "Embedding-based TM similarity"
+          },
+          {
+            "name": "Tone/style enforcement (brand voice)"
+          },
+          {
+            "name": "Translation quality scoring"
+          },
+          {
+            "name": "Domain-specific glossary enforcement via AI"
+          }
+        ]
+      },
+      {
+        "name": "CI/CD Native",
+        "features": [
+          {
+            "name": "GitHub Action: toucan-check"
+          },
+          {
+            "name": "GitLab CI template"
+          },
+          {
+            "name": "Fail build on missing translations threshold"
+          }
+        ]
+      }
+    ]
+  }
 }
