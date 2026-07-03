@@ -4,7 +4,7 @@ namespace Toucan.Core.Contracts;
 
 public enum ValidationSeverity { Error, Warning, Info }
 
-public record ValidationResult(string RuleId, ValidationSeverity Severity, string Message, string? Namespace = null, string? Language = null);
+public record ValidationResult(string RuleId, ValidationSeverity Severity, string Message, string? Namespace = null, string? Language = null, string? SuggestedFix = null);
 
 public class ValidationContext
 {

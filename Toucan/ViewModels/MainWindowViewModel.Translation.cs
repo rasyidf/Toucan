@@ -700,25 +700,43 @@ internal partial class MainWindowViewModel
 
         ValidationIssues.Clear();
 
-        List<string> languages = AllTranslation.ToLanguages().ToList();
-        var primary = languages.FirstOrDefault() ?? "en";
+        var settings = Core.Models.ProjectSettings.LoadFrom(CurrentPath)
+            ?? Core.Models.ProjectSettings.CreateDefault(CurrentPath);
 
-        List<TranslationItem> sourceItems = AllTranslation.Where(t => t.Language == primary && !string.IsNullOrEmpty(t.Value)).ToList();
-        foreach (var source in sourceItems)
+        if (_validationPipeline is Core.Services.Validation.ValidationPipeline pipeline)
         {
-            foreach (var lang in languages.Where(l => l != primary))
+            var validationContext = new ValidationContext
             {
-                var target = AllTranslation.FirstOrDefault(t => t.Namespace == source.Namespace && t.Language == lang);
-                if (target == null || string.IsNullOrEmpty(target.Value))
-                {
-                    continue;
-                }
+                Items = AllTranslation,
+                Settings = settings
+            };
 
-                var result = PlaceholderService.Validate(source.Value, target.Value);
-                if (!result.IsValid)
+            var results = pipeline.RunAll(validationContext);
+            foreach (var r in results)
+            {
+                ValidationIssues.Add(new ValidationIssueItem(r.Namespace ?? r.RuleId, $"[{r.Language}] {r.Message}", r.Severity, r.Namespace, r.Language, r.SuggestedFix));
+            }
+        }
+        else
+        {
+            // Fallback: legacy placeholder-only validation
+            List<string> languages = AllTranslation.ToLanguages().ToList();
+            var primary = languages.FirstOrDefault() ?? "en";
+
+            List<TranslationItem> sourceItems = AllTranslation.Where(t => t.Language == primary && !string.IsNullOrEmpty(t.Value)).ToList();
+            foreach (var source in sourceItems)
+            {
+                foreach (var lang in languages.Where(l => l != primary))
                 {
-                    var msg = $"[{lang}] missing={string.Join(",", result.Missing)} extra={string.Join(",", result.Extra)}";
-                    ValidationIssues.Add(new ValidationIssueItem(source.Namespace, msg));
+                    var target = AllTranslation.FirstOrDefault(t => t.Namespace == source.Namespace && t.Language == lang);
+                    if (target == null || string.IsNullOrEmpty(target.Value)) continue;
+
+                    var result = PlaceholderService.Validate(source.Value, target.Value);
+                    if (!result.IsValid)
+                    {
+                        var msg = $"[{lang}] missing={string.Join(",", result.Missing)} extra={string.Join(",", result.Extra)}";
+                        ValidationIssues.Add(new ValidationIssueItem(source.Namespace, msg));
+                    }
                 }
             }
         }
@@ -730,8 +748,23 @@ internal partial class MainWindowViewModel
 
         if (ValidationIssues.Count == 0)
         {
-            _messageService.ShowMessage("All placeholders are consistent across translations.");
+            _messageService.ShowMessage("All validations passed.");
         }
+    }
+
+    // TODO: ponytail: real-time on-type validation — hook into value change events and run pipeline per-item. Deferred to v1.1.
+
+    [RelayCommand]
+    private void ApplyFix(ValidationIssueItem issue)
+    {
+        if (issue.SuggestedFix == null || issue.Namespace == null || AllTranslation == null) return;
+
+        var target = AllTranslation.FirstOrDefault(t => t.Namespace == issue.Namespace && t.Language == issue.Language);
+        if (target == null) return;
+
+        target.Value = issue.SuggestedFix;
+        ValidationIssues.Remove(issue);
+        OnPropertyChanged(nameof(HasValidationIssues));
     }
 
     [RelayCommand]
@@ -825,7 +858,134 @@ internal partial class MainWindowViewModel
     }
 
     #endregion
+
+    #region Translation Memory Management
+
+    private ITranslationMemory? _translationMemory;
+
+    /// <summary>
+    /// Ghost text suggestion from Translation Memory. Populated when the user types in a translation field.
+    /// ponytail: UI binding for ghost text overlay goes in the editor DataTemplate (TextBox adorner layer).
+    /// The XAML side would bind a semi-transparent TextBlock behind the TextBox to this property.
+    /// </summary>
+    [ObservableProperty]
+    private string? ghostSuggestion;
+
+    /// <summary>TM similarity threshold (0.0–1.0). Matches below this are hidden.</summary>
+    public double TmSimilarityThreshold
+    {
+        get => AppOptions?.TmSimilarityThreshold ?? 0.7;
+        set
+        {
+            if (AppOptions != null && Math.Abs(AppOptions.TmSimilarityThreshold - value) > 0.001)
+            {
+                AppOptions.TmSimilarityThreshold = value;
+                AppOptions.ToDisk();
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    /// <summary>True = search all projects' TM entries; false = current project only.</summary>
+    public bool TmGlobalScope
+    {
+        get => AppOptions?.TmGlobalScope ?? true;
+        set
+        {
+            if (AppOptions != null && AppOptions.TmGlobalScope != value)
+            {
+                AppOptions.TmGlobalScope = value;
+                AppOptions.ToDisk();
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Call when user types in a translation field to update GhostSuggestion.
+    /// Uses TM fuzzy search with the configured threshold.
+    /// </summary>
+    internal void UpdateGhostSuggestion(string sourceText, string sourceLanguage, string targetLanguage)
+    {
+        if (_translationMemory == null || string.IsNullOrWhiteSpace(sourceText))
+        {
+            GhostSuggestion = null;
+            return;
+        }
+
+        var threshold = AppOptions?.TmSimilarityThreshold ?? 0.7;
+        var match = _translationMemory.Search(sourceText, sourceLanguage, targetLanguage, threshold, 1).FirstOrDefault();
+        GhostSuggestion = match?.TargetText;
+    }
+
+    [RelayCommand]
+    private void ImportTmx()
+    {
+        var file = _dialogService.SelectFile(CurrentPath, "TMX files (*.tmx)|*.tmx|All Files (*.*)|*.*");
+        if (string.IsNullOrEmpty(file)) return;
+
+        try
+        {
+            var entries = Core.Services.TmxService.ImportTmx(file);
+            if (_translationMemory != null)
+            {
+                foreach (var e in entries)
+                    _translationMemory.Add(e.SourceText, e.TargetText, e.SourceLang, e.TargetLang);
+            }
+            StatusText = $"Imported {entries.Count} TM entries from TMX.";
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage($"TMX import failed: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private void ExportTmx()
+    {
+        if (_translationMemory == null || _translationMemory.Count == 0)
+        {
+            _messageService.ShowMessage("Translation memory is empty.");
+            return;
+        }
+
+        var folder = _dialogService.SelectFolder(CurrentPath);
+        if (string.IsNullOrEmpty(folder)) return;
+
+        try
+        {
+            var filePath = Path.Combine(folder, "translation-memory.tmx");
+            var entries = _translationMemory.GetAllEntries();
+            Core.Services.TmxService.ExportTmx(entries, filePath);
+            StatusText = $"Exported {entries.Count} TM entries to {filePath}";
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage($"TMX export failed: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private void ClearTm()
+    {
+        if (_translationMemory == null || _translationMemory.Count == 0) return;
+        _translationMemory.Clear();
+        GhostSuggestion = null;
+        Suggestions.Clear();
+        StatusText = "Translation memory cleared.";
+    }
+
+    /// <summary>Inject TM reference (called after construction when DI resolves the service).</summary>
+    internal void SetTranslationMemory(ITranslationMemory tm) => _translationMemory = tm;
+
+    #endregion
 }
 
 /// <summary>A single validation issue for display in the Issues panel.</summary>
-public record ValidationIssueItem(string Key, string Message);
+public record ValidationIssueItem(
+    string Key,
+    string Message,
+    Toucan.Core.Contracts.ValidationSeverity Severity = Toucan.Core.Contracts.ValidationSeverity.Warning,
+    string? Namespace = null,
+    string? Language = null,
+    string? SuggestedFix = null);

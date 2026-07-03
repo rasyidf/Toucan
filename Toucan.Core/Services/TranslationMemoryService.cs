@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text.Json;
 using Toucan.Core.Contracts;
+using Toucan.Core.Models;
 
 namespace Toucan.Core.Services;
 
@@ -62,6 +63,9 @@ public class TranslationMemoryService : ITranslationMemory
     }
 
     public IEnumerable<TranslationMemoryMatch> Search(string sourceText, string sourceLanguage, string targetLanguage, int maxResults = 5)
+        => Search(sourceText, sourceLanguage, targetLanguage, 0.5, maxResults);
+
+    public IEnumerable<TranslationMemoryMatch> Search(string sourceText, string sourceLanguage, string targetLanguage, double minSimilarity, int maxResults = 5)
     {
         if (string.IsNullOrWhiteSpace(sourceText)) return [];
         EnsureLoaded();
@@ -82,11 +86,29 @@ public class TranslationMemoryService : ITranslationMemory
         var candidates = indices
             .Select(i => _entries[i])
             .Select(e => new TranslationMemoryMatch(e.SourceText, e.TargetText, Similarity(sourceText, e.SourceText)))
-            .Where(m => m.Similarity > 0.5)
+            .Where(m => m.Similarity > minSimilarity)
             .OrderByDescending(m => m.Similarity)
             .Take(maxResults);
 
         return candidates;
+    }
+
+    public IReadOnlyList<TmEntry> GetAllEntries()
+    {
+        EnsureLoaded();
+        return _entries.Select(e => new TmEntry(e.SourceLanguage, e.SourceText, e.TargetLanguage, e.TargetText, e.Timestamp)).ToList();
+    }
+
+    public void RemoveEntry(string sourceText, string targetLang)
+    {
+        EnsureLoaded();
+        int removed = _entries.RemoveAll(e => e.SourceText == sourceText && e.TargetLanguage == targetLang);
+        if (removed > 0)
+        {
+            _dirty = true;
+            _indexDirty = true;
+            Save();
+        }
     }
 
     private void EnsureIndex()
@@ -111,6 +133,7 @@ public class TranslationMemoryService : ITranslationMemory
     {
         _entries.Clear();
         _dirty = true;
+        _indexDirty = true;
         Save();
     }
 

@@ -1,3 +1,5 @@
+using Toucan.Core.Models;
+
 namespace Toucan.Core.Contracts;
 
 /// <summary>
@@ -15,8 +17,17 @@ public interface ITranslationMemory
     /// <summary>Find matching translations for a source text. Returns ordered by similarity.</summary>
     IEnumerable<TranslationMemoryMatch> Search(string sourceText, string sourceLanguage, string targetLanguage, int maxResults = 5);
 
+    /// <summary>Find matching translations with a minimum similarity threshold.</summary>
+    IEnumerable<TranslationMemoryMatch> Search(string sourceText, string sourceLanguage, string targetLanguage, double minSimilarity, int maxResults = 5);
+
     /// <summary>Total entries in the memory.</summary>
     int Count { get; }
+
+    /// <summary>Return all entries as TmEntry records (for export).</summary>
+    IReadOnlyList<TmEntry> GetAllEntries();
+
+    /// <summary>Remove a specific entry by source text and target language.</summary>
+    void RemoveEntry(string sourceText, string targetLang);
 
     /// <summary>Clear all entries.</summary>
     void Clear();

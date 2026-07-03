@@ -1,0 +1,22 @@
+using System;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
+
+namespace Toucan.Converters;
+
+/// <summary>
+/// Returns Collapsed when value is null or empty string, Visible otherwise.
+/// </summary>
+public class NullToCollapsedConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return value is null or "" ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotSupportedException();
+    }
+}
