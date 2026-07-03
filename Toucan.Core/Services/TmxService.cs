@@ -51,7 +51,15 @@ public static class TmxService
     /// <summary>Import TM entries from a TMX file.</summary>
     public static List<TmEntry> ImportTmx(string filePath)
     {
-        var doc = XDocument.Load(filePath);
+        XDocument doc;
+        try
+        {
+            doc = XDocument.Load(filePath);
+        }
+        catch (Exception ex) when (ex is System.Xml.XmlException or IOException or FileNotFoundException)
+        {
+            return []; // ponytail: malformed/missing TMX → empty list; upgrade: return Result<T> with error message
+        }
         var results = new List<TmEntry>();
 
         var body = doc.Root?.Element("body");

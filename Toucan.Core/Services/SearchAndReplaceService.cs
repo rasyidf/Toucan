@@ -55,31 +55,13 @@ public class SearchAndReplaceService : ISearchAndReplaceService
         // ponytail: preview is computed per-item without modifying anything
         foreach (var result in results)
         {
-            if (useRegex)
-            {
-                try
-                {
-                    var regex = new Regex(
-                        Regex.Escape(result.MatchText).Replace(@"\*", ".*"),
-                        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
-                        TimeSpan.FromSeconds(1));
-                    result.ReplacedValue = result.Value[..result.MatchStart]
-                        + replacement
-                        + result.Value[(result.MatchStart + result.MatchLength)..];
-                }
-                catch
-                {
-                    result.ReplacedValue = result.Value[..result.MatchStart]
-                        + replacement
-                        + result.Value[(result.MatchStart + result.MatchLength)..];
-                }
-            }
-            else
-            {
-                result.ReplacedValue = result.Value[..result.MatchStart]
-                    + replacement
-                    + result.Value[(result.MatchStart + result.MatchLength)..];
-            }
+            // Bounds check: skip stale matches that no longer align with the value
+            if (result.MatchStart + result.MatchLength > result.Value.Length)
+                continue;
+
+            result.ReplacedValue = result.Value[..result.MatchStart]
+                + replacement
+                + result.Value[(result.MatchStart + result.MatchLength)..];
         }
 
         return results;

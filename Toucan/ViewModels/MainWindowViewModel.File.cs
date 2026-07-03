@@ -424,7 +424,7 @@ internal partial class MainWindowViewModel
     {
         AllTranslation = [];
         CurrentPath = string.Empty;
-        SelectedNode = null!;
+        SelectedNode = null;
         IsDirty = false;
         StatusText = string.Empty;
         ShowStartScreen = true;

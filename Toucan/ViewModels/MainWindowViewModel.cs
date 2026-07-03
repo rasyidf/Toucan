@@ -131,7 +131,6 @@ internal partial class MainWindowViewModel : ObservableObject
     private readonly Func<IEnumerable<string>, IEnumerable<TranslationItem>, IPretranslationService, PreTranslateViewModel>? _preTranslateFactory;
     private readonly IProjectService? _projectService;
     private readonly ITranslationStrategyFactory? _strategyFactory;
-    private readonly Func<NewProjectPrompt>? _newProjectPromptFactory;
     private readonly IValidationPipeline? _validationPipeline;
     private readonly ISourceCodeService? _sourceCodeService;
     private readonly ITranslationAnalyzer? _translationAnalyzer;
@@ -170,7 +169,6 @@ internal partial class MainWindowViewModel : ObservableObject
         _pretranslationService = pretranslationService;
         _projectService = projectService;
         _strategyFactory = strategyFactory;
-        _newProjectPromptFactory = null;
         _languageGroupFactory = languageGroupFactory;
         _preTranslateFactory = preTranslateFactory;
         _validationPipeline = validationPipeline;
@@ -406,15 +404,16 @@ internal partial class MainWindowViewModel : ObservableObject
                     return;
                 }
             }
+
+            // Recreate paging controller with new options
+            int oldPage = PagingController?.Page ?? 1;
+            int maxItems = AppOptions.MaxItems <= 0 ? 100 : AppOptions.MaxItems;
+            int pageSize = AppOptions.PageSize <= 0 ? 30 : AppOptions.PageSize;
+            var currentData = PagingController?.Data ?? [];
+            PagingController = new PaginationViewModel<LanguageGroupViewModel>(pageSize, currentData, maxItems);
+            PagingController.Page = Math.Min(Math.Max(1, oldPage), PagingController.Pages);
+            PagedUpdates();
         }
-        // Recreate paging controller with new options
-        int oldPage = PagingController?.Page ?? 1;
-        int maxItems = AppOptions.MaxItems <= 0 ? 100 : AppOptions.MaxItems;
-        int pageSize = AppOptions.PageSize <= 0 ? 30 : AppOptions.PageSize;
-        var currentData = PagingController?.Data ?? [];
-        PagingController = new PaginationViewModel<LanguageGroupViewModel>(pageSize, currentData, maxItems);
-        PagingController.Page = Math.Min(Math.Max(1, oldPage), PagingController.Pages);
-        PagedUpdates();
     }
 
     [RelayCommand]

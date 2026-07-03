@@ -124,17 +124,11 @@ public partial class SourceCodeService : ISourceCodeService
     /// - tr("key") — Qt
     /// - __("key"), _("key") — Python/PHP gettext
     /// </summary>
-    [GeneratedRegex("""(?:\$?t|i18n\.t|__?)\(\s*['"]([^'"]+)['"]\s*\)|NSLocalizedString\(\s*@?"([^"]+)"|@?Localizer\[\s*"([^"]+)"\s*\]|GetString\(\s*"([^"]+)"\s*\)|tr\(\s*"([^"]+)"\s*\)""", RegexOptions.Compiled)]
+    [GeneratedRegex("""(?:\$?t|i18n\.t|__?)\(\s*['"]([^'"]+)['"]\s*\)|NSLocalizedString\(\s*@?"([^"]+)"|@?Localizer\[\s*"([^"]+)"\s*\]|GetString\(\s*"([^"]+)"\s*\)|tr\(\s*"([^"]+)"\s*\)""")]
     private static partial Regex RawKeyPattern();
 
     /// <summary>Unified pattern that captures key into group 1.</summary>
-    private static Regex KeyPattern()
-    {
-        // Use a wrapper that normalizes all named groups into group 1
-        return s_keyPattern;
-    }
+    private static Regex KeyPattern() => s_keyPattern;
 
-    private static readonly Regex s_keyPattern = new(
-        """(?:\$?t|i18n\.t|__?)\(\s*['"]([^'"]+)['"]|NSLocalizedString\(\s*@?"([^"]+)"|@?Localizer\[\s*"([^"]+)"\s*\]|GetString\(\s*"([^"]+)"|tr\(\s*"([^"]+)")""",
-        RegexOptions.Compiled);
+    private static readonly Regex s_keyPattern = RawKeyPattern();
 }

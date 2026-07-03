@@ -28,7 +28,7 @@
 
             <ui:TextBox Grid.Column="0"
                         PlaceholderText="Search translations..."
-                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                        Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
                         Icon="{ui:SymbolIcon Search24}"/>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="4,0,0,0">
@@ -171,7 +171,7 @@
                 <Style TargetType="TextBlock">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding SearchText}" Value="">
+                        <DataTrigger Binding="{Binding SearchQuery}" Value="">
                             <Setter Property="Visibility" Value="Visible"/>
                         </DataTrigger>
                     </Style.Triggers>

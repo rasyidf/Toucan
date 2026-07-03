@@ -15,6 +15,13 @@ internal partial class MainWindowViewModel
     /// <summary>Set by DI wiring after construction (same pattern as FuzzySearchService).</summary>
     internal ISearchAndReplaceService? SearchAndReplaceService { get; set; }
 
+    /// <summary>
+    /// Dedicated search query for the Search &amp; Replace panel.
+    /// Separated from <see cref="SearchText"/> to avoid triggering debounced navigation filter on every keystroke.
+    /// </summary>
+    [ObservableProperty]
+    private string searchQuery = string.Empty;
+
     [ObservableProperty]
     private string replaceText = string.Empty;
 
@@ -41,7 +48,7 @@ internal partial class MainWindowViewModel
     [RelayCommand]
     private void ExecuteSearch()
     {
-        if (SearchAndReplaceService is null || string.IsNullOrEmpty(SearchText))
+        if (SearchAndReplaceService is null || string.IsNullOrEmpty(SearchQuery))
         {
             SearchResults.Clear();
             return;
@@ -56,12 +63,12 @@ internal partial class MainWindowViewModel
         };
 
         var results = SearchAndReplaceService.Search(
-            AllTranslation, SearchText, UseRegex, SearchScope, scopeFilter);
+            AllTranslation, SearchQuery, UseRegex, SearchScope, scopeFilter);
 
         SearchResults = new ObservableCollection<SearchResultItem>(results);
         StatusText = $"{results.Count} match{(results.Count == 1 ? "" : "es")} found";
 
-        AddToHistory(SearchText);
+        AddToHistory(SearchQuery);
     }
 
     [RelayCommand]
@@ -80,11 +87,11 @@ internal partial class MainWindowViewModel
     [RelayCommand]
     private void ExecuteReplace()
     {
-        if (SearchAndReplaceService is null || SearchResults.Count == 0 || string.IsNullOrEmpty(SearchText))
+        if (SearchAndReplaceService is null || SearchResults.Count == 0 || string.IsNullOrEmpty(SearchQuery))
             return;
 
         int count = SearchAndReplaceService.ApplyReplace(
-            AllTranslation, SearchResults.ToList(), SearchText, ReplaceText, UseRegex);
+            AllTranslation, SearchResults.ToList(), SearchQuery, ReplaceText, UseRegex);
 
         StatusText = $"Replaced {count} item{(count == 1 ? "" : "s")}";
         IsDirty = true;
@@ -98,7 +105,7 @@ internal partial class MainWindowViewModel
     {
         UseRegex = !UseRegex;
         // Re-run search if there's an active query
-        if (!string.IsNullOrEmpty(SearchText))
+        if (!string.IsNullOrEmpty(SearchQuery))
             ExecuteSearch();
     }
 

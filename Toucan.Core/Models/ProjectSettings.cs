@@ -105,14 +105,17 @@ public class ProjectSettings
         Directory.CreateDirectory(ProjectPath);
 
         // ponytail: ensure translationPackages reflects Languages so ManifestLoadStrategy always works.
-        // Upgrade path: if someone adds packages manually we don't overwrite, only backfill when empty.
-        if (Languages.Count > 0 && TranslationPackages.All(p => p.TranslationUrls.Count == 0))
+        // Backfill only the first package when it has no URLs (multi-package projects manage their own URLs).
+        if (Languages.Count > 0)
         {
             if (TranslationPackages.Count == 0)
                 TranslationPackages.Add(new TranslationPackage { Name = "main" });
-            TranslationPackages[0].TranslationUrls = Languages
-                .Select(lang => new TranslationUrl { Language = lang, Path = ResolveDefaultPath(lang) })
-                .ToList();
+            if (TranslationPackages[0].TranslationUrls.Count == 0)
+            {
+                TranslationPackages[0].TranslationUrls = Languages
+                    .Select(lang => new TranslationUrl { Language = lang, Path = ResolveDefaultPath(lang) })
+                    .ToList();
+            }
         }
 
         var json = JsonSerializer.Serialize(this, s_options);

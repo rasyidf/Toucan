@@ -263,6 +263,8 @@ internal partial class MainWindowViewModel
     private void ClearFilter()
     {
         ActiveLanguageFilter = null;
+        FilteredBySourceUsage = null;
+        OnPropertyChanged(nameof(FilteredBySourceUsage));
         SearchText = string.Empty;
         Search("", true);
     }
@@ -642,6 +644,8 @@ internal partial class MainWindowViewModel
                 FocusedLanguages.Add(lang);
             }
         }
+        OnPropertyChanged(nameof(HasFocusedLanguageFilter));
+        OnPropertyChanged(nameof(FocusedLanguagesDisplay));
     }
 
     [RelayCommand]
