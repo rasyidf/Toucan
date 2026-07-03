@@ -75,13 +75,13 @@ public class CustomValidationRule : IValidationRule
 
         try
         {
-            var matches = Regex.IsMatch(item.Value, pattern);
+            var matches = Regex.IsMatch(item.Value, pattern, RegexOptions.None, TimeSpan.FromSeconds(2));
             if (mustMatch && !matches)
                 return new(Id, DefaultSeverity, $"Value does not match required pattern", item.Namespace, item.Language);
             if (!mustMatch && matches)
                 return new(Id, DefaultSeverity, $"Value matches forbidden pattern", item.Namespace, item.Language);
         }
-        catch (RegexParseException) { /* ponytail: skip invalid user regex silently; upgrade: surface config error in UI */ }
+        catch (Exception ex) when (ex is RegexParseException or RegexMatchTimeoutException) { /* ponytail: skip invalid/slow user regex silently; upgrade: surface config error in UI */ }
 
         return null;
     }

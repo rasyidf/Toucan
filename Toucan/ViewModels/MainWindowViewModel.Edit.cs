@@ -270,12 +270,18 @@ internal partial class MainWindowViewModel
 
     /// <summary>
     /// Synchronous add language method kept for backward compatibility with non-async callers.
-    /// Delegates to the async version.
+    /// Delegates to the async version with error handling.
     /// </summary>
-    public void AddLanguage(string newLanguage)
+    public async void AddLanguage(string newLanguage)
     {
-        // Fire-and-forget for synchronous callers — the service call is best-effort here
-        _ = AddLanguageAsync(newLanguage);
+        try
+        {
+            await AddLanguageAsync(newLanguage).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage($"Failed to add language: {ex.Message}");
+        }
     }
 
     public void RenameItem(NsTreeItem node, string newName)
