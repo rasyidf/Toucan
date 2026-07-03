@@ -53,7 +53,7 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <!-- Empty state -->
+        <!-- Empty state with configure options -->
         <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
             <StackPanel.Style>
                 <Style TargetType="StackPanel">
@@ -66,7 +66,29 @@
                 </Style>
             </StackPanel.Style>
             <ui:SymbolIcon Symbol="Code24" FontSize="28" Opacity="0.3" HorizontalAlignment="Center" Margin="0,0,0,8"/>
-            <TextBlock Text="Scan to find key usages" FontSize="11" Opacity="0.5" HorizontalAlignment="Center"/>
+            <TextBlock Text="Scan to find key usages" FontSize="11" Opacity="0.5" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+
+            <!-- Configure section (visible when no scan has run) -->
+            <StackPanel HorizontalAlignment="Center">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SourceCodeScanned}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <ui:Button Content="Select Source Folder" Appearance="Primary"
+                           Command="{Binding SelectSourceRootCommand}"
+                           HorizontalAlignment="Center" Margin="0,0,0,6"
+                           Icon="{ui:SymbolIcon FolderOpen20}"/>
+                <ui:Button Content="Open Settings" Appearance="Secondary"
+                           Command="{Binding ShowPreferencesCommand}"
+                           HorizontalAlignment="Center"
+                           Icon="{ui:SymbolIcon Settings16}"/>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>

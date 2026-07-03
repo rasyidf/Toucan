@@ -406,6 +406,21 @@ internal partial class MainWindowViewModel
     }
 
     [RelayCommand]
+    private async Task SelectSourceRoot()
+    {
+        var selected = _dialogService.SelectFolder(CurrentPath);
+        if (string.IsNullOrEmpty(selected)) return;
+
+        var settings = ProjectSettings.LoadFrom(CurrentPath) ?? ProjectSettings.CreateDefault(CurrentPath);
+        // Store relative path if inside project, otherwise absolute
+        var relative = Path.GetRelativePath(CurrentPath, selected);
+        settings.SourceRoots = [relative];
+        settings.Save();
+
+        await ScanSourceCode().ConfigureAwait(true);
+    }
+
+    [RelayCommand]
     private void FilterUsedKeys()
     {
         if (_sourceCodeService == null || !_sourceCodeService.HasScanData || AllTranslation == null)
@@ -703,6 +718,16 @@ internal partial class MainWindowViewModel
         var settings = Core.Models.ProjectSettings.LoadFrom(CurrentPath)
             ?? Core.Models.ProjectSettings.CreateDefault(CurrentPath);
 
+        // ponytail: resolve actual primary language from loaded items.
+        // Settings may say "en-US" but files use "en". Match by prefix if exact not found.
+        var actualLangs = AllTranslation.Select(t => t.Language).Distinct().ToList();
+        if (!actualLangs.Contains(settings.PrimaryLanguage))
+        {
+            var match = actualLangs.FirstOrDefault(l =>
+                l.StartsWith(settings.PrimaryLanguage.Split('-')[0], StringComparison.OrdinalIgnoreCase));
+            if (match != null) settings.PrimaryLanguage = match;
+        }
+
         if (_validationPipeline is Core.Services.Validation.ValidationPipeline pipeline)
         {
             var validationContext = new ValidationContext
@@ -977,6 +1002,67 @@ internal partial class MainWindowViewModel
 
     /// <summary>Inject TM reference (called after construction when DI resolves the service).</summary>
     internal void SetTranslationMemory(ITranslationMemory tm) => _translationMemory = tm;
+
+    #endregion
+
+    #region Dictionary
+
+    [RelayCommand]
+    private void AddDictionaryTerm()
+    {
+        _messageService.ShowMessage("Dictionary feature coming soon.");
+    }
+
+    #endregion
+
+    #region Single Key Translation
+
+    [RelayCommand]
+    private async Task TranslateSelectedKey()
+    {
+        var ns = SelectedGroup?.Namespace ?? SelectedNode?.Namespace;
+        if (string.IsNullOrEmpty(ns))
+        {
+            _messageService.ShowMessage("No key selected.");
+            return;
+        }
+
+        if (AllTranslation == null || AllTranslation.Count == 0)
+        {
+            _messageService.ShowMessage("No translations loaded.");
+            return;
+        }
+
+        if (_bulkActionService == null)
+        {
+            _messageService.ShowMessage("Bulk action service is not available.");
+            return;
+        }
+
+        var toTranslate = AllTranslation.Where(t => t.Namespace == ns).ToList();
+        if (toTranslate.Count == 0)
+        {
+            _messageService.ShowMessage("No items found for the selected key.");
+            return;
+        }
+
+        try
+        {
+            IsLoading = true;
+            await _bulkActionService.PreTranslateAsync(toTranslate).ConfigureAwait(true);
+            UpdateSummaryInfo();
+            NotifyBulkValueChanges(toTranslate);
+            StatusText = $"Translated key '{ns}' ({toTranslate.Count} language(s)).";
+        }
+        catch (Exception ex)
+        {
+            _messageService.ShowMessage($"Translation failed: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
 
     #endregion
 }

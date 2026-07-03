@@ -263,6 +263,7 @@ internal partial class MainWindowViewModel
     private void ClearFilter()
     {
         ActiveLanguageFilter = null;
+        FilteredBySourceUsage = null;
         SearchText = string.Empty;
         Search("", true);
     }
