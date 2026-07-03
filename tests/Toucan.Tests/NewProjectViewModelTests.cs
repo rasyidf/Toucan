@@ -45,9 +45,9 @@ public class NewProjectViewModelTests
     {
         var vm = new NewProjectViewModel();
 
-        // Ensure it always contains at least en-US
-        Assert.Contains("en-US", vm.Languages);
+        // Constructor loads source language from AppOptions (or falls back to en-US)
         Assert.True(vm.Languages.Count >= 1);
+        Assert.Contains(vm.SourceLanguage, vm.Languages);
     }
 
     [Fact]
@@ -55,12 +55,15 @@ public class NewProjectViewModelTests
     {
         var vm = new NewProjectViewModel();
 
-        // initially invalid
+        // Constructor sets defaults (name, folder, framework, language) so IsValid starts true
+        Assert.True(vm.IsValid);
+
+        // Clearing a required field makes it invalid
+        vm.ProjectName = "";
         Assert.False(vm.IsValid);
 
+        // Restoring makes it valid again
         vm.ProjectName = "MyProject";
-        vm.ProjectFolder = "C:\\temp\\proj";
-
         Assert.True(vm.IsValid);
     }
 

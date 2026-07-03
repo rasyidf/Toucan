@@ -8,4 +8,9 @@
     <AnalysisLevel>latest-all</AnalysisLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <!-- ponytail: auto-remove stale default obj/ that conflicts with redirected BaseIntermediateOutputPath -->
+  <Target Name="_CleanStaleDefaultObj" BeforeTargets="CoreCompile" Condition="Exists('$(MSBuildProjectDirectory)\obj')">
+    <RemoveDir Directories="$(MSBuildProjectDirectory)\obj" />
+  </Target>
 </Project>
