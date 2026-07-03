@@ -145,18 +145,56 @@ public partial class MainWindow : FluentWindow
             "source-control" => new Views.Panels.SourceControlPanel(),
             _ => null!
         };
+        leftPanelHost.PanelActions = panelId switch
+        {
+            "explorer" => BuildActions(
+                (Wpf.Ui.Controls.SymbolRegular.TextBulletListTree20, "Toggle view mode", ViewModel.ToggleViewModeCommand),
+                (Wpf.Ui.Controls.SymbolRegular.Add16, "New Item", ViewModel.NewItemCommand)),
+            "issues" => BuildActions(
+                (Wpf.Ui.Controls.SymbolRegular.ArrowSync20, "Run validation", ViewModel.RunValidationCommand)),
+            _ => null!
+        };
     }
 
     private void UpdateRightPanelContent(string? panelId)
     {
         rightPanelHost.PanelContent = panelId switch
         {
+            "languages" => new Views.Panels.LanguagesPanel(),
             "inspector" => new Views.Panels.InspectorPanel(),
             "machine-translation" => new Views.Panels.MachineTranslationPanel(),
             "translation-memory" => new Views.Panels.TranslationMemoryPanel(),
             "dictionary" => new Views.Panels.DictionaryPanel(),
             _ => null!
         };
+        rightPanelHost.PanelActions = panelId switch
+        {
+            "languages" => BuildActions(
+                (Wpf.Ui.Controls.SymbolRegular.ChevronDown20, "Expand/Collapse All", ViewModel.SummaryInfo.ToggleExpandAllCommand),
+                (Wpf.Ui.Controls.SymbolRegular.Settings16, "Manage Languages", ViewModel.ManageLanguagesCommand)),
+            "translation-memory" => BuildActions(
+                (Wpf.Ui.Controls.SymbolRegular.Delete20, "Clear Translation Memory", ViewModel.ToggleSuggestionsCommand)),
+            _ => null!
+        };
+    }
+
+    private static System.Windows.Controls.StackPanel BuildActions(params (Wpf.Ui.Controls.SymbolRegular Icon, string Tooltip, System.Windows.Input.ICommand Cmd)[] items)
+    {
+        var sp = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+        foreach (var (icon, tooltip, cmd) in items)
+        {
+            var btn = new Wpf.Ui.Controls.Button
+            {
+                Appearance = Wpf.Ui.Controls.ControlAppearance.Transparent,
+                Padding = new Thickness(4, 4, 4, 4),
+                Margin = new Thickness(1, 0, 1, 0),
+                ToolTip = tooltip,
+                Command = cmd,
+                Icon = new Wpf.Ui.Controls.SymbolIcon { Symbol = icon, FontSize = 14 }
+            };
+            sp.Children.Add(btn);
+        }
+        return sp;
     }
 
     private Views.Panels.ExplorerPanel CreateExplorerPanel()

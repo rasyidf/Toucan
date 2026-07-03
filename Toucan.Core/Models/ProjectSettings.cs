@@ -103,10 +103,36 @@ public class ProjectSettings
     {
         if (string.IsNullOrEmpty(ProjectPath)) return;
         Directory.CreateDirectory(ProjectPath);
+
+        // ponytail: ensure translationPackages reflects Languages so ManifestLoadStrategy always works.
+        // Upgrade path: if someone adds packages manually we don't overwrite, only backfill when empty.
+        if (Languages.Count > 0 && TranslationPackages.All(p => p.TranslationUrls.Count == 0))
+        {
+            if (TranslationPackages.Count == 0)
+                TranslationPackages.Add(new TranslationPackage { Name = "main" });
+            TranslationPackages[0].TranslationUrls = Languages
+                .Select(lang => new TranslationUrl { Language = lang, Path = ResolveDefaultPath(lang) })
+                .ToList();
+        }
+
         var json = JsonSerializer.Serialize(this, s_options);
         File.WriteAllText(Path.Combine(ProjectPath, "toucan.tproj"), json);
         IsDirty = false;
     }
+
+    private string ResolveDefaultPath(string language) => SaveStyle switch
+    {
+        SaveStyles.Json or SaveStyles.Namespaced => $"{language}.json",
+        SaveStyles.Yaml => $"{language}.yaml",
+        SaveStyles.Toml => $"{language}.toml",
+        SaveStyles.Resx => $"Resources{(language == "default" ? "" : $".{language}")}.resx",
+        SaveStyles.AndroidXml => $"res/{(language == "default" ? "values" : $"values-{language}")}/strings.xml",
+        SaveStyles.IosStrings => $"{language}.lproj/Localizable.strings",
+        SaveStyles.Xliff => $"{language}.xlf",
+        SaveStyles.Arb => $"app_{language}.arb",
+        SaveStyles.Csv => "translations.csv",
+        _ => $"{language}.json"
+    };
 }
 
 /// <summary>A named package of translation files within a project.</summary>

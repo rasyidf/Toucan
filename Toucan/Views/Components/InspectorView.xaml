@@ -7,8 +7,6 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:loc="clr-namespace:Toucan.Locales"
     xmlns:c="clr-namespace:Toucan.Converters"
-    xmlns:services="clr-namespace:Toucan.Services"
-    xmlns:views="clr-namespace:Toucan.Views"
     xmlns:viewmodels="clr-namespace:Toucan.ViewModels"
     x:Name="InspectorPanel"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
@@ -20,13 +18,9 @@
         <c:BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
+    <Grid>
         <!-- Styled TabControl -->
-        <TabControl x:Name="InspectorTabs" Grid.Row="0" BorderThickness="0" Padding="0" Background="Transparent">
+        <TabControl x:Name="InspectorTabs" BorderThickness="0" Padding="0" Background="Transparent">
             <TabControl.Resources>
                 <Style TargetType="TabItem">
                     <Setter Property="Background" Value="Transparent"/>
@@ -62,36 +56,44 @@
                 </Style>
             </TabControl.Resources>
 
-            <!-- Stats Tab -->
-            <TabItem Header="{x:Static loc:Strings.Inspector_Stats}">
-                <views:LanguagesView Margin="0"/>
-            </TabItem>
-
             <!-- Suggestions Tab -->
             <TabItem Header="{x:Static loc:Strings.Inspector_Suggestions}">
-                <Grid Margin="8,6">
+                <Grid Margin="8,8">
                     <!-- Empty state -->
-                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
-                               FontSize="11" Opacity="0.5"
-                               Text="{x:Static loc:Strings.Inspector_SelectKeySuggestions}"
-                               Visibility="{Binding HasSelectedKeyDetails, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}" />
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Visibility="{Binding HasSelectedKeyDetails, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
+                        <ui:SymbolIcon Symbol="Lightbulb24" FontSize="28" Opacity="0.3"
+                                       HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                        <TextBlock FontSize="11" Opacity="0.5" HorizontalAlignment="Center"
+                                   Text="{x:Static loc:Strings.Inspector_SelectKeySuggestions}"/>
+                    </StackPanel>
 
                     <!-- Content -->
                     <StackPanel Visibility="{Binding HasSelectedKeyDetails, Converter={StaticResource BoolToVis}}">
                         <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                   TextTrimming="CharacterEllipsis" Margin="0,0,0,4"
+                                   TextTrimming="CharacterEllipsis" Margin="0,0,0,6"
                                    Text="{Binding SelectedKeyNamespace, StringFormat='Suggestions for: {0}'}"/>
                         <ItemsControl ItemsSource="{Binding Suggestions}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{DynamicResource SubtleFillColorSecondaryBrush}"
-                                            CornerRadius="3" Padding="8,5" Margin="0,0,0,3">
-                                        <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="12"/>
+                                    <Border Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                            BorderThickness="1" CornerRadius="4"
+                                            Padding="10,8" Margin="0,0,0,4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <ui:SymbolIcon Symbol="Lightbulb16" FontSize="12" Margin="0,2,8,0"
+                                                           VerticalAlignment="Top" Opacity="0.6"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding}" TextWrapping="Wrap" FontSize="12"/>
+                                        </Grid>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <TextBlock FontSize="11" Opacity="0.5" Margin="0,4,0,0"
+                        <TextBlock FontSize="11" Opacity="0.5" Margin="0,6,0,0"
                                    Text="{x:Static loc:Strings.Inspector_NoSuggestions}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -110,82 +112,118 @@
 
             <!-- Details Tab -->
             <TabItem Header="{x:Static loc:Strings.Inspector_Details}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="8,6">
-                    <StackPanel>
-                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
-                                   FontSize="11" Opacity="0.5"
-                                   Text="{x:Static loc:Strings.Inspector_SelectKey}"
-                                   Visibility="{Binding HasSelectedKeyDetails, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}" />
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="8,8">
+                    <!-- Empty state -->
+                    <Grid>
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Visibility="{Binding HasSelectedKeyDetails, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
+                            <ui:SymbolIcon Symbol="Info24" FontSize="28" Opacity="0.3"
+                                           HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                            <TextBlock FontSize="11" Opacity="0.5" HorizontalAlignment="Center"
+                                       Text="{x:Static loc:Strings.Inspector_SelectKey}"/>
+                        </StackPanel>
 
                         <StackPanel Visibility="{Binding HasSelectedKeyDetails, Converter={StaticResource BoolToVis}}">
-                            <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Key ID"/>
-                            <TextBlock FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"
-                                       Text="{Binding SelectedKeyNamespace}" Margin="0,0,0,10"/>
+                            <!-- Key ID card -->
+                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="10,8" Margin="0,0,0,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ui:SymbolIcon Symbol="Key16" FontSize="12" Margin="0,2,8,0"
+                                                   VerticalAlignment="Top" Opacity="0.6"/>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock FontSize="10" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Text="KEY ID"/>
+                                        <TextBlock FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"
+                                                   Text="{Binding SelectedKeyNamespace}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
 
-                            <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Comment"/>
-                            <TextBlock FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Text" Value="{Binding SelectedKeyComment}" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectedKeyComment}" Value="">
-                                                <Setter Property="Text" Value="(none)" />
-                                                <Setter Property="Opacity" Value="0.5" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
+                            <!-- Comment card -->
+                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="10,8" Margin="0,0,0,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ui:SymbolIcon Symbol="Comment16" FontSize="12" Margin="0,2,8,0"
+                                                   VerticalAlignment="Top" Opacity="0.6"/>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock FontSize="10" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Text="COMMENT"/>
+                                        <TextBlock FontSize="12" TextWrapping="Wrap">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="{Binding SelectedKeyComment}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedKeyComment}" Value="">
+                                                            <Setter Property="Text" Value="No comment" />
+                                                            <Setter Property="Opacity" Value="0.5" />
+                                                            <Setter Property="FontStyle" Value="Italic" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
 
-                            <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Languages"/>
-                            <ItemsControl ItemsSource="{Binding SelectedKeyLanguages}" Margin="0,2,0,10">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock FontSize="11" Text="{Binding}" Margin="0,1"/>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                            <!-- Languages card -->
+                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="10,8" Margin="0,0,0,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ui:SymbolIcon Symbol="LocalLanguage16" FontSize="12" Margin="0,2,8,0"
+                                                   VerticalAlignment="Top" Opacity="0.6"/>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock FontSize="10" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Text="LANGUAGES"/>
+                                        <ItemsControl ItemsSource="{Binding SelectedKeyLanguages}" Margin="0,2,0,0">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock FontSize="11" Text="{Binding}" Margin="0,1"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
 
-                            <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Audit"/>
-                            <TextBlock FontSize="12" TextWrapping="Wrap" Text="{Binding SelectedKeyAuditInfo}"/>
+                            <!-- Audit card -->
+                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                    BorderThickness="1" CornerRadius="4"
+                                    Padding="10,8" Margin="0,0,0,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ui:SymbolIcon Symbol="History16" FontSize="12" Margin="0,2,8,0"
+                                                   VerticalAlignment="Top" Opacity="0.6"/>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock FontSize="10" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Text="AUDIT"/>
+                                        <TextBlock FontSize="12" TextWrapping="Wrap" Text="{Binding SelectedKeyAuditInfo}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
                         </StackPanel>
-                    </StackPanel>
+                    </Grid>
                 </ScrollViewer>
             </TabItem>
 
-            <!-- Validation Tab -->
-            <TabItem Header="Validation">
-                <Grid Margin="8,6">
-                    <!-- Empty state -->
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <TextBlock FontSize="11" Opacity="0.5" Text="No validation issues"
-                                   HorizontalAlignment="Center">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ValidationWarnings.Count, FallbackValue=0}" Value="0">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </StackPanel>
-
-                    <!-- Warning cards -->
-                    <ItemsControl ItemsSource="{Binding ValidationWarnings, FallbackValue={x:Null}}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="{DynamicResource SubtleFillColorSecondaryBrush}"
-                                        CornerRadius="3" Padding="8,5" Margin="0,0,0,3">
-                                    <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="12"/>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Grid>
-            </TabItem>
         </TabControl>
     </Grid>
 </UserControl>

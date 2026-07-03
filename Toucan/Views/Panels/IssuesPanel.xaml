@@ -8,37 +8,11 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header: issue count + run validation button -->
-        <Border Grid.Row="0" Padding="8,6" BorderThickness="0,0,0,1"
-                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <ui:SymbolIcon Symbol="Warning20" FontSize="14" Margin="0,0,6,0"
-                                   Foreground="{DynamicResource SystemFillColorCautionBrush}"/>
-                    <TextBlock FontSize="11" VerticalAlignment="Center"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}">
-                        <Run Text="{Binding ValidationIssues.Count, FallbackValue=0, Mode=OneWay}"/>
-                        <Run Text=" issues"/>
-                    </TextBlock>
-                </StackPanel>
-                <Button Grid.Column="1" Style="{StaticResource {x:Type Button}}"
-                        Background="Transparent" BorderThickness="0" Padding="6,3" Cursor="Hand"
-                        Command="{Binding RunValidationCommand}" ToolTip="Run validation">
-                    <ui:SymbolIcon Symbol="ArrowSync20" FontSize="14"/>
-                </Button>
-            </Grid>
-        </Border>
-
         <!-- Issues list -->
-        <ListView Grid.Row="1" ItemsSource="{Binding ValidationIssues}"
+        <ListView Grid.Row="0" ItemsSource="{Binding ValidationIssues}"
                   BorderThickness="0" Background="Transparent"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   SelectionChanged="IssuesList_SelectionChanged"
@@ -78,7 +52,7 @@
         </ListView>
 
         <!-- Empty state -->
-        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center"
+        <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center"
                     Visibility="{Binding HasValidationIssues, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
             <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="32" Opacity="0.3" HorizontalAlignment="Center" Margin="0,0,0,8"/>
             <TextBlock Text="No issues" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center"/>

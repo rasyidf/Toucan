@@ -33,7 +33,6 @@
             </StackPanel>
         </HierarchicalDataTemplate>
         <converters:TreeItemtoListItemConverter x:Key="TreeItemsFlatten" />
-        <converters:ViewModeIconConverter x:Key="ViewModeIconConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
 
@@ -41,43 +40,7 @@
         Padding="0"
         VerticalAlignment="Stretch">
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <!-- Action buttons -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,4">
-                <ui:Button
-                    Margin="{StaticResource ToolbarButtonMargin}"
-                    Padding="{StaticResource ToolbarButtonPadding}"
-                    Appearance="Transparent"
-                    Command="{Binding ToggleViewModeCommand}"
-                    ToolTip="Toggle view mode">
-                    <ui:Button.Icon>
-                        <ui:SymbolIcon Symbol="{Binding IsTreeView, Converter={StaticResource ViewModeIconConverter}}" />
-                    </ui:Button.Icon>
-                </ui:Button>
-                <ui:Button
-                    x:Name="bNewItem"
-                    Margin="{StaticResource ToolbarButtonMargin}"
-                    Padding="{StaticResource ToolbarButtonPadding}"
-                    Appearance="Transparent"
-                    Command="{Binding NewItemCommand}"
-                    IsDefault="True"
-                    ToolTip="New Item">
-                    <ui:Button.Icon>
-                        <ui:SymbolIcon Symbol="Add16" />
-                    </ui:Button.Icon>
-                </ui:Button>
-            </StackPanel>
-
             <Border
-                Grid.Row="1"
-                Grid.ColumnSpan="2"
                 Padding="6"
                 Background="Transparent">
                 <Grid>

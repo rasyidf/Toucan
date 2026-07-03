@@ -6,6 +6,20 @@
 
 ---
 
+## Recently Completed (v1.0 Sprint — July 2026)
+
+UI architecture and polish work completed in the current sprint:
+
+- [x] **Toolbar removal** — replaced with contextual actions in PanelHost headers
+- [x] **Panel split** — separated left/right panel slots with independent ActivityBars
+- [x] **PanelHost actions slot** — DependencyProperty `PanelActions` for per-panel header buttons
+- [x] **ActivityBar context menu** — right-click to toggle panel visibility
+- [x] **Inspector redesign** — tabbed layout (Suggestions, Details, Validation) in right slot
+- [x] **ManifestLoadStrategy fallback fix** — graceful fallback to folder scan when manifest URLs are missing
+- [x] **ModeSelectorBar in TitleBar.TrailingContent** — editor mode pills (Editor/Review/Audit) moved into window title bar
+
+---
+
 ## v1.1 — Quality of Life & Distribution
 
 ### Auto-Updater

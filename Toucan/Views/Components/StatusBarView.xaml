@@ -217,7 +217,7 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <!-- ponytail: Footer action bar — left quick actions, center status, right info panels. No mode badge here (lives in toolbar's ModeSelectorBar). -->
+    <!-- ponytail: Footer action bar — left quick actions, center status, right info panels. Mode selector lives in TitleBar.TrailingContent. -->
     <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
             BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
             BorderThickness="0,1,0,0"
