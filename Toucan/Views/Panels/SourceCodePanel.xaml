@@ -2,49 +2,61 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
-    <Grid Margin="8">
+    <Grid Margin="8,4">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header: Scan button + status -->
-        <Grid Grid.Row="0" Margin="0,0,0,8">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <ui:Button Grid.Column="0" Content="Scan" Icon="{ui:SymbolIcon Search24}" Command="{Binding ScanSourceCodeCommand}" Appearance="Primary" Padding="12,6"/>
-            <TextBlock Grid.Column="1" Text="{Binding SourceCodeStatus}" VerticalAlignment="Center" Margin="12,0,0,0" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextTrimming="CharacterEllipsis"/>
-        </Grid>
+        <!-- Status -->
+        <TextBlock Grid.Row="0" Text="{Binding SourceCodeStatus}" FontSize="11"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                   TextTrimming="CharacterEllipsis" Margin="0,0,0,6"/>
 
         <!-- Filter TextBox -->
-        <ui:TextBox Grid.Row="1" PlaceholderText="Filter usages..." x:Name="FilterBox" Margin="0,0,0,8" TextChanged="FilterBox_TextChanged"/>
+        <ui:TextBox Grid.Row="1" PlaceholderText="Filter usages..." x:Name="FilterBox"
+                    Margin="0,0,0,6" TextChanged="FilterBox_TextChanged"/>
 
         <!-- Usages list -->
-        <ListView Grid.Row="2" x:Name="UsagesList" ItemsSource="{Binding SourceCodeUsages}" BorderThickness="0" Background="Transparent" MouseDoubleClick="UsagesList_MouseDoubleClick">
+        <ListView Grid.Row="2" x:Name="UsagesList" ItemsSource="{Binding SourceCodeUsages}"
+                  BorderThickness="0" Background="Transparent"
+                  MouseDoubleClick="UsagesList_MouseDoubleClick"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Padding" Value="6,4"/>
+                    <Setter Property="Margin" Value="0"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="4,4">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="{Binding Key}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="{Binding FilePath}" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding Key}" FontSize="12" FontWeight="Medium"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding FilePath}" FontSize="10"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
-                        <TextBlock Grid.Column="1" Text="{Binding Line, StringFormat='L{0}'}" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="8,0,0,0"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Line, StringFormat=':{0}'}"
+                                   FontSize="10" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                   Margin="6,0,0,0"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
         <!-- Empty state -->
-        <TextBlock Grid.Row="2" Text="Click Scan to find key usages in your source code" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}">
-            <TextBlock.Style>
-                <Style TargetType="TextBlock">
+        <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding SourceCodeUsages.Count}" Value="0">
@@ -52,7 +64,9 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </TextBlock.Style>
-        </TextBlock>
+            </StackPanel.Style>
+            <ui:SymbolIcon Symbol="Code24" FontSize="28" Opacity="0.3" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+            <TextBlock Text="Scan to find key usages" FontSize="11" Opacity="0.5" HorizontalAlignment="Center"/>
+        </StackPanel>
     </Grid>
 </UserControl>

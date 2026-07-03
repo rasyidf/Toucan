@@ -150,6 +150,8 @@ public partial class MainWindow : FluentWindow
             "explorer" => BuildActions(
                 (Wpf.Ui.Controls.SymbolRegular.TextBulletListTree20, "Toggle view mode", ViewModel.ToggleViewModeCommand),
                 (Wpf.Ui.Controls.SymbolRegular.Add16, "New Item", ViewModel.NewItemCommand)),
+            "source-code" => BuildActions(
+                (Wpf.Ui.Controls.SymbolRegular.ArrowSync20, "Scan source code", ViewModel.ScanSourceCodeCommand)),
             "issues" => BuildActions(
                 (Wpf.Ui.Controls.SymbolRegular.ArrowSync20, "Run validation", ViewModel.RunValidationCommand)),
             _ => null!
@@ -172,6 +174,8 @@ public partial class MainWindow : FluentWindow
             "languages" => BuildActions(
                 (Wpf.Ui.Controls.SymbolRegular.ChevronDown20, "Expand/Collapse All", ViewModel.SummaryInfo.ToggleExpandAllCommand),
                 (Wpf.Ui.Controls.SymbolRegular.Settings16, "Manage Languages", ViewModel.ManageLanguagesCommand)),
+            "machine-translation" => BuildActions(
+                (Wpf.Ui.Controls.SymbolRegular.Translate20, "Pre-translate", ViewModel.PreTranslateBulkCommand)),
             "translation-memory" => BuildActions(
                 (Wpf.Ui.Controls.SymbolRegular.Delete20, "Clear Translation Memory", ViewModel.ToggleSuggestionsCommand)),
             _ => null!
