@@ -15,6 +15,9 @@ public partial class PanelHost : UserControl
     public static readonly DependencyProperty HideCommandProperty =
         DependencyProperty.Register(nameof(HideCommand), typeof(ICommand), typeof(PanelHost));
 
+    public static readonly DependencyProperty PanelActionsProperty =
+        DependencyProperty.Register(nameof(PanelActions), typeof(object), typeof(PanelHost));
+
     public string PanelTitle
     {
         get => (string)GetValue(PanelTitleProperty);
@@ -31,6 +34,12 @@ public partial class PanelHost : UserControl
     {
         get => (ICommand)GetValue(HideCommandProperty);
         set => SetValue(HideCommandProperty, value);
+    }
+
+    public object PanelActions
+    {
+        get => GetValue(PanelActionsProperty);
+        set => SetValue(PanelActionsProperty, value);
     }
 
     public PanelHost()

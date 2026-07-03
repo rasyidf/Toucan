@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.16.1] - 2026-07-03
+
+### Improved
+- **Toolbar removed** — ModeSelectorBar and panel toggles moved into TitleBar.TrailingContent for a cleaner layout.
+- **Inspector split** — Languages panel separated from Inspector; each is now its own right-side panel in the activity bar.
+- **Inspector redesign** — Details and Suggestions tabs use Fluent bordered cards with contextual icons instead of plain text.
+- **PanelHost actions slot** — panel-specific action buttons (add, refresh, settings) now render beside the ellipsis menu in the panel header.
+- **ActivityBar context menu** — right-click to show/hide individual panels with checkmarks.
+- **Duplicate headers removed** — ResourcesView, LanguagesView, IssuesPanel, and TranslationMemoryPanel no longer have redundant internal headers; PanelHost provides the unified header.
+
+### Fixed
+- **ManifestLoadStrategy fallback** — projects with empty `translationPackages` now fall through to format-based file scanning instead of returning nothing.
+- **ProjectSettings.Save() backfill** — saving the manifest auto-populates `translationPackages` from `Languages` when empty, preventing the "no translations" bug after adding a language via Manage Languages.
+
 ## [0.15.0] - 2026-07-02
 
 ### UI Revamp

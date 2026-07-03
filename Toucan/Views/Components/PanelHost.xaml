@@ -9,12 +9,13 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Panel header: title + ellipsis menu -->
+        <!-- Panel header: title + actions + ellipsis menu -->
         <Border Grid.Row="0" Padding="10,6,4,6" BorderThickness="0,0,0,1"
                 BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
@@ -25,8 +26,13 @@
                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                            VerticalAlignment="Center"/>
 
+                <!-- Panel-specific action buttons -->
+                <ContentPresenter Grid.Column="1"
+                                  Content="{Binding PanelActions, ElementName=PanelHostRoot}"
+                                  VerticalAlignment="Center"/>
+
                 <!-- Ellipsis menu button -->
-                <Button Grid.Column="1" Background="Transparent" BorderThickness="0"
+                <Button Grid.Column="2" Background="Transparent" BorderThickness="0"
                         Padding="6,4" Cursor="Hand" ToolTip="Panel options"
                         Click="EllipsisMenu_Click" x:Name="EllipsisButton">
                     <Button.Style>

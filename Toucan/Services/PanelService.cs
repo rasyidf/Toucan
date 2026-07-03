@@ -38,7 +38,6 @@ internal partial class PanelService : ObservableObject
     [ObservableProperty] private bool inspectorVisible = true;
 
     // --- Chrome ---
-    [ObservableProperty] private bool toolbarVisible = true;
     [ObservableProperty] private bool statusBarVisible = true;
     [ObservableProperty] private bool sidePanelVisible = true;
 
@@ -57,7 +56,7 @@ internal partial class PanelService : ObservableObject
         LoadLayout();
     }
 
-    // --- Toggle Commands (bindable from menu/toolbar/keybindings) ---
+    // --- Toggle Commands (bindable from menu/keybindings) ---
 
     [RelayCommand] private void ToggleResources() => ResourcesVisible = !ResourcesVisible;
     [RelayCommand] private void ToggleLanguages() => LanguagesVisible = !LanguagesVisible;
@@ -69,7 +68,6 @@ internal partial class PanelService : ObservableObject
         InspectorVisible = !InspectorVisible;
         SideRegistry.RightSlotVisible = InspectorVisible;
     }
-    [RelayCommand] private void ToggleToolbar() => ToolbarVisible = !ToolbarVisible;
     [RelayCommand] private void ToggleStatusBar() => StatusBarVisible = !StatusBarVisible;
     [RelayCommand] private void ActivateLeftPanel(string id) => SideRegistry.Toggle(id);
     [RelayCommand] private void ActivateRightPanel(string id) => SideRegistry.Toggle(id);
@@ -94,7 +92,6 @@ internal partial class PanelService : ObservableObject
     private void EnterZenMode()
     {
         ZenMode = true;
-        ToolbarVisible = false;
         StatusBarVisible = false;
         SidePanelVisible = false;
         ResourcesVisible = false;
@@ -108,7 +105,6 @@ internal partial class PanelService : ObservableObject
     private void ExitZenMode()
     {
         ZenMode = false;
-        ToolbarVisible = true;
         StatusBarVisible = true;
         SidePanelVisible = true;
         ResourcesVisible = true;
@@ -131,7 +127,6 @@ internal partial class PanelService : ObservableObject
                 EditorVisible = EditorVisible,
                 SuggestionsVisible = SuggestionsVisible,
                 InspectorVisible = InspectorVisible,
-                ToolbarVisible = ToolbarVisible,
                 StatusBarVisible = StatusBarVisible,
                 SidePanelVisible = SidePanelVisible,
                 SidebarWidth = SidebarWidth,
@@ -161,7 +156,6 @@ internal partial class PanelService : ObservableObject
             EditorVisible = state.EditorVisible;
             SuggestionsVisible = state.SuggestionsVisible;
             InspectorVisible = state.InspectorVisible;
-            ToolbarVisible = state.ToolbarVisible;
             StatusBarVisible = state.StatusBarVisible;
             SidePanelVisible = state.SidePanelVisible;
             SidebarWidth = state.SidebarWidth > 0 ? state.SidebarWidth : 200;
@@ -182,7 +176,6 @@ internal partial class PanelService : ObservableObject
         public bool EditorVisible { get; set; } = true;
         public bool SuggestionsVisible { get; set; }
         public bool InspectorVisible { get; set; } = true;
-        public bool ToolbarVisible { get; set; } = true;
         public bool StatusBarVisible { get; set; } = true;
         public bool SidePanelVisible { get; set; } = true;
         public double SidebarWidth { get; set; } = 200;

@@ -252,9 +252,6 @@
             <ui:MenuItem Header="Inspector" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleInspectorCommand}" InputGestureText="Ctrl+Shift+I"
                          IsCheckable="True" IsChecked="{Binding InspectorVisible, Source={x:Static services:PanelService.Instance}, Mode=OneWay}"
                          IsEnabled="{Binding ShowStartScreen, Converter={StaticResource InvertBool}}" />
-            <ui:MenuItem Header="Toolbar" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleToolbarCommand}"
-                         IsCheckable="True" IsChecked="{Binding ToolbarVisible, Source={x:Static services:PanelService.Instance}, Mode=OneWay}"
-                         IsEnabled="{Binding ShowStartScreen, Converter={StaticResource InvertBool}}" />
             <ui:MenuItem Header="Footer Bar" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleStatusBarCommand}"
                          IsCheckable="True" IsChecked="{Binding StatusBarVisible, Source={x:Static services:PanelService.Instance}, Mode=OneWay}"
                          IsEnabled="{Binding ShowStartScreen, Converter={StaticResource InvertBool}}" />

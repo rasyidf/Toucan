@@ -5,6 +5,9 @@
     x:Name="ActivityBarRoot"
     Width="36">
     <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+        <Border.ContextMenu>
+            <ContextMenu x:Name="PanelVisibilityMenu"/>
+        </Border.ContextMenu>
         <ItemsControl ItemsSource="{Binding Panels, ElementName=ActivityBarRoot}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -33,6 +36,9 @@
                                     <DataTrigger Binding="{Binding IsActive}" Value="True">
                                         <Setter Property="Opacity" Value="1.0"/>
                                         <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColorPrimaryBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsVisible}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

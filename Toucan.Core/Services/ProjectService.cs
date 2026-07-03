@@ -135,7 +135,11 @@ public class ProjectService(
         if (variant == ProjectTypeVariant.ConfigManifest)
         {
             var loader = strategyFactory.GetManifestLoadStrategy();
-            if (loader != null) return loader.Load(folder).ToList();
+            if (loader != null)
+            {
+                var items = loader.Load(folder).ToList();
+                if (items.Count > 0) return items;
+            }
         }
 
         // Use the detected format's load strategy (not just Json fallback)

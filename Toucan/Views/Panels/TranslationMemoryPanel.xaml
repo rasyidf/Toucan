@@ -10,30 +10,11 @@
     <Grid Margin="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <DockPanel Grid.Row="0" Margin="0,0,0,8">
-            <ui:Button DockPanel.Dock="Right"
-                       Appearance="Secondary"
-                       Icon="{ui:SymbolIcon Delete24}"
-                       ToolTip="Clear Translation Memory"
-                       Command="{Binding ToggleSuggestionsCommand}"
-                       Padding="4"
-                       VerticalAlignment="Center"/>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <ui:SymbolIcon Symbol="Library24" FontSize="16" Margin="0,0,6,0"/>
-                <TextBlock Text="Translation Memory"
-                           FontSize="12"
-                           FontWeight="SemiBold"
-                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
-            </StackPanel>
-        </DockPanel>
-
         <!-- Current key context -->
-        <TextBlock Grid.Row="1"
+        <TextBlock Grid.Row="0"
                    Margin="0,0,0,8"
                    FontSize="11"
                    TextTrimming="CharacterEllipsis"
@@ -43,7 +24,7 @@
         </TextBlock>
 
         <!-- Empty state: no key selected -->
-        <StackPanel Grid.Row="2"
+        <StackPanel Grid.Row="1"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     Visibility="{Binding HasSelectedKeyDetails, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
@@ -56,7 +37,7 @@
         </StackPanel>
 
         <!-- Empty state: no matches found -->
-        <StackPanel Grid.Row="2"
+        <StackPanel Grid.Row="1"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center">
             <StackPanel.Style>
@@ -82,7 +63,7 @@
         </StackPanel>
 
         <!-- Matches list -->
-        <ListBox Grid.Row="2"
+        <ListBox Grid.Row="1"
                  ItemsSource="{Binding Suggestions}"
                  BorderThickness="0"
                  Background="Transparent"

@@ -368,6 +368,7 @@ public partial class App : Application
         sideRegistry.Register(new BuiltInSidePanel("search", "Search", "Search20", SidePanelSlot.Left, 30));
         sideRegistry.Register(new BuiltInSidePanel("source-control", "Source Control", "BranchFork20", SidePanelSlot.Left, 40));
         sideRegistry.Register(new BuiltInSidePanel("issues", "Issues", "Warning20", SidePanelSlot.Left, 35));
+        sideRegistry.Register(new BuiltInSidePanel("languages", "Languages", "LocalLanguage20", SidePanelSlot.Right, 5));
         sideRegistry.Register(new BuiltInSidePanel("inspector", "Inspector", "Info20", SidePanelSlot.Right, 10));
         sideRegistry.Register(new BuiltInSidePanel("machine-translation", "Translation", "Translate20", SidePanelSlot.Right, 20));
         sideRegistry.Register(new BuiltInSidePanel("translation-memory", "Memory", "Library20", SidePanelSlot.Right, 30));
