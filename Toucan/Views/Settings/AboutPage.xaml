@@ -26,6 +26,37 @@
             </StackPanel>
         </ui:CardAction>
 
+        <TextBlock Text="Updates" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10"/>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="ArrowSync24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Check for updates" FontWeight="SemiBold"/>
+                        <TextBlock Text="You're on the latest version" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:Button Content="Check now" Padding="12,6" Command="{Binding CheckForUpdatesCommand}"/>
+        </ui:CardControl>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Channel24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Update channel" FontWeight="SemiBold"/>
+                        <TextBlock Text="Choose between stable releases and preview builds" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ComboBox Width="130" SelectedIndex="0">
+                <ComboBoxItem>Stable</ComboBoxItem>
+                <ComboBoxItem>Preview</ComboBoxItem>
+            </ComboBox>
+        </ui:CardControl>
+
         <TextBlock Text="Help and support" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10"/>
 
         <ui:CardAction Margin="0,0,0,4" IsChevronVisible="True"

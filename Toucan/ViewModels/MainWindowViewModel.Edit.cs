@@ -121,7 +121,7 @@ internal partial class MainWindowViewModel
     private void NewItem()
     {
         string ns = SelectedNode?.Namespace ?? "";
-        var result = _dialogService.ShowPrompt("New Translation", "Please enter an ID for the translation\nUse '.' to create hierarchical IDs.", ns);
+        var result = _dialogService.ShowPrompt("New Translation Key", "Enter the key for the new translation.\nUse '.' to create nested keys (e.g., common.buttons.save).", ns);
         if (result != null)
         {
             CreateNewItem(result);
@@ -200,7 +200,7 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        var template = AppOptions?.CopyTemplate1 ?? "%1";
+        var template = AppOptions?.CopyTemplates is { Count: > 0 } ? AppOptions.CopyTemplates[0] : "%1";
         System.Windows.Clipboard.SetText(template.Replace("%1", SelectedNode.Namespace));
     }
 
@@ -212,7 +212,7 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        var template = AppOptions?.CopyTemplate2 ?? "%1";
+        var template = AppOptions?.CopyTemplates is { Count: > 1 } ? AppOptions.CopyTemplates[1] : "%1";
         System.Windows.Clipboard.SetText(template.Replace("%1", SelectedNode.Namespace));
     }
 
@@ -224,7 +224,7 @@ internal partial class MainWindowViewModel
             return;
         }
 
-        var template = AppOptions?.CopyTemplate3 ?? "%1";
+        var template = AppOptions?.CopyTemplates is { Count: > 2 } ? AppOptions.CopyTemplates[2] : "%1";
         System.Windows.Clipboard.SetText(template.Replace("%1", SelectedNode.Namespace));
     }
 

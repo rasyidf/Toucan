@@ -1,0 +1,78 @@
+<UserControl
+    x:Class="Toucan.Views.Components.LanguageListEditor"
+    x:Name="EditorRoot"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+    <StackPanel>
+        <!-- Add language row -->
+        <ui:CardControl Margin="0,0,0,8">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Add24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Add language" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding Description, ElementName=EditorRoot, FallbackValue='Type a language code or name'}" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <StackPanel Orientation="Horizontal">
+                <ui:TextBox x:Name="InputBox" Width="160" PlaceholderText="e.g. de-DE, French"
+                            KeyDown="InputBox_KeyDown"/>
+                <ui:Button Margin="8,0,0,0" Padding="8,6" Appearance="Primary" Click="AddButton_Click"
+                           ToolTip="Add language" AutomationProperties.Name="Add language">
+                    <ui:SymbolIcon Symbol="Add16"/>
+                </ui:Button>
+            </StackPanel>
+        </ui:CardControl>
+
+        <!-- Language list -->
+        <ItemsControl ItemsSource="{Binding Items, ElementName=EditorRoot}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <ui:CardControl Margin="0,0,0,4">
+                        <ui:CardControl.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Globe16" Margin="0,0,10,0"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                <StackPanel VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="13"/>
+                                        <Border Margin="8,0,0,0" Padding="6,2" CornerRadius="3"
+                                                Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
+                                                Visibility="{Binding IsPrimary, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="Primary" FontSize="10" FontWeight="Medium"
+                                                       Foreground="{DynamicResource SystemFillColorCautionBrush}"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding Code}" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ui:CardControl.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Summary}" FontSize="11" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}" Margin="0,0,8,0"/>
+                            <ui:Button Padding="4,2" Appearance="Transparent"
+                                       ToolTip="Remove language"
+                                       AutomationProperties.Name="Remove language"
+                                       Click="RemoveButton_Click"
+                                       Tag="{Binding}"
+                                       IsEnabled="{Binding CanRemove}">
+                                <ui:SymbolIcon Symbol="Delete16" FontSize="14"/>
+                            </ui:Button>
+                        </StackPanel>
+                    </ui:CardControl>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Footer count -->
+        <TextBlock Margin="0,8,0,0" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}">
+            <Run Text="{Binding Items.Count, ElementName=EditorRoot, Mode=OneWay}"/>
+            <Run Text="language(s)"/>
+        </TextBlock>
+    </StackPanel>
+</UserControl>

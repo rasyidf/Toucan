@@ -134,6 +134,7 @@ public partial class App : Application
         _ = services.AddSingleton<IDialogService, WpfDialogService>();
         _ = services.AddSingleton<IMessageService, MessageService>();
         _ = services.AddSingleton<IPreferenceService, PreferenceService>();
+        _ = services.AddSingleton<IProjectDefaultsService, Core.Services.ProjectDefaultsService>();
 
         // provider settings + secure storage for API keys
         _ = services.AddSingleton<ISecureStorageService, SecureStorageService>();
@@ -317,6 +318,7 @@ public partial class App : Application
         _ = services.AddTransient<LanguagePromptViewModel>();
         _ = services.AddTransient<LanguageSummaryItemViewModel>();
         _ = services.AddTransient<OptionsViewModel>();
+        _ = services.AddTransient<ProjectDefaultsViewModel>();
         _ = services.AddTransient<PreTranslateViewModel>();
         _ = services.AddTransient<ProviderSettingsViewModel>();
         _ = services.AddTransient<StartScreenViewModel>();
@@ -332,7 +334,6 @@ public partial class App : Application
 
         // Factories for viewmodels that require runtime parameters so code can resolve instances via DI
         _ = services.AddTransient<Func<string, LanguageGroupViewModel>>(sp => ns => ActivatorUtilities.CreateInstance<LanguageGroupViewModel>(sp, ns));
-        _ = services.AddTransient<Func<Window, AboutViewModel>>(sp => wnd => ActivatorUtilities.CreateInstance<AboutViewModel>(sp, wnd));
         _ = services.AddTransient<Func<Project, Action<string>, RecentProjectViewModel>>(sp => (proj, act) => ActivatorUtilities.CreateInstance<RecentProjectViewModel>(sp, proj, act));
         _ = services.AddTransient<Func<IEnumerable<TranslationItem>, LanguagePromptViewModel>>(sp => list => ActivatorUtilities.CreateInstance<LanguagePromptViewModel>(sp, list));
         // Factory for PreTranslateViewModel (languages + sourceItems + optional IPretranslationService)

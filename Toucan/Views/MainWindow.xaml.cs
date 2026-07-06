@@ -189,7 +189,7 @@ public partial class MainWindow : FluentWindow
         {
             "explorer" => BuildActions(
                 (Wpf.Ui.Controls.SymbolRegular.TextBulletListTree20, "Toggle view mode", ViewModel.ToggleViewModeCommand),
-                (Wpf.Ui.Controls.SymbolRegular.Add16, "New Item", ViewModel.NewItemCommand)),
+                (Wpf.Ui.Controls.SymbolRegular.Add16, "Add Translation Key", ViewModel.NewItemCommand)),
             "source-code" => BuildActions(
                 (Wpf.Ui.Controls.SymbolRegular.ArrowSync20, "Scan source code", ViewModel.ScanSourceCodeCommand),
                 (Wpf.Ui.Controls.SymbolRegular.Settings16, "Source settings", ViewModel.ShowPreferencesCommand)),

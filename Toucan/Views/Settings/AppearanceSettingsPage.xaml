@@ -43,5 +43,20 @@
                 <ComboBoxItem>None</ComboBoxItem>
             </ComboBox>
         </ui:CardControl>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Typography</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="TextFontSize24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Editor font size" FontWeight="SemiBold"/>
+                        <TextBlock Text="Font size for translation editor text (11–18)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <TextBox Width="80" Text="{Binding FontSizeText, Mode=TwoWay}"/>
+        </ui:CardControl>
     </StackPanel>
 </UserControl>

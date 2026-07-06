@@ -40,4 +40,38 @@
     <sys:Double x:Key="CaptionFontSize">11</sys:Double>
     <sys:Double x:Key="BodyFontSize">13</sys:Double>
 
+    <!-- Settings Nav: VS Code-style left accent indicator on selected item -->
+    <Style x:Key="SettingsNavListViewItemStyle" TargetType="ListBoxItem">
+        <Setter Property="Padding" Value="12,8,12,8"/>
+        <Setter Property="Margin" Value="0,0"/>
+        <Setter Property="BorderThickness" Value="3,0,0,0"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="0"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource SystemAccentColorPrimaryBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

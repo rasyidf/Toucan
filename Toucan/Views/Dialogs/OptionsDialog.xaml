@@ -8,8 +8,8 @@
     xmlns:settings="clr-namespace:Toucan.Views.Settings"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="Settings"
-    Width="750" Height="550"
-    MinWidth="650" MinHeight="450"
+    Width="780" Height="600"
+    MinWidth="680" MinHeight="500"
     ExtendsContentIntoTitleBar="True"
     ResizeMode="CanResize"
     WindowBackdropType="Mica"
@@ -33,69 +33,99 @@
             </Grid.ColumnDefinitions>
 
             <!-- Sidebar Navigation -->
-            <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" Padding="4,8" CornerRadius="0">
-                <ui:ListView x:Name="NavList" SelectedIndex="0" SelectionChanged="NavList_SelectionChanged">
-                    <ui:ListViewItem>
+            <Border Background="{DynamicResource SubtleFillColorTertiaryBrush}" Padding="0,4,4,8" CornerRadius="0">
+                <ListBox x:Name="NavList" SelectedIndex="0" SelectionChanged="NavList_SelectionChanged"
+                         Background="Transparent" BorderThickness="0"
+                         ItemContainerStyle="{StaticResource SettingsNavListViewItemStyle}">
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Settings24" Margin="0,0,12,0"/>
                             <TextBlock Text="General" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                    <ui:ListViewItem>
+                    </ListBoxItem>
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="PaintBrush24" Margin="0,0,12,0"/>
                             <TextBlock Text="Appearance" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                    <ui:ListViewItem>
+                    </ListBoxItem>
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Edit24" Margin="0,0,12,0"/>
                             <TextBlock Text="Editor" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                    <ui:ListViewItem>
+                    </ListBoxItem>
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Translate24" Margin="0,0,12,0"/>
                             <TextBlock Text="Translation" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                    <ui:ListViewItem>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="CheckmarkCircle24" Margin="0,0,12,0"/>
+                            <TextBlock Text="Validation" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="BrainCircuit24" Margin="0,0,12,0"/>
+                            <TextBlock Text="Translation Memory" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Code24" Margin="0,0,12,0"/>
+                            <TextBlock Text="Source Code" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Keyboard24" Margin="0,0,12,0"/>
                             <TextBlock Text="Keyboard Shortcuts" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                    <ui:ListViewItem>
+                    </ListBoxItem>
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Globe24" Margin="0,0,12,0"/>
                             <TextBlock Text="Languages" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                    <ui:ListViewItem>
+                    </ListBoxItem>
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="PlugConnected24" Margin="0,0,12,0"/>
                             <TextBlock Text="Integration" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                    <ui:ListViewItem>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="ShieldLock24" Margin="0,0,12,0"/>
+                            <TextBlock Text="Data &amp; Privacy" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Info24" Margin="0,0,12,0"/>
                             <TextBlock Text="About" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                </ui:ListView>
+                    </ListBoxItem>
+                </ListBox>
             </Border>
 
             <!-- Content Pages -->
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="16,12">
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="16,4,16,12">
                 <Grid>
                     <settings:GeneralSettingsPage x:Name="PageGeneral" Visibility="Visible"/>
                     <settings:AppearanceSettingsPage x:Name="PageAppearance" Visibility="Collapsed"/>
                     <settings:EditorSettingsPage x:Name="PageEditor" Visibility="Collapsed"/>
                     <settings:TranslationSettingsPage x:Name="PageTranslation" Visibility="Collapsed"/>
+                    <settings:ValidationSettingsPage x:Name="PageValidation" Visibility="Collapsed"/>
+                    <settings:TranslationMemorySettingsPage x:Name="PageTM" Visibility="Collapsed"/>
+                    <settings:SourceCodeSettingsPage x:Name="PageSourceCode" Visibility="Collapsed"/>
                     <settings:ShortcutsSettingsPage x:Name="PageShortcuts" Visibility="Collapsed"/>
                     <settings:LanguagesSettingsPage x:Name="PageLanguages" Visibility="Collapsed"/>
                     <settings:IntegrationSettingsPage x:Name="PageIntegration" Visibility="Collapsed"/>
+                    <settings:DataPrivacySettingsPage x:Name="PageDataPrivacy" Visibility="Collapsed"/>
                     <settings:AboutPage x:Name="PageAbout" Visibility="Collapsed"/>
                 </Grid>
             </ScrollViewer>

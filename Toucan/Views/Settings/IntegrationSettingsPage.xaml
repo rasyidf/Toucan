@@ -28,21 +28,6 @@
             </StackPanel>
         </ui:CardControl>
 
-        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Startup</TextBlock>
-
-        <ui:CardControl Margin="0,0,0,4">
-            <ui:CardControl.Header>
-                <StackPanel Orientation="Horizontal">
-                    <ui:SymbolIcon Symbol="Power24" Margin="0,0,12,0"/>
-                    <StackPanel>
-                        <TextBlock Text="Open last project on startup" FontWeight="SemiBold"/>
-                        <TextBlock Text="Automatically reopen the last project when Toucan starts" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                    </StackPanel>
-                </StackPanel>
-            </ui:CardControl.Header>
-            <ui:ToggleSwitch IsChecked="{Binding OpenLastProjectOnStartup, Mode=TwoWay}"/>
-        </ui:CardControl>
-
         <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Shell Integration</TextBlock>
 
         <ui:CardControl Margin="0,0,0,4">

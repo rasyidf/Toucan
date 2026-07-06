@@ -4,7 +4,7 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     x:Name="ActivityBarRoot"
     Width="36">
-    <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+    <Border Background="{DynamicResource SubtleFillColorTertiaryBrush}">
         <Border.ContextMenu>
             <ContextMenu x:Name="PanelVisibilityMenu"/>
         </Border.ContextMenu>
@@ -16,9 +16,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border x:Name="ItemBd" Width="36" Height="36" Cursor="Hand"
-                            Background="Transparent"
-                            BorderThickness="2,0,0,0" BorderBrush="Transparent"
+                    <Border Width="36" Height="36" Cursor="Hand"
                             ToolTip="{Binding Title}">
                         <Border.InputBindings>
                             <MouseBinding MouseAction="LeftClick"
@@ -27,6 +25,9 @@
                         </Border.InputBindings>
                         <Border.Style>
                             <Style TargetType="Border">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="3,0,0,0"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
                                 <Setter Property="Opacity" Value="0.5"/>
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
@@ -36,6 +37,7 @@
                                     <DataTrigger Binding="{Binding IsActive}" Value="True">
                                         <Setter Property="Opacity" Value="1.0"/>
                                         <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColorPrimaryBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding IsVisible}" Value="False">
                                         <Setter Property="Visibility" Value="Collapsed"/>

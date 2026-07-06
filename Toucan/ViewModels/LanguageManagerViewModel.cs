@@ -53,11 +53,13 @@ public partial class LanguageManagerViewModel : ObservableObject
 
         foreach (var lang in existingLanguages)
         {
+            var isPrimary = string.Equals(lang, primaryLanguage, StringComparison.OrdinalIgnoreCase);
             Languages.Add(new LanguageEntry
             {
                 Code = lang,
                 DisplayName = GetDisplayName(lang),
-                IsPrimary = string.Equals(lang, primaryLanguage, StringComparison.OrdinalIgnoreCase),
+                IsPrimary = isPrimary,
+                CanRemove = !isPrimary,
                 TranslationCount = _allTranslations.Count(t => t.Language == lang && !string.IsNullOrEmpty(t.Value)),
                 TotalKeys = _allTranslations.Count(t => t.Language == lang)
             });
@@ -260,5 +262,8 @@ public partial class LanguageEntry : ObservableObject
     [ObservableProperty]
     private int totalKeys;
 
-    public string Summary => TotalKeys > 0 ? $"{TranslationCount}/{TotalKeys} translated" : "No keys";
+    [ObservableProperty]
+    private bool canRemove = true;
+
+    public string Summary => TotalKeys > 0 ? $"{TranslationCount}/{TotalKeys} translated" : "";
 }

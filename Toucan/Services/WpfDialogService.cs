@@ -49,13 +49,6 @@ public class WpfDialogService : IDialogService
         return dialog.ShowDialog() == true ? dialog.ResponseText : null;
     }
 
-    public bool ShowAbout()
-    {
-        var factory = _serviceProvider.GetRequiredService<Func<Window, AboutViewModel>>();
-        AboutDialog dialog = new(Owner!, factory);
-        return dialog.ShowDialog() == true;
-    }
-
     public bool ShowNewProject(IProjectService projectService, out NewProjectViewModel? resultVm)
     {
         resultVm = null;
@@ -69,11 +62,11 @@ public class WpfDialogService : IDialogService
         return false;
     }
 
-    public bool ShowOptions(AppOptions options, string currentPath, out AppOptions? updatedOptions)
+    public bool ShowOptions(AppOptions options, string currentPath, out AppOptions? updatedOptions, int startPage = 0)
     {
         updatedOptions = null;
         var vm = _serviceProvider.GetRequiredService<OptionsViewModel>();
-        OptionDialog dialog = new(options, currentPath, vm) { Owner = Owner };
+        OptionDialog dialog = new(options, currentPath, vm, startPage) { Owner = Owner };
         if (dialog.ShowDialog() == true)
         {
             updatedOptions = dialog.Config;
@@ -94,6 +87,13 @@ public class WpfDialogService : IDialogService
         ProviderSettingsWindow dialog = new(vm) { Owner = Owner };
         _ = dialog.ShowDialog();
         return true;
+    }
+
+    public bool ShowProjectDefaults()
+    {
+        var vm = _serviceProvider.GetRequiredService<ProjectDefaultsViewModel>();
+        var dialog = new Views.Dialogs.ProjectDefaultsWindow(vm) { Owner = Owner };
+        return dialog.ShowDialog() == true;
     }
 
     public bool LastProjectPropertiesRequestedManageLanguages { get; private set; }

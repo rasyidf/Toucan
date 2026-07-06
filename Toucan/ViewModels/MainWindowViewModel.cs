@@ -210,7 +210,12 @@ internal partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void HelpAbout()
     {
-        _ = _dialogService.ShowAbout();
+        // Open settings dialog navigated to the About page (index 11)
+        if (_dialogService.ShowOptions(AppOptions, CurrentPath, out var updated, startPage: 11) && updated != null)
+        {
+            AppOptions = updated;
+            App.ApplyTheme(AppOptions.Theme);
+        }
     }
 
 

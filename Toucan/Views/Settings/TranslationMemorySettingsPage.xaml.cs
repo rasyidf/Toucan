@@ -2,9 +2,9 @@ using System.Windows.Controls;
 
 namespace Toucan.Views.Settings;
 
-public partial class LanguagesSettingsPage : UserControl
+public partial class TranslationMemorySettingsPage : UserControl
 {
-    public LanguagesSettingsPage()
+    public TranslationMemorySettingsPage()
     {
         InitializeComponent();
     }

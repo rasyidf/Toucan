@@ -1,5 +1,47 @@
 # Changelog
 
+## [0.17.3] - 2026-07-06
+
+### Added
+- **Two-tier settings architecture** — New `ProjectDefaults` template (`project-defaults.json`) provides default values for new projects and acts as fallback when a project doesn't override a field.
+- **"Manage Project Defaults" window** — 5-page master-detail editor (Editor, Translation, Validation, Source Code, Features) accessible from Settings → Editor.
+- **Validation settings page** — Per-rule enable/disable toggles with severity selection (Error/Warning/Info) for all 6 built-in rules.
+- **Translation Memory settings page** — Similarity threshold slider, scope selector (Global/Project), auto-suggest toggle, max suggestions, clear/import/export buttons.
+- **Source Code settings page** — Framework presets dropdown (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, Generic JSON) that auto-populates scan extensions, excluded dirs, locale folder pattern, and key matcher regex.
+- **Data & Privacy settings page** — Clear filter history, recent projects, TM data; export/import settings backup; reset to factory defaults.
+- **Update panel in About** — "Check for updates" and "Update channel" (Stable/Preview) UI shell for future auto-updater.
+- **Copy templates CRUD** — Dynamic 1–5 template list with add/remove (replaces fixed 3 textboxes) across app settings, project defaults, and project properties.
+- **Reusable `LanguageListEditor` component** — Shared WinUI-style card list for language management, used by both Manage Languages dialog and Suggested Languages settings.
+- **`EffectiveSettingsResolver`** — Static helper that merges nullable project fields with defaults for consumption by the engine.
+- **Framework-connected source code config** — Locale folder pattern and key matcher regex fields, auto-populated from framework presets.
+
+### Changed
+- **Settings dialog expanded to 12 pages** — General, Appearance, Editor, Translation, Validation, Translation Memory, Source Code, Keyboard Shortcuts, Languages, Integration, Data & Privacy, About.
+- **Settings sidebar** — VS Code-style left accent border indicator on selected item with proper card background; no rounded corners, flush left edge.
+- **Activity bar** — 3px left accent border on active panel with card background; properties moved into Style triggers for proper WPF precedence.
+- **"Add ID" → "Add Translation Key"** — Renamed in menu, toolbar, keybinding list, and dialog title.
+- **PromptDialog redesigned** — Mica backdrop, `ui:TextBox` with icon and placeholder, validation (won't dismiss on empty), "Add" button instead of "OK".
+- **Mode selector bar** — Increased height (26→30px), font size (11→12px), adjusted padding to prevent text cropping.
+- **About menu** — Now opens unified Settings dialog at the About tab instead of a standalone window.
+- **Plain text keys** — Changed from CheckBox to ToggleSwitch control.
+- **Validation severity ComboBox** — Widened from 100→120px to prevent "Warning" truncation.
+- **TM Scope ComboBox** — Widened from 140→200px.
+- **Copy templates** — Upgraded from raw Border+TextBox to proper `ui:CardControl` list items.
+- **Project Languages list** — Upgraded from plain text list to `ui:CardControl` card items.
+- **Suggested Languages** — Now uses shared `LanguageListEditor` component with proper WinUI card styling.
+- **Settings dialog alignment** — Sidebar and content top padding aligned (4px) across all 3 settings dialogs.
+- **Startup toggle** — Moved from Integration page to General page.
+- **App language list** — Expanded from 2 to 8 languages.
+
+### Added (AppOptions model)
+- `BackdropType`, `FontSize`, `TmAutoSuggest`, `TmMaxSuggestions`, `DefaultProjectLanguages`, `CopyTemplates` (list replacing Template1/2/3).
+
+### Added (ProjectSettings model)
+- `ValidateOnSave`, `ValidationRules`, `ScanExtensions`, `ExcludedDirectories`, `AutoScanOnOpen`, `PreservePlaceholders`, `PreviewBeforeApply`. Made editor/feature fields nullable for override semantics.
+
+### Removed
+- **Standalone `AboutDialog`** — Replaced by About page in Settings. `AboutViewModel` and DI registration removed.
+
 ## [0.17.2] - 2026-07-06
 
 ### Fixed

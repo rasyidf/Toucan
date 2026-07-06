@@ -28,7 +28,7 @@ internal static class KeybindingService
         new("File", "Save As", "F12"),
         new("File", "Close Project", "Ctrl+F4"),
         new("File", "Exit", "Alt+F4"),
-        new("Edit", "Add ID", "Ctrl+I"),
+        new("Edit", "Add Translation Key", "Ctrl+I"),
         new("Edit", "Add Language", "Ctrl+L"),
         new("Edit", "Rename", "F2"),
         new("Edit", "Delete", "Delete"),

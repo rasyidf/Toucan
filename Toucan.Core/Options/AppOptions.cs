@@ -13,7 +13,9 @@ public class AppOptions
     // --- UI preferences ---
     public string DefaultLanguage { get; set; } = "en-US";
     public string Theme { get; set; } = "System";
+    public string BackdropType { get; set; } = "Mica";
     public string AppLanguage { get; set; } = "en-US";
+    public double FontSize { get; set; } = 13;
     public int PageSize { get; set; } = 15;
     public int MaxItems { get; set; } = 5000;
     public int TruncateResultsOver { get; set; } = 5000;
@@ -24,10 +26,8 @@ public class AppOptions
     public string Context { get; set; } = string.Empty;
     public string LastProvider { get; set; } = "Google";
 
-    // --- Copy Templates ---
-    public string CopyTemplate1 { get; set; } = "%1";
-    public string CopyTemplate2 { get; set; } = "{ this.props.t('%1') }";
-    public string CopyTemplate3 { get; set; } = "{ t('%1') }";
+    // --- Copy Templates (1-5 dynamic list) ---
+    public List<string> CopyTemplates { get; set; } = ["%1", "{ this.props.t('%1') }", "{ t('%1') }"];
 
     // --- Editor behavior ---
     public bool PlainTextKeys { get; set; }
@@ -37,6 +37,11 @@ public class AppOptions
     // --- Translation Memory ---
     public double TmSimilarityThreshold { get; set; } = 0.7;
     public bool TmGlobalScope { get; set; } = true;
+    public bool TmAutoSuggest { get; set; } = true;
+    public int TmMaxSuggestions { get; set; } = 5;
+
+    // --- Default project languages ---
+    public List<string> DefaultProjectLanguages { get; set; } = ["en-US"];
     // --- Last session state ---
     public string? LastProjectPath { get; set; }
     public bool OpenLastProjectOnStartup { get; set; } = true;

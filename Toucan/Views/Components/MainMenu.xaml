@@ -133,7 +133,7 @@
             <Separator />
             <ui:MenuItem
                 Command="{Binding NewItemCommand}"
-                Header="Add _ID"
+                Header="Add Translation _Key"
                 InputGestureText="Ctrl+I" />
             <ui:MenuItem
                 Command="{Binding NewLanguageCommand}"
