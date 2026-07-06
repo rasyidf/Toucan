@@ -162,11 +162,12 @@
                     <TextBlock Margin="4,0,0,0" VerticalAlignment="Center" Text="{Binding Content}" />
                 </StackPanel>
                 <Button.ContextMenu>
-                    <ContextMenu ItemsSource="{Binding AvailableLanguages}">
+                    <ContextMenu ItemsSource="{Binding AvailableLanguages}"
+                                 Tag="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                         <ContextMenu.ItemContainerStyle>
                             <Style TargetType="MenuItem">
                                 <Setter Property="Header" Value="{Binding}"/>
-                                <Setter Property="Command" Value="{Binding DataContext.ClickCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                <Setter Property="Command" Value="{Binding Tag.ClickCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                                 <Setter Property="CommandParameter" Value="{Binding}"/>
                             </Style>
                         </ContextMenu.ItemContainerStyle>

@@ -366,7 +366,8 @@ internal partial class MainWindowViewModel : ObservableObject
     }
     internal void UpdateSummaryInfo()
     {
-        SummaryInfo.Update(AllTranslation);
+        var primary = Services.StatusBarService.Instance.GetViewModel()?.DefaultLanguage;
+        SummaryInfo.Update(AllTranslation, primary);
         // show number of missing translations as a notification badge
         try
         {
@@ -424,6 +425,12 @@ internal partial class MainWindowViewModel : ObservableObject
         var settings = ProjectSettings.LoadFrom(CurrentPath) ?? ProjectSettings.CreateDefault(CurrentPath);
         var languages = AllTranslation?.Select(t => t.Language).Where(l => !string.IsNullOrEmpty(l)).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(l => l).ToList();
         _dialogService.ShowProjectProperties(settings, languages);
+
+        // If user clicked "Manage Languages" inside project properties, open that dialog now
+        if (_dialogService.LastProjectPropertiesRequestedManageLanguages)
+        {
+            ManageLanguagesCommand.Execute(null);
+        }
     }
 
     /// <summary>

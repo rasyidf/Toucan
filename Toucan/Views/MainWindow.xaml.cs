@@ -109,6 +109,21 @@ public partial class MainWindow : FluentWindow
                 ViewModel.RunValidationCommand.Execute(null);
         };
 
+        // Wire language panel selection to update primary language in project settings
+        statusViewModel.Language.LanguageChanged += lang =>
+        {
+            if (string.IsNullOrEmpty(ViewModel.CurrentPath)) return;
+            var settings = Core.Models.ProjectSettings.LoadFrom(ViewModel.CurrentPath);
+            if (settings is not null)
+            {
+                settings.PrimaryLanguage = lang;
+                settings.Save();
+            }
+            StatusBarService.Instance.UpdateDefaultLanguage(lang);
+            // Refresh editor to reorder languages (primary first)
+            ViewModel.RefreshTree();
+        };
+
         // forward basic updates from the main VM to the status bar
         ViewModel.PropertyChanged += (s, ea) =>
         {

@@ -219,7 +219,11 @@ internal partial class MainWindowViewModel
         if (StatusBarService.Instance is { } sbs && sbs.GetViewModel() is { } sbVm && AllTranslation != null)
         {
             sbVm.AvailableLanguages.Clear();
-            foreach (var lang in AllTranslation.ToLanguages())
+            var primary = sbVm.DefaultLanguage;
+            var sorted = AllTranslation.ToLanguages()
+                .OrderBy(l => string.Equals(l, primary, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                .ThenBy(l => l);
+            foreach (var lang in sorted)
                 sbVm.AvailableLanguages.Add(lang);
         }
 

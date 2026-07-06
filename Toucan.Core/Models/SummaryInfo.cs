@@ -28,12 +28,15 @@ public partial class SummaryInfoViewModel : ObservableObject
         ExpandState = !ExpandState;
     }
 
-    public void Update(IEnumerable<TranslationItem> settings)
+    public void Update(IEnumerable<TranslationItem> settings, string? primaryLanguage = null)
     {
         // Only consider items with real namespaces for language listing
         var parsableSettings = settings.ForParse().ToList();
         var allNamespace = parsableSettings.ToNamespaces().ToList();
-        var allLanguages = parsableSettings.ToLanguages().ToList();
+        var allLanguages = parsableSettings.ToLanguages()
+            .OrderBy(l => string.Equals(l, primaryLanguage, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+            .ThenBy(l => l)
+            .ToList();
 
         Languages = allLanguages.Count;
         Translations = allNamespace.Count;

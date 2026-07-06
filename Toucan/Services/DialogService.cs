@@ -21,6 +21,7 @@ public interface IDialogService
     bool ShowPreTranslate(PreTranslateViewModel vm);
     bool ShowProviderSettings();
     bool ShowProjectProperties(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null);
+    bool LastProjectPropertiesRequestedManageLanguages { get; }
     bool ShowImportProject(out ImportProjectViewModel? resultVm);
     string? ShowLanguagePrompt(string title, string message, IEnumerable<TranslationItem>? existingTranslations);
 

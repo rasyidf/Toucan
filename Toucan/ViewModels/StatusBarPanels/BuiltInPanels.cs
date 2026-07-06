@@ -222,7 +222,11 @@ public partial class LanguagePanel : StatusBarPanelBase
     public override ICommand? ClickCommand => SwitchLanguageCommand;
 
     [RelayCommand]
-    private void SwitchLanguage() { /* ponytail: opens context menu in view */ }
+    private void SwitchLanguage(string? lang)
+    {
+        if (!string.IsNullOrEmpty(lang))
+            SetLanguage(lang);
+    }
 
 #pragma warning disable CA1003
     public event Action<string>? LanguageChanged;

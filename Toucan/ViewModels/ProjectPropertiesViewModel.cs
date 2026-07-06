@@ -134,9 +134,13 @@ public partial class ProjectPropertiesViewModel : ObservableObject
     [RelayCommand]
     private void ManageLanguages()
     {
-        // ponytail: full language management requires the loaded translation items (available from main window).
-        // This button is a convenience shortcut — for now it's a stub.
+        // Close dialog — caller will detect ManageLanguagesRequested and open the manage languages dialog
+        ManageLanguagesRequested = true;
+        CloseAction?.Invoke(true);
     }
+
+    /// <summary>Set to true when the user clicks Manage Languages — caller should open the dialog after close.</summary>
+    public bool ManageLanguagesRequested { get; private set; }
 
     [RelayCommand]
     private void RemoveHiddenNamespace(string? ns)
