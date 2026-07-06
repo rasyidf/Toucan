@@ -13,6 +13,13 @@ public partial class ProjectLifecycleService
     private IExternalChangeHandler? _externalChangeHandler;
 
     /// <summary>
+    /// Optional UI-thread marshaling callback. When set, reload/merge operations
+    /// dispatch through this to ensure UI-bound collections are updated on the UI thread.
+    /// When null (tests, CLI), execution proceeds directly.
+    /// </summary>
+    private Func<Func<Task>, Task>? _uiDispatcher;
+
+    /// <summary>
     /// Stores the last-saved snapshot of translations for three-way merge (base).
     /// Updated after each successful load or save.
     /// </summary>
@@ -36,6 +43,14 @@ public partial class ProjectLifecycleService
     public void SetExternalChangeHandler(IExternalChangeHandler? handler)
     {
         _externalChangeHandler = handler;
+    }
+
+    /// <summary>
+    /// Sets the UI dispatcher callback for marshaling reload/merge operations to the UI thread.
+    /// </summary>
+    public void SetUiDispatcher(Func<Func<Task>, Task>? dispatcher)
+    {
+        _uiDispatcher = dispatcher;
     }
 
     /// <summary>
@@ -88,7 +103,7 @@ public partial class ProjectLifecycleService
             if (!translationManagement.IsDirty)
             {
                 // Not dirty: auto-reload affected files, update snapshot
-                await ReloadFromDiskAsync().ConfigureAwait(false);
+                await DispatchToUiAsync(ReloadFromDiskAsync).ConfigureAwait(false);
             }
             else
             {
@@ -105,11 +120,11 @@ public partial class ProjectLifecycleService
                 switch (choice)
                 {
                     case ExternalChangeChoice.Reload:
-                        await ReloadFromDiskAsync().ConfigureAwait(false);
+                        await DispatchToUiAsync(ReloadFromDiskAsync).ConfigureAwait(false);
                         break;
 
                     case ExternalChangeChoice.Merge:
-                        await MergeExternalChangesAsync().ConfigureAwait(false);
+                        await DispatchToUiAsync(MergeExternalChangesAsync).ConfigureAwait(false);
                         break;
 
                     case ExternalChangeChoice.Ignore:
@@ -123,6 +138,14 @@ public partial class ProjectLifecycleService
         {
             logger.LogError(ex, "Error handling external file changes");
         }
+    }
+
+    /// <summary>
+    /// Dispatches work through the UI thread marshaler if available, otherwise executes directly.
+    /// </summary>
+    private Task DispatchToUiAsync(Func<Task> work)
+    {
+        return _uiDispatcher is not null ? _uiDispatcher(work) : work();
     }
 
     /// <summary>

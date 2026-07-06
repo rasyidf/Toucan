@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.17.1] - 2026-07-06
+
+### Fixed
+- **DiffMergeEngine dirty tracking** — Merged items (added/modified from disk) now update their baselines via `MarkSaved`, preventing perpetually-dirty state after non-conflicting merges.
+- **AutoSaveService dispose crash** — Guarded semaphore release against `ObjectDisposedException` when `Dispose()` is called during an in-flight save; marked `_disposed` volatile for cross-thread visibility.
+- **TranslationManagementService double-fire** — Eliminated TOCTOU race in `RaiseDirtyStateChangedIfNeeded` by computing dirty state inside the lock, preventing duplicate `DirtyStateChanged` events.
+- **External reload threading** — Auto-reload and merge paths now dispatch through a UI-thread marshaler (`SetUiDispatcher`), preventing cross-thread updates to UI-bound collections.
+- **iOS .strings escape corruption** — Replaced chained `string.Replace` with single-pass character scanner; `\\n` in .strings files now correctly produces literal backslash+n instead of a newline.
+- **Java .properties line continuations** — Added `JoinContinuationLines` that handles trailing-backslash multi-line values per the spec; multi-line values are no longer truncated to the first line.
+
 ## [0.17.0] - 2026-07-03
 
 ### Added

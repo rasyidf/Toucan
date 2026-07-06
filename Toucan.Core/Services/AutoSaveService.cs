@@ -17,7 +17,7 @@ public sealed class AutoSaveService : IAutoSaveService, IDisposable
 
     private Timer? _timer;
     private TimeSpan _interval;
-    private bool _disposed;
+    private volatile bool _disposed;
 
     public AutoSaveService(
         Lazy<IProjectLifecycleService> lifecycleService,
@@ -134,7 +134,8 @@ public sealed class AutoSaveService : IAutoSaveService, IDisposable
         }
         finally
         {
-            _semaphore.Release();
+            try { _semaphore.Release(); }
+            catch (ObjectDisposedException) { /* Disposed during save — safe to ignore */ }
             ScheduleNextTick();
         }
     }

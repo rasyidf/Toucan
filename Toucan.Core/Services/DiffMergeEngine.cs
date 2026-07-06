@@ -61,23 +61,28 @@ public class DiffMergeEngine : IDiffMergeEngine
         int autoApplied = 0;
 
         var addedItems = new List<TranslationItem>();
+        var mergedItems = new List<TranslationItem>();
 
         foreach (var entry in diff.Entries)
         {
             switch (entry.Category)
             {
                 case DiffCategory.AddedOnDisk:
-                    addedItems.Add(new TranslationItem
+                    var added = new TranslationItem
                     {
                         Language = entry.Language,
                         Namespace = entry.Namespace,
                         Value = entry.TheirsValue ?? string.Empty
-                    });
+                    };
+                    addedItems.Add(added);
+                    mergedItems.Add(added);
                     autoApplied++;
                     break;
 
                 case DiffCategory.ModifiedOnDisk:
-                    ApplyModification(entry, target);
+                    var modified = ApplyModification(entry, target);
+                    if (modified is not null)
+                        mergedItems.Add(modified);
                     autoApplied++;
                     break;
 
@@ -97,6 +102,13 @@ public class DiffMergeEngine : IDiffMergeEngine
         if (addedItems.Count > 0)
         {
             target.AddItems(addedItems);
+        }
+
+        // Update baselines for merged items so they aren't considered dirty
+        // (their values now match what's on disk).
+        if (mergedItems.Count > 0)
+        {
+            target.MarkSaved(mergedItems);
         }
 
         return new MergeResult(conflicts, autoApplied);
@@ -163,8 +175,9 @@ public class DiffMergeEngine : IDiffMergeEngine
 
     /// <summary>
     /// Updates the value of a ModifiedOnDisk item in the target's Translations collection.
+    /// Returns the modified item so its baseline can be updated, or null if not found.
     /// </summary>
-    private static void ApplyModification(DiffEntry entry, ITranslationManagementService target)
+    private static TranslationItem? ApplyModification(DiffEntry entry, ITranslationManagementService target)
     {
         var item = target.Translations.FirstOrDefault(t =>
             string.Equals(t.Language, entry.Language, StringComparison.Ordinal) &&
@@ -174,6 +187,8 @@ public class DiffMergeEngine : IDiffMergeEngine
         {
             item.Value = entry.TheirsValue ?? string.Empty;
         }
+
+        return item;
     }
 
     /// <summary>

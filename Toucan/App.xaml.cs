@@ -369,6 +369,7 @@ public partial class App : Application
         // Wire UI-layer handlers onto the lifecycle service now that the window exists
         lifecycleService.SetUnsavedChangesHandler(new WpfUnsavedChangesHandler(mainWindow));
         lifecycleService.SetExternalChangeHandler(new WpfExternalChangeHandler(mainWindow));
+        lifecycleService.SetUiDispatcher(work => mainWindow.Dispatcher.InvokeAsync(work).Task.Unwrap());
 
         // Register built-in side panels in the registry
         var sideRegistry = SidePanelRegistry.Instance;
