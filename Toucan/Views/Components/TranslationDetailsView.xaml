@@ -26,12 +26,28 @@
 
             <!-- Local filter for translation IDs -->
             <Border Padding="5,4" Background="{DynamicResource SubtleFillColorSecondaryBrush}">
-                <ui:TextBox
-                    x:Name="IdFilterBox"
-                    Icon="Filter16"
-                    PlaceholderText="{x:Static loc:Strings.Editor_FilterPlaceholder}"
-                    Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    FontSize="12" />
+                <StackPanel>
+                    <!-- Language visibility checkboxes -->
+                    <ItemsControl ItemsSource="{Binding LanguageVisibilityFilter}" Margin="0,0,0,4">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Language}" IsChecked="{Binding IsVisible, Mode=TwoWay}"
+                                          Margin="0,0,8,0" FontSize="11" VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <ui:TextBox
+                        x:Name="IdFilterBox"
+                        Icon="Filter16"
+                        PlaceholderText="{x:Static loc:Strings.Editor_FilterPlaceholder}"
+                        Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        FontSize="12" />
+                </StackPanel>
             </Border>
 
             <!-- Normal list view (hidden in focused mode) -->

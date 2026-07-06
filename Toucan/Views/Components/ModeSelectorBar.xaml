@@ -20,6 +20,7 @@
             <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="8,3" />
+            <Setter Property="MinWidth" Value="56" />
             <Setter Property="FontSize" Value="11" />
             <Setter Property="FontWeight" Value="Normal" />
             <Setter Property="Cursor" Value="Hand" />
@@ -45,6 +46,13 @@
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource ControlElevationBorderBrush}" />
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="1" />
+                                <Setter TargetName="Bd" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.15" Color="Black"/>
+                                    </Setter.Value>
+                                </Setter>
                                 <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
                                 <Setter Property="FontWeight" Value="SemiBold" />
                             </Trigger>

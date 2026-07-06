@@ -74,8 +74,22 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         set { if (_model != null) { _model.IsApproved = value; OnPropertyChanged(nameof(IsApproved)); } }
     }
 
+    /// <summary>Controls row visibility for language filtering. Bound in TranslationItemView.</summary>
+    [ObservableProperty]
+    private bool isLanguageVisible = true;
+
     [RelayCommand]
     private void ToggleApproved() => IsApproved = !IsApproved;
+
+    [RelayCommand]
+    private void ClearApproved() => IsApproved = false;
+
+    [RelayCommand]
+    private void ViewComment()
+    {
+        if (!string.IsNullOrEmpty(Comment))
+            Clipboard.SetText(Comment);
+    }
 
     [RelayCommand]
     private void CopyTranslation()

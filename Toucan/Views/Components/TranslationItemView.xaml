@@ -97,12 +97,15 @@
                 Visibility="{Binding IsPluralGroup, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid Margin="0,2" x:Name="LangRow">
+                        <Grid Margin="0,2" x:Name="LangRow"
+                              Visibility="{Binding IsLanguageVisible, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="32" />  <!-- Language label -->
                                 <ColumnDefinition Width="8" />   <!-- Spacer -->
                                 <ColumnDefinition Width="*" />   <!-- TextBox -->
                                 <ColumnDefinition Width="Auto" /> <!-- Copy (hover-only) -->
+                                <ColumnDefinition Width="Auto" /> <!-- Comment (Review+Audit) -->
+                                <ColumnDefinition Width="Auto" /> <!-- Needs-review (Review only) -->
                                 <ColumnDefinition Width="Auto" /> <!-- Approve (Review only) -->
                             </Grid.ColumnDefinitions>
 
@@ -120,17 +123,20 @@
                             <ui:TextBox
                                 Grid.Column="2"
                                 MinHeight="28"
+                                MaxHeight="200"
                                 MinWidth="120"
                                 Padding="6,4"
                                 VerticalAlignment="Stretch"
                                 AcceptsReturn="True"
                                 AcceptsTab="False"
+                                GotFocus="ValueTextBox_GotFocus"
                                 IsTabStop="True"
                                 KeyUp="LanguageValue_KeyUp"
                                 SpellCheck.IsEnabled="False"
                                 Tag="{Binding}"
                                 Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                TextWrapping="Wrap">
+                                TextWrapping="Wrap"
+                                VerticalScrollBarVisibility="Auto">
                                 <ui:TextBox.Style>
                                     <Style TargetType="ui:TextBox" BasedOn="{StaticResource {x:Type ui:TextBox}}">
                                         <Setter Property="IsReadOnly" Value="False" />
@@ -165,9 +171,58 @@
                                 <ui:SymbolIcon FontSize="12" Symbol="Copy16" />
                             </ui:Button>
 
+                            <!-- Comment: visible in Review + Audit -->
+                            <ui:Button
+                                Grid.Column="4"
+                                Margin="2,0,0,0"
+                                Padding="4"
+                                VerticalAlignment="Top"
+                                Appearance="Transparent"
+                                Command="{Binding ViewCommentCommand}"
+                                ToolTip="View/copy comment"
+                                AutomationProperties.Name="View comment">
+                                <ui:Button.Style>
+                                    <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ui:Button.Style>
+                                <ui:SymbolIcon FontSize="12" Symbol="Comment16" />
+                            </ui:Button>
+
+                            <!-- Needs-review: Review mode only -->
+                            <ui:Button
+                                Grid.Column="5"
+                                Margin="2,0,0,0"
+                                Padding="4"
+                                VerticalAlignment="Top"
+                                Appearance="Transparent"
+                                Command="{Binding ClearApprovedCommand}"
+                                ToolTip="Mark as needs review"
+                                AutomationProperties.Name="Mark needs review">
+                                <ui:Button.Style>
+                                    <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ui:Button.Style>
+                                <ui:SymbolIcon FontSize="12" Symbol="DismissCircle16" />
+                            </ui:Button>
+
                             <!-- Approve toggle: Review mode only -->
                             <ToggleButton
-                                Grid.Column="4"
+                                Grid.Column="6"
                                 Margin="2,0,0,0"
                                 Padding="4"
                                 VerticalAlignment="Top"

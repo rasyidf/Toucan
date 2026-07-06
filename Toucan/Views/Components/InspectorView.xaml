@@ -7,6 +7,8 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:loc="clr-namespace:Toucan.Locales"
     xmlns:c="clr-namespace:Toucan.Converters"
+    xmlns:services="clr-namespace:Toucan.Services"
+    xmlns:vm="clr-namespace:Toucan.ViewModels"
     xmlns:viewmodels="clr-namespace:Toucan.ViewModels"
     x:Name="InspectorPanel"
     d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
@@ -84,10 +86,28 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <ui:SymbolIcon Symbol="Lightbulb16" FontSize="12" Margin="0,2,8,0"
                                                            VerticalAlignment="Top" Opacity="0.6"/>
                                             <TextBlock Grid.Column="1" Text="{Binding}" TextWrapping="Wrap" FontSize="12"/>
+                                            <ui:Button Grid.Column="2" Padding="4" Appearance="Transparent"
+                                                       Command="{Binding DataContext.InsertSuggestionCommand, ElementName=InspectorPanel}"
+                                                       CommandParameter="{Binding}"
+                                                       ToolTip="Insert suggestion"
+                                                       AutomationProperties.Name="Insert suggestion">
+                                                <ui:Button.Style>
+                                                    <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ui:Button.Style>
+                                                <ui:SymbolIcon FontSize="12" Symbol="ArrowImport16"/>
+                                            </ui:Button>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

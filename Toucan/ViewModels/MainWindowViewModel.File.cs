@@ -230,6 +230,14 @@ internal partial class MainWindowViewModel
         // Populate paging controller for loaded data
         Search("", true);
 
+        // Initialize language visibility filter
+        if (AllTranslation is { Count: > 0 })
+        {
+            InitLanguageVisibilityFilter(AllTranslation.ToLanguages()
+                .OrderBy(l => string.Equals(l, StatusBarService.Instance.GetViewModel()?.DefaultLanguage, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                .ThenBy(l => l));
+        }
+
         // Ensure project name shown in status bar
         try
         {
@@ -292,6 +300,14 @@ internal partial class MainWindowViewModel
             catch { }
 
             Search("", true);
+
+            // Initialize language visibility filter
+            if (AllTranslation != null)
+            {
+                InitLanguageVisibilityFilter(AllTranslation.ToLanguages()
+                    .OrderBy(l => string.Equals(l, StatusBarService.Instance.GetViewModel()?.DefaultLanguage, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                    .ThenBy(l => l));
+            }
 
             try
             {

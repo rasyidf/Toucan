@@ -227,6 +227,7 @@ internal partial class MainWindowViewModel : ObservableObject
         // the control will bind to these properties (PageButtons/PageMessage)
         OnPropertyChanged(nameof(PageButtons));
         OnPropertyChanged(nameof(PageMessage));
+        ApplyLanguageVisibility();
     }
 
     private void UpdatePageButtons(int window = 1)

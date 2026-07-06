@@ -751,4 +751,69 @@ internal partial class MainWindowViewModel
     internal Action? FullscreenRequested;
 
     #endregion
+
+    #region Language Visibility Filter
+
+    public ObservableCollection<LanguageVisibilityItem> LanguageVisibilityFilter { get; } = [];
+
+    /// <summary>Initializes the language visibility filter with all project languages (all visible).</summary>
+    internal void InitLanguageVisibilityFilter(IEnumerable<string> languages)
+    {
+        foreach (var item in LanguageVisibilityFilter)
+            item.PropertyChanged -= OnLanguageVisibilityChanged;
+
+        LanguageVisibilityFilter.Clear();
+        foreach (var lang in languages)
+        {
+            var item = new LanguageVisibilityItem { Language = lang, IsVisible = true };
+            item.PropertyChanged += OnLanguageVisibilityChanged;
+            LanguageVisibilityFilter.Add(item);
+        }
+    }
+
+    private void OnLanguageVisibilityChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(LanguageVisibilityItem.IsVisible))
+            ApplyLanguageVisibility();
+    }
+
+    /// <summary>Applies the current language visibility state to all displayed translation items.</summary>
+    internal void ApplyLanguageVisibility()
+    {
+        if (LanguageVisibilityFilter.Count == 0) return;
+
+        var visible = new HashSet<string>(
+            LanguageVisibilityFilter.Where(f => f.IsVisible).Select(f => f.Language),
+            StringComparer.OrdinalIgnoreCase);
+
+        var data = PagingController?.PageData;
+        if (data == null) return;
+
+        foreach (var group in data)
+        {
+            foreach (var ti in group.Translations)
+                ti.IsLanguageVisible = visible.Contains(ti.Language);
+        }
+    }
+
+    #endregion
+
+    #region Suggestion Insertion
+
+    [ObservableProperty]
+    private TranslationItemViewModel? focusedTranslationItem;
+
+    [RelayCommand]
+    private void InsertSuggestion(string? suggestion)
+    {
+        if (string.IsNullOrEmpty(suggestion)) return;
+        if (FocusedTranslationItem == null)
+        {
+            Services.StatusBarService.Instance.UpdateStatus("No target field selected");
+            return;
+        }
+        FocusedTranslationItem.Value = suggestion;
+    }
+
+    #endregion
 }
