@@ -703,6 +703,32 @@ internal partial class MainWindowViewModel
     public bool HasValidationIssues => ValidationIssues.Count > 0;
 
     [RelayCommand]
+    private void DismissIssue(ValidationIssueItem? issue)
+    {
+        if (issue is not null)
+        {
+            ValidationIssues.Remove(issue);
+            OnPropertyChanged(nameof(HasValidationIssues));
+        }
+    }
+
+    [RelayCommand]
+    private void DismissAllIssues()
+    {
+        ValidationIssues.Clear();
+        OnPropertyChanged(nameof(HasValidationIssues));
+    }
+
+    [RelayCommand]
+    private void DismissIssuesByRule(string? ruleId)
+    {
+        if (string.IsNullOrEmpty(ruleId)) return;
+        var toRemove = ValidationIssues.Where(i => i.RuleId == ruleId).ToList();
+        foreach (var item in toRemove) ValidationIssues.Remove(item);
+        OnPropertyChanged(nameof(HasValidationIssues));
+    }
+
+    [RelayCommand]
     private void RunValidation() => ValidatePlaceholders();
 
     [RelayCommand]
@@ -739,7 +765,7 @@ internal partial class MainWindowViewModel
             var results = pipeline.RunAll(validationContext);
             foreach (var r in results)
             {
-                ValidationIssues.Add(new ValidationIssueItem(r.Namespace ?? r.RuleId, $"[{r.Language}] {r.Message}", r.Severity, r.Namespace, r.Language, r.SuggestedFix));
+                ValidationIssues.Add(new ValidationIssueItem(r.Namespace ?? r.RuleId, $"[{r.Language}] {r.Message}", r.Severity, r.Namespace, r.Language, r.SuggestedFix, r.RuleId));
             }
         }
         else
@@ -1074,4 +1100,5 @@ public record ValidationIssueItem(
     Toucan.Core.Contracts.ValidationSeverity Severity = Toucan.Core.Contracts.ValidationSeverity.Warning,
     string? Namespace = null,
     string? Language = null,
-    string? SuggestedFix = null);
+    string? SuggestedFix = null,
+    string? RuleId = null);

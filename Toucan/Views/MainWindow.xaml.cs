@@ -84,6 +84,31 @@ public partial class MainWindow : FluentWindow
                 ViewModel.ShowProjectPropertiesCommand.Execute(null);
         };
 
+        // Wire mode panel click to cycle editor mode
+        statusViewModel.Mode.ModeCycleRequested += (_, _) =>
+        {
+            ViewModel.EditorMode = ViewModel.EditorMode switch
+            {
+                ViewModels.EditorMode.Editor => ViewModels.EditorMode.Review,
+                ViewModels.EditorMode.Review => ViewModels.EditorMode.Audit,
+                _ => ViewModels.EditorMode.Editor
+            };
+            statusViewModel.Mode.Update(ViewModel.EditorMode.ToString());
+        };
+
+        // Wire VCS panel click to focus source control side panel
+        statusViewModel.Vcs.DetailsRequested += (_, _) =>
+        {
+            Core.Services.SidePanelRegistry.Instance.Activate("source-control");
+        };
+
+        // Wire stats panel click to run validation (shows issues panel)
+        statusViewModel.Stats.StatisticsRequested += (_, _) =>
+        {
+            if (ViewModel.RunValidationCommand.CanExecute(null))
+                ViewModel.RunValidationCommand.Execute(null);
+        };
+
         // forward basic updates from the main VM to the status bar
         ViewModel.PropertyChanged += (s, ea) =>
         {

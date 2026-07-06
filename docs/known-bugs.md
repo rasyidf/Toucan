@@ -2,6 +2,20 @@
 
 Last updated: 2026-07-06 (v0.17.1)
 
+## Fixed in v0.17.2
+
+| # | Severity | Area | Description | File |
+|---|----------|------|-------------|------|
+| B7 | Medium | WPF UI | Issues panel showed flat list with no grouping — hard to scan large validation results | `Toucan/Views/Panels/IssuesPanel.xaml` |
+| B8 | Low | WPF UI | Search panel buttons misaligned with TextBox and ComboBox heights | `Toucan/Views/Panels/SearchPanel.xaml` |
+| B9 | Low | WPF UI | Source Code panel: top padding on filter, "Open Settings" opened app preferences instead of project settings, empty state didn't differentiate pre/post-scan | `Toucan/Views/Panels/SourceCodePanel.xaml` |
+| B10 | Low | WPF UI | Explorer list view items had hardcoded gray foreground instead of using theme brushes | `Toucan/Views/Components/ResourcesView.xaml` |
+| B11 | Medium | WPF UI | Status bar Mode/Stats/VCS panel clicks were no-ops (stub commands) — now cycle mode, run validation, and focus source-control panel | `Toucan/ViewModels/StatusBarPanels/BuiltInPanels.cs`, `Toucan/Views/MainWindow.xaml.cs` |
+
+## Nice-to-Have (Feature Requests)
+
+- **Notification flyout + NotificationService** — Status bar notification badge should open a floating panel/hover card showing notification history. Needs: `NotificationService` singleton (queue with title/message/severity/timestamp), a Popup/Flyout anchored to the badge, and notification sources (update checker, auto-save failures, validation summaries). Scope: new service + new view + wiring into existing panels.
+
 ## Fixed in v0.17.1
 
 | # | Severity | Area | Description | File |

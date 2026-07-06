@@ -34,7 +34,10 @@ public partial class VcsPanel : StatusBarPanelBase
     public override ICommand? ClickCommand => ShowDetailsCommand;
 
     [RelayCommand]
-    private void ShowDetails() { /* ponytail: flyout handled by view */ }
+    private void ShowDetails() => DetailsRequested?.Invoke(this, EventArgs.Empty);
+
+    /// <summary>Event raised when panel is clicked to focus source control panel.</summary>
+    public event EventHandler? DetailsRequested;
 
     public void Update(string branch, int changes, int ahead = 0, int behind = 0, IEnumerable<string>? summary = null)
     {
@@ -91,12 +94,10 @@ public partial class TranslationStatsPanel : StatusBarPanelBase
     public override ICommand? ClickCommand => ShowStatisticsCommand;
 
     [RelayCommand]
-    private void ShowStatistics() { /* ponytail: triggers statistics dialog via event */ }
+    private void ShowStatistics() => StatisticsRequested?.Invoke(this, EventArgs.Empty);
 
-    /// <summary>Event raised when panel is clicked to open statistics dialog.</summary>
-#pragma warning disable CS0067 // Event never used — reserved for future view wiring
+    /// <summary>Event raised when panel is clicked to open statistics/validation.</summary>
     public event EventHandler? StatisticsRequested;
-#pragma warning restore CS0067
 
     public void Update(int total, int translated, int errorCount, int warningCount, IEnumerable<SummaryItem>? perLanguage = null)
     {
@@ -138,7 +139,10 @@ public partial class ModePanel : StatusBarPanelBase
     public override ICommand? ClickCommand => CycleModeCommand;
 
     [RelayCommand]
-    private void CycleMode() { /* ponytail: handled by view binding to PanelService */ }
+    private void CycleMode() => ModeCycleRequested?.Invoke(this, EventArgs.Empty);
+
+    /// <summary>Event raised when panel is clicked to cycle editor mode.</summary>
+    public event EventHandler? ModeCycleRequested;
 
     public void Update(string mode)
     {

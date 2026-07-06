@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.17.2] - 2026-07-06
+
+### Fixed
+- **Issues panel grouping** — Validation issues now grouped by rule type with headers showing counts. Right-click context menu to dismiss one, dismiss all of a type, or dismiss all.
+- **Search panel sizing** — Regex/chevron buttons and Search button now align properly with TextBox and ComboBox heights.
+- **Source Code panel** — Removed excess top padding on filter. "Open Settings" now opens project settings (not app preferences). Post-scan empty state shows "No key usages found" instead of the configure buttons.
+- **Explorer list view foreground** — Removed hardcoded gray text; items now use theme-aware text brush matching the tree view.
+- **Status bar click actions** — Mode badge cycles Editor→Review→Audit. Translation stats runs validation and opens Issues panel. Git status focuses the Source Control panel.
+
 ## [0.17.1] - 2026-07-06
 
 ### Fixed
