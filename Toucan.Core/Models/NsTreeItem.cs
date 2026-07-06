@@ -20,12 +20,27 @@ public class NsTreeItem
         {
             if (!IsLoaded && HeldSetttings != null)
             {
-                HeldSetttings.ProcessNs(this, Namespace);
-                // ponytail: re-parent children — don't flatten via AddRange(child.Items)
-                foreach (var child in _storage)
+                // ponytail: expand children of this node — don't re-create self.
+                // Find distinct next-level segments under this namespace.
+                var prefix = Namespace + ".";
+                var childSegments = HeldSetttings
+                    .Where(o => o.Namespace.StartsWith(prefix, StringComparison.Ordinal))
+                    .Select(o => o.Namespace[prefix.Length..].Split('.')[0])
+                    .Distinct().OrderBy(o => o).ToList();
+
+                foreach (var segment in childSegments)
                 {
-                    child.Parent = this;
+                    var childNs = $"{Namespace}.{segment}";
+                    HeldSetttings.ProcessNs(this, childNs);
                 }
+
+                // Also check if this node itself is a leaf (has exact-match translations)
+                var ownSettings = HeldSetttings.Where(o => o.Namespace == Namespace).ToList();
+                if (ownSettings.Count > 0)
+                {
+                    Settings = ownSettings;
+                }
+
                 HeldSetttings = null;
                 IsLoaded = true;
             }
