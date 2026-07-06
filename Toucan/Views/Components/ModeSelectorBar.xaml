@@ -19,8 +19,9 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="8,3" />
-            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="MinWidth" Value="52" />
+            <Setter Property="FontSize" Value="12" />
             <Setter Property="FontWeight" Value="Normal" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="VerticalAlignment" Value="Center" />
@@ -45,6 +46,13 @@
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Bd" Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource ControlElevationBorderBrush}" />
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="1" />
+                                <Setter TargetName="Bd" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.15" Color="Black"/>
+                                    </Setter.Value>
+                                </Setter>
                                 <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
                                 <Setter Property="FontWeight" Value="SemiBold" />
                             </Trigger>
@@ -57,12 +65,12 @@
 
     <!-- Segmented control container -->
     <Border
-        Height="26"
+        Height="30"
         CornerRadius="5"
         Background="{DynamicResource SubtleFillColorSecondaryBrush}"
         BorderThickness="1"
         BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
-        Padding="2">
+        Padding="2,1">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />

@@ -21,7 +21,28 @@
             <ComboBox Width="140" SelectedValue="{Binding AppLanguage, Mode=TwoWay}" SelectedValuePath="Content">
                 <ComboBoxItem>en-US</ComboBoxItem>
                 <ComboBoxItem>id-ID</ComboBoxItem>
+                <ComboBoxItem>zh-CN</ComboBoxItem>
+                <ComboBoxItem>fr-FR</ComboBoxItem>
+                <ComboBoxItem>es-ES</ComboBoxItem>
+                <ComboBoxItem>de-DE</ComboBoxItem>
+                <ComboBoxItem>ja-JP</ComboBoxItem>
+                <ComboBoxItem>pt-BR</ComboBoxItem>
             </ComboBox>
+        </ui:CardControl>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Startup</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Power24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Open last project on startup" FontWeight="SemiBold"/>
+                        <TextBlock Text="Automatically reopen the last project when Toucan starts" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding OpenLastProjectOnStartup, Mode=TwoWay}"/>
         </ui:CardControl>
 
         <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Pagination</TextBlock>
@@ -63,6 +84,21 @@
                 </StackPanel>
             </ui:CardControl.Header>
             <TextBox Width="80" Text="{Binding TruncateSizeText, Mode=TwoWay}"/>
+        </ui:CardControl>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">File Loading</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="FolderOpen24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Loading depth" FontWeight="SemiBold"/>
+                        <TextBlock Text="How many subdirectory levels to scan for translation files (1–5)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <TextBox Width="80" Text="{Binding LoadingDepthText, Mode=TwoWay}"/>
         </ui:CardControl>
     </StackPanel>
 </UserControl>

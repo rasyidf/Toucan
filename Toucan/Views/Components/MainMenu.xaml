@@ -133,7 +133,7 @@
             <Separator />
             <ui:MenuItem
                 Command="{Binding NewItemCommand}"
-                Header="Add _ID"
+                Header="Add Translation _Key"
                 InputGestureText="Ctrl+I" />
             <ui:MenuItem
                 Command="{Binding NewLanguageCommand}"
@@ -246,30 +246,19 @@
                          IsCheckable="True" IsChecked="{Binding InfiniteScroll, Mode=OneWay}"
                          IsEnabled="{Binding ShowStartScreen, Converter={StaticResource InvertBool}}" />
             <Separator />
-            <ui:MenuItem Header="Sidebar" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleSidebarCommand}" InputGestureText="Ctrl+B"
+            <ui:MenuItem Header="Left Panel" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleSidebarCommand}" InputGestureText="Ctrl+B"
                          IsCheckable="True" IsChecked="{Binding SidePanelVisible, Source={x:Static services:PanelService.Instance}, Mode=OneWay}"
                          IsEnabled="{Binding ShowStartScreen, Converter={StaticResource InvertBool}}" />
-            <ui:MenuItem Header="Inspector" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleInspectorCommand}" InputGestureText="Ctrl+Shift+I"
+            <ui:MenuItem Header="Right Panel" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleInspectorCommand}" InputGestureText="Ctrl+Shift+I"
                          IsCheckable="True" IsChecked="{Binding InspectorVisible, Source={x:Static services:PanelService.Instance}, Mode=OneWay}"
                          IsEnabled="{Binding ShowStartScreen, Converter={StaticResource InvertBool}}" />
-            <ui:MenuItem Header="Footer Bar" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleStatusBarCommand}"
+            <ui:MenuItem Header="Status Bar" Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleStatusBarCommand}"
                          IsCheckable="True" IsChecked="{Binding StatusBarVisible, Source={x:Static services:PanelService.Instance}, Mode=OneWay}"
-                         IsEnabled="{Binding ShowStartScreen, Converter={StaticResource InvertBool}}" />
-            <Separator />
-            <ui:MenuItem Header="Suggestions" Command="{Binding ToggleSuggestionsCommand}"/>
-            <ui:MenuItem Header="Machine translations" Command="{Binding ToggleShowMachineTranslationsCommand}"
-                         IsCheckable="True" IsChecked="{Binding ShowMachineTranslations, Mode=OneWay}"
                          IsEnabled="{Binding ShowStartScreen, Converter={StaticResource InvertBool}}" />
         </ui:MenuItem>
 
         <!-- Help -->
         <ui:MenuItem Header="{x:Static loc:Strings.Menu_Help}">
-            <ui:MenuItem
-                Width="150"
-                Command="{Binding ShowPreferencesCommand}"
-                Header="Preferences"
-                Icon="{ui:SymbolIcon Settings20}" />
-            <Separator />
             <ui:MenuItem
                 Command="{Binding HelpHomepageCommand}"
                 Header="Homepage" />

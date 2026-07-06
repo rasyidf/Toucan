@@ -49,13 +49,6 @@ public class WpfDialogService : IDialogService
         return dialog.ShowDialog() == true ? dialog.ResponseText : null;
     }
 
-    public bool ShowAbout()
-    {
-        var factory = _serviceProvider.GetRequiredService<Func<Window, AboutViewModel>>();
-        AboutDialog dialog = new(Owner!, factory);
-        return dialog.ShowDialog() == true;
-    }
-
     public bool ShowNewProject(IProjectService projectService, out NewProjectViewModel? resultVm)
     {
         resultVm = null;
@@ -69,11 +62,11 @@ public class WpfDialogService : IDialogService
         return false;
     }
 
-    public bool ShowOptions(AppOptions options, string currentPath, out AppOptions? updatedOptions)
+    public bool ShowOptions(AppOptions options, string currentPath, out AppOptions? updatedOptions, int startPage = 0)
     {
         updatedOptions = null;
         var vm = _serviceProvider.GetRequiredService<OptionsViewModel>();
-        OptionDialog dialog = new(options, currentPath, vm) { Owner = Owner };
+        OptionDialog dialog = new(options, currentPath, vm, startPage) { Owner = Owner };
         if (dialog.ShowDialog() == true)
         {
             updatedOptions = dialog.Config;
@@ -96,11 +89,22 @@ public class WpfDialogService : IDialogService
         return true;
     }
 
+    public bool ShowProjectDefaults()
+    {
+        var vm = _serviceProvider.GetRequiredService<ProjectDefaultsViewModel>();
+        var dialog = new Views.Dialogs.ProjectDefaultsWindow(vm) { Owner = Owner };
+        return dialog.ShowDialog() == true;
+    }
+
+    public bool LastProjectPropertiesRequestedManageLanguages { get; private set; }
+
     public bool ShowProjectProperties(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null)
     {
         var vm = new ProjectPropertiesViewModel(settings, this, discoveredLanguages);
         ProjectPropertiesWindow dialog = new(vm) { Owner = Owner };
-        return dialog.ShowDialog() == true;
+        var result = dialog.ShowDialog() == true;
+        LastProjectPropertiesRequestedManageLanguages = vm.ManageLanguagesRequested;
+        return result;
     }
 
     public bool ShowImportProject(out ImportProjectViewModel? resultVm)

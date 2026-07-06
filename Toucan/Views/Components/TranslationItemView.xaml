@@ -97,12 +97,15 @@
                 Visibility="{Binding IsPluralGroup, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid Margin="0,2" x:Name="LangRow">
+                        <Grid Margin="0,2" x:Name="LangRow"
+                              Visibility="{Binding IsLanguageVisible, Converter={StaticResource BoolToVis}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="32" />  <!-- Language label -->
                                 <ColumnDefinition Width="8" />   <!-- Spacer -->
                                 <ColumnDefinition Width="*" />   <!-- TextBox -->
                                 <ColumnDefinition Width="Auto" /> <!-- Copy (hover-only) -->
+                                <ColumnDefinition Width="Auto" /> <!-- Comment (Review+Audit) -->
+                                <ColumnDefinition Width="Auto" /> <!-- Needs-review (Review only) -->
                                 <ColumnDefinition Width="Auto" /> <!-- Approve (Review only) -->
                             </Grid.ColumnDefinitions>
 
@@ -120,17 +123,20 @@
                             <ui:TextBox
                                 Grid.Column="2"
                                 MinHeight="28"
+                                MaxHeight="200"
                                 MinWidth="120"
                                 Padding="6,4"
                                 VerticalAlignment="Stretch"
                                 AcceptsReturn="True"
                                 AcceptsTab="False"
+                                GotFocus="ValueTextBox_GotFocus"
                                 IsTabStop="True"
                                 KeyUp="LanguageValue_KeyUp"
                                 SpellCheck.IsEnabled="False"
                                 Tag="{Binding}"
                                 Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                TextWrapping="Wrap">
+                                TextWrapping="Wrap"
+                                VerticalScrollBarVisibility="Auto">
                                 <ui:TextBox.Style>
                                     <Style TargetType="ui:TextBox" BasedOn="{StaticResource {x:Type ui:TextBox}}">
                                         <Setter Property="IsReadOnly" Value="False" />
@@ -165,9 +171,102 @@
                                 <ui:SymbolIcon FontSize="12" Symbol="Copy16" />
                             </ui:Button>
 
+                            <!-- Comment: visible in Review + Audit -->
+                            <Grid Grid.Column="4" Margin="2,0,0,0">
+                                <ui:Button
+                                    Padding="4"
+                                    VerticalAlignment="Top"
+                                    Appearance="Transparent"
+                                    Command="{Binding ToggleCommentPopupCommand}"
+                                    ToolTip="Add/view comment"
+                                    AutomationProperties.Name="Toggle comment">
+                                    <ui:Button.Style>
+                                        <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ui:Button.Style>
+                                    <Grid>
+                                        <ui:SymbolIcon FontSize="12" Symbol="Comment16" />
+                                        <!-- Comment exists indicator dot -->
+                                        <Ellipse Width="6" Height="6" Fill="{DynamicResource SystemAccentColorPrimaryBrush}"
+                                                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-2,0"
+                                                 Visibility="{Binding HasComment, Converter={StaticResource BoolToVis}}"/>
+                                    </Grid>
+                                </ui:Button>
+
+                                <!-- Comment popup flyout -->
+                                <Popup IsOpen="{Binding IsCommentOpen, Mode=TwoWay}"
+                                       StaysOpen="False"
+                                       Placement="Bottom"
+                                       AllowsTransparency="True"
+                                       PopupAnimation="Fade">
+                                    <Border Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
+                                            BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="6"
+                                            Padding="8"
+                                            MinWidth="220" MaxWidth="320">
+                                        <Border.Effect>
+                                            <DropShadowEffect ShadowDepth="2" BlurRadius="8" Opacity="0.2" Color="Black"/>
+                                        </Border.Effect>
+                                        <StackPanel>
+                                            <TextBlock Text="Comment" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"
+                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                            <TextBox Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}"
+                                                     AcceptsReturn="True" TextWrapping="Wrap"
+                                                     MinHeight="60" MaxHeight="120"
+                                                     FontSize="12"
+                                                     VerticalScrollBarVisibility="Auto">
+                                                <TextBox.Style>
+                                                    <Style TargetType="TextBox">
+                                                        <Setter Property="IsReadOnly" Value="False"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
+                                                                <Setter Property="IsReadOnly" Value="True"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBox.Style>
+                                            </TextBox>
+                                        </StackPanel>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+
+                            <!-- Needs-review: Review mode only -->
+                            <ui:Button
+                                Grid.Column="5"
+                                Margin="2,0,0,0"
+                                Padding="4"
+                                VerticalAlignment="Top"
+                                Appearance="Transparent"
+                                Command="{Binding ClearApprovedCommand}"
+                                ToolTip="Mark as needs review"
+                                AutomationProperties.Name="Mark needs review">
+                                <ui:Button.Style>
+                                    <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ui:Button.Style>
+                                <ui:SymbolIcon FontSize="12" Symbol="DismissCircle16" />
+                            </ui:Button>
+
                             <!-- Approve toggle: Review mode only -->
                             <ToggleButton
-                                Grid.Column="4"
+                                Grid.Column="6"
                                 Margin="2,0,0,0"
                                 Padding="4"
                                 VerticalAlignment="Top"
@@ -222,12 +321,16 @@
                             <ItemsControl ItemsSource="{Binding Translations}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Margin="0,2" x:Name="PluralLangRow">
+                                        <Grid Margin="0,2" x:Name="PluralLangRow"
+                                              Visibility="{Binding IsLanguageVisible, Converter={StaticResource BoolToVis}}">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="32" />
                                                 <ColumnDefinition Width="8" />
                                                 <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" /> <!-- Copy -->
+                                                <ColumnDefinition Width="Auto" /> <!-- Comment -->
+                                                <ColumnDefinition Width="Auto" /> <!-- Needs-review -->
+                                                <ColumnDefinition Width="Auto" /> <!-- Approve -->
                                             </Grid.ColumnDefinitions>
 
                                             <TextBlock
@@ -242,17 +345,32 @@
                                             <ui:TextBox
                                                 Grid.Column="2"
                                                 MinHeight="28"
+                                                MaxHeight="200"
                                                 MinWidth="120"
                                                 Padding="6,4"
                                                 VerticalAlignment="Stretch"
                                                 AcceptsReturn="True"
                                                 AcceptsTab="False"
                                                 IsTabStop="True"
+                                                GotFocus="ValueTextBox_GotFocus"
                                                 SpellCheck.IsEnabled="False"
                                                 Tag="{Binding}"
                                                 Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                                TextWrapping="Wrap" />
+                                                TextWrapping="Wrap"
+                                                VerticalScrollBarVisibility="Auto">
+                                                <ui:TextBox.Style>
+                                                    <Style TargetType="ui:TextBox" BasedOn="{StaticResource {x:Type ui:TextBox}}">
+                                                        <Setter Property="IsReadOnly" Value="False" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
+                                                                <Setter Property="IsReadOnly" Value="True" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ui:TextBox.Style>
+                                            </ui:TextBox>
 
+                                            <!-- Copy button: hover-only -->
                                             <ui:Button
                                                 Grid.Column="3"
                                                 Margin="4,0,0,0"
@@ -273,6 +391,127 @@
                                                 </ui:Button.Style>
                                                 <ui:SymbolIcon FontSize="12" Symbol="Copy16" />
                                             </ui:Button>
+
+                                            <!-- Comment: Review + Audit -->
+                                            <Grid Grid.Column="4" Margin="2,0,0,0">
+                                                <ui:Button
+                                                    Padding="4"
+                                                    VerticalAlignment="Top"
+                                                    Appearance="Transparent"
+                                                    Command="{Binding ToggleCommentPopupCommand}"
+                                                    ToolTip="Add/view comment"
+                                                    AutomationProperties.Name="Toggle comment">
+                                                    <ui:Button.Style>
+                                                        <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </ui:Button.Style>
+                                                    <Grid>
+                                                        <ui:SymbolIcon FontSize="12" Symbol="Comment16" />
+                                                        <Ellipse Width="6" Height="6" Fill="{DynamicResource SystemAccentColorPrimaryBrush}"
+                                                                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-2,0"
+                                                                 Visibility="{Binding HasComment, Converter={StaticResource BoolToVis}}"/>
+                                                    </Grid>
+                                                </ui:Button>
+
+                                                <Popup IsOpen="{Binding IsCommentOpen, Mode=TwoWay}"
+                                                       StaysOpen="False"
+                                                       Placement="Bottom"
+                                                       AllowsTransparency="True"
+                                                       PopupAnimation="Fade">
+                                                    <Border Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
+                                                            BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                                                            BorderThickness="1"
+                                                            CornerRadius="6"
+                                                            Padding="8"
+                                                            MinWidth="220" MaxWidth="320">
+                                                        <Border.Effect>
+                                                            <DropShadowEffect ShadowDepth="2" BlurRadius="8" Opacity="0.2" Color="Black"/>
+                                                        </Border.Effect>
+                                                        <StackPanel>
+                                                            <TextBlock Text="Comment" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"
+                                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                                            <TextBox Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}"
+                                                                     AcceptsReturn="True" TextWrapping="Wrap"
+                                                                     MinHeight="60" MaxHeight="120"
+                                                                     FontSize="12"
+                                                                     VerticalScrollBarVisibility="Auto">
+                                                                <TextBox.Style>
+                                                                    <Style TargetType="TextBox">
+                                                                        <Setter Property="IsReadOnly" Value="False"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Audit}">
+                                                                                <Setter Property="IsReadOnly" Value="True"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBox.Style>
+                                                            </TextBox>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </Popup>
+                                            </Grid>
+
+                                            <!-- Needs-review: Review only -->
+                                            <ui:Button
+                                                Grid.Column="5"
+                                                Margin="2,0,0,0"
+                                                Padding="4"
+                                                VerticalAlignment="Top"
+                                                Appearance="Transparent"
+                                                Command="{Binding ClearApprovedCommand}"
+                                                ToolTip="Mark as needs review"
+                                                AutomationProperties.Name="Mark needs review">
+                                                <ui:Button.Style>
+                                                    <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ui:Button.Style>
+                                                <ui:SymbolIcon FontSize="12" Symbol="DismissCircle16" />
+                                            </ui:Button>
+
+                                            <!-- Approve toggle: Review only -->
+                                            <ToggleButton
+                                                Grid.Column="6"
+                                                Margin="2,0,0,0"
+                                                Padding="4"
+                                                VerticalAlignment="Top"
+                                                BorderThickness="0"
+                                                IsChecked="{Binding IsApproved, Mode=TwoWay}"
+                                                ToolTip="Approve translation">
+                                                <ToggleButton.Style>
+                                                    <Style TargetType="ToggleButton">
+                                                        <Setter Property="Background" Value="Transparent" />
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding EditorMode, Source={x:Static services:PanelService.Instance}}" Value="{x:Static vm:EditorMode.Review}" />
+                                                                    <Condition Binding="{Binding IsApproved}" Value="False" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="Background" Value="{DynamicResource SystemFillColorCautionBackgroundBrush}" />
+                                                            </MultiDataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ToggleButton.Style>
+                                                <ui:SymbolIcon FontSize="12" Symbol="CheckmarkCircle16" />
+                                            </ToggleButton>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

@@ -31,10 +31,11 @@ public class ProjectSettings
     public string? Framework { get; set; }
     public List<TranslationPackage> TranslationPackages { get; set; } = [];
 
-    // --- Editor preferences (project-scoped) ---
-    public bool SaveEmptyTranslations { get; set; } = true;
-    public string TranslationOrder { get; set; } = "alphabetical";
-    public List<string> CopyTemplates { get; set; } = ["%1"];
+    // --- Editor preferences (project-scoped, null = inherit from ProjectDefaults) ---
+    public bool? SaveEmptyTranslations { get; set; } = true;
+    public string? TranslationOrder { get; set; } = "alphabetical";
+    public List<string>? CopyTemplates { get; set; } = ["%1"];
+    public bool? CommentsEnabled { get; set; } = true;
 
     // --- Provider overrides (project-scoped) ---
     public string? DefaultProvider { get; set; }
@@ -42,7 +43,8 @@ public class ProjectSettings
     // --- Translation context ---
     public string? Context { get; set; }
     public string? Formality { get; set; }
-    public bool CommentsEnabled { get; set; } = true;
+    public bool? PreservePlaceholders { get; set; }
+    public bool? PreviewBeforeApply { get; set; }
 
     /// <summary>Namespace prefixes hidden from the editor view and statistics.</summary>
     public List<string> HiddenNamespaces { get; set; } = [];
@@ -60,14 +62,30 @@ public class ProjectSettings
 
     // --- Source code integration ---
     /// <summary>Relative paths to source code directories (for key usage scanning).</summary>
-    public List<string> SourceRoots { get; set; } = [];
+    public List<string>? SourceRoots { get; set; } = [];
 
     /// <summary>External editor command for "open in editor" (e.g., "code --goto {file}:{line}").</summary>
     public string? ExternalEditor { get; set; }
 
+    /// <summary>File extensions to include in source code scanning.</summary>
+    public List<string>? ScanExtensions { get; set; }
+
+    /// <summary>Directories to exclude from source code scanning.</summary>
+    public List<string>? ExcludedDirectories { get; set; }
+
+    /// <summary>Automatically scan source code when opening the project.</summary>
+    public bool? AutoScanOnOpen { get; set; }
+
+    // --- Validation ---
+    /// <summary>Run validation pipeline on save.</summary>
+    public bool? ValidateOnSave { get; set; }
+
+    /// <summary>Per-rule enable/severity overrides. Key = rule ID. Null = inherit from defaults.</summary>
+    public Dictionary<string, Core.Options.ValidationRuleConfig>? ValidationRules { get; set; }
+
     // --- Auto-save configuration ---
-    public bool AutoSaveEnabled { get; set; }
-    public int AutoSaveIntervalSeconds { get; set; } = 60; // Clamped to 10-600
+    public bool? AutoSaveEnabled { get; set; }
+    public int? AutoSaveIntervalSeconds { get; set; } = 60; // Clamped to 10-600
 
     // --- Runtime (not serialized) ---
     [JsonIgnore] public string ProjectPath { get; set; } = string.Empty;

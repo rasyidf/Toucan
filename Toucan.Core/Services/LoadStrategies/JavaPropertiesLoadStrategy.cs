@@ -22,22 +22,75 @@ public class JavaPropertiesLoadStrategy : ILoadStrategy
             if (underscoreIdx > 0)
                 lang = lang[(underscoreIdx + 1)..];
 
-            var lines = File.ReadAllLines(file, Encoding.Latin1);
-            foreach (var rawLine in lines)
-            {
-                var line = rawLine.TrimStart();
-                if (line.Length == 0 || line[0] == '#' || line[0] == '!') continue;
+            var rawLines = File.ReadAllLines(file, Encoding.Latin1);
+            var lines = JoinContinuationLines(rawLines);
 
-                var sepIdx = line.IndexOfAny(['=', ':']);
+            foreach (var line in lines)
+            {
+                var trimmed = line.TrimStart();
+                if (trimmed.Length == 0 || trimmed[0] == '#' || trimmed[0] == '!') continue;
+
+                var sepIdx = trimmed.IndexOfAny(['=', ':']);
                 if (sepIdx <= 0) continue;
 
-                var key = Unescape(line[..sepIdx].TrimEnd());
-                var value = Unescape(line[(sepIdx + 1)..].TrimStart());
+                var key = Unescape(trimmed[..sepIdx].TrimEnd());
+                var value = Unescape(trimmed[(sepIdx + 1)..].TrimStart());
 
                 items.Add(new TranslationItem { Language = lang, Namespace = key, Value = value });
             }
         }
         return items;
+    }
+
+    /// <summary>
+    /// Joins logical lines: a trailing unescaped backslash means the next line is a continuation.
+    /// Leading whitespace on continuation lines is stripped per the .properties spec.
+    /// </summary>
+    private static List<string> JoinContinuationLines(string[] rawLines)
+    {
+        var result = new List<string>(rawLines.Length);
+        var sb = new StringBuilder();
+        bool continuing = false;
+
+        for (int i = 0; i < rawLines.Length; i++)
+        {
+            var line = rawLines[i];
+
+            // Strip leading whitespace on continuation lines
+            if (continuing)
+                line = line.TrimStart();
+
+            if (EndsWithContinuation(line))
+            {
+                // Strip the trailing backslash and append
+                sb.Append(line, 0, line.Length - 1);
+                continuing = true;
+            }
+            else
+            {
+                sb.Append(line);
+                result.Add(sb.ToString());
+                sb.Clear();
+                continuing = false;
+            }
+        }
+
+        // Flush any trailing continued line (file ended mid-continuation)
+        if (sb.Length > 0)
+            result.Add(sb.ToString());
+
+        return result;
+    }
+
+    /// <summary>
+    /// Returns true if the line ends with an odd number of backslashes (unescaped continuation).
+    /// </summary>
+    private static bool EndsWithContinuation(string line)
+    {
+        int trailingBackslashes = 0;
+        for (int i = line.Length - 1; i >= 0 && line[i] == '\\'; i--)
+            trailingBackslashes++;
+        return trailingBackslashes % 2 == 1;
     }
 
     private static string Unescape(string s)

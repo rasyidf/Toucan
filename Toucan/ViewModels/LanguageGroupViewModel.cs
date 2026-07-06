@@ -40,7 +40,15 @@ public partial class LanguageGroupViewModel : ObservableObject
             item.Dispose();
         }
         Translations.Clear();
-        foreach (TranslationItem t in settings.OrderBy(o => o.Language))
+
+        // ponytail: primary language first, then alpha. Reads from StatusBarService singleton.
+        var primary = Services.StatusBarService.Instance.GetViewModel()?.DefaultLanguage;
+        var ordered = string.IsNullOrEmpty(primary)
+            ? settings.OrderBy(o => o.Language)
+            : settings.OrderBy(o => string.Equals(o.Language, primary, System.StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                      .ThenBy(o => o.Language);
+
+        foreach (TranslationItem t in ordered)
         {
             Translations.Add(_translationItemFactory(t));
         }
@@ -61,6 +69,8 @@ public partial class LanguageGroupViewModel : ObservableObject
         }
         PluralVariants.Clear();
 
+        var primary = Services.StatusBarService.Instance.GetViewModel()?.DefaultLanguage;
+
         foreach (var group in variantGroups)
         {
             var category = PluralService.GetCategory(group.Key) ?? group.Key;
@@ -69,7 +79,8 @@ public partial class LanguageGroupViewModel : ObservableObject
                 Category = category,
                 FullNamespace = group.Key
             };
-            foreach (var t in group.OrderBy(o => o.Language))
+            foreach (var t in group.OrderBy(o => string.Equals(o.Language, primary, System.StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                                  .ThenBy(o => o.Language))
             {
                 variant.Translations.Add(_translationItemFactory(t));
             }

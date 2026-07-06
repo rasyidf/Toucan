@@ -89,28 +89,36 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
     {
         lock (_lock)
         {
-            var dirty = new List<TranslationItem>();
+            return GetDirtyItemsCore();
+        }
+    }
 
-            foreach (var item in _translations)
+    /// <summary>
+    /// Core dirty-items computation. Caller must hold _lock.
+    /// </summary>
+    private List<TranslationItem> GetDirtyItemsCore()
+    {
+        var dirty = new List<TranslationItem>();
+
+        foreach (var item in _translations)
+        {
+            var key = (item.Language, item.Namespace);
+            if (_baselines.TryGetValue(key, out var baseline))
             {
-                var key = (item.Language, item.Namespace);
-                if (_baselines.TryGetValue(key, out var baseline))
+                if (!string.Equals(item.Value, baseline.SavedValue, StringComparison.Ordinal) ||
+                    !string.Equals(item.Comment, baseline.SavedComment, StringComparison.Ordinal))
                 {
-                    if (!string.Equals(item.Value, baseline.SavedValue, StringComparison.Ordinal) ||
-                        !string.Equals(item.Comment, baseline.SavedComment, StringComparison.Ordinal))
-                    {
-                        dirty.Add(item);
-                    }
-                }
-                else
-                {
-                    // Item has no baseline — it was added after initialization, so it's dirty.
                     dirty.Add(item);
                 }
             }
-
-            return dirty;
+            else
+            {
+                // Item has no baseline — it was added after initialization, so it's dirty.
+                dirty.Add(item);
+            }
         }
+
+        return dirty;
     }
 
     /// <inheritdoc/>
@@ -251,13 +259,16 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
     /// </summary>
     private void RaiseDirtyStateChangedIfNeeded()
     {
-        bool currentDirty = IsDirty;
+        bool currentDirty;
         bool shouldRaise;
 
         lock (_lock)
         {
+            // ponytail: compute dirty inside lock to prevent TOCTOU double-fire
+            currentDirty = GetDirtyItemsCore().Count > 0;
             shouldRaise = currentDirty != _lastDirtyState;
-            _lastDirtyState = currentDirty;
+            if (shouldRaise)
+                _lastDirtyState = currentDirty;
         }
 
         if (shouldRaise)

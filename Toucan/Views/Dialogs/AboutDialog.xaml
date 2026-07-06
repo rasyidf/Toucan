@@ -1,0 +1,12 @@
+<ui:FluentWindow
+    x:Class="Toucan.Views.Dialogs.AboutDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    Title="About"
+    Width="1" Height="1"
+    WindowStartupLocation="CenterOwner"
+    ExtendsContentIntoTitleBar="True">
+    <!-- ponytail: deprecated — About is now shown in the Settings dialog. This stub remains for compilation only. -->
+    <Grid/>
+</ui:FluentWindow>

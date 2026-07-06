@@ -65,7 +65,15 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     public string Comment
     {
         get => _model?.Comment ?? string.Empty;
-        set { if (_model != null) { _model.Comment = value; OnPropertyChanged(nameof(Comment)); } }
+        set
+        {
+            if (_model != null)
+            {
+                _model.Comment = value;
+                OnPropertyChanged(nameof(Comment));
+                OnPropertyChanged(nameof(HasComment));
+            }
+        }
     }
 
     public bool IsApproved
@@ -74,8 +82,25 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         set { if (_model != null) { _model.IsApproved = value; OnPropertyChanged(nameof(IsApproved)); } }
     }
 
+    /// <summary>Controls row visibility for language filtering. Bound in TranslationItemView.</summary>
+    [ObservableProperty]
+    private bool isLanguageVisible = true;
+
     [RelayCommand]
     private void ToggleApproved() => IsApproved = !IsApproved;
+
+    [RelayCommand]
+    private void ClearApproved() => IsApproved = false;
+
+    /// <summary>Whether the comment popup is open for this item.</summary>
+    [ObservableProperty]
+    private bool isCommentOpen;
+
+    /// <summary>True when a comment exists on this item (for indicator badge).</summary>
+    public bool HasComment => !string.IsNullOrEmpty(Comment);
+
+    [RelayCommand]
+    private void ToggleCommentPopup() => IsCommentOpen = !IsCommentOpen;
 
     [RelayCommand]
     private void CopyTranslation()

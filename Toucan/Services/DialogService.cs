@@ -15,12 +15,13 @@ public interface IDialogService
     string? ShowPrompt(string title, string message, string defaultValue = "");
 
     // Typed dialogs (return true if user confirmed/saved)
-    bool ShowAbout();
     bool ShowNewProject(IProjectService projectService, out NewProjectViewModel? resultVm);
-    bool ShowOptions(AppOptions options, string currentPath, out AppOptions? updatedOptions);
+    bool ShowOptions(AppOptions options, string currentPath, out AppOptions? updatedOptions, int startPage = 0);
     bool ShowPreTranslate(PreTranslateViewModel vm);
     bool ShowProviderSettings();
+    bool ShowProjectDefaults();
     bool ShowProjectProperties(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null);
+    bool LastProjectPropertiesRequestedManageLanguages { get; }
     bool ShowImportProject(out ImportProjectViewModel? resultVm);
     string? ShowLanguagePrompt(string title, string message, IEnumerable<TranslationItem>? existingTranslations);
 

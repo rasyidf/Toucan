@@ -30,6 +30,7 @@
     <Window.Resources>
         <converters:LanguageNameConverter x:Key="LanguageConverter"/>
         <converters:BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <converters:BoolToOpacityConverter x:Key="BoolToOpacity"/>
     </Window.Resources>
 
 
@@ -40,7 +41,7 @@
             <RowDefinition x:Name="contentRow"
                            Height="*"/>
             <RowDefinition x:Name="footerRow"
-                           Height="32"/>
+                           Height="Auto"/>
 
         </Grid.RowDefinitions>
         <ui:TitleBar Title="Toucan">
@@ -56,14 +57,16 @@
                                            Visibility="{Binding ShowStartScreen, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
                     <ui:Button Padding="4,4" Appearance="Transparent"
                                Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleSidebarCommand}"
-                               ToolTip="Toggle Sidebar (Ctrl+B)">
+                               ToolTip="Toggle Left Panel (Ctrl+B)"
+                               Opacity="{Binding SidePanelVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToOpacity}}">
                         <ui:Button.Icon>
                             <ui:SymbolIcon Symbol="PanelLeft20"/>
                         </ui:Button.Icon>
                     </ui:Button>
                     <ui:Button Padding="4,4" Appearance="Transparent"
                                Command="{Binding Source={x:Static services:PanelService.Instance}, Path=ToggleInspectorCommand}"
-                               ToolTip="Toggle Inspector (Ctrl+Shift+I)">
+                               ToolTip="Toggle Right Panel (Ctrl+Shift+I)"
+                               Opacity="{Binding InspectorVisible, Source={x:Static services:PanelService.Instance}, Converter={StaticResource BoolToOpacity}}">
                         <ui:Button.Icon>
                             <ui:SymbolIcon Symbol="PanelRight20"/>
                         </ui:Button.Icon>

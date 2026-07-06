@@ -6,7 +6,7 @@
     <StackPanel>
         <TextBlock Text="Translation" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
 
-        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Settings</TextBlock>
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Machine Translation</TextBlock>
 
         <ui:CardControl Margin="0,0,0,4">
             <ui:CardControl.Header>
@@ -18,11 +18,37 @@
                     </StackPanel>
                 </StackPanel>
             </ui:CardControl.Header>
-            <ComboBox Width="140" SelectedValue="{Binding Formality, Mode=TwoWay}">
+            <ComboBox Width="140" SelectedValue="{Binding Formality, Mode=TwoWay}" SelectedValuePath="Content">
                 <ComboBoxItem>Default</ComboBoxItem>
                 <ComboBoxItem>Formal</ComboBoxItem>
                 <ComboBoxItem>Informal</ComboBoxItem>
             </ComboBox>
+        </ui:CardControl>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Shield24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Preserve placeholders" FontWeight="SemiBold"/>
+                        <TextBlock Text="Protect placeholder tokens during machine translation" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding PreservePlaceholders, Mode=TwoWay}"/>
+        </ui:CardControl>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Eye24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Preview before applying" FontWeight="SemiBold"/>
+                        <TextBlock Text="Show translation preview before committing changes" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding PreviewBeforeApply, Mode=TwoWay}"/>
         </ui:CardControl>
 
         <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Context</TextBlock>

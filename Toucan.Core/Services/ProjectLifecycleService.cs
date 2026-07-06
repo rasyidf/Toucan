@@ -116,10 +116,10 @@ public partial class ProjectLifecycleService(
         // 10. Update last-saved snapshot for three-way merge baseline
         UpdateLastSavedSnapshot();
 
-        // 11. Start auto-save if enabled in settings
-        if (settings.AutoSaveEnabled)
+        // 11. Start auto-save if enabled in effective settings
+        if (settings.AutoSaveEnabled == true)
         {
-            var interval = TimeSpan.FromSeconds(Math.Clamp(settings.AutoSaveIntervalSeconds, 10, 600));
+            var interval = TimeSpan.FromSeconds(Math.Clamp(settings.AutoSaveIntervalSeconds ?? 60, 10, 600));
             autoSave.Start(interval);
         }
 
@@ -246,7 +246,7 @@ public partial class ProjectLifecycleService(
                 TranslationPackages = [.. _currentProject.TranslationPackages],
                 SaveEmptyTranslations = _currentProject.SaveEmptyTranslations,
                 TranslationOrder = _currentProject.TranslationOrder,
-                CopyTemplates = [.. _currentProject.CopyTemplates],
+                CopyTemplates = _currentProject.CopyTemplates != null ? [.. _currentProject.CopyTemplates] : null,
                 DefaultProvider = _currentProject.DefaultProvider,
                 LanguageAliases = _currentProject.LanguageAliases != null
                     ? new Dictionary<string, string>(_currentProject.LanguageAliases)
@@ -254,7 +254,7 @@ public partial class ProjectLifecycleService(
                 LanguageFilePaths = _currentProject.LanguageFilePaths != null
                     ? new Dictionary<string, string>(_currentProject.LanguageFilePaths)
                     : null,
-                SourceRoots = [.. _currentProject.SourceRoots],
+                SourceRoots = _currentProject.SourceRoots != null ? [.. _currentProject.SourceRoots] : null,
                 ExternalEditor = _currentProject.ExternalEditor,
                 AutoSaveEnabled = _currentProject.AutoSaveEnabled,
                 AutoSaveIntervalSeconds = _currentProject.AutoSaveIntervalSeconds,

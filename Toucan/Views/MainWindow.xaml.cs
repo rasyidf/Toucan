@@ -84,6 +84,46 @@ public partial class MainWindow : FluentWindow
                 ViewModel.ShowProjectPropertiesCommand.Execute(null);
         };
 
+        // Wire mode panel click to cycle editor mode
+        statusViewModel.Mode.ModeCycleRequested += (_, _) =>
+        {
+            ViewModel.EditorMode = ViewModel.EditorMode switch
+            {
+                ViewModels.EditorMode.Editor => ViewModels.EditorMode.Review,
+                ViewModels.EditorMode.Review => ViewModels.EditorMode.Audit,
+                _ => ViewModels.EditorMode.Editor
+            };
+            statusViewModel.Mode.Update(ViewModel.EditorMode.ToString());
+        };
+
+        // Wire VCS panel click to focus source control side panel
+        statusViewModel.Vcs.DetailsRequested += (_, _) =>
+        {
+            Core.Services.SidePanelRegistry.Instance.Activate("source-control");
+        };
+
+        // Wire stats panel click to run validation (shows issues panel)
+        statusViewModel.Stats.StatisticsRequested += (_, _) =>
+        {
+            if (ViewModel.RunValidationCommand.CanExecute(null))
+                ViewModel.RunValidationCommand.Execute(null);
+        };
+
+        // Wire language panel selection to update primary language in project settings
+        statusViewModel.Language.LanguageChanged += lang =>
+        {
+            if (string.IsNullOrEmpty(ViewModel.CurrentPath)) return;
+            var settings = Core.Models.ProjectSettings.LoadFrom(ViewModel.CurrentPath);
+            if (settings is not null)
+            {
+                settings.PrimaryLanguage = lang;
+                settings.Save();
+            }
+            StatusBarService.Instance.UpdateDefaultLanguage(lang);
+            // Refresh editor to reorder languages (primary first)
+            ViewModel.RefreshTree();
+        };
+
         // forward basic updates from the main VM to the status bar
         ViewModel.PropertyChanged += (s, ea) =>
         {
@@ -149,7 +189,7 @@ public partial class MainWindow : FluentWindow
         {
             "explorer" => BuildActions(
                 (Wpf.Ui.Controls.SymbolRegular.TextBulletListTree20, "Toggle view mode", ViewModel.ToggleViewModeCommand),
-                (Wpf.Ui.Controls.SymbolRegular.Add16, "New Item", ViewModel.NewItemCommand)),
+                (Wpf.Ui.Controls.SymbolRegular.Add16, "Add Translation Key", ViewModel.NewItemCommand)),
             "source-code" => BuildActions(
                 (Wpf.Ui.Controls.SymbolRegular.ArrowSync20, "Scan source code", ViewModel.ScanSourceCodeCommand),
                 (Wpf.Ui.Controls.SymbolRegular.Settings16, "Source settings", ViewModel.ShowPreferencesCommand)),

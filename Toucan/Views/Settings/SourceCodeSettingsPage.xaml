@@ -1,0 +1,104 @@
+<UserControl
+    x:Class="Toucan.Views.Settings.SourceCodeSettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <StackPanel>
+        <TextBlock Text="Source Code" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+        <TextBlock Text="Default source code scanning configuration for new projects. When a framework is detected, these settings are pre-populated from the framework profile." FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,12"/>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Framework Presets</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="AppGeneric24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Framework profile" FontWeight="SemiBold"/>
+                        <TextBlock Text="Apply a framework preset to populate scan settings below" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <StackPanel Orientation="Horizontal">
+                <ComboBox Width="180" SelectedValue="{Binding SelectedFrameworkPreset, Mode=TwoWay}" SelectedValuePath="Content" IsEditable="False">
+                    <ComboBoxItem>Custom</ComboBoxItem>
+                    <ComboBoxItem>i18next (React/Next.js)</ComboBoxItem>
+                    <ComboBoxItem>Android</ComboBoxItem>
+                    <ComboBoxItem>Flutter (ARB)</ComboBoxItem>
+                    <ComboBoxItem>.NET (RESX)</ComboBoxItem>
+                    <ComboBoxItem>iOS (Strings)</ComboBoxItem>
+                    <ComboBoxItem>Rails (YAML)</ComboBoxItem>
+                    <ComboBoxItem>Gettext (PO)</ComboBoxItem>
+                    <ComboBoxItem>Generic JSON</ComboBoxItem>
+                </ComboBox>
+                <ui:Button Content="Apply" Margin="8,0,0,0" Command="{Binding ApplyFrameworkPresetCommand}" ToolTip="Populate settings from this framework's conventions"/>
+            </StackPanel>
+        </ui:CardControl>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Scanning</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Search24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Auto-scan on project open" FontWeight="SemiBold"/>
+                        <TextBlock Text="Automatically scan source code when a project is opened" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding DefaultAutoScanOnOpen, Mode=TwoWay}"/>
+        </ui:CardControl>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Folder24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Locale folder pattern" FontWeight="SemiBold"/>
+                        <TextBlock Text="Where translation files live (e.g., locales/, src/locales/, res/)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:TextBox Width="220" Text="{Binding DefaultLocaleFolderPattern, Mode=TwoWay}" PlaceholderText="locales"/>
+        </ui:CardControl>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="TextGrammarWand24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Key matcher pattern" FontWeight="SemiBold"/>
+                        <TextBlock Text="Regex to extract translation keys from source (e.g., t\\('([^']+)'\\))" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:TextBox Width="260" Text="{Binding DefaultKeyMatcherPattern, Mode=TwoWay}" PlaceholderText="t\('([^']+)'\)"/>
+        </ui:CardControl>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">File Extensions</TextBlock>
+        <TextBlock Text="Extensions to include when scanning for translation keys (comma-separated)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
+
+        <TextBox Text="{Binding DefaultScanExtensions, Mode=TwoWay}" TextWrapping="Wrap" MinHeight="60" AcceptsReturn="False"/>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Excluded Directories</TextBlock>
+        <TextBlock Text="Directories to skip during source code scanning (comma-separated)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
+
+        <TextBox Text="{Binding DefaultExcludedDirectories, Mode=TwoWay}" TextWrapping="Wrap" MinHeight="60" AcceptsReturn="False"/>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">External Editor</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Open24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Default external editor" FontWeight="SemiBold"/>
+                        <TextBlock Text="Command to open source files (use {file} and {line})" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:TextBox Width="260" Text="{Binding DefaultExternalEditor, Mode=TwoWay}" PlaceholderText="code --goto {file}:{line}"/>
+        </ui:CardControl>
+    </StackPanel>
+</UserControl>

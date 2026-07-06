@@ -38,43 +38,45 @@
             </Grid.ColumnDefinitions>
 
             <!-- Sidebar Navigation -->
-            <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" Padding="4,8" CornerRadius="0">
-                <ui:ListView x:Name="NavList" SelectedIndex="0" SelectionChanged="NavList_SelectionChanged">
-                    <ui:ListViewItem>
+            <Border Background="{DynamicResource SubtleFillColorTertiaryBrush}" Padding="0,4,4,8" CornerRadius="0">
+                <ListBox x:Name="NavList" SelectedIndex="0" SelectionChanged="NavList_SelectionChanged"
+                         Background="Transparent" BorderThickness="0"
+                         ItemContainerStyle="{StaticResource SettingsNavListViewItemStyle}">
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Info24" Margin="0,0,10,0"/>
                             <TextBlock Text="Identity" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                    <ui:ListViewItem>
+                    </ListBoxItem>
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Translate24" Margin="0,0,10,0"/>
                             <TextBlock Text="Translation" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                    <ui:ListViewItem>
+                    </ListBoxItem>
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Edit24" Margin="0,0,10,0"/>
                             <TextBlock Text="Editor" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                    <ui:ListViewItem>
+                    </ListBoxItem>
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="ToggleRight24" Margin="0,0,10,0"/>
                             <TextBlock Text="Features" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                    <ui:ListViewItem>
+                    </ListBoxItem>
+                    <ListBoxItem>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Code24" Margin="0,0,10,0"/>
                             <TextBlock Text="Source Code" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </ui:ListViewItem>
-                </ui:ListView>
+                    </ListBoxItem>
+                </ListBox>
             </Border>
 
             <!-- Content Pages -->
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="16,12">
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="16,4,16,12">
                 <Grid>
                     <!-- Page: Identity -->
                     <StackPanel x:Name="PageIdentity" Visibility="Visible">
@@ -127,17 +129,20 @@
                                        Command="{Binding ManageLanguagesCommand}" FontSize="11"/>
                         </StackPanel>
 
-                        <Border BorderThickness="1" BorderBrush="{DynamicResource ControlElevationBorderBrush}" CornerRadius="4" MinHeight="60" MaxHeight="120" Margin="0,0,0,4">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                <ItemsControl ItemsSource="{Binding Languages}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding}" Margin="10,3" FontSize="12"/>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </Border>
+                        <ItemsControl ItemsSource="{Binding Languages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ui:CardControl Margin="0,0,0,4">
+                                        <ui:CardControl.Header>
+                                            <StackPanel Orientation="Horizontal">
+                                                <ui:SymbolIcon Symbol="Globe16" Margin="0,0,10,0" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                                <TextBlock Text="{Binding}" FontSize="13" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </ui:CardControl.Header>
+                                    </ui:CardControl>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
 
                     <!-- Page: Translation -->
@@ -187,6 +192,32 @@
                             </ComboBox>
                         </ui:CardControl>
 
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Shield24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Preserve placeholders" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Protect placeholder tokens during translation" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <CheckBox IsChecked="{Binding PreservePlaceholders, Mode=TwoWay}"/>
+                        </ui:CardControl>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Eye24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Preview before applying" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Show preview before committing translations" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <CheckBox IsChecked="{Binding PreviewBeforeApply, Mode=TwoWay}"/>
+                        </ui:CardControl>
+
                         <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Project Context</TextBlock>
                         <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"
                                    Text="Provide context to improve translation quality for this project. Overrides the app-level context."/>
@@ -228,11 +259,31 @@
                         </ui:CardControl>
 
                         <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Copy Templates</TextBlock>
-                        <TextBlock Text="Use %1 as placeholder for the key namespace" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
-
-                        <TextBox Text="{Binding CopyTemplate1, Mode=TwoWay}" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding CopyTemplate2, Mode=TwoWay}" Margin="0,0,0,4"/>
-                        <TextBox Text="{Binding CopyTemplate3, Mode=TwoWay}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Use %1 as placeholder for the key namespace. Min 1, max 5." FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
+                        <ItemsControl ItemsSource="{Binding CopyTemplates}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ui:CardControl Margin="0,0,0,4">
+                                        <ui:CardControl.Header>
+                                            <StackPanel Orientation="Horizontal">
+                                                <ui:SymbolIcon Symbol="Copy16" Margin="0,0,10,0" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                                <ui:TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                            MinWidth="260" PlaceholderText="%1"/>
+                                            </StackPanel>
+                                        </ui:CardControl.Header>
+                                        <ui:Button Padding="4,2" Appearance="Transparent"
+                                                   Command="{Binding DataContext.RemoveCopyTemplateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                   CommandParameter="{Binding}">
+                                            <ui:SymbolIcon Symbol="Dismiss16" FontSize="12"/>
+                                        </ui:Button>
+                                    </ui:CardControl>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <ui:Button Content="Add Template" Margin="0,4,0,0" Appearance="Transparent" Padding="8,4"
+                                   Command="{Binding AddCopyTemplateCommand}" IsEnabled="{Binding CanAddCopyTemplate}">
+                            <ui:Button.Icon><ui:SymbolIcon Symbol="Add16"/></ui:Button.Icon>
+                        </ui:Button>
 
                         <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Hidden Namespaces</TextBlock>
                         <TextBlock FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,6"
@@ -262,6 +313,19 @@
                     <!-- Page: Features -->
                     <StackPanel x:Name="PageFeatures" Visibility="Collapsed">
                         <TextBlock Text="Features" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="CheckmarkCircle24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Validate on save" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Run validation pipeline when saving" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <CheckBox IsChecked="{Binding ValidateOnSave, Mode=TwoWay}"/>
+                        </ui:CardControl>
 
                         <ui:CardControl Margin="0,0,0,4">
                             <ui:CardControl.Header>
@@ -333,6 +397,27 @@
                             </ui:CardControl.Header>
                             <ui:TextBox Width="260" Text="{Binding ExternalEditor, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="code --goto {file}:{line}"/>
                         </ui:CardControl>
+
+                        <ui:CardControl Margin="0,0,0,4">
+                            <ui:CardControl.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Search24" Margin="0,0,12,0"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Auto-scan on open" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Scan source code when project opens" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ui:CardControl.Header>
+                            <ui:ToggleSwitch IsChecked="{Binding AutoScanOnOpen, Mode=TwoWay}"/>
+                        </ui:CardControl>
+
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,12,0,8">File Extensions</TextBlock>
+                        <TextBlock Text="Extensions to scan (comma-separated, blank = use defaults)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,6"/>
+                        <TextBox Text="{Binding ScanExtensions, Mode=TwoWay}" TextWrapping="Wrap" MinHeight="40"/>
+
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,12,0,8">Excluded Directories</TextBlock>
+                        <TextBlock Text="Directories to skip (comma-separated, blank = use defaults)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,6"/>
+                        <TextBox Text="{Binding ExcludedDirectories, Mode=TwoWay}" TextWrapping="Wrap" MinHeight="40"/>
                     </StackPanel>
                 </Grid>
             </ScrollViewer>
@@ -340,10 +425,13 @@
 
         <!-- Footer -->
         <Border Grid.Row="2" Padding="16,8" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource ControlElevationBorderBrush}">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <ui:Button Content="Cancel" Width="90" Margin="0,0,8,0" Command="{Binding CancelCommand}"/>
-                <ui:Button Content="Save" Width="90" Appearance="Primary" Command="{Binding SaveCommand}"/>
-            </StackPanel>
+            <Grid>
+                <ui:Button Content="Reset to Defaults" HorizontalAlignment="Left" Appearance="Secondary" Command="{Binding ResetToDefaultsCommand}" ToolTip="Reset all overrides to project default values"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <ui:Button Content="Cancel" Width="90" Margin="0,0,8,0" Command="{Binding CancelCommand}"/>
+                    <ui:Button Content="Save" Width="90" Appearance="Primary" Command="{Binding SaveCommand}"/>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </ui:FluentWindow>

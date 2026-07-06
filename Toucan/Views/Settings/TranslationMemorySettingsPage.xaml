@@ -1,0 +1,103 @@
+<UserControl
+    x:Class="Toucan.Views.Settings.TranslationMemorySettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <StackPanel>
+        <TextBlock Text="Translation Memory" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Matching</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="SlideSearch24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Similarity threshold" FontWeight="SemiBold"/>
+                        <TextBlock Text="Minimum similarity score for fuzzy matches (0.5–1.0)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <StackPanel Orientation="Horizontal">
+                <Slider Width="140" Minimum="0.5" Maximum="1.0" TickFrequency="0.05" IsSnapToTickEnabled="True"
+                        Value="{Binding TmSimilarityThreshold, Mode=TwoWay}"/>
+                <TextBlock Text="{Binding TmSimilarityThreshold, StringFormat={}{0:P0}}" Margin="8,0,0,0" VerticalAlignment="Center" FontSize="12"/>
+            </StackPanel>
+        </ui:CardControl>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Globe24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Scope" FontWeight="SemiBold"/>
+                        <TextBlock Text="Search translation memory across all projects or only the current one" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ComboBox Width="200" SelectedIndex="{Binding TmGlobalScopeIndex, Mode=TwoWay}">
+                <ComboBoxItem>Global (all projects)</ComboBoxItem>
+                <ComboBoxItem>Current project only</ComboBoxItem>
+            </ComboBox>
+        </ui:CardControl>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Suggestions</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Lightbulb24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Auto-suggest while typing" FontWeight="SemiBold"/>
+                        <TextBlock Text="Show TM suggestions inline as you translate" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding TmAutoSuggest, Mode=TwoWay}"/>
+        </ui:CardControl>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="NumberSymbol24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Max suggestions" FontWeight="SemiBold"/>
+                        <TextBlock Text="Maximum number of TM matches to show (1–10)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <TextBox Width="80" Text="{Binding TmMaxSuggestionsText, Mode=TwoWay}"/>
+        </ui:CardControl>
+
+        <TextBlock FontSize="14" FontWeight="SemiBold" Margin="0,16,0,8">Data Management</TextBlock>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Delete24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Clear translation memory" FontWeight="SemiBold"/>
+                        <TextBlock Text="Remove all stored TM entries (cannot be undone)" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:Button Content="Clear TM" Appearance="Caution" Command="{Binding ClearTranslationMemoryCommand}"/>
+        </ui:CardControl>
+
+        <ui:CardControl Margin="0,0,0,4">
+            <ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="ArrowDownload24" Margin="0,0,12,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Import / Export" FontWeight="SemiBold"/>
+                        <TextBlock Text="Import or export TM data in TMX format" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ui:CardControl.Header>
+            <StackPanel Orientation="Horizontal">
+                <ui:Button Content="Import" Margin="0,0,4,0" Command="{Binding ImportTmCommand}"/>
+                <ui:Button Content="Export" Command="{Binding ExportTmCommand}"/>
+            </StackPanel>
+        </ui:CardControl>
+    </StackPanel>
+</UserControl>

@@ -71,10 +71,10 @@
                         <ui:ListView.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:NsFlatItem}">
                                 <StackPanel Margin="4,2" Orientation="Horizontal">
-                                    <ui:SymbolIcon Foreground="Gray" Symbol="Document16" />
+                                    <ui:SymbolIcon Symbol="Document16"
+                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
                                     <TextBlock
                                         Margin="6,0,0,0"
-                                        Foreground="Gray"
                                         Text="{Binding Source.Namespace}" />
                                 </StackPanel>
                             </DataTemplate>

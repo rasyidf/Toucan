@@ -26,12 +26,66 @@
 
             <!-- Local filter for translation IDs -->
             <Border Padding="5,4" Background="{DynamicResource SubtleFillColorSecondaryBrush}">
-                <ui:TextBox
-                    x:Name="IdFilterBox"
-                    Icon="Filter16"
-                    PlaceholderText="{x:Static loc:Strings.Editor_FilterPlaceholder}"
-                    Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    FontSize="12" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ui:TextBox
+                        x:Name="IdFilterBox"
+                        Grid.Column="0"
+                        Icon="Filter16"
+                        PlaceholderText="{x:Static loc:Strings.Editor_FilterPlaceholder}"
+                        Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        FontSize="12" />
+
+                    <!-- Language visibility selector button + popup -->
+                    <Grid Grid.Column="1" Margin="4,0,0,0">
+                        <ui:Button x:Name="LangFilterBtn"
+                                   Padding="6,6" Appearance="Transparent"
+                                   ToolTip="Select visible languages"
+                                   AutomationProperties.Name="Select visible languages"
+                                   Click="LangFilterBtn_Click">
+                            <ui:SymbolIcon Symbol="LocalLanguage16" FontSize="14"/>
+                        </ui:Button>
+
+                        <Popup x:Name="LangFilterPopup"
+                               PlacementTarget="{Binding ElementName=LangFilterBtn}"
+                               Placement="Bottom"
+                               StaysOpen="False"
+                               AllowsTransparency="True"
+                               PopupAnimation="Fade">
+                            <Border Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
+                                    BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Padding="8"
+                                    MinWidth="140" MaxWidth="280">
+                                <Border.Effect>
+                                    <DropShadowEffect ShadowDepth="2" BlurRadius="8" Opacity="0.2" Color="Black"/>
+                                </Border.Effect>
+                                <StackPanel>
+                                    <TextBlock Text="Visible Languages" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,6"/>
+                                    <ItemsControl ItemsSource="{Binding LanguageVisibilityFilter}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Content="{Binding Language}" IsChecked="{Binding IsVisible, Mode=TwoWay}"
+                                                          Margin="0,0,12,4" FontSize="11" MinWidth="60"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </Grid>
             </Border>
 
             <!-- Normal list view (hidden in focused mode) -->

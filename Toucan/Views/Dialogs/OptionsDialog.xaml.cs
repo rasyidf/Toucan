@@ -15,11 +15,18 @@ public partial class OptionDialog : FluentWindow
     private readonly OptionsViewModel vm;
     private readonly UIElement[] _pages;
 
-    public OptionDialog(AppOptions importOptions, string projectPath, OptionsViewModel viewModel)
+    public OptionDialog(AppOptions importOptions, string projectPath, OptionsViewModel viewModel, int startPage = 0)
     {
         InitializeComponent();
 
-        _pages = [PageGeneral, PageAppearance, PageEditor, PageTranslation, PageShortcuts, PageLanguages, PageIntegration, PageAbout];
+        _pages = [PageGeneral, PageAppearance, PageEditor, PageTranslation, PageValidation, PageTM, PageSourceCode, PageShortcuts, PageLanguages, PageIntegration, PageDataPrivacy, PageAbout];
+
+        vm = viewModel;
+
+        if (startPage > 0 && startPage < _pages.Length)
+        {
+            NavList.SelectedIndex = startPage;
+        }
 
         vm = viewModel;
 
@@ -68,10 +75,7 @@ public partial class OptionDialog : FluentWindow
 
     private void NavList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_pages == null)
-        {
-            return;
-        }
+        if (_pages == null) return;
 
         int idx = NavList.SelectedIndex;
         for (int i = 0; i < _pages.Length; i++)
@@ -79,5 +83,4 @@ public partial class OptionDialog : FluentWindow
             _pages[i].Visibility = i == idx ? Visibility.Visible : Visibility.Collapsed;
         }
     }
-
 }

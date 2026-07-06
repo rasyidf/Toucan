@@ -55,6 +55,11 @@ public partial class TranslationDetailsView : UserControl
         ShowAllClick?.Invoke(sender, e);
     }
 
+    private void LangFilterBtn_Click(object sender, RoutedEventArgs e)
+    {
+        LangFilterPopup.IsOpen = !LangFilterPopup.IsOpen;
+    }
+
     private void LanguageValue_KeyUp(object sender, KeyEventArgs e)
     {
         if (sender is not TextBox txtBox)
