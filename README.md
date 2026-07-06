@@ -6,6 +6,7 @@
 </div>
 
 ---
+<img width="878" height="668" alt="image" src="https://github.com/user-attachments/assets/6c60208e-640a-4fbc-b280-63f5fc856ece" />
 
 ## What is Toucan?
 
@@ -66,6 +67,8 @@ Toucan auto-detects your framework and organizes files accordingly.
 - **Default language:** Set per-user in Settings → Options (default: en-US).
 
 ---
+<img width="904" height="696" alt="image" src="https://github.com/user-attachments/assets/bbd9b2ba-99e6-4500-a4e4-d92d602f33ff" />
+
 
 ## Roadmap
 
