@@ -1,5 +1,47 @@
 # Changelog
 
+## [0.18.0] - 2026-10-01
+
+First macOS and Linux release. The Avalonia app now targets `net10.0` (it targeted `net10.0-windows` before, so no earlier version ran on macOS or Linux). The Windows build of 0.18.0 is not out yet; Windows stays on 0.17.3 until it is.
+
+### Added
+- **Plugin system (preview, Avalonia app and CLI)** — Plugins are .NET assemblies in `Documents/Toucan/plugins/<id>/` with a `plugin.json` manifest. They can add file formats, translation providers, validation rules and framework profiles. See [docs/plugins.md](docs/plugins.md) and `samples/Toucan.Sample.Plugin`.
+- **`Toucan.Plugins.Abstractions`** — Small contract assembly and NuGet package (plugin API 1.0) that plugin authors reference; Toucan supplies it at run time so types match.
+- **Trust model** — Plugins load only when enabled and when you have trusted their exact files (SHA-256 of the plugin folder); changed plugins ask again. Settings → Plugins page, a startup prompt for untrusted plugins, and a signature seam (plugins show "Not signed"; signing becomes mandatory later).
+- **CLI** — `toucan plugins list|trust|revoke|enable|disable`, `--allow-plugin <id>` for a single run, `TOUCAN_PLUGINS_DIR` and `TOUCAN_PLUGIN_POLICY`.
+- **Plugin guide and sample** — [docs/plugins.md](docs/plugins.md) and `samples/Toucan.Sample.Plugin` (tab-separated-values format plus a TODO/FIXME rule). The sample is built and exercised by the test suite, and verified to build against the packed NuGet package alone.
+- **Plugins page and menu entry** — Settings → Plugins lists every installed plugin with status, what it provides, signature, hash and folder, with enable, Trust… and Revoke actions; Settings menu → Plugins… opens it.
+- **Manifest `entryType`** — Optional, for assemblies that contain more than one plugin class.
+- **Cross-platform solution** — `Toucan.CrossPlatform.slnx` builds and tests everything except the Windows-only WPF projects.
+- **macOS and Linux builds** — `Toucan.app` for Apple silicon and Intel, and self-contained tarballs for Linux x64 and arm64.
+- **Avalonia app (macOS and Linux)** — Zen mode, Editor/Review/Audit modes, and side panels (Explorer, Search, Issues, Source Code, Translation Memory, Languages, Inspector).
+- **macOS app bundle** — `packaging/build-macos-app.sh` builds a self-contained, ad-hoc-signed `Toucan.app`.
+- **Tests** — 275 Core tests (format round trips and conventions, composition root, plugin host, trust policy, sample plugin) and 48 Avalonia tests (plugin prompt and page, headless render).
+
+### Changed
+- **Formats are identified by string IDs** (`json`, `android-xml`, `po`, …) instead of the `SaveStyles` enum. Project files now store `"saveFormat"`; old `"saveStyle"` values are migrated on load and not written back. A project whose format is not installed now fails to open with a "format unavailable" message instead of being read as JSON.
+- **Format conventions live on the format** — default file path, language files, comment storage and detection rules come from each save strategy, replacing four duplicated tables. The export and import pickers list whatever formats are registered.
+- **Shared composition root** — `AddToucanCore()` is used by the app and the CLI. The CLI now supports every format, including Java `.properties` and Laravel PHP, and takes providers from the same container.
+- **Translation provider settings** are built from the registered providers, so plugin providers appear alongside the built-ins.
+- `ValidationContext.Settings` became `ValidationContext.PrimaryLanguage` (rules only ever read the primary language).
+- **CLI** — `export -f` accepts a format ID (`android-xml`) or the old enum name (`AndroidXml`); `list-formats` prints IDs with display names. The export picker in the app lists formats in registration order rather than a hand-written order.
+- **One version number** — The app version is set once, in `Directory.Build.props`. `publish.ps1`, the Inno Setup script, `packaging/Build-Msix.ps1` and `packaging/build-macos-app.sh` read it. The v0.17.3 builds reported assembly version 0.17.2, and the CLI reported 1.0.0.
+- **Docs and website** — The website (`docs/index.html`), README, roadmap, and shipped-feature list now agree on versions (0.18.0 for macOS and Linux, 0.17.3 for Windows), platform status, and the road to 1.0 from `docs/todos/future-roadmap.md`.
+- **Core test project** targets plain `net10.0` and references the test SDK, so `dotnet test` works on macOS and Linux.
+
+### Breaking changes (for code built on `Toucan.Core`; the WPF projects still need updating)
+- `ISaveStrategy` / `ILoadStrategy` expose `string FormatId` instead of `SaveStyles Style`; `ISaveStrategy` also requires `DefaultFilePath(language)`.
+- `ITranslationStrategyFactory` looks formats up by ID and exposes `SaveStrategies`; `IProjectService.CreateProject/CreateLanguage/Save` and `ICommentPersistenceService` take a format ID (`SaveStyles` overloads remain for the comment service and the factory). `IProjectService` gains `GetDefaultFilePath` and `GetLanguageFiles`; `IProjectLifecycleService.CreateAndOpenProjectAsync` takes a format ID.
+- `IFrameworkProfile.DefaultFormat` is now `DefaultFormatId` (string).
+- `ProjectSettings.SaveFormat` replaces `SaveStyle` as the stored value (`SaveStyle` remains as a compatibility property that returns JSON for plugin formats).
+- `ProjectOpenStatus.FormatUnavailable` and `FormatUnavailableException` are new; projects with an unavailable format no longer fall back to JSON.
+- The plugin-facing types moved to `Toucan.Plugins.Abstractions` with their namespaces unchanged, so source compiles but the assembly reference is new.
+
+### Fixed
+- **API keys on macOS and Linux** — Provider API keys are encrypted with AES-GCM and a per-user key file (owner-only permissions), because DPAPI only exists on Windows. Before this change the Avalonia app fell back to base64 when DPAPI was unavailable.
+- New projects in Gettext PO, INI, Java `.properties` and Laravel PHP formats no longer default to `en.json`.
+- Save As on a project no longer resets its format to JSON when the format came from a plugin.
+
 ## [0.17.3] - 2026-07-06
 
 ### Added

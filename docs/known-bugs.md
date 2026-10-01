@@ -1,6 +1,6 @@
 # Known Issues & Unfinished Features
 
-Last updated: 2026-07-06 (v0.17.1)
+Last updated: 2026-10-01. Current releases: v0.18.0 for macOS and Linux, v0.17.3 for Windows (preview).
 
 ## Fixed in v0.17.2
 
@@ -29,8 +29,14 @@ Last updated: 2026-07-06 (v0.17.1)
 
 ## Open Issues (Not Bugs — Limitations)
 
+- The macOS and Linux (Avalonia) app does not have every Windows panel yet: Source Control, Translation, and Dictionary are missing.
+- The Windows build of 0.18.0 is not out yet, and the WPF project still needs updating for the 0.18.0 Core changes (see the breaking changes in [CHANGELOG.md](../CHANGELOG.md)).
+- Plugins work in the Avalonia app and the CLI only, not in the Windows (WPF) app.
+- The macOS app is ad-hoc signed, not notarized: macOS asks you to confirm before the first launch.
+- No signed packages and no release pipeline yet (FG-01).
+
 - Performance not profiled yet (deferred)
-- No auto-updater — planned for v1.1
+- No auto-updater: the About page shows the settings, but nothing checks for updates yet. Planned for v0.23 (FG-02 in [todos/future-roadmap.md](todos/future-roadmap.md)).
 - Keybinding customization — display-only reference for now
 - XLIFF save writes key in `<source>` instead of source-language text (round-trip loses source value)
 - PO load/save: no plural form support (msgid_plural/msgstr[N] silently dropped)

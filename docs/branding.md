@@ -10,6 +10,10 @@
 
 It combines the speed of a modern IDE with the completeness of a localization platform — offline-first, format-agnostic, and AI-assisted.
 
+Release status: preview until 1.0. Current releases: v0.18.0 (macOS, Linux) and v0.17.3 (Windows). Say "preview" wherever a version or download is offered.
+
+Platforms: Windows (WPF app), macOS and Linux (Avalonia app), and the `toucan` CLI.
+
 ---
 
 ## Mission
@@ -131,7 +135,7 @@ Built on golden-ratio circles. No arbitrary curves. Works from 16px to 1024px.
 
 ---
 
-## UI Identity (v1.0)
+## UI Identity (Windows app, v0.17)
 
 ### Layout
 Three-pane VS Code-style:
@@ -167,8 +171,9 @@ All chrome hidden. Single translation card centered. J/K navigation. Mode-aware.
 | File extension | `.tproj` |
 | MIME type | `application/json` |
 | Registry ProgId | `Toucan.Project` |
-| Config folder | `~/.toucan/` or `%DOCUMENTS%/Toucan/` |
-| Provider secrets | DPAPI-encrypted `providers.json` |
+| App settings folder | `Documents/Toucan/` (providers, layout, plugins) |
+| Project settings folder | `<project>/.toucan/` |
+| Provider secrets | `providers.json`; secrets encrypted with DPAPI on Windows, AES-GCM on macOS and Linux |
 
 ---
 
@@ -177,6 +182,7 @@ All chrome hidden. Single translation card centered. J/K navigation. Mode-aware.
 - UI: System font (Segoe UI Variable on Windows 11)
 - Code/keys: Cascadia Code / system monospace
 - Sizes: follow WinUI Fluent type ramp
+- Website (`docs/index.html`): headings in Bricolage Grotesque, body in the system UI font, code in Cascadia Code with JetBrains Mono as the web fallback
 
 ---
 
@@ -203,14 +209,14 @@ Fast · Predictable · Dense · Keyboard-driven · Offline-first · Search-first
 
 ---
 
-## Future Product Extensions
+## Product Extensions
 
-| Name | Purpose |
-|------|---------|
-| Toucan CLI | `toucan check`, `toucan translate`, `toucan export` |
-| Toucan AI | ConsistencyAI, quality scoring, tone enforcement |
-| Toucan Hub | Collaboration server (locking, presence) |
-| Toucan SDK | Plugin system for custom formats/providers/rules |
+| Name | Purpose | Status |
+|------|---------|--------|
+| Toucan CLI | `toucan check`, `toucan translate`, `toucan export` | Preview, shipped since v0.15 |
+| Toucan SDK | Plugin system for custom formats/providers/rules | Preview since v0.18.0 (`Toucan.Plugins.Abstractions`) |
+| Toucan AI | ConsistencyAI, quality scoring, tone enforcement | Planned (ConsistencyAI in v0.20) |
+| Toucan Hub | Collaboration server (locking, presence) | After 1.0 |
 
 ---
 

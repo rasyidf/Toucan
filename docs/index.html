@@ -1,494 +1,1832 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- SEO Meta Tags -->
-<title>Toucan — Universal i18n Resource Editor for Windows</title>
-<meta name="description" content="A modern, open-source internationalization file editor for Windows. Manage JSON, YAML, PO, RESX, XLIFF, and 12+ translation formats in one place with AI-powered pre-translation.">
-<meta name="keywords" content="i18n, internationalization, localization, translation editor, resource editor, JSON, YAML, PO, RESX, XLIFF, ARB, Flutter, Android, iOS, Windows, open source, MIT">
-<meta name="author" content="rasyid.dev">
-<meta name="robots" content="index, follow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toucan · The localization IDE</title>
+<meta name="description" content="Toucan is an open-source desktop editor for translation files on Windows, macOS, and Linux. Edit 14 formats side by side, pre-translate with DeepL, Google, Microsoft or OpenAI, and validate before you ship. Preview release.">
+<meta name="author" content="Muhammad Fahmi Rasyid">
 <link rel="canonical" href="https://toucan.rasyid.dev/">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 
-<!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://toucan.rasyid.dev/">
-<meta property="og:title" content="Toucan — Universal i18n Resource Editor">
-<meta property="og:description" content="A modern, open-source internationalization file editor for Windows. Manage all your translations in one place with AI-powered pre-translation.">
-<meta property="og:image" content="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png">
+<meta property="og:title" content="Toucan · Teach your app every language">
+<meta property="og:description" content="Open-source localization IDE. 14 file formats, machine translation with preview, validation, and source scanning in one offline workspace.">
+<meta property="og:image" content="https://toucan.rasyid.dev/assets/logo.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Toucan · Teach your app every language">
+<meta name="twitter:description" content="Open-source localization IDE. 14 file formats, machine translation with preview, validation, and source scanning in one offline workspace.">
+<meta name="twitter:image" content="https://toucan.rasyid.dev/assets/logo.png">
 
-<!-- Twitter -->
-<meta property="twitter:card" content="summary_large_image">
-<meta property="twitter:url" content="https://toucan.rasyid.dev/">
-<meta property="twitter:title" content="Toucan — Universal i18n Resource Editor">
-<meta property="twitter:description" content="A modern, open-source internationalization file editor for Windows. Manage all your translations in one place with AI-powered pre-translation.">
-
-<!-- Structured Data -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "Toucan",
-  "description": "Universal i18n Resource Editor for Windows",
+  "description": "Open-source localization IDE for translation files",
   "applicationCategory": "DeveloperApplication",
-  "operatingSystem": "Windows 10+",
+  "operatingSystem": "Windows 10+, macOS, Linux",
+  "softwareVersion": "0.18.0",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "license": "https://opensource.org/licenses/MIT",
   "url": "https://toucan.rasyid.dev/",
   "downloadUrl": "https://github.com/rasyidf/Toucan/releases",
-  "author": { "@type": "Person", "name": "rasyid.dev", "url": "https://rasyid.dev" }
+  "author": { "@type": "Person", "name": "Muhammad Fahmi Rasyid", "url": "https://rasyid.dev" }
 }
 </script>
 
-<!-- Tailwind CSS CDN with dark mode -->
-<script src="https://cdn.tailwindcss.com"></script>
 <script>
-tailwind.config = {
-  darkMode: 'class',
-  theme: {
-    extend: {
-      colors: {
-        brand: { 50:'#eff6ff', 100:'#dbeafe', 200:'#bfdbfe', 300:'#93c5fd', 400:'#60a5fa', 500:'#2563eb', 600:'#1d4ed8', 700:'#1e40af', 800:'#1e3a8a', 900:'#172554' },
-        accent: { 50:'#fffbeb', 100:'#fef3c7', 200:'#fde68a', 300:'#fcd34d', 400:'#f59e0b', 500:'#d97706' },
-      },
-      animation: {
-        'fade-up': 'fadeUp 0.7s ease-out forwards',
-        'float': 'float 6s ease-in-out infinite',
-        'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
-      },
-      keyframes: {
-        fadeUp: { '0%': { opacity:'0', transform:'translateY(20px)' }, '100%': { opacity:'1', transform:'translateY(0)' } },
-        float: { '0%,100%': { transform:'translateY(0)' }, '50%': { transform:'translateY(-8px)' } },
-        pulseSoft: { '0%,100%': { opacity:'1' }, '50%': { opacity:'0.6' } },
-      }
-    }
-  }
-}
+  // Set the theme and the JS flag before first paint so nothing flashes.
+  (function () {
+    var root = document.documentElement;
+    root.classList.add('js');
+    try {
+      var saved = localStorage.getItem('toucan-theme');
+      if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+    } catch (e) {}
+  })();
 </script>
 
-<!-- Vue 3 + Lucide -->
-<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
-html { scroll-behavior: smooth; }
+:root {
+  /* Brand spectrum (docs/branding.md) */
+  --blue: #2196F3;
+  --deep-blue: #1764E8;
+  --sky: #3CC9FF;
+  --yellow: #FFC93C;
+  --orange: #FF9A3C;
+  --purple: #6F5BFF;
 
-/* Reveal animation */
-.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
-.reveal.visible { opacity: 1; transform: translateY(0); }
+  /* Light theme */
+  --bg: #F6F7F9;
+  --bg-alt: #EDEFF3;
+  --surface: #FFFFFF;
+  --surface-2: #F1F3F6;
+  --border: #DADFE7;
+  --text: #171B22;
+  --muted: #555E6E;
+  --faint: #7D8696;
+  --link: #1764E8;
+  --accent-ink: #1764E8;
+  --btn-bg: #1764E8;
+  --btn-bg-hover: #1257CC;
+  --btn-text: #FFFFFF;
+  --ai: #5A45F0;
+  --warn: #9A6400;
+  --warn-bg: #FFF4D6;
+  --miss: #B4570A;
+  --ok: #18794E;
+  --ok-bg: #DDF3E6;
+  --code-bg: #171B22;
+  --code-text: #E6E9EF;
+  --shadow: 0 1px 2px rgba(23,27,34,.06), 0 12px 32px -12px rgba(23,27,34,.18);
 
-/* Card hover */
-.card-hover { transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
-.card-hover:hover { transform: translateY(-3px); }
+  --font-display: "Bricolage Grotesque", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Cascadia Code", "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-/* Button shimmer */
-.btn-shine { position: relative; overflow: hidden; }
-.btn-shine::after { content:''; position: absolute; inset:0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); transform: translateX(-100%); }
-.btn-shine:hover::after { animation: shimmer 0.7s ease forwards; }
-@keyframes shimmer { to { transform: translateX(100%); } }
-
-/* Dot grid pattern */
-.dot-pattern {
-  background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
-  background-size: 32px 32px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --radius: 10px;
+  --radius-lg: 16px;
+  --max: 1160px;
+  color-scheme: light;
 }
 
-/* Theme toggle animation */
-.theme-toggle { transition: transform 0.3s ease; }
-.theme-toggle:hover { transform: rotate(15deg); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171B22;
+    --bg-alt: #13161C;
+    --surface: #232936;
+    --surface-2: #1C212B;
+    --border: #3A4153;
+    --text: #FFFFFF;
+    --muted: #A5ACBA;
+    --faint: #7C8496;
+    --link: #6DB8F7;
+    --accent-ink: #3CC9FF;
+    --btn-bg: #2196F3;
+    --btn-bg-hover: #49A9F5;
+    --btn-text: #06111C;
+    --ai: #9C8FFF;
+    --warn: #FFC93C;
+    --warn-bg: rgba(255,201,60,.12);
+    --miss: #FF9A3C;
+    --ok: #5BD69A;
+    --ok-bg: rgba(91,214,154,.12);
+    --code-bg: #10131A;
+    --code-text: #E6E9EF;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 24px 48px -16px rgba(0,0,0,.55);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171B22;
+  --bg-alt: #13161C;
+  --surface: #232936;
+  --surface-2: #1C212B;
+  --border: #3A4153;
+  --text: #FFFFFF;
+  --muted: #A5ACBA;
+  --faint: #7C8496;
+  --link: #6DB8F7;
+  --accent-ink: #3CC9FF;
+  --btn-bg: #2196F3;
+  --btn-bg-hover: #49A9F5;
+  --btn-text: #06111C;
+  --ai: #9C8FFF;
+  --warn: #FFC93C;
+  --warn-bg: rgba(255,201,60,.12);
+  --miss: #FF9A3C;
+  --ok: #5BD69A;
+  --ok-bg: rgba(91,214,154,.12);
+  --code-bg: #10131A;
+  --code-text: #E6E9EF;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 24px 48px -16px rgba(0,0,0,.55);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background-color .2s ease-out, color .2s ease-out;
+}
+img { max-width: 100%; display: block; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+button { font: inherit; }
+code, kbd, .mono { font-family: var(--font-mono); font-size: .9em; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip:focus { position: fixed; top: 8px; left: 8px; width: auto; height: auto; clip: auto; z-index: 100; padding: 8px 12px; background: var(--surface); border-radius: 8px; }
+
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+@media (max-width: 640px) { .wrap { padding: 0 16px; } }
+
+/* Signature: one stripe per brand colour, like the bands in the logo. */
+.spectrum { display: flex; height: 4px; }
+.spectrum span { flex: 1; transform-origin: left; }
+.spectrum span:nth-child(1) { background: var(--deep-blue); }
+.spectrum span:nth-child(2) { background: var(--blue); }
+.spectrum span:nth-child(3) { background: var(--sky); }
+.spectrum span:nth-child(4) { background: var(--yellow); }
+.spectrum span:nth-child(5) { background: var(--orange); }
+.js .site-header .spectrum span { animation: stripe .7s var(--ease) both; }
+.js .site-header .spectrum span:nth-child(2) { animation-delay: .06s; }
+.js .site-header .spectrum span:nth-child(3) { animation-delay: .12s; }
+.js .site-header .spectrum span:nth-child(4) { animation-delay: .18s; }
+.js .site-header .spectrum span:nth-child(5) { animation-delay: .24s; }
+@keyframes stripe { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Scroll reveal. Only hidden when JS is running, so the page still works without it. */
+.js .reveal { opacity: 0; transform: translateY(14px); transition: opacity .55s var(--ease), transform .55s var(--ease); transition-delay: var(--d, 0ms); }
+.js .reveal.in { opacity: 1; transform: none; }
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+  border-bottom: 1px solid transparent;
+  transition: border-color .2s ease-out, box-shadow .2s ease-out;
+}
+.site-header.scrolled { border-bottom-color: var(--border); box-shadow: 0 8px 24px -18px rgba(0,0,0,.4); }
+.nav { display: flex; align-items: center; gap: 28px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-family: var(--font-display); font-weight: 700; font-size: 19px; letter-spacing: -.01em; }
+.brand:hover { text-decoration: none; }
+.brand img { width: 30px; height: 30px; transition: transform .25s var(--ease); }
+.brand:hover img { transform: rotate(-8deg); }
+.nav-links { display: flex; gap: 4px; font-size: 14.5px; }
+.nav-links a { color: var(--muted); padding: 6px 10px; border-radius: 7px; transition: color .15s ease-out, background-color .15s ease-out; }
+.nav-links a:hover { color: var(--text); text-decoration: none; background: var(--surface-2); }
+.nav-links a[aria-current="true"] { color: var(--text); background: var(--surface-2); }
+.nav-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.icon-btn {
+  display: inline-grid; place-items: center; width: 36px; height: 36px;
+  border: 0; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer;
+  transition: color .15s ease-out, background-color .15s ease-out;
+}
+.icon-btn:hover { background: var(--surface-2); color: var(--text); }
+.icon-btn svg { width: 19px; height: 19px; }
+#theme-toggle svg { transition: transform .35s var(--ease); }
+#theme-toggle:active svg { transform: rotate(40deg) scale(.9); }
+.theme-icon-light { display: none; }
+:root[data-theme="dark"] .theme-icon-dark { display: none; }
+:root[data-theme="dark"] .theme-icon-light { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-icon-dark { display: none; }
+  :root:not([data-theme="light"]) .theme-icon-light { display: block; }
+}
+@media (max-width: 860px) {
+  .nav-links { display: none; }
+  .nav .btn-sm { display: none; }
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 20px; border-radius: 10px; border: 1px solid transparent;
+  font-weight: 600; font-size: 15px; line-height: 1.2; cursor: pointer;
+  transition: background-color .15s ease-out, border-color .15s ease-out, transform .15s ease-out;
+}
+.btn:hover { text-decoration: none; }
+.btn:active { transform: translateY(1px); }
+.btn svg { width: 18px; height: 18px; flex: none; transition: transform .2s var(--ease); }
+.btn:hover svg.dl { transform: translateY(2px); }
+.btn-primary { background: var(--btn-bg); color: var(--btn-text); }
+.btn-primary:hover { background: var(--btn-bg-hover); }
+.btn-ghost { border-color: var(--border); color: var(--text); background: var(--surface); }
+.btn-ghost:hover { border-color: var(--faint); }
+.btn-sm { padding: 8px 14px; font-size: 14px; border-radius: 8px; }
+.btn small { font-weight: 500; opacity: .75; font-size: 12.5px; }
+
+/* ---------- Hero ---------- */
+.hero { padding: 64px 0; position: relative; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 4.7fr) minmax(0, 7.3fr); gap: 44px; align-items: center; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: 12.5px; color: var(--muted);
+  padding: 5px 12px 5px 6px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface);
+  transition: border-color .15s ease-out;
+}
+.eyebrow:hover { text-decoration: none; border-color: var(--faint); }
+.eyebrow .ver { color: var(--btn-text); background: var(--btn-bg); border-radius: 999px; padding: 1px 8px; font-weight: 500; }
+.eyebrow .pre { color: var(--warn); }
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -.02em; line-height: 1.08; margin: 0; }
+.hero h1 { font-size: clamp(40px, 5.6vw, 68px); font-weight: 800; margin: 22px 0 18px; }
+.hero h1 .hl { color: var(--accent-ink); }
+.js .hero .intro > * { animation: rise .7s var(--ease) both; }
+.js .hero .intro > :nth-child(2) { animation-delay: .06s; }
+.js .hero .intro > :nth-child(3) { animation-delay: .12s; }
+.js .hero .intro > :nth-child(4) { animation-delay: .18s; }
+.js .hero .intro > :nth-child(5) { animation-delay: .24s; }
+.js .hero .intro > :nth-child(6) { animation-delay: .3s; }
+.js .hero .demo { animation: rise .8s var(--ease) .2s both; }
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.tagline-i18n {
+  display: flex; align-items: baseline; gap: 10px; min-height: 28px;
+  font-family: var(--font-mono); font-size: 14px; color: var(--muted); margin-bottom: 22px;
+}
+.tagline-i18n .lang { color: var(--faint); flex: none; }
+.tagline-i18n .text { color: var(--text); }
+.tagline-i18n .text.out { opacity: 0; transform: translateY(-6px); transition: opacity .2s ease-out, transform .2s ease-out; }
+.tagline-i18n .text.in { animation: rise .35s var(--ease) both; }
+@media (max-width: 640px) { .tagline-i18n { min-height: 3.4em; font-size: 13px; } }
+.hero p.lede { font-size: 18px; color: var(--muted); max-width: 34em; margin: 0 0 30px; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-note { margin: 16px 0 0; font-size: 13.5px; color: var(--faint); }
+
+@media (max-width: 1000px) {
+  .hero { padding: 44px 0 56px; }
+  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+
+/* ---------- Interactive editor demo ---------- */
+.window {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow); overflow: hidden; font-size: 13px; position: relative;
+}
+.win-bar {
+  display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 10px 0 14px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2);
+}
+.win-bar img { width: 18px; height: 18px; flex: none; }
+.win-title { color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.modes { margin-left: auto; display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 2px; flex: none; position: relative; }
+.modes button { position: relative; z-index: 1; border: 0; background: transparent; color: var(--muted); font-size: 12px; padding: 3px 10px; border-radius: 6px; cursor: pointer; transition: color .15s ease-out; }
+.modes button:hover { color: var(--text); }
+.modes button[aria-pressed="true"] { color: var(--text); }
+.pill { position: absolute; z-index: 0; left: 0; width: 0; transition: transform .28s var(--ease), width .28s var(--ease); }
+.modes .pill { top: 2px; bottom: 2px; border-radius: 6px; background: var(--surface); box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+
+.tools {
+  display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px;
+  border-bottom: 1px solid var(--border); background: var(--surface);
+}
+.mt-btn {
+  display: inline-flex; align-items: center; gap: 6px; flex: none;
+  font-size: 12px; font-weight: 600; color: var(--ai); cursor: pointer;
+  padding: 4px 10px; border-radius: 7px;
+  border: 1px solid color-mix(in srgb, var(--purple) 45%, var(--border));
+  background: color-mix(in srgb, var(--purple) 9%, transparent);
+  transition: background-color .15s ease-out;
+}
+.mt-btn:hover { background: color-mix(in srgb, var(--purple) 16%, transparent); }
+.mt-btn:disabled { opacity: .6; cursor: default; }
+.mt-btn svg { width: 13px; height: 13px; }
+.mt-btn.busy svg { animation: spin 1.2s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.tool-msg { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.tool-msg.toast { animation: rise .25s var(--ease) both; color: var(--text); }
+.tools .push { margin-left: auto; flex: none; }
+.preview-bar { display: flex; align-items: center; gap: 6px; min-width: 0; animation: rise .25s var(--ease) both; }
+.preview-bar .tool-msg { color: var(--ai); }
+
+.win-body { display: grid; grid-template-columns: 128px minmax(0, 1fr) 178px; height: 372px; }
+.pane-tree { border-right: 1px solid var(--border); padding: 8px 6px; background: var(--surface-2); overflow: auto; }
+.pane-tree button {
+  display: flex; align-items: center; gap: 6px; width: 100%; text-align: left;
+  border: 0; background: transparent; color: var(--muted); cursor: pointer;
+  font-family: var(--font-mono); font-size: 12px; padding: 3px 8px; border-radius: 5px; white-space: nowrap;
+  transition: background-color .12s ease-out, color .12s ease-out;
+}
+.pane-tree button:hover { background: color-mix(in srgb, var(--text) 6%, transparent); color: var(--text); }
+.pane-tree .t-group .tw { display: inline-block; width: 10px; transition: transform .15s ease-out; }
+.pane-tree .t-group[aria-expanded="true"] .tw { transform: rotate(90deg); }
+.pane-tree .t-key { padding-left: 18px; }
+.pane-tree .t-key span { overflow: hidden; text-overflow: ellipsis; }
+.pane-tree .t-key.sel { background: color-mix(in srgb, var(--blue) 18%, transparent); color: var(--text); box-shadow: inset 2px 0 0 var(--blue); }
+.dot { width: 7px; height: 7px; border-radius: 50%; margin-left: auto; flex: none; }
+.dot.warn { background: var(--yellow); }
+.dot.miss { background: var(--orange); }
+.dot.mt { background: var(--purple); }
+
+.pane-main { padding: 12px; min-width: 0; overflow: auto; }
+.key-head { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; min-height: 24px; }
+.key-head code { font-size: 13px; color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.key-head .chip { margin-left: auto; }
+.kn { flex: none; width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid var(--border); background: var(--bg); color: var(--muted); border-radius: 6px; cursor: pointer; font-size: 14px; line-height: 1; padding: 0; }
+.kn:hover { color: var(--text); border-color: var(--faint); }
+.rows.fade { animation: rise .22s var(--ease) both; }
+
+.row {
+  display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; gap: 8px; align-items: center;
+  min-height: 38px; padding: 6px 8px 6px 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px;
+  background: var(--bg); transition: border-color .15s ease-out, box-shadow .15s ease-out, background-color .15s ease-out;
+}
+.row .lc { font-family: var(--font-mono); font-size: 11.5px; color: var(--faint); }
+.row.src .lc { color: var(--text); }
+.row .val {
+  display: block; width: 100%; min-width: 0; text-align: left; border: 0; padding: 0; background: transparent; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: text; font-size: 13px; line-height: 1.5;
+}
+.row .val.ro { cursor: default; }
+.row .val .empty { color: var(--faint); font-style: italic; }
+.row .val-in { width: 100%; min-width: 0; border: 0; outline: 0; padding: 0; background: transparent; color: var(--text); font-size: 13px; line-height: 1.5; }
+.row:hover { border-color: color-mix(in srgb, var(--faint) 60%, var(--border)); }
+.row.active { border-color: color-mix(in srgb, var(--blue) 55%, var(--border)); }
+.row.editing { border-color: var(--blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 20%, transparent); }
+.row.flag { border-color: color-mix(in srgb, var(--yellow) 70%, var(--border)); }
+.row.mt { border-color: color-mix(in srgb, var(--purple) 55%, var(--border)); }
+.row.r-approved { box-shadow: inset 3px 0 0 var(--ok); }
+.row.r-rejected { box-shadow: inset 3px 0 0 var(--orange); }
+.row.r-pending { box-shadow: inset 3px 0 0 var(--yellow); }
+.row.flash { animation: flash .9s ease-out; }
+@keyframes flash { from { background: color-mix(in srgb, var(--blue) 24%, var(--bg)); } to { background: var(--bg); } }
+.rt { display: flex; align-items: center; gap: 6px; }
+.ph { font-family: var(--font-mono); font-size: 12px; color: var(--accent-ink); background: color-mix(in srgb, var(--sky) 14%, transparent); padding: 0 3px; border-radius: 3px; }
+.ph.bad { color: var(--warn); background: var(--warn-bg); }
+.wsp { color: var(--miss); background: color-mix(in srgb, var(--orange) 16%, transparent); border-radius: 2px; }
+.caret { display: inline-block; width: 1.5px; height: 1.05em; background: var(--blue); vertical-align: -2px; margin-left: 1px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.st { width: 9px; height: 9px; border-radius: 50%; flex: none; transition: background-color .2s ease-out; }
+.st.ok { background: var(--ok); }
+.st.warn { background: var(--yellow); }
+.st.miss { border: 1.5px solid var(--faint); }
+.st.mt { background: var(--purple); }
+.st.src { background: var(--faint); }
+.st.pop { animation: pop .35s var(--ease); }
+@keyframes pop { 50% { transform: scale(1.6); } }
+.mini {
+  font-size: 11.5px; font-weight: 600; line-height: 1.4; padding: 2px 8px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  transition: background-color .15s ease-out, border-color .15s ease-out, color .15s ease-out;
+}
+.mini:hover { border-color: var(--faint); }
+.mini:disabled { opacity: .45; cursor: default; }
+.mini.fix { color: var(--warn); border-color: color-mix(in srgb, var(--yellow) 60%, var(--border)); }
+.mini.ok[aria-pressed="true"] { color: var(--ok); background: var(--ok-bg); border-color: color-mix(in srgb, var(--ok) 50%, var(--border)); }
+.mini.no[aria-pressed="true"] { color: var(--miss); background: color-mix(in srgb, var(--orange) 14%, transparent); border-color: color-mix(in srgb, var(--orange) 50%, var(--border)); }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; padding: 2px 8px; border-radius: 999px; white-space: nowrap; color: var(--muted); background: var(--surface-2); }
+.chip.ok { color: var(--ok); background: var(--ok-bg); }
+.chip.warn { color: var(--warn); background: var(--warn-bg); }
+.chip.miss { color: var(--miss); background: color-mix(in srgb, var(--orange) 14%, transparent); }
+.chip.ai { color: var(--ai); background: color-mix(in srgb, var(--purple) 14%, transparent); }
+.chip.swap { animation: pop .3s var(--ease); }
+
+.pane-insp { border-left: 1px solid var(--border); padding: 10px; background: var(--surface-2); overflow: auto; display: flex; flex-direction: column; gap: 12px; }
+.insp-h { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); margin-bottom: 6px; font-weight: 600; }
+.insp-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12px; color: var(--muted); margin-bottom: 6px; line-height: 1.45; overflow-wrap: anywhere; }
+.insp-card:last-child { margin-bottom: 0; }
+.insp-card strong { color: var(--text); font-weight: 600; display: block; margin-bottom: 2px; }
+.insp-card.warn { box-shadow: inset 3px 0 0 var(--yellow); }
+.insp-card.miss { box-shadow: inset 3px 0 0 var(--orange); }
+.insp-card.ok { box-shadow: inset 3px 0 0 var(--ok); }
+.insp-card .acts { display: flex; gap: 6px; margin-top: 6px; }
+.prog { display: grid; grid-template-columns: 22px minmax(0, 1fr) 30px; gap: 8px; align-items: center; font-size: 11.5px; color: var(--muted); margin-bottom: 6px; }
+.prog .lc { font-family: var(--font-mono); font-size: 11px; }
+.prog .pct { text-align: right; font-family: var(--font-mono); font-size: 11px; }
+.meter { height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--blue); transition: width .5s var(--ease), background-color .3s ease-out; }
+.meter i.full { background: var(--ok); }
+.hist { font-size: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); color: var(--muted); overflow-wrap: anywhere; }
+.hist:last-child { border-bottom: 0; }
+.hist b { color: var(--text); font-weight: 600; }
+.hist .del { text-decoration: line-through; color: var(--faint); }
+.hist .when { display: block; font-size: 11px; color: var(--faint); }
+.hist.new { animation: rise .3s var(--ease) both; }
+
+.win-status { display: flex; gap: 14px; align-items: center; height: 28px; padding: 0 14px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--faint); background: var(--surface-2); white-space: nowrap; overflow: hidden; }
+.win-status .sp { margin-left: auto; }
+.win-status .dirty { color: var(--warn); }
+.demo-hint { margin: 12px 2px 0; font-size: 13px; color: var(--faint); display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.demo-hint .try { color: var(--muted); }
+.demo-hint .try::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--blue); margin-right: 8px; vertical-align: 1px; animation: pulse 2s ease-out infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--blue) 55%, transparent); } 70%, 100% { box-shadow: 0 0 0 7px transparent; } }
+
+@media (max-width: 1140px) { .win-body { grid-template-columns: 136px minmax(0, 1fr); } .pane-insp { display: none; } }
+@media (max-width: 1000px) { .win-body { grid-template-columns: 150px minmax(0, 1fr) 196px; } .pane-insp { display: flex; } }
+@media (max-width: 760px) { .win-body { grid-template-columns: 136px minmax(0, 1fr); } .pane-insp { display: none; } }
+@media (max-width: 560px) {
+  .win-body { grid-template-columns: minmax(0, 1fr); height: 320px; }
+  .pane-tree { display: none; }
+  .win-title { display: none; }
+  .tools .kbd-hint, .demo-hint .keys { display: none; }
+  .win-status .hide-sm { display: none; }
+}
+
+/* ---------- Sections ---------- */
+section { padding: 96px 0; }
+section.alt { background: var(--bg-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+@media (max-width: 640px) { section { padding: 64px 0; } }
+.sec-head { max-width: 720px; margin-bottom: 44px; }
+.kicker { display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 12.5px; color: var(--accent-ink); margin-bottom: 14px; }
+.kicker::before { content: ""; width: 18px; height: 3px; border-radius: 2px; background: currentColor; }
+.sec-head h2 { font-size: clamp(30px, 3.6vw, 44px); font-weight: 700; margin-bottom: 14px; }
+.sec-head p { color: var(--muted); font-size: 17.5px; margin: 0; }
+
+/* Frameworks strip */
+.frameworks { padding: 28px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg-alt); }
+.fw-inner { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+.fw-label { font-size: 13.5px; color: var(--muted); max-width: 230px; line-height: 1.4; margin: 0; }
+.fw-list { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.fw-list li { font-family: var(--font-mono); font-size: 13px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); transition: border-color .15s ease-out, transform .15s ease-out; }
+.fw-list li:hover { border-color: var(--blue); transform: translateY(-1px); }
+
+/* Mode tabs */
+.tabs { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); margin-bottom: 28px; position: relative; }
+.tab {
+  position: relative; z-index: 1;
+  border: 0; background: transparent; color: var(--muted); font-weight: 600; font-size: 14.5px;
+  padding: 8px 18px; border-radius: 8px; cursor: pointer; transition: color .2s ease-out;
+}
+.tab:hover { color: var(--text); }
+.tab[aria-selected="true"] { color: var(--btn-text); }
+.tabs .pill { top: 4px; bottom: 4px; border-radius: 8px; background: var(--btn-bg); }
+.mode-panel { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 40px; align-items: start; }
+.mode-panel[hidden] { display: none; }
+.mode-panel.enter .mode-copy { animation: rise .35s var(--ease) both; }
+.mode-panel.enter .shot { animation: rise .45s var(--ease) .05s both; }
+.mode-copy h3 { font-size: 26px; margin-bottom: 12px; }
+.mode-copy p { color: var(--muted); margin: 0 0 16px; }
+.mode-copy ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.mode-copy li { padding-left: 22px; position: relative; color: var(--text); font-size: 15px; }
+.mode-copy li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 9px; height: 9px; border-radius: 2px; background: var(--blue); }
+.shot { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); background: var(--surface); }
+.shot img { width: 100%; height: auto; }
+.audit-log { padding: 8px; font-size: 13.5px; }
+.audit-log table { width: 100%; border-collapse: collapse; }
+.audit-log th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); font-weight: 600; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.audit-log td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.audit-log tr:last-child td { border-bottom: 0; }
+.audit-log td code { color: var(--text); }
+.audit-log .who { color: var(--muted); white-space: nowrap; }
+.audit-log .del { color: var(--faint); text-decoration: line-through; }
+@media (max-width: 900px) { .mode-panel { grid-template-columns: 1fr; gap: 24px; } }
+@media (max-width: 560px) { .audit-log .hide-sm { display: none; } .tab { padding: 8px 14px; } }
+
+/* Feature bento */
+.bento { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 26px; display: flex; flex-direction: column; gap: 12px; min-width: 0; transition: border-color .2s ease-out; }
+.card:hover { border-color: color-mix(in srgb, var(--faint) 70%, var(--border)); }
+.card h3 { font-size: 21px; font-weight: 700; }
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+.card .tag { align-self: flex-start; }
+.span-4 { grid-column: span 4; }
+.span-3 { grid-column: span 3; }
+.span-2 { grid-column: span 2; }
+@media (max-width: 960px) { .span-4, .span-3, .span-2 { grid-column: span 6; } }
+
+.providers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: auto; }
+.provider { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--bg); font-size: 14px; font-weight: 600; transition: border-color .15s ease-out; }
+.provider:hover { border-color: var(--blue); }
+.provider small { font-weight: 400; color: var(--faint); font-size: 12px; }
+.provider.ai { border-color: color-mix(in srgb, var(--purple) 45%, var(--border)); }
+.provider.ai:hover { border-color: var(--purple); }
+.provider.ai small { color: var(--ai); }
+@media (max-width: 480px) { .providers { grid-template-columns: 1fr; } }
+
+.diff { font-family: var(--font-mono); font-size: 13px; border: 1px solid var(--border); border-radius: 9px; overflow: hidden; margin-top: auto; }
+.diff div { padding: 7px 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.diff .src { background: var(--bg); color: var(--muted); }
+.diff .out { background: color-mix(in srgb, var(--ok) 10%, var(--bg)); color: var(--text); border-top: 1px solid var(--border); }
+.diff .ph { animation: glow 2.6s ease-in-out infinite; }
+@keyframes glow { 50% { background: color-mix(in srgb, var(--sky) 30%, transparent); } }
+
+.rules { list-style: none; margin: auto 0 0; padding: 0; display: grid; gap: 6px; font-size: 14px; }
+.rules li { display: flex; align-items: center; gap: 10px; }
+.rules li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); flex: none; }
+.rules li:nth-child(odd)::before { background: var(--orange); }
+
+.tm { margin-top: auto; display: grid; gap: 6px; font-size: 13.5px; }
+.tm-row { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); position: relative; overflow: hidden; }
+.tm-row span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; }
+.tm-row b { font-family: var(--font-mono); font-weight: 500; font-size: 12px; color: var(--accent-ink); text-align: right; position: relative; }
+.tm-row::before { content: ""; position: absolute; inset: 0; width: var(--w); background: color-mix(in srgb, var(--sky) 10%, transparent); transform-origin: left; }
+.js .tm-row::before { transform: scaleX(0); transition: transform .9s var(--ease) .25s; }
+.js .in .tm-row::before { transform: scaleX(1); }
+
+.kbd-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; align-items: center; font-size: 13.5px; color: var(--muted); }
+kbd { display: inline-block; padding: 1px 6px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; background: var(--bg); color: var(--text); font-size: 11.5px; line-height: 1.5; }
+
+/* Format explorer */
+.fx { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 24px; align-items: start; }
+.fx-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.fmt {
+  display: flex; flex-direction: column; gap: 2px; text-align: left; cursor: pointer;
+  padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text);
+  transition: border-color .15s ease-out, background-color .15s ease-out, transform .15s ease-out;
+}
+.fmt:hover { border-color: color-mix(in srgb, var(--blue) 50%, var(--border)); transform: translateY(-1px); text-decoration: none; }
+.fmt[aria-pressed="true"] { border-color: var(--blue); background: color-mix(in srgb, var(--blue) 9%, var(--surface)); box-shadow: inset 0 0 0 1px var(--blue); }
+.fmt .ext { font-family: var(--font-mono); font-size: 12.5px; color: var(--accent-ink); }
+.fmt .name { font-weight: 600; font-size: 14.5px; }
+.fmt .use { font-size: 12.5px; color: var(--muted); }
+.fmt.plugin { border-style: dashed; background: transparent; }
+.fmt.plugin .ext { color: var(--ai); }
+.fx-panel { position: sticky; top: 84px; background: var(--code-bg); color: var(--code-text); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); }
+.fx-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.fx-file { font-family: var(--font-mono); font-size: 12.5px; color: #A5ACBA; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.fx-style { margin-left: auto; flex: none; font-family: var(--font-mono); font-size: 11.5px; color: #3CC9FF; background: rgba(60,201,255,.12); padding: 2px 8px; border-radius: 999px; }
+.fx-code { margin: 0; padding: 18px 20px; min-height: 196px; overflow-x: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; }
+.fx-code.swap { animation: rise .25s var(--ease) both; }
+.fx-code .tg { color: #6DB8F7; }
+.fx-code .cm { color: #7C8496; }
+.fx-code .ph { color: #3CC9FF; background: rgba(60,201,255,.14); }
+.fx-foot { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.08); font-size: 13px; color: #A5ACBA; }
+.formats-note { margin-top: 18px; font-size: 14px; color: var(--muted); }
+@media (max-width: 960px) {
+  .fx { grid-template-columns: 1fr; }
+  .fx-panel { position: static; order: -1; }
+}
+@media (max-width: 560px) { .fx-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* CLI + plugins */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: stretch; }
+@media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+.term { background: var(--code-bg); color: var(--code-text); border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.term-bar { display: flex; align-items: center; gap: 7px; padding: 8px 10px 8px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #3A4153; }
+.term-bar span { margin-left: 8px; font-family: var(--font-mono); font-size: 12px; color: #7C8496; }
+.term-bar button { margin-left: auto; border: 1px solid rgba(255,255,255,.12); background: transparent; color: #A5ACBA; font-size: 12px; padding: 3px 10px; border-radius: 6px; cursor: pointer; }
+.term-bar button:hover { color: #fff; border-color: rgba(255,255,255,.3); }
+.term pre { margin: 0; padding: 18px 20px; overflow-x: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; }
+.term .p { color: #3CC9FF; user-select: none; }
+.term .c { color: #7C8496; }
+.term .y { color: #FFC93C; }
+.term .g { color: #5BD69A; }
+.term .caret { background: #3CC9FF; }
+.plugin-card h3 { font-size: 24px; }
+.plugin-card ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 15px; display: grid; gap: 6px; }
+.plugin-card .links { display: flex; flex-wrap: wrap; gap: 16px; margin-top: auto; font-size: 14.5px; font-weight: 600; }
+
+/* Platforms */
+.preview-note { padding: 14px 18px; border: 1px solid color-mix(in srgb, var(--yellow) 55%, var(--border)); background: var(--warn-bg); border-radius: 12px; margin-bottom: 20px; font-size: 14.5px; color: var(--text); }
+.preview-note strong { color: var(--warn); font-weight: 600; }
+.platforms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 900px) { .platforms { grid-template-columns: 1fr; } }
+.platform { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; background: var(--surface); display: flex; flex-direction: column; gap: 10px; transition: border-color .2s ease-out; }
+.platform:hover { border-color: color-mix(in srgb, var(--faint) 70%, var(--border)); }
+.platform h3 { font-size: 20px; }
+.platform p { margin: 0; color: var(--muted); font-size: 15px; }
+.platform .chip { align-self: flex-start; }
+.platform a { margin-top: auto; font-weight: 600; font-size: 14.5px; }
+
+/* Roadmap timeline */
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); position: relative; }
+.timeline::before { content: ""; position: absolute; left: 0; right: 0; top: 13px; height: 2px; background: var(--border); }
+.timeline::after { content: ""; position: absolute; left: 0; top: 13px; height: 2px; width: 12.5%; background: linear-gradient(90deg, var(--deep-blue), var(--blue)); transform-origin: left; }
+.js .timeline::after { transform: scaleX(0); transition: transform 1s var(--ease) .3s; }
+.js .timeline.in::after { transform: scaleX(1); }
+.timeline > li { position: relative; padding: 40px 20px 0 0; }
+.timeline > li::before { content: ""; position: absolute; top: 6px; left: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--bg-alt); border: 3px solid var(--c, var(--blue)); z-index: 1; }
+.timeline > li:nth-child(1) { --c: var(--blue); }
+.timeline > li:nth-child(1)::before { background: var(--blue); animation: pulse 2.4s ease-out infinite; }
+.timeline > li:nth-child(2) { --c: var(--sky); }
+.timeline > li:nth-child(3) { --c: var(--yellow); }
+.timeline > li:nth-child(4) { --c: var(--orange); }
+.timeline .ver { font-family: var(--font-display); font-size: 28px; font-weight: 800; line-height: 1; }
+.timeline .when { display: block; font-family: var(--font-mono); font-size: 12px; color: var(--faint); margin-top: 6px; }
+.timeline h3 { font-family: var(--font-body); font-size: 15px; letter-spacing: 0; font-weight: 600; margin: 8px 0 10px; color: var(--text); }
+.timeline ul { margin: 0; padding: 0 0 0 16px; color: var(--muted); font-size: 14.5px; display: grid; gap: 4px; }
+@media (max-width: 900px) {
+  .timeline { grid-template-columns: 1fr; gap: 28px; padding-left: 28px; }
+  .timeline::before { left: 7px; right: auto; top: 0; bottom: 0; width: 2px; height: auto; }
+  .timeline::after { display: none; }
+  .timeline > li { padding: 0; }
+  .timeline > li::before { left: -28px; top: 4px; }
+}
+
+/* Final CTA */
+.final-inner { border: 1px solid var(--border); border-radius: 22px; background: var(--surface); overflow: hidden; }
+.final-body { padding: 56px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 36px; align-items: center; }
+.final-body img { width: 96px; height: 96px; transition: transform .4s var(--ease); }
+.final-inner:hover .final-body img { transform: rotate(-6deg) scale(1.04); }
+.final h2 { font-size: clamp(28px, 3.4vw, 40px); margin-bottom: 8px; }
+.final p { margin: 0; color: var(--muted); }
+@media (max-width: 860px) {
+  .final-body { grid-template-columns: 1fr; padding: 32px 24px; gap: 20px; }
+  .final-body img { width: 64px; height: 64px; }
+}
+
+/* Footer */
+footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
+.foot { display: flex; flex-wrap: wrap; gap: 20px 32px; align-items: center; }
+.foot .brand { font-size: 16px; }
+.foot .brand img { width: 24px; height: 24px; }
+.foot nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.foot nav a { color: var(--muted); }
+.foot .copy { margin-left: auto; }
+@media (max-width: 760px) { .foot .copy { margin-left: 0; width: 100%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .js .reveal { opacity: 1; transform: none; }
+  .js .tm-row::before, .js .timeline::after { transform: none; }
+}
 </style>
 </head>
-<body class="bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased transition-colors duration-300">
-<div id="app">
+<body>
 
-<!-- Navigation -->
-<header class="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-gray-800 backdrop-blur-xl bg-white/80 dark:bg-gray-950/80 transition-all duration-300" :class="{'shadow-sm': scrolled}">
-  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center">
-    <a href="#" class="flex items-center gap-3 group">
-      <img src="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png" alt="Toucan logo" class="w-8 h-8 transition-transform group-hover:scale-110" width="32" height="32">
-      <span class="text-lg font-bold text-gray-900 dark:text-white">Toucan</span>
+<a class="sr-only skip" href="#main">Skip to content</a>
+
+<header class="site-header" id="site-header">
+  <div class="spectrum" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="Toucan home">
+      <img src="assets/logo.png" alt="" width="30" height="30">
+      Toucan
     </a>
-    <nav class="hidden md:flex items-center gap-8 ml-12 text-sm">
-      <a href="#features" class="text-gray-600 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-colors">Features</a>
-      <a href="#formats" class="text-gray-600 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-colors">Formats</a>
-      <a href="#providers" class="text-gray-600 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-colors">Providers</a>
-      <a href="#roadmap" class="text-gray-600 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400 transition-colors">Roadmap</a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#modes">Modes</a>
+      <a href="#features">Features</a>
+      <a href="#formats">Formats</a>
+      <a href="#cli">CLI &amp; plugins</a>
+      <a href="#platforms">Platforms</a>
+      <a href="#roadmap">Roadmap</a>
     </nav>
-    <div class="ml-auto flex items-center gap-3">
-      <!-- Theme toggle -->
-      <button @click="toggleTheme" class="theme-toggle p-2 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" :aria-label="dark ? 'Switch to light mode' : 'Switch to dark mode'">
-        <svg v-if="!dark" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
-        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+    <div class="nav-actions">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle color theme">
+        <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
       </button>
-      <a href="https://github.com/rasyidf/Toucan" class="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors" aria-label="GitHub repository">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      <a class="icon-btn" href="https://github.com/rasyidf/Toucan" aria-label="Toucan on GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2.02c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
       </a>
-      <a href="https://github.com/rasyidf/Toucan/releases" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium rounded-lg transition-all duration-200 btn-shine">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-        Download
-      </a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/rasyidf/Toucan/releases">Download</a>
     </div>
-    <!-- Mobile menu -->
-    <button @click="mobileMenu = !mobileMenu" class="ml-3 md:hidden text-gray-500 hover:text-gray-900 dark:hover:text-white" aria-label="Toggle menu">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-    </button>
-  </div>
-  <!-- Mobile nav -->
-  <div v-if="mobileMenu" class="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl px-6 py-4 space-y-3">
-    <a href="#features" @click="mobileMenu=false" class="block text-gray-600 dark:text-gray-400 hover:text-brand-600">Features</a>
-    <a href="#formats" @click="mobileMenu=false" class="block text-gray-600 dark:text-gray-400 hover:text-brand-600">Formats</a>
-    <a href="#providers" @click="mobileMenu=false" class="block text-gray-600 dark:text-gray-400 hover:text-brand-600">Providers</a>
-    <a href="#roadmap" @click="mobileMenu=false" class="block text-gray-600 dark:text-gray-400 hover:text-brand-600">Roadmap</a>
-    <a href="https://github.com/rasyidf/Toucan/releases" class="inline-flex items-center gap-2 px-4 py-2 bg-brand-500 text-white text-sm font-medium rounded-lg">Download</a>
   </div>
 </header>
 
-<!-- Hero Section -->
-<section class="relative pt-32 pb-20 md:pt-44 md:pb-28 overflow-hidden">
-  <!-- Subtle dot pattern -->
-  <div class="absolute inset-0 dot-pattern text-brand-100 dark:text-brand-900/30 opacity-50"></div>
+<main id="main">
 
-  <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
-    <div class="animate-fade-up">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-800 rounded-full text-sm text-brand-700 dark:text-brand-300 mb-8">
-        <span class="w-2 h-2 bg-brand-500 rounded-full animate-pulse"></span>
-        Free &amp; Open Source · MIT License
+<!-- Hero -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div class="intro">
+      <a class="eyebrow" href="https://github.com/rasyidf/Toucan/releases/tag/v0.18.0"><span class="ver">v0.18.0</span><span class="pre">preview</span> · open source · MIT</a>
+      <h1>Teach your app <span class="hl">every language.</span></h1>
+      <div class="tagline-i18n" aria-hidden="true">
+        <span class="lang" id="tl-lang">id-ID</span>
+        <span class="text" id="tl-text">Ajari aplikasimu semua bahasa.</span>
       </div>
-      <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-gray-900 dark:text-white">
-        The Universal<br>
-        <span class="text-brand-600 dark:text-brand-400">i18n Resource Editor</span>
-      </h1>
-      <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-        Manage translations across 12+ file formats with AI-powered pre-translation. 
-        One editor for JSON, YAML, PO, RESX, XLIFF, ARB, and more.
-      </p>
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="https://github.com/rasyidf/Toucan/releases" class="group inline-flex items-center gap-3 px-8 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:scale-[1.02] btn-shine">
-          <svg class="w-5 h-5 transition-transform group-hover:translate-y-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-          Download for Windows
+      <p class="lede">Toucan is a desktop editor for translation files. Open a locale folder, edit every language side by side in 14 formats, and catch broken placeholders before they reach production.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/rasyidf/Toucan/releases">
+          <svg class="dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          Download preview
         </a>
-        <a href="https://github.com/rasyidf/Toucan" class="inline-flex items-center gap-3 px-8 py-3.5 border border-gray-300 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-600 text-gray-900 dark:text-white font-medium rounded-xl transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-900">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          View on GitHub
-        </a>
+        <a class="btn btn-ghost" href="https://github.com/rasyidf/Toucan">View source</a>
+      </div>
+      <p class="hero-note">macOS and Linux: v0.18.0, the first release there. Windows 10+: v0.17.3, with 0.18.0 coming. Expect rough edges before 1.0.</p>
+    </div>
+
+    <!-- Interactive demo: a small model of the editor, driven by the data in the script below. -->
+    <div class="demo">
+      <div class="window" id="demo" role="region" aria-label="Interactive Toucan editor demo">
+        <div class="win-bar">
+          <img src="assets/logo.png" alt="" width="18" height="18">
+          <span class="win-title">shop-app · locales</span>
+          <div class="modes" role="group" aria-label="Editor mode">
+            <span class="pill" aria-hidden="true"></span>
+            <button type="button" data-mode="editor" aria-pressed="true">Editor</button>
+            <button type="button" data-mode="review" aria-pressed="false">Review</button>
+            <button type="button" data-mode="audit" aria-pressed="false">Audit</button>
+          </div>
+        </div>
+        <div class="tools" id="d-tools"></div>
+        <div class="win-body">
+          <nav class="pane-tree" id="d-tree" aria-label="Translation keys"></nav>
+          <div class="pane-main">
+            <div class="key-head" id="d-head"></div>
+            <div class="rows" id="d-rows"></div>
+          </div>
+          <aside class="pane-insp" id="d-insp" aria-label="Inspector"></aside>
+        </div>
+        <div class="win-status" id="d-status"></div>
+      </div>
+      <p class="demo-hint"><span class="try">Try it: click a row to edit, fix a warning, or run Pre-translate.</span><span class="keys"><kbd>J</kbd> <kbd>K</kbd> keys · <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> modes</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- Frameworks -->
+<div class="frameworks">
+  <div class="wrap fw-inner">
+    <p class="fw-label">Drop a folder in. Toucan recognises the layout and groups the files for you.</p>
+    <ul class="fw-list" aria-label="Detected frameworks">
+      <li>i18next</li><li>Android</li><li>Flutter</li><li>.NET</li><li>iOS</li><li>Rails</li><li>Gettext</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Modes -->
+<section id="modes">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">three modes</div>
+      <h2>Translate, review, and audit in the same window.</h2>
+      <p>The layout follows VS Code: a key tree on the left, the translation pane in the middle, an inspector on the right. Switch modes without opening another tool.</p>
+    </div>
+
+    <div class="tabs reveal" role="tablist" aria-label="Editor modes">
+      <span class="pill" aria-hidden="true"></span>
+      <button class="tab" role="tab" id="tab-editor" aria-controls="panel-editor" aria-selected="true">Editor</button>
+      <button class="tab" role="tab" id="tab-review" aria-controls="panel-review" aria-selected="false" tabindex="-1">Review</button>
+      <button class="tab" role="tab" id="tab-audit" aria-controls="panel-audit" aria-selected="false" tabindex="-1">Audit</button>
+    </div>
+
+    <div class="mode-panel reveal" role="tabpanel" id="panel-editor" aria-labelledby="tab-editor">
+      <div class="mode-copy">
+        <h3>Editor</h3>
+        <p>Every language for a key on one screen, with suggestions from translation memory as you type.</p>
+        <ul>
+          <li>Tree or flat list sidebar</li>
+          <li>Paginated or infinite scroll</li>
+          <li>Inspector with stats, suggestions, and key details</li>
+          <li>Zen mode hides everything but the card</li>
+        </ul>
+      </div>
+      <div class="shot">
+        <img src="https://github.com/user-attachments/assets/6c60208e-640a-4fbc-b280-63f5fc856ece" width="878" height="668" loading="lazy" alt="Toucan editor with the tree sidebar, translation grid, and inspector panel">
       </div>
     </div>
 
-    <!-- Stats -->
-    <div class="mt-16 grid grid-cols-3 gap-6 max-w-2xl mx-auto animate-fade-up" style="animation-delay:0.2s">
-      <div class="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-        <div class="text-2xl md:text-3xl font-bold text-brand-600 dark:text-brand-400">12+</div>
-        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">File Formats</div>
+    <div class="mode-panel" role="tabpanel" id="panel-review" aria-labelledby="tab-review" hidden>
+      <div class="mode-copy">
+        <h3>Review</h3>
+        <p>Filters to unapproved items. Approve or reject each one while validation warnings sit next to the text.</p>
+        <ul>
+          <li>Only what still needs a decision</li>
+          <li>Approve or reject one item at a time</li>
+          <li>Warnings shown inline, per language</li>
+        </ul>
       </div>
-      <div class="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-        <div class="text-2xl md:text-3xl font-bold text-brand-600 dark:text-brand-400">10k+</div>
-        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Keys Supported</div>
+      <div class="shot">
+        <img src="https://github.com/user-attachments/assets/bbd9b2ba-99e6-4500-a4e4-d92d602f33ff" width="904" height="696" loading="lazy" alt="Toucan review mode with validation warnings">
       </div>
-      <div class="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-        <div class="text-2xl md:text-3xl font-bold text-brand-600 dark:text-brand-400">Free</div>
-        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Open Source · MIT</div>
+    </div>
+
+    <div class="mode-panel" role="tabpanel" id="panel-audit" aria-labelledby="tab-audit" hidden>
+      <div class="mode-copy">
+        <h3>Audit</h3>
+        <p>Read-only. See approval state and the change history of each key without the risk of editing anything.</p>
+        <ul>
+          <li>No accidental edits</li>
+          <li>Approval state per language</li>
+          <li>Who changed what, and when</li>
+        </ul>
+      </div>
+      <div class="shot audit-log" role="img" aria-label="Example change history for checkout.items_count">
+        <table aria-hidden="true">
+          <thead><tr><th>Key</th><th>Lang</th><th>Change</th><th class="hide-sm">State</th></tr></thead>
+          <tbody>
+            <tr><td><code>checkout.items_count</code></td><td class="who">fr-FR</td><td><span class="del">Vous avez {count} articles</span><br>Vous avez {{count}} articles</td><td class="hide-sm"><span class="chip ok">Approved</span></td></tr>
+            <tr><td><code>checkout.items_count</code></td><td class="who">id-ID</td><td>Ada {{count}} barang</td><td class="hide-sm"><span class="chip warn">In review</span></td></tr>
+            <tr><td><code>checkout.pay_now</code></td><td class="who">de-DE</td><td><span class="del">Jetzt zahlen</span><br>Jetzt bezahlen</td><td class="hide-sm"><span class="chip ok">Approved</span></td></tr>
+            <tr><td><code>errors.network</code></td><td class="who">ja-JP</td><td>ネットワークに接続できません</td><td class="hide-sm"><span class="chip ai">Machine</span></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Features Section -->
-<section id="features" class="py-24 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
-  <div class="max-w-7xl mx-auto px-6">
-    <div class="text-center mb-16 reveal">
-      <span class="text-brand-600 dark:text-brand-400 text-sm font-semibold uppercase tracking-wider">Features</span>
-      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-3">Everything you need to manage translations</h2>
-      <p class="text-gray-600 dark:text-gray-400 mt-4 max-w-xl mx-auto">Built for teams shipping multilingual software — from indie apps to enterprise platforms.</p>
+<!-- Features -->
+<section id="features" class="alt">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">features</div>
+      <h2>Treat translations like source code.</h2>
+      <p>Toucan checks your strings the way a compiler checks code, and it never writes a machine translation until you say so.</p>
     </div>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="(feature, i) in features" :key="i" class="card-hover bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-lg hover:shadow-brand-500/5 reveal" :style="{animationDelay: (i * 0.08) + 's'}">
-        <div class="w-10 h-10 bg-brand-50 dark:bg-brand-900/40 border border-brand-200 dark:border-brand-800 rounded-lg flex items-center justify-center mb-4">
-          <i :data-lucide="feature.icon" class="w-5 h-5 text-brand-600 dark:text-brand-400"></i>
+
+    <div class="bento">
+      <article class="card span-4 reveal">
+        <span class="chip ai tag">machine translation</span>
+        <h3>Pre-translate, preview, then commit</h3>
+        <p>Translate one key, a namespace, or a whole language. Results land in a preview first, so nothing is written until you accept it. Formality settings are respected.</p>
+        <div class="providers">
+          <div class="provider">DeepL <small>formality</small></div>
+          <div class="provider">Google Translate <small>100+ langs</small></div>
+          <div class="provider">Microsoft Translator <small>Azure</small></div>
+          <div class="provider ai">OpenAI <small>or compatible API</small></div>
         </div>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{feature.title}}</h3>
-        <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{{feature.desc}}</p>
+      </article>
+
+      <article class="card span-2 reveal" style="--d:80ms">
+        <span class="chip ok tag">placeholders</span>
+        <h3>Placeholders survive</h3>
+        <p>Toucan recognises <code>{{var}}</code>, <code>{0}</code>, <code>%s</code>, and <code>:param</code> and keeps them intact.</p>
+        <div class="diff" aria-label="Example: source and translated string keep the same placeholders">
+          <div class="src">Hi <span class="ph">{{name}}</span>, <span class="ph">%s</span> left</div>
+          <div class="out">Hai <span class="ph">{{name}}</span>, sisa <span class="ph">%s</span></div>
+        </div>
+      </article>
+
+      <article class="card span-3 reveal">
+        <span class="chip warn tag">validation</span>
+        <h3>Six rules, on save and on demand</h3>
+        <p>Turn each rule on or off and set its severity per project.</p>
+        <ul class="rules">
+          <li>Missing translations</li>
+          <li>Placeholder mismatch</li>
+          <li>Duplicate keys</li>
+          <li>Untranslated (same as source)</li>
+          <li>Empty values</li>
+          <li>Whitespace mismatch</li>
+        </ul>
+      </article>
+
+      <article class="card span-3 reveal" style="--d:80ms">
+        <span class="chip ok tag">translation memory</span>
+        <h3>Reuse what you already translated</h3>
+        <p>A trigram fuzzy matcher suggests earlier translations from every project, ranked by similarity.</p>
+        <div class="tm" aria-label="Example memory matches">
+          <div class="tm-row" style="--w:92%"><span>Ada {{count}} barang di keranjang</span><b>92%</b></div>
+          <div class="tm-row" style="--w:71%"><span>Kamu punya {{count}} pesan</span><b>71%</b></div>
+        </div>
+      </article>
+
+      <article class="card span-2 reveal">
+        <span class="chip ok tag">source scanning</span>
+        <h3>Find unused keys</h3>
+        <p>Scans <code>.tsx</code>, <code>.vue</code>, <code>.svelte</code>, <code>.py</code> and more for <code>t('key')</code> calls. Double-click a key to open its source file.</p>
+      </article>
+
+      <article class="card span-2 reveal" style="--d:60ms">
+        <span class="chip ok tag">plurals</span>
+        <h3>Plurals and arrays</h3>
+        <p>i18next <code>_one</code> / <code>_other</code> suffixes, ICU plural forms, JSON array values, and gender forms.</p>
+      </article>
+
+      <article class="card span-2 reveal" style="--d:120ms">
+        <span class="chip ok tag">keyboard</span>
+        <h3>Built for the keyboard</h3>
+        <p>Configurable shortcuts, and a Zen mode that leaves one card on screen.</p>
+        <div class="kbd-row"><kbd>J</kbd><kbd>K</kbd> next / prev <kbd>Esc</kbd> exit zen</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Formats -->
+<section id="formats">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">14 formats</div>
+      <h2>One key, every format.</h2>
+      <p>Pick a format to see how <code>checkout.items_count</code> is stored there. Toucan reads and writes each one, placeholder style included.</p>
+    </div>
+    <div class="fx">
+      <div class="fx-tiles reveal" id="fx-tiles">
+        <button type="button" class="fmt" data-fmt="json" aria-pressed="true"><span class="ext">.json</span><span class="name">JSON</span><span class="use">i18next, React, Vue</span></button>
+        <button type="button" class="fmt" data-fmt="yaml" aria-pressed="false"><span class="ext">.yml</span><span class="name">YAML</span><span class="use">Rails</span></button>
+        <button type="button" class="fmt" data-fmt="po" aria-pressed="false"><span class="ext">.po</span><span class="name">Gettext PO</span><span class="use">WordPress, PHP</span></button>
+        <button type="button" class="fmt" data-fmt="resx" aria-pressed="false"><span class="ext">.resx</span><span class="name">RESX</span><span class="use">.NET, WPF, Blazor</span></button>
+        <button type="button" class="fmt" data-fmt="android" aria-pressed="false"><span class="ext">strings.xml</span><span class="name">Android XML</span><span class="use">Android</span></button>
+        <button type="button" class="fmt" data-fmt="ios" aria-pressed="false"><span class="ext">.strings</span><span class="name">iOS strings</span><span class="use">iOS, macOS</span></button>
+        <button type="button" class="fmt" data-fmt="xliff" aria-pressed="false"><span class="ext">.xlf</span><span class="name">XLIFF</span><span class="use">CAT tools</span></button>
+        <button type="button" class="fmt" data-fmt="arb" aria-pressed="false"><span class="ext">.arb</span><span class="name">ARB</span><span class="use">Flutter</span></button>
+        <button type="button" class="fmt" data-fmt="csv" aria-pressed="false"><span class="ext">.csv</span><span class="name">CSV</span><span class="use">Spreadsheets</span></button>
+        <button type="button" class="fmt" data-fmt="xlsx" aria-pressed="false"><span class="ext">.xlsx</span><span class="name">Excel</span><span class="use">Translator workbooks</span></button>
+        <button type="button" class="fmt" data-fmt="toml" aria-pressed="false"><span class="ext">.toml</span><span class="name">TOML</span><span class="use">Rust, Hugo</span></button>
+        <button type="button" class="fmt" data-fmt="ini" aria-pressed="false"><span class="ext">.ini</span><span class="name">INI</span><span class="use">Desktop apps</span></button>
+        <button type="button" class="fmt" data-fmt="properties" aria-pressed="false"><span class="ext">.properties</span><span class="name">Java properties</span><span class="use">Java, Spring</span></button>
+        <button type="button" class="fmt" data-fmt="php" aria-pressed="false"><span class="ext">lang/*.php</span><span class="name">Laravel PHP</span><span class="use">Laravel</span></button>
+        <a class="fmt plugin" href="https://github.com/rasyidf/Toucan/blob/main/docs/plugins.md"><span class="ext">your format</span><span class="name">Write a plugin</span><span class="use">Plugin guide →</span></a>
+      </div>
+      <div class="fx-panel reveal" style="--d:80ms" aria-live="polite">
+        <div class="fx-bar"><span class="fx-file" id="fx-file">locales/en-US/checkout.json</span><span class="fx-style" id="fx-style">{{count}}</span></div>
+<pre class="fx-code" id="fx-code">{
+  "checkout": {
+    "items_count": "You have <span class="ph">{{count}}</span> items"
+  }
+}</pre>
+        <div class="fx-foot" id="fx-foot">i18next interpolation, nested keys.</div>
+      </div>
+    </div>
+    <p class="formats-note">Coming from BabelEdit? Toucan imports <code>.babel</code> projects. A few formats lose detail on save today (PO plurals, ARB metadata, XLIFF source text); see the <a href="https://github.com/rasyidf/Toucan/blob/main/docs/known-bugs.md">known issues</a>.</p>
+  </div>
+</section>
+
+<!-- CLI + plugins -->
+<section id="cli" class="alt">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">cli &amp; plugins</div>
+      <h2>Same engine in your terminal and your CI.</h2>
+      <p>The CLI shares its format and validation code with the app. <code>toucan check</code> exits with code 1 on errors, so a broken placeholder fails the build.</p>
+    </div>
+    <div class="split">
+      <div class="term reveal" id="term">
+        <div class="term-bar"><i></i><i></i><i></i><span>~/shop-app</span><button type="button" id="term-replay">Replay</button></div>
+<pre id="term-pre"><code id="term-code"><span class="p">$ </span>toucan stats ./locales
+Project: shop-app
+Primary: en-US
+Keys: 420
+Languages: 4
+
+  de-DE    <span class="g">████████████████████</span> 100% (420/420)
+  en-US    <span class="g">████████████████████</span> 100% (420/420)
+  fr-FR    <span class="g">███████████████████</span><span class="c">░</span>  96% (405/420)
+  id-ID    <span class="y">██████████████</span><span class="c">░░░░░░</span>  71% (300/420)
+
+<span class="p">$ </span>toucan translate ./locales -p deepl -l id-ID --dry-run
+<span class="c"># preview only, nothing is written</span>
+
+<span class="p">$ </span>toucan check ./locales
+<span class="c">...</span>
+<span class="g">0 error(s)</span>, <span class="y">2 warning(s)</span>, 0 info(s)</code></pre>
+      </div>
+      <div class="card plugin-card reveal" style="--d:80ms">
+        <span class="chip ai tag">plugins · preview</span>
+        <h3>Extend it with a .dll</h3>
+        <p>Plugins are .NET assemblies that add file formats, translation providers, validation rules, and framework profiles. New in v0.18.0, they run in the macOS and Linux app and the CLI. The Windows app does not load plugins.</p>
+        <ul>
+          <li>Nothing loads until you enable and trust it.</li>
+          <li>Trust is pinned to a SHA-256 hash of the plugin's files, so a changed plugin asks again.</li>
+          <li>Contracts ship as the <code>Toucan.Plugins.Abstractions</code> package.</li>
+        </ul>
+        <div class="links">
+          <a href="https://github.com/rasyidf/Toucan/blob/main/docs/plugins.md">Plugin guide →</a>
+          <a href="https://github.com/rasyidf/Toucan/tree/main/samples/Toucan.Sample.Plugin">Sample plugin →</a>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Formats Section -->
-<section id="formats" class="py-24 border-t border-gray-100 dark:border-gray-800">
-  <div class="max-w-7xl mx-auto px-6">
-    <div class="text-center mb-16 reveal">
-      <span class="text-brand-600 dark:text-brand-400 text-sm font-semibold uppercase tracking-wider">Compatibility</span>
-      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-3">12+ formats, one editor</h2>
-      <p class="text-gray-600 dark:text-gray-400 mt-4 max-w-xl mx-auto">From React to Rails, Android to iOS — Toucan reads and writes them all.</p>
+<!-- Platforms -->
+<section id="platforms">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">platforms</div>
+      <h2>Runs on your machine. Your files stay there.</h2>
+      <p>No account, no upload, no server. Provider API keys can be set app-wide or per project, and are encrypted at rest: DPAPI on Windows, AES-GCM with a per-user key on macOS and Linux.</p>
     </div>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 reveal">
-      <div v-for="(fmt, i) in formats" :key="i" class="flex items-center gap-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 transition-all duration-200 hover:border-brand-300 dark:hover:border-brand-700 hover:shadow-sm">
-        <div class="w-10 h-10 bg-brand-50 dark:bg-brand-900/40 rounded-lg flex items-center justify-center shrink-0">
-          <span class="text-brand-600 dark:text-brand-400 font-mono text-xs font-bold">{{fmt.ext}}</span>
+    <div class="preview-note reveal" role="note">
+      <strong>Preview software.</strong> Toucan is at v0.18.0 on macOS and Linux and v0.17.3 on Windows, and every build is a preview until 1.0. Settings and project files can change between releases, so keep your locales in version control and <a href="https://github.com/rasyidf/Toucan/issues">report what breaks</a>.
+    </div>
+    <div class="platforms">
+      <div class="platform reveal">
+        <span class="chip warn">preview</span>
+        <h3>Windows</h3>
+        <p>The most complete app: every feature on this page. WPF with Fluent design and the Mica backdrop. Windows 10 and later. Current: v0.17.3; 0.18.0 is coming.</p>
+        <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.3">Download v0.17.3 →</a>
+      </div>
+      <div class="platform reveal" style="--d:80ms">
+        <span class="chip warn">preview</span>
+        <h3>macOS and Linux</h3>
+        <p>First released in v0.18.0. Avalonia app on the same core as Windows, so formats, validation, and providers behave the same, with the modes, Zen, side panels, and plugins. Not ported yet: Source Control, Translation, and Dictionary panels.</p>
+        <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.18.0">Download v0.18.0 →</a>
+      </div>
+      <div class="platform reveal" style="--d:160ms">
+        <span class="chip warn">preview</span>
+        <h3>Command line</h3>
+        <p><code>check</code>, <code>stats</code>, <code>translate</code>, <code>export</code>, <code>get</code> and <code>set</code>, on any OS with .NET 10. Build it from source for now.</p>
+        <a href="https://github.com/rasyidf/Toucan#build-from-source">Run the CLI →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Roadmap -->
+<section id="roadmap" class="alt">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">roadmap</div>
+      <h2>The road to 1.0.</h2>
+      <p>The planned order, not a promise. The full list lives in <a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">future-roadmap.md</a>.</p>
+    </div>
+    <ol class="timeline reveal">
+      <li>
+        <div class="ver">v0.18</div>
+        <span class="when">now · macOS/Linux v0.18.0 · Windows v0.17.3</span>
+        <h3>Preview on every platform</h3>
+        <ul>
+          <li>First macOS and Linux release</li>
+          <li>Plugins (preview) in the macOS/Linux app and CLI</li>
+          <li>Windows 0.18.0 build to follow</li>
+        </ul>
+      </li>
+      <li>
+        <div class="ver">v0.19–0.23</div>
+        <span class="when">next</span>
+        <h3>Quality, AI, and team workflow</h3>
+        <ul>
+          <li>Onboarding and ghost-text suggestions</li>
+          <li>ConsistencyAI and glossary</li>
+          <li>Signed packages, release pipeline, CI</li>
+          <li>Review lifecycle and per-key Git diffs</li>
+          <li>Auto-updater</li>
+        </ul>
+      </li>
+      <li>
+        <div class="ver">v1.0</div>
+        <span class="when">stable</span>
+        <h3>First stable release</h3>
+        <ul>
+          <li>Performance at scale</li>
+          <li>Stabilization and test coverage</li>
+          <li>Stable file and settings formats</li>
+        </ul>
+      </li>
+      <li>
+        <div class="ver">after 1.0</div>
+        <span class="when">later</span>
+        <h3>Beyond the desktop</h3>
+        <ul>
+          <li>Crowdin, Lokalise, Phrase, Transifex import</li>
+          <li>Toucan Hub for locking and presence</li>
+          <li>GitHub Action for <code>toucan check</code></li>
+          <li>macOS and Linux app at full parity</li>
+        </ul>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="final">
+  <div class="wrap">
+    <div class="final-inner reveal">
+      <div class="spectrum" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="final-body">
+        <img src="assets/logo.png" alt="" width="96" height="96">
+        <div>
+          <h2>Two languages? Toucan.</h2>
+          <p>Free and MIT licensed. Preview builds for Windows, macOS, and Linux.</p>
         </div>
-        <div class="min-w-0">
-          <div class="text-sm font-medium text-gray-900 dark:text-white">{{fmt.name}}</div>
-          <div class="text-xs text-gray-500 dark:text-gray-400 truncate">{{fmt.use}}</div>
-        </div>
-        <div class="ml-auto flex gap-1">
-          <span class="text-xs px-1.5 py-0.5 rounded bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 font-medium" v-if="fmt.load">R</span>
-          <span class="text-xs px-1.5 py-0.5 rounded bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 font-medium" v-if="fmt.save">W</span>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://github.com/rasyidf/Toucan/releases">Download preview</a>
+          <a class="btn btn-ghost" href="https://github.com/rasyidf/Toucan">Star on GitHub</a>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Providers Section -->
-<section id="providers" class="py-24 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
-  <div class="max-w-7xl mx-auto px-6">
-    <div class="text-center mb-16 reveal">
-      <span class="text-brand-600 dark:text-brand-400 text-sm font-semibold uppercase tracking-wider">Translation</span>
-      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-3">Pre-translate &amp; AI-assist your workflow</h2>
-      <p class="text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto">Select keys, pick a provider, preview results, then apply. Parameters like <code class="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded font-mono" v-pre>{{var}}</code> are automatically preserved.</p>
-    </div>
+</main>
 
-    <div class="grid lg:grid-cols-2 gap-8 mb-16">
-      <!-- Pre-Translation -->
-      <div class="reveal bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-9 h-9 bg-brand-50 dark:bg-brand-900/40 rounded-lg flex items-center justify-center">
-            <i data-lucide="languages" class="w-5 h-5 text-brand-600 dark:text-brand-400"></i>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Pre-Translation</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Batch-translate with professional translation APIs</p>
-          </div>
-        </div>
-        <div class="space-y-3">
-          <div v-for="(p, i) in pretranslation" :key="i" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-lg transition-all duration-200 hover:border-brand-200 dark:hover:border-brand-800">
-            <div class="w-8 h-8 bg-brand-50 dark:bg-brand-900/40 rounded-md flex items-center justify-center shrink-0">
-              <i :data-lucide="p.icon" class="w-4 h-4 text-brand-600 dark:text-brand-400"></i>
-            </div>
-            <div class="min-w-0">
-              <div class="text-sm font-medium text-gray-900 dark:text-white">{{p.name}}</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{p.desc}}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- AI-Assisted Translation -->
-      <div class="reveal bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-9 h-9 bg-amber-50 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
-            <i data-lucide="sparkles" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">AI-Assisted Translation</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Bring your own API key — context-aware LLM translation</p>
-          </div>
-        </div>
-        <div class="space-y-3">
-          <div v-for="(p, i) in aiProviders" :key="i" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-lg transition-all duration-200 hover:border-amber-200 dark:hover:border-amber-800">
-            <div class="w-8 h-8 bg-amber-50 dark:bg-amber-900/30 rounded-md flex items-center justify-center shrink-0">
-              <i :data-lucide="p.icon" class="w-4 h-4 text-amber-600 dark:text-amber-400"></i>
-            </div>
-            <div class="min-w-0">
-              <div class="text-sm font-medium text-gray-900 dark:text-white">{{p.name}}</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{p.desc}}</div>
-            </div>
-          </div>
-        </div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-4 flex items-center gap-2">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-brand-500"></i>
-          Keys stored securely with Windows DPAPI encryption.
-        </p>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- Roadmap Section -->
-<section id="roadmap" class="py-24 border-t border-gray-100 dark:border-gray-800">
-  <div class="max-w-7xl mx-auto px-6">
-    <div class="text-center mb-16 reveal">
-      <span class="text-brand-600 dark:text-brand-400 text-sm font-semibold uppercase tracking-wider">Progress</span>
-      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-3">Roadmap</h2>
-      <p class="text-gray-600 dark:text-gray-400 mt-4 max-w-xl mx-auto">Tracking progress toward feature parity with professional i18n editors.</p>
-    </div>
-
-    <div v-if="roadmap" class="mb-12 reveal">
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 max-w-lg mx-auto text-center">
-        <div class="text-4xl font-bold text-gray-900 dark:text-white">{{roadmap.progress.done}} <span class="text-gray-400 text-lg font-normal">/ {{roadmap.progress.total}}</span></div>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Features implemented · ~{{roadmap.progress.parity}}% parity with pro editors</p>
-        <div class="mt-4 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-          <div class="h-full bg-brand-500 rounded-full transition-all duration-1000" :style="{width: (roadmap.progress.done/roadmap.progress.total*100)+'%'}"></div>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="roadmap" class="space-y-3 max-w-4xl mx-auto">
-      <details v-for="cat in roadmap.categories" :key="cat.name" class="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden transition-colors hover:border-brand-200 dark:hover:border-brand-800 reveal">
-        <summary class="flex items-center gap-4 px-6 py-4 cursor-pointer select-none list-none">
-          <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 group-open:rotate-90 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-          <span class="font-semibold text-gray-900 dark:text-white flex-1">{{cat.name}}</span>
-          <span class="text-xs px-2 py-1 rounded-full bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800">{{catDone(cat)}} done</span>
-          <span v-if="catPlanned(cat)" class="text-xs px-2 py-1 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">{{catPlanned(cat)}} planned</span>
-        </summary>
-        <div class="px-6 pb-4 space-y-3">
-          <div v-for="group in cat.groups" :key="group.name" class="bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-lg overflow-hidden">
-            <div class="flex items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800">
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex-1">{{group.name}}</span>
-              <span v-if="groupDone(group)" class="text-xs px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 mr-2">{{groupDone(group)}} ✓</span>
-              <span v-if="groupPlanned(group)" class="text-xs px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">{{groupPlanned(group)}} planned</span>
-            </div>
-            <ul class="px-4 py-3 space-y-1.5">
-              <li v-for="f in group.features" :key="f.name" class="flex items-center gap-2.5 text-sm" :class="f.done ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'">
-                <span v-if="f.done" class="w-4 h-4 bg-brand-100 dark:bg-brand-900/40 rounded-full flex items-center justify-center shrink-0"><span class="w-2 h-2 bg-brand-500 rounded-full"></span></span>
-                <span v-else-if="f.wip" class="w-4 h-4 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center shrink-0"><span class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span></span>
-                <span v-else class="w-4 h-4 bg-gray-200 dark:bg-gray-800 rounded-full shrink-0"></span>
-                {{f.name}}
-              </li>
-            </ul>
-          </div>
-        </div>
-      </details>
-    </div>
-  </div>
-</section>
-
-<!-- CTA / Download Section -->
-<section id="download" class="py-24 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 relative overflow-hidden">
-  <div class="absolute inset-0 dot-pattern text-brand-100 dark:text-brand-900/20 opacity-40"></div>
-  <div class="max-w-3xl mx-auto px-6 text-center relative z-10 reveal">
-    <h2 class="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">Ready to simplify your i18n workflow?</h2>
-    <p class="text-gray-600 dark:text-gray-400 text-lg mb-10 max-w-xl mx-auto">Download Toucan for free and start managing translations across all your projects in one place.</p>
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-      <a href="https://github.com/rasyidf/Toucan/releases" class="group inline-flex items-center gap-3 px-8 py-4 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:scale-[1.02] btn-shine">
-        <svg class="w-5 h-5 transition-transform group-hover:translate-y-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-        Download for Windows
-        <span class="text-xs opacity-75">(Windows 10+)</span>
-      </a>
-      <a href="https://github.com/rasyidf/Toucan" class="inline-flex items-center gap-3 px-8 py-4 border border-gray-300 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-600 text-gray-900 dark:text-white font-medium rounded-xl transition-all duration-200 hover:bg-white dark:hover:bg-gray-900">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-        Star on GitHub
-      </a>
-    </div>
-    <p class="text-xs text-gray-500 dark:text-gray-400 mt-8">macOS &amp; Linux support (via Avalonia) is in progress. Star the repo to get notified.</p>
-  </div>
-</section>
-
-<!-- Footer -->
-<footer class="border-t border-gray-200 dark:border-gray-800 py-8 bg-white dark:bg-gray-950">
-  <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-    <div class="flex items-center gap-3">
-      <img src="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png" alt="Toucan" class="w-6 h-6" width="24" height="24">
-      <span class="text-sm text-gray-500 dark:text-gray-400">Toucan © 2025 <a href="https://rasyid.dev" class="text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">rasyid.dev</a></span>
-    </div>
-    <div class="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-      <a href="https://github.com/rasyidf/Toucan" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Source</a>
-      <a href="https://github.com/rasyidf/Toucan/releases" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Releases</a>
-      <span>MIT License</span>
-    </div>
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="#top"><img src="assets/logo.png" alt="" width="24" height="24">Toucan</a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/rasyidf/Toucan">Source</a>
+      <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
+      <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
+      <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md">Changelog</a>
+      <a href="https://github.com/rasyidf/Toucan/blob/main/docs/ARCHITECTURE.md">Architecture</a>
+    </nav>
+    <span class="copy">© 2023–2026 <a href="https://rasyid.dev">rasyid.dev</a> · MIT License</span>
   </div>
 </footer>
 
-</div>
-
 <script>
-const {createApp} = Vue;
-createApp({
-  data() {
-    return {
-      roadmap: null,
-      scrolled: false,
-      mobileMenu: false,
-      dark: false,
-      features: [
-        { icon:'file-json', title:'Multi-Format Editing', desc:'Edit JSON, YAML, PO, RESX, Android XML, iOS .strings, XLIFF, Flutter ARB, CSV, TOML — all in one unified interface.' },
-        { icon:'columns-2', title:'Side-by-Side Translation', desc:'View and edit source and target languages next to each other. Filter by untranslated, translated, and approved items.' },
-        { icon:'sparkles', title:'AI Pre-Translation', desc:'Batch-translate using Google, DeepL, Microsoft, or OpenAI — with parameter preservation, formality settings, and preview.' },
-        { icon:'paintbrush', title:'Fluent Design', desc:'Modern Windows UI with Mica backdrop, dark/light theme following your system preference.' },
-        { icon:'gauge', title:'Built for Scale', desc:'Handles large projects (10,000+ keys) with pagination, streaming JSON parser, and per-namespace operations.' },
-        { icon:'keyboard', title:'Keyboard-First', desc:'22+ configurable shortcuts. Cut/copy/paste, case conversion, and bulk actions — all from your keyboard.' },
-        { icon:'git-branch', title:'Source Code Integration', desc:'Find where translation keys are used in your codebase. Supports .tsx, .vue, .svelte, and .py scanning.' },
-        { icon:'database', title:'Translation Memory', desc:'Reuse translations across projects with fuzzy-match suggestions and AI-powered memory.' },
-        { icon:'package', title:'Multi-Package Projects', desc:'Organize translations into packages with drag & drop reorder and batch operations.' },
-      ],
-      formats: [
-        { ext:'JSON', name:'JSON (flat & nested)', use:'React, Vue, i18next, Angular', load:true, save:true },
-        { ext:'YAML', name:'YAML', use:'Ruby on Rails, Laravel', load:true, save:true },
-        { ext:'TOML', name:'TOML', use:'Rust, Hugo, config files', load:true, save:true },
-        { ext:'PO', name:'PO / Gettext', use:'WordPress, PHP, GNU gettext', load:true, save:true },
-        { ext:'RESX', name:'RESX', use:'.NET / WPF / Blazor', load:true, save:true },
-        { ext:'XML', name:'Android XML', use:'Android apps', load:true, save:true },
-        { ext:'STR', name:'iOS .strings', use:'iOS / macOS apps', load:true, save:true },
-        { ext:'XLF', name:'XLIFF', use:'Enterprise CAT tools', load:true, save:true },
-        { ext:'ARB', name:'ARB', use:'Flutter / Dart', load:true, save:true },
-        { ext:'CSV', name:'CSV / Excel', use:'Spreadsheet exchange', load:true, save:true },
-        { ext:'INI', name:'INI', use:'Legacy desktop apps', load:true, save:true },
-        { ext:'PHP', name:'Laravel PHP', use:'Laravel framework', load:true, save:true },
-      ],
-      pretranslation: [
-        { icon:'globe', name:'Google Cloud Translation', desc:'100+ languages, fast, automatic language detection' },
-        { icon:'languages', name:'DeepL', desc:'High-quality European languages, formality settings' },
-        { icon:'cloud', name:'Microsoft Translator', desc:'Azure-integrated, batch processing, 60+ languages' },
-      ],
-      aiProviders: [
-        { icon:'brain', name:'OpenAI (GPT)', desc:'Context-aware, custom prompts, handles idioms well' },
-        { icon:'cpu', name:'Any OpenAI-compatible API', desc:'Use local models, Anthropic, Mistral, or any compatible endpoint' },
-      ],
-    }
-  },
-  methods: {
-    toggleTheme() {
-      this.dark = !this.dark;
-      document.documentElement.classList.toggle('dark', this.dark);
-      localStorage.setItem('toucan-theme', this.dark ? 'dark' : 'light');
-    },
-    catDone(cat) { return cat.groups.reduce((s,g) => s + g.features.filter(f => f.done).length, 0) },
-    catPlanned(cat) { return cat.groups.reduce((s,g) => s + g.features.filter(f => !f.done).length, 0) },
-    groupDone(g) { return g.features.filter(f => f.done).length },
-    groupPlanned(g) { return g.features.filter(f => !f.done).length },
-    initObserver() {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    }
-  },
-  mounted() {
-    // Restore theme preference (default: light)
-    const saved = localStorage.getItem('toucan-theme');
-    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      this.dark = true;
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(sel, el) { return (el || document).querySelector(sel); }
+  function $$(sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  // Re-adding a class restarts its CSS animation.
+  function restart(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
 
-    // Load roadmap data
-    fetch('roadmap.json').then(r => r.json()).then(data => {
-      this.roadmap = data;
-      this.$nextTick(() => {
-        lucide.createIcons();
-        this.initObserver();
-      });
-    }).catch(() => {
-      this.$nextTick(() => {
-        lucide.createIcons();
-        this.initObserver();
-      });
-    });
+  /* ---------- Theme ---------- */
+  $('#theme-toggle').addEventListener('click', function () {
+    var current = root.getAttribute('data-theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var next = current === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('toucan-theme', next); } catch (e) {}
+  });
 
-    // Scroll listener
-    window.addEventListener('scroll', () => {
-      this.scrolled = window.scrollY > 20;
+  /* ---------- Header state and scrollspy ---------- */
+  var header = $('#site-header');
+  function onScroll() { header.classList.toggle('scrolled', window.scrollY > 8); }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  var navLinks = $$('.nav-links a');
+  var spy = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      navLinks.forEach(function (a) { a.setAttribute('aria-current', a.getAttribute('href') === '#' + e.target.id ? 'true' : 'false'); });
     });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  navLinks.forEach(function (a) { var s = $(a.getAttribute('href')); if (s) spy.observe(s); });
+
+  /* ---------- Scroll reveal ---------- */
+  var revealer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); revealer.unobserve(e.target); }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  $$('.reveal').forEach(function (el) { revealer.observe(el); });
+
+  /* ---------- Rotating tagline ---------- */
+  var taglines = [
+    ['id-ID', 'Ajari aplikasimu semua bahasa.'],
+    ['de-DE', 'Bring deiner App jede Sprache bei.'],
+    ['es-ES', 'Enseña a tu app todos los idiomas.'],
+    ['ja-JP', 'アプリに、すべての言語を。'],
+    ['fr-FR', 'Apprenez toutes les langues à votre app.'],
+    ['pt-BR', 'Ensine todos os idiomas ao seu app.']
+  ];
+  var tlLang = $('#tl-lang'), tlText = $('#tl-text'), tlIndex = 0;
+  if (!reduceMotion) {
+    setInterval(function () {
+      if (document.hidden) return;
+      tlIndex = (tlIndex + 1) % taglines.length;
+      tlText.classList.remove('in');
+      tlText.classList.add('out');
+      setTimeout(function () {
+        tlLang.textContent = taglines[tlIndex][0];
+        tlText.textContent = taglines[tlIndex][1];
+        tlText.classList.remove('out');
+        restart(tlText, 'in');
+      }, 200);
+    }, 3000);
   }
-}).mount('#app');
+
+  /* ---------- Sliding highlight for segmented controls ---------- */
+  function movePill(group, active) {
+    var pill = $('.pill', group);
+    if (!pill || !active) return;
+    pill.style.width = active.offsetWidth + 'px';
+    pill.style.transform = 'translateX(' + active.offsetLeft + 'px)';
+  }
+
+  /* ---------- Mode tabs (section) ---------- */
+  (function () {
+    var tablist = $('.tabs');
+    var tabs = $$('[role="tab"]', tablist);
+    function select(tab, focus) {
+      tabs.forEach(function (t) {
+        var on = t === tab;
+        t.setAttribute('aria-selected', on);
+        t.tabIndex = on ? 0 : -1;
+        var panel = document.getElementById(t.getAttribute('aria-controls'));
+        panel.hidden = !on;
+        if (on) { panel.classList.add('in'); restart(panel, 'enter'); }
+      });
+      movePill(tablist, tab);
+      if (focus) tab.focus();
+    }
+    tabs.forEach(function (tab, i) {
+      tab.addEventListener('click', function () { select(tab); });
+      tab.addEventListener('keydown', function (e) {
+        var next = null;
+        if (e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
+        if (e.key === 'ArrowLeft') next = tabs[(i - 1 + tabs.length) % tabs.length];
+        if (next) { e.preventDefault(); select(next, true); }
+      });
+    });
+    movePill(tablist, tabs[0]);
+    window.addEventListener('resize', function () { movePill(tablist, $('[aria-selected="true"]', tablist)); });
+    if (document.fonts) document.fonts.ready.then(function () { movePill(tablist, $('[aria-selected="true"]', tablist)); });
+  })();
+
+  /* ---------- Interactive editor demo ---------- */
+  (function () {
+    var win = $('#demo');
+    var LANGS = ['en-US', 'de-DE', 'ja-JP', 'fr-FR', 'id-ID'];
+    var TREE = [['checkout', ['title', 'items_count', 'pay_now']], ['errors', ['network', 'not_found']], ['nav', ['home', 'orders']]];
+    var KEYS = [];
+    TREE.forEach(function (g) { g[1].forEach(function (k) { KEYS.push(g[0] + '.' + k); }); });
+
+    var vals = {
+      'checkout.title':       ['Checkout', 'Kasse', 'お会計', 'Paiement', 'Pembayaran'],
+      'checkout.items_count': ['You have {{count}} items', 'Du hast {{count}} Artikel', '{{count}} 個の商品があります', 'Vous avez {count} articles', ''],
+      'checkout.pay_now':     ['Pay {{amount}} now', 'Jetzt {{amount}} bezahlen', '今すぐ {{amount}} を支払う', 'Payer {{amount}} maintenant', 'Bayar {{amount}} sekarang'],
+      'errors.network':       ['Check your connection and try again.', 'Prüfe deine Verbindung und versuche es erneut.', '接続を確認して、もう一度お試しください。', 'Check your connection and try again.', 'Periksa koneksi Anda dan coba lagi.'],
+      'errors.not_found':     ["We couldn't find that page.", '', 'ページが見つかりませんでした。', 'Page introuvable.', 'Halaman tidak ditemukan.'],
+      'nav.home':             ['Home', 'Startseite', 'ホーム', 'Accueil', 'Beranda '],
+      'nav.orders':           ['Orders', 'Bestellungen', '注文履歴', 'Commandes', '']
+    };
+    // Canned provider output for the demo's Pre-translate button.
+    var MT = {
+      'checkout.items_count|4': 'Anda memiliki {{count}} item',
+      'errors.not_found|1': 'Wir konnten diese Seite nicht finden.',
+      'nav.orders|4': 'Pesanan'
+    };
+    var TM = {
+      'checkout.items_count|4': ['Ada {{count}} barang', 92, 'cart.items'],
+      'nav.orders|4': ['Pesanan', 100, 'account.orders'],
+      'errors.not_found|1': ['Seite nicht gefunden.', 78, 'errors.404'],
+      'errors.network|3': ['Vérifiez votre connexion et réessayez.', 88, 'sync.offline']
+    };
+    var history = [
+      { key: 'nav.home', i: 4, from: 'Rumah', to: 'Beranda ', who: 'rasyid', when: 'last week' },
+      { key: 'errors.network', i: 3, from: '', to: 'Check your connection and try again.', who: 'import', when: 'last week' },
+      { key: 'checkout.items_count', i: 3, from: '', to: 'Vous avez {count} articles', who: 'DeepL', when: '3 days ago' },
+      { key: 'checkout.pay_now', i: 4, from: 'Bayar sekarang', to: 'Bayar {{amount}} sekarang', who: 'rasyid', when: '2 days ago' }
+    ];
+    var approval = {};
+    var PENDING = ['checkout.items_count|3', 'errors.network|3', 'nav.home|4', 'checkout.pay_now|4'];
+    KEYS.forEach(function (k) {
+      for (var i = 1; i < LANGS.length; i++) {
+        var id = k + '|' + i;
+        approval[id] = PENDING.indexOf(id) >= 0 || !vals[k][i] ? 'pending' : 'approved';
+      }
+    });
+
+    var state = {
+      key: 'checkout.items_count', lang: 4, mode: 'editor', collapsed: {},
+      machine: {}, preview: null, editing: null, editOrig: '', typing: null,
+      busy: false, dirty: false, toast: '', newHist: false
+    };
+
+    var PH = /\{\{\s*\w+\s*\}\}|\{\w+\}|%\d*\$?[sd]/g;
+    function phs(s) { return s.match(PH) || []; }
+    function phName(m) { return m.replace(/[{}\s%$]/g, ''); }
+
+    // A small subset of Toucan's validation rules, enough to drive the demo.
+    function issuesFor(key) {
+      var v = vals[key], src = v[0], out = [];
+      var srcPh = phs(src).slice().sort().join('|');
+      for (var i = 1; i < LANGS.length; i++) {
+        var t = v[i];
+        if (!t.trim()) { out.push({ i: i, rule: 'Missing translation', sev: 'miss' }); continue; }
+        var tp = phs(t);
+        if (tp.slice().sort().join('|') !== srcPh) {
+          out.push({ i: i, rule: 'Placeholder mismatch', sev: 'warn', fix: 'ph',
+            detail: 'uses ' + (tp.join(' ') || 'none') + ', source has ' + (phs(src).join(' ') || 'none') });
+        }
+        if (t !== t.trim() && src === src.trim()) out.push({ i: i, rule: 'Whitespace mismatch', sev: 'warn', fix: 'ws', detail: 'extra space at the edge' });
+        if (t.trim() === src.trim() && src.trim().length > 3) out.push({ i: i, rule: 'Untranslated (same as source)', sev: 'warn', detail: 'identical to en-US' });
+      }
+      return out;
+    }
+    function rowStatus(key, i) {
+      if (i === 0) return 'src';
+      if (state.machine[key + '|' + i]) return 'mt';
+      if (!vals[key][i].trim()) return 'miss';
+      return issuesFor(key).some(function (x) { return x.i === i; }) ? 'warn' : 'ok';
+    }
+    function keyStatus(key) {
+      for (var i = 1; i < LANGS.length; i++) if (state.machine[key + '|' + i]) return 'mt';
+      var iss = issuesFor(key);
+      if (iss.some(function (x) { return x.sev === 'miss'; })) return 'miss';
+      return iss.length ? 'warn' : '';
+    }
+    function totalIssues() { return KEYS.reduce(function (n, k) { return n + issuesFor(k).length; }, 0); }
+    function pendingCount() {
+      var n = 0;
+      KEYS.forEach(function (k) { for (var i = 1; i < LANGS.length; i++) if (approval[k + '|' + i] === 'pending' && vals[k][i].trim()) n++; });
+      return n;
+    }
+
+    function hl(text, srcSet, withCaret) {
+      var lead = text.match(/^\s+/), trail = text.match(/\s+$/);
+      var core = text.trim();
+      var html = esc(core).replace(PH, function (m) {
+        var bad = srcSet && srcSet.indexOf(phName(m)) < 0;
+        return '<span class="ph' + (bad ? ' bad' : '') + '">' + m + '</span>';
+      });
+      if (lead && core) html = '<span class="wsp">' + lead[0].replace(/ /g, '·') + '</span>' + html;
+      if (trail && core) html += '<span class="wsp">' + trail[0].replace(/ /g, '·') + '</span>';
+      if (!core && text) html = '<span class="wsp">' + text.replace(/ /g, '·') + '</span>';
+      return html + (withCaret ? '<span class="caret"></span>' : '');
+    }
+    function srcNames() { return phs(vals[state.key][0]).map(phName); }
+
+    /* Rendering */
+    function renderModes() {
+      var group = $('.modes', win);
+      $$('[data-mode]', group).forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.mode === state.mode); });
+      movePill(group, $('[aria-pressed="true"]', group));
+    }
+
+    function renderTools() {
+      var el = $('#d-tools'), html;
+      if (state.preview) {
+        html = '<div class="preview-bar"><span class="tool-msg">' + state.preview.length + ' machine translation' + (state.preview.length > 1 ? 's' : '') + ' in preview</span>' +
+          '<button type="button" class="mini ok" aria-pressed="true" data-commit>Commit</button><button type="button" class="mini" data-discard>Discard</button></div>';
+      } else if (state.mode === 'editor') {
+        html = '<button type="button" class="mt-btn' + (state.busy ? ' busy' : '') + '" data-mt' + (state.busy ? ' disabled' : '') + '>' +
+          '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.9 5.6L19.5 9.5 13.9 11.4 12 17l-1.9-5.6L4.5 9.5l5.6-1.9zM19 15l.9 2.6 2.6.9-2.6.9L19 22l-.9-2.6-2.6-.9 2.6-.9z"/></svg>' +
+          (state.busy ? 'Translating…' : 'Pre-translate') + '</button>' +
+          '<span class="tool-msg' + (state.toast ? ' toast' : '') + '">' + esc(state.toast || 'DeepL · fills empty cells as a preview') + '</span>';
+      } else if (state.mode === 'review') {
+        var n = pendingCount();
+        html = '<span class="tool-msg' + (state.toast ? ' toast' : '') + '">' + esc(state.toast || (n ? n + ' translation' + (n > 1 ? 's' : '') + ' waiting for review' : 'Everything is reviewed')) + '</span>';
+      } else {
+        html = '<span class="tool-msg">Read-only · approval state and history</span>';
+      }
+      el.innerHTML = html + '<span class="tool-msg push kbd-hint"><kbd>J</kbd> <kbd>K</kbd></span>';
+    }
+
+    function renderTree() {
+      $('#d-tree').innerHTML = TREE.map(function (g) {
+        var open = !state.collapsed[g[0]];
+        var out = '<button type="button" class="t-group" data-group="' + g[0] + '" aria-expanded="' + open + '"><span class="tw">▸</span>' + g[0] + '</button>';
+        if (open) out += g[1].map(function (k) {
+          var key = g[0] + '.' + k, st = keyStatus(key), sel = key === state.key;
+          return '<button type="button" class="t-key' + (sel ? ' sel' : '') + '" data-key="' + key + '"' + (sel ? ' aria-current="true"' : '') + '><span>' + k + '</span>' + (st ? '<i class="dot ' + st + '"></i>' : '') + '</button>';
+        }).join('');
+        return out;
+      }).join('');
+    }
+
+    var lastChip = '';
+    function renderHead() {
+      var iss = issuesFor(state.key), chip;
+      if (state.mode === 'review') {
+        var p = 0;
+        for (var i = 1; i < LANGS.length; i++) if (approval[state.key + '|' + i] === 'pending' && vals[state.key][i].trim()) p++;
+        chip = p ? '<span class="chip warn">' + p + ' to review</span>' : '<span class="chip ok">Reviewed</span>';
+      } else if (iss.length) {
+        var miss = iss.every(function (x) { return x.sev === 'miss'; });
+        chip = '<span class="chip ' + (miss ? 'miss' : 'warn') + '">' + iss.length + ' issue' + (iss.length > 1 ? 's' : '') + '</span>';
+      } else {
+        chip = '<span class="chip ok">Valid</span>';
+      }
+      $('#d-head').innerHTML = '<button type="button" class="kn" data-nav="-1" aria-label="Previous key">‹</button><code>' + state.key + '</code><button type="button" class="kn" data-nav="1" aria-label="Next key">›</button>' + chip;
+      if (lastChip && chip !== lastChip && !reduceMotion) $('#d-head .chip').classList.add('swap');
+      lastChip = chip;
+    }
+
+    function rowClasses(key, i) {
+      var st = rowStatus(key, i), c = 'row';
+      if (i === 0) c += ' src';
+      if (i === state.lang) c += ' active';
+      if (state.editing === i) c += ' editing';
+      if (state.mode === 'editor') { if (st === 'warn') c += ' flag'; if (st === 'mt') c += ' mt'; }
+      if (state.mode !== 'editor' && i > 0 && vals[key][i].trim()) c += ' r-' + approval[key + '|' + i];
+      return c;
+    }
+
+    function auditChip(key, i) {
+      if (!vals[key][i].trim()) return '<span class="chip miss">Missing</span>';
+      if (state.machine[key + '|' + i]) return '<span class="chip ai">Machine</span>';
+      var a = approval[key + '|' + i];
+      if (a === 'approved') return '<span class="chip ok">Approved</span>';
+      if (a === 'rejected') return '<span class="chip miss">Rejected</span>';
+      return '<span class="chip warn">In review</span>';
+    }
+
+    function renderRows(animate) {
+      var key = state.key, names = srcNames(), iss = issuesFor(key);
+      var html = LANGS.map(function (L, i) {
+        var t = vals[key][i], st = rowStatus(key, i);
+        var typing = state.typing === i;
+        var valHtml = t || typing ? hl(t, i ? names : null, typing) : '<span class="empty">' + (state.mode === 'editor' ? 'Untranslated · click to add' : 'Untranslated') + '</span>';
+        var right = '';
+        if (state.mode === 'editor') {
+          var fix = iss.filter(function (x) { return x.i === i && x.fix; })[0];
+          if (fix) right += '<button type="button" class="mini fix" data-fix="' + i + '" data-kind="' + fix.fix + '">Fix</button>';
+          right += '<span class="st ' + st + '"></span>';
+          var mid = state.editing === i
+            ? '<input class="val-in" data-i="' + i + '" value="' + esc(t) + '" aria-label="' + L + ' translation" spellcheck="false" autocomplete="off">'
+            : '<button type="button" class="val" data-edit="' + i + '" aria-label="Edit ' + L + ': ' + esc(t || 'empty') + '">' + valHtml + '</button>';
+          return '<div class="' + rowClasses(key, i) + '" data-i="' + i + '"><span class="lc">' + L + '</span>' + mid + '<span class="rt">' + right + '</span></div>';
+        }
+        if (state.mode === 'review') {
+          if (i === 0) right = '<span class="chip">source</span>';
+          else {
+            var a = approval[key + '|' + i], dis = t.trim() ? '' : ' disabled';
+            right = '<button type="button" class="mini ok" data-approve="' + i + '" aria-pressed="' + (a === 'approved') + '" aria-label="Approve ' + L + '"' + dis + '>✓</button>' +
+                    '<button type="button" class="mini no" data-reject="' + i + '" aria-pressed="' + (a === 'rejected') + '" aria-label="Reject ' + L + '"' + dis + '>✕</button>';
+          }
+        } else {
+          right = i === 0 ? '<span class="chip">source</span>' : auditChip(key, i);
+        }
+        return '<div class="' + rowClasses(key, i) + '" data-i="' + i + '"><span class="lc">' + L + '</span><span class="val ro" data-pick="' + i + '">' + valHtml + '</span><span class="rt">' + right + '</span></div>';
+      }).join('');
+      var rows = $('#d-rows');
+      rows.innerHTML = html;
+      if (animate && !reduceMotion) restart(rows, 'fade');
+    }
+
+    // Update row borders and dots in place, so an input being typed in keeps focus and IME state.
+    function refreshRowStates() {
+      $$('#d-rows .row').forEach(function (row) {
+        var i = +row.dataset.i;
+        row.className = rowClasses(state.key, i);
+        var dot = $('.st', row);
+        if (dot) {
+          var st = rowStatus(state.key, i);
+          if (!dot.classList.contains(st)) { dot.className = 'st ' + st; if (!reduceMotion) restart(dot, 'pop'); }
+        }
+      });
+    }
+
+    function progressHtml(kind) {
+      var out = '';
+      for (var i = 1; i < LANGS.length; i++) {
+        var done = KEYS.filter(function (k) {
+          return kind === 'review' ? approval[k + '|' + i] === 'approved' && vals[k][i].trim() : vals[k][i].trim();
+        }).length;
+        var pct = Math.round(done / KEYS.length * 100);
+        out += '<div class="prog"><span class="lc">' + LANGS[i].slice(0, 2) + '</span><span class="meter"><i' + (pct === 100 ? ' class="full"' : '') + ' style="width:' + pct + '%"></i></span><span class="pct">' + done + '/' + KEYS.length + '</span></div>';
+      }
+      return out;
+    }
+
+    function renderInsp() {
+      var key = state.key, html = '', insp = $('#d-insp');
+      if (state.mode === 'audit') {
+        var list = history.filter(function (h) { return h.key === key; }).slice().reverse();
+        insp.innerHTML = '<div><div class="insp-h">History · ' + key.split('.')[1] + '</div>' + (list.length ? list.map(function (h, n) {
+          return '<div class="hist' + (n === 0 && state.newHist ? ' new' : '') + '"><b>' + esc(h.who) + '</b> · ' + LANGS[h.i] + '<br>' +
+            (h.from ? '<span class="del">' + esc(h.from) + '</span> → ' : '') + esc(h.to || '(cleared)') + '<span class="when">' + h.when + '</span></div>';
+        }).join('') : '<div class="insp-card">No changes recorded for this key yet. Edit it in Editor mode and come back.</div>') + '</div>';
+        state.newHist = false;
+        return;
+      }
+      var iss = issuesFor(key);
+      html += '<div><div class="insp-h">Validation</div>' + (iss.length ? iss.map(function (x) {
+        return '<div class="insp-card ' + x.sev + '"><strong>' + x.rule + '</strong>' + LANGS[x.i] + (x.detail ? ' ' + esc(x.detail) : '') +
+          (x.fix && state.mode === 'editor' ? '<div class="acts"><button type="button" class="mini fix" data-fix="' + x.i + '" data-kind="' + x.fix + '">Fix</button></div>' : '') + '</div>';
+      }).join('') : '<div class="insp-card ok"><strong>No issues</strong>Every language passes for this key.</div>') + '</div>';
+
+      if (state.mode === 'editor') {
+        var tm = TM[key + '|' + state.lang];
+        html += '<div><div class="insp-h">Memory · ' + LANGS[state.lang] + '</div>' + (tm
+          ? '<div class="insp-card"><strong>' + tm[1] + '% · ' + tm[2] + '</strong>' + hl(tm[0], srcNames()) +
+            '<div class="acts"><button type="button" class="mini" data-tm' + (vals[key][state.lang] === tm[0] ? ' disabled' : '') + '>Use</button></div></div>'
+          : '<div class="insp-card">No memory matches for ' + LANGS[state.lang] + '.</div>') + '</div>';
+      }
+      html += '<div><div class="insp-h">' + (state.mode === 'review' ? 'Approved' : 'Translated') + '</div>' + progressHtml(state.mode) + '</div>';
+
+      // Start the meters at their old widths so they animate to the new values.
+      var old = $$('.meter i', insp).map(function (b) { return b.style.width; });
+      insp.innerHTML = html;
+      var bars = $$('.meter i', insp);
+      if (old.length === bars.length && !reduceMotion) {
+        var target = bars.map(function (b) { return b.style.width; });
+        bars.forEach(function (b, n) { b.style.width = old[n]; });
+        requestAnimationFrame(function () { requestAnimationFrame(function () { bars.forEach(function (b, n) { b.style.width = target[n]; }); }); });
+      }
+    }
+
+    function renderStatus() {
+      var n = totalIssues();
+      $('#d-status').innerHTML = '<span>i18next · JSON</span><span class="hide-sm">' + KEYS.length + ' keys · ' + LANGS.length + ' languages</span><span>' + (n ? n + ' issue' + (n > 1 ? 's' : '') : 'No issues') + '</span>' +
+        '<span class="sp' + (state.dirty && !state.busy ? ' dirty' : '') + '">' + (state.busy ? 'Translating…' : state.dirty ? '● Unsaved' : 'Ready') + '</span>';
+    }
+
+    function renderAll(animateRows) {
+      renderModes(); renderTools(); renderTree(); renderHead(); renderRows(animateRows); renderInsp(); renderStatus();
+    }
+    function renderLive() { renderTree(); renderHead(); renderInsp(); renderStatus(); refreshRowStates(); }
+
+    var toastTimer;
+    function toast(msg) {
+      state.toast = msg; renderTools();
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { state.toast = ''; renderTools(); }, 2400);
+    }
+    function flashRow(i) {
+      var row = $('#d-rows .row[data-i="' + i + '"]');
+      if (row && !reduceMotion) restart(row, 'flash');
+    }
+    function record(key, i, from, to, who) {
+      if (from === to) return;
+      history.push({ key: key, i: i, from: from, to: to, who: who, when: 'just now' });
+      state.newHist = true;
+      if (i > 0) approval[key + '|' + i] = 'pending';
+      state.dirty = true;
+    }
+
+    /* Actions */
+    function select(key, lang) {
+      if (state.editing !== null) commitEdit(true);
+      var changed = key !== state.key;
+      state.key = key;
+      if (lang !== undefined) state.lang = lang;
+      renderAll(changed);
+    }
+    function step(dir) {
+      var n = KEYS.indexOf(state.key);
+      var key = KEYS[(n + dir + KEYS.length) % KEYS.length];
+      state.collapsed[key.split('.')[0]] = false;
+      select(key);
+    }
+    function setMode(mode) {
+      if (state.editing !== null) commitEdit(true);
+      if (mode === state.mode) return;
+      state.mode = mode; state.toast = '';
+      renderAll(true);
+    }
+    function startEdit(i) {
+      if (state.busy) return;
+      state.editing = i; state.lang = i; state.editOrig = vals[state.key][i];
+      renderRows(); renderInsp(); renderTree(); renderHead();
+      var inp = $('#d-rows .val-in');
+      inp.focus();
+      inp.setSelectionRange(inp.value.length, inp.value.length);
+      inp.addEventListener('input', function () {
+        vals[state.key][i] = inp.value;
+        delete state.machine[state.key + '|' + i];
+        renderLive();
+      });
+      inp.addEventListener('keydown', function (e) {
+        if (e.isComposing) return;
+        if (e.key === 'Enter') { e.preventDefault(); commitEdit(true); focusRow(i); }
+        else if (e.key === 'Escape') { e.preventDefault(); vals[state.key][i] = state.editOrig; commitEdit(false); focusRow(i); }
+        else if (e.key === 'Tab' && !e.shiftKey && i < LANGS.length - 1) { e.preventDefault(); commitEdit(true); startEdit(i + 1); }
+      });
+      inp.addEventListener('blur', function () { commitEdit(true); });
+    }
+    function commitEdit(save) {
+      if (state.editing === null) return;
+      var i = state.editing;
+      state.editing = null;
+      if (save) record(state.key, i, state.editOrig, vals[state.key][i], 'you');
+      renderAll();
+    }
+    function focusRow(i) { var b = $('#d-rows [data-edit="' + i + '"]'); if (b) b.focus(); }
+
+    function applyFix(i, kind) {
+      var key = state.key, before = vals[key][i];
+      if (kind === 'ws') vals[key][i] = before.trim();
+      if (kind === 'ph') {
+        var map = {};
+        phs(vals[key][0]).forEach(function (m) { map[phName(m)] = m; });
+        vals[key][i] = before.replace(PH, function (m) { return map[phName(m)] || m; });
+      }
+      record(key, i, before, vals[key][i], 'you · fix');
+      state.lang = i;
+      renderAll(); flashRow(i);
+      toast(vals[key][i] === before ? 'Could not fix automatically' : 'Fixed ' + LANGS[i]);
+    }
+    function useMemory() {
+      var key = state.key, i = state.lang, tm = TM[key + '|' + i];
+      if (!tm) return;
+      var before = vals[key][i];
+      vals[key][i] = tm[0];
+      delete state.machine[key + '|' + i];
+      record(key, i, before, tm[0], 'you · memory');
+      renderAll(); flashRow(i);
+      toast('Inserted ' + tm[1] + '% match from ' + tm[2]);
+    }
+    function review(i, verdict) {
+      var id = state.key + '|' + i;
+      approval[id] = approval[id] === verdict ? 'pending' : verdict;
+      history.push({ key: state.key, i: i, from: '', to: approval[id] === 'pending' ? 'back to review' : approval[id], who: 'you · review', when: 'just now' });
+      state.newHist = true;
+      state.lang = i;
+      renderAll(); flashRow(i);
+      var n = pendingCount();
+      toast(n ? n + ' left to review' : 'All translations reviewed');
+    }
+
+    async function typeInto(key, i, text, speed, cancelled) {
+      state.typing = i;
+      for (var n = 1; n <= text.length; n++) {
+        if (cancelled && cancelled()) { state.typing = null; return false; }
+        vals[key][i] = text.slice(0, n);
+        if (key === state.key && state.editing === null) { renderRows(); }
+        await sleep(speed + (text[n - 1] === ' ' ? speed : 0));
+      }
+      state.typing = null;
+      return true;
+    }
+
+    async function preTranslate() {
+      if (state.busy) return;
+      stopDemo();
+      var todo = [];
+      KEYS.forEach(function (k) { for (var i = 1; i < LANGS.length; i++) if (!vals[k][i].trim() && MT[k + '|' + i]) todo.push([k, i]); });
+      if (!todo.length) { toast('Nothing left to translate'); return; }
+      state.busy = true; renderAll();
+      for (var n = 0; n < todo.length; n++) {
+        var k = todo[n][0], i = todo[n][1];
+        state.collapsed[k.split('.')[0]] = false;
+        var changed = state.key !== k;
+        state.key = k; state.lang = i; renderAll(changed);
+        if (reduceMotion) vals[k][i] = MT[k + '|' + i];
+        else { await sleep(220); await typeInto(k, i, MT[k + '|' + i], 24); }
+        state.machine[k + '|' + i] = true;
+        renderAll(); flashRow(i);
+        if (!reduceMotion) await sleep(380);
+      }
+      state.busy = false;
+      state.preview = todo;
+      renderAll();
+    }
+    function commitPreview() {
+      state.preview.forEach(function (p) {
+        record(p[0], p[1], '', vals[p[0]][p[1]], 'DeepL');
+        delete state.machine[p[0] + '|' + p[1]];
+      });
+      var n = state.preview.length;
+      state.preview = null;
+      renderAll(); toast('Committed ' + n + ' translation' + (n > 1 ? 's' : '') + ' for review');
+    }
+    function discardPreview() {
+      state.preview.forEach(function (p) { vals[p[0]][p[1]] = ''; delete state.machine[p[0] + '|' + p[1]]; });
+      state.preview = null;
+      renderAll(true); toast('Discarded. Nothing was written.');
+    }
+
+    /* Events */
+    win.addEventListener('click', function (e) {
+      var t = e.target.closest('button, [data-pick]');
+      if (!t || !win.contains(t) || state.busy) return;
+      var d = t.dataset;
+      if (d.mode) setMode(d.mode);
+      else if (d.group) { state.collapsed[d.group] = !state.collapsed[d.group]; renderTree(); }
+      else if (d.key) select(d.key);
+      else if (d.nav) step(+d.nav);
+      else if (d.edit !== undefined && state.mode === 'editor') startEdit(+d.edit);
+      else if (d.pick !== undefined) { state.lang = +d.pick; refreshRowStates(); renderInsp(); }
+      else if (d.fix !== undefined) applyFix(+d.fix, d.kind);
+      else if (d.tm !== undefined) useMemory();
+      else if (d.approve !== undefined) review(+d.approve, 'approved');
+      else if (d.reject !== undefined) review(+d.reject, 'rejected');
+      else if (d.mt !== undefined) preTranslate();
+      else if (d.commit !== undefined) commitPreview();
+      else if (d.discard !== undefined) discardPreview();
+    });
+    win.addEventListener('keydown', function (e) {
+      if (e.target.matches('input') || e.metaKey || e.ctrlKey || e.altKey || state.busy) return;
+      var k = e.key.toLowerCase();
+      if (k === 'j') step(1);
+      else if (k === 'k') step(-1);
+      else if (k === '1' || k === '2' || k === '3') setMode(['editor', 'review', 'audit'][+k - 1]);
+      else return;
+      e.preventDefault();
+    });
+
+    /* Auto demo: type one translation, then hand control to the visitor. */
+    var demoStopped = false;
+    function stopDemo() {
+      if (demoStopped) return;
+      demoStopped = true;
+      if (state.typing !== null && !state.busy) {
+        vals['checkout.items_count'][4] = '';
+        state.typing = null;
+        renderAll();
+      }
+    }
+    ['pointerdown', 'keydown'].forEach(function (ev) { win.addEventListener(ev, stopDemo, true); });
+
+    renderAll();
+    window.addEventListener('resize', renderModes);
+    if (document.fonts) document.fonts.ready.then(renderModes);
+    if (!reduceMotion) {
+      (async function () {
+        await sleep(1800);
+        if (demoStopped) return;
+        var done = await typeInto('checkout.items_count', 4, 'Ada {{count}} barang', 75, function () { return demoStopped || state.key !== 'checkout.items_count'; });
+        if (done && !demoStopped) {
+          record('checkout.items_count', 4, '', vals['checkout.items_count'][4], 'you');
+          renderAll(); flashRow(4);
+        }
+      })();
+    }
+  })();
+
+  /* ---------- Format explorer ---------- */
+  (function () {
+    // [file, placeholder style, note, sample]
+    var F = {
+      json: ['locales/en-US/checkout.json', '{{count}}', 'i18next interpolation, nested keys.',
+        '{\n  "checkout": {\n    "items_count": "You have {{count}} items"\n  }\n}'],
+      yaml: ['config/locales/en.yml', '%{count}', 'Rails interpolation under the locale root.',
+        'en:\n  checkout:\n    items_count: "You have %{count} items"'],
+      po: ['locale/id/LC_MESSAGES/messages.po', '%d', 'Source text as msgid, translation as msgstr.',
+        '#: checkout.items_count\nmsgid "You have %d items"\nmsgstr "Anda punya %d barang"'],
+      resx: ['Resources/Strings.resx', '{0}', '.NET composite formatting, one data node per key.',
+        '<data name="Checkout_ItemsCount" xml:space="preserve">\n  <value>You have {0} items</value>\n</data>'],
+      android: ['res/values/strings.xml', '%1$d', 'Positional format arguments, flat key names.',
+        '<resources>\n  <string name="checkout_items_count">You have %1$d items</string>\n</resources>'],
+      ios: ['en.lproj/Localizable.strings', '%d', 'Key-value pairs with optional comments.',
+        '/* Cart badge */\n"checkout.items_count" = "You have %d items";'],
+      xliff: ['messages.id.xlf', '{count}', 'Source and target side by side. Known issue: on save, Toucan writes the key into <source>.',
+        '<trans-unit id="checkout.items_count">\n  <source>You have {count} items</source>\n  <target>Anda punya {count} barang</target>\n</trans-unit>'],
+      arb: ['lib/l10n/app_en.arb', '{count}', 'ICU message. Known issue: @key metadata is dropped on save.',
+        '{\n  "checkoutItemsCount": "You have {count} items",\n  "@checkoutItemsCount": {\n    "placeholders": { "count": { "type": "int" } }\n  }\n}'],
+      csv: ['translations.csv', '{{count}}', 'One row per key, one column per language.',
+        'key,en-US,id-ID\ncheckout.items_count,"You have {{count}} items","Anda punya {{count}} barang"'],
+      xlsx: ['translations.xlsx', '{{count}}', 'Same layout as CSV, in a workbook translators can open.',
+        '  │ A                    │ B\n──┼──────────────────────┼─────────────────────────\n1 │ key                  │ en-US\n2 │ checkout.items_count │ You have {{count}} items'],
+      toml: ['i18n/en.toml', '{count}', 'Tables for namespaces.',
+        '[checkout]\nitems_count = "You have {count} items"'],
+      ini: ['lang/en.ini', '{count}', 'Sections for namespaces, plain values.',
+        '[checkout]\nitems_count=You have {count} items'],
+      properties: ['messages_en.properties', '{0}', 'Java MessageFormat arguments.',
+        'checkout.items_count=You have {0} items'],
+      php: ['lang/en/checkout.php', ':count', 'Laravel replacement parameters, one file per namespace.',
+        "<?php\n\nreturn [\n    'items_count' => 'You have :count items',\n];"]
+    };
+    var PH = /\{\{\w+\}\}|%\{\w+\}|%\d\$[a-z]|%[ds]|\{\w+\}|:count\b/g;
+    function paint(code) {
+      return code.split('\n').map(function (line) {
+        if (/^\s*(#|\/\*)/.test(line)) return '<span class="cm">' + esc(line) + '</span>';
+        return esc(line)
+          .replace(/&lt;\?php|&lt;\/?[\w:-]+|\/?&gt;/g, function (m) { return '<span class="tg">' + m + '</span>'; })
+          .replace(PH, function (m) { return '<span class="ph">' + m + '</span>'; });
+      }).join('\n');
+    }
+    var tiles = $$('#fx-tiles button.fmt');
+    var codeEl = $('#fx-code'), panel = $('.fx-panel');
+    tiles.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var f = F[b.dataset.fmt];
+        tiles.forEach(function (t) { t.setAttribute('aria-pressed', t === b); });
+        $('#fx-file').textContent = f[0];
+        $('#fx-style').textContent = f[1];
+        $('#fx-foot').textContent = f[2];
+        codeEl.innerHTML = paint(f[3]);
+        if (!reduceMotion) restart(codeEl, 'swap');
+        var r = panel.getBoundingClientRect();
+        if (r.bottom < 80 || r.top > window.innerHeight - 80) panel.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' });
+      });
+    });
+  })();
+
+  /* ---------- Terminal playback ---------- */
+  (function () {
+    var pre = $('#term-pre'), code = $('#term-code');
+    var finalHTML = code.innerHTML;
+    var PROMPT = '<span class="p">$ </span>';
+    var playing = false;
+    async function play() {
+      if (playing || reduceMotion) return;
+      playing = true;
+      pre.style.minHeight = pre.offsetHeight + 'px';
+      var out = '';
+      var lines = finalHTML.split('\n');
+      for (var n = 0; n < lines.length; n++) {
+        var ln = lines[n];
+        if (ln.indexOf(PROMPT) === 0) {
+          var cmd = ln.slice(PROMPT.length);
+          for (var c = 0; c <= cmd.length; c++) {
+            code.innerHTML = out + PROMPT + cmd.slice(0, c) + '<span class="caret"></span>';
+            await sleep(26);
+          }
+          await sleep(260);
+          out += ln + '\n';
+        } else {
+          out += ln + '\n';
+          code.innerHTML = out;
+          await sleep(ln.trim() ? 60 : 30);
+        }
+      }
+      code.innerHTML = finalHTML;
+      playing = false;
+    }
+    var seen = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) { seen.disconnect(); play(); }
+    }, { threshold: 0.4 });
+    seen.observe(pre);
+    $('#term-replay').addEventListener('click', play);
+  })();
+})();
 </script>
 </body>
 </html>

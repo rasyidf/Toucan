@@ -1,23 +1,33 @@
 <div align="center">
-  <img width="64" height="64" src="https://user-images.githubusercontent.com/28984914/216422726-a1597ef2-836b-4c31-8229-0b267c2b7e52.png" alt="Toucan icon"/>
+  <img width="64" height="64" src="docs/assets/logo.png" alt="Toucan icon"/>
   <h1>Toucan</h1>
 </div>
 
-Toucan is a Windows desktop editor for translation files. It opens 14 formats in one workspace, so you can translate, review, and validate every language file in a project without switching tools.
+Toucan is a desktop editor for translation files on Windows, macOS, and Linux. It opens 14 formats in one workspace, so you can translate, review, and validate every language file in a project without switching tools.
+
+Toucan is in preview: settings and project files can change between releases until 1.0. Current releases: **v0.18.0** for macOS and Linux (the first release there) and **v0.17.3** for Windows. The Windows build of 0.18.0 is coming. Website: [toucan.rasyid.dev](https://toucan.rasyid.dev).
 
 <img width="878" height="668" alt="Toucan editor with the tree sidebar, translation grid, and inspector panel" src="https://github.com/user-attachments/assets/6c60208e-640a-4fbc-b280-63f5fc856ece" />
 
 ## Quick start
 
-1. Download the latest installer from [GitHub Releases](https://github.com/rasyidf/Toucan/releases) and run it.
+1. Download the build for your platform from [GitHub Releases](https://github.com/rasyidf/Toucan/releases): v0.18.0 for macOS (`Toucan.app`) and Linux (tarball), v0.17.3 for Windows.
 2. Open a folder that contains translation files, or create a new project.
 3. Translate, review, and save.
 
 Toucan detects the framework when you drop a folder (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, and others) and groups files to match.
 
+## Platforms
+
+| App | Platforms | Status |
+|-----|-----------|--------|
+| Toucan (WPF) | Windows 10 and later | Preview, v0.17.3. The most complete app: every feature below. |
+| Toucan (Avalonia) | macOS, Linux | Preview, v0.18.0 (first release). Shares the core (formats, validation, providers) with Windows. Has the Editor/Review/Audit modes, Zen mode, search and bulk edits, side panels, and plugins. Not ported yet: the Source Control, Translation, and Dictionary panels. |
+| `toucan` CLI | Any OS with .NET 10 | Preview. `check`, `stats`, `translate`, `export`, `list-formats`, `list-keys`, `get`, `set`. |
+
 ## Supported formats
 
-JSON, YAML, PO, RESX, Android XML, iOS `.strings`, XLIFF, ARB, CSV, TOML, INI, Java `.properties`, Laravel PHP, and Excel. Projects from `.babel` files can be imported.
+JSON, YAML, PO, RESX, Android XML, iOS `.strings`, XLIFF, ARB, CSV, TOML, INI, Java `.properties`, Laravel PHP, and Excel. Projects from `.babel` files can be imported. Some formats lose detail on save (PO plurals, ARB `@key` metadata, XLIFF source text); see [docs/known-bugs.md](docs/known-bugs.md).
 
 ## Features
 
@@ -27,9 +37,11 @@ The layout follows VS Code: a tree or list sidebar, a translation pane (paginate
 
 **Machine translation.** Pre-translate with Google Translate, DeepL, Microsoft Translator, or OpenAI. Results appear in a preview and are only written when you commit them. Placeholders (`{{var}}`, `{0}`, `%s`, `:param`) are preserved, formality settings are respected, and you can target a single key, a namespace, or a language.
 
-**Translation memory.** Fuzzy matching runs on a trigram engine and reuses translations across projects. Matches are suggested as you type.
+**Translation memory.** Fuzzy matching runs on a trigram engine and reuses translations across projects, with a configurable threshold and scope. Matches show in the inspector as you type. TMX import and export are supported.
 
-**Validation.** Six rules run on save and on demand: missing translations, placeholder mismatches, duplicate keys, untranslated copies, empty values, and whitespace mismatches.
+**Validation.** Six rules run on save and on demand: missing translations, placeholder mismatches, duplicate keys, untranslated copies, empty values, and whitespace mismatches. Each rule can be turned off or given a severity, and projects can add their own rules (max length, forbidden words, regex).
+
+**Search and bulk edits.** Search and replace across keys, values, and languages with regex and a preview. Select many keys to delete, move, pre-translate, approve, or copy source to target in one step.
 
 **Source scanning.** Toucan scans your code for `t('key')` calls in `.tsx`, `.vue`, `.svelte`, `.py`, and other files. You can filter keys by used or unused, and double-clicking a key opens the source file in your editor.
 
@@ -41,32 +53,55 @@ The layout follows VS Code: a tree or list sidebar, a translation pane (paginate
 
 ## Configuration
 
-- Provider API keys can be set app-wide or per project and are encrypted with DPAPI. See [docs/provider-settings.md](docs/provider-settings.md).
+- Provider API keys can be set app-wide or per project. They are encrypted with DPAPI on Windows, and with AES-GCM and a per-user key file on macOS and Linux. See [docs/provider-settings.md](docs/provider-settings.md).
 - Pre-translation runs as a dry run first and needs an explicit commit. See [docs/pretranslation-preview.md](docs/pretranslation-preview.md).
 - The default language is set per user under Settings > Options (default: en-US).
 
 ## Roadmap
 
-Version 1.0 is current and focuses on test coverage, performance profiling, and MSIX packaging.
+The planned order to 1.0:
 
 | Version | Planned |
 |---------|---------|
-| 1.1 | Auto-updater with stable and preview channels. ConsistencyAI, which batch-checks translations for tone, placeholders, and accuracy. Embedding-based translation memory with inline ghost text and TMX import/export. A CLI with `toucan check`, `translate`, `export`, and `stats`. |
-| 1.2 | Review workflow (Draft, Review, Approved, Published). Git integration with branch awareness, per-key diffs, and auto-commit. Webhook notifications. |
-| 1.3 | Avalonia port for macOS and Linux, sharing the ViewModel layer. |
-| 2.0 | Plugin system for custom formats, providers, and validation rules, loaded as `.dll` assemblies. Imports from Crowdin, Lokalise, Phrase, and Transifex. |
+| v0.18 | First macOS and Linux release, plugins (preview). Windows build to follow. |
+| v0.19 | Onboarding and UX polish. Inline ghost-text suggestions from translation memory. |
+| v0.20 | ConsistencyAI, which batch-checks translations for tone, placeholders, and accuracy. Project glossary. |
+| v0.21 | Signed packages, a release pipeline, and CI. |
+| v0.22 | Review lifecycle (Draft, Review, Approved, Published). Git integration with per-key diffs. |
+| v0.23 | Auto-updater with stable and preview channels. Editor improvements. |
+| v1.0 | Performance at scale and stabilization. The first stable release. |
+| After 1.0 | Imports from Crowdin, Lokalise, Phrase, and Transifex. Toucan Hub for locking and presence. A GitHub Action for `toucan check`. Avalonia feature parity. |
 
-Details are in [docs/todos/future-roadmap.md](docs/todos/future-roadmap.md).
+This is the planned order, not a promise. Details are in [docs/todos/future-roadmap.md](docs/todos/future-roadmap.md); shipped features are listed in [docs/completed-features.md](docs/completed-features.md).
 
 ## Tech stack
 
 | Layer | Technology |
 |-------|-----------|
-| UI | WPF with [WPF UI](https://github.com/lepoco/wpfui) (Fluent Design, Mica backdrop) |
+| UI | Windows: WPF with [WPF UI](https://github.com/lepoco/wpfui) (Fluent Design, Mica backdrop). macOS and Linux: [Avalonia](https://avaloniaui.net) 12 with FluentAvaloniaUI |
 | Architecture | MVVM with CommunityToolkit.Mvvm |
 | Runtime | .NET 10, System.Text.Json |
 | Providers | Google, DeepL, Microsoft, OpenAI, custom webhook |
-| Format engine | Strategy pattern (`ILoadStrategy` / `ISaveStrategy`) |
+| Format engine | Strategy pattern (`ILoadStrategy` / `ISaveStrategy`), string format IDs |
+| Extensibility | Plugins loaded from `.dll` assemblies ([guide](docs/plugins.md)), contract package `Toucan.Plugins.Abstractions` |
+
+## Plugins
+
+Plugins add file formats, translation providers, validation rules, and framework profiles from `.dll` assemblies, without changing Toucan. They arrived in v0.18.0, work in the Avalonia app (macOS, Linux) and the CLI but not the WPF app, and load only when you have enabled and trusted them: Settings > Plugins in the app, or `toucan plugins list` and `toucan plugins trust <id>` on the command line. To write one, start from [`samples/Toucan.Sample.Plugin`](samples/Toucan.Sample.Plugin) and the [plugin guide](docs/plugins.md); the contracts ship as the `Toucan.Plugins.Abstractions` package.
+
+## Build from source
+
+The cross-platform projects (core library, CLI, Avalonia app, plugin contracts, tests) build and test on macOS, Linux, and Windows:
+
+```bash
+dotnet test Toucan.CrossPlatform.slnx
+dotnet run --project Toucan.Avalonia
+dotnet run --project Toucan.CLI -- check ./locales
+```
+
+The WPF app and its tests are Windows-only and are part of `ToucanProject.slnx`. Architecture notes are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+The app version is set once, in `Directory.Build.props`. `publish.ps1` (Windows packages), `packaging/Build-Msix.ps1`, and `packaging/build-macos-app.sh` read it from there.
 
 ## Contributing
 
@@ -74,4 +109,4 @@ Report bugs and request features in [GitHub Issues](https://github.com/rasyidf/T
 
 ## License
 
-[MIT](LICENSE.txt), copyright Rasyidf 2023-2026.
+[MIT](LICENSE.txt), copyright 2023–2026 Muhammad Fahmi Rasyid ([rasyid.dev](https://rasyid.dev)).
