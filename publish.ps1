@@ -12,7 +12,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$Version = "0.17.3"
+$Version = ([xml](Get-Content "$PSScriptRoot\Directory.Build.props")).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
 $Project = "Toucan\Toucan.csproj"
 $Config = "Release"
 $Runtime = "win-x64"
@@ -92,7 +92,7 @@ function Build-Installer {
     # Build installer
     $issFile = "installer.iss"
     Write-Host "  Running ISCC..." -ForegroundColor DarkGray
-    & $iscc.FullName $issFile
+    & $iscc.FullName "/DAppVersion=$Version" $issFile
     if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed" }
 
     $installerPath = "publish\installer\ToucanSetup-$Version.exe"
@@ -119,7 +119,8 @@ function Build-Msix {
 
     # Generate placeholder PNGs if assets don't exist
     $manifest = "packaging\msix\AppxManifest.xml"
-    Copy-Item $manifest "$outDir\AppxManifest.xml" -Force
+    (Get-Content $manifest -Raw) -replace '(<Identity[^>]*?Version=")[^"]*', "`${1}$Version.0" |
+        Set-Content "$outDir\AppxManifest.xml" -Encoding UTF8
 
     # Copy packaging assets if they exist
     if (Test-Path "packaging\msix\Assets") {

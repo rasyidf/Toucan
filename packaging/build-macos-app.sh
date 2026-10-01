@@ -7,7 +7,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="${1:-$ROOT/build/macos}"
 RID="${2:-osx-$([ "$(uname -m)" = arm64 ] && echo arm64 || echo x64)}"
 PROJ="$ROOT/Toucan.Avalonia/Toucan.Avalonia.csproj"
-VERSION="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' "$PROJ" | head -1)"
+VERSION="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' "$ROOT/Directory.Build.props" | head -1)"
 APP="$OUT/Toucan.app"
 
 rm -rf "$OUT/publish" "$APP"

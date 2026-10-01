@@ -21,7 +21,7 @@ Requires: [Windows 10 SDK](https://developer.microsoft.com/windows/downloads/win
 Options:
 - `-SkipBuild` — skip the publish step (reuse existing output)
 - `-Sign -CertPath path\to\cert.pfx -CertPassword pwd` — sign the MSIX
-- `-Version 0.14.0.0` — override version
+- `-Version 0.18.0.0` — override the version (default: `<Version>` from `Directory.Build.props` plus `.0`)
 
 ### Signing for sideloading
 
@@ -65,7 +65,7 @@ Place these in `packaging/Assets/` for proper store-quality icons:
   run: dotnet publish Toucan/Toucan.csproj -c Release -r win-x64 --self-contained -o publish/
 
 - name: Package MSIX
-  run: .\packaging\Build-Msix.ps1 -SkipBuild -Version ${{ github.ref_name }}
+  run: .\packaging\Build-Msix.ps1 -SkipBuild
 
 - name: Upload artifact
   uses: actions/upload-artifact@v4

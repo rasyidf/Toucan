@@ -13,9 +13,6 @@
     <Company>rasyid.dev</Company>
     <Authors>rasyid.dev</Authors>
     <Copyright>Copyright © Rasyidf 2023-2026</Copyright>
-    <AssemblyVersion>0.17.2.0</AssemblyVersion>
-    <FileVersion>0.17.2.0</FileVersion>
-    <Version>0.17.2</Version>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     <!-- macOS bundle metadata (used by `dotnet publish -r osx-arm64` + bundling scripts) -->
     <CFBundleName>Toucan</CFBundleName>
