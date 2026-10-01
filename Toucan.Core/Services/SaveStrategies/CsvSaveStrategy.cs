@@ -7,7 +7,10 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class CsvSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.Csv;
+    public string FormatId => FormatIds.Csv;
+    public string DisplayName => "CSV";
+    public IReadOnlyList<string> FileExtensions => [".csv"];
+    public string DefaultFilePath(string language) => "translations.csv";
 
     public void Save(string path, SaveContext context)
     {

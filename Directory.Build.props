@@ -4,6 +4,12 @@
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)build\.obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
   </PropertyGroup>
 
+  <!-- The app version. publish.ps1, Build-Msix.ps1 and build-macos-app.sh read it from here.
+       Toucan.Plugins.Abstractions sets its own version: that one is the plugin API version. -->
+  <PropertyGroup>
+    <Version>0.18.0</Version>
+  </PropertyGroup>
+
   <PropertyGroup>
     <AnalysisLevel>latest-all</AnalysisLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

@@ -17,7 +17,7 @@ public partial class I18nextProfile : IFrameworkProfile
 {
     public string Id => "i18next";
     public string DisplayName => "i18next (JSON)";
-    public SaveStyles DefaultFormat => SaveStyles.Namespaced;
+    public string DefaultFormatId => FormatIds.Namespaced;
     public IEnumerable<string> FilePatterns => ["locales/*/*.json", "locales/*.json", "public/locales/*/*.json"];
 
     public IEnumerable<DiscoveredFile> DiscoverFiles(string rootFolder)

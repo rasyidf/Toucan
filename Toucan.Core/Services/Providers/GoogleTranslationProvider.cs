@@ -14,6 +14,17 @@ public class GoogleTranslationProvider : ITranslationProvider
 
     public string Name => "Google";
 
+    public ProviderDefinition? Definition { get; } = new()
+    {
+        Name = "Google",
+        DisplayName = "Google Translate",
+        Description = "Google Cloud Translation API v2",
+        IsBuiltIn = true,
+        OptionFields = [],
+        SecretFields = new() { ["api_key"] = "Google Cloud API key" },
+        DefaultValues = []
+    };
+
     public async Task<IEnumerable<PretranslationItemResult>> PretranslateAsync(IEnumerable<PretranslationJob> jobs, PretranslationOptions? options = null, IProgress<PretranslationProgress>? progress = null, System.Threading.CancellationToken cancellationToken = default)
     {
         var results = new List<PretranslationItemResult>();

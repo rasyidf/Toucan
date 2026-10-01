@@ -7,7 +7,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 /// <summary>Loads TOML translation files (one file per language, [section] = namespace prefix).</summary>
 public class TomlLoadStrategy : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.Toml;
+    public string FormatId => FormatIds.Toml;
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

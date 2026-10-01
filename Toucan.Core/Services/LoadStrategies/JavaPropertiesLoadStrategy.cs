@@ -7,7 +7,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 
 public class JavaPropertiesLoadStrategy : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.JavaProperties;
+    public string FormatId => FormatIds.JavaProperties;
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

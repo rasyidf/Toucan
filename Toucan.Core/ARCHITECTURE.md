@@ -27,24 +27,29 @@ ILoadStrategy   — reads a folder/file → IEnumerable<TranslationItem>
 ISaveStrategy   — writes TranslationItem collection → folder/files
 ```
 
-Each format pair is a strategy. The factory resolves by `SaveStyles` enum or by auto-detection.
+Each format pair is a strategy, identified by a string format ID (`FormatIds`, e.g. `json`, `android-xml`). The factory resolves by ID; `FormatDetector` auto-detects a folder's format from each strategy's `Detection` rule. Strategies also own the format's file-layout conventions (default path, language files, comment storage). Plugins add formats the same way. The contracts live in `Toucan.Plugins.Abstractions`.
 
-## Supported & Planned Formats
+## Supported Formats
 
-| Format | Load | Save | Status |
-|--------|------|------|--------|
-| JSON (flat `{"key": "value"}`) | ✅ | ✅ | Done |
-| JSON (nested `{"app": {"key": "value"}}`) | ✅ | ✅ | Done (NamespacedStrategy) |
-| YAML | ❌ | ✅ | Save done, load stub |
-| PO/POT (gettext) | ❌ | ✅ | Save done |
-| INI / .properties | ❌ | ✅ | Save done |
-| TOML | ❌ | ❌ | Planned |
-| Android strings.xml | ❌ | ❌ | Planned |
-| iOS .strings / .stringsdict | ❌ | ❌ | Planned |
-| XLIFF 1.2 / 2.0 | ❌ | ❌ | Planned |
-| ARB (Flutter) | ❌ | ❌ | Planned |
-| CSV / TSV | ❌ | ❌ | Planned |
-| .resx / .resw (.NET) | ❌ | ❌ | Planned |
+All 14 built-in formats load and save except INI, which is save-only.
+
+| Format | Format ID | Load | Save |
+|--------|-----------|------|------|
+| JSON (flat or nested) | `json` | ✅ | ✅ |
+| JSON (namespaced / i18next) | `namespaced` | ✅ | ✅ |
+| YAML | `yaml` | ✅ | ✅ |
+| PO / POT (gettext) | `po` | ✅ | ✅ |
+| INI | `ini` | ❌ | ✅ |
+| Java `.properties` | `java-properties` | ✅ | ✅ |
+| TOML | `toml` | ✅ | ✅ |
+| Android `strings.xml` | `android-xml` | ✅ | ✅ |
+| iOS `.strings` | `ios-strings` | ✅ | ✅ |
+| XLIFF 1.2 / 2.0 | `xliff` | ✅ | ✅ |
+| ARB (Flutter) | `arb` | ✅ | ✅ |
+| CSV | `csv` | ✅ | ✅ |
+| `.resx` / `.resw` (.NET) | `resx` | ✅ | ✅ |
+| Laravel PHP arrays | `laravel-php` | ✅ | ✅ |
+| Anything else | your plugin's ID | via plugin | via plugin |
 
 ## Project Manifest (`toucan.project`)
 
@@ -53,7 +58,7 @@ Each format pair is a strategy. The factory resolves by `SaveStyles` enum or by 
   "$schema": "./toucan.project.schema.json",
   "primaryLanguage": "en-US",
   "languages": ["en-US", "fr-FR", "id-ID"],
-  "saveStyle": "Json",
+  "saveFormat": "json",
   "translationPackages": [
     {
       "name": "main",
@@ -65,6 +70,8 @@ Each format pair is a strategy. The factory resolves by `SaveStyles` enum or by 
   ]
 }
 ```
+
+`saveFormat` is a format ID (see above). Older files with `"saveStyle"` (a number or an enum name such as `"Json"`) are migrated when loaded and rewritten with `saveFormat` on the next save. An ID that no installed format provides makes the project fail to open with a "format unavailable" message instead of being read as JSON.
 
 The manifest enables multi-package projects (e.g., separate `ui.json`, `errors.json`, `emails.json`).
 
@@ -87,10 +94,13 @@ Any loaded project can be exported to any supported save format via `ISaveStrate
 
 ## Adding a New Format
 
-1. Create `MyFormatLoadStrategy : ILoadStrategy` in `Services/LoadStrategies/`
-2. Create `MyFormatSaveStrategy : ISaveStrategy` in `Services/SaveStrategies/`
-3. Add to `SaveStyles` enum
-4. Register in DI (`App.axaml.cs`)
+Built into Toucan:
+
+1. Create `MyFormatLoadStrategy : ILoadStrategy` in `Services/LoadStrategies/` and `MyFormatSaveStrategy : ISaveStrategy` in `Services/SaveStrategies/`; both return the same `FormatId`.
+2. Add the ID to `FormatIds` and implement `DefaultFilePath` (plus `FileExtensions`, `Detection`, … as needed) on the save strategy.
+3. Register both in `AddToucanFormats()` and add the save strategy to `BuiltInFormats`.
+
+As a plugin (no change to Toucan): see `docs/plugins.md` and `samples/Toucan.Sample.Plugin`.
 
 Each strategy is self-contained. No central parser needs modification.
 

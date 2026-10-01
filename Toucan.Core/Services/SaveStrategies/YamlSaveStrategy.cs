@@ -7,7 +7,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.Yaml;
+    public string FormatId => FormatIds.Yaml;
+    public string DisplayName => "YAML";
+    public IReadOnlyList<string> FileExtensions => [".yml", ".yaml"];
+    public string DefaultFilePath(string language) => $"{language}.yaml";
+
+    public FormatDetection Detection { get; } = new(8, [".yaml", ".yml"], []);
 
     public void Save(string path, SaveContext context)
     {

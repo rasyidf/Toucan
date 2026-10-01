@@ -1,0 +1,61 @@
+<UserControl x:Class="Toucan.Avalonia.Views.Panels.ExplorerPanel"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:FluentAvalonia.UI.Controls">
+
+  <DockPanel>
+    <!-- Hidden namespaces notice -->
+    <Border DockPanel.Dock="Bottom" Padding="12,6" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0"
+            IsVisible="{Binding HiddenNamespaces.Count}">
+      <Expander Header="Hidden namespaces" Padding="0">
+        <ItemsControl ItemsSource="{Binding HiddenNamespaces}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <DockPanel Margin="0,2">
+                <Button DockPanel.Dock="Right" Classes="link" Content="Show"
+                        Command="{Binding $parent[UserControl].DataContext.UnhideNamespaceCommand}" CommandParameter="{Binding}"/>
+                <TextBlock Text="{Binding}" Classes="mono caption" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+              </DockPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Expander>
+    </Border>
+
+    <Panel>
+      <TreeView x:Name="Tree" ItemsSource="{Binding CurrentTreeItems}" SelectedItem="{Binding SelectedNode}"
+                IsVisible="{Binding IsTreeView}" Padding="4">
+        <TreeView.Styles>
+          <Style Selector="TreeViewItem">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+            <Setter Property="MinHeight" Value="26"/>
+          </Style>
+        </TreeView.Styles>
+        <TreeView.ItemTemplate>
+          <TreeDataTemplate ItemsSource="{Binding Items}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Panel Width="14">
+                <ui:FASymbolIcon Symbol="Folder" FontSize="13" Foreground="{DynamicResource MutedTextBrush}" IsVisible="{Binding HasItems}"/>
+                <ui:FASymbolIcon Symbol="Tag" FontSize="12" Foreground="{DynamicResource FaintTextBrush}" IsVisible="{Binding !HasItems}"/>
+              </Panel>
+              <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="13"/>
+            </StackPanel>
+          </TreeDataTemplate>
+        </TreeView.ItemTemplate>
+      </TreeView>
+
+      <ListBox x:Name="FlatList" Classes="plain" ItemsSource="{Binding CurrentFlatItems}" IsVisible="{Binding !IsTreeView}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding DisplayKey}" Classes="mono" FontSize="12" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding FullKey}"/>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <StackPanel IsVisible="{Binding !CurrentTreeItems.Count}" Margin="16,24" Spacing="8">
+        <TextBlock Text="This project has no keys yet." Classes="caption" TextWrapping="Wrap"/>
+        <Button Content="Add translation key…" Command="{Binding NewItemCommand}"/>
+      </StackPanel>
+    </Panel>
+  </DockPanel>
+</UserControl>

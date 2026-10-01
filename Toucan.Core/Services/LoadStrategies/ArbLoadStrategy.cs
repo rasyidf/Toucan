@@ -8,7 +8,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 /// <summary>Loads Flutter ARB (Application Resource Bundle) JSON files.</summary>
 public class ArbLoadStrategy : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.Arb;
+    public string FormatId => FormatIds.Arb;
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

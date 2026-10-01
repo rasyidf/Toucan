@@ -16,9 +16,9 @@ public interface ICommentPersistenceService
     /// Empty comments are excluded; comments exceeding 2000 characters are truncated.
     /// </summary>
     /// <param name="folder">The project folder path.</param>
-    /// <param name="saveStyle">The project's save style (determines file naming and whether sidecar is needed).</param>
+    /// <param name="formatId">The project's format ID (determines file naming and whether a sidecar is needed).</param>
     /// <param name="translations">All translation items in the project.</param>
-    void SaveComments(string folder, SaveStyles saveStyle, IEnumerable<TranslationItem> translations);
+    void SaveComments(string folder, string formatId, IEnumerable<TranslationItem> translations);
 
     /// <summary>
     /// Loads comments from sidecar files and restores them onto matching TranslationItems.
@@ -26,13 +26,26 @@ public interface ICommentPersistenceService
     /// Orphaned sidecar entries (namespace not in translation file) are discarded.
     /// </summary>
     /// <param name="folder">The project folder path.</param>
-    /// <param name="saveStyle">The project's save style.</param>
+    /// <param name="formatId">The project's format ID.</param>
     /// <param name="translations">All translation items to restore comments onto.</param>
-    void LoadComments(string folder, SaveStyles saveStyle, IEnumerable<TranslationItem> translations);
+    void LoadComments(string folder, string formatId, IEnumerable<TranslationItem> translations);
 
     /// <summary>
-    /// Returns true if the given save style requires sidecar comment files
+    /// Returns true if the given format requires sidecar comment files
     /// (i.e., does not support inline comments).
     /// </summary>
-    bool RequiresSidecar(SaveStyles saveStyle);
+    bool RequiresSidecar(string formatId);
+}
+
+/// <summary>Compatibility overloads for callers that still hold a <see cref="SaveStyles"/>.</summary>
+public static class CommentPersistenceServiceExtensions
+{
+    public static bool RequiresSidecar(this ICommentPersistenceService service, SaveStyles style) =>
+        service.RequiresSidecar(FormatIds.FromStyle(style));
+
+    public static void SaveComments(this ICommentPersistenceService service, string folder, SaveStyles style, IEnumerable<TranslationItem> translations) =>
+        service.SaveComments(folder, FormatIds.FromStyle(style), translations);
+
+    public static void LoadComments(this ICommentPersistenceService service, string folder, SaveStyles style, IEnumerable<TranslationItem> translations) =>
+        service.LoadComments(folder, FormatIds.FromStyle(style), translations);
 }

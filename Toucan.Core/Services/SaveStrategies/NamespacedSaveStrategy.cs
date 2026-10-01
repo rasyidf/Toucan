@@ -5,7 +5,19 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class NamespacedSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.Namespaced;
+    public string FormatId => FormatIds.Namespaced;
+    public string DisplayName => "JSON (namespaced / i18next)";
+    public IReadOnlyList<string> FileExtensions => [];
+    public string DefaultFilePath(string language) => $"{language}.json";
+
+    public IReadOnlyList<string> LanguageFiles(string projectRoot, string language)
+    {
+        var files = new List<string> { Path.Combine(projectRoot, language + ".json") };
+        // Namespaced also writes to locales/{lang}/
+        var localesDir = Path.Combine(projectRoot, "locales", language);
+        if (Directory.Exists(localesDir)) files.AddRange(Directory.GetFiles(localesDir, "*.json"));
+        return files;
+    }
 
     public void Save(string path, SaveContext context)
     {

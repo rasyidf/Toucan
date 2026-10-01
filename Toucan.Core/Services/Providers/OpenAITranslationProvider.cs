@@ -18,6 +18,27 @@ public class OpenAITranslationProvider : ITranslationProvider
 
     public string Name => "OpenAI";
 
+    public ProviderDefinition? Definition { get; } = new()
+    {
+        Name = "OpenAI",
+        DisplayName = "OpenAI / Compatible",
+        Description = "OpenAI, Azure OpenAI, Ollama, or any compatible endpoint",
+        IsBuiltIn = true,
+        OptionFields = new()
+        {
+            ["endpoint"] = "API base URL",
+            ["model"] = "Model name",
+            ["prompt"] = "Custom system prompt (optional)"
+        },
+        SecretFields = new() { ["api_key"] = "API key / Bearer token" },
+        DefaultValues = new()
+        {
+            ["endpoint"] = "https://api.openai.com/v1",
+            ["model"] = "gpt-4o-mini",
+            ["prompt"] = ""
+        }
+    };
+
     public async Task<IEnumerable<PretranslationItemResult>> PretranslateAsync(IEnumerable<PretranslationJob> jobs, PretranslationOptions? options = null, IProgress<PretranslationProgress>? progress = null, CancellationToken cancellationToken = default)
     {
         var results = new List<PretranslationItemResult>();

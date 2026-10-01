@@ -8,7 +8,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 /// <summary>Loads Android res/values-{lang}/strings.xml files.</summary>
 public class AndroidXmlLoadStrategy : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.AndroidXml;
+    public string FormatId => FormatIds.AndroidXml;
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

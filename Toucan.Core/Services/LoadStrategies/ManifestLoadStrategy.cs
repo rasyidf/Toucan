@@ -8,7 +8,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 
 public class ManifestLoadStrategy(IFileService fileService, ILogger<ManifestLoadStrategy> logger) : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.Json;
+    public string FormatId => FormatIds.Json;
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

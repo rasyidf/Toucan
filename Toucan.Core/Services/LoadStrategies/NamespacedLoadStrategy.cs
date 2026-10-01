@@ -5,6 +5,6 @@ namespace Toucan.Core.Services.LoadStrategies;
 
 public class NamespacedLoadStrategy(JsonLoadStrategy jsonLoader) : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.Namespaced;
+    public string FormatId => FormatIds.Namespaced;
     public IEnumerable<TranslationItem> Load(string folder) => jsonLoader.Load(folder);
 }

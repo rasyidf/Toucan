@@ -4,10 +4,10 @@ This document explains how provider credentials are stored and how to configure 
 
 ## Where settings are stored
 
-- Application-level settings: %USERPROFILE%/Documents/Toucan/providers.json (uses the OS 'My Documents' path on Windows).
+- Application-level settings: `Documents/Toucan/providers.json` in the user's home (the OS Documents folder on Windows, macOS, and Linux).
 - Project-level settings: `<project folder>/.toucan/providers.json`
 
-Provider settings JSON stores non-secret fields in cleartext (Options), and secrets (api keys) are encrypted using DPAPI before writing to disk. Empty secrets are stored as empty strings (not encrypted). The JSON format is an array of ProviderSettings objects (see `Toucan.Core.Models.ProviderSettings`).
+Provider settings JSON stores non-secret fields in cleartext (Options), and secrets (api keys) are encrypted before writing to disk (see [Security model](#security-model)). Empty secrets are stored as empty strings (not encrypted). The JSON format is an array of ProviderSettings objects (see `Toucan.Core.Models.ProviderSettings`).
 
 ## Built-in providers
 
@@ -21,11 +21,13 @@ All built-in providers are pre-populated with sensible default values when no sa
 | OpenAI | endpoint, model, prompt | api_key | endpoint=https://api.openai.com/v1, model=gpt-4o-mini |
 | Custom | endpoint, header_name | api_key | — |
 
-Provider schemas are defined in `TranslationProviderRegistry` and exposed via `ITranslationProviderRegistry`.
+Each provider declares its own schema through `ITranslationProvider.Definition`; `TranslationProviderRegistry` collects the definitions of all registered providers and exposes them via `ITranslationProviderRegistry`. Plugin providers appear in the same list (they are not marked built-in). Providers without a definition, such as the mock provider, work but are not listed.
 
 ## Security model
 
-- Secrets are encrypted using the local machine or user DPAPI before being saved. This provides a simple, OS-backed: 'usable only on this account/machine' protection.
+- Windows (WPF and Avalonia apps): secrets are encrypted with the current user's DPAPI key, so they can only be read by that account on that machine. Both apps use the same format, so the files are interchangeable.
+- macOS and Linux (Avalonia app): secrets are encrypted with AES-GCM using a random per-user key stored as `Toucan/secret.key` in the user's application-data folder, with owner-only (0600) permissions. Encrypted values start with `aesgcm1:`. Anyone who can read both that key file and `providers.json` can decrypt the secrets.
+- If DPAPI is unavailable, older builds stored secrets base64-encoded. Toucan still reads those values and writes them back encrypted the next time the provider settings are saved.
 - Empty secret values are NOT encrypted (stored as empty string in JSON) to avoid confusion when decrypting.
 - For automated / CI scenarios you can still opt to use application-level settings or supply provider credentials in environment-specific locations; consider using OS-level secret stores for advanced scenarios.
 

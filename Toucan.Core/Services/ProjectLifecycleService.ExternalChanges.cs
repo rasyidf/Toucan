@@ -171,7 +171,7 @@ public partial class ProjectLifecycleService
             // Reload comments
             try
             {
-                commentPersistence.LoadComments(folderPath, _currentProject.SaveStyle, translations);
+                commentPersistence.LoadComments(folderPath, _currentProject.SaveFormat, translations);
             }
             catch (Exception ex)
             {

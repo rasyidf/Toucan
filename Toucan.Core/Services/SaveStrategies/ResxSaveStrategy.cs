@@ -8,7 +8,13 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class ResxSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.Resx;
+    public string FormatId => FormatIds.Resx;
+    public string DisplayName => "RESX";
+    public IReadOnlyList<string> FileExtensions => [".resx"];
+    public string DefaultFilePath(string language) => $"Resources{(language == "default" ? "" : $".{language}")}.resx";
+
+    public bool StoresCommentsInline => true;
+    public FormatDetection Detection { get; } = new(1, [".resx"], []);
 
     public void Save(string path, SaveContext context)
     {

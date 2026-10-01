@@ -17,7 +17,7 @@ public partial class AndroidProfile : IFrameworkProfile
 {
     public string Id => "android";
     public string DisplayName => "Android (XML)";
-    public SaveStyles DefaultFormat => SaveStyles.AndroidXml;
+    public string DefaultFormatId => FormatIds.AndroidXml;
     public IEnumerable<string> FilePatterns => ["res/values*/strings.xml", "app/src/main/res/values*/strings.xml"];
 
     public IEnumerable<DiscoveredFile> DiscoverFiles(string rootFolder)

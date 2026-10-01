@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    A complete, minimal Toucan plugin: one file format (tab-separated values) and one validation rule.
+    Read docs/plugins.md alongside this project.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <!-- Lets Toucan load this assembly into its own context and resolve its dependencies from the plugin folder. -->
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>Toucan.Sample.Plugin</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Outside this repository, reference the NuGet package instead:
+        <PackageReference Include="Toucan.Plugins.Abstractions" Version="1.0.0" ExcludeAssets="runtime" />
+      Either way the abstractions must NOT be copied next to your plugin: Toucan supplies them, which is what makes
+      your ISaveStrategy the same type as Toucan's ISaveStrategy.
+    -->
+    <ProjectReference Include="..\..\Toucan.Plugins.Abstractions\Toucan.Plugins.Abstractions.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

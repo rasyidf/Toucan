@@ -7,7 +7,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class TomlSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.Toml;
+    public string FormatId => FormatIds.Toml;
+    public string DisplayName => "TOML";
+    public IReadOnlyList<string> FileExtensions => [".toml"];
+    public string DefaultFilePath(string language) => $"{language}.toml";
+
+    public FormatDetection Detection { get; } = new(9, [".toml"], []);
 
     public void Save(string path, SaveContext context)
     {

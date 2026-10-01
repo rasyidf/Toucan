@@ -1,13 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\WindowIcon.ico</ApplicationIcon>
+    <AssemblyName>Toucan</AssemblyName>
+    <RootNamespace>Toucan.Avalonia</RootNamespace>
+    <Title>Toucan Editor</Title>
+    <Company>rasyid.dev</Company>
+    <Authors>rasyid.dev</Authors>
+    <Copyright>Copyright © Rasyidf 2023-2026</Copyright>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
-    <!-- Suppress Avalonia XAML warnings about deprecated TextBox.Watermark (AVLN5001)
-         and runtime loader reachability (AVLN3001) until UI migration is complete -->
-    <NoWarn>$(NoWarn);AVLN5001;AVLN3001</NoWarn>
+    <!-- macOS bundle metadata (used by `dotnet publish -r osx-arm64` + bundling scripts) -->
+    <CFBundleName>Toucan</CFBundleName>
+    <CFBundleIdentifier>dev.rasyid.toucan</CFBundleIdentifier>
   </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
@@ -23,8 +32,10 @@
     <PackageReference Include="FluentAvaloniaUI" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.9" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.9" /> 
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.9" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.9" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Toucan.Avalonia.Tests" />
   </ItemGroup>
 </Project>

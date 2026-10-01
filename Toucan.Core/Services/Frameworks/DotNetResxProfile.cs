@@ -13,7 +13,7 @@ public partial class DotNetResxProfile : IFrameworkProfile
 {
     public string Id => "dotnet-resx";
     public string DisplayName => ".NET (RESX)";
-    public SaveStyles DefaultFormat => SaveStyles.Resx;
+    public string DefaultFormatId => FormatIds.Resx;
     public IEnumerable<string> FilePatterns => ["**/*.resx"];
 
     public IEnumerable<DiscoveredFile> DiscoverFiles(string rootFolder)

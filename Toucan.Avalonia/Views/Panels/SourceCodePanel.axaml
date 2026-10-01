@@ -1,0 +1,51 @@
+<UserControl x:Class="Toucan.Avalonia.Views.Panels.SourceCodePanel"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:FluentAvalonia.UI.Controls">
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top" Margin="12,8" Spacing="8">
+      <TextBlock Text="{Binding SourceCodeStatus}" Classes="caption" TextWrapping="Wrap"/>
+      <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsScanning}"/>
+      <WrapPanel>
+        <Button Content="Scan" Classes="accent" Command="{Binding ScanSourceCodeCommand}" Margin="0,0,6,6"/>
+        <Button Content="Choose folder…" Command="{Binding SelectSourceRootCommand}" Margin="0,0,6,6"/>
+      </WrapPanel>
+      <WrapPanel IsVisible="{Binding SourceCodeScanned}">
+        <Button Classes="link" Content="Show used keys" Command="{Binding FilterUsedKeysCommand}"/>
+        <Button Classes="link" Content="Show unused keys" Command="{Binding FilterUnusedKeysCommand}"/>
+        <Button Classes="link" Content="Clear" Command="{Binding ClearSourceFilterCommand}"/>
+      </WrapPanel>
+    </StackPanel>
+
+    <Expander DockPanel.Dock="Top" Margin="8,0,8,6" IsVisible="{Binding UndefinedKeys.Count}"
+              Header="{Binding UndefinedKeys.Count, StringFormat='Missing from project ({0})'}">
+      <ItemsControl ItemsSource="{Binding UndefinedKeys}" MaxHeight="200">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <DockPanel Margin="0,1">
+              <Button DockPanel.Dock="Right" Classes="link" Content="Add"
+                      Command="{Binding $parent[UserControl].DataContext.AddUndefinedKeyCommand}" CommandParameter="{Binding}"/>
+              <TextBlock Text="{Binding}" Classes="mono caption" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+            </DockPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </Expander>
+
+    <ListBox Classes="plain" ItemsSource="{Binding SourceCodeUsages}">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <Button Classes="row" Padding="0" Command="{Binding $parent[UserControl].DataContext.OpenUsageCommand}" CommandParameter="{Binding}">
+            <StackPanel Spacing="1">
+              <TextBlock Text="{Binding Key}" Classes="mono" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+              <TextBlock Classes="caption mono" FontSize="11" TextTrimming="PathSegmentEllipsis">
+                <Run Text="{Binding FilePath}"/><Run Text=":"/><Run Text="{Binding Line}"/>
+              </TextBlock>
+              <TextBlock Text="{Binding LineContent}" Classes="hint mono" MaxLines="1" TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+          </Button>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</UserControl>

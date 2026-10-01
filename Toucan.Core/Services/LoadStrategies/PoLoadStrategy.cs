@@ -8,7 +8,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 /// <summary>Loads PO/POT (gettext) translation files.</summary>
 public partial class PoLoadStrategy : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.Properties;
+    public string FormatId => FormatIds.Po;
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

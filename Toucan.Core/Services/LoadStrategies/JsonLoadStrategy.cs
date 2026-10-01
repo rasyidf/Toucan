@@ -8,7 +8,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 
 public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoadStrategy> logger) : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.Json;
+    public string FormatId => FormatIds.Json;
 
     private static readonly HashSet<string> s_excludedFiles = new(StringComparer.OrdinalIgnoreCase)
         { "toucan.tproj", "package.json", "package-lock.json", "tsconfig.json", "global.json", "appsettings.json" };

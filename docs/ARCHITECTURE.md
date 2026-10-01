@@ -1,6 +1,6 @@
 # Toucan — Architecture
 
-> Last updated: 2026-07-03
+> Last updated: 2026-10-01 (plugin system, string format IDs, shared composition root)
 
 ---
 
@@ -28,11 +28,17 @@
               │                       │
               │  CommunityToolkit.Mvvm│
               │  ClosedXML            │
-              │  MS.Ext.Logging.Abs   │
-              └───────────────────────┘
+              │  MS.Ext.DI + Logging  │
+              └───────────┬───────────┘
+                          │
+                          ▼
+         ┌─────────────────────────────────┐        ┌──────────────────────┐
+         │   Toucan.Plugins.Abstractions   │◄───────│  plugin assemblies   │
+         │   plugin contract + NuGet pkg   │        │  (loaded at runtime) │
+         └─────────────────────────────────┘        └──────────────────────┘
 ```
 
-All three consumer projects reference `Toucan.Core`. The core has no UI dependencies and no DI container — consumers compose services themselves.
+All three consumer projects reference `Toucan.Core`, which references `Toucan.Plugins.Abstractions` (the small, stable contract that plugins build against; it has no UI or Core dependencies). The core has no UI dependencies. Its composition root, `AddToucanCore()` (`ToucanCoreServiceCollectionExtensions`), registers formats, providers, validation and the project service; the Avalonia app and the CLI both call it, then add their own services (the WPF app composes its own).
 
 ---
 
@@ -42,15 +48,16 @@ All three consumer projects reference `Toucan.Core`. The core has no UI dependen
 
 Platform-agnostic library containing all business logic:
 
-- **Models** — `TranslationItem`, `NsTreeItem`, `ProjectSettings`, `SaveStyles`, `SidePanel`, `StatusBarPanel`, and DTOs
-- **Contracts** — interfaces for every service (`ILoadStrategy`, `ISaveStrategy`, `IProjectLifecycleService`, `ITranslationProvider`, etc.)
+- **Models** — `TranslationItem`, `NsTreeItem`, `ProjectSettings`, `FormatIds`, `SidePanel`, `StatusBarPanel`, and DTOs. The plugin-facing ones (`TranslationItem`, `SaveContext`, `FormatIds`, `ProviderDefinition`, …) live in `Toucan.Plugins.Abstractions` under the same namespaces.
+- **Contracts** — interfaces for every service (`ILoadStrategy`, `ISaveStrategy`, `IProjectLifecycleService`, `ITranslationProvider`, etc.). The plugin-facing contracts (`ISaveStrategy`, `ILoadStrategy`, `ITranslationProvider`, `IValidationRule`, `IFrameworkProfile`) are in `Toucan.Plugins.Abstractions`; host internals (`IValidationPipeline`, `IProjectService`, …) stay in Core.
 - **Services** — implementations: strategy factory, project lifecycle, translation management, validation, TM, audit, auto-save, fuzzy search
-- **Format Engine** — 14 load strategies + 14 save strategies (strategy pattern keyed by `SaveStyles` enum)
+- **Format Engine** — 14 load strategies + 14 save strategies, identified by string format ID (`json`, `android-xml`, …). Each save strategy also owns the format's layout conventions (see below).
 - **Framework Profiles** — 8 auto-detection profiles (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, Generic JSON)
-- **Translation Providers** — Google, DeepL, Microsoft, OpenAI, Custom Webhook, Mock
+- **Translation Providers** — Google, DeepL, Microsoft, OpenAI, Custom Webhook, Mock; each carries its own settings definition
 - **Validation** — 6 rules + pipeline
+- **Plugins** — `PluginHost` (discovery, isolated load contexts, registration), trust policy store, content hasher, signature seam (see [Plugin System](#plugin-system))
 
-**Dependencies (3):** CommunityToolkit.Mvvm 8.4.2, ClosedXML 0.105.0, Microsoft.Extensions.Logging.Abstractions 10.0.9
+**Dependencies:** CommunityToolkit.Mvvm 8.4.2, ClosedXML 0.105.0, Microsoft.Extensions.DependencyInjection 10.0.9, Microsoft.Extensions.Logging.Abstractions 10.0.9, `Toucan.Plugins.Abstractions`
 
 ### Toucan (WPF App)
 
@@ -68,20 +75,23 @@ Primary desktop client — Windows-only, Fluent Design (Mica backdrop, system th
 
 Headless console tool for CI/CD integration.
 
-- **8 commands:** `check`, `stats`, `translate`, `export`, `list-formats`, `list-keys`, `get`, `set`
-- Manual service composition (no DI container) — constructs strategies and services directly
+- **9 commands:** `check`, `stats`, `translate`, `export`, `list-formats`, `list-keys`, `get`, `set`, `plugins` (`list`, `trust`, `revoke`, `enable`, `disable`)
+- Same composition root as the app (`AddToucanCore()` + `AddToucanPlugins()`), so every registered format, provider and rule (including plugins') is available
+- Plugins load only if enabled and already trusted; the CLI never prompts (`--allow-plugin <id>` waives trust for one run)
 - Outputs: color console (progress bars), JSON (get), exit codes for CI
 
-**Dependencies:** Toucan.Core only
+**Dependencies:** Toucan.Core, Microsoft.Extensions.DependencyInjection, Microsoft.Extensions.Logging
 
 ### Toucan.Avalonia
 
-Cross-platform desktop client (~80% feature parity with WPF).
+Cross-platform desktop client, shipped for macOS and Linux since v0.18.0 (preview). Targets `net10.0` (before v0.18.0 it targeted `net10.0-windows`). It shares `Toucan.Core` with the WPF app, so formats, validation and providers behave the same.
 
 - **Framework:** Avalonia 12.0.5 + FluentAvaloniaUI 3.0.0
-- **State:** Functional early port — all core workflows work, advanced features (zen mode, review/audit modes, source code panel, TM panel) deferred
-- Full DI setup mirroring WPF app
-- 12 ViewModels, 7 platform services, dialogs via Avalonia StorageProvider
+- **State:** Zen mode, Editor/Review/Audit modes, search and bulk edits, side panels (Explorer, Search, Issues, Source Code, Translation Memory, Languages, Inspector), plugins. Not ported yet: the Source Control, Translation and Dictionary panels.
+- **Packaging:** `packaging/build-macos-app.sh` (ad-hoc-signed `Toucan.app`); Linux builds are `dotnet publish -r linux-x64|linux-arm64 --self-contained` tarballs.
+- Full DI setup: `AddToucanCore()` + `AddToucanPlugins()` plus UI and editor services; Settings → Plugins page and a startup prompt for untrusted plugins
+- `MainWindowViewModel` split into partials (File, Edit, Nav, Search, Bulk, Translation); dialogs via Avalonia StorageProvider
+- Provider secrets: DPAPI on Windows, AES-GCM with a per-user key file on macOS/Linux (`SecureStorageService`)
 
 **Dependencies:** Avalonia 12.0.5, FluentAvaloniaUI 3.0.0, CommunityToolkit.Mvvm 8.4.2
 
@@ -103,9 +113,10 @@ IProjectLifecycleService.OpenAsync(path)
 IProjectModeResolver.Resolve(path)
     │
     ├─► FolderScan: detect framework via IFrameworkProfile.DetectionScore()
-    │   └─► select SaveStyle from winning profile
+    │   └─► FormatDetector: pick the format ID whose strategy `Detection` rule matches (plugins included)
     │
-    └─► ConfigManifest: read toucan.tproj → get SaveStyle + package URLs
+    └─► ConfigManifest: read toucan.tproj → get saveFormat + package URLs
+        (an unknown format ID throws FormatUnavailableException → "format unavailable", nothing is opened)
     │
     ▼
 IProjectService.LoadProject(path, settings)
@@ -347,58 +358,60 @@ IStatusBarPanel (Core contract)
 
 ### Format Engine
 
-The strategy pattern is the core extensibility point. Each format has a paired load+save keyed by `SaveStyles` enum. `TranslationStrategyFactory` resolves from DI-registered collections.
+The strategy pattern is the core extensibility point. Each format has a paired load+save identified by a string **format ID** (`FormatIds`; case-insensitive, stored in `toucan.tproj` as `saveFormat`). `TranslationStrategyFactory` resolves from DI-registered collections, which is also where plugin formats appear. The `SaveStyles` enum survives only as a compatibility map for the 14 built-ins and for migrating old project files (`saveStyle`).
+
+A **save strategy owns the format's layout conventions**, so nothing else switches on the format: `DefaultFilePath(language)`, `LanguageFiles(root, language)`, `StoresCommentsInline` / `CommentSidecarBase`, `FileExtensions`, `DisplayName` and an optional `Detection` rule (`FormatDetection`) used by `FormatDetector`. Only `FormatId` and `DefaultFilePath` are mandatory; the rest have defaults.
 
 ### Load Strategies (14 + 1 manifest)
 
-| Strategy | SaveStyles | Format Description |
-|----------|------------|-------------------|
-| `JsonLoadStrategy` | `Json` | Flat or nested JSON per-language file |
-| `ManifestLoadStrategy` | `Json` | Reads `toucan.tproj` manifest URLs (fallback to folder scan) |
-| `NamespacedLoadStrategy` | `Namespaced` | Delegates to JsonLoadStrategy; namespace handling differs on save |
-| `YamlLoadStrategy` | `Yaml` | YAML with indented hierarchy |
-| `PoLoadStrategy` | `Properties` | PO/POT gettext files |
-| `TomlLoadStrategy` | `Toml` | TOML with `[section]` prefixes |
-| `AndroidXmlLoadStrategy` | `AndroidXml` | `res/values-{lang}/strings.xml` |
-| `IosStringsLoadStrategy` | `IosStrings` | `"key" = "value";` .strings files |
-| `XliffLoadStrategy` | `Xliff` | XLIFF 1.2 and 2.0 |
-| `ArbLoadStrategy` | `Arb` | Flutter ARB JSON |
-| `CsvLoadStrategy` | `Csv` | CSV (key,lang1,lang2… or key,language,value) |
-| `ResxLoadStrategy` | `Resx` | .NET .resx/.resw XML |
-| `JavaPropertiesLoadStrategy` | `JavaProperties` | Java .properties files |
-| `LaravelPhpLoadStrategy` | `LaravelPhp` | Laravel PHP array files |
+| Strategy | Format ID | Format Description |
+|----------|-----------|-------------------|
+| `JsonLoadStrategy` | `json` | Flat or nested JSON per-language file |
+| `ManifestLoadStrategy` | `json` | Reads `toucan.tproj` manifest URLs (fallback to folder scan) |
+| `NamespacedLoadStrategy` | `namespaced` | Delegates to JsonLoadStrategy; namespace handling differs on save |
+| `YamlLoadStrategy` | `yaml` | YAML with indented hierarchy |
+| `PoLoadStrategy` | `po` | PO/POT gettext files |
+| `TomlLoadStrategy` | `toml` | TOML with `[section]` prefixes |
+| `AndroidXmlLoadStrategy` | `android-xml` | `res/values-{lang}/strings.xml` |
+| `IosStringsLoadStrategy` | `ios-strings` | `"key" = "value";` .strings files |
+| `XliffLoadStrategy` | `xliff` | XLIFF 1.2 and 2.0 |
+| `ArbLoadStrategy` | `arb` | Flutter ARB JSON |
+| `CsvLoadStrategy` | `csv` | CSV (key,lang1,lang2… or key,language,value) |
+| `ResxLoadStrategy` | `resx` | .NET .resx/.resw XML |
+| `JavaPropertiesLoadStrategy` | `java-properties` | Java .properties files |
+| `LaravelPhpLoadStrategy` | `laravel-php` | Laravel PHP array files |
 
 ### Save Strategies (14)
 
-| Strategy | SaveStyles |
-|----------|------------|
-| `JsonSaveStrategy` | `Json` |
-| `NamespacedSaveStrategy` | `Namespaced` |
-| `YamlSaveStrategy` | `Yaml` |
-| `PoSaveStrategy` | `Properties` |
-| `IniSaveStrategy` | `Adb` |
-| `TomlSaveStrategy` | `Toml` |
-| `AndroidXmlSaveStrategy` | `AndroidXml` |
-| `IosStringsSaveStrategy` | `IosStrings` |
-| `XliffSaveStrategy` | `Xliff` |
-| `ArbSaveStrategy` | `Arb` |
-| `CsvSaveStrategy` | `Csv` |
-| `ResxSaveStrategy` | `Resx` |
-| `JavaPropertiesSaveStrategy` | `JavaProperties` |
-| `LaravelPhpSaveStrategy` | `LaravelPhp` |
+| Strategy | Format ID |
+|----------|-----------|
+| `JsonSaveStrategy` | `json` |
+| `NamespacedSaveStrategy` | `namespaced` |
+| `YamlSaveStrategy` | `yaml` |
+| `PoSaveStrategy` | `po` |
+| `IniSaveStrategy` | `ini` |
+| `TomlSaveStrategy` | `toml` |
+| `AndroidXmlSaveStrategy` | `android-xml` |
+| `IosStringsSaveStrategy` | `ios-strings` |
+| `XliffSaveStrategy` | `xliff` |
+| `ArbSaveStrategy` | `arb` |
+| `CsvSaveStrategy` | `csv` |
+| `ResxSaveStrategy` | `resx` |
+| `JavaPropertiesSaveStrategy` | `java-properties` |
+| `LaravelPhpSaveStrategy` | `laravel-php` |
 
 ### Framework Profiles (auto-detection)
 
 | Profile | Id | Default Format | Detection Logic |
 |---------|----|----|---|
-| `I18nextProfile` | i18next | Json | Looks for `locales/` or `public/locales/` with JSON files |
-| `AndroidProfile` | android | AndroidXml | Looks for `res/values*/strings.xml` |
-| `FlutterArbProfile` | flutter | Arb | Looks for `lib/l10n/` or `*.arb` files |
-| `DotNetResxProfile` | dotnet | Resx | Looks for `*.resx` or `Resources/` folder |
-| `IosProfile` | ios | IosStrings | Looks for `*.lproj/Localizable.strings` |
-| `RailsYamlProfile` | rails | Yaml | Looks for `config/locales/*.yml` |
-| `GettextProfile` | gettext | Properties | Looks for `*.po` or `locale/` with PO structure |
-| `GenericJsonProfile` | generic-json | Json | Fallback: any folder with JSON translation files |
+| `I18nextProfile` | i18next | json | Looks for `locales/` or `public/locales/` with JSON files |
+| `AndroidProfile` | android | android-xml | Looks for `res/values*/strings.xml` |
+| `FlutterArbProfile` | flutter | arb | Looks for `lib/l10n/` or `*.arb` files |
+| `DotNetResxProfile` | dotnet | resx | Looks for `*.resx` or `Resources/` folder |
+| `IosProfile` | ios | ios-strings | Looks for `*.lproj/Localizable.strings` |
+| `RailsYamlProfile` | rails | yaml | Looks for `config/locales/*.yml` |
+| `GettextProfile` | gettext | po | Looks for `*.po` or `locale/` with PO structure |
+| `GenericJsonProfile` | generic-json | json | Fallback: any folder with JSON translation files |
 
 ---
 
@@ -413,7 +426,7 @@ The strategy pattern is the core extensibility point. Each format has a paired l
 | `EmptyValueRule` | `empty-value` | Warning | Keys with empty or whitespace-only values |
 | `WhitespaceMismatchRule` | `whitespace-mismatch` | Info | Leading/trailing whitespace differs from source |
 
-`ValidationPipeline` accepts `IEnumerable<IValidationRule>` via DI. Exposes `RunAll()` and `Run(ruleIds)`. Executed on-save and on-demand via the Issues panel.
+`ValidationPipeline` accepts `IEnumerable<IValidationRule>` via DI, so plugin rules join automatically. Exposes `RunAll()` and `Run(ruleIds)`. Executed on-save, on-demand via the Issues panel, and by `toucan check`. A rule reads `ValidationContext.Items` and `PrimaryLanguage`. The per-rule enable/severity switches in Settings cover only the six built-ins.
 
 ---
 
@@ -430,6 +443,8 @@ The strategy pattern is the core extensibility point. Each format has a paired l
 
 All implement `ITranslationProvider.PretranslateAsync(jobs, options, progress, ct)`. Placeholder patterns are stripped before API call and restored after via `PlaceholderService`.
 
+Each provider exposes an optional `Definition` (`ProviderDefinition`: option and secret fields, defaults). `TranslationProviderRegistry` is built from the registered providers' definitions, so plugin providers appear in provider settings; the mock provider has none and stays unlisted.
+
 ---
 
 ## Configuration System
@@ -442,7 +457,7 @@ Per-project configuration persisted as JSON alongside translation files.
 |---------|--------|
 | **Identity** | `Name`, `Description`, `Version` |
 | **Languages** | `PrimaryLanguage`, `Languages` (list), `LanguageAliases`, `CustomFilePaths` |
-| **Format/IO** | `SaveStyle` (enum), `Framework`, `TranslationPackages` |
+| **Format/IO** | `SaveFormat` (string format ID; legacy `saveStyle` is migrated on load), `Framework`, `TranslationPackages` |
 | **Editor** | `SaveEmptyTranslations`, `TranslationOrder`, `CopyTemplates` |
 | **Provider** | `DefaultProvider`, `Context`, `Formality` |
 | **Source Code** | `SourceRoots`, `ExternalEditorCommand` |
@@ -460,7 +475,14 @@ Global user preferences, independent of any project.
 | **General** | `CheckForUpdates`, `OpenLastProject`, `RecentProjectsMax` |
 | **Providers** | `DefaultProviderId` (app-level fallback) |
 
-Loaded via `IPreferenceService`. Provider API keys stored separately via `IProviderSettingsService` with DPAPI encryption (`ISecureStorageService`).
+Loaded via `IPreferenceService`. Provider API keys stored separately via `IProviderSettingsService`, encrypted by `ISecureStorageService` (DPAPI on Windows; AES-GCM on macOS/Linux in the Avalonia app).
+
+### Plugin files
+
+| Path | Purpose |
+|------|---------|
+| `~/Documents/Toucan/plugins/<id>/` | Installed plugins (`plugin.json` + assemblies). Override with `TOUCAN_PLUGINS_DIR` (CLI). |
+| `~/Documents/Toucan/plugin-policy.json` | Enabled state, trusted content hashes and dismissed prompts, shared by the app and the CLI. Override with `TOUCAN_PLUGIN_POLICY` (CLI). |
 
 ### Layout State (`~/Documents/Toucan/layout.json`)
 
@@ -477,21 +499,30 @@ Persisted by `PanelService`:
 
 ```
 Toucan/                              Solution root
-├── Toucan.sln                       Solution file
+├── ToucanProject.slnx               Full solution (includes the Windows-only WPF projects)
+├── Toucan.CrossPlatform.slnx        Everything except WPF: builds and tests on macOS/Linux/Windows
 │
 ├── Toucan.Core/                     Core library (platform-agnostic)
 │   ├── Contracts/                   Interface definitions
 │   │   └── Services/               Service-layer interfaces
 │   ├── Models/                      Domain models and DTOs
 │   ├── Options/                     AppOptions (global prefs)
-│   ├── Extensions/                  Extension methods
 │   ├── Helpers/                     JsonHelper, streaming parser
+│   ├── Plugins/                     PluginHost, load context, trust policy, hasher, signature seam
+│   ├── ToucanCoreServiceCollectionExtensions.cs   AddToucanCore() composition root
 │   └── Services/                    All implementations
 │       ├── Frameworks/              8 IFrameworkProfile implementations
 │       ├── LoadStrategies/          14 ILoadStrategy implementations
 │       ├── SaveStrategies/          14 ISaveStrategy implementations
 │       ├── Providers/               6 ITranslationProvider implementations
 │       └── Validation/              ValidationPipeline + 6 rules
+│
+├── Toucan.Plugins.Abstractions/     Plugin contract (also published as a NuGet package)
+│   ├── Contracts/                   ISaveStrategy, ILoadStrategy, ITranslationProvider, IValidationRule, IFrameworkProfile
+│   ├── Models/                      TranslationItem, FormatIds, ProviderDefinition, FormatDetection, …
+│   └── Plugin/                      IToucanPlugin, IPluginContext, PluginManifest, PluginApi
+│
+├── samples/Toucan.Sample.Plugin/    Complete example plugin (TSV format + rule)
 │
 ├── Toucan/                          WPF desktop app (primary)
 │   ├── ViewModels/                  MVVM ViewModels
@@ -516,10 +547,10 @@ Toucan/                              Solution root
 │   ├── Views/                       Avalonia XAML views + dialogs
 │   └── Services/                    Platform service implementations
 │
-├── Toucan.Core.Tests/               Core unit tests (xUnit v3, FsCheck, NSubstitute)
-│   └── IO/Generators/              Property-based test generators
-│
-├── Toucan.Tests/                    WPF ViewModel tests (xUnit v3)
+├── tests/Toucan.Core.Tests/         Core unit tests (xUnit v3, FsCheck, NSubstitute): formats, composition root, plugin host/trust
+├── tests/Toucan.Avalonia.Tests/     Headless Avalonia UI and view-model tests
+├── tests/Plugins/Toucan.TestPlugins/  Fixture plugins (well-behaved and misbehaving) for the host tests
+├── tests/Toucan.Tests/              WPF ViewModel tests (xUnit v3, Windows only)
 │
 ├── Tools/
 │   ├── Babel2Toucan.cs             .babel → toucan.project converter (C#)
@@ -527,18 +558,20 @@ Toucan/                              Solution root
 │
 └── docs/
     ├── ARCHITECTURE.md              ← this file
-    ├── completed-features.md        All 88 v1.0 features
+    ├── plugins.md                   Plugin author guide
+    ├── completed-features.md        Shipped features (v0.18.0 macOS/Linux, v0.17.3 Windows)
     ├── known-bugs.md                Active bug tracker
     ├── ui-revamp-plan.md            UI redesign plan
     ├── branding.md                  Brand guidelines
     ├── provider-settings.md         Provider configuration docs
     ├── pretranslation-preview.md    Dry-run/preview feature docs
-    ├── roadmap.json                 Machine-readable roadmap
+    ├── roadmap.json                 Legacy WPF feature checklist (no longer read by the website)
     ├── toucan.project.schema.json   JSON Schema for project files
-    ├── index.html                   GitHub Pages landing page
+    ├── index.html                   Website (toucan.rasyid.dev), self-contained HTML
     ├── todos/
-    │   ├── future-roadmap.md        Post-1.0 roadmap (v1.1–v2.0)
+    │   ├── future-roadmap.md        Roadmap: v0.19 → v1.0, then post-1.0 plans
     │   ├── panel-extension-plan.md  Inspector panel extension plan
+    │   ├── plugin-system-plan.md    Plugin system plan and implementation log
     │   └── ui-polish-plan.md        UI polish items
     ├── research/
     │   ├── babel-format-reference.md
@@ -577,11 +610,46 @@ Selected via `ModeSelectorBar` in the title bar (`TitleBar.TrailingContent`). Pe
 
 ---
 
+## Plugin System
+
+Plugins are .NET assemblies in `Documents/Toucan/plugins/<id>/` with a `plugin.json` manifest. Authors reference the
+`Toucan.Plugins.Abstractions` package; the guide is [plugins.md](plugins.md), the design history is
+[todos/plugin-system-plan.md](todos/plugin-system-plan.md).
+
+```
+startup
+  AddLogging → AddToucanCore() → AddToucanPlugins(options)  → BuildServiceProvider
+                                      │
+                    PluginHost.LoadInto(services)
+                      for each <plugins>/<folder>/plugin.json (name order):
+                        parse + validate manifest        → Rejected
+                        duplicate plugin id              → Rejected
+                        disabled (policy)                → Disabled
+                        plugin API compatible?           → Rejected
+                        SHA-256 of the folder, signature → Rejected if signature invalid
+                        trusted (policy, exact hash)?    → NeedsTrust (no code runs)
+                        load in own AssemblyLoadContext, find IToucanPlugin, Initialize(context)
+                        validate registrations (capabilities, ID collisions, format rules)
+                        commit → services.AddSingleton(...)   │  any failure → Failed, nothing applied
+                                      │
+                         IPluginCatalog (every plugin found, loaded or not)
+```
+
+- **Isolation:** one non-collectible `AssemblyLoadContext` per plugin; `Toucan.Plugins.Abstractions`, `Toucan.Core` and the `Microsoft.Extensions` abstractions always resolve from the host so contract types are shared.
+- **All or nothing:** a plugin's registrations are applied only if `Initialize` returns and every registration is valid. IDs of formats, providers, rules and profiles are reserved against the built-ins (read from a throwaway container) and earlier plugins.
+- **Trust:** `IPluginPolicy` / `FilePluginPolicyStore` (`Documents/Toucan/plugin-policy.json`) records enabled state and trusted content hashes; `IPluginSignatureVerifier` is a stub that reports everything "not signed" (signing becomes mandatory with the collaboration/auth milestone).
+- **Hosts:** Avalonia (Settings → Plugins, startup prompt) and the CLI (`toucan plugins …`, never prompts). WPF has no plugin support. Changes need a restart; plugins are never unloaded.
+- **Missing plugin:** a project whose format has no strategy fails to open with `FormatUnavailableException` instead of falling back to JSON.
+
+---
+
 ## Key Architectural Patterns
 
 | Pattern | Where | Purpose |
 |---------|-------|---------|
-| Strategy | Load/Save strategies | Format extensibility without modifying core |
+| Strategy | Load/Save strategies | Format extensibility without modifying core; strategies also own layout conventions |
+| Plugin host | `PluginHost` | Load third-party assemblies in isolated contexts behind a trust gate |
+| Composition root | `AddToucanCore()` | One registration path shared by the GUI, the CLI and plugins |
 | Registry | SidePanelRegistry, StatusBarPanelRegistry, TranslationProviderRegistry | Dynamic UI composition from DI |
 | Lifecycle service | IProjectLifecycleService | Orchestrates open/save/close with guards |
 | Baseline diffing | TranslationManagementService | Dirty tracking without filesystem reads |
@@ -594,11 +662,12 @@ Selected via `ModeSelectorBar` in the title bar (`TitleBar.TrailingContent`). Pe
 ## Adding New Functionality
 
 ### New Format
-1. Add value to `SaveStyles` enum
-2. Create `XxxLoadStrategy : ILoadStrategy` in `Services/LoadStrategies/`
-3. Create `XxxSaveStrategy : ISaveStrategy` in `Services/SaveStrategies/`
-4. Register both in DI (App.xaml.cs / App.axaml.cs / CLI Program.cs)
-5. Optionally: add `IFrameworkProfile` for auto-detection
+1. Create `XxxLoadStrategy : ILoadStrategy` in `Services/LoadStrategies/` and `XxxSaveStrategy : ISaveStrategy` in `Services/SaveStrategies/`, both returning the same `FormatId`; add the ID as a constant in `FormatIds` (and a `SaveStyles` map entry only if it is a built-in).
+2. On the save strategy implement `DefaultFilePath`, and as needed `DisplayName`, `FileExtensions`, `LanguageFiles`, `StoresCommentsInline` and `Detection`.
+3. Register both in `ToucanCoreServiceCollectionExtensions.AddToucanFormats()` (and add the save strategy to `BuiltInFormats`; a test keeps the two lists in step).
+4. Optionally add an `IFrameworkProfile` for auto-detection.
+
+To ship a format *outside* this repository, write a plugin instead (see [plugins.md](plugins.md)).
 
 ### New Panel
 1. Create `ISidePanel` implementation (or use `BuiltInSidePanel`)
@@ -608,9 +677,12 @@ Selected via `ModeSelectorBar` in the title bar (`TitleBar.TrailingContent`). Pe
 
 ### New Validation Rule
 1. Implement `IValidationRule` in `Services/Validation/`
-2. Register in DI — `ValidationPipeline` picks it up automatically
+2. Register in `AddToucanValidation()` — `ValidationPipeline` picks it up automatically
+3. Add it to the Validation settings list (`OptionsViewModel`) and the defaults in `ProjectDefaults` if it should have enable/severity switches (plugin rules do not have these yet)
 
 ### New Translation Provider
-1. Implement `ITranslationProvider`
-2. Create `ProviderDefinition` (schema for settings UI)
-3. Register in DI — `TranslationProviderRegistry` discovers it
+1. Implement `ITranslationProvider` and set its `Definition` (a `ProviderDefinition`: option/secret fields and defaults for the settings UI)
+2. Register in `AddToucanProviders()` — `TranslationProviderRegistry` is built from the registered providers, so it is listed automatically
+
+### Plugin
+See [plugins.md](plugins.md). Plugins register formats, providers, rules and profiles through `IPluginContext`; the host applies them to the same container.

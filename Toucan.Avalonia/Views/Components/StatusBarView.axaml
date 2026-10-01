@@ -1,25 +1,60 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl x:Class="Toucan.Avalonia.Views.Components.StatusBarView"
+             xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Toucan.Avalonia.Views.Components.StatusBarView">
-  <Border Padding="8,4" Margin="4,0,4,4" CornerRadius="0,0,4,4">
-    <Grid ColumnDefinitions="Auto,8,Auto,*,Auto,12,Auto,12,Auto,12,Auto">
-      <!-- Mode -->
-      <TextBlock Grid.Column="0" Text="{Binding ModeText}" VerticalAlignment="Center" FontSize="11" Opacity="0.5"/>
-      <!-- Status -->
-      <TextBlock Grid.Column="2" Text="{Binding StatusText}" VerticalAlignment="Center" FontSize="11"/>
-      <!-- Spacer -->
-      <!-- Language -->
-      <TextBlock Grid.Column="4" Text="{Binding DefaultLanguage}" VerticalAlignment="Center" FontSize="11" Opacity="0.6"/>
-      <!-- Cursor -->
-      <TextBlock Grid.Column="6" Text="{Binding CursorPosition}" VerticalAlignment="Center" FontSize="11" Opacity="0.5"/>
-      <!-- Loading -->
-      <ProgressBar Grid.Column="8" IsIndeterminate="True" IsVisible="{Binding IsLoading}" Width="50" Height="3"/>
-      <!-- Notification badge -->
-      <Border Grid.Column="10" CornerRadius="8" Padding="5,1" MinWidth="20"
-              IsVisible="{Binding NotificationCount}"
-              Background="{DynamicResource SystemAccentColor}">
-        <TextBlock Text="{Binding NotificationCount}" FontSize="10" HorizontalAlignment="Center" Foreground="White"/>
-      </Border>
+             xmlns:ui="using:FluentAvalonia.UI.Controls">
+  <Border Background="{DynamicResource StatusBarBackgroundBrush}" Height="24">
+    <Grid ColumnDefinitions="Auto,*,Auto">
+      <StackPanel Orientation="Horizontal">
+        <Button Classes="status" x:Name="ProjectButton" ToolTip.Tip="{Binding Project.ToolTip}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <ui:FASymbolIcon Symbol="Home"/>
+            <TextBlock Text="{Binding Project.ProjectName}" VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding Project.Badge}" VerticalAlignment="Center" FontWeight="SemiBold"
+                       IsVisible="{Binding Project.Badge, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+          </StackPanel>
+        </Button>
+        <Button Classes="status" x:Name="ModeButton" ToolTip.Tip="{Binding Mode.ToolTip}">
+          <Border Background="#33FFFFFF" CornerRadius="3" Padding="6,0">
+            <TextBlock Text="{Binding Mode.ModeName}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+          </Border>
+        </Button>
+        <Button Classes="status" x:Name="StatsButton" ToolTip.Tip="{Binding Stats.ToolTip}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <ui:FASymbolIcon Symbol="Checkmark"/>
+            <TextBlock Text="{Binding Stats.Content}" VerticalAlignment="Center"/>
+            <Border Background="#40FFFFFF" CornerRadius="7" Padding="5,0"
+                    IsVisible="{Binding Stats.Badge, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+              <StackPanel Orientation="Horizontal" Spacing="3">
+                <ui:FASymbolIcon Symbol="Important" FontSize="10"/>
+                <TextBlock Text="{Binding Stats.Badge}" FontSize="11" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </Button>
+      </StackPanel>
+
+      <TextBlock Grid.Column="1" Classes="status" Text="{Binding StatusText}" TextTrimming="CharacterEllipsis"/>
+
+      <StackPanel Grid.Column="2" Orientation="Horizontal">
+        <ProgressBar IsIndeterminate="True" Width="80" MinWidth="0" Height="4" Margin="8,0" VerticalAlignment="Center"
+                     IsVisible="{Binding Loading.IsActive}"/>
+        <TextBlock Classes="status" Text="{Binding CursorPosition}" Opacity="0.85" MaxWidth="320" TextTrimming="CharacterEllipsis"/>
+        <Button Classes="status" x:Name="LanguageButton" ToolTip.Tip="{Binding Language.ToolTip}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <ui:FASymbolIcon Symbol="Globe"/>
+            <TextBlock Text="{Binding Language.CurrentLanguage}" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Button>
+        <TextBlock Classes="status" Text="{Binding Encoding.Encoding}" Opacity="0.85"/>
+        <TextBlock Classes="status" Text="{Binding LineEndings.LineEnding}" Opacity="0.85"/>
+        <Button Classes="status" x:Name="NotificationsButton" ToolTip.Tip="{Binding Notifications.ToolTip}"
+                IsVisible="{Binding Notifications.IsVisible}">
+          <StackPanel Orientation="Horizontal" Spacing="4">
+            <ui:FASymbolIcon Symbol="Alert"/>
+            <TextBlock Text="{Binding Notifications.Badge}" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Button>
+      </StackPanel>
     </Grid>
   </Border>
 </UserControl>

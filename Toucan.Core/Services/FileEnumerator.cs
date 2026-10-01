@@ -55,12 +55,14 @@ public static partial class FileEnumerator
         bool skipNestedLocales = options.HasFlag(EnumerateOptions.SkipNestedLocaleDirs);
         bool hasLangDirsAtRoot = skipNestedLocales && HasLanguageSubdirectories(root);
 
+        var scan = ScanContext.Current;
         var stack = new Stack<string>();
         stack.Push(root);
 
         while (stack.Count > 0)
         {
             var dir = stack.Pop();
+            scan?.OnDirectory(dir);
             foreach (var sub in Directory.GetDirectories(dir))
             {
                 var name = Path.GetFileName(sub);
@@ -75,6 +77,7 @@ public static partial class FileEnumerator
             {
                 if (excludedFiles != null && excludedFiles.Contains(Path.GetFileName(file)))
                     continue;
+                scan?.OnFile();
                 yield return file;
             }
         }
@@ -91,12 +94,14 @@ public static partial class FileEnumerator
         bool skipNestedLocales = options.HasFlag(EnumerateOptions.SkipNestedLocaleDirs);
         bool hasLangDirsAtRoot = skipNestedLocales && HasLanguageSubdirectories(root);
 
+        var scan = ScanContext.Current;
         var stack = new Stack<string>();
         stack.Push(root);
 
         while (stack.Count > 0)
         {
             var dir = stack.Pop();
+            scan?.OnDirectory(dir);
             foreach (var sub in Directory.GetDirectories(dir))
             {
                 var name = Path.GetFileName(sub);
@@ -112,6 +117,7 @@ public static partial class FileEnumerator
                 {
                     if (excludedFiles != null && excludedFiles.Contains(Path.GetFileName(file)))
                         continue;
+                    scan?.OnFile();
                     yield return file;
                 }
             }

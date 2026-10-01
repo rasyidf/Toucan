@@ -1,8 +1,10 @@
-# Toucan Roadmap
+# Shipped Features
 
-> Last updated: 2026-06-27
-
----
+> As of v0.18.0 (macOS and Linux) and v0.17.3 (Windows). Release notes are in [CHANGELOG.md](../CHANGELOG.md);
+> planned work is in [todos/future-roadmap.md](todos/future-roadmap.md).
+> Unless a line says otherwise, a feature is in the Windows (WPF) app. The macOS and Linux (Avalonia) app shares the
+> core (formats, validation, providers) and has most of the UI; it does not have the Source Control, Translation, and
+> Dictionary panels yet.
 
 ## Core Editor
 
@@ -20,7 +22,7 @@
 - [x] Pagination with compact controls
 - [x] Infinite scroll toggle (paginated vs continuous)
 - [x] Cut / Copy / Paste translation values
-- [x] Copy as template (3 configurable patterns)
+- [x] Copy as template (1–5 configurable patterns)
 - [x] Convert case (lower / upper / sentence / title)
 - [x] Remove whitespace (trim / line-by-line / simplify)
 - [x] Tab between edit fields
@@ -45,7 +47,7 @@
 - [x] RESX (.NET), Android XML, iOS .strings
 - [x] XLIFF, ARB (Flutter), CSV
 - [x] Import / Export menu (all formats)
-- [x] Project manifest (`toucan.project` JSON)
+- [x] Project manifest (`toucan.tproj`, JSON)
 - [x] Excel (.xlsx) import/export
 - [x] Export/Import approved flags + comments in Excel
 - [x] Java .properties (ISO-8859-1)
@@ -68,6 +70,7 @@
 - [x] Suggestions panel (fuzzy-match existing translations)
 - [x] Pre-translate plural forms (i18next/ICU)
 - [x] Translation memory (reuse across projects)
+- [x] Custom webhook provider (your own endpoint, optional auth header)
 
 ## UI / UX
 
@@ -79,11 +82,30 @@
 - [x] Auto-open last project on startup
 - [x] Reveal in Explorer
 - [x] Centralized KeybindingService (22+ shortcuts)
-- [x] Keyboard Shortcuts tab in Options dialog
+- [x] Keyboard Shortcuts page in Settings (reference only, not editable yet)
+- [x] Settings dialog with 12 pages and two-tier settings (app defaults, per-project overrides)
 - [x] Filter: untranslated / translated / approved
 - [x] Status bar (project, language, cursor, loading, notifications)
 - [x] Toucan icon in TitleBar
 - [x] Compact pagination controls
+- [x] Editor, Review, and Audit modes; Zen mode (J/K navigation)
+- [x] Activity bar with side panels: Explorer, Source Code, Search, Issues, Source Control, Languages, Inspector, Translation, Memory (Dictionary panel is a placeholder)
+- [x] Panel layout saved between sessions
+
+## Search, Bulk Edits, Validation
+
+- [x] Search and replace across keys, values, and languages (regex, scope, preview, history)
+- [x] Bulk delete, move to namespace, pre-translate, approve, and copy source to target
+- [x] Six built-in validation rules: missing, placeholder mismatch, duplicate keys, untranslated (same as source), empty, whitespace mismatch
+- [x] Per-rule enable/disable and severity
+- [x] Custom rules per project: max length, forbidden words, regex, required
+
+## Translation Memory
+
+- [x] Trigram fuzzy matching with configurable threshold and scope (global or project)
+- [x] TMX import and export
+- [x] View, delete, and clear stored entries
+- [ ] Inline ghost-text suggestions (suggestion is computed; the editor overlay is not built yet)
 
 ## Advanced Data Model
 
@@ -95,10 +117,12 @@
 
 ## Distribution & Platform
 
-- [ ] Avalonia port (macOS + Linux) — started
-- [x] MSIX installer (Windows)
-- [ ] Auto-updater
-- [x] File association (`.toucan.project` → open app)
+- [x] Avalonia app for macOS (`Toucan.app`) and Linux (tarball), preview since v0.18.0
+- [x] Windows packaging scripts: portable EXE, Inno Setup installer, MSIX (`publish.ps1`)
+- [ ] Signed packages and a release pipeline
+- [ ] Auto-updater (the About page has the settings, but nothing checks for updates yet)
+- [x] File association (`.tproj` → open app)
+- [x] Git branch and changed-file count in the status bar
 - [x] Translation file locations configurable per language
 
 ## AI Features (Low Priority)
@@ -115,30 +139,16 @@
 - [x] Wire source root configuration
 - [x] Support `.tsx`, `.vue`, `.svelte`, `.py` scanning
 
----
+## Plugins (v0.18.0; macOS/Linux app and CLI, not the Windows app)
 
-## Progress
+- [x] Plugins add file formats, translation providers, validation rules, and framework profiles from `.dll` assemblies
+- [x] Trust model: a plugin loads only when enabled and trusted (SHA-256 of its files)
+- [x] `Toucan.Plugins.Abstractions` contract package (plugin API 1.0) and a sample plugin
 
-**Done: 88 / 88 (100%)**
+## Command Line
 
-**Feature parity vs professional i18n editors: ~95%**
-
----
-
-## Recommended Next Sprint
-
-1. ConsistencyAI — check translations against source (L)
-2. AI-powered translation memory enhancement (M)
-3. MSIX installer (M)
-4. Auto-updater (M)
-5. Avalonia port feature parity (XL)
+- [x] `toucan check` (exits 1 on errors, for CI), `stats`, `translate` (with `--dry-run`), `export`, `list-formats`, `list-keys`, `get`, `set`
 
 ---
 
-## Effort Legend
-
-- **XS** < 1 hour
-- **S** 1–4 hours
-- **M** 1–3 days
-- **L** 1–2 weeks
-- **XL** 1+ month
+Effort estimates and the order of upcoming work live in [todos/future-roadmap.md](todos/future-roadmap.md).

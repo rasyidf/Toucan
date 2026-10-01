@@ -1,27 +1,24 @@
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-
 namespace Toucan.Avalonia.Views.Dialogs;
 
-public partial class PromptDialog : Window
+/// <summary>Single-line text prompt. Closes with the entered text, or null when cancelled.</summary>
+public partial class PromptDialog : DialogWindow
 {
-    public string ResponseText => ResponseTextBox.Text ?? string.Empty;
+    public PromptDialog() : this(string.Empty, string.Empty) { }
 
-    public PromptDialog() => InitializeComponent();
-
-    public PromptDialog(string title, string message, string defaultValue = "") : this()
+    public PromptDialog(string title, string message, string defaultValue = "")
     {
+        InitializeComponent();
         Title = title;
-        MessageLabel.Text = message;
-        ResponseTextBox.Text = defaultValue;
-
-        OkButton.Click += (_, _) => Close(true);
-        CancelButton.Click += (_, _) => Close(false);
-        KeyDown += (_, e) =>
+        TitleText.Text = title;
+        MessageText.Text = message;
+        MessageText.IsVisible = !string.IsNullOrEmpty(message);
+        Input.Text = defaultValue;
+        OkButton.Click += (_, _) => Close(Input.Text ?? string.Empty);
+        CancelButton.Click += (_, _) => Close(null);
+        Opened += (_, _) =>
         {
-            if (e.Key == Key.Enter) Close(true);
-            if (e.Key == Key.Escape) Close(false);
+            Input.Focus();
+            Input.CaretIndex = Input.Text?.Length ?? 0;
         };
     }
 }

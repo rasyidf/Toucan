@@ -64,7 +64,7 @@ public class LanguageManagementService(
 
             // Write language file to disk
             await Task.Run(() => projectService.CreateLanguage(
-                settings.ProjectPath, languageCode, settings.SaveStyle), ct).ConfigureAwait(false);
+                settings.ProjectPath, languageCode, settings.SaveFormat), ct).ConfigureAwait(false);
 
             // Add items to in-memory collection
             translationManagement.AddItems(newItems);
@@ -170,105 +170,7 @@ public class LanguageManagementService(
         if (settings == null || string.IsNullOrEmpty(settings.ProjectPath))
             return [];
 
-        var projectPath = settings.ProjectPath;
-        var paths = new List<string>();
-
-        // Check for custom file path override
-        if (settings.LanguageFilePaths?.TryGetValue(languageCode, out var customPath) == true)
-        {
-            var fullPath = Path.IsPathRooted(customPath)
-                ? customPath
-                : Path.Combine(projectPath, customPath);
-            paths.Add(fullPath);
-            return paths;
-        }
-
-        // Determine file paths based on save style
-        switch (settings.SaveStyle)
-        {
-            case SaveStyles.Json:
-            case SaveStyles.Namespaced:
-                paths.Add(Path.Combine(projectPath, languageCode + ".json"));
-                // Namespaced also writes to locales/{lang}/ directory
-                if (settings.SaveStyle == SaveStyles.Namespaced)
-                {
-                    var localesDir = Path.Combine(projectPath, "locales", languageCode);
-                    if (Directory.Exists(localesDir))
-                    {
-                        paths.AddRange(Directory.GetFiles(localesDir, "*.json"));
-                    }
-                }
-                break;
-
-            case SaveStyles.Yaml:
-                paths.Add(Path.Combine(projectPath, languageCode + ".yaml"));
-                break;
-
-            case SaveStyles.Toml:
-                paths.Add(Path.Combine(projectPath, languageCode + ".toml"));
-                break;
-
-            case SaveStyles.Properties: // PO/gettext
-                paths.Add(Path.Combine(projectPath, languageCode + ".po"));
-                break;
-
-            case SaveStyles.Adb: // INI
-                paths.Add(Path.Combine(projectPath, languageCode + ".ini"));
-                break;
-
-            case SaveStyles.AndroidXml:
-                var dirName = languageCode == "default" ? "values" : $"values-{languageCode}";
-                var xmlPath = Path.Combine(projectPath, "res", dirName, "strings.xml");
-                paths.Add(xmlPath);
-                break;
-
-            case SaveStyles.IosStrings:
-                var iosPath = Path.Combine(projectPath, $"{languageCode}.lproj", "Localizable.strings");
-                paths.Add(iosPath);
-                break;
-
-            case SaveStyles.Xliff:
-                paths.Add(Path.Combine(projectPath, $"{languageCode}.xlf"));
-                break;
-
-            case SaveStyles.Arb:
-                paths.Add(Path.Combine(projectPath, $"app_{languageCode}.arb"));
-                break;
-
-            case SaveStyles.Csv:
-                // CSV stores all languages in a single file; no per-language file to remove
-                paths.Add(Path.Combine(projectPath, "translations.csv"));
-                break;
-
-            case SaveStyles.Resx:
-                var suffix = languageCode == "default" ? "" : $".{languageCode}";
-                paths.Add(Path.Combine(projectPath, $"Resources{suffix}.resx"));
-                break;
-
-            case SaveStyles.JavaProperties:
-                paths.Add(Path.Combine(projectPath, languageCode + ".properties"));
-                break;
-
-            case SaveStyles.LaravelPhp:
-                var phpDir = Path.Combine(projectPath, languageCode);
-                if (Directory.Exists(phpDir))
-                {
-                    paths.AddRange(Directory.GetFiles(phpDir, "*.php"));
-                }
-                else
-                {
-                    // If directory doesn't exist yet, at least indicate the expected directory
-                    paths.Add(phpDir);
-                }
-                break;
-
-            default:
-                // Fallback to JSON convention
-                paths.Add(Path.Combine(projectPath, languageCode + ".json"));
-                break;
-        }
-
-        return paths;
+        return projectService.GetLanguageFiles(settings, languageCode);
     }
 
     public async Task ReorderLanguagesAsync(IReadOnlyList<string> orderedLanguages, CancellationToken ct = default)

@@ -1,0 +1,18 @@
+<UserControl x:Class="Toucan.Avalonia.Views.Components.ActivityBar"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:svc="using:Toucan.Avalonia.Services">
+  <ItemsControl x:Name="PanelItems" Margin="0,6">
+    <ItemsControl.ItemTemplate>
+      <DataTemplate>
+        <Button Classes="activity" Classes.active="{Binding IsActive}"
+                ToolTip.Tip="{Binding Title}" ToolTip.Placement="Right"
+                Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ActivatePanelCommand}"
+                CommandParameter="{Binding Id}">
+          <ui:FASymbolIcon Symbol="{Binding Icon, Converter={StaticResource Symbol}}"/>
+        </Button>
+      </DataTemplate>
+    </ItemsControl.ItemTemplate>
+  </ItemsControl>
+</UserControl>

@@ -12,7 +12,7 @@ public class GettextProfile : IFrameworkProfile
 {
     public string Id => "gettext";
     public string DisplayName => "Gettext (PO)";
-    public SaveStyles DefaultFormat => SaveStyles.Properties;
+    public string DefaultFormatId => FormatIds.Po;
     public IEnumerable<string> FilePatterns => ["locale/**//*.po", "**/*.po"];
 
     public IEnumerable<DiscoveredFile> DiscoverFiles(string rootFolder)

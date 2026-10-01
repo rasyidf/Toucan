@@ -1,0 +1,132 @@
+<d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.ProjectPropertiesDialog"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                xmlns:vm="using:Toucan.Avalonia.ViewModels"
+                xmlns:ui="using:FluentAvalonia.UI.Controls"
+                Title="Project Properties" Width="720" Height="640">
+  <DockPanel>
+    <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
+      <DockPanel>
+        <Button Content="Reset to defaults" Command="{Binding ResetToDefaultsCommand}"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Content="Cancel" Command="{Binding CancelCommand}"/>
+          <Button Content="Save" Classes="accent" Command="{Binding SaveCommand}" IsDefault="True"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+    <StackPanel DockPanel.Dock="Top" Margin="20,18,20,0" Spacing="2">
+      <TextBlock Text="{Binding ProjectName}" Classes="dialogTitle"/>
+      <TextBlock Classes="caption mono" TextTrimming="PathSegmentEllipsis">
+        <Run Text="{Binding ProjectPath}"/><Run Text="  ·  "/><Run Text="{Binding SaveStyleName}"/>
+      </TextBlock>
+    </StackPanel>
+
+    <TabControl Margin="12,8,12,0">
+      <TabItem Header="General">
+        <ScrollViewer>
+          <StackPanel Margin="8,4" MaxWidth="600" HorizontalAlignment="Left">
+            <TextBlock Text="Name" Classes="label"/>
+            <TextBox Text="{Binding ProjectName}"/>
+            <TextBlock Text="Description" Classes="label"/>
+            <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" Height="60"/>
+            <TextBlock Text="Primary (source) language" Classes="label"/>
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Content="Manage languages…" Margin="6,0,0,0" Command="{Binding ManageLanguagesCommand}"/>
+              <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding PrimaryLanguage}" MinWidth="200"/>
+            </DockPanel>
+            <CheckBox Classes="form" Content="Auto-save" IsChecked="{Binding AutoSaveEnabled}"/>
+            <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding AutoSaveEnabled}" Margin="28,4,0,0">
+              <TextBlock Text="Every" VerticalAlignment="Center"/>
+              <NumericUpDown Value="{Binding AutoSaveInterval}" Minimum="10" Maximum="600" Increment="10" FormatString="0" Width="130"/>
+              <TextBlock Text="seconds" VerticalAlignment="Center"/>
+            </StackPanel>
+            <CheckBox Classes="form" Content="Validate before saving" IsChecked="{Binding ValidateOnSave}"/>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Translation">
+        <ScrollViewer>
+          <StackPanel Margin="8,4" MaxWidth="600" HorizontalAlignment="Left">
+            <TextBlock Text="Default provider" Classes="label"/>
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Content="Provider settings…" Margin="6,0,0,0" Command="{Binding OpenProviderSettingsCommand}"/>
+              <ComboBox ItemsSource="{x:Static vm:ProjectPropertiesViewModel.ProviderOptions}" SelectedItem="{Binding DefaultProvider}" MinWidth="200"/>
+            </DockPanel>
+            <TextBlock Text="Formality" Classes="label"/>
+            <ComboBox ItemsSource="{x:Static vm:ProjectPropertiesViewModel.FormalityOptions}" SelectedItem="{Binding Formality}" MinWidth="200"/>
+            <TextBlock Text="Application context" Classes="label"/>
+            <TextBox Text="{Binding Context}" AcceptsReturn="True" TextWrapping="Wrap" Height="90"
+                     PlaceholderText="What does this app do? Helps AI providers choose terminology."/>
+            <CheckBox Classes="form" Content="Preserve placeholders" IsChecked="{Binding PreservePlaceholders}"/>
+            <CheckBox Classes="form" Content="Preview before applying machine translations" IsChecked="{Binding PreviewBeforeApply}"/>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Editor">
+        <ScrollViewer>
+          <StackPanel Margin="8,4" MaxWidth="600" HorizontalAlignment="Left">
+            <CheckBox Classes="form" Content="Write empty translations to files" IsChecked="{Binding SaveEmptyTranslations}"/>
+            <CheckBox Classes="form" Content="Enable comments" IsChecked="{Binding CommentsEnabled}"/>
+            <TextBlock Text="Key order in files" Classes="label"/>
+            <ComboBox ItemsSource="{x:Static vm:ProjectPropertiesViewModel.TranslationOrderOptions}" SelectedItem="{Binding TranslationOrder}" MinWidth="220"/>
+            <TextBlock Text="Copy templates (%1 = key)" Classes="label"/>
+            <ItemsControl ItemsSource="{Binding CopyTemplates}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <DockPanel Margin="0,0,0,6">
+                    <Button DockPanel.Dock="Right" Classes="icon small" Margin="4,0,0,0"
+                            Command="{Binding $parent[ItemsControl].DataContext.RemoveCopyTemplateCommand}" CommandParameter="{Binding}">
+                      <ui:FASymbolIcon Symbol="Dismiss"/>
+                    </Button>
+                    <TextBox Text="{Binding Value}" Classes="mono"/>
+                  </DockPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Button Content="Add template" Command="{Binding AddCopyTemplateCommand}" IsEnabled="{Binding CanAddCopyTemplate}"/>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Source code">
+        <ScrollViewer>
+          <StackPanel Margin="8,4" MaxWidth="600" HorizontalAlignment="Left">
+            <TextBlock Text="Source folders (relative, separated by ;)" Classes="label"/>
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Content="Add…" Margin="6,0,0,0" Command="{Binding BrowseSourceRootCommand}"/>
+              <TextBox Text="{Binding SourceRoots}" Classes="mono"/>
+            </DockPanel>
+            <TextBlock Text="File extensions" Classes="label"/>
+            <TextBox Text="{Binding ScanExtensions}" Classes="mono" PlaceholderText="Uses the defaults from Settings when empty"/>
+            <TextBlock Text="Excluded folders" Classes="label"/>
+            <TextBox Text="{Binding ExcludedDirectories}" Classes="mono" PlaceholderText="Uses the defaults from Settings when empty"/>
+            <TextBlock Text="External editor command" Classes="label"/>
+            <TextBox Text="{Binding ExternalEditor}" Classes="mono" PlaceholderText="code --goto &quot;{file}:{line}&quot;"/>
+            <CheckBox Classes="form" Content="Scan when the project opens" IsChecked="{Binding AutoScanOnOpen}"/>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="Hidden">
+        <StackPanel Margin="8,4">
+          <TextBlock Text="Namespaces hidden from the explorer and editor. They are still saved." Classes="caption" Margin="0,8"/>
+          <ItemsControl ItemsSource="{Binding HiddenNamespaces}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <DockPanel Margin="0,2">
+                  <Button DockPanel.Dock="Right" Classes="link" Content="Unhide"
+                          Command="{Binding $parent[ItemsControl].DataContext.RemoveHiddenNamespaceCommand}" CommandParameter="{Binding}"/>
+                  <TextBlock Text="{Binding}" Classes="mono" VerticalAlignment="Center"/>
+                </DockPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Text="Nothing is hidden." Classes="hint" IsVisible="{Binding !HiddenNamespaces.Count}"/>
+        </StackPanel>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</d:DialogWindow>

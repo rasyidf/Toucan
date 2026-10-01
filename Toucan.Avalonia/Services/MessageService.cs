@@ -1,49 +1,114 @@
-using System.Threading.Tasks;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using Toucan.Avalonia.Views.Dialogs;
+using Avalonia.Threading;
+using FluentAvalonia.UI.Controls;
 using Toucan.Core.Contracts;
 
 namespace Toucan.Avalonia.Services;
 
-public class MessageService : IMessageService
+/// <summary>Three-way result for Save/Discard/Cancel style prompts.</summary>
+public enum ChoiceResult
 {
-    private static Window? GetMainWindow()
-    {
-        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            return desktop.MainWindow;
-        return null;
-    }
+    Primary,
+    Secondary,
+    Cancel
+}
 
+/// <summary>
+/// Async message boxes for the Avalonia UI. Avalonia dialogs are asynchronous, so view models
+/// use these methods instead of the synchronous <see cref="IMessageService"/> contract.
+/// </summary>
+public interface IAsyncMessageService : IMessageService
+{
+    Task ShowMessageAsync(string message, string title = "Info");
+    Task<bool> ConfirmAsync(string message, string title = "Confirm", string yesText = "Yes", string noText = "No");
+    Task<ChoiceResult> ChooseAsync(string message, string title, string primaryText, string secondaryText, string cancelText = "Cancel");
+}
+
+/// <summary>
+/// Message boxes built on FluentAvalonia's <see cref="FAContentDialog"/>, which renders as an overlay
+/// inside the owning window on every platform.
+/// </summary>
+public sealed class MessageService : IAsyncMessageService
+{
     public void ShowMessage(string message, string title = "Info")
     {
-        // Fire-and-forget on UI thread — use async version internally
         _ = ShowMessageAsync(message, title);
     }
 
+    /// <summary>
+    /// Synchronous confirmation for callers that cannot await. Runs a nested dispatcher frame
+    /// until the dialog closes. Prefer <see cref="ConfirmAsync"/>.
+    /// </summary>
     public bool ShowConfirmation(string message, string title = "Confirm")
     {
-        // ponytail: sync wrapper for legacy code paths; async preferred
-        return ShowConfirmationAsync(message, title).GetAwaiter().GetResult();
+        var task = ConfirmAsync(message, title);
+        if (!task.IsCompleted)
+        {
+            var frame = new DispatcherFrame();
+            _ = task.ContinueWith(_ => frame.Continue = false, TaskScheduler.Default);
+            Dispatcher.UIThread.PushFrame(frame);
+        }
+        return task.IsCompletedSuccessfully && task.Result;
     }
 
     public async Task ShowMessageAsync(string message, string title = "Info")
     {
-        var owner = GetMainWindow();
-        var dlg = new MessageWindow(title, message);
-        if (owner != null)
-            await dlg.ShowDialog(owner);
-        else
-            dlg.Show();
+        var dialog = new FAContentDialog
+        {
+            Title = title,
+            Content = BuildContent(message),
+            CloseButtonText = "OK",
+            DefaultButton = FAContentDialogButton.Close
+        };
+        await ShowAsync(dialog);
     }
 
-    public async Task<bool> ShowConfirmationAsync(string message, string title = "Confirm")
+    public async Task<bool> ConfirmAsync(string message, string title = "Confirm", string yesText = "Yes", string noText = "No")
     {
-        var owner = GetMainWindow();
-        if (owner == null) return false;
-        var dlg = new ConfirmWindow(title, message);
-        var result = await dlg.ShowDialog<bool?>(owner);
-        return result == true;
+        var dialog = new FAContentDialog
+        {
+            Title = title,
+            Content = BuildContent(message),
+            PrimaryButtonText = yesText,
+            CloseButtonText = noText,
+            DefaultButton = FAContentDialogButton.Primary
+        };
+        return await ShowAsync(dialog) == FAContentDialogResult.Primary;
+    }
+
+    public async Task<ChoiceResult> ChooseAsync(string message, string title, string primaryText, string secondaryText, string cancelText = "Cancel")
+    {
+        var dialog = new FAContentDialog
+        {
+            Title = title,
+            Content = BuildContent(message),
+            PrimaryButtonText = primaryText,
+            SecondaryButtonText = secondaryText,
+            CloseButtonText = cancelText,
+            DefaultButton = FAContentDialogButton.Primary
+        };
+        return await ShowAsync(dialog) switch
+        {
+            FAContentDialogResult.Primary => ChoiceResult.Primary,
+            FAContentDialogResult.Secondary => ChoiceResult.Secondary,
+            _ => ChoiceResult.Cancel
+        };
+    }
+
+    private static global::Avalonia.Controls.TextBlock BuildContent(string message) => new()
+    {
+        Text = message,
+        TextWrapping = global::Avalonia.Media.TextWrapping.Wrap,
+        MaxWidth = 460
+    };
+
+    private static async Task<FAContentDialogResult> ShowAsync(FAContentDialog dialog)
+    {
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            return await Dispatcher.UIThread.InvokeAsync(() => ShowAsync(dialog));
+        }
+
+        var owner = AppWindows.Active;
+        return owner != null ? await dialog.ShowAsync(owner) : await dialog.ShowAsync();
     }
 }

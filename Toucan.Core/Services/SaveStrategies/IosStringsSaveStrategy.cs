@@ -8,7 +8,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class IosStringsSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.IosStrings;
+    public string FormatId => FormatIds.IosStrings;
+    public string DisplayName => "iOS .strings";
+    public IReadOnlyList<string> FileExtensions => [".strings"];
+    public string DefaultFilePath(string language) => $"{language}.lproj/Localizable.strings";
+
+    public FormatDetection Detection { get; } = new(4, [".strings"], []);
 
     public void Save(string path, SaveContext context)
     {

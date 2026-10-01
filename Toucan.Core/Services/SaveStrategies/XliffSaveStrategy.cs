@@ -8,7 +8,13 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class XliffSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.Xliff;
+    public string FormatId => FormatIds.Xliff;
+    public string DisplayName => "XLIFF";
+    public IReadOnlyList<string> FileExtensions => [".xlf", ".xliff"];
+    public string DefaultFilePath(string language) => $"{language}.xlf";
+
+    public bool StoresCommentsInline => true;
+    public FormatDetection Detection { get; } = new(3, [".xlf", ".xliff"], []);
 
     public void Save(string path, SaveContext context)
     {

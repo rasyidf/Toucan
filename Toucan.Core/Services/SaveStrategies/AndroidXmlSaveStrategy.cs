@@ -8,7 +8,13 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class AndroidXmlSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.AndroidXml;
+    public string FormatId => FormatIds.AndroidXml;
+    public string DisplayName => "Android XML";
+    public IReadOnlyList<string> FileExtensions => [".xml"];
+    public string DefaultFilePath(string language) => $"res/{(language == "default" ? "values" : $"values-{language}")}/strings.xml";
+
+    public bool StoresCommentsInline => true;
+    public FormatDetection Detection { get; } = new(5, [], ["strings.xml"]);
 
     public void Save(string path, SaveContext context)
     {

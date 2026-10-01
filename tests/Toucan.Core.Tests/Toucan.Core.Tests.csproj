@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
@@ -12,6 +12,9 @@
     <PackageReference Include="Avalonia" Version="12.0.5" />
     <PackageReference Include="Avalonia.Desktop" Version="12.0.5" />
     <PackageReference Include="FsCheck" Version="3.3.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.9" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="NSubstitute" Version="5.3.0" />
     <PackageReference Include="System.IO.Abstractions" Version="22.1.1" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="22.1.1" />
@@ -24,6 +27,18 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Toucan.Core\Toucan.Core.csproj" />
+    <!-- Built but not referenced: the plugin host tests load it from disk like a user-installed plugin. -->
+    <ProjectReference Include="..\Plugins\Toucan.TestPlugins\Toucan.TestPlugins.csproj" ReferenceOutputAssembly="false" OutputItemType="TestPluginOutput" />
+    <!-- The sample plugin is exercised exactly as a user would install it (docs/plugins.md), so the guide cannot rot. -->
+    <ProjectReference Include="..\..\samples\Toucan.Sample.Plugin\Toucan.Sample.Plugin.csproj" ReferenceOutputAssembly="false" OutputItemType="SamplePluginOutput" />
   </ItemGroup>
+
+  <Target Name="CopySamplePlugin" AfterTargets="Build">
+    <Copy SourceFiles="@(SamplePluginOutput);@(SamplePluginOutput->'%(RootDir)%(Directory)%(Filename).deps.json');@(SamplePluginOutput->'%(RootDir)%(Directory)plugin.json')" DestinationFolder="$(OutDir)SamplePlugin" SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="CopyTestPlugins" AfterTargets="Build">
+    <Copy SourceFiles="@(TestPluginOutput);@(TestPluginOutput->'%(RootDir)%(Directory)%(Filename).deps.json')" DestinationFolder="$(OutDir)TestPlugins" SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

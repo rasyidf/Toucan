@@ -8,11 +8,15 @@ param(
     [string]$CertPath,
     [string]$CertPassword,
     [string]$Configuration = "Release",
-    [string]$Version = "0.14.0.0"
+    [string]$Version
 )
 
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
+if (-not $Version) {
+    $AppVersion = ([xml](Get-Content "$Root\Directory.Build.props")).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+    $Version = "$AppVersion.0"
+}
 $PublishDir = "$Root\Toucan\bin\publish"
 $PackagingDir = "$Root\packaging"
 $OutputDir = "$Root\dist"

@@ -8,7 +8,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.JavaProperties;
+    public string FormatId => FormatIds.JavaProperties;
+    public string DisplayName => "Java .properties";
+    public IReadOnlyList<string> FileExtensions => [".properties"];
+    public string DefaultFilePath(string language) => $"{language}.properties";
+
+    public FormatDetection Detection { get; } = new(6, [".properties"], []);
 
     public void Save(string path, SaveContext context)
     {

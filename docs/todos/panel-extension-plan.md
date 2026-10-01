@@ -224,6 +224,8 @@ Each is just `Registry.Register(new XPanel())` — zero XAML changes.
 
 ## Future Extension Path (v2.0 Plugin System)
 
+> Superseded: the plugin system is implemented without panels yet; see [plugin-system-plan.md](plugin-system-plan.md) and [../plugins.md](../plugins.md). UI contributions (the `SidePanelRegistry` example below) are still future work, and `IToucanPlugin.Register(IServiceProvider)` became `IToucanPlugin.Initialize(IPluginContext)`.
+
 When the plugin system lands, third-party `.dll` plugins can:
 ```csharp
 public class MyPlugin : IToucanPlugin

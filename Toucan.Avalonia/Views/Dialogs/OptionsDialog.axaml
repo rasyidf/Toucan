@@ -1,53 +1,267 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="Toucan.Avalonia.Views.Dialogs.OptionsDialog"
-        Title="Preferences" Width="420" Height="380"
-        WindowStartupLocation="CenterOwner" CanResize="False"
-        TransparencyLevelHint="Mica,AcrylicBlur,None" Background="Transparent"
-        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaTitleBarHeightHint="32">
-  <Grid RowDefinitions="32,*" Margin="0">
-    <TextBlock Text="Preferences" Grid.Row="0" Margin="16,8,0,0"
-               FontWeight="SemiBold" FontSize="12" Opacity="0.7" IsHitTestVisible="False"/>
-
-    <Border Grid.Row="1" Padding="24,8,24,24">
-      <Grid RowDefinitions="Auto,*,Auto">
-        <!-- Header -->
-        <StackPanel Spacing="2" Margin="0,0,0,14">
-          <TextBlock Text="Application Settings" FontSize="18" FontWeight="Bold"/>
-          <TextBlock Text="These apply globally across all projects." FontSize="12" Opacity="0.6"/>
-        </StackPanel>
-
-        <!-- Settings -->
-        <StackPanel Grid.Row="1" Spacing="14">
-          <StackPanel Spacing="4">
-            <TextBlock Text="Default Language" FontSize="12" FontWeight="Medium"/>
-            <TextBox Text="{Binding DefaultLanguage, Mode=TwoWay}" Watermark="en-US"/>
-          </StackPanel>
-
-          <Grid ColumnDefinitions="*,12,*">
-            <StackPanel Spacing="4">
-              <TextBlock Text="Page Size" FontSize="12" FontWeight="Medium"/>
-              <TextBox Text="{Binding PageSizeText, Mode=TwoWay}"/>
-            </StackPanel>
-            <StackPanel Grid.Column="2" Spacing="4">
-              <TextBlock Text="Max Items" FontSize="12" FontWeight="Medium"/>
-              <TextBox Text="{Binding MaxItemsText, Mode=TwoWay}"/>
-            </StackPanel>
-          </Grid>
-
-          <StackPanel Spacing="4">
-            <TextBlock Text="Truncate Results Over" FontSize="12" FontWeight="Medium"/>
-            <TextBox Text="{Binding TruncateSizeText, Mode=TwoWay}"/>
-            <TextBlock Text="Large result sets will be paginated beyond this limit." FontSize="11" Opacity="0.5"/>
-          </StackPanel>
-        </StackPanel>
-
-        <!-- Footer -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,16,0,0">
-          <Button Content="Cancel" Width="80" Command="{Binding CancelCommand}"/>
-          <Button Content="Save" Width="80" Command="{Binding SaveCommand}" Classes="accent"/>
-        </StackPanel>
-      </Grid>
+<d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.OptionsDialog"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                xmlns:vm="using:Toucan.Avalonia.ViewModels"
+                xmlns:ui="using:FluentAvalonia.UI.Controls"
+                Title="Settings" Width="880" Height="640" MinHeight="480">
+  <DockPanel>
+    <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button Content="Cancel" Command="{Binding CancelCommand}"/>
+        <Button Content="Save" Classes="accent" Command="{Binding SaveCommand}" IsDefault="True"/>
+      </StackPanel>
     </Border>
-  </Grid>
-</Window>
+
+    <Border DockPanel.Dock="Left" Width="200" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0">
+      <ListBox Classes="plain" Margin="6,12" ItemsSource="{x:Static vm:OptionsViewModel.Pages}" SelectedIndex="{Binding SelectedPageIndex}"/>
+    </Border>
+
+    <ScrollViewer Background="{DynamicResource EditorBackgroundBrush}">
+      <Panel Margin="28,20" MaxWidth="600" HorizontalAlignment="Left">
+
+        <!-- 0 General -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=0}">
+          <TextBlock Text="General" Classes="dialogTitle"/>
+          <CheckBox Classes="form" Content="Reopen the last project on startup" IsChecked="{Binding OpenLastProjectOnStartup}"/>
+          <TextBlock Text="Interface language" Classes="label"/>
+          <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.AppLanguageOptions}" SelectedItem="{Binding AppLanguage}" MinWidth="200"/>
+          <TextBlock Text="Takes effect after restarting Toucan." Classes="hint"/>
+          <TextBlock Text="Keys per page" Classes="label"/>
+          <NumericUpDown Value="{Binding PageSize}" Minimum="5" Maximum="500" Increment="5" FormatString="0" Width="160" HorizontalAlignment="Left"/>
+          <TextBlock Text="Show at most this many search results" Classes="label"/>
+          <NumericUpDown Value="{Binding TruncateSize}" Minimum="100" Maximum="100000" Increment="100" FormatString="0" Width="160" HorizontalAlignment="Left"/>
+          <TextBlock Text="Tree loading depth" Classes="label"/>
+          <NumericUpDown Value="{Binding LoadingDepth}" Minimum="1" Maximum="5" FormatString="0" Width="160" HorizontalAlignment="Left"/>
+          <TextBlock Text="How many namespace levels are built up-front. Deeper levels load when expanded." Classes="hint"/>
+        </StackPanel>
+
+        <!-- 1 Appearance -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=1}">
+          <TextBlock Text="Appearance" Classes="dialogTitle"/>
+          <TextBlock Text="Theme" Classes="label"/>
+          <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.ThemeOptions}" SelectedItem="{Binding Theme}" MinWidth="200"/>
+          <TextBlock Text="Editor font size" Classes="label"/>
+          <NumericUpDown Value="{Binding FontSize}" Minimum="11" Maximum="18" FormatString="0" Width="160" HorizontalAlignment="Left"/>
+        </StackPanel>
+
+        <!-- 2 Editor -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=2}">
+          <TextBlock Text="Editor" Classes="dialogTitle"/>
+          <TextBlock Text="Default language" Classes="label"/>
+          <TextBox Text="{Binding DefaultLanguage}" Width="200" HorizontalAlignment="Left"/>
+          <TextBlock Text="Used as the source language when a project doesn't specify one." Classes="hint"/>
+          <CheckBox Classes="form" Content="Treat keys as plain text (don't split on dots)" IsChecked="{Binding PlainTextKeys}"/>
+          <TextBlock Text="Copy templates" Classes="label"/>
+          <TextBlock Text="“Copy key as” wraps the key in a template. %1 is replaced by the key, e.g. t('%1')." Classes="hint" Margin="0,0,0,6"/>
+          <ItemsControl ItemsSource="{Binding CopyTemplates}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <DockPanel Margin="0,0,0,6">
+                  <Button DockPanel.Dock="Right" Classes="icon small" Margin="4,0,0,0"
+                          Command="{Binding $parent[ItemsControl].DataContext.RemoveCopyTemplateCommand}" CommandParameter="{Binding}">
+                    <ui:FASymbolIcon Symbol="Dismiss"/>
+                  </Button>
+                  <TextBox Text="{Binding Value}" Classes="mono"/>
+                </DockPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <Button Content="Add template" Command="{Binding AddCopyTemplateCommand}" IsEnabled="{Binding CanAddCopyTemplate}"/>
+        </StackPanel>
+
+        <!-- 3 Translation -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=3}">
+          <TextBlock Text="Machine translation" Classes="dialogTitle"/>
+          <Button Content="Translation providers &amp; API keys…" Command="{Binding OpenProviderSettingsCommand}" Margin="0,12,0,0"/>
+          <TextBlock Text="Formality" Classes="label"/>
+          <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.FormalityOptions}" SelectedItem="{Binding Formality}" MinWidth="200"/>
+          <TextBlock Text="Application context" Classes="label"/>
+          <TextBox Text="{Binding Context}" AcceptsReturn="True" TextWrapping="Wrap" Height="90"
+                   PlaceholderText="Describe your app so AI providers pick the right terminology"/>
+          <TextBlock Text="{Binding ContextCharCount, StringFormat='{}{0} characters'}" Classes="hint"/>
+          <CheckBox Classes="form" Content="Preserve placeholders ({{name}}, {0}, %s, :param)" IsChecked="{Binding PreservePlaceholders}"/>
+          <CheckBox Classes="form" Content="Preview before applying machine translations" IsChecked="{Binding PreviewBeforeApply}"/>
+          <TextBlock Text="These are defaults for new projects. Each project can override them in Project Properties." Classes="hint" Margin="0,12,0,0"/>
+        </StackPanel>
+
+        <!-- 4 Validation -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=4}">
+          <TextBlock Text="Validation" Classes="dialogTitle"/>
+          <CheckBox Classes="form" Content="Validate before saving (errors block the save)" IsChecked="{Binding ValidateOnSave}"/>
+          <TextBlock Text="Rules" Classes="label"/>
+          <ItemsControl ItemsSource="{Binding ValidationRules}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Grid ColumnDefinitions="*,140" Margin="0,3">
+                  <CheckBox Content="{Binding Label}" IsChecked="{Binding Enabled}"/>
+                  <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:OptionsViewModel.SeverityOptions}" SelectedItem="{Binding Severity}"
+                            HorizontalAlignment="Stretch" IsEnabled="{Binding Enabled}"/>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+
+        <!-- 5 Translation memory -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=5}">
+          <TextBlock Text="Translation memory" Classes="dialogTitle"/>
+          <TextBlock Text="{Binding TmEntryCount, StringFormat='{}{0} entries stored'}" Classes="caption" Margin="0,6,0,0"/>
+          <CheckBox Classes="form" Content="Suggest matches while editing" IsChecked="{Binding TmAutoSuggest}"/>
+          <TextBlock Text="{Binding TmSimilarityThreshold, StringFormat='Minimum similarity: {0:P0}'}" Classes="label"/>
+          <Slider Minimum="0.3" Maximum="1" Value="{Binding TmSimilarityThreshold}" TickFrequency="0.05" IsSnapToTickEnabled="True"/>
+          <TextBlock Text="Maximum suggestions" Classes="label"/>
+          <NumericUpDown Value="{Binding TmMaxSuggestions}" Minimum="1" Maximum="10" FormatString="0" Width="160" HorizontalAlignment="Left"/>
+          <TextBlock Text="Scope" Classes="label"/>
+          <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.TmScopeOptions}" SelectedIndex="{Binding TmGlobalScopeIndex}" MinWidth="200"/>
+        </StackPanel>
+
+        <!-- 6 Source code -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=6}">
+          <TextBlock Text="Source code" Classes="dialogTitle"/>
+          <TextBlock Text="Preset" Classes="label"/>
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Content="Apply preset" Margin="6,0,0,0" Command="{Binding ApplyFrameworkPresetCommand}"/>
+            <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.FrameworkPresets}" SelectedItem="{Binding SelectedFrameworkPreset}" HorizontalAlignment="Stretch"/>
+          </DockPanel>
+          <CheckBox Classes="form" Content="Scan source code when a project opens" IsChecked="{Binding DefaultAutoScanOnOpen}"/>
+          <TextBlock Text="File extensions to scan" Classes="label"/>
+          <TextBox Text="{Binding DefaultScanExtensions}" Classes="mono"/>
+          <TextBlock Text="Excluded folders" Classes="label"/>
+          <TextBox Text="{Binding DefaultExcludedDirectories}" Classes="mono"/>
+          <TextBlock Text="Key pattern (regex, first group = key)" Classes="label"/>
+          <TextBox Text="{Binding DefaultKeyMatcherPattern}" Classes="mono"/>
+          <TextBlock Text="External editor command" Classes="label"/>
+          <TextBox Text="{Binding DefaultExternalEditor}" Classes="mono"/>
+          <TextBlock Text="{}{file} and {line} are replaced. Examples: code --goto &quot;{file}:{line}&quot;, subl &quot;{file}:{line}&quot;, idea --line {line} &quot;{file}&quot;" Classes="hint"/>
+        </StackPanel>
+
+        <!-- 7 Languages -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=7}">
+          <TextBlock Text="Suggested languages" Classes="dialogTitle"/>
+          <TextBlock Text="Offered by “Add suggested languages” when creating a project." Classes="caption" Margin="0,6,0,10"/>
+          <ItemsControl ItemsSource="{Binding SuggestedLanguageEntries}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <DockPanel Margin="0,2">
+                  <Button DockPanel.Dock="Right" Classes="icon small"
+                          Command="{Binding $parent[ItemsControl].DataContext.RemoveSuggestedLanguageCommand}" CommandParameter="{Binding}">
+                    <ui:FASymbolIcon Symbol="Dismiss"/>
+                  </Button>
+                  <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Border Classes="langBadge" Margin="0"><TextBlock Text="{Binding Code}"/></Border>
+                    <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </DockPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <Button Content="Add language…" Command="{Binding AddSuggestedLanguageCommand}" Margin="0,8,0,0"/>
+        </StackPanel>
+
+        <!-- 8 Shortcuts -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=8}">
+          <TextBlock Text="Keyboard shortcuts" Classes="dialogTitle"/>
+          <ItemsControl ItemsSource="{Binding Shortcuts}" Margin="0,10,0,0">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Grid ColumnDefinitions="90,*,Auto" Margin="0,3">
+                  <TextBlock Text="{Binding Category}" Classes="caption"/>
+                  <TextBlock Grid.Column="1" Text="{Binding Action}"/>
+                  <Border Grid.Column="2" Classes="badge"><TextBlock Text="{Binding Shortcut}" Classes="mono"/></Border>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+
+        <!-- 9 Data & privacy -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=9}" Spacing="8">
+          <TextBlock Text="Data &amp; privacy" Classes="dialogTitle"/>
+          <TextBlock TextWrapping="Wrap" Classes="caption"
+                     Text="Settings, layout, and translation memory are stored in Documents/Toucan. API keys are encrypted (DPAPI on Windows, AES with a per-user key elsewhere). Text is only sent to a translation provider when you run machine translation."/>
+          <WrapPanel>
+            <Button Content="Open settings folder" Command="{Binding OpenSettingsFolderCommand}" Margin="0,0,6,6"/>
+            <Button Content="Export settings…" Command="{Binding ExportSettingsCommand}" Margin="0,0,6,6"/>
+            <Button Content="Import settings…" Command="{Binding ImportSettingsCommand}" Margin="0,0,6,6"/>
+          </WrapPanel>
+          <TextBlock Text="Clear data" Classes="label"/>
+          <WrapPanel>
+            <Button Content="Clear filter history" Command="{Binding ClearFilterHistoryCommand}" Margin="0,0,6,6"/>
+            <Button Content="Clear recent projects…" Command="{Binding ClearRecentProjectsCommand}" Margin="0,0,6,6"/>
+            <Button Content="Clear translation memory…" Command="{Binding ClearTranslationMemoryCommand}" Margin="0,0,6,6"/>
+          </WrapPanel>
+          <Button Content="Reset all settings…" Command="{Binding ResetAllSettingsCommand}" Margin="0,12,0,0" Foreground="{DynamicResource BadBrush}"/>
+        </StackPanel>
+
+        <!-- 10 Plugins -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=10}" Spacing="8">
+          <TextBlock Text="Plugins" Classes="dialogTitle"/>
+          <TextBlock TextWrapping="Wrap" Classes="caption"
+                     Text="Plugins add file formats, translation providers and validation rules. A plugin is ordinary code that runs with your permissions, so Toucan only loads plugins you have enabled and trusted, and asks again if their files change."/>
+          <Border IsVisible="{Binding PluginsChanged}" Classes="badge" Padding="10,6" HorizontalAlignment="Left">
+            <TextBlock Text="Changes apply immediately to your settings and take effect after restarting Toucan." TextWrapping="Wrap"/>
+          </Border>
+          <TextBlock IsVisible="{Binding HasNoPlugins}" TextWrapping="Wrap" Margin="0,6,0,0"
+                     Text="No plugins installed. Put a plugin folder (with a plugin.json) in the plugins folder and restart Toucan."/>
+          <ItemsControl ItemsSource="{Binding Plugins}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Padding="12" Margin="0,6,0,0" CornerRadius="6" BorderThickness="1"
+                        BorderBrush="{DynamicResource SubtleBorderBrush}">
+                  <StackPanel Spacing="4">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Version}" Classes="caption" VerticalAlignment="Center"/>
+                      </StackPanel>
+                      <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEnabled}" IsEnabled="{Binding CanManage}"
+                                    OnContent="Enabled" OffContent="Disabled"/>
+                    </Grid>
+                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" IsVisible="{Binding HasDescription}"/>
+                    <TextBlock Text="{Binding StatusText}" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Note}" IsVisible="{Binding HasNote}" TextWrapping="Wrap" Foreground="{DynamicResource BadBrush}"/>
+                    <TextBlock Text="{Binding ProvidesText, StringFormat='Provides: {0}'}" Classes="caption" TextWrapping="Wrap" IsVisible="{Binding HasProvides}"/>
+                    <TextBlock Classes="caption" TextWrapping="Wrap">
+                      <Run Text="{Binding SignatureText}"/><Run Text="  ·  SHA-256 "/><Run Text="{Binding ShortHash}"/>
+                    </TextBlock>
+                    <TextBlock Text="{Binding Author, StringFormat='By {0}'}" Classes="caption" IsVisible="{Binding HasAuthor}"/>
+                    <TextBlock Text="{Binding Folder}" Classes="caption" TextWrapping="Wrap"/>
+                    <WrapPanel Margin="0,4,0,0">
+                      <Button Content="Trust…" Classes="accent" Command="{Binding TrustCommand}" IsVisible="{Binding CanTrust}" Margin="0,0,6,0"/>
+                      <Button Content="Revoke trust" Command="{Binding RevokeCommand}" IsVisible="{Binding CanRevoke}" Margin="0,0,6,0"/>
+                      <Button Content="Show folder" Command="{Binding OpenFolderCommand}"/>
+                    </WrapPanel>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <WrapPanel Margin="0,8,0,0">
+            <Button Content="Open plugins folder" Command="{Binding OpenPluginsFolderCommand}"/>
+          </WrapPanel>
+          <TextBlock Text="{Binding PluginsFolder}" Classes="caption" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- 11 About -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=11}" Spacing="8">
+          <StackPanel Orientation="Horizontal" Spacing="14">
+            <Image Source="/Assets/logo.png" Width="64" Height="64"/>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="{Binding VersionText}" Classes="dialogTitle"/>
+              <TextBlock Text="{Binding RuntimeText}" Classes="caption"/>
+            </StackPanel>
+          </StackPanel>
+          <TextBlock TextWrapping="Wrap" Text="A cross-platform editor for translation files. Built with Avalonia and .NET." Margin="0,8,0,0"/>
+          <TextBlock Text="MIT License · Copyright © Rasyidf 2023-2026" Classes="caption"/>
+          <WrapPanel Margin="0,8,0,0">
+            <Button Classes="link" Content="Website" Command="{Binding OpenUrlCommand}" CommandParameter="https://toucan.rasyid.dev"/>
+            <Button Classes="link" Content="GitHub" Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/rasyidf/Toucan"/>
+            <Button Classes="link" Content="Releases" Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/rasyidf/Toucan/releases"/>
+            <Button Classes="link" Content="Copy version info" Command="{Binding CopyVersionCommand}"/>
+          </WrapPanel>
+        </StackPanel>
+      </Panel>
+    </ScrollViewer>
+  </DockPanel>
+</d:DialogWindow>

@@ -23,6 +23,25 @@ public class CustomWebhookTranslationProvider : ITranslationProvider
 
     public string Name => "Custom";
 
+    public ProviderDefinition? Definition { get; } = new()
+    {
+        Name = "Custom",
+        DisplayName = "Custom Webhook",
+        Description = "POST to a user-defined translation endpoint",
+        IsBuiltIn = true,
+        OptionFields = new()
+        {
+            ["endpoint"] = "Webhook URL (required)",
+            ["header_name"] = "Auth header name (default: Authorization)"
+        },
+        SecretFields = new() { ["api_key"] = "Bearer token (optional)" },
+        DefaultValues = new()
+        {
+            ["endpoint"] = "",
+            ["header_name"] = ""
+        }
+    };
+
     public async Task<IEnumerable<PretranslationItemResult>> PretranslateAsync(IEnumerable<PretranslationJob> jobs, PretranslationOptions? options = null, IProgress<PretranslationProgress>? progress = null, CancellationToken cancellationToken = default)
     {
         var results = new List<PretranslationItemResult>();

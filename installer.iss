@@ -2,7 +2,10 @@
 ; Build with: iscc installer.iss (after running publish.ps1)
 
 #define AppName "Toucan"
-#define AppVersion "0.17.3"
+; publish.ps1 passes /DAppVersion from Directory.Build.props; this is the fallback.
+#ifndef AppVersion
+  #define AppVersion "0.18.0"
+#endif
 #define AppPublisher "rasyid.dev"
 #define AppURL "https://github.com/rasyidf/Toucan"
 #define AppExeName "Toucan.exe"

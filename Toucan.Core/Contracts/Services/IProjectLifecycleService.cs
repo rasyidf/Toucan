@@ -8,11 +8,11 @@ namespace Toucan.Core.Contracts.Services;
 /// </summary>
 public interface IProjectLifecycleService
 {
-    /// <summary>Opens a project from any entry point. Handles unsaved-changes prompt if needed.</summary>
-    Task<ProjectOpenResult> OpenProjectAsync(string folderPath, CancellationToken ct = default);
+    /// <summary>Opens a project from any entry point. Handles unsaved-changes prompt if needed. Cancelling <paramref name="ct"/> mid-scan returns <see cref="ProjectOpenStatus.Cancelled"/>.</summary>
+    Task<ProjectOpenResult> OpenProjectAsync(string folderPath, IProgress<ScanProgress>? progress = null, CancellationToken ct = default);
 
     /// <summary>Creates a new project and opens it.</summary>
-    Task<ProjectOpenResult> CreateAndOpenProjectAsync(string folder, IReadOnlyList<string> languages, SaveStyles style, string? name = null, CancellationToken ct = default);
+    Task<ProjectOpenResult> CreateAndOpenProjectAsync(string folder, IReadOnlyList<string> languages, string formatId, string? name = null, CancellationToken ct = default);
 
     /// <summary>Saves the current project in place.</summary>
     Task<ProjectSaveResult> SaveProjectAsync(CancellationToken ct = default);
@@ -39,6 +39,8 @@ public enum ProjectOpenStatus
     Success,
     FolderNotFound,
     ManifestInvalid,
+    /// <summary>The project's format (e.g. from a plugin) is not installed or enabled.</summary>
+    FormatUnavailable,
     Cancelled
 }
 

@@ -1,0 +1,73 @@
+<UserControl x:Class="Toucan.Avalonia.Views.Panels.SearchPanel"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:vm="using:Toucan.Avalonia.ViewModels">
+  <DockPanel>
+    <StackPanel DockPanel.Dock="Top" Margin="10,8" Spacing="6">
+      <Grid ColumnDefinitions="Auto,*">
+        <ToggleButton Classes="icon small" IsChecked="{Binding ShowReplacePanel}" ToolTip.Tip="Toggle replace" VerticalAlignment="Top" Margin="0,4,4,0">
+          <ui:FASymbolIcon Symbol="ChevronRight"/>
+        </ToggleButton>
+        <StackPanel Grid.Column="1" Spacing="6">
+          <TextBox x:Name="QueryBox" Text="{Binding SearchQuery}" PlaceholderText="Search values" Classes="clearButton">
+            <TextBox.InnerRightContent>
+              <ToggleButton Classes="icon small" IsChecked="{Binding UseRegex}" ToolTip.Tip="Use regular expression" Margin="0,0,4,0">
+                <TextBlock Text=".*" FontWeight="Bold" FontSize="12"/>
+              </ToggleButton>
+            </TextBox.InnerRightContent>
+            <TextBox.KeyBindings>
+              <KeyBinding Gesture="Enter" Command="{Binding ExecuteSearchCommand}"/>
+            </TextBox.KeyBindings>
+          </TextBox>
+          <DockPanel IsVisible="{Binding ShowReplacePanel}">
+            <Button DockPanel.Dock="Right" Classes="icon small" Command="{Binding ExecuteReplaceCommand}" ToolTip.Tip="Replace all matches" Margin="4,0,0,0">
+              <ui:FASymbolIcon Symbol="Sync"/>
+            </Button>
+            <Button DockPanel.Dock="Right" Classes="icon small" Command="{Binding PreviewReplaceCommand}" ToolTip.Tip="Preview replacements">
+              <ui:FASymbolIcon Symbol="Preview"/>
+            </Button>
+            <TextBox Text="{Binding ReplaceText}" PlaceholderText="Replace with"/>
+          </DockPanel>
+        </StackPanel>
+      </Grid>
+      <Grid ColumnDefinitions="*,Auto">
+        <ComboBox ItemsSource="{x:Static vm:MainWindowViewModel.SearchScopes}" SelectedIndex="{Binding SearchScopeIndex}" HorizontalAlignment="Stretch"/>
+        <Button Grid.Column="1" Content="Search" Classes="accent" Margin="6,0,0,0" Command="{Binding ExecuteSearchCommand}"/>
+      </Grid>
+      <ComboBox ItemsSource="{Binding LanguageVisibilityFilter}" SelectedValue="{Binding SearchLanguage}" SelectedValueBinding="{Binding Language}"
+                DisplayMemberBinding="{Binding Language}" HorizontalAlignment="Stretch"
+                IsVisible="{Binding IsLanguageScope}" PlaceholderText="Language"/>
+      <TextBlock Text="{Binding SearchStatus}" Classes="caption"/>
+    </StackPanel>
+
+    <!-- History when there are no results -->
+    <StackPanel DockPanel.Dock="Bottom" Margin="10,6" IsVisible="{Binding SearchHistory.Count}">
+      <TextBlock Text="Recent searches" Classes="caption"/>
+      <ItemsControl ItemsSource="{Binding SearchHistory}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Button Classes="link" Content="{Binding}" Command="{Binding $parent[UserControl].DataContext.UseHistoryEntryCommand}" CommandParameter="{Binding}"/>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+
+    <ListBox Classes="plain" ItemsSource="{Binding SearchResults}" SelectedItem="{Binding SelectedSearchResult}">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <StackPanel Spacing="2">
+            <DockPanel>
+              <Border DockPanel.Dock="Right" Classes="badge"><TextBlock Text="{Binding Language}"/></Border>
+              <TextBlock Text="{Binding Key}" Classes="mono caption" TextTrimming="CharacterEllipsis"/>
+            </DockPanel>
+            <TextBlock Text="{Binding Value}" TextWrapping="Wrap" MaxLines="3" FontSize="12"/>
+            <TextBlock Text="{Binding ReplacedValue, StringFormat='→ {0}'}" TextWrapping="Wrap" MaxLines="3" FontSize="12"
+                       Foreground="{DynamicResource GoodBrush}"
+                       IsVisible="{Binding ReplacedValue, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</UserControl>
