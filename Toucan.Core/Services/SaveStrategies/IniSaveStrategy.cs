@@ -7,7 +7,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class IniSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.Adb;
+    public string FormatId => FormatIds.Ini;
+    public string DisplayName => "INI";
+    public IReadOnlyList<string> FileExtensions => [".ini"];
+    public string DefaultFilePath(string language) => $"{language}.ini";
+
+    public FormatDetection Detection { get; } = new(10, [".ini"], []);
 
     public void Save(string path, SaveContext context)
     {

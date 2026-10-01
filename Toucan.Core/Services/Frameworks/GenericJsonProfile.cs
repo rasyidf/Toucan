@@ -13,7 +13,7 @@ public class GenericJsonProfile : IFrameworkProfile
 {
     public string Id => "generic-json";
     public string DisplayName => "Generic JSON";
-    public SaveStyles DefaultFormat => SaveStyles.Json;
+    public string DefaultFormatId => FormatIds.Json;
     public IEnumerable<string> FilePatterns => ["*.json"];
 
     public IEnumerable<DiscoveredFile> DiscoverFiles(string rootFolder)

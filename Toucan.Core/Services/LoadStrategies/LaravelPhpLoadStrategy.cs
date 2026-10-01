@@ -6,7 +6,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 
 public class LaravelPhpLoadStrategy : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.LaravelPhp;
+    public string FormatId => FormatIds.LaravelPhp;
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

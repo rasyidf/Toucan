@@ -1,0 +1,21 @@
+<d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.PickDialog"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                Width="420" Height="460">
+  <DockPanel>
+    <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button Content="Cancel" x:Name="CancelButton"/>
+        <Button Content="OK" Classes="accent" x:Name="OkButton" IsDefault="True"/>
+      </StackPanel>
+    </Border>
+    <StackPanel DockPanel.Dock="Top" Margin="20,18,20,8" Spacing="8">
+      <TextBlock x:Name="TitleText" Classes="dialogTitle"/>
+      <TextBlock x:Name="MessageText" TextWrapping="Wrap" Classes="caption" FontSize="13"/>
+    </StackPanel>
+    <Border Classes="card" Margin="20,0,20,16" Padding="2">
+      <ListBox x:Name="Options" Classes="plain"/>
+    </Border>
+  </DockPanel>
+</d:DialogWindow>

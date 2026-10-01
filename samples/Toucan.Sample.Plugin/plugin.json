@@ -1,0 +1,11 @@
+{
+  "id": "sample.tsv",
+  "name": "Sample: TSV format",
+  "version": "1.0.0",
+  "apiVersion": "1.0",
+  "entryAssembly": "Toucan.Sample.Plugin.dll",
+  "entryType": "Toucan.Sample.Plugin.SamplePlugin",
+  "author": "Toucan",
+  "description": "Reads and writes one tab-separated file per language, and flags values that still contain TODO or FIXME.",
+  "capabilities": ["formats", "validation"]
+}

@@ -1,15 +1,19 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="Toucan.Avalonia.Views.Dialogs.PromptDialog"
-        Width="450" Height="180"
-        WindowStartupLocation="CenterOwner"
-        CanResize="False">
-  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
-    <TextBlock x:Name="MessageLabel" TextWrapping="Wrap" Margin="0,0,0,8"/>
-    <TextBox x:Name="ResponseTextBox" Grid.Row="1" Margin="0,4"/>
-    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0" Spacing="8">
-      <Button x:Name="CancelButton" Content="Cancel" Width="80"/>
-      <Button x:Name="OkButton" Content="OK" Width="80"/>
+<d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.PromptDialog"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                Width="460" SizeToContent="Height" CanResize="False">
+  <DockPanel>
+    <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button Content="Cancel" x:Name="CancelButton"/>
+        <Button Content="OK" Classes="accent" x:Name="OkButton" IsDefault="True"/>
+      </StackPanel>
+    </Border>
+    <StackPanel Margin="20,18,20,20" Spacing="10">
+      <TextBlock x:Name="TitleText" Classes="dialogTitle"/>
+      <TextBlock x:Name="MessageText" TextWrapping="Wrap" Classes="caption" FontSize="13"/>
+      <TextBox x:Name="Input"/>
     </StackPanel>
-  </Grid>
-</Window>
+  </DockPanel>
+</d:DialogWindow>

@@ -13,7 +13,7 @@ public class IosProfile : IFrameworkProfile
 {
     public string Id => "ios-strings";
     public string DisplayName => "iOS (.strings)";
-    public SaveStyles DefaultFormat => SaveStyles.IosStrings;
+    public string DefaultFormatId => FormatIds.IosStrings;
     public IEnumerable<string> FilePatterns => ["*.lproj/*.strings"];
 
     public IEnumerable<DiscoveredFile> DiscoverFiles(string rootFolder)

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Test code: xUnit naming, async-void-free assertions, and literal strings are fine here. -->
+    <NoWarn>$(NoWarn);CA1707;CA1515;CA1303;CA2007;CA1861;CA1307;CA1310;CA1849;CA1812;CA1001;CA1063;CA1816;CA2000;CA1031;CA1305;CA5394</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Headless.XUnit" Version="12.0.5" />
+    <PackageReference Include="Avalonia.Skia" Version="12.0.5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit.v3" Version="3.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Toucan.Avalonia\Toucan.Avalonia.csproj" />
+  </ItemGroup>
+
+</Project>

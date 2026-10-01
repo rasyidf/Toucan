@@ -1,10 +1,9 @@
+using Microsoft.Extensions.DependencyInjection;
+using Toucan.Core;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
-using Toucan.Core.Services;
-using Toucan.Core.Services.LoadStrategies;
-using Toucan.Core.Services.SaveStrategies;
-using Toucan.Core.Services.Validation;
+using Toucan.Core.Plugins;
 
 namespace Toucan.CLI;
 
@@ -21,16 +20,62 @@ namespace Toucan.CLI;
 ///   toucan list-keys [folder]    — List all translation keys (for AI tools)
 ///   toucan get [folder] [key]    — Get value for a key across languages (JSON output)
 ///   toucan set [folder] [key] [lang] [value] — Set a single translation
+///   toucan plugins list|trust|revoke|enable|disable [id] — Manage plugins
 /// </summary>
 internal static class Program
 {
+    /// <summary>Plugin IDs from <c>--allow-plugin</c>: trusted for this run only, nothing is saved.</summary>
+    private static readonly HashSet<string> s_allowedPlugins = new(StringComparer.OrdinalIgnoreCase);
+
+    private static readonly FilePluginPolicyStore s_policy = new(
+        Environment.GetEnvironmentVariable("TOUCAN_PLUGIN_POLICY") is { Length: > 0 } policyFile ? policyFile : FilePluginPolicyStore.DefaultPath());
+
+    // Same composition root as the GUI (AddToucanCore), so every registered format, provider and rule is available here.
+    // Plugins load only if enabled and already trusted (in the GUI or with `toucan plugins trust`): a CI run never prompts.
+    private static readonly Lazy<ServiceProvider> s_services = new(() =>
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddToucanCore();
+
+        var options = new PluginHostOptions { Policy = s_policy };
+        options.Roots.Add(Environment.GetEnvironmentVariable("TOUCAN_PLUGINS_DIR") is { Length: > 0 } dir ? dir : PluginHostOptions.DefaultRoot());
+        foreach (var id in s_allowedPlugins) options.AllowForThisRun.Add(id);
+        services.AddToucanPlugins(options);
+
+        return services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
+    });
+
+    private static T Get<T>() where T : notnull => s_services.Value.GetRequiredService<T>();
+
     private static int Main(string[] args)
     {
         if (args.Length == 0) { PrintUsage(); return 0; }
 
         var command = args[0].ToLowerInvariant();
+        for (var i = 0; i < args.Length - 1; i++)
+            if (args[i] == "--allow-plugin") s_allowedPlugins.Add(args[i + 1]);
+
+        if (command == "plugins") return RunPlugins(args);
+
         var folder = args.Length > 1 && !args[1].StartsWith('-') ? args[1] : Directory.GetCurrentDirectory();
 
+        try
+        {
+            var code = Dispatch(command, folder, args);
+            WarnAboutPendingPlugins();
+            return code;
+        }
+        catch (FormatUnavailableException ex)
+        {
+            Console.Error.WriteLine(ex.Message);
+            WarnAboutPendingPlugins();
+            return 1;
+        }
+    }
+
+    private static int Dispatch(string command, string folder, string[] args)
+    {
         return command switch
         {
             "check" => RunCheck(folder),
@@ -46,22 +91,92 @@ internal static class Program
         };
     }
 
+    // --- plugins ---
+
+    private static IReadOnlyList<PluginLoadResult> Plugins => Get<IPluginCatalog>().Plugins;
+
+    private static void WarnAboutPendingPlugins()
+    {
+        if (!s_services.IsValueCreated) return;
+        var pending = Plugins.Where(p => p.Status == PluginStatus.NeedsTrust).Select(p => p.DisplayId).ToList();
+        if (pending.Count > 0)
+            Console.Error.WriteLine($"Note: {pending.Count} plugin(s) not loaded because they are not trusted: {string.Join(", ", pending)}. Run 'toucan plugins list'.");
+    }
+
+    private static int RunPlugins(string[] args)
+    {
+        var sub = args.Length > 1 ? args[1].ToLowerInvariant() : "list";
+        var id = args.Length > 2 && !args[2].StartsWith('-') ? args[2] : null;
+
+        switch (sub)
+        {
+            case "list":
+                return ListPlugins();
+            case "trust" or "revoke" or "enable" or "disable":
+                if (id is null) return Error($"Usage: toucan plugins {sub} <id>");
+                return ChangePluginPolicy(sub, id);
+            default:
+                return Error($"Unknown plugins command: {sub}. Use list, trust, revoke, enable or disable.");
+        }
+    }
+
+    private static int ListPlugins()
+    {
+        if (Plugins.Count == 0)
+        {
+            Console.WriteLine("No plugins found.");
+            return 0;
+        }
+
+        foreach (var p in Plugins)
+        {
+            var version = p.Manifest?.Version is { Length: > 0 } v ? $" {v}" : string.Empty;
+            Console.WriteLine($"{p.DisplayId}{version}");
+            Console.WriteLine($"  status:    {p.Status}{(p.Status == PluginStatus.NeedsTrust ? " (not loaded)" : string.Empty)}");
+            Console.WriteLine($"  signature: {(p.Signature == PluginSignatureStatus.NotSigned ? "not signed" : p.Signature.ToString().ToLowerInvariant())}");
+            if (p.ContentHash is { Length: > 0 } hash) Console.WriteLine($"  sha256:    {hash}");
+            if (p.Registered is { Count: > 0 } reg) Console.WriteLine($"  provides:  {string.Join(", ", reg)}");
+            if (p.Error is { Length: > 0 } err) Console.WriteLine($"  note:      {err}");
+            Console.WriteLine($"  folder:    {p.Directory}");
+        }
+
+        if (Plugins.Any(p => p.Status == PluginStatus.NeedsTrust))
+            Console.WriteLine("\nTrust a plugin only if you trust its author: it runs with your permissions.\n  toucan plugins trust <id>");
+        return 0;
+    }
+
+    private static int ChangePluginPolicy(string action, string id)
+    {
+        var plugin = Plugins.FirstOrDefault(p => string.Equals(p.DisplayId, id, StringComparison.OrdinalIgnoreCase));
+
+        switch (action)
+        {
+            case "trust":
+                if (plugin?.Manifest is null || plugin.ContentHash is null)
+                    return Error($"No readable plugin '{id}' found. Run 'toucan plugins list'.");
+                if (plugin.Status == PluginStatus.Rejected)
+                    return Error($"Plugin '{id}' was rejected and cannot be trusted: {plugin.Error}");
+                s_policy.Trust(plugin.Manifest.Id, plugin.ContentHash);
+                Console.WriteLine($"Trusted {plugin.Manifest.Id} {plugin.Manifest.Version} (sha256 {plugin.ContentHash[..12]}…). It will load on the next run.");
+                return 0;
+            case "revoke":
+                s_policy.Revoke(plugin?.Manifest?.Id ?? id);
+                Console.WriteLine($"Revoked trust for {id}.");
+                return 0;
+            default:
+                s_policy.SetEnabled(plugin?.Manifest?.Id ?? id, action == "enable");
+                Console.WriteLine($"{(action == "enable" ? "Enabled" : "Disabled")} {id}.");
+                return 0;
+        }
+    }
+
     private static int RunCheck(string folder)
     {
         var (settings, translations) = LoadProject(folder);
         if (translations.Count == 0) { Console.Error.WriteLine("No translations found."); return 1; }
 
-        var rules = new IValidationRule[]
-        {
-            new MissingTranslationRule(),
-            new PlaceholderMismatchRule(),
-            new DuplicateKeyRule(),
-            new EmptyValueRule(),
-            new UntranslatedCopyRule(),
-            new WhitespaceMismatchRule()
-        };
-        var pipeline = new ValidationPipeline(rules);
-        var ctx = new ValidationContext { Items = translations, Settings = settings };
+        var pipeline = Get<IValidationPipeline>();
+        var ctx = new ValidationContext { Items = translations, PrimaryLanguage = settings.PrimaryLanguage };
         var results = pipeline.RunAll(ctx).ToList();
 
         var errors = results.Where(r => r.Severity == ValidationSeverity.Error).ToList();
@@ -103,7 +218,11 @@ internal static class Program
     private static int RunExport(string folder, string[] args)
     {
         var formatArg = GetArg(args, "-f") ?? GetArg(args, "--format") ?? "json";
-        if (!Enum.TryParse<SaveStyles>(formatArg, true, out var style))
+        var strategies = Get<ITranslationStrategyFactory>().SaveStrategies;
+        // Accept a format ID ("android-xml") or the legacy enum name ("AndroidXml").
+        var formatId = Enum.TryParse<SaveStyles>(formatArg, true, out var legacyStyle) ? FormatIds.FromStyle(legacyStyle) : formatArg;
+        var strategy = strategies.FirstOrDefault(s => FormatIds.Comparer.Equals(s.FormatId, formatId));
+        if (strategy == null)
         {
             Console.Error.WriteLine($"Unknown format: {formatArg}. Use 'toucan list-formats'.");
             return 1;
@@ -113,10 +232,6 @@ internal static class Program
         var (_, translations) = LoadProject(folder);
         if (translations.Count == 0) { Console.Error.WriteLine("No translations found."); return 1; }
 
-        var strategies = CreateSaveStrategies();
-        var strategy = strategies.FirstOrDefault(s => s.Style == style);
-        if (strategy == null) { Console.Error.WriteLine($"No save strategy for: {style}"); return 1; }
-
         Directory.CreateDirectory(outputDir);
         var ctx = new SaveContext
         {
@@ -125,15 +240,15 @@ internal static class Program
             Languages = translations.Select(t => t.Language).Distinct().ToList()
         };
         strategy.Save(outputDir, ctx);
-        Console.WriteLine($"Exported {translations.Count} items to {outputDir} ({style})");
+        Console.WriteLine($"Exported {translations.Count} items to {outputDir} ({strategy.FormatId})");
         return 0;
     }
 
     private static int RunListFormats()
     {
         Console.WriteLine("Supported formats:");
-        foreach (var s in Enum.GetValues<SaveStyles>())
-            Console.WriteLine($"  {s}");
+        foreach (var s in Get<ITranslationStrategyFactory>().SaveStrategies)
+            Console.WriteLine($"  {s.FormatId,-16} {s.DisplayName}");
         return 0;
     }
 
@@ -180,8 +295,8 @@ internal static class Program
             translations.Add(new TranslationItem { Namespace = key, Language = lang, Value = value });
 
         // Save back
-        var strategies = CreateSaveStrategies();
-        var strategy = strategies.FirstOrDefault(s => s.Style == settings.SaveStyle) ?? strategies.First();
+        var strategy = Get<ITranslationStrategyFactory>().GetSaveStrategy(settings.SaveFormat)
+            ?? throw new FormatUnavailableException(settings.SaveFormat);
         var ctx = new SaveContext
         {
             LanguageDictionary = translations.GroupBy(t => t.Language).ToDictionary(g => g.Key, g => (IEnumerable<TranslationItem>)g.ToList()),
@@ -227,8 +342,13 @@ internal static class Program
         Console.WriteLine($"Translating {jobs.Count} items using '{providerName}' provider...");
 
         // Resolve provider
-        var provider = CreateProvider(providerName);
-        if (provider == null) { Console.Error.WriteLine($"Unknown provider: {providerName}. Available: mock, google, deepl, microsoft, openai"); return 1; }
+        var provider = FindProvider(providerName);
+        if (provider == null)
+        {
+            var available = string.Join(", ", s_services.Value.GetServices<ITranslationProvider>().Select(p => p.Name.ToLowerInvariant()));
+            Console.Error.WriteLine($"Unknown provider: {providerName}. Available: {available}");
+            return 1;
+        }
 
         // Run translation
         var options = new PretranslationOptions { Overwrite = overwrite, PreviewOnly = dryRun };
@@ -262,8 +382,8 @@ internal static class Program
         }
 
         // Save
-        var strategies = CreateSaveStrategies();
-        var strategy = strategies.FirstOrDefault(s => s.Style == settings.SaveStyle) ?? strategies.First();
+        var strategy = Get<ITranslationStrategyFactory>().GetSaveStrategy(settings.SaveFormat)
+            ?? throw new FormatUnavailableException(settings.SaveFormat);
         var ctx = new SaveContext
         {
             LanguageDictionary = translations.GroupBy(t => t.Language).ToDictionary(g => g.Key, g => (IEnumerable<TranslationItem>)g.ToList()),
@@ -275,70 +395,16 @@ internal static class Program
         return failed > 0 ? 1 : 0;
     }
 
-    private static ITranslationProvider? CreateProvider(string name) => name.ToLowerInvariant() switch
-    {
-        "mock" => new Toucan.Core.Services.Providers.MockTranslationProvider(),
-        "google" => new Toucan.Core.Services.Providers.GoogleTranslationProvider(),
-        "deepl" => new Toucan.Core.Services.Providers.DeepLTranslationProvider(),
-        "microsoft" => new Toucan.Core.Services.Providers.MicrosoftTranslationProvider(),
-        "openai" => new Toucan.Core.Services.Providers.OpenAITranslationProvider(),
-        _ => null
-    };
+    private static ITranslationProvider? FindProvider(string name) =>
+        s_services.Value.GetServices<ITranslationProvider>()
+            .FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
 
     // --- Helpers ---
 
     private static (ProjectSettings, List<TranslationItem>) LoadProject(string folder)
     {
-        var fileService = new FileService(Microsoft.Extensions.Logging.Abstractions.NullLogger<FileService>.Instance);
-        var loadStrategies = CreateLoadStrategies(fileService);
-        var saveStrategies = CreateSaveStrategies();
-        var factory = new TranslationStrategyFactory(saveStrategies, loadStrategies);
-        var resolver = new ProjectModeResolver();
-        var svc = new ProjectService(fileService, saveStrategies, factory, resolver, Microsoft.Extensions.Logging.Abstractions.NullLogger<ProjectService>.Instance);
-        var result = svc.LoadProject(folder);
+        var result = Get<IProjectService>().LoadProject(folder);
         return (result.Settings, result.Translations);
-    }
-
-    private static List<ILoadStrategy> CreateLoadStrategies(IFileService fs)
-    {
-        var jsonLogger = Microsoft.Extensions.Logging.Abstractions.NullLogger<JsonLoadStrategy>.Instance;
-        var manifestLogger = Microsoft.Extensions.Logging.Abstractions.NullLogger<ManifestLoadStrategy>.Instance;
-        var jsonLoader = new JsonLoadStrategy(fs, jsonLogger);
-        return
-        [
-            jsonLoader,
-            new NamespacedLoadStrategy(jsonLoader),
-            new ManifestLoadStrategy(fs, manifestLogger),
-            new YamlLoadStrategy(),
-            new TomlLoadStrategy(),
-            new PoLoadStrategy(),
-            new ResxLoadStrategy(),
-            new AndroidXmlLoadStrategy(),
-            new IosStringsLoadStrategy(),
-            new XliffLoadStrategy(),
-            new ArbLoadStrategy(),
-            new CsvLoadStrategy(),
-        ];
-    }
-
-    private static List<ISaveStrategy> CreateSaveStrategies()
-    {
-        var fs = new FileService(Microsoft.Extensions.Logging.Abstractions.NullLogger<FileService>.Instance);
-        return
-        [
-            new JsonSaveStrategy(fs),
-            new NamespacedSaveStrategy(fs),
-            new YamlSaveStrategy(fs),
-            new PoSaveStrategy(fs),
-            new IniSaveStrategy(fs),
-            new TomlSaveStrategy(fs),
-            new ResxSaveStrategy(fs),
-            new AndroidXmlSaveStrategy(fs),
-            new IosStringsSaveStrategy(fs),
-            new XliffSaveStrategy(fs),
-            new ArbSaveStrategy(fs),
-            new CsvSaveStrategy(fs),
-        ];
     }
 
     private static string? GetArg(string[] args, string flag)
@@ -367,6 +433,14 @@ internal static class Program
               list-keys [folder]          List all translation keys (one per line)
               get [folder] <key>          Get translations for a key (JSON)
               set [folder] <key> <lang> <value>  Set a single translation
+              plugins [list]              Show installed plugins and whether they are trusted
+              plugins trust <id>          Trust a plugin's current files (it then loads)
+              plugins revoke|enable|disable <id>
+
+            Plugins:
+              Plugins live in Documents/Toucan/plugins (override: TOUCAN_PLUGINS_DIR). Only enabled, trusted
+              plugins load; the CLI never prompts. Decisions are shared with the app (override the file with
+              TOUCAN_PLUGIN_POLICY). --allow-plugin <id> trusts a plugin for one run without saving anything.
 
             Translate options:
               -p, --provider <name>  Provider: mock, google, deepl, microsoft, openai

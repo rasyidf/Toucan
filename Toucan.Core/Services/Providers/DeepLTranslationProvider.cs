@@ -11,6 +11,17 @@ public class DeepLTranslationProvider : ITranslationProvider
 
     public string Name => "DeepL";
 
+    public ProviderDefinition? Definition { get; } = new()
+    {
+        Name = "DeepL",
+        DisplayName = "DeepL",
+        Description = "DeepL Translator API (Free or Pro)",
+        IsBuiltIn = true,
+        OptionFields = new() { ["endpoint"] = "API endpoint URL" },
+        SecretFields = new() { ["api_key"] = "DeepL API authentication key" },
+        DefaultValues = new() { ["endpoint"] = "https://api.deepl.com/v2/translate" }
+    };
+
     public async Task<IEnumerable<PretranslationItemResult>> PretranslateAsync(IEnumerable<PretranslationJob> jobs, PretranslationOptions? options = null, IProgress<PretranslationProgress>? progress = null, System.Threading.CancellationToken cancellationToken = default)
     {
         var results = new List<PretranslationItemResult>();

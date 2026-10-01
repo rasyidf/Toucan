@@ -17,6 +17,25 @@ public class MicrosoftTranslationProvider : ITranslationProvider
 
     public string Name => "Microsoft";
 
+    public ProviderDefinition? Definition { get; } = new()
+    {
+        Name = "Microsoft",
+        DisplayName = "Microsoft Translator",
+        Description = "Azure Cognitive Services Translator",
+        IsBuiltIn = true,
+        OptionFields = new()
+        {
+            ["endpoint"] = "Translator endpoint URL",
+            ["region"] = "Azure region (e.g. eastus)"
+        },
+        SecretFields = new() { ["api_key"] = "Azure subscription key" },
+        DefaultValues = new()
+        {
+            ["endpoint"] = "https://api.cognitive.microsofttranslator.com",
+            ["region"] = ""
+        }
+    };
+
     public async Task<IEnumerable<PretranslationItemResult>> PretranslateAsync(IEnumerable<PretranslationJob> jobs, PretranslationOptions? options = null, IProgress<PretranslationProgress>? progress = null, CancellationToken cancellationToken = default)
     {
         var results = new List<PretranslationItemResult>();

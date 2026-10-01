@@ -1,11 +1,75 @@
-<Application
-    x:Class="Toucan.Avalonia.App"
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:sty="using:FluentAvalonia.Styling"
-    RequestedThemeVariant="Light">
+<Application x:Class="Toucan.Avalonia.App"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sty="using:FluentAvalonia.Styling"
+             xmlns:conv="using:Toucan.Avalonia.Converters"
+             Name="Toucan"
+             RequestedThemeVariant="Default">
 
-    <Application.Styles>
-        <sty:FluentAvaloniaTheme PreferSystemTheme="False" CustomAccentColor="#0097A7"/>
-    </Application.Styles>
+  <!-- macOS application menu (the "Toucan" menu). Other platforms use the in-window menu. -->
+  <NativeMenu.Menu>
+    <NativeMenu>
+      <NativeMenuItem Header="About Toucan" Click="OnAboutClick"/>
+      <NativeMenuItemSeparator/>
+      <NativeMenuItem Header="Settings…" Gesture="Cmd+OemComma" Click="OnPreferencesClick"/>
+    </NativeMenu>
+  </NativeMenu.Menu>
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <x:Double x:Key="EditorFontSize">13</x:Double>
+      <conv:LanguageNameConverter x:Key="LanguageName"/>
+      <conv:SymbolConverter x:Key="Symbol"/>
+      <conv:EqualsConverter x:Key="Equals"/>
+      <conv:SeverityBrushConverter x:Key="SeverityBrush"/>
+      <conv:PercentToHealthBrushConverter x:Key="HealthBrush"/>
+      <conv:StatusBrushConverter x:Key="StatusBrush"/>
+
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="ChromeBackgroundBrush" Color="#F3F3F3"/>
+          <SolidColorBrush x:Key="EditorBackgroundBrush" Color="#FAFAFA"/>
+          <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
+          <SolidColorBrush x:Key="CardBorderBrush" Color="#E5E5E5"/>
+          <SolidColorBrush x:Key="SubtleBorderBrush" Color="#E0E0E0"/>
+          <SolidColorBrush x:Key="MutedTextBrush" Color="#6B6B6B"/>
+          <SolidColorBrush x:Key="FaintTextBrush" Color="#8F8F8F"/>
+          <SolidColorBrush x:Key="HoverBackgroundBrush" Color="#0F000000"/>
+          <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="#1A0097A7"/>
+          <SolidColorBrush x:Key="StatusBarBackgroundBrush" Color="#0097A7"/>
+          <SolidColorBrush x:Key="StatusBarForegroundBrush" Color="#FFFFFF"/>
+          <SolidColorBrush x:Key="BadgeBackgroundBrush" Color="#EDEDED"/>
+          <SolidColorBrush x:Key="DirtyBrush" Color="#D9822B"/>
+          <SolidColorBrush x:Key="GoodBrush" Color="#2E8B57"/>
+          <SolidColorBrush x:Key="WarnBrush" Color="#C28A00"/>
+          <SolidColorBrush x:Key="BadBrush" Color="#D13438"/>
+          <SolidColorBrush x:Key="InfoBrush" Color="#2F6FDB"/>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="ChromeBackgroundBrush" Color="#1F1F1F"/>
+          <SolidColorBrush x:Key="EditorBackgroundBrush" Color="#181818"/>
+          <SolidColorBrush x:Key="CardBackgroundBrush" Color="#232323"/>
+          <SolidColorBrush x:Key="CardBorderBrush" Color="#333333"/>
+          <SolidColorBrush x:Key="SubtleBorderBrush" Color="#2E2E2E"/>
+          <SolidColorBrush x:Key="MutedTextBrush" Color="#A8A8A8"/>
+          <SolidColorBrush x:Key="FaintTextBrush" Color="#7A7A7A"/>
+          <SolidColorBrush x:Key="HoverBackgroundBrush" Color="#14FFFFFF"/>
+          <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="#2626C6DA"/>
+          <SolidColorBrush x:Key="StatusBarBackgroundBrush" Color="#006D7A"/>
+          <SolidColorBrush x:Key="StatusBarForegroundBrush" Color="#FFFFFF"/>
+          <SolidColorBrush x:Key="BadgeBackgroundBrush" Color="#333333"/>
+          <SolidColorBrush x:Key="DirtyBrush" Color="#E8A060"/>
+          <SolidColorBrush x:Key="GoodBrush" Color="#4CC38A"/>
+          <SolidColorBrush x:Key="WarnBrush" Color="#E0B03C"/>
+          <SolidColorBrush x:Key="BadBrush" Color="#F1707A"/>
+          <SolidColorBrush x:Key="InfoBrush" Color="#6EA8FE"/>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <sty:FluentAvaloniaTheme PreferSystemTheme="True" PreferUserAccentColor="False" CustomAccentColor="#0097A7"/>
+    <StyleInclude Source="avares://Toucan/Styles/AppStyles.axaml"/>
+  </Application.Styles>
 </Application>

@@ -8,7 +8,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 /// <summary>Loads XLIFF 1.2 and 2.0 translation files.</summary>
 public class XliffLoadStrategy : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.Xliff;
+    public string FormatId => FormatIds.Xliff;
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

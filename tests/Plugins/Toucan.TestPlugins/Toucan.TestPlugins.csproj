@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Plugin fixtures for the host tests. Not shipped; each class plays one scenario (see TestPlugins.cs). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <NoWarn>$(NoWarn);CA1707;CA1515;CA1303;CA2007;CA1861;CA1307;CA1310;CA1849;CA1812;CA1001;CA1063;CA1816;CA2000;CA1031;CA1305;CA5394;CA1822;CA1002;CA1062</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Private=false keeps Abstractions out of the plugin folder: like a real plugin it must resolve it from the host. -->
+    <ProjectReference Include="..\..\..\Toucan.Plugins.Abstractions\Toucan.Plugins.Abstractions.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

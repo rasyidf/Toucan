@@ -1,18 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Toucan.Core.Contracts;
 using Toucan.Core.Models;
 
 namespace Toucan.Avalonia.Services;
 
-public class ProviderSettingsService : IProviderSettingsService
+/// <summary>
+/// Persists translation provider settings app-wide (~/Documents/Toucan/providers.json) or per project
+/// (&lt;project&gt;/.toucan/providers.json). Secrets are encrypted through <see cref="ISecureStorageService"/>.
+/// </summary>
+public sealed class ProviderSettingsService(ISecureStorageService secureStorage) : IProviderSettingsService
 {
-    private readonly ISecureStorageService _secure;
-
-    public ProviderSettingsService(ISecureStorageService secureStorage) => _secure = secureStorage;
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNameCaseInsensitive = true
+    };
 
     private static string AppFilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "providers.json");
@@ -20,28 +22,34 @@ public class ProviderSettingsService : IProviderSettingsService
     private static string ProjectFilePath(string projectPath) => Path.Combine(projectPath, ".toucan", "providers.json");
 
     public IEnumerable<ProviderSettings> LoadAppProviderSettings() => LoadFromFile(AppFilePath);
+
     public void SaveAppProviderSettings(IEnumerable<ProviderSettings> settings) => SaveToFile(AppFilePath, settings);
+
     public IEnumerable<ProviderSettings> LoadProjectProviderSettings(string projectPath) => LoadFromFile(ProjectFilePath(projectPath));
 
-    public void SaveProjectProviderSettings(string projectPath, IEnumerable<ProviderSettings> settings)
-    {
-        var file = ProjectFilePath(projectPath);
-        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
-        SaveToFile(file, settings);
-    }
+    public void SaveProjectProviderSettings(string projectPath, IEnumerable<ProviderSettings> settings) =>
+        SaveToFile(ProjectFilePath(projectPath), settings);
 
-    private IEnumerable<ProviderSettings> LoadFromFile(string file)
+    private List<ProviderSettings> LoadFromFile(string file)
     {
         if (!File.Exists(file)) return [];
         try
         {
-            var read = JsonConvert.DeserializeObject<List<ProviderSettings>>(File.ReadAllText(file)) ?? [];
+            var read = JsonSerializer.Deserialize<List<ProviderSettings>>(File.ReadAllText(file), JsonOptions) ?? [];
             foreach (var s in read)
+            {
                 foreach (var key in s.Secrets.Keys.ToList())
-                    s.Secrets[key] = _secure.Unprotect(s.Secrets[key]);
+                {
+                    var cipher = s.Secrets[key];
+                    s.Secrets[key] = string.IsNullOrEmpty(cipher) ? string.Empty : secureStorage.Unprotect(cipher);
+                }
+            }
             return read;
         }
-        catch { return []; }
+        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
+        {
+            return [];
+        }
     }
 
     private void SaveToFile(string file, IEnumerable<ProviderSettings> settings)
@@ -50,9 +58,12 @@ public class ProviderSettingsService : IProviderSettingsService
         {
             Provider = s.Provider,
             Options = new Dictionary<string, string>(s.Options),
-            Secrets = s.Secrets.ToDictionary(kvp => kvp.Key, kvp => _secure.Protect(kvp.Value))
+            Secrets = s.Secrets.ToDictionary(
+                kvp => kvp.Key,
+                kvp => string.IsNullOrEmpty(kvp.Value) ? string.Empty : secureStorage.Protect(kvp.Value))
         }).ToList();
+
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
-        File.WriteAllText(file, JsonConvert.SerializeObject(copy, Formatting.Indented));
+        File.WriteAllText(file, JsonSerializer.Serialize(copy, JsonOptions));
     }
 }

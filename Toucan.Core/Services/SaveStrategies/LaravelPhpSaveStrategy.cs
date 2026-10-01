@@ -8,7 +8,22 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class LaravelPhpSaveStrategy : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.LaravelPhp;
+    public string FormatId => FormatIds.LaravelPhp;
+    public string DisplayName => "Laravel PHP";
+    public IReadOnlyList<string> FileExtensions => [".php"];
+    public string DefaultFilePath(string language) => $"{language}/messages.php";
+
+    // Laravel writes one file per top-level key under {language}/; messages.php is its conventional default.
+    public IReadOnlyList<string> LanguageFiles(string projectRoot, string language)
+    {
+        var dir = Path.Combine(projectRoot, language);
+        // If the directory doesn't exist yet, at least indicate the expected directory.
+        return Directory.Exists(dir) ? Directory.GetFiles(dir, "*.php") : [dir];
+    }
+
+    // Directory-based: the sidecar sits at language folder level.
+    public string CommentSidecarBase(string language) => language;
+    public FormatDetection Detection { get; } = new(7, [".php"], []);
 
     public void Save(string path, SaveContext context)
     {

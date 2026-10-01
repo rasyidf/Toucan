@@ -7,7 +7,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 /// <summary>Loads YAML translation files (one file per language, keys use indentation for hierarchy).</summary>
 public class YamlLoadStrategy : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.Yaml;
+    public string FormatId => FormatIds.Yaml;
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

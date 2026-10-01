@@ -20,19 +20,22 @@ public class ProjectService(
             Microsoft.Extensions.Logging.Abstractions.NullLogger<ProjectService>.Instance)
     { }
 
-    public ProjectLoadResult LoadProject(string folder)
+    public ProjectLoadResult LoadProject(string folder, IProgress<ScanProgress>? progress = null, CancellationToken ct = default)
     {
+        using var _ = ScanContext.Begin(ct, progress);
+        ct.ThrowIfCancellationRequested();
         // Try loading project settings from toucan.project manifest
         var settings = ProjectSettings.LoadFrom(folder);
         if (settings == null)
         {
             settings = ProjectSettings.CreateDefault(folder);
-            settings.SaveStyle = FrameworkDetector.Detect(folder);
+            settings.SaveFormat = new FormatDetector(strategyFactory.SaveStrategies).Detect(folder);
         }
         settings.ProjectPath = folder;
+        settings.DefaultPathResolver = ResolveDefaultPath;
 
         // Load translations using the detected/configured format
-        var translations = Load(folder, settings.SaveStyle);
+        var translations = Load(folder, settings.SaveFormat);
 
         // Apply language aliases
         if (settings.LanguageAliases is { Count: > 0 })
@@ -47,13 +50,13 @@ public class ProjectService(
         return new ProjectLoadResult { Settings = settings, Translations = translations };
     }
 
-    public ProjectSettings CreateProject(string folder, IEnumerable<string> languages, SaveStyles style = SaveStyles.Json, bool createManifest = true, string? name = null)
+    public ProjectSettings CreateProject(string folder, IEnumerable<string> languages, string formatId = FormatIds.Json, bool createManifest = true, string? name = null)
     {
         Directory.CreateDirectory(folder);
 
         var langList = languages.ToList();
         foreach (var language in langList)
-            CreateLanguage(folder, language, style);
+            CreateLanguage(folder, language, formatId);
 
         var settings = new ProjectSettings
         {
@@ -61,7 +64,8 @@ public class ProjectService(
             ProjectPath = folder,
             PrimaryLanguage = langList.FirstOrDefault() ?? "en-US",
             Languages = langList,
-            SaveStyle = style
+            SaveFormat = formatId,
+            DefaultPathResolver = ResolveDefaultPath
         };
 
         if (createManifest)
@@ -88,7 +92,7 @@ public class ProjectService(
             toSave = list;
         }
 
-        Save(project.ProjectPath, project.SaveStyle, items, toSave);
+        Save(project.ProjectPath, project.SaveFormat, items, toSave);
 
         // Restore display codes for in-memory state
         if (project.LanguageAliases is { Count: > 0 })
@@ -101,7 +105,7 @@ public class ProjectService(
         project.Save();
     }
 
-    public void CreateLanguage(string folder, string language, SaveStyles style = SaveStyles.Json)
+    public void CreateLanguage(string folder, string language, string formatId = FormatIds.Json)
     {
         var translations = new List<TranslationItem>
         {
@@ -115,21 +119,31 @@ public class ProjectService(
             Languages = [language]
         };
 
-        var strategy = saveStrategies.FirstOrDefault(s => s.Style == style);
+        var strategy = strategyFactory.GetSaveStrategy(formatId);
         if (strategy != null)
             strategy.Save(folder, context);
+        else if (!FormatIds.TryGetStyle(formatId, out _))
+            throw new FormatUnavailableException(formatId);
         else
             fileService.Save(folder, language + ".json", new Dictionary<string, string> { { "app", "" } });
     }
 
     public List<TranslationItem> Load(string folder)
     {
-        return Load(folder, SaveStyles.Json);
+        return Load(folder, FormatIds.Json);
     }
 
-    private List<TranslationItem> Load(string folder, SaveStyles style)
+    private List<TranslationItem> Load(string folder, string formatId)
     {
         if (string.IsNullOrEmpty(folder)) return [];
+
+        var strategy = strategyFactory.GetLoadStrategy(formatId);
+
+        // A format we know nothing about (e.g. its plugin is missing) must not fall through to the manifest or
+        // JSON loaders: they would misread the files, and a later save could overwrite them.
+        // Built-in formats without a loader keep the legacy JSON fallback below.
+        if (strategy == null && !FormatIds.TryGetStyle(formatId, out _))
+            throw new FormatUnavailableException(formatId);
 
         var variant = modeResolver.Resolve(folder);
         if (variant == ProjectTypeVariant.ConfigManifest)
@@ -143,17 +157,16 @@ public class ProjectService(
         }
 
         // Use the detected format's load strategy (not just Json fallback)
-        var strategy = strategyFactory.GetLoadStrategy(style);
         if (strategy != null) return strategy.Load(folder).ToList();
 
         // Final fallback: try Json
-        return (strategyFactory.GetLoadStrategy(SaveStyles.Json)?.Load(folder) ?? []).ToList();
+        return (strategyFactory.GetLoadStrategy(FormatIds.Json)?.Load(folder) ?? []).ToList();
     }
 
-    public void Save(string path, SaveStyles style, List<NsTreeItem> items, IEnumerable<TranslationItem> translations)
+    public void Save(string path, string formatId, List<NsTreeItem> items, IEnumerable<TranslationItem> translations)
     {
-        var strategy = saveStrategies.FirstOrDefault(s => s.Style == style)
-            ?? throw new NotSupportedException($"No save strategy registered for {style}");
+        var strategy = strategyFactory.GetSaveStrategy(formatId)
+            ?? throw new FormatUnavailableException(formatId);
 
         var context = new SaveContext
         {
@@ -164,4 +177,22 @@ public class ProjectService(
 
         strategy.Save(path, context);
     }
+
+    public string GetDefaultFilePath(ProjectSettings settings, string language) =>
+        settings.LanguageFilePaths?.TryGetValue(language, out var custom) == true
+            ? custom
+            : ResolveDefaultPath(settings.SaveFormat, language);
+
+    public IReadOnlyList<string> GetLanguageFiles(ProjectSettings settings, string language)
+    {
+        if (settings.LanguageFilePaths?.TryGetValue(language, out var custom) == true)
+            return [Path.IsPathRooted(custom) ? custom : Path.Combine(settings.ProjectPath, custom)];
+
+        var strategy = strategyFactory.GetSaveStrategy(settings.SaveFormat);
+        return strategy?.LanguageFiles(settings.ProjectPath, language)
+            ?? [Path.Combine(settings.ProjectPath, language + ".json")];
+    }
+
+    private string ResolveDefaultPath(string formatId, string language) =>
+        strategyFactory.GetSaveStrategy(formatId)?.DefaultFilePath(language) ?? $"{language}.json";
 }

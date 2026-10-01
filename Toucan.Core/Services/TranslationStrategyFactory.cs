@@ -5,13 +5,15 @@ namespace Toucan.Core.Services;
 
 public class TranslationStrategyFactory(IEnumerable<ISaveStrategy> saveStrategies, IEnumerable<ILoadStrategy> loadStrategies) : ITranslationStrategyFactory
 {
-    public ISaveStrategy? GetSaveStrategy(SaveStyles style) =>
-        saveStrategies.FirstOrDefault(s => s.Style == style);
+    public ISaveStrategy? GetSaveStrategy(string formatId) =>
+        SaveStrategies.FirstOrDefault(s => FormatIds.Comparer.Equals(s.FormatId, formatId));
 
-    public ILoadStrategy? GetLoadStrategy(SaveStyles style) =>
-        loadStrategies.FirstOrDefault(s => s.Style == style);
+    public ILoadStrategy? GetLoadStrategy(string formatId) =>
+        loadStrategies.FirstOrDefault(s => FormatIds.Comparer.Equals(s.FormatId, formatId));
 
     public ILoadStrategy? GetManifestLoadStrategy() =>
         loadStrategies.FirstOrDefault(s => s.GetType().Name.Contains("Manifest"))
-        ?? GetLoadStrategy(SaveStyles.Json);
+        ?? GetLoadStrategy(FormatIds.Json);
+
+    public IReadOnlyList<ISaveStrategy> SaveStrategies { get; } = saveStrategies.ToList();
 }

@@ -7,7 +7,10 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.Json;
+    public string FormatId => FormatIds.Json;
+    public string DisplayName => "JSON (flat)";
+    public IReadOnlyList<string> FileExtensions => [".json"];
+    public string DefaultFilePath(string language) => $"{language}.json";
 
     public void Save(string path, SaveContext context)
     {

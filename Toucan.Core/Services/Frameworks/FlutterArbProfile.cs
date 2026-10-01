@@ -13,7 +13,7 @@ public class FlutterArbProfile : IFrameworkProfile
 {
     public string Id => "flutter-arb";
     public string DisplayName => "Flutter (ARB)";
-    public SaveStyles DefaultFormat => SaveStyles.Arb;
+    public string DefaultFormatId => FormatIds.Arb;
     public IEnumerable<string> FilePatterns => ["lib/l10n/*.arb", "l10n/*.arb", "*.arb"];
 
     public IEnumerable<DiscoveredFile> DiscoverFiles(string rootFolder)

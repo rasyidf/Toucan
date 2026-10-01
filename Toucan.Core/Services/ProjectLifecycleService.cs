@@ -38,7 +38,7 @@ public partial class ProjectLifecycleService(
     public event EventHandler<ProjectChangedEventArgs>? ProjectChanged;
 
     /// <inheritdoc />
-    public async Task<ProjectOpenResult> OpenProjectAsync(string folderPath, CancellationToken ct = default)
+    public async Task<ProjectOpenResult> OpenProjectAsync(string folderPath, IProgress<ScanProgress>? progress = null, CancellationToken ct = default)
     {
         // 1. If a project is already open and dirty, attempt to close it first
         if (IsProjectOpen && translationManagement.IsDirty)
@@ -66,7 +66,20 @@ public partial class ProjectLifecycleService(
         ProjectLoadResult loadResult;
         try
         {
-            loadResult = projectService.LoadProject(folderPath);
+            // Off the UI thread: a large folder can take a long time and must stay cancellable.
+            // No ConfigureAwait(false): the steps below and ProjectChanged handlers expect the caller's (UI) context.
+            loadResult = await Task.Run(() => projectService.LoadProject(folderPath, progress, ct), ct);
+        }
+        catch (OperationCanceledException)
+        {
+            if (logger.IsEnabled(LogLevel.Information))
+                logger.LogInformation("Project open cancelled while scanning: {FolderPath}", folderPath);
+            return new ProjectOpenResult(ProjectOpenStatus.Cancelled);
+        }
+        catch (FormatUnavailableException ex)
+        {
+            logger.LogWarning(ex, "Project format unavailable in: {FolderPath}", folderPath);
+            return new ProjectOpenResult(ProjectOpenStatus.FormatUnavailable, ex.Message);
         }
         catch (Exception ex) when (ex is JsonException or FormatException or InvalidOperationException or IOException)
         {
@@ -102,7 +115,7 @@ public partial class ProjectLifecycleService(
         // 8. Load comments via ICommentPersistenceService
         try
         {
-            commentPersistence.LoadComments(folderPath, settings.SaveStyle, translations);
+            commentPersistence.LoadComments(folderPath, settings.SaveFormat, translations);
         }
         catch (Exception ex)
         {
@@ -136,7 +149,7 @@ public partial class ProjectLifecycleService(
     }
 
     /// <inheritdoc />
-    public async Task<ProjectOpenResult> CreateAndOpenProjectAsync(string folder, IReadOnlyList<string> languages, SaveStyles style, string? name = null, CancellationToken ct = default)
+    public async Task<ProjectOpenResult> CreateAndOpenProjectAsync(string folder, IReadOnlyList<string> languages, string formatId, string? name = null, CancellationToken ct = default)
     {
         // 1. If a project is already open and dirty, attempt to close it first
         if (IsProjectOpen && translationManagement.IsDirty)
@@ -151,10 +164,10 @@ public partial class ProjectLifecycleService(
         }
 
         // 2. Create the project folder, manifest, and language files
-        projectService.CreateProject(folder, languages, style, createManifest: true, name);
+        projectService.CreateProject(folder, languages, formatId, createManifest: true, name);
 
         // 3. Open through the unified load pipeline
-        return await OpenProjectAsync(folder, ct).ConfigureAwait(false);
+        return await OpenProjectAsync(folder, ct: ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -169,7 +182,7 @@ public partial class ProjectLifecycleService(
             var validationResults = validationPipeline.RunAll(new ValidationContext
             {
                 Items = translationManagement.Translations,
-                Settings = _currentProject
+                PrimaryLanguage = _currentProject.PrimaryLanguage
             }).ToList();
 
             var errors = validationResults.Where(r => r.Severity == ValidationSeverity.Error).ToList();
@@ -181,7 +194,7 @@ public partial class ProjectLifecycleService(
             projectService.Save(_currentProject, [], translationManagement.Translations);
 
             // 3. Save comments via ICommentPersistenceService
-            commentPersistence.SaveComments(projectPath, _currentProject.SaveStyle, translationManagement.Translations);
+            commentPersistence.SaveComments(projectPath, _currentProject.SaveFormat, translationManagement.Translations);
 
             // 4. Save audit sidecar
             auditService.SaveToSidecar(projectPath);
@@ -241,7 +254,8 @@ public partial class ProjectLifecycleService(
                 Version = _currentProject.Version,
                 PrimaryLanguage = _currentProject.PrimaryLanguage,
                 Languages = [.. _currentProject.Languages],
-                SaveStyle = _currentProject.SaveStyle,
+                SaveFormat = _currentProject.SaveFormat,
+                DefaultPathResolver = _currentProject.DefaultPathResolver,
                 Framework = _currentProject.Framework,
                 TranslationPackages = [.. _currentProject.TranslationPackages],
                 SaveEmptyTranslations = _currentProject.SaveEmptyTranslations,
@@ -264,7 +278,7 @@ public partial class ProjectLifecycleService(
             projectService.Save(newSettings, [], translationManagement.Translations);
 
             // 3. Save comments and audit sidecar to new folder
-            commentPersistence.SaveComments(targetFolder, newSettings.SaveStyle, translationManagement.Translations);
+            commentPersistence.SaveComments(targetFolder, newSettings.SaveFormat, translationManagement.Translations);
             auditService.SaveToSidecar(targetFolder);
 
             // 4. Update manifest translationPackages and save to new folder
@@ -318,7 +332,7 @@ public partial class ProjectLifecycleService(
     /// Updates the translationPackages entries in the manifest so each package's translationUrls
     /// contains one entry per language with its relative file path.
     /// </summary>
-    private static void UpdateManifestTranslationPackages(ProjectSettings settings)
+    private void UpdateManifestTranslationPackages(ProjectSettings settings)
     {
         // Ensure at least one package exists
         if (settings.TranslationPackages.Count == 0)
@@ -329,39 +343,11 @@ public partial class ProjectLifecycleService(
             .Select(lang => new TranslationUrl
             {
                 Language = lang,
-                Path = ResolveRelativeTranslationPath(settings, lang)
+                Path = projectService.GetDefaultFilePath(settings, lang)
             })
             .ToList();
     }
 
-    /// <summary>
-    /// Resolves the relative file path for a language based on the project's save style.
-    /// </summary>
-    private static string ResolveRelativeTranslationPath(ProjectSettings settings, string language)
-    {
-        // Check for custom file path override
-        if (settings.LanguageFilePaths?.TryGetValue(language, out var customPath) == true)
-            return customPath;
-
-        return settings.SaveStyle switch
-        {
-            SaveStyles.Json => $"{language}.json",
-            SaveStyles.Namespaced => $"{language}.json",
-            SaveStyles.Yaml => $"{language}.yaml",
-            SaveStyles.Toml => $"{language}.toml",
-            SaveStyles.Properties => $"{language}.po",
-            SaveStyles.Adb => $"{language}.ini",
-            SaveStyles.AndroidXml => $"res/{(language == "default" ? "values" : $"values-{language}")}/strings.xml",
-            SaveStyles.IosStrings => $"{language}.lproj/Localizable.strings",
-            SaveStyles.Xliff => $"{language}.xlf",
-            SaveStyles.Arb => $"app_{language}.arb",
-            SaveStyles.Csv => "translations.csv",
-            SaveStyles.Resx => $"Resources{(language == "default" ? "" : $".{language}")}.resx",
-            SaveStyles.JavaProperties => $"{language}.properties",
-            SaveStyles.LaravelPhp => $"{language}/messages.php",
-            _ => $"{language}.json"
-        };
-    }
 
     /// <inheritdoc />
     public async Task<CloseResult> CloseProjectAsync(CancellationToken ct = default)

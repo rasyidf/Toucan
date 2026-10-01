@@ -8,7 +8,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 /// <summary>Loads iOS/macOS .strings files ("key" = "value";).</summary>
 public partial class IosStringsLoadStrategy : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.IosStrings;
+    public string FormatId => FormatIds.IosStrings;
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

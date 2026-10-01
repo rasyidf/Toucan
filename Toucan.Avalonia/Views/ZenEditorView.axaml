@@ -1,0 +1,26 @@
+<UserControl x:Class="Toucan.Avalonia.Views.ZenEditorView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:c="using:Toucan.Avalonia.Views.Components">
+  <DockPanel Background="{DynamicResource EditorBackgroundBrush}">
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,*" Margin="16,12">
+      <TextBlock Text="Zen mode" Classes="caption" VerticalAlignment="Center"/>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+        <Button Classes="icon" Command="{Binding FocusedPreviousCommand}" ToolTip.Tip="Previous (K or ↑)">
+          <ui:FASymbolIcon Symbol="ChevronLeft"/>
+        </Button>
+        <TextBlock Text="{Binding FocusedPositionText}" VerticalAlignment="Center" MinWidth="80" TextAlignment="Center"/>
+        <Button Classes="icon" Command="{Binding FocusedNextCommand}" ToolTip.Tip="Next (J or ↓)">
+          <ui:FASymbolIcon Symbol="ChevronRight"/>
+        </Button>
+      </StackPanel>
+      <Button Grid.Column="2" HorizontalAlignment="Right" Classes="link" Content="Exit zen mode (Esc)" Command="{Binding ToggleZenModeCommand}"/>
+    </Grid>
+    <TextBlock DockPanel.Dock="Bottom" Classes="hint" HorizontalAlignment="Center" Margin="0,0,0,16"
+               Text="J / K or ↓ / ↑ to move between keys when no field is focused"/>
+    <ScrollViewer>
+      <c:TranslationCard DataContext="{Binding ZenCurrentItem}" MaxWidth="820" Margin="24,32"/>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

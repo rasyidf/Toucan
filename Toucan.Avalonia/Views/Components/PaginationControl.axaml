@@ -1,52 +1,42 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl x:Class="Toucan.Avalonia.Views.Components.PaginationControl"
+             xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Toucan.Avalonia.Views.Components.PaginationControl">
-  <Border Padding="8,4">
-    <Grid ColumnDefinitions="Auto,*,Auto">
-      <!-- Navigation buttons -->
-      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="2">
-        <Button Command="{Binding FirstPageCommand}" IsEnabled="{Binding PagingController.HasPreviousPage}" Padding="6,3" ToolTip.Tip="First">
-          <TextBlock Text="«" FontSize="14" FontWeight="Bold"/>
-        </Button>
-        <Button Command="{Binding PreviousPageCommand}" IsEnabled="{Binding PagingController.HasPreviousPage}" Padding="6,3" ToolTip.Tip="Previous">
-          <TextBlock Text="‹" FontSize="14" FontWeight="Bold"/>
-        </Button>
+             xmlns:ui="using:FluentAvalonia.UI.Controls">
+  <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="12,4">
+    <Grid ColumnDefinitions="*,Auto,Auto">
+      <TextBlock Text="{Binding PageMessage}" Classes="caption" VerticalAlignment="Center"/>
 
-        <ItemsControl ItemsSource="{Binding PageButtons}" Margin="4,0">
+      <StackPanel Grid.Column="1" Orientation="Horizontal" IsVisible="{Binding PagingController.HasPages}">
+        <Button Classes="icon small" Command="{Binding FirstPageCommand}" IsEnabled="{Binding PagingController.HasPreviousPage}" ToolTip.Tip="First page">
+          <ui:FASymbolIcon Symbol="Previous"/>
+        </Button>
+        <Button Classes="icon small" Command="{Binding PreviousPageCommand}" IsEnabled="{Binding PagingController.HasPreviousPage}" ToolTip.Tip="Previous page">
+          <ui:FASymbolIcon Symbol="ChevronLeft"/>
+        </Button>
+        <ItemsControl ItemsSource="{Binding PageButtons}">
           <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="1"/></ItemsPanelTemplate>
+            <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
           </ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <Panel>
-                <Button Command="{Binding $parent[ItemsControl].DataContext.GoToPageCommand}"
-                        CommandParameter="{Binding Number}"
-                        IsVisible="{Binding !IsEllipsis}"
-                        IsEnabled="{Binding !IsCurrent}"
-                        Width="28" Height="28" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-                  <TextBlock Text="{Binding Number}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                </Button>
-                <TextBlock Text="⋯" IsVisible="{Binding IsEllipsis}" VerticalAlignment="Center" Margin="4,0" Opacity="0.5"/>
-              </Panel>
+              <Button Classes="page" Classes.current="{Binding IsCurrent}" Content="{Binding Label}"
+                      IsEnabled="{Binding !IsEllipsis}"
+                      Command="{Binding $parent[ItemsControl].DataContext.GoToPageCommand}" CommandParameter="{Binding}"/>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
-
-        <Button Command="{Binding NextPageCommand}" IsEnabled="{Binding PagingController.HasNextPage}" Padding="6,3" ToolTip.Tip="Next">
-          <TextBlock Text="›" FontSize="14" FontWeight="Bold"/>
+        <Button Classes="icon small" Command="{Binding NextPageCommand}" IsEnabled="{Binding PagingController.HasNextPage}" ToolTip.Tip="Next page">
+          <ui:FASymbolIcon Symbol="ChevronRight"/>
         </Button>
-        <Button Command="{Binding LastPageCommand}" IsEnabled="{Binding PagingController.HasNextPage}" Padding="6,3" ToolTip.Tip="Last">
-          <TextBlock Text="»" FontSize="14" FontWeight="Bold"/>
+        <Button Classes="icon small" Command="{Binding LastPageCommand}" IsEnabled="{Binding PagingController.HasNextPage}" ToolTip.Tip="Last page">
+          <ui:FASymbolIcon Symbol="Next"/>
         </Button>
       </StackPanel>
 
-      <!-- Page info -->
-      <TextBlock Grid.Column="1" Text="{Binding PageMessage}" VerticalAlignment="Center" HorizontalAlignment="Center"
-                 FontSize="11" Opacity="0.6"/>
-
-      <!-- Show All -->
-      <Button Grid.Column="2" Content="Show All" Command="{Binding ShowAllCommand}" 
-              IsEnabled="{Binding PagingController.IsPartial}" Padding="8,4" FontSize="11" Opacity="0.7"/>
+      <ToggleButton Grid.Column="2" Classes="icon small" Margin="8,0,0,0" IsChecked="{Binding InfiniteScroll, Mode=OneWay}"
+                    Command="{Binding ToggleInfiniteScrollCommand}" ToolTip.Tip="Show all items without paging">
+        <ui:FASymbolIcon Symbol="ViewAll"/>
+      </ToggleButton>
     </Grid>
   </Border>
 </UserControl>

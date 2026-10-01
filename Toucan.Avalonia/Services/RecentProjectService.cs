@@ -1,23 +1,33 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Toucan.Core.Contracts;
 using Toucan.Core.Models;
 
 namespace Toucan.Avalonia.Services;
 
-public class RecentProjectService : IRecentProjectService
+/// <summary>Most-recently-used project folders, shared with the WPF app's storage file.</summary>
+public sealed class RecentProjectService : IRecentProjectService
 {
     private const int MaxItems = 10;
-    private readonly string _storageFile = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "Toucan", "recent_projects.json");
 
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true,
+        PropertyNameCaseInsensitive = true
+    };
+
+    private readonly string _storageFile;
     private List<Project> _recentProjects = [];
 
-    public RecentProjectService() => Load();
+    public RecentProjectService()
+        : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Toucan", "recent_projects.json"))
+    {
+    }
+
+    internal RecentProjectService(string storageFile)
+    {
+        _storageFile = storageFile;
+        Load();
+    }
 
     public List<Project> LoadRecent()
     {
@@ -54,8 +64,15 @@ public class RecentProjectService : IRecentProjectService
 
     public void Save()
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(_storageFile)!);
-        File.WriteAllText(_storageFile, JsonConvert.SerializeObject(_recentProjects, Formatting.Indented));
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(_storageFile)!);
+            File.WriteAllText(_storageFile, JsonSerializer.Serialize(_recentProjects, JsonOptions));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Recent list is a convenience; failing to persist it must not break project loading.
+        }
     }
 
     private void Load()
@@ -63,8 +80,11 @@ public class RecentProjectService : IRecentProjectService
         if (!File.Exists(_storageFile)) return;
         try
         {
-            _recentProjects = JsonConvert.DeserializeObject<List<Project>>(File.ReadAllText(_storageFile)) ?? [];
+            _recentProjects = JsonSerializer.Deserialize<List<Project>>(File.ReadAllText(_storageFile), JsonOptions) ?? [];
         }
-        catch { _recentProjects = []; }
+        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
+        {
+            _recentProjects = [];
+        }
     }
 }

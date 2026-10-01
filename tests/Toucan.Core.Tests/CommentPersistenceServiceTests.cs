@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
+using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Services;
 using Xunit;

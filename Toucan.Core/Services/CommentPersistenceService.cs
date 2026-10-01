@@ -11,22 +11,11 @@ namespace Toucan.Core.Services;
 /// Handles comment persistence via JSON sidecar files for save formats
 /// that do not support inline comments.
 /// </summary>
-public class CommentPersistenceService(ILogger<CommentPersistenceService> logger) : ICommentPersistenceService
+public class CommentPersistenceService(ILogger<CommentPersistenceService> logger, ITranslationStrategyFactory? strategyFactory = null) : ICommentPersistenceService
 {
     private const string SchemaVersion = "1.0";
     private const int MaxCommentLength = 2000;
     private const string SidecarSuffix = ".comments.json";
-
-    /// <summary>
-    /// Formats that support inline comments — these do NOT need sidecar files.
-    /// </summary>
-    private static readonly HashSet<SaveStyles> s_inlineCommentFormats =
-    [
-        SaveStyles.Xliff,       // 8
-        SaveStyles.Resx,        // 11
-        SaveStyles.Properties,  // 2 (PO/gettext)
-        SaveStyles.AndroidXml,  // 6
-    ];
 
     private static readonly JsonSerializerOptions s_writeOptions = new()
     {
@@ -41,12 +30,16 @@ public class CommentPersistenceService(ILogger<CommentPersistenceService> logger
     };
 
     /// <inheritdoc />
-    public bool RequiresSidecar(SaveStyles saveStyle) => !s_inlineCommentFormats.Contains(saveStyle);
+    public bool RequiresSidecar(string formatId) => FindStrategy(formatId)?.StoresCommentsInline != true;
+
+    // Falls back to the built-ins when no factory was supplied (tests, plain construction).
+    private ISaveStrategy? FindStrategy(string formatId) =>
+        strategyFactory?.GetSaveStrategy(formatId) ?? BuiltInFormats.FindSaveStrategy(formatId);
 
     /// <inheritdoc />
-    public void SaveComments(string folder, SaveStyles saveStyle, IEnumerable<TranslationItem> translations)
+    public void SaveComments(string folder, string formatId, IEnumerable<TranslationItem> translations)
     {
-        if (!RequiresSidecar(saveStyle))
+        if (!RequiresSidecar(formatId))
             return;
 
         var grouped = translations.GroupBy(t => t.Language);
@@ -68,7 +61,7 @@ public class CommentPersistenceService(ILogger<CommentPersistenceService> logger
                 comments[item.Namespace] = comment;
             }
 
-            var sidecarPath = GetSidecarPath(folder, saveStyle, language);
+            var sidecarPath = GetSidecarPath(folder, formatId, language);
 
             if (comments.Count == 0)
             {
@@ -100,9 +93,9 @@ public class CommentPersistenceService(ILogger<CommentPersistenceService> logger
     }
 
     /// <inheritdoc />
-    public void LoadComments(string folder, SaveStyles saveStyle, IEnumerable<TranslationItem> translations)
+    public void LoadComments(string folder, string formatId, IEnumerable<TranslationItem> translations)
     {
-        if (!RequiresSidecar(saveStyle))
+        if (!RequiresSidecar(formatId))
             return;
 
         // Build a lookup of valid (language, namespace) pairs from translations
@@ -112,7 +105,7 @@ public class CommentPersistenceService(ILogger<CommentPersistenceService> logger
         foreach (var languageGroup in byLanguage)
         {
             var language = languageGroup.Key;
-            var sidecarPath = GetSidecarPath(folder, saveStyle, language);
+            var sidecarPath = GetSidecarPath(folder, formatId, language);
 
             if (!File.Exists(sidecarPath))
                 continue;
@@ -166,38 +159,21 @@ public class CommentPersistenceService(ILogger<CommentPersistenceService> logger
     }
 
     /// <summary>
-    /// Determines the sidecar file path for a given language and save style.
+    /// Determines the sidecar file path for a given language and format.
     /// The sidecar is placed alongside the translation file: &lt;translation-filename&gt;.comments.json
     /// </summary>
-    private static string GetSidecarPath(string folder, SaveStyles saveStyle, string language)
+    private string GetSidecarPath(string folder, string formatId, string language)
     {
-        var translationFileName = GetTranslationFileName(saveStyle, language);
+        var translationFileName = GetTranslationFileName(formatId, language);
         return Path.Combine(folder, translationFileName + SidecarSuffix);
     }
 
     /// <summary>
-    /// Returns the translation file name (relative to project folder) for a given language and save style.
-    /// This mirrors the naming conventions used in the corresponding ISaveStrategy implementations.
+    /// Returns the translation file name (relative to project folder) the sidecar sits next to, as defined by the
+    /// format's save strategy. Unknown formats fall back to the JSON convention.
     /// </summary>
-    private static string GetTranslationFileName(SaveStyles saveStyle, string language)
-    {
-        return saveStyle switch
-        {
-            SaveStyles.Json => $"{language}.json",
-            SaveStyles.Namespaced => $"{language}.json",
-            SaveStyles.Yaml => $"{language}.yaml",
-            SaveStyles.Adb => $"{language}.ini",       // INI format
-            SaveStyles.Toml => $"{language}.toml",
-            SaveStyles.IosStrings => Path.Combine($"{language}.lproj", "Localizable.strings"),
-            SaveStyles.Arb => $"app_{language}.arb",
-            SaveStyles.Csv => "translations.csv",
-            SaveStyles.JavaProperties => $"{language}.properties",
-            SaveStyles.LaravelPhp => language, // directory-based, sidecar sits at language folder level
-
-            // Inline formats (should never reach here due to RequiresSidecar check)
-            _ => $"{language}.json",
-        };
-    }
+    private string GetTranslationFileName(string formatId, string language) =>
+        FindStrategy(formatId)?.CommentSidecarBase(language) ?? $"{language}.json";
 
     private void DeleteSidecarIfExists(string sidecarPath)
     {

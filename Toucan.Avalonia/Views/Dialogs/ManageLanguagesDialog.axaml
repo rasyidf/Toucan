@@ -1,0 +1,87 @@
+<d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.ManageLanguagesDialog"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                xmlns:ui="using:FluentAvalonia.UI.Controls"
+                Title="Manage Languages" Width="820" Height="580">
+  <DockPanel>
+    <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
+      <DockPanel>
+        <TextBlock Classes="caption" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="460"
+                   Text="Removing a language deletes its translation files when you apply."/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Content="Cancel" x:Name="CancelButton"/>
+          <Button Content="Apply" Classes="accent" x:Name="OkButton" IsDefault="True"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+    <Grid ColumnDefinitions="*,16,*" Margin="20,18,20,12">
+      <!-- Current languages -->
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Top" Text="Project languages" Classes="dialogTitle" FontSize="16" Margin="0,0,0,8"/>
+        <Border Classes="card" Padding="2">
+          <ListBox Classes="plain" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <TextBlock Text="{Binding Code}" FontWeight="SemiBold" Classes="mono"/>
+                      <Border Classes="badge" IsVisible="{Binding IsPrimary}" Background="{DynamicResource SelectedBackgroundBrush}">
+                        <TextBlock Text="primary"/>
+                      </Border>
+                    </StackPanel>
+                    <TextBlock Classes="caption">
+                      <Run Text="{Binding DisplayName}"/><Run Text=" · "/><Run Text="{Binding Summary}"/>
+                    </TextBlock>
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Classes="icon small" ToolTip.Tip="Make primary" Command="{Binding $parent[ListBox].DataContext.SetPrimaryCommand}" CommandParameter="{Binding}">
+                      <ui:FASymbolIcon Symbol="Favorite"/>
+                    </Button>
+                    <Button Classes="icon small" ToolTip.Tip="Move up" Command="{Binding $parent[ListBox].DataContext.MoveUpCommand}" CommandParameter="{Binding}">
+                      <ui:FASymbolIcon Symbol="ChevronUp"/>
+                    </Button>
+                    <Button Classes="icon small" ToolTip.Tip="Move down" Command="{Binding $parent[ListBox].DataContext.MoveDownCommand}" CommandParameter="{Binding}">
+                      <ui:FASymbolIcon Symbol="ChevronDown"/>
+                    </Button>
+                    <Button Classes="icon small" ToolTip.Tip="Remove" IsEnabled="{Binding CanRemove}"
+                            Command="{Binding $parent[ListBox].DataContext.RemoveLanguageCommand}" CommandParameter="{Binding}">
+                      <ui:FASymbolIcon Symbol="Delete"/>
+                    </Button>
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Border>
+      </DockPanel>
+
+      <!-- Add languages -->
+      <DockPanel Grid.Column="2">
+        <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
+          <TextBlock Text="Add a language" Classes="dialogTitle" FontSize="16"/>
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Content="Add" Margin="6,0,0,0" Command="{Binding AddLanguageCommand}"/>
+            <TextBox Text="{Binding FilterText}" PlaceholderText="Search, or type a custom code" Classes="clearButton"/>
+          </DockPanel>
+        </StackPanel>
+        <Border Classes="card" Padding="2">
+          <ListBox x:Name="CultureList" Classes="plain" ItemsSource="{Binding FilteredCultures}" SelectedItem="{Binding SelectedCulture}">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel>
+                    <TextBlock Text="{Binding Language}"/>
+                    <TextBlock Text="{Binding Culture.NativeName}" Classes="caption"/>
+                  </StackPanel>
+                  <Border Grid.Column="1" Classes="badge"><TextBlock Text="{Binding Culture.Name}" Classes="mono"/></Border>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Border>
+      </DockPanel>
+    </Grid>
+  </DockPanel>
+</d:DialogWindow>

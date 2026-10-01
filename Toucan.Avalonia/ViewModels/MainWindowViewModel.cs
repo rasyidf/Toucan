@@ -1,536 +1,480 @@
+using System.Collections.ObjectModel;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using Toucan.Avalonia.Models;
 using Toucan.Avalonia.Services;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
+using Toucan.Core.Services;
 using Toucan.Extensions;
 
 namespace Toucan.Avalonia.ViewModels;
 
-public partial class MainWindowViewModel : ObservableObject
-{
-    [ObservableProperty] private List<TranslationItem> allTranslation = new();
-    [ObservableProperty] private NsTreeItem? selectedNode;
-    [ObservableProperty] private SummaryInfoViewModel summaryInfo = new();
-    [ObservableProperty] private PaginationViewModel<LanguageGroupViewModel> pagingController;
-    [ObservableProperty] private ObservableCollection<NsTreeItem> currentTreeItems = new();
-    [ObservableProperty] private AppOptions appOptions;
-    [ObservableProperty] private string currentPath = string.Empty;
-    [ObservableProperty] private bool isDirty;
-    [ObservableProperty] private ProjectSettings? projectSettings;
-    [ObservableProperty] private string searchText = string.Empty;
-    [ObservableProperty] private string statusText = "Ready";
-    [ObservableProperty] private bool isLoading;
-    [ObservableProperty] private bool isTreeView = true;
-    [ObservableProperty] private bool showStartScreen = true;
-    [ObservableProperty] private bool languagesVisible = true;
-    [ObservableProperty] private bool showAdvancedOptions;
-    [ObservableProperty] private IEnumerable<LanguageGroupViewModel> pageData = [];
-    [ObservableProperty] private string pageMessage = string.Empty;
-    [ObservableProperty] private int paginationWindow = 1;
-    [ObservableProperty] private ObservableCollection<PaginationButton> pageButtons = new();
+/// <summary>Services the main window view model depends on, grouped to keep the constructor readable.</summary>
+public sealed record MainWindowServices(
+    IRecentProjectService RecentProjects,
+    IDialogService Dialogs,
+    IAsyncMessageService Messages,
+    IPreferenceService Preferences,
+    IProjectService ProjectService,
+    IProjectLifecycleService Lifecycle,
+    ITranslationManagementService TranslationStore,
+    ILanguageManagementService LanguageManagement,
+    ITranslationStrategyFactory StrategyFactory,
+    IPretranslationService Pretranslation,
+    IProviderSettingsService ProviderSettings,
+    IValidationPipeline Validation,
+    ISourceCodeService SourceCode,
+    ITranslationAnalyzer Analyzer,
+    IUndoRedoService UndoRedo,
+    IFuzzySearchService FuzzySearch,
+    ISearchAndReplaceService SearchAndReplace,
+    ITranslationMemory TranslationMemory,
+    BulkOperationService BulkOperations);
 
+/// <summary>
+/// State and commands for the main editor window. Split across partial files by concern:
+/// File (open/save/import/export), Nav (filtering, paging, modes), Edit (keys, languages, undo),
+/// Translation (MT, validation, TM, source code), Search (find &amp; replace), and Bulk (multi-select).
+/// </summary>
+public partial class MainWindowViewModel : ObservableObject, IDisposable
+{
     private readonly IRecentProjectService _recentFileService;
     private readonly IDialogService _dialogService;
-    private readonly IMessageService _messageService;
+    private readonly IAsyncMessageService _messageService;
     private readonly IPreferenceService _preferenceService;
-    private readonly IBulkActionService? _bulkActionService;
-    private readonly IPretranslationService? _pretranslationService;
     private readonly IProjectService _projectService;
-    private readonly Func<string, LanguageGroupViewModel> _languageGroupFactory;
+    private readonly IProjectLifecycleService _lifecycleService;
+    private readonly ITranslationManagementService _translationStore;
+    private readonly ILanguageManagementService _languageManagement;
+    private readonly ITranslationStrategyFactory _strategyFactory;
+    private readonly IPretranslationService _pretranslationService;
+    private readonly IProviderSettingsService _providerSettingsService;
+    private readonly IValidationPipeline _validationPipeline;
+    private readonly ISourceCodeService _sourceCodeService;
+    private readonly ITranslationAnalyzer _translationAnalyzer;
+    private readonly IUndoRedoService _undoRedoService;
+    private readonly IFuzzySearchService _fuzzySearch;
+    private readonly ISearchAndReplaceService _searchAndReplace;
+    private readonly ITranslationMemory _translationMemory;
+    private readonly BulkOperationService _bulkOperations;
 
-    public MainWindowViewModel(
-        IRecentProjectService recentFileService,
-        IDialogService dialogService,
-        IMessageService messageService,
-        IPreferenceService preferenceService,
-        IProjectService projectService,
-        IBulkActionService? bulkActionService = null,
-        IPretranslationService? pretranslationService = null,
-        Func<string, LanguageGroupViewModel>? languageGroupFactory = null)
+    private readonly DispatcherTimer _searchDebounce;
+
+    public MainWindowViewModel(MainWindowServices services)
     {
-        _recentFileService = recentFileService;
-        _dialogService = dialogService;
-        _messageService = messageService;
-        _preferenceService = preferenceService;
-        _projectService = projectService;
-        _bulkActionService = bulkActionService;
-        _pretranslationService = pretranslationService;
-        _languageGroupFactory = languageGroupFactory ?? (ns => new LanguageGroupViewModel(ns));
+        ArgumentNullException.ThrowIfNull(services);
+        _recentFileService = services.RecentProjects;
+        _dialogService = services.Dialogs;
+        _messageService = services.Messages;
+        _preferenceService = services.Preferences;
+        _projectService = services.ProjectService;
+        _lifecycleService = services.Lifecycle;
+        _translationStore = services.TranslationStore;
+        _languageManagement = services.LanguageManagement;
+        _strategyFactory = services.StrategyFactory;
+        _pretranslationService = services.Pretranslation;
+        _providerSettingsService = services.ProviderSettings;
+        _validationPipeline = services.Validation;
+        _sourceCodeService = services.SourceCode;
+        _translationAnalyzer = services.Analyzer;
+        _undoRedoService = services.UndoRedo;
+        _fuzzySearch = services.FuzzySearch;
+        _searchAndReplace = services.SearchAndReplace;
+        _translationMemory = services.TranslationMemory;
+        _bulkOperations = services.BulkOperations;
 
-        AppOptions = _preferenceService.Load();
-        int pageSize = AppOptions.PageSize <= 0 ? 30 : AppOptions.PageSize;
-        int maxItems = AppOptions.MaxItems <= 0 ? 100 : AppOptions.MaxItems;
-        PagingController = new PaginationViewModel<LanguageGroupViewModel>(pageSize, new List<LanguageGroupViewModel>(), maxItems);
+        _translationStore.DirtyStateChanged += OnStoreDirtyStateChanged;
+
+        appOptions = _preferenceService.Load();
+        editorMode = PanelService.Instance.EditorMode;
+
+        pagingController = new PaginationViewModel<LanguageGroupViewModel>(EffectivePageSize, [], EffectiveMaxItems);
+
+        _searchDebounce = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+        _searchDebounce.Tick += (_, _) =>
+        {
+            _searchDebounce.Stop();
+            Search(SearchText);
+        };
+
+        RefreshRecentProjects();
+        LoadFilterHistory();
         PagedUpdates();
     }
 
-    #region File Commands
+    // ───────────────────────── Core state ─────────────────────────
 
-    [RelayCommand]
-    private async Task NewFolder()
+    /// <summary>Working copy of every translation in the project (kept in sync with the translation store).</summary>
+    [ObservableProperty] private List<TranslationItem> allTranslation = [];
+
+    [ObservableProperty] private NsTreeItem? selectedNode;
+    [ObservableProperty] private LanguageGroupViewModel? selectedGroup;
+    [ObservableProperty] private SummaryInfoViewModel summaryInfo = new();
+    [ObservableProperty] private PaginationViewModel<LanguageGroupViewModel> pagingController;
+    [ObservableProperty] private ObservableCollection<NsTreeItem> currentTreeItems = [];
+    [ObservableProperty] private ObservableCollection<NsFlatItem> currentFlatItems = [];
+    [ObservableProperty] private ObservableCollection<string> selectedNodePath = [];
+    [ObservableProperty] private AppOptions appOptions;
+    [ObservableProperty] private ProjectSettings? projectSettings;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasProject), nameof(WindowTitle), nameof(ProjectName))]
+    private string currentPath = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(WindowTitle))]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
+    private bool isDirty;
+
+    [ObservableProperty] private string searchText = string.Empty;
+    [ObservableProperty] private string statusText = string.Empty;
+    [ObservableProperty] private bool isLoading;
+    [ObservableProperty] private bool canCancelLoad;
+    [ObservableProperty] private string loadDetail = string.Empty;
+    private CancellationTokenSource? _openCts;
+    [ObservableProperty] private bool isTreeView = true;
+    [ObservableProperty] private bool showStartScreen = true;
+    [ObservableProperty] private ObservableCollection<string> hiddenNamespaces = [];
+    [ObservableProperty] private ObservableCollection<PaginationButton> pageButtons = [];
+    [ObservableProperty] private IEnumerable<LanguageGroupViewModel> pageData = [];
+    [ObservableProperty] private string pageMessage = string.Empty;
+    [ObservableProperty] private int sessionDirtyCount;
+
+    /// <summary>Keys modified in the current session (cleared on save).</summary>
+    public HashSet<string> SessionDirtyKeys { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    public bool HasProject => !string.IsNullOrEmpty(CurrentPath);
+
+    public string ProjectName => ProjectSettings?.Name is { Length: > 0 } name ? name : Path.GetFileName(CurrentPath.TrimEnd('/', '\\'));
+
+    public string WindowTitle => HasProject ? $"{(IsDirty ? "● " : string.Empty)}{ProjectName} — Toucan" : "Toucan";
+
+    private string? _primaryLanguage;
+
+    /// <summary>The source language, matched against the languages actually present in the files.</summary>
+    public string PrimaryLanguage
     {
-        // ponytail: full new-project dialog deferred to Batch 5 (dialogs)
-        var folder = await _dialogService.SelectFolderAsync(CurrentPath);
-        if (string.IsNullOrEmpty(folder)) return;
-        CurrentPath = folder;
-        AppOptions.LastProjectPath = folder;
-        _recentFileService.Add(folder);
-        await LoadFolderAsync(folder);
+        get => _primaryLanguage ?? ProjectSettings?.PrimaryLanguage ?? AppOptions.DefaultLanguage ?? "en-US";
+        private set
+        {
+            _primaryLanguage = value;
+            StatusBarService.Instance.UpdateDefaultLanguage(value);
+            OnPropertyChanged();
+        }
     }
 
-    [RelayCommand]
-    private async Task OpenFolder()
+    /// <summary>Convenience for the start screen checkbox. Persists immediately.</summary>
+    public bool OpenLastProjectOnStartup
     {
-        var selected = await _dialogService.SelectFolderAsync(CurrentPath);
-        if (string.IsNullOrEmpty(selected)) return;
-        CurrentPath = selected;
-        AppOptions.LastProjectPath = selected;
-        _recentFileService.Add(selected);
-        await LoadFolderAsync(CurrentPath);
+        get => AppOptions.OpenLastProjectOnStartup;
+        set
+        {
+            if (AppOptions.OpenLastProjectOnStartup == value) return;
+            AppOptions.OpenLastProjectOnStartup = value;
+            _preferenceService.Save(AppOptions);
+            OnPropertyChanged();
+        }
     }
 
-    [RelayCommand]
-    private async Task OpenProjectFile()
-    {
-        var selected = await _dialogService.SelectFileAsync(CurrentPath, "Toucan project|*.project;*.json");
-        if (string.IsNullOrEmpty(selected)) return;
-        string directory = Path.GetDirectoryName(selected) ?? CurrentPath;
-        if (!Directory.Exists(directory)) { _messageService.ShowMessage($"Folder not found: {directory}"); return; }
-        CurrentPath = directory;
-        AppOptions.LastProjectPath = directory;
-        _recentFileService.Add(directory);
-        await LoadFolderAsync(directory);
-    }
+    private int EffectivePageSize => AppOptions.PageSize <= 0 ? 30 : AppOptions.PageSize;
+    private int EffectiveMaxItems => AppOptions.MaxItems <= 0 ? 100 : AppOptions.MaxItems;
 
-    [RelayCommand]
-    private async Task OpenRecent()
-    {
-        var recents = _recentFileService.LoadRecent();
-        if (recents.Count == 0) { _messageService.ShowMessage("No recent projects found."); return; }
-        var path = recents.First().Path;
-        if (!Directory.Exists(path)) { _messageService.ShowMessage($"Path not found: {path}"); return; }
-        CurrentPath = path;
-        await LoadFolderAsync(CurrentPath);
-    }
+    /// <summary>Raised when the view should move keyboard focus to the filter box.</summary>
+    public event EventHandler? FocusSearchRequested;
 
-    [RelayCommand(CanExecute = nameof(CanSave))]
-    private void Save()
-    {
-        IsDirty = false;
-        if (ProjectSettings != null)
-            _projectService.Save(ProjectSettings, CurrentTreeItems.ToList(), AllTranslation);
-        else
-            _projectService.Save(CurrentPath, SaveStyles.Json, CurrentTreeItems.ToList(), AllTranslation);
-    }
+    /// <summary>Raised when the view should toggle fullscreen (a window concern).</summary>
+    public event EventHandler? FullscreenRequested;
 
-    private bool CanSave() => IsDirty;
-
-    [RelayCommand]
-    private async Task SaveTo()
-    {
-        var folder = await _dialogService.SelectFolderAsync(CurrentPath);
-        if (string.IsNullOrEmpty(folder)) return;
-        CurrentPath = folder;
-        Save();
-    }
-
-    [RelayCommand]
-    private void CloseProject()
-    {
-        AllTranslation = new();
-        CurrentPath = string.Empty;
-        SelectedNode = null;
-        IsDirty = false;
-        StatusText = string.Empty;
-        CurrentTreeItems.Clear();
-        PagingController?.SwapData(new List<LanguageGroupViewModel>());
-        PageButtons.Clear();
-        RefreshTree();
-        UpdateSummaryInfo();
-    }
-
-    [RelayCommand]
-    private async Task Refresh() => await LoadFolderAsync(CurrentPath);
-
-    [RelayCommand]
-    private void Exit()
-    {
-        if (global::Avalonia.Application.Current?.ApplicationLifetime is global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
-            desktop.Shutdown();
-    }
-
-    #endregion
-
-    #region Edit Commands
-
-    [RelayCommand]
-    private void NewLanguage()
-    {
-        // ponytail: LanguagePrompt dialog wired in Batch 5
-    }
-
-    [RelayCommand]
-    private void NewItem()
-    {
-        // ponytail: PromptDialog wired in Batch 5
-    }
-
-    [RelayCommand(CanExecute = nameof(CanModifyItem))]
-    private void RenameItem()
-    {
-        // ponytail: PromptDialog wired in Batch 5
-    }
-
-    [RelayCommand(CanExecute = nameof(CanModifyItem))]
-    private void DeleteItem()
-    {
-        if (SelectedNode == null) return;
-        DeleteItemCore(SelectedNode);
-    }
-
-    private bool CanModifyItem() => SelectedNode != null;
-
-    #endregion
-
-    #region Pagination
-
-    [RelayCommand] private void NextPage() { PagingController.NextPage(); PagedUpdates(); }
-    [RelayCommand] private void PreviousPage() { PagingController.PreviousPage(); PagedUpdates(); }
-    [RelayCommand] private void FirstPage() { PagingController.MoveFirst(); PagedUpdates(); }
-    [RelayCommand] private void LastPage() { PagingController.LastPage(); PagedUpdates(); }
-    [RelayCommand] private void GoToPage(int? page)
-    {
-        if (page == null || page < 1 || page > PagingController.Pages) return;
-        PagingController.Page = page.Value;
-        PagedUpdates();
-    }
+    // ───────────────────────── Paging ─────────────────────────
 
     internal void PagedUpdates()
     {
         PageData = PagingController.PageData;
         PageMessage = PagingController.PageMessage;
-        UpdatePageButtons(PaginationWindow);
+        UpdatePageButtons(1);
+        ApplyLanguageVisibility();
+        OnPropertyChanged(nameof(ZenCurrentItem));
+        OnPropertyChanged(nameof(FocusedPositionText));
+        OnPropertyChanged(nameof(IsEditorEmpty));
     }
 
-    private void UpdatePageButtons(int window = 1)
+    /// <summary>True when the current filter matches nothing (drives the empty state).</summary>
+    public bool IsEditorEmpty => PagingController.Data.Count == 0;
+
+    private void UpdatePageButtons(int window)
     {
-        PageButtons.Clear();
-        if (PagingController == null) return;
+        var buttons = new ObservableCollection<PaginationButton>();
         int pages = Math.Max(1, PagingController.Pages);
-        int current = Math.Min(Math.Max(1, PagingController.Page), pages);
-        if (pages <= 0) return;
-        PageButtons.Add(new PaginationButton(1, false, current == 1));
-        if (pages == 1) return;
-        int start = Math.Max(2, current - window);
-        int end = Math.Min(pages - 1, current + window);
-        if (start > 2) PageButtons.Add(new PaginationButton(0, true, false));
-        for (int i = start; i <= end; i++) PageButtons.Add(new PaginationButton(i, false, i == current));
-        if (end < pages - 1) PageButtons.Add(new PaginationButton(0, true, false));
-        PageButtons.Add(new PaginationButton(pages, false, current == pages));
-    }
+        int current = Math.Clamp(PagingController.Page, 1, pages);
 
-    #endregion
-
-    #region View Commands
-
-    [RelayCommand] private void ToggleViewMode() => IsTreeView = !IsTreeView;
-    [RelayCommand] private void ToggleLanguagesVisibility() => LanguagesVisible = !LanguagesVisible;
-    [RelayCommand] private void ToggleAdvancedOptions() => ShowAdvancedOptions = !ShowAdvancedOptions;
-
-    [RelayCommand]
-    private void ShowAll()
-    {
-        Search("", true);
-    }
-
-    #endregion
-
-    #region Bulk / PreTranslate
-
-    [RelayCommand]
-    private async Task PreTranslateBulk()
-    {
-        if (AllTranslation == null || AllTranslation.Count == 0) { _messageService.ShowMessage("No translations loaded."); return; }
-        if (_bulkActionService == null) { _messageService.ShowMessage("Bulk action service is not available."); return; }
-        await _bulkActionService.PreTranslateAsync(AllTranslation);
-        UpdateSummaryInfo();
-        IsDirty = true;
-        StatusText = "Pre-translation completed.";
-    }
-
-    [RelayCommand]
-    private void GenerateStatisticsBulk()
-    {
-        if (AllTranslation == null || AllTranslation.Count == 0) { _messageService.ShowMessage("No translations loaded."); return; }
-        if (_bulkActionService == null) { _messageService.ShowMessage("Bulk action service is not available."); return; }
-        var stats = _bulkActionService.GenerateStatistics(AllTranslation);
-        StatusText = stats;
-        _messageService.ShowMessage(stats);
-    }
-
-    [RelayCommand]
-    private void DeleteUnusedTranslations()
-    {
-        if (AllTranslation == null || AllTranslation.Count == 0) { _messageService.ShowMessage("No translations loaded."); return; }
-        if (!_messageService.ShowConfirmation("Delete all IDs that have no translation values for any language?")) return;
-        var emptyNamespaces = AllTranslation.GroupBy(t => t.Namespace).Where(g => g.All(i => string.IsNullOrEmpty(i.Value))).Select(g => g.Key).ToList();
-        foreach (var ns in emptyNamespaces) AllTranslation.RemoveAll(o => o.Namespace == ns);
-        RefreshTree(); UpdateSummaryInfo(); IsDirty = true;
-        StatusText = $"Deleted {emptyNamespaces.Count} unused IDs";
-    }
-
-    [RelayCommand]
-    internal void AddMissingTranslations()
-    {
-        var namespaces = AllTranslation.ToNamespaces().ToList();
-        var allLanguages = AllTranslation.ToLanguages().ToList();
-        foreach (string lang in allLanguages)
+        buttons.Add(new PaginationButton(1, false, current == 1));
+        if (pages > 1)
         {
-            var languageNamespaces = AllTranslation.OnlyLanguage(lang).ToNamespaces();
-            AllTranslation.AddRange(namespaces.Except(languageNamespaces).Select(o => new TranslationItem { Namespace = o, Value = string.Empty, Language = lang }));
+            int start = Math.Max(2, current - window);
+            int end = Math.Min(pages - 1, current + window);
+            if (start > 2) buttons.Add(new PaginationButton(0, true, false));
+            for (int i = start; i <= end; i++) buttons.Add(new PaginationButton(i, false, i == current));
+            if (end < pages - 1) buttons.Add(new PaginationButton(0, true, false));
+            buttons.Add(new PaginationButton(pages, false, current == pages));
         }
+        PageButtons = buttons;
     }
 
-    [RelayCommand]
-    private void ShowUntranslated()
+    /// <summary>Swaps the editor list, disposing the previous cards (which flushes in-flight edits).</summary>
+    private void SetEditorGroups(List<LanguageGroupViewModel> groups, bool isPartial = false)
     {
-        if (AllTranslation == null || AllTranslation.Count == 0) { _messageService.ShowMessage("No translations loaded."); return; }
-        var matched = AllTranslation.Where(t => string.IsNullOrWhiteSpace(t.Value)).ToList();
-        if (matched.Count == 0) { _messageService.ShowMessage("No untranslated items found."); return; }
-        var groups = matched.ToNamespaces().Select(n => { var g = _languageGroupFactory(n); g.LoadTranslations(matched.Where(o => o.Namespace == n).ToList()); return g; }).ToList();
-        PagingController.SwapData(groups, false);
+        var old = PagingController.Data.ToList();
+        PagingController.SwapData(groups, isPartial);
+        foreach (var g in old) g.Dispose();
+        MarkDirtyGroups();
         PagedUpdates();
     }
 
-    [RelayCommand] private void ClearFilter() { SearchText = string.Empty; Search("", true); }
-
-    #endregion
-
-    #region Search
-
-    partial void OnSearchTextChanged(string value) => Search(value, false);
-
-    internal void Search(string ns, bool alwaysPaging = false)
-    {
-        var matched = AllTranslation.ToList();
-        List<TranslationItem> items;
-        if (string.IsNullOrWhiteSpace(ns)) items = matched;
-        else if (!ns.EndsWith('.')) items = matched.Where(o => o.Namespace == ns).ToList();
-        else
-        {
-            var translations = matched.Where(o => o.Namespace.StartsWith(ns)).ToList();
-            if (!alwaysPaging && translations.Count / 3 > AppOptions.TruncateResultsOver)
-                items = translations.Take(AppOptions.TruncateResultsOver).ToList();
-            else items = translations;
-        }
-
-        var namespaces = items.ToNamespaces().ToList();
-        var groups = namespaces.Select(n => { var g = _languageGroupFactory(n); g.LoadTranslations(matched.Where(o => o.Namespace == n).ToList()); return g; }).ToList();
-        PagingController.SwapData(groups, false);
-        PagedUpdates();
-    }
-
-    #endregion
-
-    #region Help
-
-    [RelayCommand] private void HelpHomepage() => OpenUrl("https://toucan.rasyid.dev");
-
-    [RelayCommand]
-    private async Task HelpAbout()
-    {
-        var window = GetMainWindow();
-        if (window == null) return;
-        var dlg = new Views.Dialogs.AboutDialog();
-        await dlg.ShowDialog(window);
-    }
-
-    [RelayCommand]
-    private async Task ShowPreferences()
-    {
-        var window = GetMainWindow();
-        if (window == null) return;
-        var vm = new OptionsViewModel(_preferenceService);
-        var dlg = new Views.Dialogs.OptionsDialog(vm);
-        var result = await dlg.ShowDialog<bool?>(window);
-        if (result == true)
-        {
-            AppOptions = vm.AppOptions;
-            StatusBarService.Instance.UpdateDefaultLanguage(AppOptions.DefaultLanguage);
-            // Rebuild paging with new page size
-            int pageSize = AppOptions.PageSize <= 0 ? 30 : AppOptions.PageSize;
-            int maxItems = AppOptions.MaxItems <= 0 ? 100 : AppOptions.MaxItems;
-            var currentData = PagingController?.Data ?? new System.Collections.ObjectModel.ObservableCollection<LanguageGroupViewModel>();
-            PagingController = new PaginationViewModel<LanguageGroupViewModel>(pageSize, currentData, maxItems);
-            PagedUpdates();
-        }
-    }
-
-    [RelayCommand]
-    private async Task ShowProjectSettings()
-    {
-        if (ProjectSettings == null) { _messageService.ShowMessage("No project loaded."); return; }
-        var window = GetMainWindow();
-        if (window == null) return;
-        var vm = new ProjectSettingsDialogViewModel(ProjectSettings);
-        var dlg = new Views.Dialogs.ProjectSettingsDialog(vm);
-        var result = await dlg.ShowDialog<bool?>(window);
-        if (result == true)
-        {
-            StatusBarService.Instance.UpdateProjectName(ProjectSettings.Name ?? "");
-            StatusBarService.Instance.UpdateDefaultLanguage(ProjectSettings.PrimaryLanguage);
-        }
-    }
-
-    [RelayCommand]
-    private async Task ShowLanguageManager()
-    {
-        if (ProjectSettings == null) { _messageService.ShowMessage("No project loaded."); return; }
-        var window = GetMainWindow();
-        if (window == null) return;
-        var vm = new LanguageManagerViewModel(ProjectSettings);
-        var dlg = new Views.Dialogs.LanguageManagerDialog(vm);
-        var result = await dlg.ShowDialog<bool?>(window);
-        if (result == true)
-        {
-            StatusBarService.Instance.UpdateDefaultLanguage(ProjectSettings.PrimaryLanguage);
-            // Add any new languages to translations
-            foreach (var lang in ProjectSettings.Languages)
-                if (!AllTranslation.Any(t => t.Language == lang))
-                    AddLanguage(lang);
-            UpdateSummaryInfo();
-        }
-    }
-
-    private static global::Avalonia.Controls.Window? GetMainWindow()
-    {
-        if (global::Avalonia.Application.Current?.ApplicationLifetime is global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
-            return desktop.MainWindow;
-        return null;
-    }
-
-    #endregion
-
-    #region Internal Helpers
-
-    partial void OnSelectedNodeChanged(NsTreeItem? value)
-    {
-        (RenameItemCommand as RelayCommand)?.NotifyCanExecuteChanged();
-        (DeleteItemCommand as RelayCommand)?.NotifyCanExecuteChanged();
-        StatusBarService.Instance.UpdateCursor(value != null ? $"Selected: {value.Namespace}" : "Ln 0, Col 0");
-    }
+    // ───────────────────────── Tree & summary ─────────────────────────
 
     internal void RefreshTree()
     {
-        var nodes = AllTranslation.ForParse().ToNsTree();
-        CurrentTreeItems.Clear();
-        foreach (var node in nodes) CurrentTreeItems.Add(node);
+        var parsable = AllTranslation.ForParse().Where(t => !IsNamespaceHidden(t.Namespace)).ToList();
+        var nodes = AppOptions.PlainTextKeys ? parsable.ToNsTreeFlat() : parsable.ToNsTree();
+        CurrentTreeItems = new ObservableCollection<NsTreeItem>(nodes);
+        CurrentFlatItems = new ObservableCollection<NsFlatItem>(
+            parsable.Select(t => t.Namespace).Distinct().OrderBy(n => n, StringComparer.Ordinal).Select(n => new NsFlatItem
+            {
+                DisplayKey = n,
+                FullKey = n,
+                IsLeaf = true,
+                Source = new NsTreeItem { Name = n.Split('.').Last(), Namespace = n }
+            }));
     }
 
     internal void UpdateSummaryInfo()
     {
-        SummaryInfo.Update(AllTranslation);
-        try { StatusBarService.Instance.ShowNotificationBadge(SummaryInfo.Details?.Sum(d => (int)d.Missing) ?? 0); } catch { }
+        SummaryInfo.Update(AllTranslation, PrimaryLanguage);
+        var parsable = AllTranslation.ForParse().ToList();
+        var total = parsable.Count;
+        var translated = parsable.Count(t => !string.IsNullOrEmpty(t.Value));
+        var errors = ValidationIssues.Count(i => i.Severity == ValidationSeverity.Error);
+        var warnings = ValidationIssues.Count(i => i.Severity == ValidationSeverity.Warning);
+        StatusBarService.Instance.UpdateStatistics(total, translated, errors, warnings, SummaryInfo.Details);
+        StatusBarService.Instance.ShowNotificationBadge(SummaryInfo.Details.Sum(d => d.Empty));
     }
 
-    private async Task LoadFolderAsync(string path)
+    // ───────────────────────── Dirty tracking ─────────────────────────
+
+    private void OnStoreDirtyStateChanged(object? sender, bool dirty)
     {
-        try
+        // The store raises this from a timer thread. Re-read the state when the post runs,
+        // since several transitions may have been queued in between.
+        Dispatcher.UIThread.Post(ApplyStoreDirtyState);
+    }
+
+    private void ApplyStoreDirtyState()
+    {
+        if (_translationStore.IsDirty)
         {
-            IsLoading = true;
-            StatusText = "Loading project...";
-            StatusBarService.Instance.SetLoading(true);
-
-            var result = await Task.Run(() => _projectService.LoadProject(path));
-            ProjectSettings = result.Settings;
-            AllTranslation = result.Translations;
-            CurrentPath = result.Settings.ProjectPath;
-
-            AddMissingTranslations();
-            RefreshTree();
-            UpdateSummaryInfo();
-            ShowStartScreen = false;
+            foreach (var item in _translationStore.GetDirtyItems())
+            {
+                if (!string.IsNullOrEmpty(item.Namespace)) SessionDirtyKeys.Add(item.Namespace);
+            }
+            SessionDirtyCount = SessionDirtyKeys.Count;
+            MarkDirtyGroups();
+            IsDirty = true;
+        }
+        else if (!_hasUntrackedChanges)
+        {
             IsDirty = false;
-            Search("", true);
-
-            StatusBarService.Instance.UpdateProjectName(result.Settings.Name ?? Path.GetFileName(path));
-            StatusBarService.Instance.UpdateDefaultLanguage(result.Settings.PrimaryLanguage);
         }
-        catch (Exception ex) { _messageService.ShowMessage($"Error loading project: {ex.Message}"); }
-        finally { IsLoading = false; StatusText = "Ready"; StatusBarService.Instance.SetLoading(false); }
     }
 
-    public void CreateNewItem(string newNamespace)
+    /// <summary>
+    /// True when something changed that the store's value/comment baselines can't see
+    /// (approvals, key renames of already-clean items). Cleared on save.
+    /// </summary>
+    private bool _hasUntrackedChanges;
+
+    /// <summary>
+    /// Called after the working copy gained or lost items (new key, delete, import, add language).
+    /// The lifecycle service saves from the translation store, so the store must see the same item set.
+    /// </summary>
+    private void SyncStore()
     {
-        if (string.IsNullOrWhiteSpace(newNamespace)) return;
-        if (AllTranslation.NoEmpty().Any(s => s.Namespace.Contains(newNamespace))) { _messageService.ShowMessage("Duplicate name"); return; }
-        var languages = AllTranslation.ToLanguages().ToList();
-        foreach (var lang in languages) AllTranslation.Add(new TranslationItem { Namespace = newNamespace, Value = string.Empty, Language = lang });
-        RefreshTree(newNamespace);
-        UpdateSummaryInfo();
-        Search(newNamespace, true);
+        var store = _translationStore.Translations;
+        var storeSet = new HashSet<TranslationItem>(store, ReferenceEqualityComparer.Instance);
+        var working = new HashSet<TranslationItem>(AllTranslation, ReferenceEqualityComparer.Instance);
+
+        var added = AllTranslation.Where(t => !storeSet.Contains(t)).ToList();
+        if (store.Any(t => !working.Contains(t)))
+            _translationStore.RemoveItems(t => !working.Contains(t));
+        if (added.Count > 0)
+            _translationStore.AddItems(added);
     }
 
-    public void AddLanguage(string newLanguage)
+    /// <summary>Records a structural edit: syncs the store and flags the project dirty.</summary>
+    private void MarkStructureChanged(IEnumerable<string>? keys = null)
     {
-        if (string.IsNullOrWhiteSpace(newLanguage)) return;
-        if (AllTranslation.Any(s => s.Language == newLanguage)) { _messageService.ShowMessage("Duplicate language"); return; }
-        AllTranslation.Add(new TranslationItem { Namespace = "", Value = "", Language = newLanguage });
-        AddMissingTranslations();
-        UpdateSummaryInfo();
-        RefreshTree();
-        Search("", true);
+        SyncStore();
+        foreach (var k in keys ?? []) if (!string.IsNullOrEmpty(k)) SessionDirtyKeys.Add(k);
+        SessionDirtyCount = SessionDirtyKeys.Count;
+        _hasUntrackedChanges = true;
+        IsDirty = true;
     }
 
-    public void RenameItemCore(NsTreeItem node, string newName)
+    /// <summary>Records edits made directly on model objects (bulk operations, approvals, undo).</summary>
+    private void NotifyBulkValueChanges(IEnumerable<TranslationItem> items)
     {
-        if (node == null || string.IsNullOrWhiteSpace(newName) || newName.Contains('.')) return;
-        string oldNs = node.Namespace;
-        string newNs = oldNs[..oldNs.LastIndexOf(node.Name)] + newName.Trim();
-        AllTranslation.ForParse().ToList().ForEach(item =>
+        foreach (var item in items)
         {
-            if (item.Namespace.StartsWith(oldNs)) item.Namespace = item.Namespace.Replace(oldNs, newNs);
-        });
-        RefreshTree(newNs);
-        Search(newNs, true);
-    }
-
-    public void DeleteItemCore(NsTreeItem node)
-    {
-        if (node == null || string.IsNullOrWhiteSpace(node.Namespace)) return;
-        if (node.Parent == null) CurrentTreeItems.Remove(node);
-        AllTranslation.RemoveAll(o => o?.Namespace?.StartsWith(node.Namespace) ?? false);
-        RefreshTree();
-        Search("", true);
-    }
-
-    private void RefreshTree(string selectNamespace = "") => RefreshTree();
-
-    internal static void OpenUrl(string url)
-    {
-        try
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                Process.Start("xdg-open", url);
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                Process.Start("open", url);
+            _translationStore.NotifyValueChanged(item, item.Value);
+            if (!string.IsNullOrEmpty(item.Namespace)) SessionDirtyKeys.Add(item.Namespace);
         }
-        catch { }
+        SessionDirtyCount = SessionDirtyKeys.Count;
+        _hasUntrackedChanges = true;
+        IsDirty = true;
+        MarkDirtyGroups();
     }
 
-    #endregion
+    private void MarkDirtyGroups()
+    {
+        foreach (var g in PagingController.Data)
+        {
+            var dirty = SessionDirtyKeys.Contains(g.Namespace)
+                || g.PluralVariants.Any(v => SessionDirtyKeys.Contains(v.FullNamespace));
+            if (g.IsDirty != dirty) g.IsDirty = dirty;
+        }
+    }
+
+    private void ClearSessionDirtyState()
+    {
+        SessionDirtyKeys.Clear();
+        SessionDirtyCount = 0;
+        _hasUntrackedChanges = false;
+        IsDirty = _translationStore.IsDirty;
+        MarkDirtyGroups();
+    }
+
+    partial void OnSessionDirtyCountChanged(int value) => StatusBarService.Instance.UpdateSessionDirtyCount(value);
+
+    partial void OnStatusTextChanged(string value) => StatusBarService.Instance.UpdateStatus(value);
+
+    partial void OnIsLoadingChanged(bool value) => StatusBarService.Instance.SetLoading(value);
+
+    /// <summary>Callback from a translation row after a (debounced) edit or approval toggle.</summary>
+    private void OnTranslationItemChanged(TranslationItemViewModel item)
+    {
+        if (!string.IsNullOrEmpty(item.Namespace)) SessionDirtyKeys.Add(item.Namespace);
+        SessionDirtyCount = SessionDirtyKeys.Count;
+        if (!_translationStore.IsItemDirty(item.Model))
+        {
+            // Approval-only changes are invisible to the store's baselines.
+            _hasUntrackedChanges = true;
+        }
+        IsDirty = true;
+        MarkDirtyGroups();
+        UpdateSummaryInfo();
+        if (ReferenceEquals(item, FocusedTranslationItem)) UpdateGhostSuggestion(item);
+    }
+
+    internal TranslationItemViewModel CreateItemViewModel(TranslationItem item) =>
+        new(item, _undoRedoService, _translationStore, OnTranslationItemChanged);
+
+    internal LanguageGroupViewModel CreateGroup(string ns)
+    {
+        var group = new LanguageGroupViewModel(ns, CreateItemViewModel);
+        group.TranslateRequested += (s, e) =>
+        {
+            if (s is LanguageGroupViewModel g) _ = TranslateKeyAsync(g.Namespace);
+        };
+        return group;
+    }
+
+    /// <summary>Pushes any debounced edits in the visible editor to the model.</summary>
+    internal void FlushPendingEdits()
+    {
+        foreach (var g in PagingController.PageData) g.FlushEdits();
+        ZenCurrentItem?.FlushEdits();
+    }
+
+    // ───────────────────────── Help ─────────────────────────
+
+    [RelayCommand]
+    private static void HelpHomepage() => PlatformService.OpenUrl("https://toucan.rasyid.dev");
+
+    [RelayCommand]
+    private static void ReportIssue() => PlatformService.OpenUrl("https://github.com/rasyidf/Toucan/issues");
+
+    [RelayCommand]
+    private async Task HelpAbout() => await ShowPreferencesAtAsync(OptionsViewModel.Pages.Count - 1);
+
+    [RelayCommand]
+    private Task ShowPreferences() => ShowPreferencesAtAsync(0);
+
+    [RelayCommand]
+    private Task ShowPlugins() => ShowPreferencesAtAsync(OptionsViewModel.PluginsPage);
+
+    private async Task ShowPreferencesAtAsync(int page)
+    {
+        var updated = await _dialogService.ShowOptionsAsync(page);
+        if (updated == null) return;
+
+        var previousLanguage = AppOptions.AppLanguage;
+        var plainKeysChanged = AppOptions.PlainTextKeys != updated.PlainTextKeys;
+        AppOptions = updated;
+        ThemeService.Apply(AppOptions.Theme);
+        ThemeService.ApplyFontSize(AppOptions.FontSize);
+
+        if (!string.Equals(previousLanguage, AppOptions.AppLanguage, StringComparison.OrdinalIgnoreCase))
+        {
+            await _messageService.ShowMessageAsync("The interface language will change after you restart Toucan.", "Restart Required");
+        }
+
+        var oldPage = PagingController.Page;
+        var data = PagingController.Data.ToList();
+        PagingController = new PaginationViewModel<LanguageGroupViewModel>(InfiniteScroll ? int.MaxValue : EffectivePageSize, data, EffectiveMaxItems);
+        PagingController.GoTo(oldPage);
+        if (plainKeysChanged) RefreshTree();
+        PagedUpdates();
+    }
+
+    [RelayCommand]
+    private async Task ShowProjectProperties()
+    {
+        if (!HasProject) return;
+        var settings = ProjectSettings ?? ProjectSettings.LoadFrom(CurrentPath) ?? ProjectSettings.CreateDefault(CurrentPath);
+        var previousPrimary = settings.PrimaryLanguage;
+        var result = await _dialogService.ShowProjectPropertiesAsync(settings, OrderedLanguages().ToList());
+        if (result == null) return;
+
+        ProjectSettings = settings;
+        HiddenNamespaces = new ObservableCollection<string>(settings.HiddenNamespaces ?? []);
+        StatusBarService.Instance.UpdateProjectName(ProjectName);
+        OnPropertyChanged(nameof(ProjectName));
+        OnPropertyChanged(nameof(WindowTitle));
+        OnPropertyChanged(nameof(CopyTemplates));
+
+        if (!string.Equals(previousPrimary, settings.PrimaryLanguage, StringComparison.Ordinal))
+            SetPrimaryLanguage(settings.PrimaryLanguage);
+        else
+        {
+            RefreshTree();
+            Search(SearchText, true);
+        }
+
+        if (result.ManageLanguagesRequested) await ManageLanguages();
+    }
+
+    [RelayCommand]
+    private void Exit() => _dialogService.Shutdown();
+
+    public void Dispose()
+    {
+        _translationStore.DirtyStateChanged -= OnStoreDirtyStateChanged;
+        _searchDebounce.Stop();
+        _openCts?.Cancel();
+        _openCts?.Dispose();
+        foreach (var g in PagingController.Data) g.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

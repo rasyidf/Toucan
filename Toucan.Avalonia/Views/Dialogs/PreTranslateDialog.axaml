@@ -1,46 +1,83 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="Toucan.Avalonia.Views.Dialogs.PreTranslateDialog"
-        Title="Pre-Translate" Width="550" Height="450"
-        WindowStartupLocation="CenterOwner">
-  <Grid RowDefinitions="Auto,*,Auto,Auto" Margin="12">
-    <!-- Provider + options -->
-    <StackPanel Spacing="6">
-      <Grid ColumnDefinitions="*,Auto">
-        <StackPanel>
-          <TextBlock Text="Provider" FontWeight="SemiBold"/>
-          <TextBox Text="{Binding SelectedProvider, Mode=TwoWay}" Margin="0,4,0,0"/>
+<d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.PreTranslateDialog"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                xmlns:vm="using:Toucan.Avalonia.ViewModels"
+                xmlns:ui="using:FluentAvalonia.UI.Controls"
+                Title="Pre-translate" Width="900" Height="640" MinHeight="460">
+  <DockPanel>
+    <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
+      <DockPanel>
+        <TextBlock Text="{Binding StatusMessage}" Classes="caption" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="520"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Content="Cancel" Command="{Binding CancelCommand}"/>
+          <Button Content="Apply translations" Classes="accent" Command="{Binding CommitCommand}" IsEnabled="{Binding HasPreview}"/>
         </StackPanel>
-        <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Bottom">
-          <CheckBox Content="Overwrite existing" IsChecked="{Binding OverwriteExisting}"/>
-          <CheckBox Content="Selected languages only" IsChecked="{Binding TranslateSelectedOnly}"/>
+      </DockPanel>
+    </Border>
+
+    <StackPanel DockPanel.Dock="Top" Margin="20,18,20,8" Spacing="6">
+      <TextBlock Text="Pre-translate" Classes="dialogTitle"/>
+      <TextBlock Text="Runs as a preview first. Nothing changes until you apply." Classes="caption"/>
+      <Grid ColumnDefinitions="Auto,12,*" Margin="0,8,0,0">
+        <StackPanel>
+          <TextBlock Text="Provider" Classes="label"/>
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <ComboBox ItemsSource="{x:Static vm:PreTranslateViewModel.Providers}" SelectedItem="{Binding SelectedProvider}" MinWidth="170"/>
+            <Button Classes="icon" ToolTip.Tip="Provider settings &amp; API keys" Command="{Binding OpenProviderSettingsCommand}">
+              <ui:FASymbolIcon Symbol="Setting"/>
+            </Button>
+          </StackPanel>
+          <CheckBox Classes="form" Content="Overwrite existing values" IsChecked="{Binding OverwriteExisting}"/>
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Classes="link" Content="Toggle all" Command="{Binding SelectAllLanguagesCommand}"/>
+            <TextBlock Text="Target languages" Classes="label"/>
+          </DockPanel>
+          <ItemsControl ItemsSource="{Binding AvailableLanguages}">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" MinWidth="90" Margin="0,0,8,0"/>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
         </StackPanel>
       </Grid>
-      <TextBlock Text="Languages" FontWeight="SemiBold" Margin="0,8,0,0"/>
-      <ItemsControl ItemsSource="{Binding AvailableLanguages}">
-        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-        <ItemsControl.ItemTemplate>
-          <DataTemplate>
-            <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="4,2"/>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
+      <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,8,0,0">
+        <Button Content="Run preview" Classes="accent" Command="{Binding StartCommand}"/>
+        <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Maximum="100" Width="260" VerticalAlignment="Center" IsVisible="{Binding IsRunning}"/>
+        <TextBlock VerticalAlignment="Center" Classes="caption" IsVisible="{Binding IsRunning}">
+          <Run Text="{Binding ProgressCompleted}"/><Run Text=" / "/><Run Text="{Binding ProgressTotal}"/>
+        </TextBlock>
+      </StackPanel>
     </StackPanel>
 
-    <!-- Results preview -->
-    <DataGrid Grid.Row="1" ItemsSource="{Binding PreviewResults}" IsReadOnly="True" Margin="0,8,0,0"/>
-
-    <!-- Progress -->
-    <StackPanel Grid.Row="2" Margin="0,8,0,0" IsVisible="{Binding IsRunning}">
-      <ProgressBar Maximum="100" Value="{Binding ProgressPercent}" Height="6"/>
-      <TextBlock Text="{Binding ProgressCompleted, StringFormat='{}{0} completed'}" FontSize="11" Opacity="0.7" Margin="0,2,0,0"/>
-    </StackPanel>
-
-    <!-- Buttons -->
-    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
-      <Button x:Name="CancelBtn" Content="Cancel" Width="80"/>
-      <Button Content="Start" Command="{Binding StartCommand}" Width="80"/>
-      <Button x:Name="CommitBtn" Content="Apply" Command="{Binding CommitCommand}" Width="80"/>
-    </StackPanel>
-  </Grid>
-</Window>
+    <Border Classes="card" Margin="20,4,20,16" Padding="0">
+      <DockPanel>
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="2*,70,3*,3*" Margin="12,8">
+          <TextBlock Text="Key" Classes="caption" FontWeight="SemiBold"/>
+          <TextBlock Grid.Column="1" Text="Lang" Classes="caption" FontWeight="SemiBold"/>
+          <TextBlock Grid.Column="2" Text="Source" Classes="caption" FontWeight="SemiBold"/>
+          <TextBlock Grid.Column="3" Text="Translation" Classes="caption" FontWeight="SemiBold"/>
+        </Grid>
+        <ListBox Classes="plain" ItemsSource="{Binding PreviewResults}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Grid ColumnDefinitions="2*,70,3*,3*">
+                <TextBlock Text="{Binding Namespace}" Classes="mono" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Namespace}" Margin="0,0,8,0"/>
+                <TextBlock Grid.Column="1" Text="{Binding Language}" FontSize="12"/>
+                <TextBlock Grid.Column="2" Text="{Binding SourceText}" FontSize="12" TextWrapping="Wrap" Classes="caption" Margin="0,0,8,0"/>
+                <Panel Grid.Column="3">
+                  <TextBlock Text="{Binding TranslatedValue}" FontSize="12" TextWrapping="Wrap" IsVisible="{Binding Succeeded}"/>
+                  <TextBlock Text="{Binding ErrorMessage}" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource BadBrush}" IsVisible="{Binding !Succeeded}"/>
+                </Panel>
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </Border>
+  </DockPanel>
+</d:DialogWindow>

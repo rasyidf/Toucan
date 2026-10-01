@@ -13,7 +13,7 @@ public class RailsYamlProfile : IFrameworkProfile
 {
     public string Id => "rails-yaml";
     public string DisplayName => "Rails (YAML)";
-    public SaveStyles DefaultFormat => SaveStyles.Yaml;
+    public string DefaultFormatId => FormatIds.Yaml;
     public IEnumerable<string> FilePatterns => ["config/locales/*.yml", "locales/*.yml", "*.yml"];
 
     public IEnumerable<DiscoveredFile> DiscoverFiles(string rootFolder)

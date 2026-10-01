@@ -8,8 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Toucan.Plugins.Abstractions\Toucan.Plugins.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
   </ItemGroup>
 

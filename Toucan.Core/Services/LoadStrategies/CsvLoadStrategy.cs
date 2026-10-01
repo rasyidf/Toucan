@@ -7,7 +7,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 /// <summary>Loads CSV translation files. Expected format: key,lang1,lang2,... or key,language,value.</summary>
 public class CsvLoadStrategy : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.Csv;
+    public string FormatId => FormatIds.Csv;
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

@@ -27,7 +27,23 @@ public class ProjectSettings
     public List<string> Languages { get; set; } = [];
 
     // --- Format / IO ---
-    public SaveStyles SaveStyle { get; set; } = SaveStyles.Json;
+    /// <summary>Format identifier (see <see cref="FormatIds"/>). Persisted as "saveFormat".</summary>
+    public string SaveFormat { get; set; } = FormatIds.Json;
+
+    /// <summary>
+    /// Read-only migration hook for project files written before string format IDs ("saveStyle": enum number or name).
+    /// Consumed by <see cref="LoadFrom"/> and never written back.
+    /// </summary>
+    [JsonPropertyName("saveStyle")]
+    public JsonElement? LegacySaveStyle { get; set; }
+
+    /// <summary>Built-in format as an enum. Returns <see cref="SaveStyles.Json"/> for plugin formats; prefer <see cref="SaveFormat"/>.</summary>
+    [JsonIgnore]
+    public SaveStyles SaveStyle
+    {
+        get => FormatIds.TryGetStyle(SaveFormat, out var style) ? style : SaveStyles.Json;
+        set => SaveFormat = FormatIds.FromStyle(value);
+    }
     public string? Framework { get; set; }
     public List<TranslationPackage> TranslationPackages { get; set; } = [];
 
@@ -101,9 +117,23 @@ public class ProjectSettings
             var json = File.ReadAllText(file);
             var settings = JsonSerializer.Deserialize<ProjectSettings>(json, s_options) ?? new ProjectSettings();
             settings.ProjectPath = folder;
+            settings.MigrateLegacyFormat(json);
             return settings;
         }
         catch { return null; }
+    }
+
+    private void MigrateLegacyFormat(string json)
+    {
+        var legacy = LegacySaveStyle;
+        LegacySaveStyle = null;
+        if (legacy is not { } value) return;
+
+        // A file that already has "saveFormat" wins over a stale "saveStyle".
+        using var doc = JsonDocument.Parse(json);
+        if (doc.RootElement.TryGetProperty("saveFormat", out _)) return;
+
+        if (FormatIds.FromLegacy(value) is { } id) SaveFormat = id;
     }
 
     public static ProjectSettings CreateDefault(string folder, string? name = null)
@@ -141,19 +171,17 @@ public class ProjectSettings
         IsDirty = false;
     }
 
-    private string ResolveDefaultPath(string language) => SaveStyle switch
-    {
-        SaveStyles.Json or SaveStyles.Namespaced => $"{language}.json",
-        SaveStyles.Yaml => $"{language}.yaml",
-        SaveStyles.Toml => $"{language}.toml",
-        SaveStyles.Resx => $"Resources{(language == "default" ? "" : $".{language}")}.resx",
-        SaveStyles.AndroidXml => $"res/{(language == "default" ? "values" : $"values-{language}")}/strings.xml",
-        SaveStyles.IosStrings => $"{language}.lproj/Localizable.strings",
-        SaveStyles.Xliff => $"{language}.xlf",
-        SaveStyles.Arb => $"app_{language}.arb",
-        SaveStyles.Csv => "translations.csv",
-        _ => $"{language}.json"
-    };
+    /// <summary>
+    /// Maps (format ID, language) to the default relative file path. Set by the project service so plugin formats
+    /// resolve through their strategy; when null, built-in formats are used.
+    /// </summary>
+    [JsonIgnore] public Func<string, string, string>? DefaultPathResolver { get; set; }
+
+    private string ResolveDefaultPath(string language) =>
+        (DefaultPathResolver ?? BuiltInFormatPath)(SaveFormat, language);
+
+    private static string BuiltInFormatPath(string formatId, string language) =>
+        Services.BuiltInFormats.DefaultFilePath(formatId, language);
 }
 
 /// <summary>A named package of translation files within a project.</summary>

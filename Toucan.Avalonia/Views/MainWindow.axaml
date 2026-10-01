@@ -1,131 +1,148 @@
 <Window x:Class="Toucan.Avalonia.Views.MainWindow"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:components="using:Toucan.Avalonia.Views.Components"
-        xmlns:ui="using:FluentAvalonia.UI.Windowing"
-        Title="Toucan" Width="960" Height="680" MinWidth="800" MinHeight="600"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:svc="using:Toucan.Avalonia.Services"
+        xmlns:views="using:Toucan.Avalonia.Views"
+        xmlns:c="using:Toucan.Avalonia.Views.Components"
+        Title="{Binding WindowTitle}"
+        Width="1280" Height="820" MinWidth="880" MinHeight="560"
         Icon="/Assets/WindowIcon.ico"
         WindowStartupLocation="CenterScreen"
-        TransparencyLevelHint="Mica,AcrylicBlur,None"
-        Background="Transparent"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaTitleBarHeightHint="36">
+        Background="{DynamicResource ChromeBackgroundBrush}">
 
-  <Window.KeyBindings>
-    <KeyBinding Gesture="Ctrl+Shift+N" Command="{Binding NewFolderCommand}"/>
-    <KeyBinding Gesture="Ctrl+O" Command="{Binding OpenFolderCommand}"/>
-    <KeyBinding Gesture="Ctrl+R" Command="{Binding OpenRecentCommand}"/>
-    <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}"/>
-    <KeyBinding Gesture="F12" Command="{Binding SaveToCommand}"/>
-    <KeyBinding Gesture="Ctrl+F4" Command="{Binding CloseProjectCommand}"/>
-    <KeyBinding Gesture="Ctrl+F" Command="{Binding ClearFilterCommand}"/>
-  </Window.KeyBindings>
+  <Grid RowDefinitions="Auto,*,Auto">
 
-  <Panel>
-    <!-- Mica fallback: semi-transparent background for non-Mica platforms -->
-    <Panel IsHitTestVisible="False" Opacity="0.85">
-      <Panel.Background>
-        <SolidColorBrush Color="{DynamicResource SystemAltHighColor}"/>
-      </Panel.Background>
+    <!-- ═══ Top bar: in-window menu (Windows/Linux) + view controls ═══ -->
+    <Border Grid.Row="0" x:Name="TopBar" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,0,1" MinHeight="34">
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="4,0">
+        <ContentControl x:Name="MenuHost" VerticalAlignment="Center"/>
+
+        <!-- Breadcrumb for the selected key -->
+        <ItemsControl Grid.Column="1" ItemsSource="{Binding SelectedNodePath}" VerticalAlignment="Center" Margin="12,0"
+                      IsVisible="{Binding !ShowStartScreen}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="›" Classes="faint" Margin="4,0" FontSize="12"/>
+                <TextBlock Text="{Binding}" FontSize="12" Classes="caption"/>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+          <!-- Editor mode segmented control -->
+          <Border CornerRadius="6" Padding="2" Background="{DynamicResource BadgeBackgroundBrush}" Margin="0,0,8,0"
+                  IsVisible="{Binding !ShowStartScreen}">
+            <StackPanel Orientation="Horizontal" Spacing="2">
+              <Button Classes="segment" Classes.active="{Binding IsEditorMode}" Content="Editor"
+                      Command="{Binding SwitchToEditorModeCommand}" ToolTip.Tip="Edit translations"/>
+              <Button Classes="segment" Classes.active="{Binding IsReviewMode}" Content="Review"
+                      Command="{Binding SwitchToReviewModeCommand}" ToolTip.Tip="Approve or reject unreviewed translations"/>
+              <Button Classes="segment" Classes.active="{Binding IsAuditMode}" Content="Audit"
+                      Command="{Binding SwitchToAuditModeCommand}" ToolTip.Tip="Read-only view with approval state and history"/>
+            </StackPanel>
+          </Border>
+          <Button Classes="icon" ToolTip.Tip="Toggle left panel"
+                  Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleSidebarCommand}"
+                  IsVisible="{Binding !ShowStartScreen}">
+            <ui:FASymbolIcon Symbol="DockLeft"/>
+          </Button>
+          <Button Classes="icon" ToolTip.Tip="Toggle right panel"
+                  Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleInspectorCommand}"
+                  IsVisible="{Binding !ShowStartScreen}">
+            <ui:FASymbolIcon Symbol="DockRight"/>
+          </Button>
+          <Button Classes="icon" ToolTip.Tip="Settings" Command="{Binding ShowPreferencesCommand}">
+            <ui:FASymbolIcon Symbol="Settings"/>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- ═══ Workspace ═══ -->
+    <Panel Grid.Row="1">
+      <Grid x:Name="Workspace" IsVisible="{Binding !ShowStartScreen}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="46"/>
+          <ColumnDefinition Width="280" MinWidth="0"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*" MinWidth="360"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="300" MinWidth="0"/>
+          <ColumnDefinition Width="46"/>
+        </Grid.ColumnDefinitions>
+
+        <c:ActivityBar Grid.Column="0" x:Name="LeftActivityBar"
+                       BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0"/>
+
+        <!-- Left panel host -->
+        <DockPanel Grid.Column="1" x:Name="LeftPanelHost">
+          <Border DockPanel.Dock="Top" Classes="panelHeader">
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="Hide panel"
+                      Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleSidebarCommand}">
+                <ui:FASymbolIcon Symbol="ChevronLeft"/>
+              </Button>
+              <StackPanel DockPanel.Dock="Right" x:Name="LeftPanelActions" Orientation="Horizontal"/>
+              <TextBlock x:Name="LeftPanelTitle" Classes="panelTitle" Text="EXPLORER"/>
+            </DockPanel>
+          </Border>
+          <ContentControl x:Name="LeftPanelContent"/>
+        </DockPanel>
+        <GridSplitter Grid.Column="2" x:Name="LeftSplitter" Width="4" ResizeDirection="Columns" Background="Transparent"
+                      BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0"/>
+
+        <!-- Center editor -->
+        <views:TranslationEditorView Grid.Column="3" x:Name="Editor"/>
+
+        <GridSplitter Grid.Column="4" x:Name="RightSplitter" Width="4" ResizeDirection="Columns" Background="Transparent"
+                      BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="1,0,0,0"/>
+        <!-- Right panel host -->
+        <DockPanel Grid.Column="5" x:Name="RightPanelHost">
+          <Border DockPanel.Dock="Top" Classes="panelHeader">
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="Hide panel"
+                      Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleInspectorCommand}">
+                <ui:FASymbolIcon Symbol="ChevronRight"/>
+              </Button>
+              <StackPanel DockPanel.Dock="Right" x:Name="RightPanelActions" Orientation="Horizontal"/>
+              <TextBlock x:Name="RightPanelTitle" Classes="panelTitle" Text="LANGUAGES"/>
+            </DockPanel>
+          </Border>
+          <ContentControl x:Name="RightPanelContent"/>
+        </DockPanel>
+
+        <c:ActivityBar Grid.Column="6" x:Name="RightActivityBar"
+                       BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="1,0,0,0"/>
+      </Grid>
+
+      <views:StartScreen IsVisible="{Binding ShowStartScreen}"/>
+
+      <!-- Loading veil -->
+      <Border IsVisible="{Binding IsLoading}" Background="#40000000">
+        <Border Classes="card" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24,16">
+          <StackPanel Spacing="10" HorizontalAlignment="Center">
+            <ProgressBar IsIndeterminate="True" Width="220"/>
+            <TextBlock Text="{Binding StatusText}" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding LoadDetail}" IsVisible="{Binding CanCancelLoad}" Opacity="0.6" FontSize="11"
+                       Width="220" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
+            <Button Content="Cancel" Command="{Binding CancelLoadCommand}" IsVisible="{Binding CanCancelLoad}"
+                    HorizontalAlignment="Center"/>
+          </StackPanel>
+        </Border>
+      </Border>
     </Panel>
 
-    <Grid RowDefinitions="36,Auto,Auto,*,Auto">
-      <!-- Row 0: Title bar drag area -->
-      <Grid ColumnDefinitions="Auto,*,Auto" IsHitTestVisible="False" Margin="12,0">
-        <TextBlock Text="Toucan" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="12" Opacity="0.8"/>
-      </Grid>
+    <!-- ═══ Status bar ═══ -->
+    <c:StatusBarView Grid.Row="2" x:Name="StatusBar"
+                     IsVisible="{Binding Source={x:Static svc:PanelService.Instance}, Path=StatusBarVisible}"/>
 
-      <!-- Row 1: Menu -->
-      <Menu Grid.Row="1" Margin="4,0">
-        <MenuItem Header="_File">
-          <MenuItem Header="_New Project" Command="{Binding NewFolderCommand}" InputGesture="Ctrl+Shift+N"/>
-          <MenuItem Header="_Open Folder" Command="{Binding OpenFolderCommand}" InputGesture="Ctrl+O"/>
-          <MenuItem Header="Open _Project File" Command="{Binding OpenProjectFileCommand}"/>
-          <MenuItem Header="Open _Recent" Command="{Binding OpenRecentCommand}" InputGesture="Ctrl+R"/>
-          <Separator/>
-          <MenuItem Header="_Save" Command="{Binding SaveCommand}" InputGesture="Ctrl+S"/>
-          <MenuItem Header="Save _To..." Command="{Binding SaveToCommand}" InputGesture="F12"/>
-          <Separator/>
-          <MenuItem Header="_Close Project" Command="{Binding CloseProjectCommand}"/>
-          <MenuItem Header="Refresh" Command="{Binding RefreshCommand}"/>
-          <Separator/>
-          <MenuItem Header="E_xit" Command="{Binding ExitCommand}"/>
-        </MenuItem>
-        <MenuItem Header="_Edit">
-          <MenuItem Header="New _Language" Command="{Binding NewLanguageCommand}"/>
-          <MenuItem Header="New _Item" Command="{Binding NewItemCommand}"/>
-          <MenuItem Header="_Rename" Command="{Binding RenameItemCommand}"/>
-          <MenuItem Header="_Delete" Command="{Binding DeleteItemCommand}"/>
-          <Separator/>
-          <MenuItem Header="_Pre-translate" Command="{Binding PreTranslateBulkCommand}"/>
-          <MenuItem Header="Delete _Unused" Command="{Binding DeleteUnusedTranslationsCommand}"/>
-          <MenuItem Header="Add _Missing" Command="{Binding AddMissingTranslationsCommand}"/>
-        </MenuItem>
-        <MenuItem Header="_Find">
-          <MenuItem Header="Show _Untranslated" Command="{Binding ShowUntranslatedCommand}"/>
-          <MenuItem Header="_Clear Filter" Command="{Binding ClearFilterCommand}" InputGesture="Ctrl+F"/>
-          <MenuItem Header="Show _All" Command="{Binding ShowAllCommand}"/>
-        </MenuItem>
-        <MenuItem Header="_View">
-          <MenuItem Header="Toggle _Tree/List" Command="{Binding ToggleViewModeCommand}"/>
-          <MenuItem Header="Toggle _Languages" Command="{Binding ToggleLanguagesVisibilityCommand}"/>
-        </MenuItem>
-        <MenuItem Header="_Settings">
-          <MenuItem Header="_Preferences..." Command="{Binding ShowPreferencesCommand}"/>
-          <MenuItem Header="Pro_ject Settings..." Command="{Binding ShowProjectSettingsCommand}"/>
-          <MenuItem Header="_Language Manager..." Command="{Binding ShowLanguageManagerCommand}"/>
-        </MenuItem>
-        <MenuItem Header="_Help">
-          <MenuItem Header="_Homepage" Command="{Binding HelpHomepageCommand}"/>
-          <MenuItem Header="_About" Command="{Binding HelpAboutCommand}"/>
-        </MenuItem>
-      </Menu>
-
-      <!-- Row 2: Toolbar -->
-      <Border Grid.Row="2" Padding="8,6" Margin="4,0">
-        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,8,*,8,Auto">
-          <Button Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open" Padding="6" Margin="0,0,2,0" Classes="Flat">
-            <TextBlock Text="📂" FontSize="14"/>
-          </Button>
-          <Button Grid.Column="1" Command="{Binding SaveCommand}" ToolTip.Tip="Save" Padding="6" Margin="0,0,2,0">
-            <TextBlock Text="💾" FontSize="14"/>
-          </Button>
-          <Button Grid.Column="2" Command="{Binding NewItemCommand}" ToolTip.Tip="New ID" Padding="6" Margin="0,0,2,0">
-            <TextBlock Text="➕" FontSize="14"/>
-          </Button>
-          <Button Grid.Column="3" Command="{Binding PreTranslateBulkCommand}" ToolTip.Tip="Pre-translate" Padding="6" Margin="0,0,2,0">
-            <TextBlock Text="🌐" FontSize="14"/>
-          </Button>
-          <Button Grid.Column="4" Command="{Binding ShowProjectSettingsCommand}" ToolTip.Tip="Project Settings" Padding="6">
-            <TextBlock Text="⚙" FontSize="14"/>
-          </Button>
-
-          <!-- Search -->
-          <TextBox Grid.Column="6" Watermark="  Search translations..."
-                   Text="{Binding SearchText, Mode=TwoWay}"
-                   VerticalContentAlignment="Center"/>
-
-          <!-- Project badge -->
-          <Border Grid.Column="8" CornerRadius="4" Padding="8,4"
-                  IsVisible="{Binding ProjectSettings, Converter={x:Static ObjectConverters.IsNotNull}}">
-            <TextBlock Text="{Binding ProjectSettings.Name}" FontSize="11" Opacity="0.7"/>
-          </Border>
-        </Grid>
-      </Border>
-
-      <!-- Row 3: Main content -->
-      <Grid Grid.Row="3" ColumnDefinitions="260,4,*" Margin="4,4,4,0">
-        <Grid RowDefinitions="*,4,200">
-          <components:ResourcesView DataContext="{Binding}"/>
-          <GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
-          <components:LanguagesView Grid.Row="2" DataContext="{Binding}"/>
-        </Grid>
-        <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
-        <components:TranslationDetailsView Grid.Column="2" DataContext="{Binding}"/>
-      </Grid>
-
-      <!-- Row 4: Status Bar -->
-      <components:StatusBarView Grid.Row="4" x:Name="RootStatusBar"/>
-    </Grid>
-  </Panel>
+    <!-- ═══ Zen mode covers everything ═══ -->
+    <views:ZenEditorView Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding ZenMode}"/>
+  </Grid>
 </Window>

@@ -8,7 +8,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class ArbSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.Arb;
+    public string FormatId => FormatIds.Arb;
+    public string DisplayName => "Flutter ARB";
+    public IReadOnlyList<string> FileExtensions => [".arb"];
+    public string DefaultFilePath(string language) => $"app_{language}.arb";
+
+    public FormatDetection Detection { get; } = new(0, [".arb"], []);
 
     private static readonly JsonSerializerOptions s_options = new() { WriteIndented = true };
 

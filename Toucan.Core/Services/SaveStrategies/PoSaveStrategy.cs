@@ -7,7 +7,13 @@ namespace Toucan.Core.Services.SaveStrategies;
 
 public class PoSaveStrategy(IFileService fileService) : ISaveStrategy
 {
-    public SaveStyles Style => SaveStyles.Properties;
+    public string FormatId => FormatIds.Po;
+    public string DisplayName => "Gettext PO";
+    public IReadOnlyList<string> FileExtensions => [".po"];
+    public string DefaultFilePath(string language) => $"{language}.po";
+
+    public bool StoresCommentsInline => true;
+    public FormatDetection Detection { get; } = new(2, [".po", ".pot"], []);
 
     public void Save(string path, SaveContext context)
     {

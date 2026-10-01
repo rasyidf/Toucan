@@ -8,7 +8,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 /// <summary>Loads .NET .resx/.resw resource files.</summary>
 public class ResxLoadStrategy : ILoadStrategy
 {
-    public SaveStyles Style => SaveStyles.Resx;
+    public string FormatId => FormatIds.Resx;
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

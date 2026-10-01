@@ -23,8 +23,8 @@ public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy>
         if (pkg == null || pkg.TranslationUrls.Count == 0) return [];
 
         var items = new List<TranslationItem>();
-        var loader = loadStrategies.FirstOrDefault(l => l.Style == settings.SaveStyle)
-            ?? loadStrategies.FirstOrDefault(l => l.Style == SaveStyles.Json);
+        var loader = loadStrategies.FirstOrDefault(l => FormatIds.Comparer.Equals(l.FormatId, settings.SaveFormat))
+            ?? loadStrategies.FirstOrDefault(l => l.FormatId == FormatIds.Json);
 
         foreach (var url in pkg.TranslationUrls)
         {
@@ -65,8 +65,8 @@ public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy>
                 Languages = [langGroup.Key]
             };
 
-            var strategy = saveStrategies.FirstOrDefault(s => s.Style == settings.SaveStyle)
-                ?? saveStrategies.FirstOrDefault(s => s.Style == SaveStyles.Json);
+            var strategy = saveStrategies.FirstOrDefault(s => FormatIds.Comparer.Equals(s.FormatId, settings.SaveFormat))
+                ?? saveStrategies.FirstOrDefault(s => s.FormatId == FormatIds.Json);
             strategy?.Save(dir, context);
         }
     }
