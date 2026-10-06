@@ -11,16 +11,16 @@
       <DockPanel>
         <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*" Margin="14,0" MinHeight="46">
           <ui:FASymbolIcon Symbol="Find" FontSize="15" Foreground="{DynamicResource MutedTextBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-          <TextBox x:Name="Input" Grid.Column="1" Classes="paletteInput" PlaceholderText="{loc:Loc 'Type a command…'}"
+          <TextBox x:Name="Input" Grid.Column="1" Classes="paletteInput" AutomationProperties.Name="{loc:Loc 'Command palette'}" PlaceholderText="{loc:Loc 'Type a command…'}"
                    VerticalAlignment="Center" BorderThickness="0" Background="Transparent" FontSize="15"/>
         </Grid>
         <Border DockPanel.Dock="Top" Height="1" Background="{DynamicResource SubtleBorderBrush}"/>
 
         <TextBlock x:Name="Empty" Text="{loc:Loc 'No matching commands'}" Classes="caption" HorizontalAlignment="Center" Margin="0,24" IsVisible="False"/>
-        <ListBox x:Name="List" Classes="plain paletteList" Margin="6" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListBox x:Name="List" Classes="plain paletteList" AutomationProperties.Name="{loc:Loc 'Commands'}" Margin="6" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <ListBox.ItemTemplate>
             <DataTemplate>
-              <Grid ColumnDefinitions="*,Auto" Classes.disabled="{Binding !CanRun}">
+              <Grid ColumnDefinitions="*,Auto" Classes.disabled="{Binding !CanRun}" AutomationProperties.Name="{Binding Title}">
                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                   <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis"/>
                   <TextBlock Text="{Binding Category}" Classes="caption" VerticalAlignment="Center"/>

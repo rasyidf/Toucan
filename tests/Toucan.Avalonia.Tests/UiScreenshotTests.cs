@@ -221,6 +221,15 @@ public class UiScreenshotTests
             await mainVm.OpenProjectAsync(folder);
             Pump();
             Snap(window, "37-dark-editor");
+
+            if (window.GetVisualDescendants().OfType<Toucan.Avalonia.Views.Components.TranslationCard>().FirstOrDefault()?.DataContext is LanguageGroupViewModel group)
+                mainVm.SelectedGroup = group;
+            foreach (var id in new[] { "explorer", "search", "issues", "source-code", "languages", "inspector", "machine-translation", "translation-memory" })
+            {
+                Toucan.Core.Services.SidePanelRegistry.Instance.Activate(id);
+                Pump();
+                Snap(window, "38-dark-panel-" + id);
+            }
             window.Close();
         }
         finally { global::Avalonia.Application.Current!.RequestedThemeVariant = global::Avalonia.Styling.ThemeVariant.Default; }

@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using Toucan.Avalonia.Services;
 using Toucan.Avalonia.ViewModels;
 using Toucan.Core.Models;
 
@@ -47,31 +48,7 @@ public partial class ExplorerPanel : UserControl
             _ => null
         };
 
-        var flyout = new MenuFlyout();
-        LastFlyout = flyout;
-        flyout.Items.Add(new MenuItem { Header = "Add Key…", Command = vm.NewItemCommand });
-        if (!string.IsNullOrEmpty(ns))
-        {
-            flyout.Items.Add(new Separator());
-            flyout.Items.Add(new MenuItem { Header = "Rename…", Command = vm.RenameKeyCommand, CommandParameter = ns });
-            flyout.Items.Add(new MenuItem { Header = "Duplicate", Command = vm.DuplicateKeyCommand, CommandParameter = ns });
-            flyout.Items.Add(new MenuItem { Header = "Delete…", Command = vm.DeleteKeyCommand, CommandParameter = ns });
-            flyout.Items.Add(new Separator());
-            flyout.Items.Add(new MenuItem { Header = "Copy Key", Command = vm.CopyKeyCommand, CommandParameter = ns });
-            flyout.Items.Add(new MenuItem { Header = "Translate Empty Values", Command = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => vm.TranslateKeyAsync(ns)) });
-            flyout.Items.Add(new MenuItem { Header = "Hide Namespace", Command = vm.HideNamespaceCommand, CommandParameter = ns });
-        }
-
-        if (e.TryGetPosition(host, out _))
-        {
-            flyout.Placement = PlacementMode.Pointer;
-            flyout.ShowAt(host, showAtPointer: true);
-        }
-        else
-        {
-            flyout.Placement = PlacementMode.BottomEdgeAlignedLeft;
-            flyout.ShowAt((row as Control) ?? host);
-        }
-        e.Handled = true;
+        LastFlyout = KeyMenus.ForExplorer(vm, ns);
+        KeyMenus.Show(LastFlyout, host, (row as Control) ?? host, e);
     }
 }

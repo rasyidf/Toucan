@@ -80,8 +80,9 @@ public partial class PreTranslateViewModel : ObservableObject
 
         foreach (var l in languages)
         {
-            // The source language is rarely a translation target; leave it unchecked by default.
-            AvailableLanguages.Add(new LanguageItem(l, !string.Equals(l, primaryLanguage, StringComparison.OrdinalIgnoreCase)));
+            // Translating the source language into itself makes no sense, so it is not offered as a target.
+            if (!string.IsNullOrEmpty(primaryLanguage) && string.Equals(l, primaryLanguage, StringComparison.OrdinalIgnoreCase)) continue;
+            AvailableLanguages.Add(new LanguageItem(l, true));
         }
 
         selectedProvider = ProviderNames.FirstOrDefault(n => string.Equals(n, initialProvider, StringComparison.OrdinalIgnoreCase)) ?? ProviderNames[0];

@@ -31,6 +31,9 @@
       <TextBlock Text="{loc:Loc 'Per language'}" Classes="groupHeader" Margin="14,20,0,0"/>
     </StackPanel>
     <ScrollViewer Margin="20,0,20,16">
+      <Panel>
+      <TextBlock Text="{loc:Loc 'No languages to show.'}" Classes="caption" HorizontalAlignment="Center" Margin="0,24"
+                 IsVisible="{Binding !Languages.Count}"/>
       <ItemsControl ItemsSource="{Binding Languages}">
         <ItemsControl.ItemTemplate>
           <DataTemplate>
@@ -53,6 +56,7 @@
           </DataTemplate>
         </ItemsControl.ItemTemplate>
       </ItemsControl>
+      </Panel>
     </ScrollViewer>
   </DockPanel>
 </d:DialogWindow>

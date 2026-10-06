@@ -37,7 +37,7 @@ JSON, YAML, PO, RESX, Android XML, iOS `.strings`, XLIFF, ARB, CSV, TOML, INI, J
 
 **Editing.** The editor has three modes. Editor mode shows inline suggestions from translation memory. Review mode filters to unapproved items and lets you approve or reject each one, with validation warnings shown alongside. Audit mode is read-only and shows approval state and change history.
 
-The layout follows VS Code: a tree or list sidebar, a translation pane (paginated or infinite scroll), and an inspector for stats, suggestions, key details, and validation results. Zen mode hides everything except the editor.
+The layout follows VS Code: a tree or list sidebar, a translation pane (paginated or infinite scroll), and an inspector for stats, suggestions, key details, and validation results. Zen mode hides everything except the editor. Press Cmd/Ctrl+Shift+P for the command palette, which finds any menu command and shows its shortcut.
 
 **Machine translation.** Pre-translate with Google Translate, DeepL, Microsoft Translator, OpenAI, Claude, or Gemini. Results appear in a preview and are only written when you commit them. Placeholders (`{{var}}`, `{0}`, `%s`, `:param`) are preserved, formality settings are respected, and you can target a single key, a namespace, or a language.
 

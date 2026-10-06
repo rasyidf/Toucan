@@ -5,10 +5,17 @@
 ### Added
 - **Claude and Gemini translation providers** — Pre-translate with Anthropic Claude (Messages API) or Google Gemini (a free AI Studio key works). Both appear in the Machine Translation panel, the Pre-translate dialog and Provider Settings, send up to 20 texts per request, add the app context and formality to the prompt, and report the provider's error message. See [docs/provider-settings.md](docs/provider-settings.md).
 
+- **Command palette (Avalonia app)** — Cmd/Ctrl+Shift+P (or the pill in the title bar) opens a searchable list of every menu command with its shortcut. Type words in any order, Up/Down and Enter to run, Esc to close; commands that cannot run right now sink to the bottom. It reads the menu definitions, so new menu items appear in it automatically.
+- **Title bar** — Logo and name, a save-state chip (`Unsaved` / `Saved`, click to save) and the palette pill centered in the bar. On macOS the Zen-mode header now clears the window controls.
+- **Settings search** — A search box above the Settings sidebar filters individual settings across all pages.
+- **Screenshot harness** — `TOUCAN_TEST_SCREENSHOTS` renders every window, panel and dialog headlessly; see [docs/visual-review.md](docs/visual-review.md).
+
 ### Changed
 - **UI polish (Avalonia app)** — Settings and Project Properties use a left page list with grouped rows; Settings has a search box that filters individual settings; plugin cards show status, details and actions; New Project, Provider Settings, Statistics, Import and Pre-translate use the same grouped style; the side panels, pager and hidden-namespaces footer are tidied.
 
 ### Fixed
+- **Right-click menus** — The editor cards' menu is now a flyout like the Explorer's, with icons and Indonesian labels (the old menu type never appeared on macOS).
+- **Pre-translate** — The source language is no longer offered as a target language; the preview text is selectable; empty language lists show a message.
 - **DeepL requests** — Free-plan keys (ending in `:fx`) now use `api-free.deepl.com` automatically; the key is sent in the `Authorization` header instead of the request body; `en-US` sources and `fr-FR` targets are sent as DeepL expects (`EN`, `FR`); More/Less formality is now applied (as `prefer_more`/`prefer_less`); errors include DeepL's message.
 - **Explorer right-click menu on macOS** — The key menu (Add Key, Rename, Delete, …) did not appear; it is now a flyout like the app's other menus.
 
