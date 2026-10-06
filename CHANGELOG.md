@@ -2,7 +2,7 @@
 
 ## [0.19.0] - 2026-10-06
 
-Command palette, a new title bar, Claude and Gemini translation providers, and a UI polish pass across the Avalonia app. Windows stays on 0.17.3.
+Command palette, a new title bar, Claude and Gemini translation providers, and a UI polish pass across the Avalonia app. The Avalonia app is now the Toucan app on Windows too; the WPF app is deprecated and 0.17.3 was its last release.
 
 ### Added
 - **Claude and Gemini translation providers** — Pre-translate with Anthropic Claude (Messages API) or Google Gemini (a free AI Studio key works). Both appear in the Machine Translation panel, the Pre-translate dialog and Provider Settings, send up to 20 texts per request, add the app context and formality to the prompt, and report the provider's error message. See [docs/provider-settings.md](docs/provider-settings.md).
@@ -13,6 +13,7 @@ Command palette, a new title bar, Claude and Gemini translation providers, and a
 - **Screenshot harness** — `TOUCAN_TEST_SCREENSHOTS` renders every window, panel and dialog headlessly; see [docs/visual-review.md](docs/visual-review.md).
 
 ### Changed
+- **Windows** — The Avalonia app (tested on Windows) is the supported app on Windows, macOS and Linux. The WPF app is deprecated; its last release is 0.17.3.
 - **UI polish (Avalonia app)** — Settings and Project Properties use a left page list with grouped rows; Settings has a search box that filters individual settings; plugin cards show status, details and actions; New Project, Provider Settings, Statistics, Import and Pre-translate use the same grouped style; the side panels, pager and hidden-namespaces footer are tidied.
 
 ### Fixed

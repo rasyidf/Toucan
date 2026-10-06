@@ -10,7 +10,7 @@
 
 It combines the speed of a modern IDE with the completeness of a localization platform — offline-first, format-agnostic, and AI-assisted.
 
-Release status: preview until 1.0. Current releases: v0.19.0 (macOS, Linux) and v0.17.3 (Windows). Say "preview" wherever a version or download is offered.
+Release status: preview until 1.0. Current release: v0.19.0 (Windows, macOS, Linux). The WPF app is deprecated (last release v0.17.3). Say "preview" wherever a version or download is offered.
 
 Platforms: Windows (WPF app), macOS and Linux (Avalonia app), and the `toucan` CLI.
 

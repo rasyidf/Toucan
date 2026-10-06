@@ -1,6 +1,6 @@
 # Toucan — Roadmap (v0.17 → v1.0)
 
-> Current releases: **v0.19.0** for macOS and Linux, **v0.17.3** for Windows (its 0.19.0 build is coming). Every build before 1.0 is a preview.
+> Current release: **v0.19.0** for Windows, macOS and Linux (the WPF app is deprecated; v0.17.3 was its last release). Every build before 1.0 is a preview.
 > Feature groups for upcoming sprints. Each group is a self-contained unit of work.
 > Pick 2-4 groups per sprint. Items under "Future Plan" are deferred past v1.0.
 > The website roadmap ([docs/index.html](../index.html)) and the README summarize this file; update them together.

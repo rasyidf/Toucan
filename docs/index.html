@@ -725,7 +725,7 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
         </a>
         <a class="btn btn-ghost" href="https://github.com/rasyidf/Toucan">View source</a>
       </div>
-      <p class="hero-note">macOS and Linux: v0.19.0 (v0.18.0 was the first release there). Windows 10+: v0.17.3, with 0.19.0 coming. Expect rough edges before 1.0.</p>
+      <p class="hero-note">v0.19.0 on Windows 10+, macOS and Linux (v0.18.0 was the first release on macOS and Linux). Expect rough edges before 1.0.</p>
     </div>
 
     <!-- Interactive demo: a small model of the editor, driven by the data in the script below. -->
@@ -1015,20 +1015,20 @@ Languages: 4
       <p>No account, no upload, no server. Provider API keys can be set app-wide or per project, and are encrypted at rest: DPAPI on Windows, AES-GCM with a per-user key on macOS and Linux.</p>
     </div>
     <div class="preview-note reveal" role="note">
-      <strong>Preview software.</strong> Toucan is at v0.19.0 on macOS and Linux and v0.17.3 on Windows, and every build is a preview until 1.0. Settings and project files can change between releases, so keep your locales in version control and <a href="https://github.com/rasyidf/Toucan/issues">report what breaks</a>.
+      <strong>Preview software.</strong> Toucan is at v0.19.0 on Windows, macOS and Linux, and every build is a preview until 1.0. Settings and project files can change between releases, so keep your locales in version control and <a href="https://github.com/rasyidf/Toucan/issues">report what breaks</a>.
     </div>
     <div class="platforms">
       <div class="platform reveal">
         <span class="chip warn">preview</span>
-        <h3>Windows</h3>
-        <p>The most complete app: every feature on this page. WPF with Fluent design and the Mica backdrop. Windows 10 and later. Current: v0.17.3; 0.18.0 is coming.</p>
-        <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.3">Download v0.17.3 →</a>
+        <h3>Windows, macOS and Linux</h3>
+        <p>One Avalonia app on the same core everywhere, so formats, validation, and providers behave the same, with the modes, Zen, command palette, side panels, and plugins. Windows 10 and later; first released on macOS and Linux in v0.18.0. Not ported yet from the old WPF app: Source Control, Translation, and Dictionary panels.</p>
+        <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.19.0">Download v0.19.0 →</a>
       </div>
       <div class="platform reveal" style="--d:80ms">
         <span class="chip warn">preview</span>
-        <h3>macOS and Linux</h3>
-        <p>First released in v0.18.0. Avalonia app on the same core as Windows, so formats, validation, and providers behave the same, with the modes, Zen, side panels, and plugins. Not ported yet: Source Control, Translation, and Dictionary panels.</p>
-        <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.19.0">Download v0.19.0 →</a>
+        <h3>Windows (WPF, deprecated)</h3>
+        <p>The earlier Windows app, with Fluent design and the Mica backdrop. v0.17.3 is its last release; it stays available for the Source Control, Translation, and Dictionary panels until they return in the Avalonia app.</p>
+        <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.3">Download v0.17.3 →</a>
       </div>
       <div class="platform reveal" style="--d:160ms">
         <span class="chip warn">preview</span>
@@ -1051,13 +1051,13 @@ Languages: 4
     <ol class="timeline reveal">
       <li>
         <div class="ver">v0.19</div>
-        <span class="when">now · macOS/Linux v0.19.0 · Windows v0.17.3</span>
+        <span class="when">now · v0.19.0 on Windows, macOS and Linux</span>
         <h3>Command palette, new providers, UI polish</h3>
         <ul>
           <li>Command palette and a new title bar with save state</li>
           <li>Claude and Gemini translation, plus DeepL fixes</li>
           <li>Grouped settings with search; compact panels; dark-theme pass</li>
-          <li>Windows 0.19.0 build to follow</li>
+          <li>One Avalonia app on every platform; the WPF app is retired</li>
         </ul>
       </li>
       <li>

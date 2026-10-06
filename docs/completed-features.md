@@ -1,10 +1,10 @@
 # Shipped Features
 
-> As of v0.19.0 (macOS and Linux) and v0.17.3 (Windows). Release notes are in [CHANGELOG.md](../CHANGELOG.md);
+> As of v0.19.0 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
 > planned work is in [todos/future-roadmap.md](todos/future-roadmap.md).
-> Unless a line says otherwise, a feature is in the Windows (WPF) app. The macOS and Linux (Avalonia) app shares the
-> core (formats, validation, providers) and has most of the UI; it does not have the Source Control, Translation, and
-> Dictionary panels yet.
+> Unless a line says otherwise, a feature is in the WPF app (last release v0.17.3). The Avalonia app, now the app on
+> every platform, shares the core (formats, validation, providers) and has most of the UI; it does not have the Source
+> Control, Translation, and Dictionary panels yet.
 
 ## Core Editor
 

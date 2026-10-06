@@ -561,7 +561,7 @@ Toucan/                              Solution root
 └── docs/
     ├── ARCHITECTURE.md              ← this file
     ├── plugins.md                   Plugin author guide
-    ├── completed-features.md        Shipped features (v0.18.0 macOS/Linux, v0.17.3 Windows)
+    ├── completed-features.md        Shipped features (v0.19.0 Avalonia on all platforms; v0.17.3 was the last WPF release)
     ├── known-bugs.md                Active bug tracker
     ├── ui-revamp-plan.md            UI redesign plan
     ├── branding.md                  Brand guidelines
