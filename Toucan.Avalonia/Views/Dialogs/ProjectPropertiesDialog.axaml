@@ -93,10 +93,10 @@
               <c:SettingsRow Title="{loc:Loc 'Preview before applying machine translations'}"><ToggleSwitch IsChecked="{Binding PreviewBeforeApply}"/></c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
-          <c:SettingsGroup Header="{loc:Loc 'Application context'}">
-            <c:SettingsRow Stacked="True" Padding="14,10">
-              <TextBox Text="{Binding Context}" AcceptsReturn="True" TextWrapping="Wrap" Height="90"
-                       PlaceholderText="{loc:Loc 'What does this app do? Helps AI providers choose terminology.'}"/>
+          <c:SettingsGroup>
+            <c:SettingsRow Title="{loc:Loc 'Application context'}" Stacked="True" Padding="14,12"
+                           Description="{loc:Loc 'What does this app do? Helps AI providers choose terminology.'}">
+              <TextBox Text="{Binding Context}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="140"/>
             </c:SettingsRow>
           </c:SettingsGroup>
         </StackPanel>

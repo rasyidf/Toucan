@@ -134,12 +134,12 @@
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
-          <c:SettingsGroup Header="{loc:Loc 'Application context'}">
-            <c:SettingsRow Stacked="True" Padding="14,10">
+          <c:SettingsGroup>
+            <c:SettingsRow Title="{loc:Loc 'Application context'}" Stacked="True" Padding="14,12"
+                           Description="{loc:Loc 'Describe your app so AI providers pick the right terminology'}">
               <StackPanel Spacing="4">
-                <TextBox Text="{Binding Context}" AcceptsReturn="True" TextWrapping="Wrap" Height="90"
-                         PlaceholderText="{loc:Loc 'Describe your app so AI providers pick the right terminology'}"/>
-                <TextBlock Text="{Binding ContextCharCount, StringFormat='{}{0} characters'}" Classes="hint"/>
+                <TextBox Text="{Binding Context}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="140"/>
+                <TextBlock Text="{Binding ContextCharCount, StringFormat='{}{0} characters'}" Classes="hint" HorizontalAlignment="Right"/>
               </StackPanel>
             </c:SettingsRow>
           </c:SettingsGroup>
