@@ -297,6 +297,17 @@ public partial class ProjectPropertiesViewModel : ObservableObject
     }
 
     public static IReadOnlyList<string> FormalityOptions { get; } = ["Default", "More", "Less", "Formal", "Informal"];
+
+    /// <summary>Sidebar pages of the Project Properties dialog, in display order.</summary>
+    public static IReadOnlyList<SettingsNavEntry> NavEntries { get; } =
+    [
+        new("General", "Settings", "#8E8E93"),
+        new("Translation", "Character", "#34C759"),
+        new("Editor", "Edit", "#007AFF"),
+        new("Source code", "CodeHTML", "#5AC8FA"),
+        new("Hidden", "View", "#636366"),
+    ];
+
     public static IReadOnlyList<string> TranslationOrderOptions { get; } = ["Alphabetically sorted", "Primary language"];
     public static IReadOnlyList<string> ProviderOptions { get; } = ["", "Google", "DeepL", "Microsoft", "OpenAI", "Custom", "Mock"];
 

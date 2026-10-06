@@ -355,7 +355,8 @@
         <Border Background="Transparent" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
                 Padding="{TemplateBinding Padding}" MinHeight="{TemplateBinding MinHeight}">
           <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" VerticalAlignment="Center">
-            <StackPanel Spacing="2" VerticalAlignment="Center" Margin="0,0,16,0">
+            <StackPanel Spacing="2" VerticalAlignment="Center" Margin="0,0,16,0"
+                        IsVisible="{TemplateBinding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
               <TextBlock Text="{TemplateBinding Title}" TextWrapping="Wrap"/>
               <TextBlock Text="{TemplateBinding Description}" Classes="hint" Margin="0"
                          IsVisible="{TemplateBinding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
@@ -379,7 +380,10 @@
     <Setter Property="Grid.Column" Value="0"/>
     <Setter Property="Grid.ColumnSpan" Value="2"/>
     <Setter Property="HorizontalAlignment" Value="Stretch"/>
-    <Setter Property="Margin" Value="0,8,0,0"/>
+    <Setter Property="Margin" Value="0"/>
+  </Style>
+  <Style Selector="c|SettingsRow:stacked /template/ StackPanel">
+    <Setter Property="Margin" Value="0,0,0,8"/>
   </Style>
   <Style Selector="c|SettingsRow ComboBox, c|SettingsRow TextBox, c|SettingsRow NumericUpDown">
     <Setter Property="MinWidth" Value="160"/>

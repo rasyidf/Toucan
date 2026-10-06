@@ -5,7 +5,8 @@
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
                 xmlns:vm="using:Toucan.Avalonia.ViewModels"
                 xmlns:ui="using:FluentAvalonia.UI.Controls"
-                Title="{loc:Loc 'Project Properties'}" Width="720" Height="640">
+                xmlns:c="using:Toucan.Avalonia.Views.Components"
+                Title="{loc:Loc 'Project Properties'}" Width="820" Height="600" MinHeight="460">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <DockPanel>
@@ -16,118 +17,174 @@
         </StackPanel>
       </DockPanel>
     </Border>
-    <StackPanel DockPanel.Dock="Top" Margin="20,18,20,0" Spacing="2">
-      <TextBlock Text="{Binding ProjectName}" Classes="dialogTitle"/>
-      <TextBlock Classes="caption mono" TextTrimming="PathSegmentEllipsis">
-        <Run Text="{Binding ProjectPath}"/><Run Text="  ·  "/><Run Text="{Binding SaveStyleName}"/>
-      </TextBlock>
-    </StackPanel>
-
-    <TabControl Margin="12,8,12,0">
-      <TabItem Header="{loc:Loc 'General'}">
-        <ScrollViewer>
-          <StackPanel Margin="8,4" MaxWidth="600" HorizontalAlignment="Left">
-            <TextBlock Text="{loc:Loc 'Name'}" Classes="label"/>
-            <TextBox Text="{Binding ProjectName}"/>
-            <TextBlock Text="{loc:Loc 'Description'}" Classes="label"/>
-            <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" Height="60"/>
-            <TextBlock Text="{loc:Loc 'Primary (source) language'}" Classes="label"/>
-            <DockPanel>
-              <Button DockPanel.Dock="Right" Content="{loc:Loc 'Manage languages…'}" Margin="6,0,0,0" Command="{Binding ManageLanguagesCommand}"/>
-              <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding PrimaryLanguage}" MinWidth="200"/>
-            </DockPanel>
-            <CheckBox Classes="form" Content="{loc:Loc 'Auto-save'}" IsChecked="{Binding AutoSaveEnabled}"/>
-            <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding AutoSaveEnabled}" Margin="28,4,0,0">
-              <TextBlock Text="{loc:Loc 'Every'}" VerticalAlignment="Center"/>
-              <NumericUpDown Value="{Binding AutoSaveInterval}" Minimum="10" Maximum="600" Increment="10" FormatString="0" Width="130"/>
-              <TextBlock Text="{loc:Loc 'seconds'}" VerticalAlignment="Center"/>
-            </StackPanel>
-            <CheckBox Classes="form" Content="{loc:Loc 'Validate before saving'}" IsChecked="{Binding ValidateOnSave}"/>
-          </StackPanel>
-        </ScrollViewer>
-      </TabItem>
-
-      <TabItem Header="{loc:Loc 'Translation'}">
-        <ScrollViewer>
-          <StackPanel Margin="8,4" MaxWidth="600" HorizontalAlignment="Left">
-            <TextBlock Text="{loc:Loc 'Default provider'}" Classes="label"/>
-            <DockPanel>
-              <Button DockPanel.Dock="Right" Content="{loc:Loc 'Provider settings…'}" Margin="6,0,0,0" Command="{Binding OpenProviderSettingsCommand}"/>
-              <ComboBox ItemsSource="{x:Static vm:ProjectPropertiesViewModel.ProviderOptions}" SelectedItem="{Binding DefaultProvider}" MinWidth="200"/>
-            </DockPanel>
-            <TextBlock Text="{loc:Loc 'Formality'}" Classes="label"/>
-            <ComboBox ItemsSource="{x:Static vm:ProjectPropertiesViewModel.FormalityOptions}" SelectedItem="{Binding Formality}" MinWidth="200"/>
-            <TextBlock Text="{loc:Loc 'Application context'}" Classes="label"/>
-            <TextBox Text="{Binding Context}" AcceptsReturn="True" TextWrapping="Wrap" Height="90"
-                     PlaceholderText="{loc:Loc 'What does this app do? Helps AI providers choose terminology.'}"/>
-            <CheckBox Classes="form" Content="{loc:Loc 'Preserve placeholders'}" IsChecked="{Binding PreservePlaceholders}"/>
-            <CheckBox Classes="form" Content="{loc:Loc 'Preview before applying machine translations'}" IsChecked="{Binding PreviewBeforeApply}"/>
-          </StackPanel>
-        </ScrollViewer>
-      </TabItem>
-
-      <TabItem Header="{loc:Loc 'Editor'}">
-        <ScrollViewer>
-          <StackPanel Margin="8,4" MaxWidth="600" HorizontalAlignment="Left">
-            <CheckBox Classes="form" Content="{loc:Loc 'Write empty translations to files'}" IsChecked="{Binding SaveEmptyTranslations}"/>
-            <CheckBox Classes="form" Content="{loc:Loc 'Enable comments'}" IsChecked="{Binding CommentsEnabled}"/>
-            <TextBlock Text="{loc:Loc 'Key order in files'}" Classes="label"/>
-            <ComboBox ItemsSource="{x:Static vm:ProjectPropertiesViewModel.TranslationOrderOptions}" SelectedItem="{Binding TranslationOrder}" MinWidth="220"/>
-            <TextBlock Text="{loc:Loc 'Copy templates (%1 = key)'}" Classes="label"/>
-            <ItemsControl ItemsSource="{Binding CopyTemplates}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <DockPanel Margin="0,0,0,6">
-                    <Button DockPanel.Dock="Right" Classes="icon small" Margin="4,0,0,0"
-                            Command="{Binding $parent[ItemsControl].DataContext.RemoveCopyTemplateCommand}" CommandParameter="{Binding}">
-                      <ui:FASymbolIcon Symbol="Dismiss"/>
-                    </Button>
-                    <TextBox Text="{Binding Value}" Classes="mono"/>
-                  </DockPanel>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-            <Button Content="{loc:Loc 'Add template'}" Command="{Binding AddCopyTemplateCommand}" IsEnabled="{Binding CanAddCopyTemplate}"/>
-          </StackPanel>
-        </ScrollViewer>
-      </TabItem>
-
-      <TabItem Header="{loc:Loc 'Source code'}">
-        <ScrollViewer>
-          <StackPanel Margin="8,4" MaxWidth="600" HorizontalAlignment="Left">
-            <TextBlock Text="{loc:Loc 'Source folders (relative, separated by ;)'}" Classes="label"/>
-            <DockPanel>
-              <Button DockPanel.Dock="Right" Content="{loc:Loc 'Add…'}" Margin="6,0,0,0" Command="{Binding BrowseSourceRootCommand}"/>
-              <TextBox Text="{Binding SourceRoots}" Classes="mono"/>
-            </DockPanel>
-            <TextBlock Text="{loc:Loc 'File extensions'}" Classes="label"/>
-            <TextBox Text="{Binding ScanExtensions}" Classes="mono" PlaceholderText="{loc:Loc 'Uses the defaults from Settings when empty'}"/>
-            <TextBlock Text="{loc:Loc 'Excluded folders'}" Classes="label"/>
-            <TextBox Text="{Binding ExcludedDirectories}" Classes="mono" PlaceholderText="{loc:Loc 'Uses the defaults from Settings when empty'}"/>
-            <TextBlock Text="{loc:Loc 'External editor command'}" Classes="label"/>
-            <TextBox Text="{Binding ExternalEditor}" Classes="mono" PlaceholderText="code --goto &quot;{file}:{line}&quot;"/>
-            <CheckBox Classes="form" Content="{loc:Loc 'Scan when the project opens'}" IsChecked="{Binding AutoScanOnOpen}"/>
-          </StackPanel>
-        </ScrollViewer>
-      </TabItem>
-
-      <TabItem Header="{loc:Loc 'Hidden'}">
-        <StackPanel Margin="8,4">
-          <TextBlock Text="{loc:Loc 'Namespaces hidden from the explorer and editor. They are still saved.'}" Classes="caption" Margin="0,8"/>
-          <ItemsControl ItemsSource="{Binding HiddenNamespaces}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate>
-                <DockPanel Margin="0,2">
-                  <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Unhide'}"
-                          Command="{Binding $parent[ItemsControl].DataContext.RemoveHiddenNamespaceCommand}" CommandParameter="{Binding}"/>
-                  <TextBlock Text="{Binding}" Classes="mono" VerticalAlignment="Center"/>
-                </DockPanel>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-          <TextBlock Text="{loc:Loc 'Nothing is hidden.'}" Classes="hint" IsVisible="{Binding !HiddenNamespaces.Count}"/>
+    <Border DockPanel.Dock="Left" Width="220" Background="{DynamicResource EditorBackgroundBrush}"
+            BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Margin="16,16,16,12" Spacing="2">
+          <TextBlock Text="{Binding ProjectName}" FontWeight="SemiBold" FontSize="15" TextTrimming="CharacterEllipsis"/>
+          <TextBlock Text="{Binding SaveStyleName}" Classes="caption"/>
         </StackPanel>
-      </TabItem>
-    </TabControl>
+        <ListBox x:Name="Nav" Classes="settingsNav" SelectedIndex="0" ItemsSource="{x:Static vm:ProjectPropertiesViewModel.NavEntries}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <Border Classes="navTile" Background="{Binding TileBrush}">
+                  <ui:FASymbolIcon Symbol="{Binding Icon, Converter={StaticResource Symbol}}"/>
+                </Border>
+                <TextBlock Text="{Binding Title, Converter={x:Static loc:LocConverter.Instance}}" VerticalAlignment="Center"/>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </Border>
+
+    <ScrollViewer Background="{DynamicResource ChromeBackgroundBrush}">
+      <Panel Margin="32,24" MaxWidth="600">
+
+        <!-- General -->
+        <StackPanel IsVisible="{Binding #Nav.SelectedIndex, Converter={StaticResource Equals}, ConverterParameter=0}">
+          <TextBlock Text="{loc:Loc 'General'}" Classes="dialogTitle" Margin="0,0,0,16"/>
+          <c:SettingsGroup>
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Name'}"><TextBox Text="{Binding ProjectName}" Width="240"/></c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Description'}" Stacked="True">
+                <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" Height="64"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+          <c:SettingsGroup Header="{loc:Loc 'Languages'}">
+            <c:SettingsRow Title="{loc:Loc 'Primary (source) language'}">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding PrimaryLanguage}"/>
+                <Button Content="{loc:Loc 'Manage languages…'}" Command="{Binding ManageLanguagesCommand}"/>
+              </StackPanel>
+            </c:SettingsRow>
+          </c:SettingsGroup>
+          <c:SettingsGroup Header="{loc:Loc 'Saving'}">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Auto-save'}"><ToggleSwitch IsChecked="{Binding AutoSaveEnabled}"/></c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Every'}" IsVisible="{Binding AutoSaveEnabled}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <NumericUpDown Value="{Binding AutoSaveInterval}" Minimum="10" Maximum="600" Increment="10" FormatString="0" Width="130"/>
+                  <TextBlock Text="{loc:Loc 'seconds'}" VerticalAlignment="Center"/>
+                </StackPanel>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Validate before saving'}"><ToggleSwitch IsChecked="{Binding ValidateOnSave}"/></c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+        </StackPanel>
+
+        <!-- Translation -->
+        <StackPanel IsVisible="{Binding #Nav.SelectedIndex, Converter={StaticResource Equals}, ConverterParameter=1}">
+          <TextBlock Text="{loc:Loc 'Translation'}" Classes="dialogTitle" Margin="0,0,0,16"/>
+          <c:SettingsGroup>
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Default provider'}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <ComboBox ItemsSource="{x:Static vm:ProjectPropertiesViewModel.ProviderOptions}" SelectedItem="{Binding DefaultProvider}"/>
+                  <Button Content="{loc:Loc 'Provider settings…'}" Command="{Binding OpenProviderSettingsCommand}"/>
+                </StackPanel>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Formality'}">
+                <ComboBox ItemsSource="{x:Static vm:ProjectPropertiesViewModel.FormalityOptions}" SelectedItem="{Binding Formality}"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Preserve placeholders'}"><ToggleSwitch IsChecked="{Binding PreservePlaceholders}"/></c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Preview before applying machine translations'}"><ToggleSwitch IsChecked="{Binding PreviewBeforeApply}"/></c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+          <c:SettingsGroup Header="{loc:Loc 'Application context'}">
+            <c:SettingsRow Stacked="True" Padding="14,10">
+              <TextBox Text="{Binding Context}" AcceptsReturn="True" TextWrapping="Wrap" Height="90"
+                       PlaceholderText="{loc:Loc 'What does this app do? Helps AI providers choose terminology.'}"/>
+            </c:SettingsRow>
+          </c:SettingsGroup>
+        </StackPanel>
+
+        <!-- Editor -->
+        <StackPanel IsVisible="{Binding #Nav.SelectedIndex, Converter={StaticResource Equals}, ConverterParameter=2}">
+          <TextBlock Text="{loc:Loc 'Editor'}" Classes="dialogTitle" Margin="0,0,0,16"/>
+          <c:SettingsGroup>
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Write empty translations to files'}"><ToggleSwitch IsChecked="{Binding SaveEmptyTranslations}"/></c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Enable comments'}"><ToggleSwitch IsChecked="{Binding CommentsEnabled}"/></c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Key order in files'}">
+                <ComboBox ItemsSource="{x:Static vm:ProjectPropertiesViewModel.TranslationOrderOptions}" SelectedItem="{Binding TranslationOrder}"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+          <c:SettingsGroup Header="{loc:Loc 'Copy templates (%1 = key)'}">
+            <StackPanel>
+              <ItemsControl Classes="rows" ItemsSource="{Binding CopyTemplates}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <c:SettingsRow Padding="14,6">
+                      <DockPanel MinWidth="440">
+                        <Button DockPanel.Dock="Right" Classes="icon small" Margin="6,0,0,0"
+                                Command="{Binding $parent[ItemsControl].DataContext.RemoveCopyTemplateCommand}" CommandParameter="{Binding}">
+                          <ui:FASymbolIcon Symbol="Dismiss"/>
+                        </Button>
+                        <TextBox Text="{Binding Value}" Classes="mono"/>
+                      </DockPanel>
+                    </c:SettingsRow>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <c:SettingsRow BorderThickness="0,1,0,0" HorizontalContentAlignment="Left">
+                <Button Classes="link" Content="{loc:Loc 'Add template'}" Command="{Binding AddCopyTemplateCommand}" IsEnabled="{Binding CanAddCopyTemplate}"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+        </StackPanel>
+
+        <!-- Source code -->
+        <StackPanel IsVisible="{Binding #Nav.SelectedIndex, Converter={StaticResource Equals}, ConverterParameter=3}">
+          <TextBlock Text="{loc:Loc 'Source code'}" Classes="dialogTitle" Margin="0,0,0,16"/>
+          <c:SettingsGroup>
+            <c:SettingsRow Title="{loc:Loc 'Scan when the project opens'}"><ToggleSwitch IsChecked="{Binding AutoScanOnOpen}"/></c:SettingsRow>
+          </c:SettingsGroup>
+          <c:SettingsGroup>
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Source folders (relative, separated by ;)'}" Stacked="True">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Content="{loc:Loc 'Add…'}" Margin="6,0,0,0" Command="{Binding BrowseSourceRootCommand}"/>
+                  <TextBox Text="{Binding SourceRoots}" Classes="mono"/>
+                </DockPanel>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'File extensions'}" Stacked="True">
+                <TextBox Text="{Binding ScanExtensions}" Classes="mono" PlaceholderText="{loc:Loc 'Uses the defaults from Settings when empty'}"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Excluded folders'}" Stacked="True">
+                <TextBox Text="{Binding ExcludedDirectories}" Classes="mono" PlaceholderText="{loc:Loc 'Uses the defaults from Settings when empty'}"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'External editor command'}" Stacked="True">
+                <TextBox Text="{Binding ExternalEditor}" Classes="mono" PlaceholderText="code --goto &quot;{file}:{line}&quot;"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+        </StackPanel>
+
+        <!-- Hidden -->
+        <StackPanel IsVisible="{Binding #Nav.SelectedIndex, Converter={StaticResource Equals}, ConverterParameter=4}">
+          <TextBlock Text="{loc:Loc 'Hidden'}" Classes="dialogTitle" Margin="0,0,0,16"/>
+          <c:SettingsGroup>
+            <StackPanel>
+              <ItemsControl Classes="rows" ItemsSource="{Binding HiddenNamespaces}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <c:SettingsRow Title="{Binding}" MinHeight="38" Padding="14,6">
+                      <Button Classes="link" Content="{loc:Loc 'Unhide'}"
+                              Command="{Binding $parent[ItemsControl].DataContext.RemoveHiddenNamespaceCommand}" CommandParameter="{Binding}"/>
+                    </c:SettingsRow>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <c:SettingsRow Title="{loc:Loc 'Nothing is hidden.'}" IsVisible="{Binding !HiddenNamespaces.Count}"/>
+            </StackPanel>
+          </c:SettingsGroup>
+          <TextBlock Classes="groupFooter" Text="{loc:Loc 'Namespaces hidden from the explorer and editor. They are still saved.'}"/>
+        </StackPanel>
+      </Panel>
+    </ScrollViewer>
   </DockPanel>
 </d:DialogWindow>
