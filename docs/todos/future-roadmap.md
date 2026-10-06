@@ -1,6 +1,6 @@
 # Toucan — Roadmap (v0.17 → v1.0)
 
-> Current releases: **v0.18.1** for macOS and Linux, **v0.17.3** for Windows (its 0.18.0 build is coming). Every build before 1.0 is a preview.
+> Current release: **v0.19.0** for Windows, macOS and Linux (the WPF app is deprecated; v0.17.3 was its last release). Every build before 1.0 is a preview.
 > Feature groups for upcoming sprints. Each group is a self-contained unit of work.
 > Pick 2-4 groups per sprint. Items under "Future Plan" are deferred past v1.0.
 > The website roadmap ([docs/index.html](../index.html)) and the README summarize this file; update them together.
@@ -8,6 +8,13 @@
 ---
 
 ## Recently Completed
+
+### v0.19.0 — Command Palette, Claude and Gemini, UI Polish
+- [x] Command palette (Cmd/Ctrl+Shift+P) over every menu command, and a title bar with logo, save state and a centered palette pill
+- [x] Claude (Anthropic Messages API) and Gemini translation providers; DeepL free-plan, language-code and formality fixes
+- [x] Settings and Project Properties with a left page list and grouped rows; Settings search; plugin cards
+- [x] Compact side panels, rebuilt Inspector, Translation and Memory panels, tidied editor toolbar, dark-theme pass
+- [x] Headless screenshot harness for every screen ([docs/visual-review.md](../visual-review.md))
 
 ### v0.18.0 — First macOS and Linux Release, Plugins
 - [x] Avalonia app targets `net10.0`: macOS (`Toucan.app`) and Linux (tarball) builds
@@ -294,11 +301,12 @@ For maximum impact toward a v1.0 stable release:
 |--------|--------|-------|
 | v0.17 ✓ | FG-03 + FG-07 + FG-08 + FG-09 | Shipped: search, bulk, validation, TM |
 | v0.18 ✓ | Plugins + macOS/Linux | Shipped: first macOS and Linux release, plugin system preview |
-| v0.19 | FG-10 + rest of FG-03 | Onboarding, ghost-text suggestions |
-| v0.20 | FG-04 + FG-15 | AI + Glossary |
-| v0.21 | FG-01 + FG-16 | Signed packages, release pipeline, CI |
-| v0.22 | FG-05 + FG-06 | Review lifecycle, Git integration |
-| v0.23 | FG-02 + FG-11 | Auto-update + Editor |
+| v0.19 ✓ | Palette + providers + UI polish | Shipped: command palette, title bar, Claude and Gemini, UI polish pass |
+| v0.20 | FG-10 + rest of FG-03 | Onboarding, ghost-text suggestions |
+| v0.21 | FG-04 + FG-15 | AI + Glossary |
+| v0.22 | FG-01 + FG-16 | Signed packages, release pipeline, CI |
+| v0.23 | FG-05 + FG-06 | Review lifecycle, Git integration |
+| v0.24 | FG-02 + FG-11 | Auto-update + Editor |
 | v1.0 | FG-13 + stabilization | Performance + first stable release |
 
 > This is a suggestion — pick any order based on what matters most to you.

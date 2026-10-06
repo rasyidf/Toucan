@@ -80,8 +80,9 @@ public partial class PreTranslateViewModel : ObservableObject
 
         foreach (var l in languages)
         {
-            // The source language is rarely a translation target; leave it unchecked by default.
-            AvailableLanguages.Add(new LanguageItem(l, !string.Equals(l, primaryLanguage, StringComparison.OrdinalIgnoreCase)));
+            // Translating the source language into itself makes no sense, so it is not offered as a target.
+            if (!string.IsNullOrEmpty(primaryLanguage) && string.Equals(l, primaryLanguage, StringComparison.OrdinalIgnoreCase)) continue;
+            AvailableLanguages.Add(new LanguageItem(l, true));
         }
 
         selectedProvider = ProviderNames.FirstOrDefault(n => string.Equals(n, initialProvider, StringComparison.OrdinalIgnoreCase)) ?? ProviderNames[0];
@@ -91,7 +92,7 @@ public partial class PreTranslateViewModel : ObservableObject
     public IReadOnlyList<string> ProviderNames { get; }
 
     /// <summary>Built-in provider names, used when no registry list is supplied.</summary>
-    public static IReadOnlyList<string> Providers { get; } = ["Google", "DeepL", "Microsoft", "OpenAI", "Custom", "Mock"];
+    public static IReadOnlyList<string> Providers { get; } = ["Google", "DeepL", "Microsoft", "OpenAI", "Claude", "Gemini", "Custom", "Mock"];
 
     public ObservableCollection<LanguageItem> AvailableLanguages { get; } = [];
     public ObservableCollection<PretranslationItemResult> PreviewResults { get; } = [];

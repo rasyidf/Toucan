@@ -20,6 +20,20 @@ public sealed class FrameworkTile
 
     /// <summary>Framework profile ID (matches IFrameworkProfile.Id). Null = use the FormatId-based fallback.</summary>
     public string? ProfileId { get; init; }
+
+    private static readonly string[] Palette = ["#007AFF", "#34C759", "#FF9500", "#AF52DE", "#FF2D55", "#5AC8FA", "#5856D6", "#FF3B30", "#30B0C7", "#A2845E"];
+    private static readonly Dictionary<string, string> Badges = new(StringComparer.Ordinal)
+    {
+        ["i18next"] = "i18", ["React"] = "Re", ["Vue"] = "Vu", ["Angular"] = "Ng", ["Flutter"] = "Fl", ["Laravel"] = "La", [".NET"] = ".N",
+        ["Android"] = "An", ["iOS"] = "iO", ["Ruby/Rails"] = "Rb", ["Svelte"] = "Sv", ["Java"] = "Jv", ["Gettext"] = "PO",
+        ["Generic JSON"] = "{}", ["Generic YAML"] = "Ym", ["CSV"] = "Cs",
+    };
+
+    /// <summary>Two-letter mark shown on the tile instead of an emoji, so every framework renders in the same style.</summary>
+    public string Badge => Badges.TryGetValue(Name, out var b) ? b : Name.Length >= 2 ? Name[..2] : Name;
+
+    public global::Avalonia.Media.IBrush TileBrush =>
+        global::Avalonia.Media.Brush.Parse(Palette[(int)((uint)Name.Aggregate(17, (h, c) => unchecked(h * 31 + c)) % (uint)Palette.Length)]);
 }
 
 /// <summary>Two-step New Project wizard: template and location, then languages.</summary>
@@ -297,8 +311,19 @@ public partial class ProjectPropertiesViewModel : ObservableObject
     }
 
     public static IReadOnlyList<string> FormalityOptions { get; } = ["Default", "More", "Less", "Formal", "Informal"];
+
+    /// <summary>Sidebar pages of the Project Properties dialog, in display order.</summary>
+    public static IReadOnlyList<SettingsNavEntry> NavEntries { get; } =
+    [
+        new("General", "Settings", "#8E8E93"),
+        new("Translation", "Character", "#34C759"),
+        new("Editor", "Edit", "#007AFF"),
+        new("Source code", "CodeHTML", "#5AC8FA"),
+        new("Hidden", "View", "#636366"),
+    ];
+
     public static IReadOnlyList<string> TranslationOrderOptions { get; } = ["Alphabetically sorted", "Primary language"];
-    public static IReadOnlyList<string> ProviderOptions { get; } = ["", "Google", "DeepL", "Microsoft", "OpenAI", "Custom", "Mock"];
+    public static IReadOnlyList<string> ProviderOptions { get; } = ["", "Google", "DeepL", "Microsoft", "OpenAI", "Claude", "Gemini", "Custom", "Mock"];
 
     [ObservableProperty] private string projectName = string.Empty;
     [ObservableProperty] private string description = string.Empty;

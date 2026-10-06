@@ -4,7 +4,7 @@
 #define AppName "Toucan"
 ; publish.ps1 passes /DAppVersion from Directory.Build.props; this is the fallback.
 #ifndef AppVersion
-  #define AppVersion "0.18.1"
+  #define AppVersion "0.19.0"
 #endif
 #define AppPublisher "rasyid.dev"
 #define AppURL "https://github.com/rasyidf/Toucan"

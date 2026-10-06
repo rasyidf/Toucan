@@ -26,6 +26,36 @@ internal static class MainMenu
 
     private static readonly Item Separator = new("-", IsSeparator: true);
 
+    /// <summary>
+    /// Every runnable menu item as a flat list for the command palette: the category is the top-level menu,
+    /// nested items read "Parent › Child", and the shortcut comes from the same table as the menu labels.
+    /// </summary>
+    public static IReadOnlyList<PaletteCommand> PaletteCommands(Window window, MainWindowViewModel vm)
+    {
+        var result = new List<PaletteCommand>();
+        foreach (var top in Build(window, vm))
+        {
+            var category = Loc.T(top.Header).Replace("_", string.Empty, StringComparison.Ordinal);
+            Flatten(top.Children ?? [], category, string.Empty, result);
+        }
+        return result;
+    }
+
+    private static void Flatten(IEnumerable<Item> items, string category, string prefix, List<PaletteCommand> into)
+    {
+        foreach (var item in items)
+        {
+            if (item.IsSeparator) continue;
+            // Recent projects are menu items labelled with their full path; the palette only needs the folder name.
+            var header = item.Parameter is string path && item.Header == path ? Path.GetFileName(path.TrimEnd('/', '\\')) : Loc.T(item.Header);
+            var title = prefix + header;
+            if (item.Children != null) { Flatten(item.Children, category, title + " › ", into); continue; }
+            if (item.Command == null) continue;
+            var gesture = GestureOf(item.Action);
+            into.Add(new PaletteCommand(category, title, gesture?.ToString("p", null), item.Command, item.Parameter));
+        }
+    }
+
     private static readonly HashSet<KeyGesture> s_nativeGestures = [];
 
     /// <summary>Gestures owned by the native menu (macOS only); the window must not bind them again.</summary>
@@ -183,6 +213,7 @@ internal static class MainMenu
             new("Toggle Left Panel", PanelService.Instance.ToggleSidebarCommand, Action: "Toggle Left Panel"),
             new("Toggle Right Panel", PanelService.Instance.ToggleInspectorCommand, Action: "Toggle Right Panel"),
             new("Toggle Status Bar", PanelService.Instance.ToggleStatusBarCommand),
+            new("Command Palette…", vm.ToggleCommandPaletteCommand, Action: "Command Palette"),
             Separator,
             new("Editor Mode", vm.SwitchToEditorModeCommand, Action: "Editor Mode"),
             new("Review Mode", vm.SwitchToReviewModeCommand, Action: "Review Mode"),

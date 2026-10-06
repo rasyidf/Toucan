@@ -7,11 +7,11 @@
     <Grid ColumnDefinitions="*,Auto,Auto">
       <TextBlock Text="{Binding PageMessage}" Classes="caption" VerticalAlignment="Center"/>
 
-      <StackPanel Grid.Column="1" Orientation="Horizontal" IsVisible="{Binding PagingController.HasPages}">
-        <Button Classes="icon small" Command="{Binding FirstPageCommand}" IsEnabled="{Binding PagingController.HasPreviousPage}" ToolTip.Tip="{loc:Loc 'First page'}">
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2" IsVisible="{Binding PagingController.HasPages}">
+        <Button Classes="icon small pager" Command="{Binding FirstPageCommand}" IsEnabled="{Binding PagingController.HasPreviousPage}" ToolTip.Tip="{loc:Loc 'First page'}">
           <ui:FASymbolIcon Symbol="Previous"/>
         </Button>
-        <Button Classes="icon small" Command="{Binding PreviousPageCommand}" IsEnabled="{Binding PagingController.HasPreviousPage}" ToolTip.Tip="{loc:Loc 'Previous page'}">
+        <Button Classes="icon small pager" Command="{Binding PreviousPageCommand}" IsEnabled="{Binding PagingController.HasPreviousPage}" ToolTip.Tip="{loc:Loc 'Previous page'}">
           <ui:FASymbolIcon Symbol="ChevronLeft"/>
         </Button>
         <ItemsControl ItemsSource="{Binding PageButtons}">
@@ -26,15 +26,15 @@
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Button Classes="icon small" Command="{Binding NextPageCommand}" IsEnabled="{Binding PagingController.HasNextPage}" ToolTip.Tip="{loc:Loc 'Next page'}">
+        <Button Classes="icon small pager" Command="{Binding NextPageCommand}" IsEnabled="{Binding PagingController.HasNextPage}" ToolTip.Tip="{loc:Loc 'Next page'}">
           <ui:FASymbolIcon Symbol="ChevronRight"/>
         </Button>
-        <Button Classes="icon small" Command="{Binding LastPageCommand}" IsEnabled="{Binding PagingController.HasNextPage}" ToolTip.Tip="{loc:Loc 'Last page'}">
+        <Button Classes="icon small pager" Command="{Binding LastPageCommand}" IsEnabled="{Binding PagingController.HasNextPage}" ToolTip.Tip="{loc:Loc 'Last page'}">
           <ui:FASymbolIcon Symbol="Next"/>
         </Button>
       </StackPanel>
 
-      <ToggleButton Grid.Column="2" Classes="icon small" Margin="8,0,0,0" IsChecked="{Binding InfiniteScroll, Mode=OneWay}"
+      <ToggleButton Grid.Column="2" Classes="icon small pager" Margin="8,0,0,0" IsChecked="{Binding InfiniteScroll, Mode=OneWay}"
                     Command="{Binding ToggleInfiniteScrollCommand}" ToolTip.Tip="{loc:Loc 'Show all items without paging'}">
         <ui:FASymbolIcon Symbol="ViewAll"/>
       </ToggleButton>

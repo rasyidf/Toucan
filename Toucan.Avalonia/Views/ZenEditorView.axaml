@@ -5,23 +5,27 @@
              xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:c="using:Toucan.Avalonia.Views.Components">
   <DockPanel Background="{DynamicResource EditorBackgroundBrush}">
-    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,*" Margin="16,12">
-      <TextBlock Text="{loc:Loc 'Zen mode'}" Classes="caption" VerticalAlignment="Center"/>
-      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
-        <Button Classes="icon" Command="{Binding FocusedPreviousCommand}" ToolTip.Tip="{loc:Loc 'Previous (K or ↑)'}">
-          <ui:FASymbolIcon Symbol="ChevronLeft"/>
-        </Button>
-        <TextBlock Text="{Binding FocusedPositionText}" VerticalAlignment="Center" MinWidth="80" TextAlignment="Center"/>
-        <Button Classes="icon" Command="{Binding FocusedNextCommand}" ToolTip.Tip="{loc:Loc 'Next (J or ↓)'}">
-          <ui:FASymbolIcon Symbol="ChevronRight"/>
-        </Button>
-      </StackPanel>
-      <Button Grid.Column="2" HorizontalAlignment="Right" Classes="link" Content="{loc:Loc 'Exit zen mode (Esc)'}" Command="{Binding ToggleZenModeCommand}"/>
-    </Grid>
+    <!-- Header sits at title-bar height; its left padding is set from code so it clears the macOS traffic lights. -->
+    <Border x:Name="Header" DockPanel.Dock="Top" MinHeight="38" Padding="16,0"
+            BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
+      <Grid ColumnDefinitions="*,Auto,*" VerticalAlignment="Center">
+        <TextBlock Text="{loc:Loc 'Zen mode'}" Classes="caption" VerticalAlignment="Center"/>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+          <Button Classes="icon small" Command="{Binding FocusedPreviousCommand}" ToolTip.Tip="{loc:Loc 'Previous (K or ↑)'}">
+            <ui:FASymbolIcon Symbol="ChevronLeft"/>
+          </Button>
+          <TextBlock Text="{Binding FocusedPositionText}" VerticalAlignment="Center" MinWidth="80" TextAlignment="Center" FontSize="12"/>
+          <Button Classes="icon small" Command="{Binding FocusedNextCommand}" ToolTip.Tip="{loc:Loc 'Next (J or ↓)'}">
+            <ui:FASymbolIcon Symbol="ChevronRight"/>
+          </Button>
+        </StackPanel>
+        <Button Grid.Column="2" HorizontalAlignment="Right" Classes="bulk" Content="{loc:Loc 'Exit zen mode (Esc)'}" Command="{Binding ToggleZenModeCommand}"/>
+      </Grid>
+    </Border>
     <TextBlock DockPanel.Dock="Bottom" Classes="hint" HorizontalAlignment="Center" Margin="0,0,0,16"
                Text="{loc:Loc 'J / K or ↓ / ↑ to move between keys when no field is focused'}"/>
     <ScrollViewer>
-      <c:TranslationCard DataContext="{Binding ZenCurrentItem}" MaxWidth="820" Margin="24,32"/>
+      <c:TranslationCard DataContext="{Binding ZenCurrentItem}" MaxWidth="820" Margin="24,32" VerticalAlignment="Top"/>
     </ScrollViewer>
   </DockPanel>
 </UserControl>

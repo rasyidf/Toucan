@@ -2,25 +2,39 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="using:FluentAvalonia.UI.Controls">
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:conv="using:Toucan.Avalonia.Converters">
 
   <DockPanel>
-    <!-- Hidden namespaces notice -->
-    <Border DockPanel.Dock="Bottom" Padding="12,6" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0"
+    <!-- Hidden namespaces: collapsible footer -->
+    <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0"
             IsVisible="{Binding HiddenNamespaces.Count}">
-      <Expander Header="{loc:Loc 'Hidden namespaces'}" Padding="0">
-        <ItemsControl ItemsSource="{Binding HiddenNamespaces}">
+      <StackPanel>
+        <ToggleButton x:Name="HiddenToggle" Classes="row" IsChecked="False" Padding="12,8" CornerRadius="0"
+                      HorizontalContentAlignment="Stretch">
+          <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+            <ui:FASymbolIcon Symbol="View" FontSize="13" Foreground="{DynamicResource MutedTextBrush}" Margin="0,0,8,0"/>
+            <TextBlock Grid.Column="1" Text="{loc:Loc 'Hidden namespaces'}" FontSize="12" VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis"/>
+            <Border Grid.Column="2" Classes="badge" Margin="8,0">
+              <TextBlock Text="{Binding HiddenNamespaces.Count}"/>
+            </Border>
+            <ui:FASymbolIcon Grid.Column="3" FontSize="11" Foreground="{DynamicResource MutedTextBrush}"
+                             Symbol="{Binding #HiddenToggle.IsChecked, Converter={x:Static conv:ExpanderChevronConverter.Instance}}"/>
+          </Grid>
+        </ToggleButton>
+        <ItemsControl ItemsSource="{Binding HiddenNamespaces}" IsVisible="{Binding #HiddenToggle.IsChecked}" Margin="12,0,12,8">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <DockPanel Margin="0,2">
-                <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Show'}"
-                        Command="{Binding $parent[UserControl].DataContext.UnhideNamespaceCommand}" CommandParameter="{Binding}"/>
+              <Grid ColumnDefinitions="*,Auto" MinHeight="28">
                 <TextBlock Text="{Binding}" Classes="mono caption" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-              </DockPanel>
+                <Button Grid.Column="1" Classes="link" Content="{loc:Loc 'Show'}" VerticalAlignment="Center"
+                        Command="{Binding $parent[UserControl].DataContext.UnhideNamespaceCommand}" CommandParameter="{Binding}"/>
+              </Grid>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
-      </Expander>
+      </StackPanel>
     </Border>
 
     <Panel>

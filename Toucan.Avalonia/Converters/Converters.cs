@@ -96,3 +96,31 @@ public sealed class StatusBrushConverter : IValueConverter
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotSupportedException();
 }
+
+/// <summary>
+/// Visibility of a Settings page: the selected one normally, or every page that has matches while searching.
+/// Values: selected index, is searching, per-page match flags. Parameter: this page's index.
+/// </summary>
+public sealed class SettingsPageVisibleConverter : IMultiValueConverter
+{
+    public static SettingsPageVisibleConverter Instance { get; } = new();
+
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (parameter is null || !int.TryParse(parameter.ToString(), CultureInfo.InvariantCulture, out var page)) return false;
+        var searching = values.Count > 1 && values[1] is true;
+        if (!searching) return values.Count > 0 && values[0] is int selected && selected == page;
+        return values.Count > 2 && values[2] is IReadOnlyList<bool> matches && page < matches.Count && matches[page];
+    }
+}
+
+/// <summary>Collapsed/expanded flag → chevron symbol.</summary>
+public sealed class ExpanderChevronConverter : IValueConverter
+{
+    public static ExpanderChevronConverter Instance { get; } = new();
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is true ? FASymbol.ChevronUp : FASymbol.ChevronDown;
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotSupportedException();
+}

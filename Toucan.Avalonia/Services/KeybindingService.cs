@@ -43,6 +43,7 @@ internal static class KeybindingService
         new("Find", "Search & Replace", Key.F, Primary | KeyModifiers.Shift, vm => vm.OpenSearchPanelCommand),
         new("Find", "Next Page", Key.F3, KeyModifiers.None, vm => vm.NextPageCommand),
         new("Find", "Clear Filter", Key.Escape, KeyModifiers.None, vm => vm.ClearFilterCommand, SkipInTextBox: true),
+        new("View", "Command Palette", Key.P, Primary | KeyModifiers.Shift, vm => vm.ToggleCommandPaletteCommand),
         new("View", "Toggle Left Panel", Key.B, Primary, _ => PanelService.Instance.ToggleSidebarCommand),
         new("View", "Toggle Right Panel", Key.B, Primary | KeyModifiers.Alt, _ => PanelService.Instance.ToggleInspectorCommand),
         new("View", "Focused Editor", Key.E, Primary, vm => vm.ToggleFocusedEditorCommand),
@@ -96,6 +97,14 @@ internal static class KeybindingService
     /// <summary>Bare-key navigation (J/K, arrows) in Zen and Focused modes, when no text box has focus.</summary>
     public static void HandleZenKeys(Window window, KeyEventArgs e, MainWindowViewModel vm)
     {
+        // The command palette owns Escape while it is open, whatever has focus.
+        if (vm.IsCommandPaletteOpen && e.Key == Key.Escape)
+        {
+            vm.IsCommandPaletteOpen = false;
+            e.Handled = true;
+            return;
+        }
+
         if (vm.ZenMode && e.Key == Key.Escape)
         {
             vm.ToggleZenModeCommand.Execute(null);

@@ -37,6 +37,7 @@
           <SolidColorBrush x:Key="FaintTextBrush" Color="#8F8F8F"/>
           <SolidColorBrush x:Key="HoverBackgroundBrush" Color="#0F000000"/>
           <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="#1A0097A7"/>
+          <SolidColorBrush x:Key="SubtleHoverBrush" Color="#0F000000"/>
           <SolidColorBrush x:Key="StatusBarBackgroundBrush" Color="#0097A7"/>
           <SolidColorBrush x:Key="StatusBarForegroundBrush" Color="#FFFFFF"/>
           <SolidColorBrush x:Key="BadgeBackgroundBrush" Color="#EDEDED"/>
@@ -56,6 +57,7 @@
           <SolidColorBrush x:Key="FaintTextBrush" Color="#7A7A7A"/>
           <SolidColorBrush x:Key="HoverBackgroundBrush" Color="#14FFFFFF"/>
           <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="#2626C6DA"/>
+          <SolidColorBrush x:Key="SubtleHoverBrush" Color="#14FFFFFF"/>
           <SolidColorBrush x:Key="StatusBarBackgroundBrush" Color="#006D7A"/>
           <SolidColorBrush x:Key="StatusBarForegroundBrush" Color="#FFFFFF"/>
           <SolidColorBrush x:Key="BadgeBackgroundBrush" Color="#333333"/>

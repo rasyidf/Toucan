@@ -53,7 +53,7 @@ Platform-agnostic library containing all business logic:
 - **Services** — implementations: strategy factory, project lifecycle, translation management, validation, TM, audit, auto-save, fuzzy search
 - **Format Engine** — 14 load strategies + 14 save strategies, identified by string format ID (`json`, `android-xml`, …). Each save strategy also owns the format's layout conventions (see below).
 - **Framework Profiles** — 8 auto-detection profiles (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, Generic JSON)
-- **Translation Providers** — Google, DeepL, Microsoft, OpenAI, Custom Webhook, Mock; each carries its own settings definition
+- **Translation Providers** — Google, DeepL, Microsoft, OpenAI, Claude, Gemini, Custom Webhook, Mock; each carries its own settings definition
 - **Validation** — 6 rules + pipeline
 - **Plugins** — `PluginHost` (discovery, isolated load contexts, registration), trust policy store, content hasher, signature seam (see [Plugin System](#plugin-system))
 
@@ -438,6 +438,8 @@ A **save strategy owns the format's layout conventions**, so nothing else switch
 | `DeepLTranslationProvider` | DeepL API (free + pro endpoints) |
 | `MicrosoftTranslationProvider` | Microsoft Translator |
 | `OpenAITranslationProvider` | OpenAI chat completions |
+| `ClaudeTranslationProvider` | Anthropic Messages API (shares batching and parsing with Gemini in `LlmTranslationProvider`) |
+| `GeminiTranslationProvider` | Google Gemini `generateContent` |
 | `CustomWebhookTranslationProvider` | User-defined HTTP endpoint |
 | `MockTranslationProvider` | Testing (prefixes value with `[MOCK]`) |
 
@@ -559,7 +561,7 @@ Toucan/                              Solution root
 └── docs/
     ├── ARCHITECTURE.md              ← this file
     ├── plugins.md                   Plugin author guide
-    ├── completed-features.md        Shipped features (v0.18.0 macOS/Linux, v0.17.3 Windows)
+    ├── completed-features.md        Shipped features (v0.19.0 Avalonia on all platforms; v0.17.3 was the last WPF release)
     ├── known-bugs.md                Active bug tracker
     ├── ui-revamp-plan.md            UI redesign plan
     ├── branding.md                  Brand guidelines
@@ -569,7 +571,7 @@ Toucan/                              Solution root
     ├── toucan.project.schema.json   JSON Schema for project files
     ├── index.html                   Website (toucan.rasyid.dev), self-contained HTML
     ├── todos/
-    │   ├── future-roadmap.md        Roadmap: v0.19 → v1.0, then post-1.0 plans
+    │   ├── future-roadmap.md        Roadmap: v0.20 → v1.0, then post-1.0 plans
     │   ├── panel-extension-plan.md  Inspector panel extension plan
     │   ├── plugin-system-plan.md    Plugin system plan and implementation log
     │   └── ui-polish-plan.md        UI polish items

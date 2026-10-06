@@ -2,7 +2,8 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="using:FluentAvalonia.UI.Controls">
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:c="using:Toucan.Avalonia.Views.Components">
   <Panel>
     <StackPanel IsVisible="{Binding !HasSelectedKeyDetails}" Margin="16,24" Spacing="6">
       <ui:FASymbolIcon Symbol="Tag" FontSize="28" Foreground="{DynamicResource FaintTextBrush}" HorizontalAlignment="Left"/>
@@ -10,95 +11,110 @@
     </StackPanel>
 
     <ScrollViewer IsVisible="{Binding HasSelectedKeyDetails}">
-      <StackPanel Margin="12,4,12,12">
-        <TextBlock Text="{loc:Loc 'KEY'}" Classes="section"/>
-        <DockPanel>
-          <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="{loc:Loc 'Copy key'}"
-                  Command="{Binding CopyKeyCommand}" CommandParameter="{Binding SelectedKeyNamespace}">
-            <ui:FASymbolIcon Symbol="Copy"/>
-          </Button>
-          <SelectableTextBlock Text="{Binding SelectedKeyNamespace}" Classes="mono" FontSize="12" TextWrapping="Wrap"/>
-        </DockPanel>
-        <WrapPanel Margin="0,6,0,0">
-          <Button Classes="link" Content="{loc:Loc 'Translate empty'}" Command="{Binding TranslateSelectedKeyCommand}"/>
-          <Button Classes="link" Content="{loc:Loc 'Plural forms'}" Command="{Binding GeneratePluralFormsCommand}"/>
-          <Button Classes="link" Content="{loc:Loc 'Gender forms'}" Command="{Binding GenerateGenderFormsCommand}"/>
-        </WrapPanel>
+      <StackPanel Margin="10,10,10,12">
 
-        <TextBlock Text="{loc:Loc 'LANGUAGES'}" Classes="section"/>
-        <ItemsControl ItemsSource="{Binding SelectedKeyLanguages}">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <Grid ColumnDefinitions="56,*,Auto" Margin="0,2">
-                <TextBlock Text="{Binding Language}" FontWeight="SemiBold" FontSize="12"/>
-                <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="12" TextTrimming="CharacterEllipsis" Classes="caption" Margin="0,0,6,0"/>
-                <TextBlock Grid.Column="2" Text="{Binding Status}" FontSize="11" Foreground="{Binding Status, Converter={StaticResource StatusBrush}}"/>
-              </Grid>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <!-- Key and quick actions -->
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'KEY'}">
+          <StackPanel Margin="10,8" Spacing="8">
+            <Grid ColumnDefinitions="*,Auto">
+              <SelectableTextBlock Text="{Binding SelectedKeyNamespace}" Classes="mono" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"/>
+              <Button Grid.Column="1" Classes="icon small" ToolTip.Tip="{loc:Loc 'Copy key'}" VerticalAlignment="Top"
+                      Command="{Binding CopyKeyCommand}" CommandParameter="{Binding SelectedKeyNamespace}">
+                <ui:FASymbolIcon Symbol="Copy"/>
+              </Button>
+            </Grid>
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="6" ColumnSpacing="6">
+              <Button Grid.ColumnSpan="2" Content="{loc:Loc 'Translate empty'}" Command="{Binding TranslateSelectedKeyCommand}" Classes="inspectorAction"/>
+              <Button Grid.Row="1" Content="{loc:Loc 'Plural forms'}" Command="{Binding GeneratePluralFormsCommand}" Classes="inspectorAction"/>
+              <Button Grid.Row="1" Grid.Column="1" Content="{loc:Loc 'Gender forms'}" Command="{Binding GenerateGenderFormsCommand}" Classes="inspectorAction"/>
+            </Grid>
+          </StackPanel>
+        </c:SettingsGroup>
 
-        <StackPanel IsVisible="{Binding SelectedKeyComment, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-          <TextBlock Text="{loc:Loc 'COMMENT'}" Classes="section"/>
-          <TextBlock Text="{Binding SelectedKeyComment}" TextWrapping="Wrap" FontSize="12"/>
-        </StackPanel>
-
-        <StackPanel IsVisible="{Binding HasMemoryMatches}">
-          <TextBlock Text="{loc:Loc 'TRANSLATION MEMORY'}" Classes="section"/>
-          <ItemsControl ItemsSource="{Binding MemoryMatches}">
+        <!-- Per-language values -->
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'LANGUAGES'}">
+          <ItemsControl Classes="rows" ItemsSource="{Binding SelectedKeyLanguages}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Button Classes="row" Padding="6,4" ToolTip.Tip="{loc:Loc 'Insert into the focused field'}"
-                        Command="{Binding $parent[UserControl].DataContext.InsertSuggestionCommand}" CommandParameter="{Binding Text}">
-                  <StackPanel>
-                    <DockPanel>
-                      <Border DockPanel.Dock="Left" Classes="badge" Margin="0,0,6,0"><TextBlock Text="{Binding Label}"/></Border>
-                      <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="12"/>
-                    </DockPanel>
-                    <TextBlock Text="{Binding Detail}" Classes="hint" MaxLines="1" TextTrimming="CharacterEllipsis"/>
-                  </StackPanel>
-                </Button>
+                <Border Classes="itemRow" Padding="10,6">
+                  <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Border Classes="langBadge" Margin="0,0,10,0" VerticalAlignment="Center"><TextBlock Text="{Binding Language}"/></Border>
+                    <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="12" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                               Margin="0,0,8,0" ToolTip.Tip="{Binding Value}"/>
+                    <TextBlock Grid.Column="2" Text="{Binding Status}" FontSize="11" VerticalAlignment="Center"
+                               Foreground="{Binding Status, Converter={StaticResource StatusBrush}}"/>
+                  </Grid>
+                </Border>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-        </StackPanel>
+        </c:SettingsGroup>
 
-        <StackPanel IsVisible="{Binding HasSuggestions}">
-          <TextBlock Text="{loc:Loc 'SIMILAR KEYS'}" Classes="section"/>
-          <ItemsControl ItemsSource="{Binding Suggestions}">
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'COMMENT'}"
+                         IsVisible="{Binding SelectedKeyComment, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+          <SelectableTextBlock Text="{Binding SelectedKeyComment}" TextWrapping="Wrap" FontSize="12" Margin="10,8"/>
+        </c:SettingsGroup>
+
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'TRANSLATION MEMORY'}" IsVisible="{Binding HasMemoryMatches}">
+          <ItemsControl Classes="rows" ItemsSource="{Binding MemoryMatches}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Button Classes="row" Padding="6,4" ToolTip.Tip="{loc:Loc 'Go to key'}"
-                        Command="{Binding $parent[UserControl].DataContext.RevealKeyCommand}" CommandParameter="{Binding Label}">
-                  <StackPanel>
-                    <TextBlock Text="{Binding Label}" Classes="mono caption" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="12" MaxLines="2"/>
-                    <TextBlock Text="{Binding Detail}" Classes="hint"/>
-                  </StackPanel>
-                </Button>
+                <Border Classes="itemRow" Padding="0">
+                  <Button Classes="row" Padding="10,7" CornerRadius="0" ToolTip.Tip="{loc:Loc 'Insert into the focused field'}"
+                          Command="{Binding $parent[UserControl].DataContext.InsertSuggestionCommand}" CommandParameter="{Binding Text}">
+                    <StackPanel Spacing="2">
+                      <DockPanel>
+                        <Border DockPanel.Dock="Left" Classes="langBadge" Margin="0,0,8,0" VerticalAlignment="Top"><TextBlock Text="{Binding Label}"/></Border>
+                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="12" VerticalAlignment="Center"/>
+                      </DockPanel>
+                      <TextBlock Text="{Binding Detail}" Classes="hint" MaxLines="1" TextTrimming="CharacterEllipsis" Margin="0"/>
+                    </StackPanel>
+                  </Button>
+                </Border>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-        </StackPanel>
+        </c:SettingsGroup>
 
-        <StackPanel IsVisible="{Binding HasSelectedKeyUsages}">
-          <TextBlock Text="{loc:Loc 'USED IN SOURCE'}" Classes="section"/>
-          <ItemsControl ItemsSource="{Binding SelectedKeyUsages}">
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'SIMILAR KEYS'}" IsVisible="{Binding HasSuggestions}">
+          <ItemsControl Classes="rows" ItemsSource="{Binding Suggestions}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Button Classes="row" Padding="6,4" ToolTip.Tip="{Binding LineContent}"
-                        Command="{Binding $parent[UserControl].DataContext.OpenUsageCommand}" CommandParameter="{Binding}">
-                  <TextBlock Classes="mono" FontSize="11" TextTrimming="PathSegmentEllipsis">
-                    <Run Text="{Binding FilePath}"/><Run Text=":"/><Run Text="{Binding Line}"/>
-                  </TextBlock>
-                </Button>
+                <Border Classes="itemRow" Padding="0">
+                  <Button Classes="row" Padding="10,7" CornerRadius="0" ToolTip.Tip="{loc:Loc 'Go to key'}"
+                          Command="{Binding $parent[UserControl].DataContext.RevealKeyCommand}" CommandParameter="{Binding Label}">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="{Binding Label}" Classes="mono caption" TextTrimming="CharacterEllipsis"/>
+                      <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="12" MaxLines="2"/>
+                      <TextBlock Text="{Binding Detail}" Classes="hint" Margin="0"/>
+                    </StackPanel>
+                  </Button>
+                </Border>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-        </StackPanel>
+        </c:SettingsGroup>
 
-        <TextBlock Text="{loc:Loc 'HISTORY'}" Classes="section"/>
-        <TextBlock Text="{Binding SelectedKeyAuditInfo}" Classes="caption" TextWrapping="Wrap"/>
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'USED IN SOURCE'}" IsVisible="{Binding HasSelectedKeyUsages}">
+          <ItemsControl Classes="rows" ItemsSource="{Binding SelectedKeyUsages}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Classes="itemRow" Padding="0">
+                  <Button Classes="row" Padding="10,7" CornerRadius="0" ToolTip.Tip="{Binding LineContent}"
+                          Command="{Binding $parent[UserControl].DataContext.OpenUsageCommand}" CommandParameter="{Binding}">
+                    <TextBlock Classes="mono" FontSize="11" TextTrimming="PathSegmentEllipsis">
+                      <Run Text="{Binding FilePath}"/><Run Text=":"/><Run Text="{Binding Line}"/>
+                    </TextBlock>
+                  </Button>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </c:SettingsGroup>
+
+        <c:SettingsGroup Classes="compact" Margin="0" Header="{loc:Loc 'HISTORY'}">
+          <SelectableTextBlock Text="{Binding SelectedKeyAuditInfo}" FontSize="12" Foreground="{DynamicResource MutedTextBrush}" TextWrapping="Wrap" Margin="10,8"/>
+        </c:SettingsGroup>
       </StackPanel>
     </ScrollViewer>
   </Panel>

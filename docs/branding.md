@@ -10,7 +10,7 @@
 
 It combines the speed of a modern IDE with the completeness of a localization platform — offline-first, format-agnostic, and AI-assisted.
 
-Release status: preview until 1.0. Current releases: v0.18.1 (macOS, Linux) and v0.17.3 (Windows). Say "preview" wherever a version or download is offered.
+Release status: preview until 1.0. Current release: v0.19.0 (Windows, macOS, Linux). The WPF app is deprecated (last release v0.17.3). Say "preview" wherever a version or download is offered.
 
 Platforms: Windows (WPF app), macOS and Linux (Avalonia app), and the `toucan` CLI.
 
@@ -215,7 +215,7 @@ Fast · Predictable · Dense · Keyboard-driven · Offline-first · Search-first
 |------|---------|--------|
 | Toucan CLI | `toucan check`, `toucan translate`, `toucan export` | Preview, shipped since v0.15 |
 | Toucan SDK | Plugin system for custom formats/providers/rules | Preview since v0.18.0 (`Toucan.Plugins.Abstractions`) |
-| Toucan AI | ConsistencyAI, quality scoring, tone enforcement | Planned (ConsistencyAI in v0.20) |
+| Toucan AI | ConsistencyAI, quality scoring, tone enforcement | Planned (ConsistencyAI in v0.21) |
 | Toucan Hub | Collaboration server (locking, presence) | After 1.0 |
 
 ---

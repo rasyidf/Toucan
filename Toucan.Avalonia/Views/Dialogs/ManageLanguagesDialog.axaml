@@ -21,6 +21,9 @@
       <DockPanel>
         <TextBlock DockPanel.Dock="Top" Text="{loc:Loc 'Project languages'}" Classes="dialogTitle" FontSize="16" Margin="0,0,0,8"/>
         <Border Classes="card" Padding="2">
+          <Panel>
+          <TextBlock Text="{loc:Loc 'No languages yet.'}" Classes="caption" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,24"
+                     IsVisible="{Binding !Languages.Count}"/>
           <ListBox Classes="plain" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}">
             <ListBox.ItemTemplate>
               <DataTemplate>
@@ -55,6 +58,7 @@
               </DataTemplate>
             </ListBox.ItemTemplate>
           </ListBox>
+          </Panel>
         </Border>
       </DockPanel>
 

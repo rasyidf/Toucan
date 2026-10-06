@@ -47,6 +47,8 @@ public partial class MainWindow : Window
         if (PlatformService.IsMacOS) UseUnifiedTitleBar();
 
         MainMenu.Attach(this, _vm, MenuHost);
+        Palette.CommandSource = () => MainMenu.PaletteCommands(this, _vm);
+        PaletteShortcut.Text = KeybindingService.GestureFor("Command Palette")?.ToString("p", null);
         KeybindingService.Apply(this, _vm, MainMenu.NativeGestures);
         AddHandler(KeyDownEvent, (_, e) => KeybindingService.HandleZenKeys(this, e, _vm), RoutingStrategies.Tunnel);
 
@@ -76,8 +78,13 @@ public partial class MainWindow : Window
 
         const double TrafficLightInset = 78;
         TopBar.MinHeight = 38;
-        void UpdateInset() => TopBar.Padding = new Thickness(
-            WindowState == WindowState.FullScreen ? 0 : TrafficLightInset, 0, 0, 0); // lights are hidden in fullscreen
+        void UpdateInset()
+        {
+            var inset = WindowState == WindowState.FullScreen ? 0 : TrafficLightInset; // lights are hidden in fullscreen
+            TopBar.Padding = new Thickness(inset, 0, 0, 0);
+            ZenView.SetTitleBarInset(inset); // Zen mode covers the top bar, so it needs the same clearance
+            PalettePill.Margin = new Thickness(0, 0, inset, 0); // the inset shifts the bar's grid right; offset it so the pill sits at the window's center
+        }
         UpdateInset();
         PropertyChanged += (_, e) => { if (e.Property == WindowStateProperty) UpdateInset(); };
     }

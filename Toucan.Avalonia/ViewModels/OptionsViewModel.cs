@@ -49,6 +49,24 @@ public partial class OptionsViewModel : ObservableObject
     public static IReadOnlyList<string> Pages { get; } =
         ["General", "Appearance", "Editor", "Translation", "Validation", "Translation Memory", "Source Code", "Languages", "Shortcuts", "Integration", "Data & Privacy", "Plugins", "About"];
 
+    /// <summary>Sidebar entries, in the same order as <see cref="Pages"/>: title, icon and tile color.</summary>
+    public static IReadOnlyList<SettingsNavEntry> NavEntries { get; } =
+    [
+        new("General", "Settings", "#8E8E93"),
+        new("Appearance", "DarkTheme", "#5856D6"),
+        new("Editor", "Edit", "#007AFF"),
+        new("Translation", "Character", "#34C759"),
+        new("Validation", "Accept", "#FF9500"),
+        new("Translation Memory", "Library", "#AF52DE"),
+        new("Source Code", "CodeHTML", "#5AC8FA"),
+        new("Languages", "Globe", "#0A84FF"),
+        new("Shortcuts", "Keyboard", "#636366"),
+        new("Integration", "Link", "#30B0C7"),
+        new("Data & Privacy", "Permissions", "#FF3B30"),
+        new("Plugins", "AllApps", "#FF2D55"),
+        new("About", "Help", "#8E8E93"),
+    ];
+
     public int PageIndexOf(string page) => Pages.ToList().IndexOf(page);
 
     /// <summary>Index of the Plugins page in <see cref="Pages"/>.</summary>
@@ -61,6 +79,15 @@ public partial class OptionsViewModel : ObservableObject
 
     /// <summary>Set once a plugin was trusted, revoked, enabled or disabled; those take effect after a restart.</summary>
     [ObservableProperty] private bool pluginsChanged;
+
+    /// <summary>Text typed in the settings search box. Filtering itself happens in the dialog, which knows the rendered rows.</summary>
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSearching), nameof(HasNoSearchResults))] private string searchText = string.Empty;
+
+    /// <summary>Per page: does it contain a matching setting? Set by the dialog.</summary>
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasNoSearchResults))] private IReadOnlyList<bool>? searchMatches;
+
+    public bool IsSearching => !string.IsNullOrWhiteSpace(SearchText);
+    public bool HasNoSearchResults => IsSearching && SearchMatches is { } m && !m.Contains(true);
 
     // ───────────────────────── System integration ─────────────────────────
 
@@ -113,6 +140,10 @@ public partial class OptionsViewModel : ObservableObject
     ];
 
     public IReadOnlyList<KeybindingEntry> Shortcuts { get; } = KeybindingService.GetDefinitions();
+
+    /// <summary>Shortcuts grouped by category for the grouped-list layout.</summary>
+    public IReadOnlyList<ShortcutGroup> ShortcutGroups { get; } =
+        KeybindingService.GetDefinitions().GroupBy(k => k.Category).Select(g => new ShortcutGroup(g.Key, g.ToList())).ToList();
 
     [ObservableProperty] private int selectedPageIndex;
 
@@ -436,3 +467,11 @@ public partial class ValidationRuleOption(string id, string label) : ObservableO
     [ObservableProperty] private bool enabled = true;
     [ObservableProperty] private string severity = "Warning";
 }
+
+/// <summary>A settings sidebar entry: page title, <c>FASymbol</c> name and the tile color behind the icon.</summary>
+public sealed record SettingsNavEntry(string Title, string Icon, string Color)
+{
+    public global::Avalonia.Media.IBrush TileBrush { get; } = global::Avalonia.Media.Brush.Parse(Color);
+}
+
+public sealed record ShortcutGroup(string Category, IReadOnlyList<KeybindingEntry> Items);

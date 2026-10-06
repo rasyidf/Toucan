@@ -32,13 +32,11 @@
           </DockPanel>
         </StackPanel>
       </Grid>
-      <Grid ColumnDefinitions="*,Auto">
-        <ComboBox ItemsSource="{x:Static vm:MainWindowViewModel.SearchScopes}" SelectedIndex="{Binding SearchScopeIndex}" HorizontalAlignment="Stretch"/>
-        <Button Grid.Column="1" Content="{loc:Loc 'Search'}" Classes="accent" Margin="6,0,0,0" Command="{Binding ExecuteSearchCommand}"/>
-      </Grid>
+      <ComboBox ItemsSource="{x:Static vm:MainWindowViewModel.SearchScopes}" SelectedIndex="{Binding SearchScopeIndex}" HorizontalAlignment="Stretch"/>
       <ComboBox ItemsSource="{Binding LanguageVisibilityFilter}" SelectedValue="{Binding SearchLanguage}" SelectedValueBinding="{Binding Language}"
                 DisplayMemberBinding="{Binding Language}" HorizontalAlignment="Stretch"
                 IsVisible="{Binding IsLanguageScope}" PlaceholderText="{loc:Loc 'Language'}"/>
+      <Button Content="{loc:Loc 'Search'}" Classes="accent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Command="{Binding ExecuteSearchCommand}"/>
       <TextBlock Text="{Binding SearchStatus}" Classes="caption"/>
     </StackPanel>
 

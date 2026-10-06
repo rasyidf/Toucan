@@ -48,9 +48,12 @@ public partial class PluginItemViewModel : ObservableObject
 
     [ObservableProperty] private bool isEnabled;
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanTrust), nameof(CanRevoke))] private bool trusted;
-    [ObservableProperty] private string statusText = string.Empty;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsGood), nameof(IsWarn), nameof(IsBad))] private string statusText = string.Empty;
     [ObservableProperty] private string note = string.Empty;
 
+    public bool IsGood => StatusText.StartsWith("Loaded", StringComparison.Ordinal) || StatusText.StartsWith("Trusted", StringComparison.Ordinal);
+    public bool IsWarn => StatusText.StartsWith("Not trusted", StringComparison.Ordinal) || StatusText.StartsWith("Changed", StringComparison.Ordinal);
+    public bool IsBad => StatusText.StartsWith("Failed", StringComparison.Ordinal) || StatusText.StartsWith("Rejected", StringComparison.Ordinal);
     public bool HasDescription => Description.Length > 0;
     public bool HasAuthor => Author.Length > 0;
     public bool HasProvides => ProvidesText.Length > 0;

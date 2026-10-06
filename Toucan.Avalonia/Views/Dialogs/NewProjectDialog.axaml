@@ -4,7 +4,8 @@
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
                 xmlns:ui="using:FluentAvalonia.UI.Controls"
-                Title="{loc:Loc 'New Project'}" Width="720" Height="600" MinHeight="480">
+                xmlns:c="using:Toucan.Avalonia.Views.Components"
+                Title="{loc:Loc 'New Project'}" Width="800" Height="680" MinHeight="520">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <DockPanel>
@@ -27,15 +28,17 @@
           <TextBlock Text="{loc:Loc 'New project'}" Classes="dialogTitle"/>
           <TextBlock Text="{loc:Loc 'Pick the framework your app uses. It decides the file format and folder layout.'}" Classes="caption"/>
         </StackPanel>
-        <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
-          <TextBlock Text="{loc:Loc 'Project name'}" Classes="label"/>
-          <TextBox Text="{Binding ProjectName}"/>
-          <TextBlock Text="{loc:Loc 'Location'}" Classes="label"/>
-          <DockPanel>
-            <Button DockPanel.Dock="Right" Content="{loc:Loc 'Browse…'}" Margin="6,0,0,0" Command="{Binding BrowseFolderCommand}"/>
-            <TextBox Text="{Binding ProjectFolder}"/>
-          </DockPanel>
-        </StackPanel>
+        <c:SettingsGroup DockPanel.Dock="Bottom" Margin="0,8,0,0">
+          <StackPanel>
+            <c:SettingsRow Title="{loc:Loc 'Project name'}"><TextBox Text="{Binding ProjectName}" Width="300"/></c:SettingsRow>
+            <c:SettingsRow Title="{loc:Loc 'Location'}">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBox Text="{Binding ProjectFolder}" Width="300"/>
+                <Button Content="{loc:Loc 'Browse…'}" Command="{Binding BrowseFolderCommand}"/>
+              </StackPanel>
+            </c:SettingsRow>
+          </StackPanel>
+        </c:SettingsGroup>
         <ListBox ItemsSource="{Binding Frameworks}" SelectedItem="{Binding SelectedFramework}" Margin="0,12,0,0"
                  Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <ListBox.ItemsPanel>
@@ -44,21 +47,22 @@
           <ListBox.Styles>
             <Style Selector="ListBoxItem">
               <Setter Property="Padding" Value="0"/>
-              <Setter Property="Margin" Value="0,0,8,8"/>
-              <Setter Property="CornerRadius" Value="6"/>
+              <Setter Property="Margin" Value="0,0,10,10"/>
+              <Setter Property="CornerRadius" Value="10"/>
+            </Style>
+            <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+              <Setter Property="Background" Value="Transparent"/>
             </Style>
           </ListBox.Styles>
           <ListBox.ItemTemplate>
             <DataTemplate>
-              <Border Width="146" Height="72" Padding="10,8" CornerRadius="6" BorderThickness="1"
-                      BorderBrush="{DynamicResource CardBorderBrush}">
-                <StackPanel Spacing="2">
-                  <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="{Binding Icon}" FontSize="16"/>
-                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+              <Border Classes="fwTile">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                  <Border Classes="fwBadge" Background="{Binding TileBrush}"><TextBlock Text="{Binding Badge}"/></Border>
+                  <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="{Binding Description}" Classes="caption" TextTrimming="CharacterEllipsis"/>
                   </StackPanel>
-                  <TextBlock Text="{Binding Description}" Classes="caption"/>
-                  <TextBlock Text="{Binding Style}" Classes="hint mono"/>
                 </StackPanel>
               </Border>
             </DataTemplate>
@@ -71,12 +75,15 @@
         <StackPanel DockPanel.Dock="Top" Spacing="4">
           <TextBlock Text="{loc:Loc 'Languages'}" Classes="dialogTitle"/>
           <TextBlock Text="{loc:Loc 'Toucan creates one file per language. You can add more later.'}" Classes="caption"/>
-          <TextBlock Text="{loc:Loc 'Source language'}" Classes="label"/>
-          <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding SourceLanguage}" MinWidth="200"/>
-          <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,12,0,8">
-            <Button Content="{loc:Loc 'Add language…'}" Command="{Binding AddLanguageCommand}"/>
-            <Button Content="{loc:Loc 'Add suggested languages'}" Command="{Binding AddDefaultsCommand}"/>
-          </StackPanel>
+        </StackPanel>
+        <c:SettingsGroup DockPanel.Dock="Top" Margin="0,12,0,12">
+          <c:SettingsRow Title="{loc:Loc 'Source language'}">
+            <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding SourceLanguage}" MinWidth="200"/>
+          </c:SettingsRow>
+        </c:SettingsGroup>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+          <Button Content="{loc:Loc 'Add language…'}" Command="{Binding AddLanguageCommand}"/>
+          <Button Content="{loc:Loc 'Add suggested languages'}" Command="{Binding AddDefaultsCommand}"/>
         </StackPanel>
         <Border Classes="card" Padding="4">
           <ListBox Classes="plain" ItemsSource="{Binding Languages}">

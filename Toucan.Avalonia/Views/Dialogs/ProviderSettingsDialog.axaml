@@ -4,6 +4,7 @@
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
                 xmlns:ui="using:FluentAvalonia.UI.Controls"
+                xmlns:c="using:Toucan.Avalonia.Views.Components"
                 Title="{loc:Loc 'Translation Providers'}" Width="840" Height="600">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
@@ -20,10 +21,12 @@
     <!-- Scope -->
     <Border DockPanel.Dock="Top" Padding="20,16,20,8">
       <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
-          <Button Content="{loc:Loc 'App-wide'}" Command="{Binding LoadAppSettingsCommand}"/>
-          <Button Content="{loc:Loc 'Project…'}" Command="{Binding LoadProjectSettingsCommand}"/>
-        </StackPanel>
+        <Border DockPanel.Dock="Right" Background="{DynamicResource SubtleHoverBrush}" CornerRadius="8" Padding="2" VerticalAlignment="Bottom">
+          <StackPanel Orientation="Horizontal">
+            <Button Classes="segment" Classes.active="{Binding !ProjectScope}" Content="{loc:Loc 'App-wide'}" Command="{Binding LoadAppSettingsCommand}"/>
+            <Button Classes="segment" Classes.active="{Binding ProjectScope}" Content="{loc:Loc 'Project…'}" Command="{Binding LoadProjectSettingsCommand}"/>
+          </StackPanel>
+        </Border>
         <StackPanel Spacing="2">
           <TextBlock Text="{loc:Loc 'Translation providers'}" Classes="dialogTitle"/>
           <TextBlock Classes="caption">
@@ -35,65 +38,80 @@
 
     <Grid ColumnDefinitions="220,*" Margin="20,4,20,16">
       <DockPanel>
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="6" Margin="0,8,0,0">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
           <Button Content="{loc:Loc 'Add custom'}" Command="{Binding AddProviderCommand}"/>
           <Button Content="{loc:Loc 'Remove'}" Command="{Binding RemoveSelectedCommand}"/>
         </StackPanel>
-        <Border Classes="card" Padding="2">
+        <Border Classes="card" Padding="4">
           <ListBox Classes="plain" ItemsSource="{Binding Providers}" SelectedItem="{Binding Selected}">
             <ListBox.ItemTemplate>
               <DataTemplate>
-                <TextBlock Text="{Binding Provider}"/>
+                <TextBlock Text="{Binding Provider}" Margin="4,2"/>
               </DataTemplate>
             </ListBox.ItemTemplate>
           </ListBox>
         </Border>
       </DockPanel>
 
-      <ScrollViewer Grid.Column="1" Margin="16,0,0,0">
+      <ScrollViewer Grid.Column="1" Margin="20,0,0,0">
         <StackPanel IsVisible="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}">
-          <TextBlock Text="{Binding SelectedDefinition.DisplayName, FallbackValue='Custom provider'}" FontSize="16" FontWeight="SemiBold"/>
-          <TextBlock Text="{Binding SelectedDefinition.Description}" Classes="caption" TextWrapping="Wrap" Margin="0,2,0,0"/>
-          <TextBlock Text="{loc:Loc 'Provider name'}" Classes="label"/>
-          <TextBox Text="{Binding Selected.Provider}" IsReadOnly="{Binding SelectedDefinition, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+          <TextBlock Text="{Binding SelectedDefinition.DisplayName, FallbackValue='Custom provider'}" FontSize="18" FontWeight="SemiBold"/>
+          <TextBlock Text="{Binding SelectedDefinition.Description}" Classes="caption" TextWrapping="Wrap" Margin="0,2,0,16"/>
 
-          <DockPanel Margin="0,16,0,4">
-            <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Add option'}" Command="{Binding AddOptionCommand}"/>
-            <TextBlock Text="{loc:Loc 'Options'}" FontWeight="SemiBold"/>
-          </DockPanel>
-          <ItemsControl ItemsSource="{Binding OptionItems}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate>
-                <Grid ColumnDefinitions="160,*,Auto" Margin="0,3">
-                  <TextBox Text="{Binding Key}" IsReadOnly="{Binding IsSchemaField}" Classes="mono" Margin="0,0,6,0"/>
-                  <TextBox Grid.Column="1" Text="{Binding Value}" PlaceholderText="{Binding Hint}"/>
-                  <Button Grid.Column="2" Classes="icon small" IsVisible="{Binding !IsSchemaField}"
-                          Command="{Binding $parent[ItemsControl].DataContext.RemoveOptionCommand}" CommandParameter="{Binding}">
-                    <ui:FASymbolIcon Symbol="Dismiss"/>
-                  </Button>
-                </Grid>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
+          <c:SettingsGroup>
+            <c:SettingsRow Title="{loc:Loc 'Provider name'}">
+              <TextBox Text="{Binding Selected.Provider}" Width="220"
+                       IsReadOnly="{Binding SelectedDefinition, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+            </c:SettingsRow>
+          </c:SettingsGroup>
 
-          <DockPanel Margin="0,16,0,4">
-            <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Add secret'}" Command="{Binding AddSecretCommand}"/>
-            <TextBlock Text="{loc:Loc 'Secrets (stored encrypted)'}" FontWeight="SemiBold"/>
-          </DockPanel>
-          <ItemsControl ItemsSource="{Binding SecretItems}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate>
-                <Grid ColumnDefinitions="160,*,Auto" Margin="0,3">
-                  <TextBox Text="{Binding Key}" IsReadOnly="{Binding IsSchemaField}" Classes="mono" Margin="0,0,6,0"/>
-                  <TextBox Grid.Column="1" Text="{Binding Value}" PasswordChar="•" Classes="revealPasswordButton" PlaceholderText="{Binding Hint}"/>
-                  <Button Grid.Column="2" Classes="icon small" IsVisible="{Binding !IsSchemaField}"
-                          Command="{Binding $parent[ItemsControl].DataContext.RemoveSecretCommand}" CommandParameter="{Binding}">
-                    <ui:FASymbolIcon Symbol="Dismiss"/>
-                  </Button>
-                </Grid>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
+          <c:SettingsGroup Header="{loc:Loc 'Options'}">
+            <StackPanel>
+              <ItemsControl Classes="rows" ItemsSource="{Binding OptionItems}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <c:SettingsRow Stacked="True" Padding="14,8">
+                      <Grid ColumnDefinitions="150,*,Auto">
+                        <TextBox Text="{Binding Key}" IsReadOnly="{Binding IsSchemaField}" Classes="mono" Margin="0,0,8,0"/>
+                        <TextBox Grid.Column="1" Text="{Binding Value}" PlaceholderText="{Binding Hint}"/>
+                        <Button Grid.Column="2" Classes="icon small" Margin="6,0,0,0" IsVisible="{Binding !IsSchemaField}"
+                                Command="{Binding $parent[ItemsControl].DataContext.RemoveOptionCommand}" CommandParameter="{Binding}">
+                          <ui:FASymbolIcon Symbol="Dismiss"/>
+                        </Button>
+                      </Grid>
+                    </c:SettingsRow>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <c:SettingsRow BorderThickness="0,1,0,0" HorizontalContentAlignment="Left">
+                <Button Classes="link" Content="{loc:Loc 'Add option'}" Command="{Binding AddOptionCommand}"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+
+          <c:SettingsGroup Header="{loc:Loc 'Secrets (stored encrypted)'}">
+            <StackPanel>
+              <ItemsControl Classes="rows" ItemsSource="{Binding SecretItems}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <c:SettingsRow Stacked="True" Padding="14,8">
+                      <Grid ColumnDefinitions="150,*,Auto">
+                        <TextBox Text="{Binding Key}" IsReadOnly="{Binding IsSchemaField}" Classes="mono" Margin="0,0,8,0"/>
+                        <TextBox Grid.Column="1" Text="{Binding Value}" PasswordChar="•" Classes="revealPasswordButton" PlaceholderText="{Binding Hint}"/>
+                        <Button Grid.Column="2" Classes="icon small" Margin="6,0,0,0" IsVisible="{Binding !IsSchemaField}"
+                                Command="{Binding $parent[ItemsControl].DataContext.RemoveSecretCommand}" CommandParameter="{Binding}">
+                          <ui:FASymbolIcon Symbol="Dismiss"/>
+                        </Button>
+                      </Grid>
+                    </c:SettingsRow>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <c:SettingsRow BorderThickness="0,1,0,0" HorizontalContentAlignment="Left">
+                <Button Classes="link" Content="{loc:Loc 'Add secret'}" Command="{Binding AddSecretCommand}"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
         </StackPanel>
       </ScrollViewer>
     </Grid>
