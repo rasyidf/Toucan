@@ -10,7 +10,7 @@
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <DockPanel>
-        <TextBlock Text="{Binding StatusMessage}" Classes="caption" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="520"/>
+        <SelectableTextBlock Text="{Binding StatusMessage}" Classes="caption" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="520"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
           <Button Content="{loc:Loc 'Cancel'}" Command="{Binding CancelCommand}"/>
           <Button Content="{loc:Loc 'Apply translations'}" Classes="accent" Command="{Binding CommitCommand}" IsEnabled="{Binding HasPreview}"/>
@@ -68,12 +68,12 @@
           <ListBox.ItemTemplate>
             <DataTemplate>
               <Grid ColumnDefinitions="2*,70,3*,3*">
-                <TextBlock Text="{Binding Namespace}" Classes="mono" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Namespace}" Margin="0,0,8,0"/>
-                <TextBlock Grid.Column="1" Text="{Binding Language}" FontSize="12"/>
-                <TextBlock Grid.Column="2" Text="{Binding SourceText}" FontSize="12" TextWrapping="Wrap" Classes="caption" Margin="0,0,8,0"/>
+                <SelectableTextBlock Text="{Binding Namespace}" Classes="mono" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Namespace}" Margin="0,0,8,0"/>
+                <SelectableTextBlock Grid.Column="1" Text="{Binding Language}" FontSize="12"/>
+                <SelectableTextBlock Grid.Column="2" Text="{Binding SourceText}" FontSize="12" TextWrapping="Wrap" Classes="caption" Margin="0,0,8,0"/>
                 <Panel Grid.Column="3">
-                  <TextBlock Text="{Binding TranslatedValue}" FontSize="12" TextWrapping="Wrap" IsVisible="{Binding Succeeded}"/>
-                  <TextBlock Text="{Binding ErrorMessage}" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource BadBrush}" IsVisible="{Binding !Succeeded}"/>
+                  <SelectableTextBlock Text="{Binding TranslatedValue}" FontSize="12" TextWrapping="Wrap" IsVisible="{Binding Succeeded}"/>
+                  <SelectableTextBlock Text="{Binding ErrorMessage}" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource BadBrush}" IsVisible="{Binding !Succeeded}"/>
                 </Panel>
               </Grid>
             </DataTemplate>
