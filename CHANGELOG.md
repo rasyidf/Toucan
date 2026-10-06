@@ -13,7 +13,7 @@ Command palette, a new title bar, Claude and Gemini translation providers, and a
 - **Screenshot harness** — `TOUCAN_TEST_SCREENSHOTS` renders every window, panel and dialog headlessly; see [docs/visual-review.md](docs/visual-review.md).
 
 ### Changed
-- **Windows** — The Avalonia app (tested on Windows) is the supported app on Windows, macOS and Linux. The WPF app is deprecated; its last release is 0.17.3.
+- **Windows** — The Avalonia app (tested on Windows) is the supported app on Windows, macOS and Linux. The WPF app is deprecated; its last release is 0.17.3. Windows builds ship as a portable x64 zip for now.
 - **UI polish (Avalonia app)** — Settings and Project Properties use a left page list with grouped rows; Settings has a search box that filters individual settings; plugin cards show status, details and actions; New Project, Provider Settings, Statistics, Import and Pre-translate use the same grouped style; the side panels, pager and hidden-namespaces footer are tidied.
 
 ### Fixed
