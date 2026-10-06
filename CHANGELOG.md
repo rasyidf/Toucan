@@ -1,8 +1,8 @@
 # Changelog
 
-## [0.18.0] - 2026-10-01
+## [0.18.1] - 2026-10-06
 
-First macOS and Linux release. The Avalonia app now targets `net10.0` (it targeted `net10.0-windows` before, so no earlier version ran on macOS or Linux). The Windows build of 0.18.0 is not out yet; Windows stays on 0.17.3 until it is.
+Indonesian localization, a Machine Translation panel, `.tproj` file association and a proper macOS installer. Windows stays on 0.17.3.
 
 ### Added
 - **Localization (Avalonia app)** — Menus, panels, dialogs, settings, tooltips, pagination and the status bar are translated to Indonesian (id-ID); choose it under Settings → General → Interface language and restart. Translations are embedded JSON maps keyed by the English text (`Locales/Strings.{culture}.json`), so a missing entry falls back to English, and a test fails when a UI string has no translation. Messages built at run time are still English.
@@ -10,6 +10,20 @@ First macOS and Linux release. The Avalonia app now targets `net10.0` (it target
 - **WPF parity record** — [docs/wpf-parity.md](docs/wpf-parity.md) lists what the Windows app had, what moved, and what was deliberately left behind, so the WPF app can be retired.
 - **Machine Translation panel (Avalonia app)** — Right-hand panel with a provider picker built from the registered providers (plugin providers included, with a "Needs API key" badge), quick actions (translate selected key, fill empty values in view, Pre-translate, provider settings), and the last run's results. The Pre-translate dialog now lists the same registered providers, and the provider chosen there carries over to the panel.
 - **`.tproj` file association (Avalonia app)** — Settings → Integration registers Toucan for `.tproj` files: per-user registry keys on Windows, a `.desktop` file and MIME type on Linux. On Windows it also manages the "Open with Toucan" folder menu entry. `Toucan.app` now declares the type in its Info.plist, and the app opens files that Finder passes to it.
+- **macOS DMG installer** — Releases ship `Toucan-<version>-osx-<arch>.dmg` with the usual drag-to-Applications window, next to the zip. `packaging/build-macos-app.sh` writes it (styled when `create-dmg` is installed, plain `hdiutil` otherwise).
+- **macOS signing and notarization (optional)** — `packaging/build-macos-app.sh` signs with a Developer ID and the hardened runtime when `SIGN_IDENTITY` is set, and notarizes when `NOTARY_PROFILE` is also set. Without them the build is ad-hoc signed as before.
+
+### Fixed
+- **macOS app icon** — `Toucan.app` had no icon and showed as a blank gray item in Finder and the Dock; the build now generates `AppIcon.icns` from the logo.
+
+### Docs
+- First-launch steps for macOS Gatekeeper now match macOS 15: Privacy & Security > Open Anyway, since right-click > Open no longer bypasses it.
+
+## [0.18.0] - 2026-10-01
+
+First macOS and Linux release. The Avalonia app now targets `net10.0` (it targeted `net10.0-windows` before, so no earlier version ran on macOS or Linux). The Windows build of 0.18.0 is not out yet; Windows stays on 0.17.3 until it is.
+
+### Added
 - **Plugin system (preview, Avalonia app and CLI)** — Plugins are .NET assemblies in `Documents/Toucan/plugins/<id>/` with a `plugin.json` manifest. They can add file formats, translation providers, validation rules and framework profiles. See [docs/plugins.md](docs/plugins.md) and `samples/Toucan.Sample.Plugin`.
 - **`Toucan.Plugins.Abstractions`** — Small contract assembly and NuGet package (plugin API 1.0) that plugin authors reference; Toucan supplies it at run time so types match.
 - **Trust model** — Plugins load only when enabled and when you have trusted their exact files (SHA-256 of the plugin folder); changed plugins ask again. Settings → Plugins page, a startup prompt for untrusted plugins, and a signature seam (plugins show "Not signed"; signing becomes mandatory later).

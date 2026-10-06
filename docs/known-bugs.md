@@ -1,6 +1,6 @@
 # Known Issues & Unfinished Features
 
-Last updated: 2026-10-01. Current releases: v0.18.0 for macOS and Linux, v0.17.3 for Windows (preview).
+Last updated: 2026-10-06. Current releases: v0.18.1 for macOS and Linux, v0.17.3 for Windows (preview).
 
 ## Fixed in v0.17.2
 

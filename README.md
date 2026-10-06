@@ -5,13 +5,13 @@
 
 Toucan is a desktop editor for translation files on Windows, macOS, and Linux. It opens 14 formats in one workspace, so you can translate, review, and validate every language file in a project without switching tools.
 
-Toucan is in preview: settings and project files can change between releases until 1.0. Current releases: **v0.18.0** for macOS and Linux (the first release there) and **v0.17.3** for Windows. The Windows build of 0.18.0 is coming. Website: [toucan.rasyid.dev](https://toucan.rasyid.dev).
+Toucan is in preview: settings and project files can change between releases until 1.0. Current releases: **v0.18.1** for macOS and Linux (v0.18.0 was the first release there) and **v0.17.3** for Windows. The Windows build of 0.18.0 is coming. Website: [toucan.rasyid.dev](https://toucan.rasyid.dev).
 
 <img width="878" height="668" alt="Toucan editor with the tree sidebar, translation grid, and inspector panel" src="https://github.com/user-attachments/assets/6c60208e-640a-4fbc-b280-63f5fc856ece" />
 
 ## Quick start
 
-1. Download the build for your platform from [GitHub Releases](https://github.com/rasyidf/Toucan/releases): v0.18.0 for macOS (`Toucan.app`) and Linux (tarball), v0.17.3 for Windows.
+1. Download the build for your platform from [GitHub Releases](https://github.com/rasyidf/Toucan/releases): v0.18.1 for macOS (`Toucan.app` in a DMG or zip) and Linux (tarball), v0.17.3 for Windows.
    macOS: Toucan is free and not signed with a paid Apple Developer ID, so Gatekeeper says it "could not verify" the app on first launch. Open it once, then go to System Settings > Privacy & Security and click **Open Anyway** (on macOS 14 and earlier, right-click `Toucan.app` > Open works too). Or clear the download flag: `xattr -dr com.apple.quarantine Toucan.app`.
 2. Open a folder that contains translation files, or create a new project.
 3. Translate, review, and save.
@@ -22,7 +22,7 @@ Toucan detects the framework when you drop a folder (i18next, Android, Flutter, 
 
 | App | Platforms | Status |
 |-----|-----------|--------|
-| Toucan (Avalonia) | Windows, macOS, Linux | Preview, v0.18.0. The supported app on every platform: Editor/Review/Audit modes, Zen mode, search and bulk edits, side panels, plugins, file association and Indonesian localization. Windows packaging builds this app; the Windows 0.18.0 release is coming. |
+| Toucan (Avalonia) | Windows, macOS, Linux | Preview, v0.18.1. The supported app on every platform: Editor/Review/Audit modes, Zen mode, search and bulk edits, side panels, plugins, file association and Indonesian localization. Windows packaging builds this app; the Windows 0.18.0 release is coming. |
 | Toucan (WPF) | Windows 10 and later | Deprecated, v0.17.3 is the last release. Feature parity with the Avalonia app is recorded in [docs/wpf-parity.md](docs/wpf-parity.md). |
 | `toucan` CLI | Any OS with .NET 10 | Preview. `check`, `stats`, `translate`, `export`, `list-formats`, `list-keys`, `get`, `set`. |
 
