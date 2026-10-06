@@ -16,24 +16,51 @@
 
     <!-- ═══ Top bar: in-window menu (Windows/Linux) + view controls ═══ -->
     <Border Grid.Row="0" x:Name="TopBar" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,0,1" MinHeight="34">
-      <Grid ColumnDefinitions="Auto,*,Auto" Margin="4,0">
-        <ContentControl x:Name="MenuHost" VerticalAlignment="Center"/>
+      <Grid ColumnDefinitions="*,Auto,*" Margin="4,0">
+        <!-- Left: (menu on Windows/Linux) · logo and name · save state -->
+        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+          <ContentControl x:Name="MenuHost" VerticalAlignment="Center"/>
+          <StackPanel Orientation="Horizontal" Spacing="7" Margin="6,0,2,0" VerticalAlignment="Center">
+            <Image Source="/Assets/logo.png" Width="18" Height="18"/>
+            <TextBlock Text="Toucan" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+          </StackPanel>
+          <Button Classes="saveState" Classes.dirty="{Binding IsDirty}" Command="{Binding SaveCommand}"
+                  IsVisible="{Binding HasProject}" ToolTip.Tip="{loc:Loc 'Save now'}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Ellipse Classes="statusDot" Classes.warn="{Binding IsDirty}" Classes.good="{Binding !IsDirty}"/>
+              <TextBlock Text="{loc:Loc 'Unsaved'}" IsVisible="{Binding IsDirty}"/>
+              <TextBlock Text="{loc:Loc 'Saved'}" IsVisible="{Binding !IsDirty}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
 
-        <!-- Breadcrumb for the selected key -->
-        <ItemsControl Grid.Column="1" ItemsSource="{Binding SelectedNodePath}" VerticalAlignment="Center" Margin="12,0"
-                      IsVisible="{Binding !ShowStartScreen}">
-          <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
-          </ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Text="›" Classes="faint" Margin="4,0" FontSize="12"/>
-                <TextBlock Text="{Binding}" FontSize="12" Classes="caption"/>
-              </StackPanel>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <!-- Center: command palette pill (project and selected key shown while a project is open) -->
+        <Button x:Name="PalettePill" Grid.Column="1" Classes="palettePill" Width="380" MinWidth="180" VerticalAlignment="Center"
+                Command="{Binding ToggleCommandPaletteCommand}" ToolTip.Tip="{loc:Loc 'Command palette'}">
+          <Grid ColumnDefinitions="Auto,*,Auto">
+            <ui:FASymbolIcon Symbol="Find" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" ClipToBounds="True">
+              <TextBlock Text="{loc:Loc 'Search commands…'}" IsVisible="{Binding !HasProject}"/>
+              <TextBlock Text="{Binding ProjectName}" IsVisible="{Binding HasProject}" FontWeight="Medium"/>
+              <ItemsControl ItemsSource="{Binding SelectedNodePath}" IsVisible="{Binding HasProject}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                      <TextBlock Text="›" Margin="6,0" Opacity="0.6"/>
+                      <TextBlock Text="{Binding}"/>
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+            <Border Grid.Column="2" Classes="badge" Margin="8,0,0,0" Padding="5,0">
+              <TextBlock x:Name="PaletteShortcut" Classes="mono" FontSize="10"/>
+            </Border>
+          </Grid>
+        </Button>
 
         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
           <!-- Editor mode segmented control -->
@@ -145,5 +172,8 @@
 
     <!-- ═══ Zen mode covers everything ═══ -->
     <views:ZenEditorView x:Name="ZenView" Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding ZenMode}"/>
+
+    <!-- ═══ Command palette overlay (above everything, Zen mode included) ═══ -->
+    <c:CommandPalette x:Name="Palette" Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsCommandPaletteOpen}"/>
   </Grid>
 </Window>

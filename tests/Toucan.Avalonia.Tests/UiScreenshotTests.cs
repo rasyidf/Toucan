@@ -74,6 +74,18 @@ public class UiScreenshotTests
         Toucan.Core.Services.SidePanelRegistry.Instance.Activate("inspector");
         Pump();
         Snap(window, "06-inspector");
+        vm.IsDirty = true;
+        Pump();
+        Snap(window, "09-titlebar-unsaved");
+        vm.ToggleCommandPaletteCommand.Execute(null);
+        Pump();
+        Snap(window, "10-palette-open");
+        window.GetVisualDescendants().OfType<TextBox>().First(t => t.Classes.Contains("paletteInput")).Text = "save";
+        Pump();
+        Snap(window, "11-palette-query");
+        vm.IsCommandPaletteOpen = false;
+        vm.IsDirty = false;
+        Pump();
         vm.ToggleZenModeCommand.Execute(null);
         window.GetVisualDescendants().OfType<Toucan.Avalonia.Views.ZenEditorView>().First().SetTitleBarInset(78);
         Pump();

@@ -620,4 +620,60 @@
   <Style Selector="Button.bulk:pointerover /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
   </Style>
+
+  <!-- Command palette -->
+  <Style Selector="TextBox.paletteInput">
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+  </Style>
+  <Style Selector="TextBox.paletteInput:focus /template/ Border#PART_BorderElement">
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="ListBox.paletteList ListBoxItem">
+    <Setter Property="Padding" Value="10,7"/>
+    <Setter Property="CornerRadius" Value="8"/>
+  </Style>
+  <Style Selector="Grid.disabled">
+    <Setter Property="Opacity" Value="0.45"/>
+  </Style>
+
+  <!-- Title bar: command palette pill and save-state chip -->
+  <Style Selector="Button.palettePill">
+    <Setter Property="Height" Value="28"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Padding" Value="10,0"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+  </Style>
+  <Style Selector="Button.palettePill:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+  </Style>
+  <Style Selector="Button.saveState">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="8,3"/>
+    <Setter Property="MinHeight" Value="24"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+  </Style>
+  <Style Selector="Button.saveState.dirty">
+    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+  </Style>
+  <!-- Saved: nothing to click, so keep it looking normal rather than disabled -->
+  <Style Selector="Button.saveState:disabled /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="Button.saveState:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
 </Styles>
