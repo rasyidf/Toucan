@@ -20,7 +20,7 @@ All built-in providers are pre-populated with sensible default values when no sa
 | Microsoft | endpoint, region | api_key | endpoint=https://api.cognitive.microsofttranslator.com |
 | OpenAI | endpoint, model, prompt | api_key | endpoint=https://api.openai.com/v1, model=gpt-4o-mini |
 | Claude | endpoint, model, prompt | api_key | endpoint=https://api.anthropic.com, model=claude-haiku-4-5-20251001 |
-| Gemini | endpoint, model, prompt | api_key | endpoint=https://generativelanguage.googleapis.com, model=gemini-2.5-flash |
+| Gemini | endpoint, model, prompt | api_key | endpoint=https://generativelanguage.googleapis.com, model=gemini-flash-latest |
 | Custom | endpoint, header_name | api_key | — |
 
 Each provider declares its own schema through `ITranslationProvider.Definition`; `TranslationProviderRegistry` collects the definitions of all registered providers and exposes them via `ITranslationProviderRegistry`. Plugin providers appear in the same list (they are not marked built-in). Providers without a definition, such as the mock provider, work but are not listed.

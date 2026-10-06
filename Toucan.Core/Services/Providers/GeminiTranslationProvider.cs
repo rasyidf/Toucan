@@ -8,7 +8,7 @@ namespace Toucan.Core.Services.Providers;
 /// <summary>
 /// Translation with Google's Gemini models through the Generative Language API (an AI Studio key works, including the free tier).
 /// This is not Google Cloud Translation, which is the separate "Google" provider.
-/// Options: api_key, endpoint (default https://generativelanguage.googleapis.com), model (default gemini-2.5-flash), prompt.
+/// Options: api_key, endpoint (default https://generativelanguage.googleapis.com), model (default gemini-flash-latest), prompt.
 /// </summary>
 public sealed class GeminiTranslationProvider(HttpClient? http = null) : LlmTranslationProvider(http)
 {
@@ -30,14 +30,14 @@ public sealed class GeminiTranslationProvider(HttpClient? http = null) : LlmTran
         DefaultValues = new()
         {
             ["endpoint"] = "https://generativelanguage.googleapis.com",
-            ["model"] = "gemini-2.5-flash",
+            ["model"] = "gemini-flash-latest",
             ["prompt"] = "",
         },
     };
 
     protected override string ApiKeyEnvironmentVariable => "GEMINI_API_KEY";
     protected override string DefaultEndpoint => "https://generativelanguage.googleapis.com";
-    protected override string DefaultModel => "gemini-2.5-flash";
+    protected override string DefaultModel => "gemini-flash-latest";
 
     protected override HttpRequestMessage BuildRequest(string endpoint, string model, string apiKey, string system, string user)
     {

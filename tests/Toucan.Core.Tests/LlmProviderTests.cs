@@ -170,7 +170,7 @@ public class LlmProviderTests
         Assert.Equal("claude-haiku-4-5-20251001", claude.DefaultValues["model"]);
         Assert.Contains("api_key", claude.SecretFields.Keys);
         Assert.Equal("Gemini", gemini.Name);
-        Assert.Equal("gemini-2.5-flash", gemini.DefaultValues["model"]);
+        Assert.Equal("gemini-flash-latest", gemini.DefaultValues["model"]);
         Assert.Contains("api_key", gemini.SecretFields.Keys);
     }
 }
