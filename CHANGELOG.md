@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## [0.19.0] - 2026-10-06
+
+Command palette, a new title bar, Claude and Gemini translation providers, and a UI polish pass across the Avalonia app. Windows stays on 0.17.3.
 
 ### Added
 - **Claude and Gemini translation providers** — Pre-translate with Anthropic Claude (Messages API) or Google Gemini (a free AI Studio key works). Both appear in the Machine Translation panel, the Pre-translate dialog and Provider Settings, send up to 20 texts per request, add the app context and formality to the prompt, and report the provider's error message. See [docs/provider-settings.md](docs/provider-settings.md).
