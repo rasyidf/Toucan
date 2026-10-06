@@ -118,8 +118,8 @@
               <ItemsControl Classes="rows" ItemsSource="{Binding CopyTemplates}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
-                    <c:SettingsRow Padding="14,6">
-                      <DockPanel MinWidth="440">
+                    <c:SettingsRow Stacked="True" Padding="14,8">
+                      <DockPanel>
                         <Button DockPanel.Dock="Right" Classes="icon small" Margin="6,0,0,0"
                                 Command="{Binding $parent[ItemsControl].DataContext.RemoveCopyTemplateCommand}" CommandParameter="{Binding}">
                           <ui:FASymbolIcon Symbol="Dismiss"/>

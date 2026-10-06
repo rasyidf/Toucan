@@ -396,7 +396,15 @@
     <Setter Property="OffContent" Value=""/>
     <Setter Property="MinWidth" Value="0"/>
     <Setter Property="MinHeight" Value="0"/>
-    <Setter Property="Margin" Value="0,-6"/>
+    <Setter Property="Margin" Value="0"/>
+    <Setter Property="RenderTransform" Value="translateY(-3px)"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="c|SettingsRow StackPanel">
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="c|SettingsRow ComboBox, c|SettingsRow NumericUpDown, c|SettingsRow Button, c|SettingsRow TextBox">
+    <Setter Property="VerticalAlignment" Value="Center"/>
   </Style>
 
   <!-- Settings sidebar (rounded colored icon tiles, selection pill) -->
@@ -437,5 +445,22 @@
     <Setter Property="FontSize" Value="13"/>
     <Setter Property="MinHeight" Value="32"/>
     <Setter Property="Padding" Value="12,4"/>
+  </Style>
+
+  <!-- Inputs: center the text vertically (Fluent's default sits high on macOS) -->
+  <Style Selector="TextBox">
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Padding" Value="10,7,6,7"/>
+  </Style>
+  <Style Selector="ComboBox">
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Padding" Value="10,9,0,5"/>
+  </Style>
+  <Style Selector="NumericUpDown">
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="NumericUpDown /template/ TextBox">
+    <Setter Property="Padding" Value="10,7,6,7"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
   </Style>
 </Styles>
