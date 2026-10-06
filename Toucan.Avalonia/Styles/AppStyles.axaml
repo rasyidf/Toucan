@@ -531,4 +531,19 @@
     <Setter Property="Padding" Value="14,12"/>
     <Setter Property="Margin" Value="0,0,10,0"/>
   </Style>
+
+  <!-- Rows inside a card that is built from an ItemsControl (inspector lists) -->
+  <Style Selector="Border.itemRow">
+    <Setter Property="Padding" Value="12,8"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
+  </Style>
+  <Style Selector="ItemsControl.rows ContentPresenter:nth-child(n+2) > Border.itemRow">
+    <Setter Property="BorderThickness" Value="0,1,0,0"/>
+  </Style>
+  <Style Selector="Button.inspectorAction">
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="Padding" Value="8,5"/>
+  </Style>
 </Styles>

@@ -69,6 +69,11 @@ public class UiScreenshotTests
             Snap(window, "03-panel-" + id);
         }
 
+        if (window.GetVisualDescendants().OfType<Toucan.Avalonia.Views.Components.TranslationCard>().FirstOrDefault()?.DataContext is LanguageGroupViewModel group)
+            vm.SelectedGroup = group;
+        Toucan.Core.Services.SidePanelRegistry.Instance.Activate("inspector");
+        Pump();
+        Snap(window, "06-inspector");
         vm.HideNamespaceCommand.Execute("buttons");
         Pump();
         Toucan.Core.Services.SidePanelRegistry.Instance.Activate("explorer");
