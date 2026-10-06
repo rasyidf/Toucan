@@ -25,6 +25,10 @@ All built-in providers are pre-populated with sensible default values when no sa
 
 Each provider declares its own schema through `ITranslationProvider.Definition`; `TranslationProviderRegistry` collects the definitions of all registered providers and exposes them via `ITranslationProviderRegistry`. Plugin providers appear in the same list (they are not marked built-in). Providers without a definition, such as the mock provider, work but are not listed.
 
+### DeepL
+
+DeepL has two plans with two hosts. Free-plan keys end in `:fx` and only work on `api-free.deepl.com`; Toucan switches to it for you when the key ends in `:fx` and the endpoint is the default paid one. The key is sent in the `Authorization: DeepL-Auth-Key` header. Language codes are adjusted for DeepL: the source is the bare code (`en-US` → `EN`), and targets keep a region only for English, Portuguese and Chinese variants (`fr-FR` → `FR`, `en` → `EN-US`, `zh-CN` → `ZH-HANS`). Formality More/Less is sent as `prefer_more`/`prefer_less`, so languages without a formal register fall back to the default instead of failing. Errors show DeepL's message, for example `HTTP 403 Forbidden: Wrong endpoint`.
+
 ### Claude and Gemini
 
 Both talk to the vendor's own API (not an OpenAI-compatible layer) and send up to 20 texts per request as a JSON array, in the order they appear.

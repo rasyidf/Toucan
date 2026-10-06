@@ -9,6 +9,7 @@
 - **UI polish (Avalonia app)** — Settings and Project Properties use a left page list with grouped rows; Settings has a search box that filters individual settings; plugin cards show status, details and actions; New Project, Provider Settings, Statistics, Import and Pre-translate use the same grouped style; the side panels, pager and hidden-namespaces footer are tidied.
 
 ### Fixed
+- **DeepL requests** — Free-plan keys (ending in `:fx`) now use `api-free.deepl.com` automatically; the key is sent in the `Authorization` header instead of the request body; `en-US` sources and `fr-FR` targets are sent as DeepL expects (`EN`, `FR`); More/Less formality is now applied (as `prefer_more`/`prefer_less`); errors include DeepL's message.
 - **Explorer right-click menu on macOS** — The key menu (Add Key, Rename, Delete, …) did not appear; it is now a flyout like the app's other menus.
 
 ## [0.18.1] - 2026-10-06
