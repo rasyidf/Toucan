@@ -172,7 +172,7 @@
               <ItemsControl Classes="rows" ItemsSource="{Binding HiddenNamespaces}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
-                    <c:SettingsRow Title="{Binding}" MinHeight="38" Padding="14,6">
+                    <c:SettingsRow Title="{Binding}" MinRowHeight="38" Padding="14,6">
                       <Button Classes="link" Content="{loc:Loc 'Unhide'}"
                               Command="{Binding $parent[ItemsControl].DataContext.RemoveHiddenNamespaceCommand}" CommandParameter="{Binding}"/>
                     </c:SettingsRow>

@@ -110,6 +110,17 @@ public class UiScreenshotTests
             SnapDialog(new OptionsDialog(vm), $"10-options-{i:00}-{OptionsViewModel.Pages[i].ToLowerInvariant().Replace(' ', '-').Replace("&", "and")}");
         }
 
+        foreach (var (query, name) in new[] { ("valid", "40-search-valid"), ("lang", "41-search-lang"), ("zzz", "42-search-none") })
+        {
+            var searchVm = host.Services.GetRequiredService<OptionsViewModel>();
+            var searchDialog = new OptionsDialog(searchVm);
+            searchDialog.Show();
+            Pump();
+            searchVm.SearchText = query;
+            Snap(searchDialog, name);
+            searchDialog.Close();
+        }
+
         SnapDialog(new OptionsDialog(PluginsOptions(host)) { Height = 1500 }, "10-options-11-plugins-populated");
 
         SnapDialog(new NewProjectDialog(host.Services.GetRequiredService<NewProjectViewModel>()), "20-new-project");

@@ -1,4 +1,9 @@
+using System.ComponentModel;
+using Avalonia.Controls;
+using Avalonia.VisualTree;
+using Toucan.Avalonia.Locales;
 using Toucan.Avalonia.ViewModels;
+using Toucan.Avalonia.Views.Components;
 
 namespace Toucan.Avalonia.Views.Dialogs;
 
@@ -10,5 +15,56 @@ public partial class OptionsDialog : DialogWindow
     {
         DataContext = vm;
         vm.CloseAction = ok => Close(ok);
+        vm.PropertyChanged += OnViewModelPropertyChanged;
+        Closed += (_, _) => vm.PropertyChanged -= OnViewModelPropertyChanged;
     }
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (sender is not OptionsViewModel vm) return;
+        if (e.PropertyName == nameof(OptionsViewModel.SearchText)) ApplySearch(vm);
+        // Picking a page in the sidebar leaves search mode and shows that page.
+        else if (e.PropertyName == nameof(OptionsViewModel.SelectedPageIndex) && vm.IsSearching) vm.SearchText = string.Empty;
+    }
+
+    /// <summary>
+    /// Shows only the settings whose title, description, group header or page name contains every typed word.
+    /// Rows and groups collapse through <c>IsMatch</c> so the page bindings on <c>IsVisible</c> stay intact.
+    /// </summary>
+    private void ApplySearch(OptionsViewModel vm)
+    {
+        var terms = vm.SearchText.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var pagesPanel = this.FindControl<StackPanel>("PagesPanel");
+        if (pagesPanel is null) return;
+        var pages = pagesPanel.Children.OfType<StackPanel>().ToList();
+        var matches = new bool[pages.Count];
+
+        for (var i = 0; i < pages.Count; i++)
+        {
+            var pageName = i < OptionsViewModel.NavEntries.Count ? Loc.T(OptionsViewModel.NavEntries[i].Title) : string.Empty;
+            var pageMatches = terms.Length == 0 || Matches(pageName, terms);
+            var any = false;
+
+            foreach (var group in pages[i].GetVisualDescendants().OfType<SettingsGroup>())
+            {
+                var rows = group.GetVisualDescendants().OfType<SettingsRow>().ToList();
+                var groupMatches = pageMatches || Matches(group.Header, terms);
+                var rowHits = rows.Where(r => Matches($"{r.Title} {r.Description}", terms)).ToList();
+
+                foreach (var row in rows)
+                {
+                    var untitled = string.IsNullOrEmpty(row.Title);
+                    row.IsMatch = groupMatches || rowHits.Contains(row) || untitled && rowHits.Count > 0;
+                }
+                group.IsMatch = groupMatches || rowHits.Count > 0;
+                any |= group.IsMatch;
+            }
+            matches[i] = terms.Length == 0 || any || pageMatches;
+        }
+
+        vm.SearchMatches = matches;
+    }
+
+    private static bool Matches(string? text, string[] terms) =>
+        terms.Length == 0 || !string.IsNullOrEmpty(text) && terms.All(t => text.Contains(t, StringComparison.CurrentCultureIgnoreCase));
 }

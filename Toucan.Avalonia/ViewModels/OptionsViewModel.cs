@@ -80,6 +80,15 @@ public partial class OptionsViewModel : ObservableObject
     /// <summary>Set once a plugin was trusted, revoked, enabled or disabled; those take effect after a restart.</summary>
     [ObservableProperty] private bool pluginsChanged;
 
+    /// <summary>Text typed in the settings search box. Filtering itself happens in the dialog, which knows the rendered rows.</summary>
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSearching), nameof(HasNoSearchResults))] private string searchText = string.Empty;
+
+    /// <summary>Per page: does it contain a matching setting? Set by the dialog.</summary>
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasNoSearchResults))] private IReadOnlyList<bool>? searchMatches;
+
+    public bool IsSearching => !string.IsNullOrWhiteSpace(SearchText);
+    public bool HasNoSearchResults => IsSearching && SearchMatches is { } m && !m.Contains(true);
+
     // ───────────────────────── System integration ─────────────────────────
 
     public bool CanManageAssociation => FileAssociationService.IsSupported;

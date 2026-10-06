@@ -321,13 +321,16 @@
     <Setter Property="Margin" Value="0,0,0,20"/>
     <Setter Property="Template">
       <ControlTemplate>
-        <StackPanel>
+        <StackPanel IsVisible="{TemplateBinding IsMatch}">
           <TextBlock Text="{TemplateBinding Header}" Classes="groupHeader"
                      IsVisible="{TemplateBinding Header, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
           <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
                   BorderThickness="1" CornerRadius="10" ClipToBounds="True">
             <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
           </Border>
+          <TextBlock Text="{TemplateBinding Footer}" FontSize="12" TextWrapping="Wrap" Margin="14,8,14,0"
+                     Foreground="{DynamicResource FaintTextBrush}"
+                     IsVisible="{TemplateBinding Footer, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
         </StackPanel>
       </ControlTemplate>
     </Setter>
@@ -345,7 +348,6 @@
     <Setter Property="Margin" Value="14,-14,14,20"/>
   </Style>
   <Style Selector="c|SettingsRow">
-    <Setter Property="MinHeight" Value="44"/>
     <Setter Property="Padding" Value="14,8"/>
     <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
     <Setter Property="HorizontalContentAlignment" Value="Right"/>
@@ -353,7 +355,8 @@
     <Setter Property="Template">
       <ControlTemplate>
         <Border Background="Transparent" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
-                Padding="{TemplateBinding Padding}" MinHeight="{TemplateBinding MinHeight}">
+                IsVisible="{TemplateBinding IsMatch}"
+                Padding="{TemplateBinding Padding}" MinHeight="{TemplateBinding MinRowHeight}">
           <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" VerticalAlignment="Center">
             <StackPanel Spacing="2" VerticalAlignment="Center" Margin="0,0,16,0"
                         IsVisible="{TemplateBinding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">

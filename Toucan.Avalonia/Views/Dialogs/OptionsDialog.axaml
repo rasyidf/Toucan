@@ -6,7 +6,8 @@
                 xmlns:vm="using:Toucan.Avalonia.ViewModels"
                 xmlns:ui="using:FluentAvalonia.UI.Controls"
                 xmlns:c="using:Toucan.Avalonia.Views.Components"
-                Title="{loc:Loc 'Settings'}" Width="880" Height="640" MinHeight="480">
+                xmlns:conv="using:Toucan.Avalonia.Converters"
+                Title="{loc:Loc 'Settings'}" Width="900" Height="720" MinHeight="480">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -17,7 +18,14 @@
 
     <Border DockPanel.Dock="Left" Width="220" Background="{DynamicResource EditorBackgroundBrush}"
             BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0">
-      <ListBox Classes="settingsNav" Margin="0,12" ItemsSource="{x:Static vm:OptionsViewModel.NavEntries}" SelectedIndex="{Binding SelectedPageIndex}">
+      <DockPanel>
+      <TextBox x:Name="SearchBox" DockPanel.Dock="Top" Margin="12,12,12,4" Classes="clearButton"
+               Text="{Binding SearchText}" PlaceholderText="{loc:Loc 'Search settings'}">
+        <TextBox.InnerLeftContent>
+          <ui:FASymbolIcon Symbol="Find" FontSize="13" Margin="10,0,0,0" Foreground="{DynamicResource FaintTextBrush}"/>
+        </TextBox.InnerLeftContent>
+      </TextBox>
+      <ListBox Classes="settingsNav" Margin="0,8" ItemsSource="{x:Static vm:OptionsViewModel.NavEntries}" SelectedIndex="{Binding SelectedPageIndex}">
         <ListBox.ItemTemplate>
           <DataTemplate>
             <StackPanel Orientation="Horizontal">
@@ -29,13 +37,24 @@
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>
+      </DockPanel>
     </Border>
 
     <ScrollViewer Background="{DynamicResource ChromeBackgroundBrush}">
-      <Panel Margin="32,24" MaxWidth="600">
+      <Panel>
+      <TextBlock IsVisible="{Binding HasNoSearchResults}" Text="{loc:Loc 'No settings found'}" Classes="caption"
+                 HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,80,0,0"/>
+      <StackPanel Margin="32,24" MaxWidth="600" x:Name="PagesPanel">
 
         <!-- 0 General -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=0}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="0">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'General'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
             <StackPanel>
@@ -63,7 +82,14 @@
         </StackPanel>
 
         <!-- 1 Appearance -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=1}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="1">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Appearance'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
             <StackPanel>
@@ -78,7 +104,14 @@
         </StackPanel>
 
         <!-- 2 Editor -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=2}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="2">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Editor'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
             <StackPanel>
@@ -90,7 +123,7 @@
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
-          <c:SettingsGroup Header="{loc:Loc 'Copy templates'}">
+          <c:SettingsGroup Header="{loc:Loc 'Copy templates'}" Footer="{loc:Loc '“Copy key as” wraps the key in a template. %1 is replaced by the key, e.g. t(\'%1\').'}">
             <StackPanel>
               <ItemsControl Classes="rows" ItemsSource="{Binding CopyTemplates}">
                 <ItemsControl.ItemTemplate>
@@ -112,11 +145,17 @@
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
-          <TextBlock Classes="groupFooter" Text="{loc:Loc '“Copy key as” wraps the key in a template. %1 is replaced by the key, e.g. t(\'%1\').'}"/>
         </StackPanel>
 
         <!-- 3 Translation -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=3}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="3">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Machine translation'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
             <StackPanel>
@@ -134,7 +173,7 @@
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
-          <c:SettingsGroup>
+          <c:SettingsGroup Footer="{loc:Loc 'These are defaults for new projects. Each project can override them in Project Properties.'}">
             <c:SettingsRow Title="{loc:Loc 'Application context'}" Stacked="True" Padding="14,12"
                            Description="{loc:Loc 'Describe your app so AI providers pick the right terminology'}">
               <StackPanel Spacing="4">
@@ -143,11 +182,17 @@
               </StackPanel>
             </c:SettingsRow>
           </c:SettingsGroup>
-          <TextBlock Classes="groupFooter" Text="{loc:Loc 'These are defaults for new projects. Each project can override them in Project Properties.'}"/>
         </StackPanel>
 
         <!-- 4 Validation -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=4}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="4">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Validation'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
             <c:SettingsRow Title="{loc:Loc 'Validate before saving (errors block the save)'}">
@@ -172,7 +217,14 @@
         </StackPanel>
 
         <!-- 5 Translation memory -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=5}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="5">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Translation memory'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
             <StackPanel>
@@ -196,7 +248,14 @@
         </StackPanel>
 
         <!-- 6 Source code -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=6}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="6">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Source code'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
             <StackPanel>
@@ -231,9 +290,16 @@
         </StackPanel>
 
         <!-- 7 Languages -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=7}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="7">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Suggested languages'}" Classes="dialogTitle" Margin="0,0,0,16"/>
-          <c:SettingsGroup>
+          <c:SettingsGroup Footer="{loc:Loc 'Offered by “Add suggested languages” when creating a project.'}">
             <StackPanel>
               <ItemsControl Classes="rows" ItemsSource="{Binding SuggestedLanguageEntries}">
                 <ItemsControl.ItemTemplate>
@@ -255,11 +321,17 @@
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
-          <TextBlock Classes="groupFooter" Text="{loc:Loc 'Offered by “Add suggested languages” when creating a project.'}"/>
         </StackPanel>
 
         <!-- 8 Shortcuts -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=8}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="8">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Keyboard shortcuts'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <ItemsControl ItemsSource="{Binding ShortcutGroups}">
             <ItemsControl.ItemTemplate>
@@ -268,7 +340,7 @@
                   <ItemsControl Classes="rows" ItemsSource="{Binding Items}">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
-                        <c:SettingsRow Title="{Binding Action}" MinHeight="38" Padding="14,6">
+                        <c:SettingsRow Title="{Binding Action}" MinRowHeight="38" Padding="14,6">
                           <Border Classes="badge"><TextBlock Text="{Binding Shortcut}" Classes="mono"/></Border>
                         </c:SettingsRow>
                       </DataTemplate>
@@ -281,9 +353,16 @@
         </StackPanel>
 
         <!-- 9 Integration -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=9}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="9">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'System integration'}" Classes="dialogTitle" Margin="0,0,0,16"/>
-          <c:SettingsGroup Header="{loc:Loc '.tproj file association'}" IsVisible="{Binding CanManageAssociation}">
+          <c:SettingsGroup Header="{loc:Loc '.tproj file association'}" IsVisible="{Binding CanManageAssociation}" Footer="{Binding AssociationNote}">
             <c:SettingsRow Title="{Binding AssociationStatus}" Description="{loc:Loc 'Open .tproj project files in Toucan by double-clicking them.'}">
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="{loc:Loc 'Install'}" Command="{Binding InstallAssociationCommand}" IsEnabled="{Binding !AssociationInstalled}"/>
@@ -291,8 +370,6 @@
               </StackPanel>
             </c:SettingsRow>
           </c:SettingsGroup>
-          <TextBlock Classes="groupFooter" Text="{Binding AssociationNote}"
-                     IsVisible="{Binding AssociationNote, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
           <c:SettingsGroup Header="{loc:Loc 'Folder context menu'}" IsVisible="{Binding CanManageFolderEntry}">
             <c:SettingsRow Title="{Binding FolderEntryStatus}" Description="{loc:Loc 'Add “Open with Toucan” to the Explorer right-click menu for folders.'}">
               <StackPanel Orientation="Horizontal" Spacing="8">
@@ -309,7 +386,14 @@
         </StackPanel>
 
         <!-- 10 Data & privacy -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=10}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="10">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Data &amp; privacy'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <TextBlock TextWrapping="Wrap" Classes="caption" Margin="14,0,14,16"
                      Text="{loc:Loc 'Settings, layout, and translation memory are stored in Documents/Toucan. API keys are encrypted (DPAPI on Windows, AES with a per-user key elsewhere). Text is only sent to a translation provider when you run machine translation.'}"/>
@@ -348,7 +432,14 @@
         </StackPanel>
 
         <!-- 11 Plugins -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=11}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="11">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Plugins'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <TextBlock TextWrapping="Wrap" Classes="caption" Margin="0,0,0,16"
                      Text="{loc:Loc 'Plugins add file formats, translation providers and validation rules. A plugin is ordinary code that runs with your permissions, so Toucan only loads plugins you have enabled and trusted, and asks again if their files change.'}"/>
@@ -382,19 +473,19 @@
                                Foreground="{DynamicResource BadBrush}"/>
 
                     <!-- Details -->
-                    <c:SettingsRow Title="{loc:Loc 'Provides'}" MinHeight="36" Padding="14,6" IsVisible="{Binding HasProvides}">
+                    <c:SettingsRow Title="{loc:Loc 'Provides'}" MinRowHeight="36" Padding="14,6" IsVisible="{Binding HasProvides}">
                       <TextBlock Text="{Binding ProvidesText}" Classes="mono caption" TextWrapping="Wrap" TextAlignment="Right"/>
                     </c:SettingsRow>
-                    <c:SettingsRow Title="{loc:Loc 'Author'}" MinHeight="36" Padding="14,6" IsVisible="{Binding HasAuthor}">
+                    <c:SettingsRow Title="{loc:Loc 'Author'}" MinRowHeight="36" Padding="14,6" IsVisible="{Binding HasAuthor}">
                       <TextBlock Text="{Binding Author}" Classes="caption"/>
                     </c:SettingsRow>
-                    <c:SettingsRow Title="{loc:Loc 'Signature'}" MinHeight="36" Padding="14,6">
+                    <c:SettingsRow Title="{loc:Loc 'Signature'}" MinRowHeight="36" Padding="14,6">
                       <TextBlock Text="{Binding SignatureText}" Classes="caption"/>
                     </c:SettingsRow>
-                    <c:SettingsRow Title="SHA-256" MinHeight="36" Padding="14,6">
+                    <c:SettingsRow Title="SHA-256" MinRowHeight="36" Padding="14,6">
                       <TextBlock Text="{Binding ShortHash}" Classes="mono caption"/>
                     </c:SettingsRow>
-                    <c:SettingsRow Title="{loc:Loc 'Folder'}" MinHeight="36" Padding="14,6">
+                    <c:SettingsRow Title="{loc:Loc 'Folder'}" MinRowHeight="36" Padding="14,6">
                       <TextBlock Text="{Binding Folder}" Classes="mono caption" TextTrimming="PathSegmentEllipsis" MaxWidth="320"
                                  ToolTip.Tip="{Binding Folder}"/>
                     </c:SettingsRow>
@@ -420,7 +511,14 @@
         </StackPanel>
 
         <!-- 12 About -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=12}">
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="12">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,0,0,20">
             <Image Source="/Assets/logo.png" Width="64" Height="64"/>
             <StackPanel VerticalAlignment="Center">
@@ -447,6 +545,7 @@
             </StackPanel>
           </c:SettingsGroup>
         </StackPanel>
+      </StackPanel>
       </Panel>
     </ScrollViewer>
   </DockPanel>
