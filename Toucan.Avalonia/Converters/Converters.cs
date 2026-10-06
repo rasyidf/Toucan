@@ -113,3 +113,14 @@ public sealed class SettingsPageVisibleConverter : IMultiValueConverter
         return values.Count > 2 && values[2] is IReadOnlyList<bool> matches && page < matches.Count && matches[page];
     }
 }
+
+/// <summary>Collapsed/expanded flag → chevron symbol.</summary>
+public sealed class ExpanderChevronConverter : IValueConverter
+{
+    public static ExpanderChevronConverter Instance { get; } = new();
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is true ? FASymbol.ChevronUp : FASymbol.ChevronDown;
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotSupportedException();
+}

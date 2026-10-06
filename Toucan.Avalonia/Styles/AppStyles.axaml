@@ -477,4 +477,18 @@
   <Style Selector="Ellipse.statusDot.good"><Setter Property="Fill" Value="{DynamicResource GoodBrush}"/></Style>
   <Style Selector="Ellipse.statusDot.warn"><Setter Property="Fill" Value="{DynamicResource WarnBrush}"/></Style>
   <Style Selector="Ellipse.statusDot.bad"><Setter Property="Fill" Value="{DynamicResource BadBrush}"/></Style>
+
+  <!-- Toggle used as a disclosure header: no accent fill when checked -->
+  <Style Selector="ToggleButton.row">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+  </Style>
+  <Style Selector="ToggleButton.row:checked /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.row:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+  </Style>
+  <Style Selector="ToggleButton.row:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
 </Styles>

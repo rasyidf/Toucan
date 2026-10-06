@@ -1,4 +1,6 @@
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.VisualTree;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,6 +68,14 @@ public class UiScreenshotTests
             Pump();
             Snap(window, "03-panel-" + id);
         }
+
+        vm.HideNamespaceCommand.Execute("buttons");
+        Pump();
+        Toucan.Core.Services.SidePanelRegistry.Instance.Activate("explorer");
+        Pump();
+        var toggle = window.GetVisualDescendants().OfType<ToggleButton>().FirstOrDefault(t => t.Name == "HiddenToggle");
+        Snap(window, "04-hidden-namespaces-collapsed");
+        if (toggle is not null) { toggle.IsChecked = true; Snap(window, "05-hidden-namespaces-expanded"); }
         window.Close();
     }
 
