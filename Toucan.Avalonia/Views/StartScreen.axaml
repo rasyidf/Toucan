@@ -8,7 +8,8 @@
       <Setter Property="HorizontalAlignment" Value="Stretch"/>
       <Setter Property="HorizontalContentAlignment" Value="Left"/>
       <Setter Property="Padding" Value="14,12"/>
-      <Setter Property="Margin" Value="0,0,0,8"/>
+      <Setter Property="Margin" Value="0,0,0,10"/>
+      <Setter Property="CornerRadius" Value="10"/>
     </Style>
   </UserControl.Styles>
 

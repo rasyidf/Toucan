@@ -122,7 +122,9 @@
 
   <!-- Segmented mode selector -->
   <Style Selector="Button.segment">
-    <Setter Property="Padding" Value="10,3"/>
+    <Setter Property="Padding" Value="12,4"/>
+    <Setter Property="MinWidth" Value="76"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="MinHeight" Value="0"/>
     <Setter Property="FontSize" Value="12"/>
     <Setter Property="Background" Value="Transparent"/>
@@ -139,7 +141,7 @@
     <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
     <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
     <Setter Property="BorderThickness" Value="1"/>
-    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="CornerRadius" Value="10"/>
     <Setter Property="Padding" Value="12"/>
   </Style>
   <Style Selector="Border.panelHeader">
@@ -212,6 +214,8 @@
   <Style Selector="ListBox.plain ListBoxItem">
     <Setter Property="Padding" Value="8,5"/>
     <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Margin" Value="2,1"/>
   </Style>
 
   <!-- Editor cards: selection shown as an accent bar instead of a filled highlight -->
@@ -490,5 +494,41 @@
   </Style>
   <Style Selector="ToggleButton.row:pointerover /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+
+  <!-- Framework tiles (New project) -->
+  <Style Selector="Border.fwTile">
+    <Setter Property="Width" Value="164"/>
+    <Setter Property="Height" Value="64"/>
+    <Setter Property="Padding" Value="10,0"/>
+    <Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem:selected Border.fwTile">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+    <Setter Property="BorderThickness" Value="2"/>
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+  </Style>
+  <Style Selector="ListBoxItem /template/ Rectangle#SelectionIndicator">
+    <Setter Property="IsVisible" Value="False"/>
+  </Style>
+  <Style Selector="Border.fwBadge">
+    <Setter Property="Width" Value="32"/>
+    <Setter Property="Height" Value="32"/>
+    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="Margin" Value="0,0,10,0"/>
+  </Style>
+  <Style Selector="Border.fwBadge > TextBlock">
+    <Setter Property="Foreground" Value="White"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Border.statTile">
+    <Setter Property="Padding" Value="14,12"/>
+    <Setter Property="Margin" Value="0,0,10,0"/>
   </Style>
 </Styles>

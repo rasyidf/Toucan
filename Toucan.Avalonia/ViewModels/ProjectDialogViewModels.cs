@@ -20,6 +20,20 @@ public sealed class FrameworkTile
 
     /// <summary>Framework profile ID (matches IFrameworkProfile.Id). Null = use the FormatId-based fallback.</summary>
     public string? ProfileId { get; init; }
+
+    private static readonly string[] Palette = ["#007AFF", "#34C759", "#FF9500", "#AF52DE", "#FF2D55", "#5AC8FA", "#5856D6", "#FF3B30", "#30B0C7", "#A2845E"];
+    private static readonly Dictionary<string, string> Badges = new(StringComparer.Ordinal)
+    {
+        ["i18next"] = "i18", ["React"] = "Re", ["Vue"] = "Vu", ["Angular"] = "Ng", ["Flutter"] = "Fl", ["Laravel"] = "La", [".NET"] = ".N",
+        ["Android"] = "An", ["iOS"] = "iO", ["Ruby/Rails"] = "Rb", ["Svelte"] = "Sv", ["Java"] = "Jv", ["Gettext"] = "PO",
+        ["Generic JSON"] = "{}", ["Generic YAML"] = "Ym", ["CSV"] = "Cs",
+    };
+
+    /// <summary>Two-letter mark shown on the tile instead of an emoji, so every framework renders in the same style.</summary>
+    public string Badge => Badges.TryGetValue(Name, out var b) ? b : Name.Length >= 2 ? Name[..2] : Name;
+
+    public global::Avalonia.Media.IBrush TileBrush =>
+        global::Avalonia.Media.Brush.Parse(Palette[(int)((uint)Name.Aggregate(17, (h, c) => unchecked(h * 31 + c)) % (uint)Palette.Length)]);
 }
 
 /// <summary>Two-step New Project wizard: template and location, then languages.</summary>

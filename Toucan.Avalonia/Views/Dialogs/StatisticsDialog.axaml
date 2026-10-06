@@ -3,7 +3,7 @@
              xmlns:loc="using:Toucan.Avalonia.Locales"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
-                Title="{loc:Loc 'Statistics'}" Width="620" Height="600">
+                Title="{loc:Loc 'Statistics'}" Width="640" Height="620">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <Button Content="{loc:Loc 'Close'}" HorizontalAlignment="Right" x:Name="CloseButton" IsDefault="True"/>
@@ -12,29 +12,29 @@
       <TextBlock Text="{loc:Loc 'Overview'}" Classes="dialogTitle"/>
       <TextBlock Text="{Binding Summary}" Classes="caption"/>
       <UniformGrid Columns="4" Margin="0,12,0,0">
-        <Border Classes="card" Margin="0,0,8,0">
+        <Border Classes="card statTile">
           <StackPanel>
             <TextBlock Text="{Binding OverallPercentText}" FontSize="22" FontWeight="Bold" Foreground="{Binding OverallPercent, Converter={StaticResource HealthBrush}}"/>
             <TextBlock Text="{loc:Loc 'Complete'}" Classes="caption"/>
           </StackPanel>
         </Border>
-        <Border Classes="card" Margin="0,0,8,0">
+        <Border Classes="card statTile">
           <StackPanel><TextBlock Text="{Binding TotalKeys}" FontSize="22" FontWeight="Bold"/><TextBlock Text="{loc:Loc 'Keys'}" Classes="caption"/></StackPanel>
         </Border>
-        <Border Classes="card" Margin="0,0,8,0">
+        <Border Classes="card statTile">
           <StackPanel><TextBlock Text="{Binding TotalLanguages}" FontSize="22" FontWeight="Bold"/><TextBlock Text="{loc:Loc 'Languages'}" Classes="caption"/></StackPanel>
         </Border>
-        <Border Classes="card">
+        <Border Classes="card statTile" Margin="0">
           <StackPanel><TextBlock Text="{Binding TotalApproved}" FontSize="22" FontWeight="Bold"/><TextBlock Text="{loc:Loc 'Approved'}" Classes="caption"/></StackPanel>
         </Border>
       </UniformGrid>
-      <TextBlock Text="{loc:Loc 'Per language'}" FontWeight="SemiBold" Margin="0,16,0,0"/>
+      <TextBlock Text="{loc:Loc 'Per language'}" Classes="groupHeader" Margin="14,20,0,0"/>
     </StackPanel>
     <ScrollViewer Margin="20,0,20,16">
       <ItemsControl ItemsSource="{Binding Languages}">
         <ItemsControl.ItemTemplate>
           <DataTemplate>
-            <Border Classes="card" Margin="0,0,0,8" Padding="12,8">
+            <Border Classes="card" Margin="0,0,0,8" Padding="14,10">
               <StackPanel Spacing="4">
                 <DockPanel>
                   <TextBlock DockPanel.Dock="Right" Text="{Binding PercentText}" FontWeight="SemiBold"

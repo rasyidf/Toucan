@@ -155,7 +155,7 @@ public class UiScreenshotTests
     }
 
     [AvaloniaFact]
-    public void CaptureDarkTheme()
+    public async Task CaptureDarkTheme()
     {
         if (string.IsNullOrEmpty(OutDir)) return;
         using var host = new TestHost();
@@ -175,6 +175,26 @@ public class UiScreenshotTests
             dialog.FindControl<ListBox>("Nav")!.SelectedIndex = 1;
             Snap(dialog, "31-dark-project-properties");
             dialog.Close();
+
+            SnapDialog(new NewProjectDialog(host.Services.GetRequiredService<NewProjectViewModel>()), "32-dark-new-project");
+            SnapDialog(new ImportProjectDialog(new ImportProjectViewModel(host.Services.GetServices<IFrameworkProfile>(), host.Dialogs)), "33-dark-import");
+            SnapDialog(new StatisticsDialog(new StatisticsViewModel([])), "34-dark-statistics");
+            var provider = host.Services.GetRequiredService<ProviderSettingsViewModel>();
+            provider.UseProject(null);
+            SnapDialog(new ProviderSettingsDialog(provider), "35-dark-provider-settings");
+
+            var folder = host.CreateJsonProject("dark",
+                ("en", "{" + string.Join(",", Enumerable.Range(1, 40).Select(i => $"\"k{i:00}.title\": \"Title {i}\"")) + ", \"app.title\": \"My App\"}"),
+                ("de", """{"app.title": "Meine App"}"""));
+            var mainVm = host.CreateViewModel();
+            var window = new MainWindow(mainVm, host.Services.GetRequiredService<StatusBarViewModel>()) { Width = 1280, Height = 800 };
+            window.Show();
+            Pump();
+            Snap(window, "36-dark-start-screen");
+            await mainVm.OpenProjectAsync(folder);
+            Pump();
+            Snap(window, "37-dark-editor");
+            window.Close();
         }
         finally { global::Avalonia.Application.Current!.RequestedThemeVariant = global::Avalonia.Styling.ThemeVariant.Default; }
     }

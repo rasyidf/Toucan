@@ -5,7 +5,8 @@
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
                 xmlns:vm="using:Toucan.Avalonia.ViewModels"
                 xmlns:ui="using:FluentAvalonia.UI.Controls"
-                Title="{loc:Loc 'Pre-translate'}" Width="900" Height="640" MinHeight="460">
+                xmlns:c="using:Toucan.Avalonia.Views.Components"
+                Title="{loc:Loc 'Pre-translate'}" Width="900" Height="720" MinHeight="460">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <DockPanel>
@@ -20,33 +21,33 @@
     <StackPanel DockPanel.Dock="Top" Margin="20,18,20,8" Spacing="6">
       <TextBlock Text="{loc:Loc 'Pre-translate'}" Classes="dialogTitle"/>
       <TextBlock Text="{loc:Loc 'Runs as a preview first. Nothing changes until you apply.'}" Classes="caption"/>
-      <Grid ColumnDefinitions="Auto,12,*" Margin="0,8,0,0">
+      <c:SettingsGroup Margin="0,10,0,0">
         <StackPanel>
-          <TextBlock Text="{loc:Loc 'Provider'}" Classes="label"/>
-          <StackPanel Orientation="Horizontal" Spacing="6">
-            <ComboBox ItemsSource="{Binding ProviderNames}" SelectedItem="{Binding SelectedProvider}" MinWidth="170"/>
-            <Button Classes="icon" ToolTip.Tip="{loc:Loc 'Provider settings &amp; API keys'}" Command="{Binding OpenProviderSettingsCommand}">
-              <ui:FASymbolIcon Symbol="Setting"/>
-            </Button>
-          </StackPanel>
-          <CheckBox Classes="form" Content="{loc:Loc 'Overwrite existing values'}" IsChecked="{Binding OverwriteExisting}"/>
+          <c:SettingsRow Title="{loc:Loc 'Provider'}">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <ComboBox ItemsSource="{Binding ProviderNames}" SelectedItem="{Binding SelectedProvider}" MinWidth="170"/>
+              <Button Classes="icon" ToolTip.Tip="{loc:Loc 'Provider settings &amp; API keys'}" Command="{Binding OpenProviderSettingsCommand}">
+                <ui:FASymbolIcon Symbol="Setting"/>
+              </Button>
+            </StackPanel>
+          </c:SettingsRow>
+          <c:SettingsRow Title="{loc:Loc 'Overwrite existing values'}"><ToggleSwitch IsChecked="{Binding OverwriteExisting}"/></c:SettingsRow>
+          <c:SettingsRow Title="{loc:Loc 'Target languages'}" Stacked="True">
+            <DockPanel>
+              <Button DockPanel.Dock="Right" VerticalAlignment="Top" Classes="link" Content="{loc:Loc 'Toggle all'}" Command="{Binding SelectAllLanguagesCommand}"/>
+              <ItemsControl ItemsSource="{Binding AvailableLanguages}">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" MinWidth="90" Margin="0,0,8,0"/>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </DockPanel>
+          </c:SettingsRow>
         </StackPanel>
-        <StackPanel Grid.Column="2">
-          <DockPanel>
-            <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Toggle all'}" Command="{Binding SelectAllLanguagesCommand}"/>
-            <TextBlock Text="{loc:Loc 'Target languages'}" Classes="label"/>
-          </DockPanel>
-          <ItemsControl ItemsSource="{Binding AvailableLanguages}">
-            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-              <DataTemplate>
-                <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" MinWidth="90" Margin="0,0,8,0"/>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-        </StackPanel>
-      </Grid>
-      <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,8,0,0">
+      </c:SettingsGroup>
+      <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,0">
         <Button Content="{loc:Loc 'Run preview'}" Classes="accent" Command="{Binding StartCommand}"/>
         <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Maximum="100" Width="260" VerticalAlignment="Center" IsVisible="{Binding IsRunning}"/>
         <TextBlock VerticalAlignment="Center" Classes="caption" IsVisible="{Binding IsRunning}">

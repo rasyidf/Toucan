@@ -3,6 +3,7 @@
              xmlns:loc="using:Toucan.Avalonia.Locales"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                xmlns:c="using:Toucan.Avalonia.Views.Components"
                 Title="{loc:Loc 'Import Project'}" Width="640" Height="560">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
@@ -15,14 +16,19 @@
       <StackPanel DockPanel.Dock="Top" Spacing="4">
         <TextBlock Text="{loc:Loc 'Import existing project'}" Classes="dialogTitle"/>
         <TextBlock Text="{loc:Loc 'Point Toucan at your app\'s repository or locale folder. It detects the i18n framework and language files.'}" Classes="caption" TextWrapping="Wrap"/>
-        <TextBlock Text="{loc:Loc 'Folder'}" Classes="label"/>
-        <DockPanel>
-          <Button DockPanel.Dock="Right" Content="{loc:Loc 'Browse…'}" Margin="6,0,0,0" Command="{Binding BrowseFolderCommand}"/>
-          <TextBox Text="{Binding Folder}" PlaceholderText="/path/to/your/app"/>
-        </DockPanel>
-        <TextBlock Text="{loc:Loc 'Framework'}" Classes="label"/>
-        <ComboBox ItemsSource="{Binding AvailableProfiles}" SelectedItem="{Binding SelectedProfile}" DisplayMemberBinding="{Binding DisplayName}" MinWidth="260"/>
-        <TextBlock Text="{Binding DetectionSummary}" Classes="hint" Margin="0,6,0,0"/>
+        <c:SettingsGroup Margin="0,12,0,8" Footer="{Binding DetectionSummary}">
+          <StackPanel>
+            <c:SettingsRow Title="{loc:Loc 'Folder'}">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBox Text="{Binding Folder}" PlaceholderText="/path/to/your/app" Width="300"/>
+                <Button Content="{loc:Loc 'Browse…'}" Command="{Binding BrowseFolderCommand}"/>
+              </StackPanel>
+            </c:SettingsRow>
+            <c:SettingsRow Title="{loc:Loc 'Framework'}">
+              <ComboBox ItemsSource="{Binding AvailableProfiles}" SelectedItem="{Binding SelectedProfile}" DisplayMemberBinding="{Binding DisplayName}" MinWidth="220"/>
+            </c:SettingsRow>
+          </StackPanel>
+        </c:SettingsGroup>
         <ItemsControl ItemsSource="{Binding DetectedLanguages}" Margin="0,6,0,6">
           <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
@@ -31,7 +37,7 @@
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <TextBlock Text="{loc:Loc 'Files'}" Classes="label"/>
+        <TextBlock Text="{loc:Loc 'Files'}" Classes="groupHeader" Margin="14,8,0,6"/>
       </StackPanel>
       <Border Classes="card" Padding="2">
         <ListBox Classes="plain" ItemsSource="{Binding DiscoveredFiles}">
