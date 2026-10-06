@@ -1,5 +1,6 @@
 <UserControl x:Class="Toucan.Avalonia.Views.Components.TranslationCard"
              xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:svc="using:Toucan.Avalonia.Services">
@@ -13,7 +14,7 @@
 
         <TextBox Grid.Column="1" Classes="translation" Classes.empty="{Binding IsEmpty}"
                  Text="{Binding Value}"
-                 PlaceholderText="Not translated"
+                 PlaceholderText="{loc:Loc 'Not translated'}"
                  FlowDirection="{Binding FlowDirection}"
                  IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}"/>
 
@@ -21,13 +22,13 @@
           <!-- Machine-translated marker -->
           <ui:FASymbolIcon Symbol="World" FontSize="12" Margin="4,0" VerticalAlignment="Center"
                            Foreground="{DynamicResource InfoBrush}" IsVisible="{Binding IsMachineTranslated}"
-                           ToolTip.Tip="Machine translated — not reviewed yet"/>
-          <Button Classes="icon small hoverOnly" Command="{Binding CopyTranslationCommand}" ToolTip.Tip="Copy value">
+                           ToolTip.Tip="{loc:Loc 'Machine translated — not reviewed yet'}"/>
+          <Button Classes="icon small hoverOnly" Command="{Binding CopyTranslationCommand}" ToolTip.Tip="{loc:Loc 'Copy value'}">
             <ui:FASymbolIcon Symbol="Copy"/>
           </Button>
 
           <!-- Comment (Review + Audit, or whenever a comment exists) -->
-          <Button Classes="icon small" ToolTip.Tip="Comment">
+          <Button Classes="icon small" ToolTip.Tip="{loc:Loc 'Comment'}">
             <Button.IsVisible>
               <MultiBinding Converter="{x:Static BoolConverters.Or}">
                 <Binding Source="{x:Static svc:PanelService.Instance}" Path="ShowsCommentButton"/>
@@ -43,7 +44,7 @@
             <Button.Flyout>
               <Flyout Placement="BottomEdgeAlignedRight">
                 <StackPanel Width="280" Spacing="6">
-                  <TextBlock Text="Comment for translators" Classes="caption"/>
+                  <TextBlock Text="{loc:Loc 'Comment for translators'}" Classes="caption"/>
                   <TextBox Text="{Binding Comment}" AcceptsReturn="True" TextWrapping="Wrap" Height="90"
                            IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}"/>
                 </StackPanel>
@@ -52,18 +53,18 @@
           </Button>
 
           <!-- Review mode: reject / approve -->
-          <Button Classes="icon small" Command="{Binding ClearApprovedCommand}" ToolTip.Tip="Mark as needs review"
+          <Button Classes="icon small" Command="{Binding ClearApprovedCommand}" ToolTip.Tip="{loc:Loc 'Mark as needs review'}"
                   IsVisible="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsReviewMode}">
             <ui:FASymbolIcon Symbol="Cancel"/>
           </Button>
-          <ToggleButton Classes="icon small" IsChecked="{Binding IsApproved}" ToolTip.Tip="Approve"
+          <ToggleButton Classes="icon small" IsChecked="{Binding IsApproved}" ToolTip.Tip="{loc:Loc 'Approve'}"
                         IsVisible="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsReviewMode}">
             <ui:FASymbolIcon Symbol="Accept"/>
           </ToggleButton>
 
           <!-- Approved indicator outside Review mode -->
           <ui:FASymbolIcon Symbol="Accept" FontSize="12" Margin="4,0" VerticalAlignment="Center"
-                           Foreground="{DynamicResource GoodBrush}" ToolTip.Tip="Approved">
+                           Foreground="{DynamicResource GoodBrush}" ToolTip.Tip="{loc:Loc 'Approved'}">
             <ui:FASymbolIcon.IsVisible>
               <MultiBinding Converter="{x:Static BoolConverters.And}">
                 <Binding Path="IsApproved"/>
@@ -91,15 +92,15 @@
             <Run Text="{Binding ParentPrefix}" Foreground="{DynamicResource FaintTextBrush}"/><Run Text="{Binding ShortName}" FontWeight="SemiBold"/>
           </SelectableTextBlock>
           <Border Classes="badge" IsVisible="{Binding IsPluralGroup}">
-            <TextBlock Text="plural"/>
+            <TextBlock Text="{loc:Loc 'plural'}"/>
           </Border>
         </StackPanel>
         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="1">
-          <Button Classes="icon small" Command="{Binding TranslateKeyCommand}" ToolTip.Tip="Machine-translate empty values of this key"
+          <Button Classes="icon small" Command="{Binding TranslateKeyCommand}" ToolTip.Tip="{loc:Loc 'Machine-translate empty values of this key'}"
                   IsVisible="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsEditorMode}">
             <ui:FASymbolIcon Symbol="Character"/>
           </Button>
-          <Button Classes="icon small" Command="{Binding CopyNamespaceCommand}" ToolTip.Tip="Copy key">
+          <Button Classes="icon small" Command="{Binding CopyNamespaceCommand}" ToolTip.Tip="{loc:Loc 'Copy key'}">
             <ui:FASymbolIcon Symbol="Link"/>
           </Button>
         </StackPanel>

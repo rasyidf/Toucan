@@ -1,17 +1,18 @@
 <d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.ProviderSettingsDialog"
                 xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
                 xmlns:ui="using:FluentAvalonia.UI.Controls"
-                Title="Translation Providers" Width="840" Height="600">
+                Title="{loc:Loc 'Translation Providers'}" Width="840" Height="600">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <DockPanel>
         <TextBlock Text="{Binding StatusMessage}" Classes="caption" VerticalAlignment="Center"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-          <Button Content="Close" Command="{Binding CloseCommand}"/>
-          <Button Content="Save" Command="{Binding SaveCommand}"/>
-          <Button Content="Save &amp; Close" Classes="accent" Command="{Binding SaveAndCloseCommand}" IsDefault="True"/>
+          <Button Content="{loc:Loc 'Close'}" Command="{Binding CloseCommand}"/>
+          <Button Content="{loc:Loc 'Save'}" Command="{Binding SaveCommand}"/>
+          <Button Content="{loc:Loc 'Save &amp; Close'}" Classes="accent" Command="{Binding SaveAndCloseCommand}" IsDefault="True"/>
         </StackPanel>
       </DockPanel>
     </Border>
@@ -20,13 +21,13 @@
     <Border DockPanel.Dock="Top" Padding="20,16,20,8">
       <DockPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
-          <Button Content="App-wide" Command="{Binding LoadAppSettingsCommand}"/>
-          <Button Content="Project…" Command="{Binding LoadProjectSettingsCommand}"/>
+          <Button Content="{loc:Loc 'App-wide'}" Command="{Binding LoadAppSettingsCommand}"/>
+          <Button Content="{loc:Loc 'Project…'}" Command="{Binding LoadProjectSettingsCommand}"/>
         </StackPanel>
         <StackPanel Spacing="2">
-          <TextBlock Text="Translation providers" Classes="dialogTitle"/>
+          <TextBlock Text="{loc:Loc 'Translation providers'}" Classes="dialogTitle"/>
           <TextBlock Classes="caption">
-            <Run Text="Editing: "/><Run Text="{Binding ScopeLabel}" FontWeight="SemiBold"/>
+            <Run Text="{loc:Loc 'Editing: '}"/><Run Text="{Binding ScopeLabel}" FontWeight="SemiBold"/>
           </TextBlock>
         </StackPanel>
       </DockPanel>
@@ -35,8 +36,8 @@
     <Grid ColumnDefinitions="220,*" Margin="20,4,20,16">
       <DockPanel>
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="6" Margin="0,8,0,0">
-          <Button Content="Add custom" Command="{Binding AddProviderCommand}"/>
-          <Button Content="Remove" Command="{Binding RemoveSelectedCommand}"/>
+          <Button Content="{loc:Loc 'Add custom'}" Command="{Binding AddProviderCommand}"/>
+          <Button Content="{loc:Loc 'Remove'}" Command="{Binding RemoveSelectedCommand}"/>
         </StackPanel>
         <Border Classes="card" Padding="2">
           <ListBox Classes="plain" ItemsSource="{Binding Providers}" SelectedItem="{Binding Selected}">
@@ -53,12 +54,12 @@
         <StackPanel IsVisible="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}">
           <TextBlock Text="{Binding SelectedDefinition.DisplayName, FallbackValue='Custom provider'}" FontSize="16" FontWeight="SemiBold"/>
           <TextBlock Text="{Binding SelectedDefinition.Description}" Classes="caption" TextWrapping="Wrap" Margin="0,2,0,0"/>
-          <TextBlock Text="Provider name" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Provider name'}" Classes="label"/>
           <TextBox Text="{Binding Selected.Provider}" IsReadOnly="{Binding SelectedDefinition, Converter={x:Static ObjectConverters.IsNotNull}}"/>
 
           <DockPanel Margin="0,16,0,4">
-            <Button DockPanel.Dock="Right" Classes="link" Content="Add option" Command="{Binding AddOptionCommand}"/>
-            <TextBlock Text="Options" FontWeight="SemiBold"/>
+            <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Add option'}" Command="{Binding AddOptionCommand}"/>
+            <TextBlock Text="{loc:Loc 'Options'}" FontWeight="SemiBold"/>
           </DockPanel>
           <ItemsControl ItemsSource="{Binding OptionItems}">
             <ItemsControl.ItemTemplate>
@@ -76,8 +77,8 @@
           </ItemsControl>
 
           <DockPanel Margin="0,16,0,4">
-            <Button DockPanel.Dock="Right" Classes="link" Content="Add secret" Command="{Binding AddSecretCommand}"/>
-            <TextBlock Text="Secrets (stored encrypted)" FontWeight="SemiBold"/>
+            <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Add secret'}" Command="{Binding AddSecretCommand}"/>
+            <TextBlock Text="{loc:Loc 'Secrets (stored encrypted)'}" FontWeight="SemiBold"/>
           </DockPanel>
           <ItemsControl ItemsSource="{Binding SecretItems}">
             <ItemsControl.ItemTemplate>

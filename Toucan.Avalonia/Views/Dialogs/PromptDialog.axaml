@@ -1,13 +1,14 @@
 <d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.PromptDialog"
                 xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
                 Width="460" SizeToContent="Height" CanResize="False">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-        <Button Content="Cancel" x:Name="CancelButton"/>
-        <Button Content="OK" Classes="accent" x:Name="OkButton" IsDefault="True"/>
+        <Button Content="{loc:Loc 'Cancel'}" x:Name="CancelButton"/>
+        <Button Content="{loc:Loc 'OK'}" Classes="accent" x:Name="OkButton" IsDefault="True"/>
       </StackPanel>
     </Border>
     <StackPanel Margin="20,18,20,20" Spacing="10">

@@ -14,7 +14,7 @@ public sealed record KeybindingEntry(string Category, string Action, string Shor
 /// </summary>
 internal static class KeybindingService
 {
-    private sealed record Binding(string Category, string Action, Key Key, KeyModifiers Modifiers, Func<MainWindowViewModel, ICommand> Command, bool SkipInTextBox = false);
+    private sealed record Binding(string Category, string Action, Key Key, KeyModifiers Modifiers, Func<MainWindowViewModel, ICommand> Command, bool SkipInTextBox = false, object? Parameter = null);
 
     private static KeyModifiers Primary => PlatformService.IsMacOS ? KeyModifiers.Meta : KeyModifiers.Control;
 
@@ -34,7 +34,11 @@ internal static class KeybindingService
         new("Edit", "Rename", Key.F2, KeyModifiers.None, vm => vm.RenameItemCommand, SkipInTextBox: true),
         new("Edit", "Delete", Key.Delete, KeyModifiers.None, vm => vm.DeleteItemCommand, SkipInTextBox: true),
         new("Edit", "Duplicate", Key.D, Primary, vm => vm.DuplicateItemCommand),
-        new("Edit", "Copy Template 1", Key.D1, Primary, vm => vm.CopyAsTemplateCommand),
+        new("Edit", "Copy Template 1", Key.D1, Primary, vm => vm.CopyAsTemplateCommand, Parameter: 0),
+        new("Edit", "Copy Template 2", Key.D2, Primary, vm => vm.CopyAsTemplateCommand, Parameter: 1),
+        new("Edit", "Copy Template 3", Key.D3, Primary, vm => vm.CopyAsTemplateCommand, Parameter: 2),
+        new("Edit", "Copy Template 4", Key.D4, Primary, vm => vm.CopyAsTemplateCommand, Parameter: 3),
+        new("Edit", "Copy Template 5", Key.D5, Primary, vm => vm.CopyAsTemplateCommand, Parameter: 4),
         new("Find", "Find", Key.F, Primary, vm => vm.FocusSearchCommand),
         new("Find", "Search & Replace", Key.F, Primary | KeyModifiers.Shift, vm => vm.OpenSearchPanelCommand),
         new("Find", "Next Page", Key.F3, KeyModifiers.None, vm => vm.NextPageCommand),
@@ -79,11 +83,13 @@ internal static class KeybindingService
             var gesture = new KeyGesture(b.Key, b.Modifiers);
             if (handledByMenu?.Contains(gesture) == true) continue;
             var command = b.Command(vm);
-            window.KeyBindings.Add(new KeyBinding
+            var binding = new KeyBinding
             {
                 Gesture = gesture,
                 Command = b.SkipInTextBox ? new TextBoxGuardCommand(window, command) : command
-            });
+            };
+            if (b.Parameter != null) binding.CommandParameter = b.Parameter;
+            window.KeyBindings.Add(binding);
         }
     }
 

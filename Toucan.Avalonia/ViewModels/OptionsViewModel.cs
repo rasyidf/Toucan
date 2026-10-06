@@ -40,16 +40,19 @@ public partial class OptionsViewModel : ObservableObject
         appOptions = _preferenceService.Load();
         projectDefaults = _defaultsService.Load();
         LoadFromOptions();
+        RefreshIntegration();
 
         foreach (var plugin in pluginCatalog?.Plugins ?? [])
             Plugins.Add(new PluginItemViewModel(plugin, pluginPolicy, messages, () => PluginsChanged = true));
     }
 
     public static IReadOnlyList<string> Pages { get; } =
-        ["General", "Appearance", "Editor", "Translation", "Validation", "Translation Memory", "Source Code", "Languages", "Shortcuts", "Data & Privacy", "Plugins", "About"];
+        ["General", "Appearance", "Editor", "Translation", "Validation", "Translation Memory", "Source Code", "Languages", "Shortcuts", "Integration", "Data & Privacy", "Plugins", "About"];
+
+    public int PageIndexOf(string page) => Pages.ToList().IndexOf(page);
 
     /// <summary>Index of the Plugins page in <see cref="Pages"/>.</summary>
-    public const int PluginsPage = 10;
+    public const int PluginsPage = 11;
 
     public ObservableCollection<PluginItemViewModel> Plugins { get; } = [];
     public bool HasPlugins => Plugins.Count > 0;
@@ -59,11 +62,50 @@ public partial class OptionsViewModel : ObservableObject
     /// <summary>Set once a plugin was trusted, revoked, enabled or disabled; those take effect after a restart.</summary>
     [ObservableProperty] private bool pluginsChanged;
 
+    // ───────────────────────── System integration ─────────────────────────
+
+    public bool CanManageAssociation => FileAssociationService.IsSupported;
+    public bool CanManageFolderEntry => FileAssociationService.FolderEntrySupported;
+    public string SettingsFolder { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan");
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AssociationStatus))]
+    private bool associationInstalled;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FolderEntryStatus))]
+    private bool folderEntryInstalled;
+
+    /// <summary>Install result or platform guidance (macOS has no run-time registration).</summary>
+    [ObservableProperty] private string associationNote = string.Empty;
+
+    public string AssociationStatus => AssociationInstalled ? "Installed" : "Not installed";
+    public string FolderEntryStatus => FolderEntryInstalled ? "Installed" : "Not installed";
+
+    private void RefreshIntegration()
+    {
+        AssociationInstalled = FileAssociationService.IsInstalled();
+        FolderEntryInstalled = FileAssociationService.IsFolderEntryInstalled();
+        if (!FileAssociationService.IsSupported) AssociationNote = FileAssociationService.UnsupportedReason;
+    }
+
+    private void ApplyIntegration(IntegrationResult result)
+    {
+        RefreshIntegration();
+        if (!result.Ok) AssociationNote = result.Error ?? "The change failed.";
+        else if (FileAssociationService.IsSupported) AssociationNote = string.Empty;
+    }
+
+    [RelayCommand] private void InstallAssociation() => ApplyIntegration(FileAssociationService.Install());
+    [RelayCommand] private void RemoveAssociation() => ApplyIntegration(FileAssociationService.Uninstall());
+    [RelayCommand] private void InstallFolderEntry() => ApplyIntegration(FileAssociationService.InstallFolderEntry());
+    [RelayCommand] private void RemoveFolderEntry() => ApplyIntegration(FileAssociationService.UninstallFolderEntry());
+
     public static IReadOnlyList<string> ThemeOptions { get; } = ["System", "Light", "Dark"];
     public static IReadOnlyList<string> FormalityOptions { get; } = ["Default", "More", "Less", "Formal", "Informal"];
     public static IReadOnlyList<string> SeverityOptions { get; } = ["Error", "Warning", "Info"];
     public static IReadOnlyList<string> TmScopeOptions { get; } = ["All projects", "Current project only"];
-    public static IReadOnlyList<string> AppLanguageOptions { get; } = ["en-US", "id-ID"];
+    public static IReadOnlyList<string> AppLanguageOptions { get; } = Locales.Loc.Available;
 
     public static IReadOnlyList<string> FrameworkPresets { get; } =
     [

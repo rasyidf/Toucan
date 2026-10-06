@@ -21,8 +21,8 @@ Toucan detects the framework when you drop a folder (i18next, Android, Flutter, 
 
 | App | Platforms | Status |
 |-----|-----------|--------|
-| Toucan (WPF) | Windows 10 and later | Preview, v0.17.3. The most complete app: every feature below. |
-| Toucan (Avalonia) | macOS, Linux | Preview, v0.18.0 (first release). Shares the core (formats, validation, providers) with Windows. Has the Editor/Review/Audit modes, Zen mode, search and bulk edits, side panels, and plugins. Not ported yet: the Source Control, Translation, and Dictionary panels. |
+| Toucan (Avalonia) | Windows, macOS, Linux | Preview, v0.18.0. The supported app on every platform: Editor/Review/Audit modes, Zen mode, search and bulk edits, side panels, plugins, file association and Indonesian localization. Windows packaging builds this app; the Windows 0.18.0 release is coming. |
+| Toucan (WPF) | Windows 10 and later | Deprecated, v0.17.3 is the last release. Feature parity with the Avalonia app is recorded in [docs/wpf-parity.md](docs/wpf-parity.md). |
 | `toucan` CLI | Any OS with .NET 10 | Preview. `check`, `stats`, `translate`, `export`, `list-formats`, `list-keys`, `get`, `set`. |
 
 ## Supported formats

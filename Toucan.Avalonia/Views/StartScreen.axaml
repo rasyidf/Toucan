@@ -1,5 +1,6 @@
 <UserControl x:Class="Toucan.Avalonia.Views.StartScreen"
              xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls">
   <UserControl.Styles>
@@ -21,18 +22,18 @@
               <Image Source="/Assets/logo.png" Width="56" Height="56"/>
               <StackPanel VerticalAlignment="Center">
                 <TextBlock Text="Toucan" FontSize="30" FontWeight="SemiBold"/>
-                <TextBlock Text="Translation file editor" Classes="caption" FontSize="13"/>
+                <TextBlock Text="{loc:Loc 'Translation file editor'}" Classes="caption" FontSize="13"/>
               </StackPanel>
             </StackPanel>
             <TextBlock Classes="hint" Margin="0,8,0,24" FontSize="12"
-                       Text="Edit JSON, YAML, PO, RESX, Android, iOS, XLIFF, ARB, CSV and more in one workspace."/>
+                       Text="{loc:Loc 'Edit JSON, YAML, PO, RESX, Android, iOS, XLIFF, ARB, CSV and more in one workspace.'}"/>
 
             <Button Classes="startAction accent" Command="{Binding NewFolderCommand}">
               <StackPanel Orientation="Horizontal" Spacing="12">
                 <ui:FASymbolIcon Symbol="Add" FontSize="18"/>
                 <StackPanel>
-                  <TextBlock Text="New project" FontWeight="SemiBold"/>
-                  <TextBlock Text="Start from a framework template" FontSize="11" Opacity="0.85"/>
+                  <TextBlock Text="{loc:Loc 'New project'}" FontWeight="SemiBold"/>
+                  <TextBlock Text="{loc:Loc 'Start from a framework template'}" FontSize="11" Opacity="0.85"/>
                 </StackPanel>
               </StackPanel>
             </Button>
@@ -40,8 +41,8 @@
               <StackPanel Orientation="Horizontal" Spacing="12">
                 <ui:FASymbolIcon Symbol="OpenFolder" FontSize="18"/>
                 <StackPanel>
-                  <TextBlock Text="Open folder" FontWeight="SemiBold"/>
-                  <TextBlock Text="A folder that contains translation files" FontSize="11" Classes="caption"/>
+                  <TextBlock Text="{loc:Loc 'Open folder'}" FontWeight="SemiBold"/>
+                  <TextBlock Text="{loc:Loc 'A folder that contains translation files'}" FontSize="11" Classes="caption"/>
                 </StackPanel>
               </StackPanel>
             </Button>
@@ -49,8 +50,8 @@
               <StackPanel Orientation="Horizontal" Spacing="12">
                 <ui:FASymbolIcon Symbol="Import" FontSize="18"/>
                 <StackPanel>
-                  <TextBlock Text="Import existing project" FontWeight="SemiBold"/>
-                  <TextBlock Text="Auto-detect i18next, Android, Flutter, .NET, iOS…" FontSize="11" Classes="caption"/>
+                  <TextBlock Text="{loc:Loc 'Import existing project'}" FontWeight="SemiBold"/>
+                  <TextBlock Text="{loc:Loc 'Auto-detect i18next, Android, Flutter, .NET, iOS…'}" FontSize="11" Classes="caption"/>
                 </StackPanel>
               </StackPanel>
             </Button>
@@ -58,32 +59,32 @@
               <StackPanel Orientation="Horizontal" Spacing="12">
                 <ui:FASymbolIcon Symbol="OpenFile" FontSize="18"/>
                 <StackPanel>
-                  <TextBlock Text="Open project file" FontWeight="SemiBold"/>
-                  <TextBlock Text="A toucan.tproj manifest" FontSize="11" Classes="caption"/>
+                  <TextBlock Text="{loc:Loc 'Open project file'}" FontWeight="SemiBold"/>
+                  <TextBlock Text="{loc:Loc 'A toucan.tproj manifest'}" FontSize="11" Classes="caption"/>
                 </StackPanel>
               </StackPanel>
             </Button>
 
-            <CheckBox Content="Reopen the last project on startup" IsChecked="{Binding OpenLastProjectOnStartup}" Margin="0,12,0,0"/>
+            <CheckBox Content="{loc:Loc 'Reopen the last project on startup'}" IsChecked="{Binding OpenLastProjectOnStartup}" Margin="0,12,0,0"/>
             <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,16,0,0">
-              <Button Classes="link" Content="Documentation" Command="{Binding HelpHomepageCommand}"/>
+              <Button Classes="link" Content="{loc:Loc 'Documentation'}" Command="{Binding HelpHomepageCommand}"/>
               <TextBlock Text="·" Classes="faint" VerticalAlignment="Center"/>
-              <Button Classes="link" Content="Report an issue" Command="{Binding ReportIssueCommand}"/>
+              <Button Classes="link" Content="{loc:Loc 'Report an issue'}" Command="{Binding ReportIssueCommand}"/>
               <TextBlock Text="·" Classes="faint" VerticalAlignment="Center"/>
-              <Button Classes="link" Content="Settings" Command="{Binding ShowPreferencesCommand}"/>
+              <Button Classes="link" Content="{loc:Loc 'Settings'}" Command="{Binding ShowPreferencesCommand}"/>
             </StackPanel>
           </StackPanel>
 
           <!-- Right: recent projects -->
           <DockPanel Grid.Column="2">
             <DockPanel DockPanel.Dock="Top" Margin="0,8,0,8">
-              <Button DockPanel.Dock="Right" Classes="link" Content="Clear" Command="{Binding ClearRecentProjectsCommand}"
+              <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Clear'}" Command="{Binding ClearRecentProjectsCommand}"
                       IsVisible="{Binding HasRecentProjects}"/>
-              <TextBlock Text="Recent projects" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+              <TextBlock Text="{loc:Loc 'Recent projects'}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </DockPanel>
 
             <TextBlock DockPanel.Dock="Bottom" Classes="hint" Margin="0,12,0,0"
-                       Text="Tip: drop a folder of translation files onto this window to open it."/>
+                       Text="{loc:Loc 'Tip: drop a folder of translation files onto this window to open it.'}"/>
             <Border Classes="card" Padding="4" VerticalAlignment="Top">
               <Panel>
                 <ItemsControl ItemsSource="{Binding RecentProjects}">
@@ -100,7 +101,7 @@
                             </StackPanel>
                           </StackPanel>
                         </Button>
-                        <Button Grid.Column="1" Classes="icon small" ToolTip.Tip="Remove from list"
+                        <Button Grid.Column="1" Classes="icon small" ToolTip.Tip="{loc:Loc 'Remove from list'}"
                                 Command="{Binding $parent[ItemsControl].DataContext.RemoveRecentProjectCommand}"
                                 CommandParameter="{Binding Path}">
                           <ui:FASymbolIcon Symbol="Dismiss"/>
@@ -111,7 +112,7 @@
                 </ItemsControl>
                 <StackPanel IsVisible="{Binding !HasRecentProjects}" Margin="16,24" Spacing="6" HorizontalAlignment="Center">
                   <ui:FASymbolIcon Symbol="Clock" FontSize="28" Foreground="{DynamicResource FaintTextBrush}"/>
-                  <TextBlock Text="No recent projects yet" Classes="caption" HorizontalAlignment="Center"/>
+                  <TextBlock Text="{loc:Loc 'No recent projects yet'}" Classes="caption" HorizontalAlignment="Center"/>
                 </StackPanel>
               </Panel>
             </Border>

@@ -23,6 +23,10 @@
     <None Remove=".gitignore" />
   </ItemGroup>
   <ItemGroup>
+    <!-- UI translations: flat English -> translated maps, read by Locales/Loc.cs (not satellite assemblies, so single-file publish needs nothing extra). -->
+    <EmbeddedResource Include="Locales\Strings.*.json" WithCulture="false" LogicalName="Toucan.Avalonia.Locales.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Toucan.Core\Toucan.Core.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,6 @@
 <UserControl x:Class="Toucan.Avalonia.Views.Panels.ExplorerPanel"
              xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls">
 
@@ -7,12 +8,12 @@
     <!-- Hidden namespaces notice -->
     <Border DockPanel.Dock="Bottom" Padding="12,6" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0"
             IsVisible="{Binding HiddenNamespaces.Count}">
-      <Expander Header="Hidden namespaces" Padding="0">
+      <Expander Header="{loc:Loc 'Hidden namespaces'}" Padding="0">
         <ItemsControl ItemsSource="{Binding HiddenNamespaces}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <DockPanel Margin="0,2">
-                <Button DockPanel.Dock="Right" Classes="link" Content="Show"
+                <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Show'}"
                         Command="{Binding $parent[UserControl].DataContext.UnhideNamespaceCommand}" CommandParameter="{Binding}"/>
                 <TextBlock Text="{Binding}" Classes="mono caption" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
               </DockPanel>
@@ -53,8 +54,8 @@
       </ListBox>
 
       <StackPanel IsVisible="{Binding !CurrentTreeItems.Count}" Margin="16,24" Spacing="8">
-        <TextBlock Text="This project has no keys yet." Classes="caption" TextWrapping="Wrap"/>
-        <Button Content="Add translation key…" Command="{Binding NewItemCommand}"/>
+        <TextBlock Text="{loc:Loc 'This project has no keys yet.'}" Classes="caption" TextWrapping="Wrap"/>
+        <Button Content="{loc:Loc 'Add translation key…'}" Command="{Binding NewItemCommand}"/>
       </StackPanel>
     </Panel>
   </DockPanel>

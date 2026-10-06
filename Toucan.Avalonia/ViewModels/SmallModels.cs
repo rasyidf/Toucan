@@ -67,7 +67,7 @@ internal sealed class BuiltInSidePanel : Toucan.Core.Models.SidePanelBase
     public BuiltInSidePanel(string id, string title, string icon, Toucan.Core.Models.SidePanelSlot slot, int order)
     {
         Id = id;
-        Title = title;
+        Title = Locales.Loc.T(title);
         Icon = icon;
         DefaultSlot = slot;
         Order = order;

@@ -67,8 +67,11 @@ public partial class PreTranslateViewModel : ObservableObject
         IDialogService? dialogService = null,
         IProviderSettingsService? providerSettingsService = null,
         string? projectPath = null,
-        string? primaryLanguage = null)
+        string? primaryLanguage = null,
+        IEnumerable<string>? providers = null,
+        string? initialProvider = null)
     {
+        ProviderNames = providers?.ToList() is { Count: > 0 } given ? given : [.. Providers];
         _pretranslationService = pretranslation;
         _sourceItems = sourceItems.ToList();
         _dialogService = dialogService;
@@ -81,10 +84,13 @@ public partial class PreTranslateViewModel : ObservableObject
             AvailableLanguages.Add(new LanguageItem(l, !string.Equals(l, primaryLanguage, StringComparison.OrdinalIgnoreCase)));
         }
 
-        var last = AppOptions.LoadFromDisk().LastProvider;
-        selectedProvider = Providers.Contains(last) ? last : Providers[0];
+        selectedProvider = ProviderNames.FirstOrDefault(n => string.Equals(n, initialProvider, StringComparison.OrdinalIgnoreCase)) ?? ProviderNames[0];
     }
 
+    /// <summary>Providers offered in the dialog: the registered ones (plugins included) when the caller supplies them.</summary>
+    public IReadOnlyList<string> ProviderNames { get; }
+
+    /// <summary>Built-in provider names, used when no registry list is supplied.</summary>
     public static IReadOnlyList<string> Providers { get; } = ["Google", "DeepL", "Microsoft", "OpenAI", "Custom", "Mock"];
 
     public ObservableCollection<LanguageItem> AvailableLanguages { get; } = [];
@@ -118,13 +124,6 @@ public partial class PreTranslateViewModel : ObservableObject
     public List<TranslationItem> AppliedItems { get; } = [];
 
     public Action<bool>? CloseAction { get; set; }
-
-    partial void OnSelectedProviderChanged(string value)
-    {
-        var opts = AppOptions.LoadFromDisk();
-        opts.LastProvider = value;
-        opts.ToDisk();
-    }
 
     private bool CanStart() => !IsRunning;
 

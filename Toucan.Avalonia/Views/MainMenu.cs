@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Input;
+using Toucan.Avalonia.Locales;
 using Toucan.Avalonia.Services;
 using Toucan.Avalonia.ViewModels;
 
@@ -84,7 +85,7 @@ internal static class MainMenu
             recent.Add(new Item("No recent projects"));
         }
 
-        var templates = vm.CopyTemplates.Select((t, i) => new Item($"{i + 1}. {t}", vm.CopyAsTemplateCommand, i, i == 0 ? "Copy Template 1" : null)).ToList();
+        var templates = vm.CopyTemplates.Select((t, i) => new Item($"{i + 1}. {t}", vm.CopyAsTemplateCommand, i, i < 5 ? $"Copy Template {i + 1}" : null)).ToList();
 
         var file = new List<Item>
         {
@@ -129,6 +130,7 @@ internal static class MainMenu
         }
         edit.AddRange(
         [
+            new("Cut Key Values", vm.EditCutCommand),
             new("Copy Key Values", vm.EditCopyCommand),
             new("Paste Key Values", vm.EditPasteCommand),
             new("Copy Key As", Children: templates),
@@ -150,6 +152,7 @@ internal static class MainMenu
                 new("Title Case", vm.ConvertTitleCaseCommand),
                 Separator,
                 new("Trim Whitespace", vm.TrimWhitespaceCommand),
+                new("Trim Line by Line", vm.TrimLineByLineCommand),
                 new("Simplify Whitespace", vm.SimplifyWhitespaceCommand),
             ]),
             new("Generate Plural Forms", vm.GeneratePluralFormsCommand),
@@ -271,7 +274,7 @@ internal static class MainMenu
         if (item.IsSeparator) return new Separator();
         var mi = new MenuItem
         {
-            Header = item.Header,
+            Header = Loc.T(item.Header),
             Command = item.Command,
             CommandParameter = item.Parameter,
             InputGesture = GestureOf(item.Action),
@@ -297,7 +300,7 @@ internal static class MainMenu
                 menu.Items.Add(new NativeMenuItemSeparator());
                 continue;
             }
-            var header = item.Header.Replace("_", string.Empty, StringComparison.Ordinal);
+            var header = Loc.T(item.Header).Replace("_", string.Empty, StringComparison.Ordinal);
             if (item.Children != null)
             {
                 menu.Items.Add(new NativeMenuItem(header) { Menu = ToNative(item.Children) });

@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,12 @@ public partial class App : Application
     /// <summary>Dialog service for view code that isn't constructed through DI (menus).</summary>
     internal static IDialogService Dialogs { get; private set; } = null!;
 
-    public override void Initialize() => AvaloniaXamlLoader.Load(this);
+    public override void Initialize()
+    {
+        // Before the XAML loads, so literal text is looked up in the chosen language. Tests set one explicitly first.
+        if (!Locales.Loc.IsInitialized) Locales.Loc.Use(Toucan.Core.Options.AppOptions.LoadFromDisk().AppLanguage);
+        AvaloniaXamlLoader.Load(this);
+    }
 
     public override void OnFrameworkInitializationCompleted()
     {
@@ -64,10 +70,25 @@ public partial class App : Application
             }));
 
             var startupPath = desktop.Args is { Length: > 0 } args ? args[0] : null;
+
+            // macOS hands Finder "open with" requests to the running app as an activation event, not as arguments.
+            var activatedByFile = false;
+            if (TryGetFeature(typeof(IActivatableLifetime)) is IActivatableLifetime activatable)
+            {
+                activatable.Activated += (_, e) =>
+                {
+                    if (e is not FileActivatedEventArgs { Files.Count: > 0 } files) return;
+                    var opened = files.Files[0].TryGetLocalPath();
+                    if (string.IsNullOrEmpty(opened) || !(Directory.Exists(opened) || File.Exists(opened))) return;
+                    activatedByFile = true;
+                    Dispatcher.UIThread.Post(() => _ = vm.OpenProjectAsync(opened));
+                };
+            }
+
             window.Opened += async (_, _) =>
             {
                 var path = startupPath;
-                if (string.IsNullOrEmpty(path) && vm.AppOptions.OpenLastProjectOnStartup) path = vm.AppOptions.LastProjectPath;
+                if (string.IsNullOrEmpty(path) && !activatedByFile && vm.AppOptions.OpenLastProjectOnStartup) path = vm.AppOptions.LastProjectPath;
                 if (!string.IsNullOrEmpty(path) && (Directory.Exists(path) || File.Exists(path)))
                     await vm.OpenProjectAsync(path);
                 // After the project is up, so a pending-plugins question never delays opening it.
@@ -108,6 +129,7 @@ public partial class App : Application
         registry.Register(new BuiltInSidePanel("source-code", "Source Code", "Code", SidePanelSlot.Left, 40));
         registry.Register(new BuiltInSidePanel("languages", "Languages", "Globe", SidePanelSlot.Right, 10));
         registry.Register(new BuiltInSidePanel("inspector", "Inspector", "ContactInfo", SidePanelSlot.Right, 20));
+        registry.Register(new BuiltInSidePanel("machine-translation", "Translation", "Character", SidePanelSlot.Right, 25));
         registry.Register(new BuiltInSidePanel("translation-memory", "Memory", "Library", SidePanelSlot.Right, 30));
         PanelService.Instance.RestoreActivePanels();
     }
@@ -200,7 +222,8 @@ public partial class App : Application
             sp.GetRequiredService<IFuzzySearchService>(),
             sp.GetRequiredService<ISearchAndReplaceService>(),
             sp.GetRequiredService<ITranslationMemory>(),
-            sp.GetRequiredService<BulkOperationService>()));
+            sp.GetRequiredService<BulkOperationService>(),
+            sp.GetRequiredService<ITranslationProviderRegistry>()));
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<NewProjectViewModel>();
         services.AddTransient<OptionsViewModel>();

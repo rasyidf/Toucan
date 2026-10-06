@@ -26,12 +26,12 @@ public partial class PaginationViewModel<T> : ObservableObject
     {
         get
         {
-            if (Data.Count == 0) return "No results";
-            if (!HasPages) return string.Create(CultureInfo.CurrentCulture, $"Showing all · {Data.Count} items");
+            if (Data.Count == 0) return Locales.Loc.T("No results");
+            if (!HasPages) return Locales.Loc.Format("Showing all · {0} items", Data.Count);
 
             int start = ((Page - 1) * PageSize) + 1;
             int end = Math.Min(((Page - 1) * PageSize) + PageSize, Data.Count);
-            return string.Create(CultureInfo.CurrentCulture, $"Page {Page} of {Pages} · {start}–{end} of {Data.Count}");
+            return Locales.Loc.Format("Page {0} of {1} · {2}–{3} of {4}", Page, Pages, start, end, Data.Count);
         }
     }
 

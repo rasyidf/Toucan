@@ -1,5 +1,6 @@
 <UserControl x:Class="Toucan.Avalonia.Views.Panels.LanguagesPanel"
              xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls">
   <UserControl.Styles>
@@ -28,23 +29,23 @@
                     </StackPanel>
                     <TextBlock Text="{Binding Language, Converter={StaticResource LanguageName}}" Classes="caption" TextTrimming="CharacterEllipsis"/>
                   </StackPanel>
-                  <Button Grid.Column="1" Classes="icon small" ToolTip.Tip="Language actions" VerticalAlignment="Top" Click="OnLanguageActions">
+                  <Button Grid.Column="1" Classes="icon small" ToolTip.Tip="{loc:Loc 'Language actions'}" VerticalAlignment="Top" Click="OnLanguageActions">
                     <ui:FASymbolIcon Symbol="More"/>
                   </Button>
                 </Grid>
                 <ProgressBar Value="{Binding Percentage, Mode=OneWay}" Maximum="100" Height="4" MinHeight="4" Margin="0,6,0,4"
                              Foreground="{Binding Percentage, Converter={StaticResource HealthBrush}}"/>
                 <Button Classes="statRow" Command="{Binding $parent[UserControl].DataContext.FilterLanguageTranslatedCommand}" CommandParameter="{Binding}">
-                  <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding Translated}"/><TextBlock Text="Translated" Classes="caption"/></DockPanel>
+                  <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding Translated}"/><TextBlock Text="{loc:Loc 'Translated'}" Classes="caption"/></DockPanel>
                 </Button>
                 <Button Classes="statRow" Command="{Binding $parent[UserControl].DataContext.FilterLanguageEmptyCommand}" CommandParameter="{Binding}">
-                  <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding Empty}" Foreground="{DynamicResource WarnBrush}"/><TextBlock Text="Empty" Classes="caption"/></DockPanel>
+                  <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding Empty}" Foreground="{DynamicResource WarnBrush}"/><TextBlock Text="{loc:Loc 'Empty'}" Classes="caption"/></DockPanel>
                 </Button>
                 <Button Classes="statRow" Command="{Binding $parent[UserControl].DataContext.FilterLanguageNeedsReviewCommand}" CommandParameter="{Binding}">
-                  <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding NeedsReview}" Foreground="{DynamicResource InfoBrush}"/><TextBlock Text="Needs review" Classes="caption"/></DockPanel>
+                  <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding NeedsReview}" Foreground="{DynamicResource InfoBrush}"/><TextBlock Text="{loc:Loc 'Needs review'}" Classes="caption"/></DockPanel>
                 </Button>
                 <Button Classes="statRow" Command="{Binding $parent[UserControl].DataContext.FilterLanguageApprovedCommand}" CommandParameter="{Binding}">
-                  <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding Approved}" Foreground="{DynamicResource GoodBrush}"/><TextBlock Text="Approved" Classes="caption"/></DockPanel>
+                  <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding Approved}" Foreground="{DynamicResource GoodBrush}"/><TextBlock Text="{loc:Loc 'Approved'}" Classes="caption"/></DockPanel>
                 </Button>
               </StackPanel>
             </Border>
@@ -52,8 +53,8 @@
         </ItemsControl.ItemTemplate>
       </ItemsControl>
       <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0">
-        <Button Content="Add language…" Command="{Binding NewLanguageCommand}"/>
-        <Button Content="Statistics" Command="{Binding GenerateStatisticsBulkCommand}"/>
+        <Button Content="{loc:Loc 'Add language…'}" Command="{Binding NewLanguageCommand}"/>
+        <Button Content="{loc:Loc 'Statistics'}" Command="{Binding GenerateStatisticsBulkCommand}"/>
       </StackPanel>
     </StackPanel>
   </ScrollViewer>
