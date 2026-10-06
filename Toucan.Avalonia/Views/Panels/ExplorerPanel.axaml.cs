@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using Toucan.Avalonia.ViewModels;
 using Toucan.Core.Models;
@@ -18,13 +19,17 @@ public partial class ExplorerPanel : UserControl
             if (FlatList.SelectedItem is NsFlatItem flat && DataContext is MainWindowViewModel vm)
                 vm.SelectedNode = flat.Source;
         };
-        Tree.ContextRequested += OnTreeContextRequested;
+        // Attached menus open through Avalonia's own context-menu path (reliable on macOS). The tunnel handler
+        // rebuilds the items for the clicked row just before the built-in handler opens the menu.
+        Tree.ContextMenu = new ContextMenu();
+        FlatList.ContextMenu = new ContextMenu();
+        Tree.AddHandler(ContextRequestedEvent, OnTreeContextRequested, RoutingStrategies.Tunnel);
+        FlatList.AddHandler(ContextRequestedEvent, OnTreeContextRequested, RoutingStrategies.Tunnel);
         Tree.SelectionChanged += (_, _) =>
         {
             if (Tree.SelectedItem is { } item && Tree.TreeContainerFromItem(item) is TreeViewItem { IsExpanded: false } container)
                 container.IsExpanded = true;
         };
-        FlatList.ContextRequested += OnTreeContextRequested;
     }
 
     private void OnTreeContextRequested(object? sender, ContextRequestedEventArgs e)
@@ -36,7 +41,8 @@ public partial class ExplorerPanel : UserControl
             _ => (source.FindAncestorOfType<ListBoxItem>(includeSelf: true)?.DataContext as NsFlatItem)?.FullKey
         };
 
-        var menu = new ContextMenu();
+        if ((sender as Control)?.ContextMenu is not { } menu) return;
+        menu.Items.Clear();
         menu.Items.Add(new MenuItem { Header = "Add Key…", Command = vm.NewItemCommand });
         if (!string.IsNullOrEmpty(ns))
         {
@@ -49,7 +55,5 @@ public partial class ExplorerPanel : UserControl
             menu.Items.Add(new MenuItem { Header = "Translate Empty Values", Command = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => vm.TranslateKeyAsync(ns)) });
             menu.Items.Add(new MenuItem { Header = "Hide Namespace", Command = vm.HideNamespaceCommand, CommandParameter = ns });
         }
-        menu.Open(sender as Control ?? this);
-        e.Handled = true;
     }
 }
