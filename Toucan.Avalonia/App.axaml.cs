@@ -125,10 +125,10 @@ public partial class App : Application
         var registry = SidePanelRegistry.Instance;
         registry.Register(new BuiltInSidePanel("explorer", "Explorer", "OpenFolder", SidePanelSlot.Left, 10));
         registry.Register(new BuiltInSidePanel("search", "Search", "Find", SidePanelSlot.Left, 20));
-        registry.Register(new BuiltInSidePanel("issues", "Issues", "Important", SidePanelSlot.Left, 30));
-        registry.Register(new BuiltInSidePanel("source-code", "Source Code", "Code", SidePanelSlot.Left, 40));
+        registry.Register(new BuiltInSidePanel("issues", "Issues", "Flag", SidePanelSlot.Left, 30));
+        registry.Register(new BuiltInSidePanel("source-code", "Source Code", "CodeHTML", SidePanelSlot.Left, 40));
         registry.Register(new BuiltInSidePanel("languages", "Languages", "Globe", SidePanelSlot.Right, 10));
-        registry.Register(new BuiltInSidePanel("inspector", "Inspector", "ContactInfo", SidePanelSlot.Right, 20));
+        registry.Register(new BuiltInSidePanel("inspector", "Inspector", "Tag", SidePanelSlot.Right, 20));
         registry.Register(new BuiltInSidePanel("machine-translation", "Translation", "Character", SidePanelSlot.Right, 25));
         registry.Register(new BuiltInSidePanel("translation-memory", "Memory", "Library", SidePanelSlot.Right, 30));
         PanelService.Instance.RestoreActivePanels();

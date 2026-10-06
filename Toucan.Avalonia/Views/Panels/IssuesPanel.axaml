@@ -6,10 +6,10 @@
   <DockPanel>
     <StackPanel DockPanel.Dock="Top" Margin="12,8" Spacing="8">
       <TextBlock Text="{Binding ValidationSummary}" Classes="caption" TextWrapping="Wrap"/>
-      <StackPanel Orientation="Horizontal" Spacing="6">
-        <Button Content="{loc:Loc 'Run validation'}" Classes="accent" Command="{Binding RunValidationCommand}"/>
-        <Button Content="{loc:Loc 'Analyze with AI…'}" Command="{Binding AnalyzeTranslationsCommand}"/>
-      </StackPanel>
+      <WrapPanel>
+        <Button Margin="0,0,6,6" Content="{loc:Loc 'Run validation'}" Classes="accent" Command="{Binding RunValidationCommand}"/>
+        <Button Margin="0,0,0,6" Content="{loc:Loc 'Analyze with AI…'}" Command="{Binding AnalyzeTranslationsCommand}"/>
+      </WrapPanel>
     </StackPanel>
     <ListBox Classes="plain" ItemsSource="{Binding ValidationIssues}">
       <ListBox.ItemTemplate>

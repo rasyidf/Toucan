@@ -25,12 +25,12 @@
         </ItemsControl.ItemTemplate>
       </ItemsControl>
 
-      <WrapPanel Margin="0,6,0,0">
-        <Button Content="{loc:Loc 'Translate selected key'}" Command="{Binding TranslateSelectedKeyCommand}" Margin="0,0,6,6"/>
-        <Button Content="{loc:Loc 'Fill empty values in view'}" Command="{Binding PreTranslateVisibleCommand}" Margin="0,0,6,6"/>
-        <Button Content="{loc:Loc 'Pre-translate…'}" Command="{Binding PreTranslateBulkCommand}" Margin="0,0,6,6"/>
-        <Button Content="{loc:Loc 'Provider settings…'}" Command="{Binding OpenProviderSettingsCommand}" Margin="0,0,6,6"/>
-      </WrapPanel>
+      <StackPanel Margin="0,6,0,0" Spacing="6">
+        <Button Content="{loc:Loc 'Translate selected key'}" Command="{Binding TranslateSelectedKeyCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+        <Button Content="{loc:Loc 'Fill empty values in view'}" Command="{Binding PreTranslateVisibleCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+        <Button Content="{loc:Loc 'Pre-translate…'}" Command="{Binding PreTranslateBulkCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+        <Button Content="{loc:Loc 'Provider settings…'}" Command="{Binding OpenProviderSettingsCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+      </StackPanel>
 
       <TextBlock Text="{loc:Loc 'LAST RUN'}" Classes="section"/>
       <TextBlock Text="{loc:Loc 'Run a translation to see what the provider returned.'}" Classes="caption" TextWrapping="Wrap"
