@@ -5,7 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Toucan.Avalonia.ViewModels;
 using Toucan.Avalonia.Views;
 using Toucan.Avalonia.Views.Dialogs;
+using Toucan.Core.Contracts;
 using Toucan.Core.Models;
+using Toucan.Core.Options;
+using Toucan.Core.Plugins;
+using Toucan.Plugins;
 using Xunit;
 
 namespace Toucan.Avalonia.Tests;
@@ -65,6 +69,33 @@ public class UiScreenshotTests
         window.Close();
     }
 
+    private sealed class FakeCatalog(params PluginLoadResult[] plugins) : IPluginCatalog
+    {
+        public IReadOnlyList<PluginLoadResult> Plugins { get; } = plugins;
+    }
+
+    /// <summary>Settings → Plugins filled with the TestPlugins fixture in every state a plugin can be in.</summary>
+    private static OptionsViewModel PluginsOptions(TestHost host)
+    {
+        const string hash = "8a2d9b1f0700b11098685a79cc6054541e20d6b302295fc3e4cc3946bb366b1c";
+        PluginLoadResult Result(string id, string name, string description, PluginStatus status, PluginTrustState? trust = null, string? error = null, params string[] provides) =>
+            new(Path.Combine(host.Root, "plugins", id), status,
+                new PluginManifest { Id = id, Name = name, Version = "1.2.0", ApiVersion = "1.0", EntryAssembly = "Toucan.TestPlugins.dll", Author = "Toucan", Description = description },
+                error, provides.Length > 0 ? provides : null, hash, Trust: trust);
+
+        var policy = new FilePluginPolicyStore(Path.Combine(host.Root, "policy.json"));
+        var catalog = new FakeCatalog(
+            Result("toucan.test.format", "Test format", "Reads and writes simple key=value files.", PluginStatus.Loaded, PluginTrustState.Trusted, null, "format:test-fmt", "profile:test-profile"),
+            Result("toucan.test.rule", "Test rule", "Flags values equal to \"forbidden\".", PluginStatus.NeedsTrust, PluginTrustState.Untrusted, null, "rule:test.rule"),
+            Result("toucan.test.provider", "Test MT", "Fixture machine translation provider.", PluginStatus.NeedsTrust, PluginTrustState.Changed, null, "provider:TestMt"),
+            Result("toucan.test.off", "Disabled plugin", "Switched off by the user.", PluginStatus.Disabled),
+            Result("toucan.test.bad", "Broken plugin", "Fails during startup.", PluginStatus.Failed, null, "Could not load assembly 'Broken.dll'."));
+        var vm = new OptionsViewModel(host.Services.GetRequiredService<IPreferenceService>(), host.Services.GetRequiredService<IProjectDefaultsService>(),
+            host.Dialogs, host.Messages, pluginCatalog: catalog, pluginPolicy: policy);
+        vm.SelectedPageIndex = OptionsViewModel.PluginsPage;
+        return vm;
+    }
+
     [AvaloniaFact]
     public void CaptureDialogs()
     {
@@ -78,6 +109,8 @@ public class UiScreenshotTests
             vm.SelectedPageIndex = i;
             SnapDialog(new OptionsDialog(vm), $"10-options-{i:00}-{OptionsViewModel.Pages[i].ToLowerInvariant().Replace(' ', '-').Replace("&", "and")}");
         }
+
+        SnapDialog(new OptionsDialog(PluginsOptions(host)) { Height = 1500 }, "10-options-11-plugins-populated");
 
         SnapDialog(new NewProjectDialog(host.Services.GetRequiredService<NewProjectViewModel>()), "20-new-project");
         SnapDialog(new ImportProjectDialog(new ImportProjectViewModel(host.Services.GetServices<Toucan.Core.Contracts.IFrameworkProfile>(), host.Dialogs)), "21-import-project");

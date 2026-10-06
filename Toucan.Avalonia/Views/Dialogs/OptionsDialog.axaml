@@ -350,7 +350,7 @@
         <!-- 11 Plugins -->
         <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=11}">
           <TextBlock Text="{loc:Loc 'Plugins'}" Classes="dialogTitle" Margin="0,0,0,16"/>
-          <TextBlock TextWrapping="Wrap" Classes="caption" Margin="14,0,14,16"
+          <TextBlock TextWrapping="Wrap" Classes="caption" Margin="0,0,0,16"
                      Text="{loc:Loc 'Plugins add file formats, translation providers and validation rules. A plugin is ordinary code that runs with your permissions, so Toucan only loads plugins you have enabled and trusted, and asks again if their files change.'}"/>
           <Border IsVisible="{Binding PluginsChanged}" Classes="badge" Padding="10,6" HorizontalAlignment="Left" Margin="14,0,0,16">
             <TextBlock Text="{loc:Loc 'Changes apply immediately to your settings and take effect after restarting Toucan.'}" TextWrapping="Wrap"/>
@@ -362,28 +362,51 @@
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <c:SettingsGroup>
-                  <StackPanel Margin="14,12" Spacing="4">
-                    <Grid ColumnDefinitions="*,Auto">
-                      <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding Version}" Classes="caption" VerticalAlignment="Center"/>
+                  <StackPanel>
+                    <!-- Header: name, version, status and the enable switch -->
+                    <Grid ColumnDefinitions="*,Auto" Margin="14,12,14,10">
+                      <StackPanel Spacing="4">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center"/>
+                          <Border Classes="badge"><TextBlock Text="{Binding Version, StringFormat='v{0}'}" Classes="mono"/></Border>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                          <Ellipse Classes="statusDot" Classes.good="{Binding IsGood}" Classes.warn="{Binding IsWarn}" Classes.bad="{Binding IsBad}"/>
+                          <TextBlock Text="{Binding StatusText}" Classes="caption" VerticalAlignment="Center"/>
+                        </StackPanel>
                       </StackPanel>
-                      <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEnabled}" IsEnabled="{Binding CanManage}"/>
+                      <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEnabled}" IsEnabled="{Binding CanManage}" VerticalAlignment="Center" OnContent="" OffContent=""/>
                     </Grid>
-                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" IsVisible="{Binding HasDescription}"/>
-                    <TextBlock Text="{Binding StatusText}" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding Note}" IsVisible="{Binding HasNote}" TextWrapping="Wrap" Foreground="{DynamicResource BadBrush}"/>
-                    <TextBlock Text="{Binding ProvidesText, StringFormat='Provides: {0}'}" Classes="caption" TextWrapping="Wrap" IsVisible="{Binding HasProvides}"/>
-                    <TextBlock Classes="caption" TextWrapping="Wrap">
-                      <Run Text="{Binding SignatureText}"/><Run Text="  ·  SHA-256 "/><Run Text="{Binding ShortHash}"/>
-                    </TextBlock>
-                    <TextBlock Text="{Binding Author, StringFormat='By {0}'}" Classes="caption" IsVisible="{Binding HasAuthor}"/>
-                    <TextBlock Text="{Binding Folder}" Classes="caption" TextWrapping="Wrap"/>
-                    <WrapPanel Margin="0,4,0,0">
-                      <Button Content="{loc:Loc 'Trust…'}" Classes="accent" Command="{Binding TrustCommand}" IsVisible="{Binding CanTrust}" Margin="0,0,6,0"/>
-                      <Button Content="{loc:Loc 'Revoke trust'}" Command="{Binding RevokeCommand}" IsVisible="{Binding CanRevoke}" Margin="0,0,6,0"/>
-                      <Button Content="{loc:Loc 'Show folder'}" Command="{Binding OpenFolderCommand}"/>
-                    </WrapPanel>
+                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="14,0,14,12" IsVisible="{Binding HasDescription}"/>
+                    <TextBlock Text="{Binding Note}" IsVisible="{Binding HasNote}" TextWrapping="Wrap" Margin="14,0,14,12"
+                               Foreground="{DynamicResource BadBrush}"/>
+
+                    <!-- Details -->
+                    <c:SettingsRow Title="{loc:Loc 'Provides'}" MinHeight="36" Padding="14,6" IsVisible="{Binding HasProvides}">
+                      <TextBlock Text="{Binding ProvidesText}" Classes="mono caption" TextWrapping="Wrap" TextAlignment="Right"/>
+                    </c:SettingsRow>
+                    <c:SettingsRow Title="{loc:Loc 'Author'}" MinHeight="36" Padding="14,6" IsVisible="{Binding HasAuthor}">
+                      <TextBlock Text="{Binding Author}" Classes="caption"/>
+                    </c:SettingsRow>
+                    <c:SettingsRow Title="{loc:Loc 'Signature'}" MinHeight="36" Padding="14,6">
+                      <TextBlock Text="{Binding SignatureText}" Classes="caption"/>
+                    </c:SettingsRow>
+                    <c:SettingsRow Title="SHA-256" MinHeight="36" Padding="14,6">
+                      <TextBlock Text="{Binding ShortHash}" Classes="mono caption"/>
+                    </c:SettingsRow>
+                    <c:SettingsRow Title="{loc:Loc 'Folder'}" MinHeight="36" Padding="14,6">
+                      <TextBlock Text="{Binding Folder}" Classes="mono caption" TextTrimming="PathSegmentEllipsis" MaxWidth="320"
+                                 ToolTip.Tip="{Binding Folder}"/>
+                    </c:SettingsRow>
+
+                    <!-- Actions -->
+                    <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="14,8">
+                      <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                        <Button Content="{loc:Loc 'Show folder'}" Command="{Binding OpenFolderCommand}"/>
+                        <Button Content="{loc:Loc 'Revoke trust'}" Command="{Binding RevokeCommand}" IsVisible="{Binding CanRevoke}"/>
+                        <Button Content="{loc:Loc 'Trust…'}" Classes="accent" Command="{Binding TrustCommand}" IsVisible="{Binding CanTrust}"/>
+                      </StackPanel>
+                    </Border>
                   </StackPanel>
                 </c:SettingsGroup>
               </DataTemplate>
