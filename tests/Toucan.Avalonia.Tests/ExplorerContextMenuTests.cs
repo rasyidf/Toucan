@@ -35,9 +35,10 @@ public class ExplorerContextMenuTests
         window.MouseUp(point, MouseButton.Right);
         global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
 
-        var menu = Assert.IsType<ContextMenu>(tree.ContextMenu);
-        Assert.True(menu.IsOpen);
-        var headers = menu.Items.OfType<MenuItem>().Select(m => m.Header?.ToString()).ToList();
+        var panel = window.GetVisualDescendants().OfType<ExplorerPanel>().First();
+        var flyout = Assert.IsType<MenuFlyout>(panel.LastFlyout);
+        Assert.True(flyout.IsOpen);
+        var headers = flyout.Items.OfType<MenuItem>().Select(m => m.Header?.ToString()).ToList();
         Assert.Contains("Add Key…", headers);
         Assert.Contains("Rename…", headers);
         Assert.Contains("Delete…", headers);
