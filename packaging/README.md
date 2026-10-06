@@ -73,3 +73,14 @@ Place these in `packaging/Assets/` for proper store-quality icons:
     name: Toucan-${{ github.ref_name }}-x64.msix
     path: dist/*.msix
 ```
+
+## macOS signing and notarization
+
+`build-macos-app.sh` ad-hoc signs by default. macOS Gatekeeper blocks such a build on other Macs with "Apple could not verify Toucan is free of malware". To ship one that opens without a warning, you need an Apple Developer account and a Developer ID Application certificate:
+
+```bash
+xcrun notarytool store-credentials toucan-notary --apple-id you@example.com --team-id TEAMID --password <app-specific-password>
+SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" NOTARY_PROFILE=toucan-notary packaging/build-macos-app.sh
+```
+
+Release the `.dmg` the script writes next to the app. It is the drag-to-Applications installer. Install `create-dmg` (`brew install create-dmg`) for a styled window; without it the script falls back to a plain `hdiutil` image.

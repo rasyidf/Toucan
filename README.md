@@ -12,6 +12,7 @@ Toucan is in preview: settings and project files can change between releases unt
 ## Quick start
 
 1. Download the build for your platform from [GitHub Releases](https://github.com/rasyidf/Toucan/releases): v0.18.0 for macOS (`Toucan.app`) and Linux (tarball), v0.17.3 for Windows.
+   macOS: Toucan is free and not signed with a paid Apple Developer ID, so Gatekeeper says it "could not verify" the app on first launch. Open it once, then go to System Settings > Privacy & Security and click **Open Anyway** (on macOS 14 and earlier, right-click `Toucan.app` > Open works too). Or clear the download flag: `xattr -dr com.apple.quarantine Toucan.app`.
 2. Open a folder that contains translation files, or create a new project.
 3. Translate, review, and save.
 
