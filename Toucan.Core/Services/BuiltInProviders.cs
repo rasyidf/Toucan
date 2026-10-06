@@ -12,6 +12,8 @@ public static class BuiltInProviders
         new DeepLTranslationProvider(),
         new MicrosoftTranslationProvider(),
         new OpenAITranslationProvider(),
+        new ClaudeTranslationProvider(),
+        new GeminiTranslationProvider(),
         new CustomWebhookTranslationProvider(),
         new MockTranslationProvider(),
     ];

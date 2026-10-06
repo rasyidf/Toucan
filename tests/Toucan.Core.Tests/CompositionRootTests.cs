@@ -80,7 +80,7 @@ public class CompositionRootTests
         using var sp = Build(NewServices());
         var registry = sp.GetRequiredService<ITranslationProviderRegistry>();
 
-        Assert.Equal(["Google", "DeepL", "Microsoft", "OpenAI", "Custom"], registry.GetAll().Select(d => d.Name));
+        Assert.Equal(["Google", "DeepL", "Microsoft", "OpenAI", "Claude", "Gemini", "Custom"], registry.GetAll().Select(d => d.Name));
         Assert.All(registry.GetAll(), d => Assert.True(d.IsBuiltIn));
         Assert.Equal("https://api.deepl.com/v2/translate", registry.GetByName("deepl")!.DefaultValues["endpoint"]);
         Assert.Null(registry.GetByName("mock"));
@@ -92,7 +92,7 @@ public class CompositionRootTests
     public void ParameterlessRegistryStillServesTheBuiltIns()
     {
         var registry = new TranslationProviderRegistry();
-        Assert.Equal(5, registry.GetAll().Count);
+        Assert.Equal(7, registry.GetAll().Count);
     }
 
     [Fact]

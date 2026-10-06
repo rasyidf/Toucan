@@ -53,7 +53,7 @@ Platform-agnostic library containing all business logic:
 - **Services** — implementations: strategy factory, project lifecycle, translation management, validation, TM, audit, auto-save, fuzzy search
 - **Format Engine** — 14 load strategies + 14 save strategies, identified by string format ID (`json`, `android-xml`, …). Each save strategy also owns the format's layout conventions (see below).
 - **Framework Profiles** — 8 auto-detection profiles (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, Generic JSON)
-- **Translation Providers** — Google, DeepL, Microsoft, OpenAI, Custom Webhook, Mock; each carries its own settings definition
+- **Translation Providers** — Google, DeepL, Microsoft, OpenAI, Claude, Gemini, Custom Webhook, Mock; each carries its own settings definition
 - **Validation** — 6 rules + pipeline
 - **Plugins** — `PluginHost` (discovery, isolated load contexts, registration), trust policy store, content hasher, signature seam (see [Plugin System](#plugin-system))
 
@@ -438,6 +438,8 @@ A **save strategy owns the format's layout conventions**, so nothing else switch
 | `DeepLTranslationProvider` | DeepL API (free + pro endpoints) |
 | `MicrosoftTranslationProvider` | Microsoft Translator |
 | `OpenAITranslationProvider` | OpenAI chat completions |
+| `ClaudeTranslationProvider` | Anthropic Messages API (shares batching and parsing with Gemini in `LlmTranslationProvider`) |
+| `GeminiTranslationProvider` | Google Gemini `generateContent` |
 | `CustomWebhookTranslationProvider` | User-defined HTTP endpoint |
 | `MockTranslationProvider` | Testing (prefixes value with `[MOCK]`) |
 

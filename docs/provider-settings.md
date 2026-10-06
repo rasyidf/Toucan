@@ -19,9 +19,21 @@ All built-in providers are pre-populated with sensible default values when no sa
 | DeepL | endpoint | api_key | endpoint=https://api.deepl.com/v2/translate |
 | Microsoft | endpoint, region | api_key | endpoint=https://api.cognitive.microsofttranslator.com |
 | OpenAI | endpoint, model, prompt | api_key | endpoint=https://api.openai.com/v1, model=gpt-4o-mini |
+| Claude | endpoint, model, prompt | api_key | endpoint=https://api.anthropic.com, model=claude-haiku-4-5-20251001 |
+| Gemini | endpoint, model, prompt | api_key | endpoint=https://generativelanguage.googleapis.com, model=gemini-2.5-flash |
 | Custom | endpoint, header_name | api_key | — |
 
 Each provider declares its own schema through `ITranslationProvider.Definition`; `TranslationProviderRegistry` collects the definitions of all registered providers and exposes them via `ITranslationProviderRegistry`. Plugin providers appear in the same list (they are not marked built-in). Providers without a definition, such as the mock provider, work but are not listed.
+
+### Claude and Gemini
+
+Both talk to the vendor's own API (not an OpenAI-compatible layer) and send up to 20 texts per request as a JSON array, in the order they appear.
+
+- **Claude** needs an API key from the Anthropic Console (`console.anthropic.com`). A Claude subscription does not include API access; usage is billed from Console credit. The key is sent in the `x-api-key` header. Change `model` to use a larger model.
+- **Gemini** works with a free key from Google AI Studio. Google may use free-tier prompts to improve its products, so do not send sensitive text on the free tier. The key is sent in the `x-goog-api-key` header, never in the URL. This is not the same as the **Google** provider, which is Google Cloud Translation and needs a Cloud project.
+- If no key is saved, the provider reads `ANTHROPIC_API_KEY` or `GEMINI_API_KEY` from the environment.
+- The app context and formality from Settings or Project Properties are added to the prompt. A custom `prompt` replaces the default instructions but keeps the context. Placeholders such as `{{name}}`, `{0}` and `%s` are kept as written by the default prompt.
+- Errors show the HTTP status and the provider's message, for example `HTTP 401 Unauthorized: invalid x-api-key`.
 
 ## Security model
 

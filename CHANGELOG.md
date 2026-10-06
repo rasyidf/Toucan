@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- **Claude and Gemini translation providers** — Pre-translate with Anthropic Claude (Messages API) or Google Gemini (a free AI Studio key works). Both appear in the Machine Translation panel, the Pre-translate dialog and Provider Settings, send up to 20 texts per request, add the app context and formality to the prompt, and report the provider's error message. See [docs/provider-settings.md](docs/provider-settings.md).
+
+### Changed
+- **UI polish (Avalonia app)** — Settings and Project Properties use a left page list with grouped rows; Settings has a search box that filters individual settings; plugin cards show status, details and actions; New Project, Provider Settings, Statistics, Import and Pre-translate use the same grouped style; the side panels, pager and hidden-namespaces footer are tidied.
+
+### Fixed
+- **Explorer right-click menu on macOS** — The key menu (Add Key, Rename, Delete, …) did not appear; it is now a flyout like the app's other menus.
+
 ## [0.18.1] - 2026-10-06
 
 Indonesian localization, a Machine Translation panel, `.tproj` file association and a proper macOS installer. Windows stays on 0.17.3.

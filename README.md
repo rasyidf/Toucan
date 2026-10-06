@@ -39,7 +39,7 @@ JSON, YAML, PO, RESX, Android XML, iOS `.strings`, XLIFF, ARB, CSV, TOML, INI, J
 
 The layout follows VS Code: a tree or list sidebar, a translation pane (paginated or infinite scroll), and an inspector for stats, suggestions, key details, and validation results. Zen mode hides everything except the editor.
 
-**Machine translation.** Pre-translate with Google Translate, DeepL, Microsoft Translator, or OpenAI. Results appear in a preview and are only written when you commit them. Placeholders (`{{var}}`, `{0}`, `%s`, `:param`) are preserved, formality settings are respected, and you can target a single key, a namespace, or a language.
+**Machine translation.** Pre-translate with Google Translate, DeepL, Microsoft Translator, OpenAI, Claude, or Gemini. Results appear in a preview and are only written when you commit them. Placeholders (`{{var}}`, `{0}`, `%s`, `:param`) are preserved, formality settings are respected, and you can target a single key, a namespace, or a language.
 
 **Translation memory.** Fuzzy matching runs on a trigram engine and reuses translations across projects, with a configurable threshold and scope. Matches show in the inspector as you type. TMX import and export are supported.
 
@@ -85,7 +85,7 @@ This is the planned order, not a promise. Details are in [docs/todos/future-road
 | UI | Windows: WPF with [WPF UI](https://github.com/lepoco/wpfui) (Fluent Design, Mica backdrop). macOS and Linux: [Avalonia](https://avaloniaui.net) 12 with FluentAvaloniaUI |
 | Architecture | MVVM with CommunityToolkit.Mvvm |
 | Runtime | .NET 10, System.Text.Json |
-| Providers | Google, DeepL, Microsoft, OpenAI, custom webhook |
+| Providers | Google, DeepL, Microsoft, OpenAI, Claude, Gemini, custom webhook |
 | Format engine | Strategy pattern (`ILoadStrategy` / `ISaveStrategy`), string format IDs |
 | Extensibility | Plugins loaded from `.dll` assemblies ([guide](docs/plugins.md)), contract package `Toucan.Plugins.Abstractions` |
 

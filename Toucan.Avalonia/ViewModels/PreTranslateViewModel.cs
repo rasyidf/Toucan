@@ -91,7 +91,7 @@ public partial class PreTranslateViewModel : ObservableObject
     public IReadOnlyList<string> ProviderNames { get; }
 
     /// <summary>Built-in provider names, used when no registry list is supplied.</summary>
-    public static IReadOnlyList<string> Providers { get; } = ["Google", "DeepL", "Microsoft", "OpenAI", "Custom", "Mock"];
+    public static IReadOnlyList<string> Providers { get; } = ["Google", "DeepL", "Microsoft", "OpenAI", "Claude", "Gemini", "Custom", "Mock"];
 
     public ObservableCollection<LanguageItem> AvailableLanguages { get; } = [];
     public ObservableCollection<PretranslationItemResult> PreviewResults { get; } = [];

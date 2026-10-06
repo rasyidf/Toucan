@@ -86,6 +86,8 @@ public static class ToucanCoreServiceCollectionExtensions
         services.AddSingleton<ITranslationProvider, Services.Providers.DeepLTranslationProvider>();
         services.AddSingleton<ITranslationProvider, Services.Providers.MicrosoftTranslationProvider>();
         services.AddSingleton<ITranslationProvider, Services.Providers.OpenAITranslationProvider>();
+        services.AddSingleton<ITranslationProvider>(_ => new Services.Providers.ClaudeTranslationProvider());
+        services.AddSingleton<ITranslationProvider>(_ => new Services.Providers.GeminiTranslationProvider());
         services.AddSingleton<ITranslationProvider, Services.Providers.CustomWebhookTranslationProvider>();
         services.AddSingleton<ITranslationProvider, Services.Providers.MockTranslationProvider>();
         services.AddSingleton<ITranslationProviderRegistry, TranslationProviderRegistry>();
