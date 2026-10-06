@@ -74,6 +74,10 @@ public class UiScreenshotTests
         Toucan.Core.Services.SidePanelRegistry.Instance.Activate("inspector");
         Pump();
         Snap(window, "06-inspector");
+        vm.IsMultiSelectMode = true;
+        Pump();
+        Snap(window, "07-multiselect-toolbar");
+        vm.IsMultiSelectMode = false;
         vm.HideNamespaceCommand.Execute("buttons");
         Pump();
         Toucan.Core.Services.SidePanelRegistry.Instance.Activate("explorer");

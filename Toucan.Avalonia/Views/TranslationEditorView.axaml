@@ -19,7 +19,7 @@
           </TextBox.KeyBindings>
         </TextBox>
 
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2" Margin="6,0,0,0">
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2" Margin="8,0,0,0" VerticalAlignment="Center">
           <!-- Quick filters -->
           <Button Classes="icon" ToolTip.Tip="{loc:Loc 'Quick filters'}">
             <ui:FASymbolIcon Symbol="Bookmarks"/>
@@ -65,6 +65,7 @@
             </Button.Flyout>
           </Button>
 
+          <Rectangle Classes="toolbarSeparator"/>
           <ToggleButton Classes="icon" IsChecked="{Binding IsMultiSelectMode}" ToolTip.Tip="{loc:Loc 'Select multiple keys'}">
             <ui:FASymbolIcon Symbol="SelectAll"/>
           </ToggleButton>
@@ -73,6 +74,7 @@
             <ui:FASymbolIcon Symbol="Target"/>
           </ToggleButton>
 
+          <Rectangle Classes="toolbarSeparator"/>
           <Button Classes="icon" ToolTip.Tip="{loc:Loc 'More actions'}">
             <ui:FASymbolIcon Symbol="More"/>
             <Button.Flyout>
@@ -92,7 +94,7 @@
     </Border>
 
     <!-- ═══ Active filter chip ═══ -->
-    <Border DockPanel.Dock="Top" Padding="12,6,12,0"
+    <Border DockPanel.Dock="Top" Padding="10,6,10,0"
             IsVisible="{Binding ActiveFilterDescription, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
       <StackPanel Orientation="Horizontal">
         <Border Classes="badge" Padding="8,2,2,2">
@@ -107,19 +109,22 @@
     </Border>
 
     <!-- ═══ Bulk actions (multi-select) ═══ -->
-    <Border DockPanel.Dock="Top" IsVisible="{Binding IsMultiSelectMode}" Margin="12,8,12,0" Padding="8,4"
-            CornerRadius="6" Background="{DynamicResource SelectedBackgroundBrush}">
-      <WrapPanel>
-        <TextBlock Text="{Binding SelectionText}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="4,0,12,0"/>
-        <Button Classes="link" Content="{loc:Loc 'Select all'}" Command="{Binding BulkSelectAllCommand}"/>
-        <Button Classes="link" Content="{loc:Loc 'None'}" Command="{Binding BulkDeselectAllCommand}"/>
-        <Button Classes="link" Content="{loc:Loc 'Translate…'}" Command="{Binding BulkTranslateCommand}"/>
-        <Button Classes="link" Content="{loc:Loc 'Approve'}" Command="{Binding BulkApproveCommand}"/>
-        <Button Classes="link" Content="{loc:Loc 'Copy to language…'}" Command="{Binding BulkCopyToLanguageCommand}"/>
-        <Button Classes="link" Content="{loc:Loc 'Move…'}" Command="{Binding BulkMoveToNamespaceCommand}"/>
-        <Button Classes="link" Content="{loc:Loc 'Delete…'}" Command="{Binding BulkDeleteCommand}" Foreground="{DynamicResource BadBrush}"/>
-        <Button Classes="link" Content="{loc:Loc 'Done'}" Command="{Binding ToggleMultiSelectCommand}"/>
-      </WrapPanel>
+    <Border DockPanel.Dock="Top" IsVisible="{Binding IsMultiSelectMode}" Margin="10,8,10,0" Padding="10,6"
+            CornerRadius="10" Background="{DynamicResource SelectedBackgroundBrush}"
+            BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1">
+      <DockPanel>
+        <Button DockPanel.Dock="Right" Classes="accent bulk" Content="{loc:Loc 'Done'}" Command="{Binding ToggleMultiSelectCommand}" VerticalAlignment="Top"/>
+        <TextBlock DockPanel.Dock="Left" Text="{Binding SelectionText}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="2,0,12,0"/>
+        <WrapPanel>
+          <Button Classes="bulk" Content="{loc:Loc 'Select all'}" Command="{Binding BulkSelectAllCommand}"/>
+          <Button Classes="bulk" Content="{loc:Loc 'None'}" Command="{Binding BulkDeselectAllCommand}"/>
+          <Button Classes="bulk" Content="{loc:Loc 'Translate…'}" Command="{Binding BulkTranslateCommand}"/>
+          <Button Classes="bulk" Content="{loc:Loc 'Approve'}" Command="{Binding BulkApproveCommand}"/>
+          <Button Classes="bulk" Content="{loc:Loc 'Copy to language…'}" Command="{Binding BulkCopyToLanguageCommand}"/>
+          <Button Classes="bulk" Content="{loc:Loc 'Move…'}" Command="{Binding BulkMoveToNamespaceCommand}"/>
+          <Button Classes="bulk" Content="{loc:Loc 'Delete…'}" Command="{Binding BulkDeleteCommand}" Foreground="{DynamicResource BadBrush}"/>
+        </WrapPanel>
+      </DockPanel>
     </Border>
 
     <c:PaginationControl DockPanel.Dock="Bottom" IsVisible="{Binding !FocusedEditorMode}"/>

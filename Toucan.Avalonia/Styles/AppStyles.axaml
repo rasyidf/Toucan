@@ -151,7 +151,7 @@
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
   </Style>
   <Style Selector="Border.toolbar">
-    <Setter Property="Padding" Value="8,6"/>
+    <Setter Property="Padding" Value="10,6"/>
     <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
   </Style>
@@ -573,5 +573,51 @@
   </Style>
   <Style Selector="Button.providerRow.selected /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+  </Style>
+
+  <!-- Editor toolbar: uniform 28px icon buttons, soft checked state, rounded filter box -->
+  <Style Selector="Border.toolbar Button.icon, Border.toolbar ToggleButton.icon">
+    <Setter Property="Width" Value="30"/>
+    <Setter Property="Height" Value="30"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Border.toolbar Button.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter, Border.toolbar ToggleButton.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="Border.toolbar ToggleButton.icon:checked /template/ ContentPresenter#PART_ContentPresenter, Border.toolbar ToggleButton.icon:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+  </Style>
+  <Style Selector="Border.toolbar TextBox">
+    <Setter Property="MinHeight" Value="32"/>
+    <Setter Property="CornerRadius" Value="8"/>
+  </Style>
+  <Style Selector="Rectangle.toolbarSeparator">
+    <Setter Property="Width" Value="1"/>
+    <Setter Property="Height" Value="16"/>
+    <Setter Property="Margin" Value="6,0"/>
+    <Setter Property="Fill" Value="{DynamicResource SubtleBorderBrush}"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+
+  <!-- Bulk-action bar buttons -->
+  <Style Selector="Button.bulk">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="8,3"/>
+    <Setter Property="MinHeight" Value="26"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Margin" Value="0,0,2,0"/>
+  </Style>
+  <Style Selector="Button.bulk.accent">
+    <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}"/>
+  </Style>
+  <Style Selector="Button.bulk:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
   </Style>
 </Styles>
