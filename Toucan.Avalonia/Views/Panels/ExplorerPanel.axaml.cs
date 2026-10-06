@@ -21,8 +21,8 @@ public partial class ExplorerPanel : UserControl
         };
         // Attached menus open through Avalonia's own context-menu path (reliable on macOS). The tunnel handler
         // rebuilds the items for the clicked row just before the built-in handler opens the menu.
-        Tree.ContextMenu = new ContextMenu();
-        FlatList.ContextMenu = new ContextMenu();
+        Tree.ContextMenu = CreateMenu();
+        FlatList.ContextMenu = CreateMenu();
         Tree.AddHandler(ContextRequestedEvent, OnTreeContextRequested, RoutingStrategies.Tunnel);
         FlatList.AddHandler(ContextRequestedEvent, OnTreeContextRequested, RoutingStrategies.Tunnel);
         Tree.SelectionChanged += (_, _) =>
@@ -32,17 +32,33 @@ public partial class ExplorerPanel : UserControl
         };
     }
 
+    private string? _contextKey;
+
+    private ContextMenu CreateMenu()
+    {
+        var menu = new ContextMenu();
+        menu.Opening += (_, _) => BuildMenu(menu);
+        return menu;
+    }
+
+    /// <summary>Remembers which key was right-clicked. The menu itself is built in its Opening event, never while it is open.</summary>
     private void OnTreeContextRequested(object? sender, ContextRequestedEventArgs e)
     {
-        if (DataContext is not MainWindowViewModel vm || e.Source is not Visual source) return;
-        var ns = source.FindAncestorOfType<TreeViewItem>(includeSelf: true)?.DataContext switch
+        if ((sender as Control)?.ContextMenu is { IsOpen: true }) return;
+        _contextKey = null;
+        if (e.Source is not Visual source) return;
+        _contextKey = source.FindAncestorOfType<TreeViewItem>(includeSelf: true)?.DataContext switch
         {
             NsTreeItem node => node.Namespace,
             _ => (source.FindAncestorOfType<ListBoxItem>(includeSelf: true)?.DataContext as NsFlatItem)?.FullKey
         };
+    }
 
-        if ((sender as Control)?.ContextMenu is not { } menu) return;
+    private void BuildMenu(ContextMenu menu)
+    {
         menu.Items.Clear();
+        if (DataContext is not MainWindowViewModel vm) return;
+        var ns = _contextKey;
         menu.Items.Add(new MenuItem { Header = "Add Key…", Command = vm.NewItemCommand });
         if (!string.IsNullOrEmpty(ns))
         {
