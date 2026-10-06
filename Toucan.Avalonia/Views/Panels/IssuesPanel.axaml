@@ -4,12 +4,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls">
   <DockPanel>
-    <StackPanel DockPanel.Dock="Top" Margin="12,8" Spacing="8">
+    <StackPanel DockPanel.Dock="Top" Margin="10,8" Spacing="8">
       <TextBlock Text="{Binding ValidationSummary}" Classes="caption" TextWrapping="Wrap"/>
-      <WrapPanel>
-        <Button Margin="0,0,6,6" Content="{loc:Loc 'Run validation'}" Classes="accent" Command="{Binding RunValidationCommand}"/>
-        <Button Margin="0,0,0,6" Content="{loc:Loc 'Analyze with AI…'}" Command="{Binding AnalyzeTranslationsCommand}"/>
-      </WrapPanel>
+      <StackPanel Spacing="6">
+        <Button Content="{loc:Loc 'Run validation'}" Classes="accent" Command="{Binding RunValidationCommand}"/>
+        <Button Content="{loc:Loc 'Analyze with AI…'}" Command="{Binding AnalyzeTranslationsCommand}"/>
+      </StackPanel>
     </StackPanel>
     <ListBox Classes="plain" ItemsSource="{Binding ValidationIssues}">
       <ListBox.ItemTemplate>

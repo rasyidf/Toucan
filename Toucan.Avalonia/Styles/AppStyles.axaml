@@ -146,7 +146,7 @@
   </Style>
   <Style Selector="Border.panelHeader">
     <Setter Property="Height" Value="36"/>
-    <Setter Property="Padding" Value="12,0,4,0"/>
+    <Setter Property="Padding" Value="10,0,4,0"/>
     <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
   </Style>
@@ -545,5 +545,33 @@
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="FontSize" Value="12"/>
     <Setter Property="Padding" Value="8,5"/>
+  </Style>
+
+  <!-- Side panels: compact type and controls, one 10px inset -->
+  <Style Selector="ContentControl.panelHost Button:not(.icon):not(.row):not(.link):not(.statRow):not(.segment):not(.page):not(.pager)">
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="MinHeight" Value="28"/>
+    <Setter Property="Padding" Value="8,4"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="ContentControl.panelHost TextBlock.caption">
+    <Setter Property="FontSize" Value="11"/>
+  </Style>
+  <Style Selector="c|SettingsGroup.compact TextBlock.groupHeader">
+    <Setter Property="Margin" Value="4,0,0,4"/>
+    <Setter Property="FontSize" Value="11"/>
+  </Style>
+  <Style Selector="Button.providerRow">
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="0"/>
+    <Setter Property="Padding" Value="10,7"/>
+    <Setter Property="MinHeight" Value="0"/>
+  </Style>
+  <Style Selector="Button.providerRow.selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
   </Style>
 </Styles>

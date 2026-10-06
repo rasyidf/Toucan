@@ -93,7 +93,7 @@
               <TextBlock x:Name="LeftPanelTitle" Classes="panelTitle" Text="{loc:Loc 'EXPLORER'}"/>
             </DockPanel>
           </Border>
-          <ContentControl x:Name="LeftPanelContent"/>
+          <ContentControl x:Name="LeftPanelContent" Classes="panelHost" FontSize="12"/>
         </DockPanel>
         <GridSplitter Grid.Column="2" x:Name="LeftSplitter" Width="4" ResizeDirection="Columns" Background="Transparent"
                       BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0"/>
@@ -115,7 +115,7 @@
               <TextBlock x:Name="RightPanelTitle" Classes="panelTitle" Text="{loc:Loc 'LANGUAGES'}"/>
             </DockPanel>
           </Border>
-          <ContentControl x:Name="RightPanelContent"/>
+          <ContentControl x:Name="RightPanelContent" Classes="panelHost" FontSize="12"/>
         </DockPanel>
 
         <c:ActivityBar Grid.Column="6" x:Name="RightActivityBar"

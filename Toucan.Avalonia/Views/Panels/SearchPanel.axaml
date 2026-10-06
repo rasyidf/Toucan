@@ -5,7 +5,7 @@
              xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:vm="using:Toucan.Avalonia.ViewModels">
   <DockPanel>
-    <StackPanel DockPanel.Dock="Top" Margin="12,8" Spacing="6">
+    <StackPanel DockPanel.Dock="Top" Margin="10,8" Spacing="6">
       <Grid ColumnDefinitions="Auto,*">
         <ToggleButton Classes="icon small" IsChecked="{Binding ShowReplacePanel}" ToolTip.Tip="{loc:Loc 'Toggle replace'}" VerticalAlignment="Top" Margin="0,4,4,0">
           <ui:FASymbolIcon Symbol="ChevronRight"/>
@@ -41,7 +41,7 @@
     </StackPanel>
 
     <!-- History when there are no results -->
-    <StackPanel DockPanel.Dock="Bottom" Margin="12,6" IsVisible="{Binding SearchHistory.Count}">
+    <StackPanel DockPanel.Dock="Bottom" Margin="10,6" IsVisible="{Binding SearchHistory.Count}">
       <TextBlock Text="{loc:Loc 'Recent searches'}" Classes="caption"/>
       <ItemsControl ItemsSource="{Binding SearchHistory}">
         <ItemsControl.ItemTemplate>

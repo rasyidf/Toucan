@@ -15,7 +15,7 @@
     </Style>
   </UserControl.Styles>
   <ScrollViewer>
-    <StackPanel Margin="12,8">
+    <StackPanel Margin="10,8,10,12">
       <ItemsControl ItemsSource="{Binding SummaryInfo.Details}">
         <ItemsControl.ItemTemplate>
           <DataTemplate>
@@ -52,10 +52,10 @@
           </DataTemplate>
         </ItemsControl.ItemTemplate>
       </ItemsControl>
-      <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0">
-        <Button Content="{loc:Loc 'Add language…'}" Command="{Binding NewLanguageCommand}"/>
-        <Button Content="{loc:Loc 'Statistics'}" Command="{Binding GenerateStatisticsBulkCommand}"/>
-      </StackPanel>
+      <UniformGrid Columns="2" Margin="0,4,0,0">
+        <Button Content="{loc:Loc 'Add language…'}" Command="{Binding NewLanguageCommand}" Margin="0,0,3,0"/>
+        <Button Content="{loc:Loc 'Statistics'}" Command="{Binding GenerateStatisticsBulkCommand}" Margin="3,0,0,0"/>
+      </UniformGrid>
     </StackPanel>
   </ScrollViewer>
 </UserControl>

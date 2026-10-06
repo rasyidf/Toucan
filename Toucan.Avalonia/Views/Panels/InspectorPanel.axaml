@@ -11,11 +11,11 @@
     </StackPanel>
 
     <ScrollViewer IsVisible="{Binding HasSelectedKeyDetails}">
-      <StackPanel Margin="12,12,12,12">
+      <StackPanel Margin="10,10,10,12">
 
         <!-- Key and quick actions -->
-        <c:SettingsGroup Margin="0,0,0,14" Header="{loc:Loc 'KEY'}">
-          <StackPanel Margin="12,10" Spacing="10">
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'KEY'}">
+          <StackPanel Margin="10,8" Spacing="8">
             <Grid ColumnDefinitions="*,Auto">
               <SelectableTextBlock Text="{Binding SelectedKeyNamespace}" Classes="mono" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"/>
               <Button Grid.Column="1" Classes="icon small" ToolTip.Tip="{loc:Loc 'Copy key'}" VerticalAlignment="Top"
@@ -32,11 +32,11 @@
         </c:SettingsGroup>
 
         <!-- Per-language values -->
-        <c:SettingsGroup Margin="0,0,0,14" Header="{loc:Loc 'LANGUAGES'}">
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'LANGUAGES'}">
           <ItemsControl Classes="rows" ItemsSource="{Binding SelectedKeyLanguages}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Border Classes="itemRow">
+                <Border Classes="itemRow" Padding="10,6">
                   <Grid ColumnDefinitions="Auto,*,Auto">
                     <Border Classes="langBadge" Margin="0,0,10,0" VerticalAlignment="Center"><TextBlock Text="{Binding Language}"/></Border>
                     <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="12" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
@@ -50,17 +50,17 @@
           </ItemsControl>
         </c:SettingsGroup>
 
-        <c:SettingsGroup Margin="0,0,0,14" Header="{loc:Loc 'COMMENT'}"
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'COMMENT'}"
                          IsVisible="{Binding SelectedKeyComment, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-          <SelectableTextBlock Text="{Binding SelectedKeyComment}" TextWrapping="Wrap" FontSize="12" Margin="12,10"/>
+          <SelectableTextBlock Text="{Binding SelectedKeyComment}" TextWrapping="Wrap" FontSize="12" Margin="10,8"/>
         </c:SettingsGroup>
 
-        <c:SettingsGroup Margin="0,0,0,14" Header="{loc:Loc 'TRANSLATION MEMORY'}" IsVisible="{Binding HasMemoryMatches}">
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'TRANSLATION MEMORY'}" IsVisible="{Binding HasMemoryMatches}">
           <ItemsControl Classes="rows" ItemsSource="{Binding MemoryMatches}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <Border Classes="itemRow" Padding="0">
-                  <Button Classes="row" Padding="12,8" CornerRadius="0" ToolTip.Tip="{loc:Loc 'Insert into the focused field'}"
+                  <Button Classes="row" Padding="10,7" CornerRadius="0" ToolTip.Tip="{loc:Loc 'Insert into the focused field'}"
                           Command="{Binding $parent[UserControl].DataContext.InsertSuggestionCommand}" CommandParameter="{Binding Text}">
                     <StackPanel Spacing="2">
                       <DockPanel>
@@ -76,12 +76,12 @@
           </ItemsControl>
         </c:SettingsGroup>
 
-        <c:SettingsGroup Margin="0,0,0,14" Header="{loc:Loc 'SIMILAR KEYS'}" IsVisible="{Binding HasSuggestions}">
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'SIMILAR KEYS'}" IsVisible="{Binding HasSuggestions}">
           <ItemsControl Classes="rows" ItemsSource="{Binding Suggestions}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <Border Classes="itemRow" Padding="0">
-                  <Button Classes="row" Padding="12,8" CornerRadius="0" ToolTip.Tip="{loc:Loc 'Go to key'}"
+                  <Button Classes="row" Padding="10,7" CornerRadius="0" ToolTip.Tip="{loc:Loc 'Go to key'}"
                           Command="{Binding $parent[UserControl].DataContext.RevealKeyCommand}" CommandParameter="{Binding Label}">
                     <StackPanel Spacing="2">
                       <TextBlock Text="{Binding Label}" Classes="mono caption" TextTrimming="CharacterEllipsis"/>
@@ -95,12 +95,12 @@
           </ItemsControl>
         </c:SettingsGroup>
 
-        <c:SettingsGroup Margin="0,0,0,14" Header="{loc:Loc 'USED IN SOURCE'}" IsVisible="{Binding HasSelectedKeyUsages}">
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'USED IN SOURCE'}" IsVisible="{Binding HasSelectedKeyUsages}">
           <ItemsControl Classes="rows" ItemsSource="{Binding SelectedKeyUsages}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <Border Classes="itemRow" Padding="0">
-                  <Button Classes="row" Padding="12,8" CornerRadius="0" ToolTip.Tip="{Binding LineContent}"
+                  <Button Classes="row" Padding="10,7" CornerRadius="0" ToolTip.Tip="{Binding LineContent}"
                           Command="{Binding $parent[UserControl].DataContext.OpenUsageCommand}" CommandParameter="{Binding}">
                     <TextBlock Classes="mono" FontSize="11" TextTrimming="PathSegmentEllipsis">
                       <Run Text="{Binding FilePath}"/><Run Text=":"/><Run Text="{Binding Line}"/>
@@ -112,8 +112,8 @@
           </ItemsControl>
         </c:SettingsGroup>
 
-        <c:SettingsGroup Margin="0,0,0,0" Header="{loc:Loc 'HISTORY'}">
-          <SelectableTextBlock Text="{Binding SelectedKeyAuditInfo}" FontSize="12" Foreground="{DynamicResource MutedTextBrush}" TextWrapping="Wrap" Margin="12,10"/>
+        <c:SettingsGroup Classes="compact" Margin="0" Header="{loc:Loc 'HISTORY'}">
+          <SelectableTextBlock Text="{Binding SelectedKeyAuditInfo}" FontSize="12" Foreground="{DynamicResource MutedTextBrush}" TextWrapping="Wrap" Margin="10,8"/>
         </c:SettingsGroup>
       </StackPanel>
     </ScrollViewer>

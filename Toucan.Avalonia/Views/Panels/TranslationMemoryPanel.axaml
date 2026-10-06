@@ -2,46 +2,59 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="using:FluentAvalonia.UI.Controls">
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:c="using:Toucan.Avalonia.Views.Components">
   <ScrollViewer>
-    <StackPanel Margin="12,8" Spacing="6">
-      <TextBlock TextWrapping="Wrap" Classes="caption"
+    <StackPanel Margin="10,8,10,12">
+      <TextBlock TextWrapping="Wrap" Classes="caption" Margin="2,0,2,10"
                  Text="{loc:Loc 'Translation memory remembers source → target pairs from projects you save, and suggests them for similar text.'}"/>
-      <StackPanel Orientation="Horizontal" Spacing="6">
-        <TextBlock Text="{Binding TmEntryCount}" FontSize="20" FontWeight="SemiBold"/>
-        <TextBlock Text="{loc:Loc 'entries'}" Classes="caption" VerticalAlignment="Bottom" Margin="0,0,0,3"/>
-      </StackPanel>
-      <WrapPanel>
-        <Button Content="{loc:Loc 'Learn from project'}" Command="{Binding LearnProjectIntoMemoryCommand}" Margin="0,0,6,6"/>
-        <Button Content="{loc:Loc 'Import TMX…'}" Command="{Binding ImportTmxCommand}" Margin="0,0,6,6"/>
-        <Button Content="{loc:Loc 'Export TMX…'}" Command="{Binding ExportTmxCommand}" Margin="0,0,6,6"/>
-      </WrapPanel>
 
-      <TextBlock Text="{loc:Loc 'MATCHES FOR SELECTED KEY'}" Classes="section"/>
-      <TextBlock Text="{loc:Loc 'Select a key with a source value to see matches.'}" Classes="caption" TextWrapping="Wrap"
-                 IsVisible="{Binding !HasMemoryMatches}"/>
-      <ItemsControl ItemsSource="{Binding MemoryMatches}">
-        <ItemsControl.ItemTemplate>
-          <DataTemplate>
-            <Button Classes="row" Padding="6,4" ToolTip.Tip="{loc:Loc 'Insert into the focused field'}"
-                    Command="{Binding $parent[UserControl].DataContext.InsertSuggestionCommand}" CommandParameter="{Binding Text}">
-              <StackPanel>
-                <DockPanel>
-                  <Border DockPanel.Dock="Left" Classes="badge" Margin="0,0,6,0"><TextBlock Text="{Binding Label}"/></Border>
-                  <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="12"/>
-                </DockPanel>
-                <TextBlock Text="{Binding Detail}" Classes="hint" MaxLines="2" TextTrimming="CharacterEllipsis"/>
-              </StackPanel>
-            </Button>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
+      <c:SettingsGroup Classes="compact" Margin="0,0,0,10">
+        <StackPanel Margin="10,8" Spacing="8">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Text="{Binding TmEntryCount}" FontSize="18" FontWeight="SemiBold"/>
+            <TextBlock Text="{loc:Loc 'entries'}" Classes="caption" VerticalAlignment="Bottom" Margin="0,0,0,2"/>
+          </StackPanel>
+          <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="6" ColumnSpacing="6">
+            <Button Grid.ColumnSpan="2" Content="{loc:Loc 'Learn from project'}" Command="{Binding LearnProjectIntoMemoryCommand}"/>
+            <Button Grid.Row="1" Content="{loc:Loc 'Import TMX…'}" Command="{Binding ImportTmxCommand}"/>
+            <Button Grid.Row="1" Grid.Column="1" Content="{loc:Loc 'Export TMX…'}" Command="{Binding ExportTmxCommand}"/>
+          </Grid>
+        </StackPanel>
+      </c:SettingsGroup>
 
-      <TextBlock Text="{loc:Loc 'SUGGESTION FOR FOCUSED FIELD'}" Classes="section" IsVisible="{Binding GhostSuggestion, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-      <Button Classes="row" Padding="6,4" IsVisible="{Binding GhostSuggestion, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-              Command="{Binding InsertSuggestionCommand}" CommandParameter="{Binding GhostSuggestion}">
-        <TextBlock Text="{Binding GhostSuggestion}" TextWrapping="Wrap" FontSize="12"/>
-      </Button>
+      <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'MATCHES FOR SELECTED KEY'}">
+        <StackPanel>
+          <TextBlock Text="{loc:Loc 'Select a key with a source value to see matches.'}" Classes="caption" TextWrapping="Wrap" Margin="10,8"
+                     IsVisible="{Binding !HasMemoryMatches}"/>
+          <ItemsControl Classes="rows" ItemsSource="{Binding MemoryMatches}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Classes="itemRow" Padding="0">
+                  <Button Classes="row" Padding="10,7" CornerRadius="0" ToolTip.Tip="{loc:Loc 'Insert into the focused field'}"
+                          Command="{Binding $parent[UserControl].DataContext.InsertSuggestionCommand}" CommandParameter="{Binding Text}">
+                    <StackPanel Spacing="2">
+                      <DockPanel>
+                        <Border DockPanel.Dock="Left" Classes="langBadge" Margin="0,0,8,0" VerticalAlignment="Top"><TextBlock Text="{Binding Label}"/></Border>
+                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="12" VerticalAlignment="Center"/>
+                      </DockPanel>
+                      <TextBlock Text="{Binding Detail}" Classes="hint" MaxLines="2" TextTrimming="CharacterEllipsis" Margin="0"/>
+                    </StackPanel>
+                  </Button>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </c:SettingsGroup>
+
+      <c:SettingsGroup Classes="compact" Margin="0" Header="{loc:Loc 'SUGGESTION FOR FOCUSED FIELD'}"
+                       IsVisible="{Binding GhostSuggestion, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+        <Button Classes="row" Padding="10,8" CornerRadius="0"
+                Command="{Binding InsertSuggestionCommand}" CommandParameter="{Binding GhostSuggestion}">
+          <TextBlock Text="{Binding GhostSuggestion}" TextWrapping="Wrap" FontSize="12"/>
+        </Button>
+      </c:SettingsGroup>
     </StackPanel>
   </ScrollViewer>
 </UserControl>
