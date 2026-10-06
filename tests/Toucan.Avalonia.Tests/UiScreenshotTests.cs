@@ -43,7 +43,7 @@ public class UiScreenshotTests
         using var host = new TestHost();
         App.RegisterSidePanels();
         var folder = host.CreateJsonProject("shots",
-            ("en", """{"app.title": "My App", "buttons.save": "Save", "buttons.cancel": "Cancel", "nav.home": "Home"}"""),
+            ("en", "{" + string.Join(",", Enumerable.Range(1, 60).Select(i => $"\"k{i:00}.title\": \"Title {i}\"")) + ", \"app.title\": \"My App\"}"),
             ("de", """{"app.title": "Meine App", "buttons.save": "Speichern"}"""),
             ("id", """{"app.title": "Aplikasiku"}"""));
         var vm = host.CreateViewModel();

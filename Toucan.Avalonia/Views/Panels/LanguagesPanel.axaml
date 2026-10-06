@@ -15,7 +15,7 @@
     </Style>
   </UserControl.Styles>
   <ScrollViewer>
-    <StackPanel Margin="8">
+    <StackPanel Margin="12,8">
       <ItemsControl ItemsSource="{Binding SummaryInfo.Details}">
         <ItemsControl.ItemTemplate>
           <DataTemplate>

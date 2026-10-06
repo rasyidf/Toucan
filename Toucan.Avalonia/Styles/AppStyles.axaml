@@ -265,15 +265,24 @@
   </Style>
 
   <!-- Pagination -->
-  <Style Selector="Button.page">
-    <Setter Property="MinWidth" Value="30"/>
+  <Style Selector="Button.page, Button.pager, ToggleButton.pager">
+    <Setter Property="MinWidth" Value="28"/>
+    <Setter Property="MinHeight" Value="28"/>
     <Setter Property="Height" Value="28"/>
     <Setter Property="Padding" Value="6,0"/>
-    <Setter Property="Margin" Value="1,0"/>
+    <Setter Property="Margin" Value="0"/>
+    <Setter Property="CornerRadius" Value="4"/>
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="BorderThickness" Value="0"/>
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.pager, ToggleButton.pager">
+    <Setter Property="Width" Value="28"/>
+    <Setter Property="Padding" Value="0"/>
+  </Style>
+  <Style Selector="Button.pager ui|FASymbolIcon, ToggleButton.pager ui|FASymbolIcon">
+    <Setter Property="FontSize" Value="13"/>
   </Style>
   <Style Selector="Button.page.current">
     <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
