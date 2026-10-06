@@ -9,6 +9,9 @@ Toucan is in preview: settings and project files can change between releases unt
 
 <img width="878" height="668" alt="Toucan editor with the tree sidebar, translation grid, and inspector panel" src="https://github.com/user-attachments/assets/6c60208e-640a-4fbc-b280-63f5fc856ece" />
 
+<img width="1314" height="848" alt="image" src="https://github.com/user-attachments/assets/e4e27e02-c0b5-4bf8-bfac-9ac59a3c69e5" />
+
+
 ## Quick start
 
 1. Download the build for your platform from [GitHub Releases](https://github.com/rasyidf/Toucan/releases): v0.18.1 for macOS (`Toucan.app` in a DMG or zip) and Linux (tarball), v0.17.3 for Windows.
