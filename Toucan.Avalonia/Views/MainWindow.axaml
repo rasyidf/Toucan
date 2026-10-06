@@ -144,6 +144,6 @@
                      IsVisible="{Binding Source={x:Static svc:PanelService.Instance}, Path=StatusBarVisible}"/>
 
     <!-- ═══ Zen mode covers everything ═══ -->
-    <views:ZenEditorView Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding ZenMode}"/>
+    <views:ZenEditorView x:Name="ZenView" Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding ZenMode}"/>
   </Grid>
 </Window>

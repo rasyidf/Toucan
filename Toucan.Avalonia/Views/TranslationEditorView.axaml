@@ -158,7 +158,7 @@
           </DockPanel>
         </Border>
         <ScrollViewer>
-          <c:TranslationCard DataContext="{Binding ZenCurrentItem}" Margin="24,16" MaxWidth="900"/>
+          <c:TranslationCard DataContext="{Binding ZenCurrentItem}" Margin="24,16" MaxWidth="900" VerticalAlignment="Top"/>
         </ScrollViewer>
       </DockPanel>
 

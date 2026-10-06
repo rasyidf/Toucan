@@ -76,8 +76,12 @@ public partial class MainWindow : Window
 
         const double TrafficLightInset = 78;
         TopBar.MinHeight = 38;
-        void UpdateInset() => TopBar.Padding = new Thickness(
-            WindowState == WindowState.FullScreen ? 0 : TrafficLightInset, 0, 0, 0); // lights are hidden in fullscreen
+        void UpdateInset()
+        {
+            var inset = WindowState == WindowState.FullScreen ? 0 : TrafficLightInset; // lights are hidden in fullscreen
+            TopBar.Padding = new Thickness(inset, 0, 0, 0);
+            ZenView.SetTitleBarInset(inset); // Zen mode covers the top bar, so it needs the same clearance
+        }
         UpdateInset();
         PropertyChanged += (_, e) => { if (e.Property == WindowStateProperty) UpdateInset(); };
     }

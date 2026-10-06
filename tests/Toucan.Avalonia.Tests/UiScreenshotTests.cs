@@ -74,6 +74,12 @@ public class UiScreenshotTests
         Toucan.Core.Services.SidePanelRegistry.Instance.Activate("inspector");
         Pump();
         Snap(window, "06-inspector");
+        vm.ToggleZenModeCommand.Execute(null);
+        window.GetVisualDescendants().OfType<Toucan.Avalonia.Views.ZenEditorView>().First().SetTitleBarInset(78);
+        Pump();
+        Snap(window, "08-zen-mode");
+        vm.ToggleZenModeCommand.Execute(null);
+        Pump();
         vm.IsMultiSelectMode = true;
         Pump();
         Snap(window, "07-multiselect-toolbar");
