@@ -32,7 +32,8 @@ public sealed record MainWindowServices(
     IFuzzySearchService FuzzySearch,
     ISearchAndReplaceService SearchAndReplace,
     ITranslationMemory TranslationMemory,
-    BulkOperationService BulkOperations);
+    BulkOperationService BulkOperations,
+    ITranslationProviderRegistry ProviderRegistry);
 
 /// <summary>
 /// State and commands for the main editor window. Split across partial files by concern:
@@ -52,6 +53,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly ITranslationStrategyFactory _strategyFactory;
     private readonly IPretranslationService _pretranslationService;
     private readonly IProviderSettingsService _providerSettingsService;
+    private readonly ITranslationProviderRegistry _providerRegistry;
     private readonly IValidationPipeline _validationPipeline;
     private readonly ISourceCodeService _sourceCodeService;
     private readonly ITranslationAnalyzer _translationAnalyzer;
@@ -77,6 +79,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _strategyFactory = services.StrategyFactory;
         _pretranslationService = services.Pretranslation;
         _providerSettingsService = services.ProviderSettings;
+        _providerRegistry = services.ProviderRegistry;
         _validationPipeline = services.Validation;
         _sourceCodeService = services.SourceCode;
         _translationAnalyzer = services.Analyzer;
@@ -100,6 +103,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             Search(SearchText);
         };
 
+        RefreshProviderChoices();
         RefreshRecentProjects();
         LoadFilterHistory();
         PagedUpdates();

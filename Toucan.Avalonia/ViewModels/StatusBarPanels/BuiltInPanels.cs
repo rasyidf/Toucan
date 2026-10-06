@@ -146,10 +146,10 @@ public partial class ModePanel : StatusBarPanelBase
 
     public void Update(string mode)
     {
-        ModeName = mode.ToUpperInvariant();
+        ModeName = Locales.Loc.T(mode).ToUpper(System.Globalization.CultureInfo.CurrentUICulture);
         Content = ModeName;
         Icon = null; // badge-style, no icon
-        ToolTip = $"Editor Mode: {ModeName}\nClick to cycle";
+        ToolTip = $"{Locales.Loc.T("Editor Mode")}: {ModeName}\n{Locales.Loc.T("Click to cycle")}";
     }
 }
 

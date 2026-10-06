@@ -17,7 +17,7 @@ if (-not $Version) {
     $AppVersion = ([xml](Get-Content "$Root\Directory.Build.props")).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
     $Version = "$AppVersion.0"
 }
-$PublishDir = "$Root\Toucan\bin\publish"
+$PublishDir = "$Root\build\publish\msix"
 $PackagingDir = "$Root\packaging"
 $OutputDir = "$Root\dist"
 $MsixPath = "$OutputDir\Toucan-$Version-x64.msix"
@@ -30,13 +30,15 @@ Write-Host ""
 if (-not $SkipBuild) {
     Write-Host "[1/4] Publishing self-contained build..." -ForegroundColor Yellow
     Push-Location $Root
-    dotnet publish Toucan/Toucan.csproj -c $Configuration -r win-x64 --self-contained `
+    dotnet publish Toucan.Avalonia/Toucan.Avalonia.csproj -c $Configuration -r win-x64 --self-contained `
         -p:PublishSingleFile=false `
         -p:PublishReadyToRun=true `
         -p:DebugType=none `
         -o $PublishDir
     if ($LASTEXITCODE -ne 0) { throw "Publish failed" }
     Pop-Location
+    # Native packages ship ~100 MB of .pdb files that DebugType=none does not remove.
+    Get-ChildItem $PublishDir -Recurse -Include *.pdb, *.xml | Remove-Item -Force
     Write-Host "  Published to: $PublishDir" -ForegroundColor Green
 } else {
     Write-Host "[1/4] Skipping build (--SkipBuild)" -ForegroundColor DarkGray

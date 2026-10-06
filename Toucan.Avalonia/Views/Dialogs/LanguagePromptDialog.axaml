@@ -1,5 +1,6 @@
 <d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.LanguagePromptDialog"
                 xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
                 xmlns:ui="using:FluentAvalonia.UI.Controls"
@@ -9,15 +10,15 @@
       <DockPanel>
         <TextBlock Text="{Binding Result, StringFormat='Selected: {0}'}" Classes="caption" VerticalAlignment="Center"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-          <Button Content="Cancel" x:Name="CancelButton"/>
-          <Button Content="Add" Classes="accent" x:Name="OkButton" IsDefault="True" IsEnabled="{Binding CanAccept}"/>
+          <Button Content="{loc:Loc 'Cancel'}" x:Name="CancelButton"/>
+          <Button Content="{loc:Loc 'Add'}" Classes="accent" x:Name="OkButton" IsDefault="True" IsEnabled="{Binding CanAccept}"/>
         </StackPanel>
       </DockPanel>
     </Border>
     <StackPanel DockPanel.Dock="Top" Margin="20,18,20,8" Spacing="8">
       <TextBlock Text="{Binding Title}" Classes="dialogTitle"/>
       <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Classes="caption" FontSize="13"/>
-      <TextBox x:Name="Filter" Text="{Binding FilterText}" PlaceholderText="Search by name or code (e.g. French, fr-CA)" Classes="clearButton">
+      <TextBox x:Name="Filter" Text="{Binding FilterText}" PlaceholderText="{loc:Loc 'Search by name or code (e.g. French, fr-CA)'}" Classes="clearButton">
         <TextBox.InnerLeftContent>
           <ui:FASymbolIcon Symbol="Find" FontSize="14" Margin="8,0,2,0"/>
         </TextBox.InnerLeftContent>

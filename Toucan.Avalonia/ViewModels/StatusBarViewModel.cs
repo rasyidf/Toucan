@@ -52,7 +52,7 @@ public partial class StatusBarViewModel : ObservableObject
         Mode.Update("Editor");
         Encoding.Update("UTF-8");
         LineEndings.Update(Environment.NewLine == "\r\n" ? "CRLF" : "LF");
-        Project.Update("No project");
+        Project.Update(Locales.Loc.T("No project"));
         Notifications.Update(0);
         Loading.Update(false);
     }

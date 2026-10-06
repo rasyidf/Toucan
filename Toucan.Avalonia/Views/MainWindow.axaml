@@ -1,5 +1,6 @@
 <Window x:Class="Toucan.Avalonia.Views.MainWindow"
         xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         xmlns:svc="using:Toucan.Avalonia.Services"
@@ -39,25 +40,25 @@
           <Border CornerRadius="6" Padding="2" Background="{DynamicResource BadgeBackgroundBrush}" Margin="0,0,8,0"
                   IsVisible="{Binding !ShowStartScreen}">
             <StackPanel Orientation="Horizontal" Spacing="2">
-              <Button Classes="segment" Classes.active="{Binding IsEditorMode}" Content="Editor"
-                      Command="{Binding SwitchToEditorModeCommand}" ToolTip.Tip="Edit translations"/>
-              <Button Classes="segment" Classes.active="{Binding IsReviewMode}" Content="Review"
-                      Command="{Binding SwitchToReviewModeCommand}" ToolTip.Tip="Approve or reject unreviewed translations"/>
-              <Button Classes="segment" Classes.active="{Binding IsAuditMode}" Content="Audit"
-                      Command="{Binding SwitchToAuditModeCommand}" ToolTip.Tip="Read-only view with approval state and history"/>
+              <Button Classes="segment" Classes.active="{Binding IsEditorMode}" Content="{loc:Loc 'Editor'}"
+                      Command="{Binding SwitchToEditorModeCommand}" ToolTip.Tip="{loc:Loc 'Edit translations'}"/>
+              <Button Classes="segment" Classes.active="{Binding IsReviewMode}" Content="{loc:Loc 'Review'}"
+                      Command="{Binding SwitchToReviewModeCommand}" ToolTip.Tip="{loc:Loc 'Approve or reject unreviewed translations'}"/>
+              <Button Classes="segment" Classes.active="{Binding IsAuditMode}" Content="{loc:Loc 'Audit'}"
+                      Command="{Binding SwitchToAuditModeCommand}" ToolTip.Tip="{loc:Loc 'Read-only view with approval state and history'}"/>
             </StackPanel>
           </Border>
-          <Button Classes="icon" ToolTip.Tip="Toggle left panel"
+          <Button Classes="icon" ToolTip.Tip="{loc:Loc 'Toggle left panel'}"
                   Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleSidebarCommand}"
                   IsVisible="{Binding !ShowStartScreen}">
             <ui:FASymbolIcon Symbol="DockLeft"/>
           </Button>
-          <Button Classes="icon" ToolTip.Tip="Toggle right panel"
+          <Button Classes="icon" ToolTip.Tip="{loc:Loc 'Toggle right panel'}"
                   Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleInspectorCommand}"
                   IsVisible="{Binding !ShowStartScreen}">
             <ui:FASymbolIcon Symbol="DockRight"/>
           </Button>
-          <Button Classes="icon" ToolTip.Tip="Settings" Command="{Binding ShowPreferencesCommand}">
+          <Button Classes="icon" ToolTip.Tip="{loc:Loc 'Settings'}" Command="{Binding ShowPreferencesCommand}">
             <ui:FASymbolIcon Symbol="Settings"/>
           </Button>
         </StackPanel>
@@ -84,12 +85,12 @@
         <DockPanel Grid.Column="1" x:Name="LeftPanelHost">
           <Border DockPanel.Dock="Top" Classes="panelHeader">
             <DockPanel>
-              <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="Hide panel"
+              <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="{loc:Loc 'Hide panel'}"
                       Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleSidebarCommand}">
                 <ui:FASymbolIcon Symbol="ChevronLeft"/>
               </Button>
               <StackPanel DockPanel.Dock="Right" x:Name="LeftPanelActions" Orientation="Horizontal"/>
-              <TextBlock x:Name="LeftPanelTitle" Classes="panelTitle" Text="EXPLORER"/>
+              <TextBlock x:Name="LeftPanelTitle" Classes="panelTitle" Text="{loc:Loc 'EXPLORER'}"/>
             </DockPanel>
           </Border>
           <ContentControl x:Name="LeftPanelContent"/>
@@ -106,12 +107,12 @@
         <DockPanel Grid.Column="5" x:Name="RightPanelHost">
           <Border DockPanel.Dock="Top" Classes="panelHeader">
             <DockPanel>
-              <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="Hide panel"
+              <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="{loc:Loc 'Hide panel'}"
                       Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleInspectorCommand}">
                 <ui:FASymbolIcon Symbol="ChevronRight"/>
               </Button>
               <StackPanel DockPanel.Dock="Right" x:Name="RightPanelActions" Orientation="Horizontal"/>
-              <TextBlock x:Name="RightPanelTitle" Classes="panelTitle" Text="LANGUAGES"/>
+              <TextBlock x:Name="RightPanelTitle" Classes="panelTitle" Text="{loc:Loc 'LANGUAGES'}"/>
             </DockPanel>
           </Border>
           <ContentControl x:Name="RightPanelContent"/>
@@ -131,7 +132,7 @@
             <TextBlock Text="{Binding StatusText}" HorizontalAlignment="Center"/>
             <TextBlock Text="{Binding LoadDetail}" IsVisible="{Binding CanCancelLoad}" Opacity="0.6" FontSize="11"
                        Width="220" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
-            <Button Content="Cancel" Command="{Binding CancelLoadCommand}" IsVisible="{Binding CanCancelLoad}"
+            <Button Content="{loc:Loc 'Cancel'}" Command="{Binding CancelLoadCommand}" IsVisible="{Binding CanCancelLoad}"
                     HorizontalAlignment="Center"/>
           </StackPanel>
         </Border>

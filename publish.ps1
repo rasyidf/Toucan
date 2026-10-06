@@ -13,7 +13,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $Version = ([xml](Get-Content "$PSScriptRoot\Directory.Build.props")).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
-$Project = "Toucan\Toucan.csproj"
+$Project = "Toucan.Avalonia\Toucan.Avalonia.csproj"
 $Config = "Release"
 $Runtime = "win-x64"
 
@@ -43,6 +43,9 @@ function Publish-App {
     Write-Host "  dotnet $($args -join ' ')" -ForegroundColor DarkGray
     & dotnet @args
     if ($LASTEXITCODE -ne 0) { throw "Publish failed" }
+
+    # Avalonia's native packages ship ~100 MB of .pdb files that DebugType=none does not remove.
+    Get-ChildItem $OutputDir -Recurse -Include *.pdb, *.xml | Remove-Item -Force
 }
 
 # =============================================================
@@ -129,14 +132,14 @@ function Build-Msix {
     else {
         Write-Host "  [WARN] No MSIX assets in packaging\msix\Assets\. Using placeholders." -ForegroundColor DarkYellow
         # Create minimal placeholder assets from the app icon
-        if (Test-Path "Toucan\Assets\Images\logo.png") {
-            Copy-Item "Toucan\Assets\Images\logo.png" "$assetsDir\Square44x44Logo.png" -Force
-            Copy-Item "Toucan\Assets\Images\logo.png" "$assetsDir\Square150x150Logo.png" -Force
-            Copy-Item "Toucan\Assets\Images\logo.png" "$assetsDir\Wide310x150Logo.png" -Force
-            Copy-Item "Toucan\Assets\Images\logo.png" "$assetsDir\SmallTile.png" -Force
-            Copy-Item "Toucan\Assets\Images\logo.png" "$assetsDir\LargeTile.png" -Force
-            Copy-Item "Toucan\Assets\Images\logo.png" "$assetsDir\StoreLogo.png" -Force
-            Copy-Item "Toucan\Assets\Images\logo.png" "$assetsDir\document.png" -Force
+        if (Test-Path "Toucan.Avalonia\Assets\logo.png") {
+            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\Square44x44Logo.png" -Force
+            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\Square150x150Logo.png" -Force
+            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\Wide310x150Logo.png" -Force
+            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\SmallTile.png" -Force
+            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\LargeTile.png" -Force
+            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\StoreLogo.png" -Force
+            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\document.png" -Force
         }
     }
 

@@ -1,19 +1,20 @@
 <d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.NewProjectDialog"
                 xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
                 xmlns:ui="using:FluentAvalonia.UI.Controls"
-                Title="New Project" Width="720" Height="600" MinHeight="480">
+                Title="{loc:Loc 'New Project'}" Width="720" Height="600" MinHeight="480">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <DockPanel>
         <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Classes="caption"
                    x:Name="StepText"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-          <Button Content="Cancel" Command="{Binding CancelCommand}"/>
-          <Button Content="Back" Command="{Binding PreviousStepCommand}" IsVisible="{Binding IsStep1}"/>
-          <Button Content="Next" Classes="accent" Command="{Binding NextStepCommand}" IsVisible="{Binding IsStep0}" IsDefault="True"/>
-          <Button Content="Create Project" Classes="accent" Command="{Binding CreateCommand}" IsVisible="{Binding IsStep1}"
+          <Button Content="{loc:Loc 'Cancel'}" Command="{Binding CancelCommand}"/>
+          <Button Content="{loc:Loc 'Back'}" Command="{Binding PreviousStepCommand}" IsVisible="{Binding IsStep1}"/>
+          <Button Content="{loc:Loc 'Next'}" Classes="accent" Command="{Binding NextStepCommand}" IsVisible="{Binding IsStep0}" IsDefault="True"/>
+          <Button Content="{loc:Loc 'Create Project'}" Classes="accent" Command="{Binding CreateCommand}" IsVisible="{Binding IsStep1}"
                   IsEnabled="{Binding IsValid}"/>
         </StackPanel>
       </DockPanel>
@@ -23,15 +24,15 @@
       <!-- Step 1: template, name, folder -->
       <DockPanel IsVisible="{Binding IsStep0}">
         <StackPanel DockPanel.Dock="Top" Spacing="4">
-          <TextBlock Text="New project" Classes="dialogTitle"/>
-          <TextBlock Text="Pick the framework your app uses. It decides the file format and folder layout." Classes="caption"/>
+          <TextBlock Text="{loc:Loc 'New project'}" Classes="dialogTitle"/>
+          <TextBlock Text="{loc:Loc 'Pick the framework your app uses. It decides the file format and folder layout.'}" Classes="caption"/>
         </StackPanel>
         <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
-          <TextBlock Text="Project name" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Project name'}" Classes="label"/>
           <TextBox Text="{Binding ProjectName}"/>
-          <TextBlock Text="Location" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Location'}" Classes="label"/>
           <DockPanel>
-            <Button DockPanel.Dock="Right" Content="Browse…" Margin="6,0,0,0" Command="{Binding BrowseFolderCommand}"/>
+            <Button DockPanel.Dock="Right" Content="{loc:Loc 'Browse…'}" Margin="6,0,0,0" Command="{Binding BrowseFolderCommand}"/>
             <TextBox Text="{Binding ProjectFolder}"/>
           </DockPanel>
         </StackPanel>
@@ -68,13 +69,13 @@
       <!-- Step 2: languages -->
       <DockPanel IsVisible="{Binding IsStep1}">
         <StackPanel DockPanel.Dock="Top" Spacing="4">
-          <TextBlock Text="Languages" Classes="dialogTitle"/>
-          <TextBlock Text="Toucan creates one file per language. You can add more later." Classes="caption"/>
-          <TextBlock Text="Source language" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Languages'}" Classes="dialogTitle"/>
+          <TextBlock Text="{loc:Loc 'Toucan creates one file per language. You can add more later.'}" Classes="caption"/>
+          <TextBlock Text="{loc:Loc 'Source language'}" Classes="label"/>
           <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding SourceLanguage}" MinWidth="200"/>
           <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,12,0,8">
-            <Button Content="Add language…" Command="{Binding AddLanguageCommand}"/>
-            <Button Content="Add suggested languages" Command="{Binding AddDefaultsCommand}"/>
+            <Button Content="{loc:Loc 'Add language…'}" Command="{Binding AddLanguageCommand}"/>
+            <Button Content="{loc:Loc 'Add suggested languages'}" Command="{Binding AddDefaultsCommand}"/>
           </StackPanel>
         </StackPanel>
         <Border Classes="card" Padding="4">
@@ -82,7 +83,7 @@
             <ListBox.ItemTemplate>
               <DataTemplate>
                 <DockPanel>
-                  <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="Remove"
+                  <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="{loc:Loc 'Remove'}"
                           Command="{Binding $parent[ListBox].DataContext.RemoveLanguageCommand}" CommandParameter="{Binding}">
                     <ui:FASymbolIcon Symbol="Dismiss"/>
                   </Button>

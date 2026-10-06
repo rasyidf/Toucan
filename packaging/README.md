@@ -5,7 +5,7 @@
 ### Self-contained executable (no MSIX)
 
 ```powershell
-dotnet publish Toucan/Toucan.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o dist/
+dotnet publish Toucan.Avalonia/Toucan.Avalonia.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o dist/
 ```
 
 This produces a single `Toucan.exe` (~60-80MB) that runs without .NET installed.
@@ -62,7 +62,7 @@ Place these in `packaging/Assets/` for proper store-quality icons:
 
 ```yaml
 - name: Publish
-  run: dotnet publish Toucan/Toucan.csproj -c Release -r win-x64 --self-contained -o publish/
+  run: dotnet publish Toucan.Avalonia/Toucan.Avalonia.csproj -c Release -r win-x64 --self-contained -o publish/
 
 - name: Package MSIX
   run: .\packaging\Build-Msix.ps1 -SkipBuild

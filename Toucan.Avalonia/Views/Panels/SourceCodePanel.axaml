@@ -1,5 +1,6 @@
 <UserControl x:Class="Toucan.Avalonia.Views.Panels.SourceCodePanel"
              xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls">
   <DockPanel>
@@ -7,13 +8,13 @@
       <TextBlock Text="{Binding SourceCodeStatus}" Classes="caption" TextWrapping="Wrap"/>
       <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsScanning}"/>
       <WrapPanel>
-        <Button Content="Scan" Classes="accent" Command="{Binding ScanSourceCodeCommand}" Margin="0,0,6,6"/>
-        <Button Content="Choose folder…" Command="{Binding SelectSourceRootCommand}" Margin="0,0,6,6"/>
+        <Button Content="{loc:Loc 'Scan'}" Classes="accent" Command="{Binding ScanSourceCodeCommand}" Margin="0,0,6,6"/>
+        <Button Content="{loc:Loc 'Choose folder…'}" Command="{Binding SelectSourceRootCommand}" Margin="0,0,6,6"/>
       </WrapPanel>
       <WrapPanel IsVisible="{Binding SourceCodeScanned}">
-        <Button Classes="link" Content="Show used keys" Command="{Binding FilterUsedKeysCommand}"/>
-        <Button Classes="link" Content="Show unused keys" Command="{Binding FilterUnusedKeysCommand}"/>
-        <Button Classes="link" Content="Clear" Command="{Binding ClearSourceFilterCommand}"/>
+        <Button Classes="link" Content="{loc:Loc 'Show used keys'}" Command="{Binding FilterUsedKeysCommand}"/>
+        <Button Classes="link" Content="{loc:Loc 'Show unused keys'}" Command="{Binding FilterUnusedKeysCommand}"/>
+        <Button Classes="link" Content="{loc:Loc 'Clear'}" Command="{Binding ClearSourceFilterCommand}"/>
       </WrapPanel>
     </StackPanel>
 
@@ -23,7 +24,7 @@
         <ItemsControl.ItemTemplate>
           <DataTemplate>
             <DockPanel Margin="0,1">
-              <Button DockPanel.Dock="Right" Classes="link" Content="Add"
+              <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Add'}"
                       Command="{Binding $parent[UserControl].DataContext.AddUndefinedKeyCommand}" CommandParameter="{Binding}"/>
               <TextBlock Text="{Binding}" Classes="mono caption" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
             </DockPanel>

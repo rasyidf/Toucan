@@ -1,20 +1,27 @@
 <d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.OptionsDialog"
                 xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
                 xmlns:vm="using:Toucan.Avalonia.ViewModels"
                 xmlns:ui="using:FluentAvalonia.UI.Controls"
-                Title="Settings" Width="880" Height="640" MinHeight="480">
+                Title="{loc:Loc 'Settings'}" Width="880" Height="640" MinHeight="480">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-        <Button Content="Cancel" Command="{Binding CancelCommand}"/>
-        <Button Content="Save" Classes="accent" Command="{Binding SaveCommand}" IsDefault="True"/>
+        <Button Content="{loc:Loc 'Cancel'}" Command="{Binding CancelCommand}"/>
+        <Button Content="{loc:Loc 'Save'}" Classes="accent" Command="{Binding SaveCommand}" IsDefault="True"/>
       </StackPanel>
     </Border>
 
     <Border DockPanel.Dock="Left" Width="200" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0">
-      <ListBox Classes="plain" Margin="6,12" ItemsSource="{x:Static vm:OptionsViewModel.Pages}" SelectedIndex="{Binding SelectedPageIndex}"/>
+      <ListBox Classes="plain" Margin="6,12" ItemsSource="{x:Static vm:OptionsViewModel.Pages}" SelectedIndex="{Binding SelectedPageIndex}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding Converter={x:Static loc:LocConverter.Instance}}"/>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
     </Border>
 
     <ScrollViewer Background="{DynamicResource EditorBackgroundBrush}">
@@ -22,38 +29,38 @@
 
         <!-- 0 General -->
         <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=0}">
-          <TextBlock Text="General" Classes="dialogTitle"/>
-          <CheckBox Classes="form" Content="Reopen the last project on startup" IsChecked="{Binding OpenLastProjectOnStartup}"/>
-          <TextBlock Text="Interface language" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'General'}" Classes="dialogTitle"/>
+          <CheckBox Classes="form" Content="{loc:Loc 'Reopen the last project on startup'}" IsChecked="{Binding OpenLastProjectOnStartup}"/>
+          <TextBlock Text="{loc:Loc 'Interface language'}" Classes="label"/>
           <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.AppLanguageOptions}" SelectedItem="{Binding AppLanguage}" MinWidth="200"/>
-          <TextBlock Text="Takes effect after restarting Toucan." Classes="hint"/>
-          <TextBlock Text="Keys per page" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Takes effect after restarting Toucan.'}" Classes="hint"/>
+          <TextBlock Text="{loc:Loc 'Keys per page'}" Classes="label"/>
           <NumericUpDown Value="{Binding PageSize}" Minimum="5" Maximum="500" Increment="5" FormatString="0" Width="160" HorizontalAlignment="Left"/>
-          <TextBlock Text="Show at most this many search results" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Show at most this many search results'}" Classes="label"/>
           <NumericUpDown Value="{Binding TruncateSize}" Minimum="100" Maximum="100000" Increment="100" FormatString="0" Width="160" HorizontalAlignment="Left"/>
-          <TextBlock Text="Tree loading depth" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Tree loading depth'}" Classes="label"/>
           <NumericUpDown Value="{Binding LoadingDepth}" Minimum="1" Maximum="5" FormatString="0" Width="160" HorizontalAlignment="Left"/>
-          <TextBlock Text="How many namespace levels are built up-front. Deeper levels load when expanded." Classes="hint"/>
+          <TextBlock Text="{loc:Loc 'How many namespace levels are built up-front. Deeper levels load when expanded.'}" Classes="hint"/>
         </StackPanel>
 
         <!-- 1 Appearance -->
         <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=1}">
-          <TextBlock Text="Appearance" Classes="dialogTitle"/>
-          <TextBlock Text="Theme" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Appearance'}" Classes="dialogTitle"/>
+          <TextBlock Text="{loc:Loc 'Theme'}" Classes="label"/>
           <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.ThemeOptions}" SelectedItem="{Binding Theme}" MinWidth="200"/>
-          <TextBlock Text="Editor font size" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Editor font size'}" Classes="label"/>
           <NumericUpDown Value="{Binding FontSize}" Minimum="11" Maximum="18" FormatString="0" Width="160" HorizontalAlignment="Left"/>
         </StackPanel>
 
         <!-- 2 Editor -->
         <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=2}">
-          <TextBlock Text="Editor" Classes="dialogTitle"/>
-          <TextBlock Text="Default language" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Editor'}" Classes="dialogTitle"/>
+          <TextBlock Text="{loc:Loc 'Default language'}" Classes="label"/>
           <TextBox Text="{Binding DefaultLanguage}" Width="200" HorizontalAlignment="Left"/>
-          <TextBlock Text="Used as the source language when a project doesn't specify one." Classes="hint"/>
-          <CheckBox Classes="form" Content="Treat keys as plain text (don't split on dots)" IsChecked="{Binding PlainTextKeys}"/>
-          <TextBlock Text="Copy templates" Classes="label"/>
-          <TextBlock Text="“Copy key as” wraps the key in a template. %1 is replaced by the key, e.g. t('%1')." Classes="hint" Margin="0,0,0,6"/>
+          <TextBlock Text="{loc:Loc 'Used as the source language when a project doesn\'t specify one.'}" Classes="hint"/>
+          <CheckBox Classes="form" Content="{loc:Loc 'Treat keys as plain text (don\'t split on dots)'}" IsChecked="{Binding PlainTextKeys}"/>
+          <TextBlock Text="{loc:Loc 'Copy templates'}" Classes="label"/>
+          <TextBlock Text="{loc:Loc '“Copy key as” wraps the key in a template. %1 is replaced by the key, e.g. t(\'%1\').'}" Classes="hint" Margin="0,0,0,6"/>
           <ItemsControl ItemsSource="{Binding CopyTemplates}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
@@ -67,29 +74,29 @@
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-          <Button Content="Add template" Command="{Binding AddCopyTemplateCommand}" IsEnabled="{Binding CanAddCopyTemplate}"/>
+          <Button Content="{loc:Loc 'Add template'}" Command="{Binding AddCopyTemplateCommand}" IsEnabled="{Binding CanAddCopyTemplate}"/>
         </StackPanel>
 
         <!-- 3 Translation -->
         <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=3}">
-          <TextBlock Text="Machine translation" Classes="dialogTitle"/>
-          <Button Content="Translation providers &amp; API keys…" Command="{Binding OpenProviderSettingsCommand}" Margin="0,12,0,0"/>
-          <TextBlock Text="Formality" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Machine translation'}" Classes="dialogTitle"/>
+          <Button Content="{loc:Loc 'Translation providers &amp; API keys…'}" Command="{Binding OpenProviderSettingsCommand}" Margin="0,12,0,0"/>
+          <TextBlock Text="{loc:Loc 'Formality'}" Classes="label"/>
           <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.FormalityOptions}" SelectedItem="{Binding Formality}" MinWidth="200"/>
-          <TextBlock Text="Application context" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Application context'}" Classes="label"/>
           <TextBox Text="{Binding Context}" AcceptsReturn="True" TextWrapping="Wrap" Height="90"
-                   PlaceholderText="Describe your app so AI providers pick the right terminology"/>
+                   PlaceholderText="{loc:Loc 'Describe your app so AI providers pick the right terminology'}"/>
           <TextBlock Text="{Binding ContextCharCount, StringFormat='{}{0} characters'}" Classes="hint"/>
-          <CheckBox Classes="form" Content="Preserve placeholders ({{name}}, {0}, %s, :param)" IsChecked="{Binding PreservePlaceholders}"/>
-          <CheckBox Classes="form" Content="Preview before applying machine translations" IsChecked="{Binding PreviewBeforeApply}"/>
-          <TextBlock Text="These are defaults for new projects. Each project can override them in Project Properties." Classes="hint" Margin="0,12,0,0"/>
+          <CheckBox Classes="form" Content="{loc:Loc 'Preserve placeholders ({{name}}, {0}, %s, :param)'}" IsChecked="{Binding PreservePlaceholders}"/>
+          <CheckBox Classes="form" Content="{loc:Loc 'Preview before applying machine translations'}" IsChecked="{Binding PreviewBeforeApply}"/>
+          <TextBlock Text="{loc:Loc 'These are defaults for new projects. Each project can override them in Project Properties.'}" Classes="hint" Margin="0,12,0,0"/>
         </StackPanel>
 
         <!-- 4 Validation -->
         <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=4}">
-          <TextBlock Text="Validation" Classes="dialogTitle"/>
-          <CheckBox Classes="form" Content="Validate before saving (errors block the save)" IsChecked="{Binding ValidateOnSave}"/>
-          <TextBlock Text="Rules" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Validation'}" Classes="dialogTitle"/>
+          <CheckBox Classes="form" Content="{loc:Loc 'Validate before saving (errors block the save)'}" IsChecked="{Binding ValidateOnSave}"/>
+          <TextBlock Text="{loc:Loc 'Rules'}" Classes="label"/>
           <ItemsControl ItemsSource="{Binding ValidationRules}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
@@ -105,41 +112,41 @@
 
         <!-- 5 Translation memory -->
         <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=5}">
-          <TextBlock Text="Translation memory" Classes="dialogTitle"/>
+          <TextBlock Text="{loc:Loc 'Translation memory'}" Classes="dialogTitle"/>
           <TextBlock Text="{Binding TmEntryCount, StringFormat='{}{0} entries stored'}" Classes="caption" Margin="0,6,0,0"/>
-          <CheckBox Classes="form" Content="Suggest matches while editing" IsChecked="{Binding TmAutoSuggest}"/>
+          <CheckBox Classes="form" Content="{loc:Loc 'Suggest matches while editing'}" IsChecked="{Binding TmAutoSuggest}"/>
           <TextBlock Text="{Binding TmSimilarityThreshold, StringFormat='Minimum similarity: {0:P0}'}" Classes="label"/>
           <Slider Minimum="0.3" Maximum="1" Value="{Binding TmSimilarityThreshold}" TickFrequency="0.05" IsSnapToTickEnabled="True"/>
-          <TextBlock Text="Maximum suggestions" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Maximum suggestions'}" Classes="label"/>
           <NumericUpDown Value="{Binding TmMaxSuggestions}" Minimum="1" Maximum="10" FormatString="0" Width="160" HorizontalAlignment="Left"/>
-          <TextBlock Text="Scope" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Scope'}" Classes="label"/>
           <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.TmScopeOptions}" SelectedIndex="{Binding TmGlobalScopeIndex}" MinWidth="200"/>
         </StackPanel>
 
         <!-- 6 Source code -->
         <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=6}">
-          <TextBlock Text="Source code" Classes="dialogTitle"/>
-          <TextBlock Text="Preset" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Source code'}" Classes="dialogTitle"/>
+          <TextBlock Text="{loc:Loc 'Preset'}" Classes="label"/>
           <DockPanel>
-            <Button DockPanel.Dock="Right" Content="Apply preset" Margin="6,0,0,0" Command="{Binding ApplyFrameworkPresetCommand}"/>
+            <Button DockPanel.Dock="Right" Content="{loc:Loc 'Apply preset'}" Margin="6,0,0,0" Command="{Binding ApplyFrameworkPresetCommand}"/>
             <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.FrameworkPresets}" SelectedItem="{Binding SelectedFrameworkPreset}" HorizontalAlignment="Stretch"/>
           </DockPanel>
-          <CheckBox Classes="form" Content="Scan source code when a project opens" IsChecked="{Binding DefaultAutoScanOnOpen}"/>
-          <TextBlock Text="File extensions to scan" Classes="label"/>
+          <CheckBox Classes="form" Content="{loc:Loc 'Scan source code when a project opens'}" IsChecked="{Binding DefaultAutoScanOnOpen}"/>
+          <TextBlock Text="{loc:Loc 'File extensions to scan'}" Classes="label"/>
           <TextBox Text="{Binding DefaultScanExtensions}" Classes="mono"/>
-          <TextBlock Text="Excluded folders" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Excluded folders'}" Classes="label"/>
           <TextBox Text="{Binding DefaultExcludedDirectories}" Classes="mono"/>
-          <TextBlock Text="Key pattern (regex, first group = key)" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Key pattern (regex, first group = key)'}" Classes="label"/>
           <TextBox Text="{Binding DefaultKeyMatcherPattern}" Classes="mono"/>
-          <TextBlock Text="External editor command" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'External editor command'}" Classes="label"/>
           <TextBox Text="{Binding DefaultExternalEditor}" Classes="mono"/>
           <TextBlock Text="{}{file} and {line} are replaced. Examples: code --goto &quot;{file}:{line}&quot;, subl &quot;{file}:{line}&quot;, idea --line {line} &quot;{file}&quot;" Classes="hint"/>
         </StackPanel>
 
         <!-- 7 Languages -->
         <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=7}">
-          <TextBlock Text="Suggested languages" Classes="dialogTitle"/>
-          <TextBlock Text="Offered by “Add suggested languages” when creating a project." Classes="caption" Margin="0,6,0,10"/>
+          <TextBlock Text="{loc:Loc 'Suggested languages'}" Classes="dialogTitle"/>
+          <TextBlock Text="{loc:Loc 'Offered by “Add suggested languages” when creating a project.'}" Classes="caption" Margin="0,6,0,10"/>
           <ItemsControl ItemsSource="{Binding SuggestedLanguageEntries}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
@@ -156,12 +163,12 @@
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-          <Button Content="Add language…" Command="{Binding AddSuggestedLanguageCommand}" Margin="0,8,0,0"/>
+          <Button Content="{loc:Loc 'Add language…'}" Command="{Binding AddSuggestedLanguageCommand}" Margin="0,8,0,0"/>
         </StackPanel>
 
         <!-- 8 Shortcuts -->
         <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=8}">
-          <TextBlock Text="Keyboard shortcuts" Classes="dialogTitle"/>
+          <TextBlock Text="{loc:Loc 'Keyboard shortcuts'}" Classes="dialogTitle"/>
           <ItemsControl ItemsSource="{Binding Shortcuts}" Margin="0,10,0,0">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
@@ -175,35 +182,64 @@
           </ItemsControl>
         </StackPanel>
 
-        <!-- 9 Data & privacy -->
+        <!-- 9 Integration -->
         <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=9}" Spacing="8">
-          <TextBlock Text="Data &amp; privacy" Classes="dialogTitle"/>
-          <TextBlock TextWrapping="Wrap" Classes="caption"
-                     Text="Settings, layout, and translation memory are stored in Documents/Toucan. API keys are encrypted (DPAPI on Windows, AES with a per-user key elsewhere). Text is only sent to a translation provider when you run machine translation."/>
-          <WrapPanel>
-            <Button Content="Open settings folder" Command="{Binding OpenSettingsFolderCommand}" Margin="0,0,6,6"/>
-            <Button Content="Export settings…" Command="{Binding ExportSettingsCommand}" Margin="0,0,6,6"/>
-            <Button Content="Import settings…" Command="{Binding ImportSettingsCommand}" Margin="0,0,6,6"/>
-          </WrapPanel>
-          <TextBlock Text="Clear data" Classes="label"/>
-          <WrapPanel>
-            <Button Content="Clear filter history" Command="{Binding ClearFilterHistoryCommand}" Margin="0,0,6,6"/>
-            <Button Content="Clear recent projects…" Command="{Binding ClearRecentProjectsCommand}" Margin="0,0,6,6"/>
-            <Button Content="Clear translation memory…" Command="{Binding ClearTranslationMemoryCommand}" Margin="0,0,6,6"/>
-          </WrapPanel>
-          <Button Content="Reset all settings…" Command="{Binding ResetAllSettingsCommand}" Margin="0,12,0,0" Foreground="{DynamicResource BadBrush}"/>
+          <TextBlock Text="{loc:Loc 'System integration'}" Classes="dialogTitle"/>
+
+          <TextBlock Text="{loc:Loc '.tproj file association'}" Classes="label"/>
+          <TextBlock Text="{loc:Loc 'Open .tproj project files in Toucan by double-clicking them.'}" Classes="hint" TextWrapping="Wrap"/>
+          <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding CanManageAssociation}">
+            <Border Classes="badge"><TextBlock Text="{Binding AssociationStatus}"/></Border>
+            <Button Content="{loc:Loc 'Install'}" Command="{Binding InstallAssociationCommand}" IsEnabled="{Binding !AssociationInstalled}"/>
+            <Button Content="{loc:Loc 'Remove'}" Command="{Binding RemoveAssociationCommand}" IsEnabled="{Binding AssociationInstalled}"/>
+          </StackPanel>
+          <TextBlock Text="{Binding AssociationNote}" Classes="caption" TextWrapping="Wrap"
+                     IsVisible="{Binding AssociationNote, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+          <StackPanel Spacing="8" IsVisible="{Binding CanManageFolderEntry}">
+            <TextBlock Text="{loc:Loc 'Folder context menu'}" Classes="label" Margin="0,12,0,0"/>
+            <TextBlock Text="{loc:Loc 'Add “Open with Toucan” to the Explorer right-click menu for folders.'}" Classes="hint" TextWrapping="Wrap"/>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Border Classes="badge"><TextBlock Text="{Binding FolderEntryStatus}"/></Border>
+              <Button Content="{loc:Loc 'Install'}" Command="{Binding InstallFolderEntryCommand}" IsEnabled="{Binding !FolderEntryInstalled}"/>
+              <Button Content="{loc:Loc 'Remove'}" Command="{Binding RemoveFolderEntryCommand}" IsEnabled="{Binding FolderEntryInstalled}"/>
+            </StackPanel>
+          </StackPanel>
+
+          <TextBlock Text="{loc:Loc 'Settings location'}" Classes="label" Margin="0,12,0,0"/>
+          <TextBlock Text="{Binding SettingsFolder}" Classes="caption" TextWrapping="Wrap"/>
+          <WrapPanel><Button Content="{loc:Loc 'Open settings folder'}" Command="{Binding OpenSettingsFolderCommand}"/></WrapPanel>
         </StackPanel>
 
-        <!-- 10 Plugins -->
+        <!-- 10 Data & privacy -->
         <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=10}" Spacing="8">
-          <TextBlock Text="Plugins" Classes="dialogTitle"/>
+          <TextBlock Text="{loc:Loc 'Data &amp; privacy'}" Classes="dialogTitle"/>
           <TextBlock TextWrapping="Wrap" Classes="caption"
-                     Text="Plugins add file formats, translation providers and validation rules. A plugin is ordinary code that runs with your permissions, so Toucan only loads plugins you have enabled and trusted, and asks again if their files change."/>
+                     Text="{loc:Loc 'Settings, layout, and translation memory are stored in Documents/Toucan. API keys are encrypted (DPAPI on Windows, AES with a per-user key elsewhere). Text is only sent to a translation provider when you run machine translation.'}"/>
+          <WrapPanel>
+            <Button Content="{loc:Loc 'Open settings folder'}" Command="{Binding OpenSettingsFolderCommand}" Margin="0,0,6,6"/>
+            <Button Content="{loc:Loc 'Export settings…'}" Command="{Binding ExportSettingsCommand}" Margin="0,0,6,6"/>
+            <Button Content="{loc:Loc 'Import settings…'}" Command="{Binding ImportSettingsCommand}" Margin="0,0,6,6"/>
+          </WrapPanel>
+          <TextBlock Text="{loc:Loc 'Clear data'}" Classes="label"/>
+          <WrapPanel>
+            <Button Content="{loc:Loc 'Clear filter history'}" Command="{Binding ClearFilterHistoryCommand}" Margin="0,0,6,6"/>
+            <Button Content="{loc:Loc 'Clear recent projects…'}" Command="{Binding ClearRecentProjectsCommand}" Margin="0,0,6,6"/>
+            <Button Content="{loc:Loc 'Clear translation memory…'}" Command="{Binding ClearTranslationMemoryCommand}" Margin="0,0,6,6"/>
+          </WrapPanel>
+          <Button Content="{loc:Loc 'Reset all settings…'}" Command="{Binding ResetAllSettingsCommand}" Margin="0,12,0,0" Foreground="{DynamicResource BadBrush}"/>
+        </StackPanel>
+
+        <!-- 11 Plugins -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=11}" Spacing="8">
+          <TextBlock Text="{loc:Loc 'Plugins'}" Classes="dialogTitle"/>
+          <TextBlock TextWrapping="Wrap" Classes="caption"
+                     Text="{loc:Loc 'Plugins add file formats, translation providers and validation rules. A plugin is ordinary code that runs with your permissions, so Toucan only loads plugins you have enabled and trusted, and asks again if their files change.'}"/>
           <Border IsVisible="{Binding PluginsChanged}" Classes="badge" Padding="10,6" HorizontalAlignment="Left">
-            <TextBlock Text="Changes apply immediately to your settings and take effect after restarting Toucan." TextWrapping="Wrap"/>
+            <TextBlock Text="{loc:Loc 'Changes apply immediately to your settings and take effect after restarting Toucan.'}" TextWrapping="Wrap"/>
           </Border>
           <TextBlock IsVisible="{Binding HasNoPlugins}" TextWrapping="Wrap" Margin="0,6,0,0"
-                     Text="No plugins installed. Put a plugin folder (with a plugin.json) in the plugins folder and restart Toucan."/>
+                     Text="{loc:Loc 'No plugins installed. Put a plugin folder (with a plugin.json) in the plugins folder and restart Toucan.'}"/>
           <ItemsControl ItemsSource="{Binding Plugins}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
@@ -228,9 +264,9 @@
                     <TextBlock Text="{Binding Author, StringFormat='By {0}'}" Classes="caption" IsVisible="{Binding HasAuthor}"/>
                     <TextBlock Text="{Binding Folder}" Classes="caption" TextWrapping="Wrap"/>
                     <WrapPanel Margin="0,4,0,0">
-                      <Button Content="Trust…" Classes="accent" Command="{Binding TrustCommand}" IsVisible="{Binding CanTrust}" Margin="0,0,6,0"/>
-                      <Button Content="Revoke trust" Command="{Binding RevokeCommand}" IsVisible="{Binding CanRevoke}" Margin="0,0,6,0"/>
-                      <Button Content="Show folder" Command="{Binding OpenFolderCommand}"/>
+                      <Button Content="{loc:Loc 'Trust…'}" Classes="accent" Command="{Binding TrustCommand}" IsVisible="{Binding CanTrust}" Margin="0,0,6,0"/>
+                      <Button Content="{loc:Loc 'Revoke trust'}" Command="{Binding RevokeCommand}" IsVisible="{Binding CanRevoke}" Margin="0,0,6,0"/>
+                      <Button Content="{loc:Loc 'Show folder'}" Command="{Binding OpenFolderCommand}"/>
                     </WrapPanel>
                   </StackPanel>
                 </Border>
@@ -238,13 +274,13 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
           <WrapPanel Margin="0,8,0,0">
-            <Button Content="Open plugins folder" Command="{Binding OpenPluginsFolderCommand}"/>
+            <Button Content="{loc:Loc 'Open plugins folder'}" Command="{Binding OpenPluginsFolderCommand}"/>
           </WrapPanel>
           <TextBlock Text="{Binding PluginsFolder}" Classes="caption" TextWrapping="Wrap"/>
         </StackPanel>
 
-        <!-- 11 About -->
-        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=11}" Spacing="8">
+        <!-- 12 About -->
+        <StackPanel IsVisible="{Binding SelectedPageIndex, Converter={StaticResource Equals}, ConverterParameter=12}" Spacing="8">
           <StackPanel Orientation="Horizontal" Spacing="14">
             <Image Source="/Assets/logo.png" Width="64" Height="64"/>
             <StackPanel VerticalAlignment="Center">
@@ -252,13 +288,13 @@
               <TextBlock Text="{Binding RuntimeText}" Classes="caption"/>
             </StackPanel>
           </StackPanel>
-          <TextBlock TextWrapping="Wrap" Text="A cross-platform editor for translation files. Built with Avalonia and .NET." Margin="0,8,0,0"/>
-          <TextBlock Text="MIT License · Copyright © Rasyidf 2023-2026" Classes="caption"/>
+          <TextBlock TextWrapping="Wrap" Text="{loc:Loc 'A cross-platform editor for translation files. Built with Avalonia and .NET.'}" Margin="0,8,0,0"/>
+          <TextBlock Text="{loc:Loc 'MIT License · Copyright © Rasyidf 2023-2026'}" Classes="caption"/>
           <WrapPanel Margin="0,8,0,0">
-            <Button Classes="link" Content="Website" Command="{Binding OpenUrlCommand}" CommandParameter="https://toucan.rasyid.dev"/>
+            <Button Classes="link" Content="{loc:Loc 'Website'}" Command="{Binding OpenUrlCommand}" CommandParameter="https://toucan.rasyid.dev"/>
             <Button Classes="link" Content="GitHub" Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/rasyidf/Toucan"/>
-            <Button Classes="link" Content="Releases" Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/rasyidf/Toucan/releases"/>
-            <Button Classes="link" Content="Copy version info" Command="{Binding CopyVersionCommand}"/>
+            <Button Classes="link" Content="{loc:Loc 'Releases'}" Command="{Binding OpenUrlCommand}" CommandParameter="https://github.com/rasyidf/Toucan/releases"/>
+            <Button Classes="link" Content="{loc:Loc 'Copy version info'}" Command="{Binding CopyVersionCommand}"/>
           </WrapPanel>
         </StackPanel>
       </Panel>

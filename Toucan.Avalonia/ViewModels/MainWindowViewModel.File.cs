@@ -214,6 +214,7 @@ public partial class MainWindowViewModel
     {
         AllTranslation = _translationStore.Translations.ToList();
         ProjectSettings = _lifecycleService.CurrentProject ?? ProjectSettings.LoadFrom(path);
+        RefreshProviderChoices();
         _undoRedoService.Clear();
 
         HiddenNamespaces = new ObservableCollection<string>(ProjectSettings?.HiddenNamespaces ?? []);
@@ -431,7 +432,7 @@ public partial class MainWindowViewModel
         IsDirty = false;
         UpdateSummaryInfo();
         PagedUpdates();
-        StatusBarService.Instance.UpdateProjectName("No project");
+        StatusBarService.Instance.UpdateProjectName(Locales.Loc.T("No project"));
         RefreshRecentProjects();
     }
 

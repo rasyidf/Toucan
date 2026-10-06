@@ -1,0 +1,54 @@
+<UserControl x:Class="Toucan.Avalonia.Views.Panels.MachineTranslationPanel"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ScrollViewer>
+    <StackPanel Margin="12,8" Spacing="6">
+      <TextBlock TextWrapping="Wrap" Classes="caption"
+                 Text="{loc:Loc 'Pick the provider that quick translate uses. Results are written straight into empty values; use Pre-translate to preview first.'}"/>
+
+      <TextBlock Text="{loc:Loc 'PROVIDER'}" Classes="section"/>
+      <ItemsControl ItemsSource="{Binding ProviderChoices}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Button Classes="row" Classes.accent="{Binding IsSelected}" Padding="8,5" Margin="0,0,0,3"
+                    ToolTip.Tip="{Binding Description}"
+                    Command="{Binding $parent[UserControl].DataContext.SelectProviderCommand}" CommandParameter="{Binding}">
+              <DockPanel>
+                <Border DockPanel.Dock="Right" Classes="badge" IsVisible="{Binding !IsConfigured}">
+                  <TextBlock Text="{loc:Loc 'Needs API key'}" Foreground="{DynamicResource BadBrush}"/>
+                </Border>
+                <TextBlock Text="{Binding DisplayName}" FontWeight="Medium" VerticalAlignment="Center"/>
+              </DockPanel>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <WrapPanel Margin="0,6,0,0">
+        <Button Content="{loc:Loc 'Translate selected key'}" Command="{Binding TranslateSelectedKeyCommand}" Margin="0,0,6,6"/>
+        <Button Content="{loc:Loc 'Fill empty values in view'}" Command="{Binding PreTranslateVisibleCommand}" Margin="0,0,6,6"/>
+        <Button Content="{loc:Loc 'Pre-translate…'}" Command="{Binding PreTranslateBulkCommand}" Margin="0,0,6,6"/>
+        <Button Content="{loc:Loc 'Provider settings…'}" Command="{Binding OpenProviderSettingsCommand}" Margin="0,0,6,6"/>
+      </WrapPanel>
+
+      <TextBlock Text="{loc:Loc 'LAST RUN'}" Classes="section"/>
+      <TextBlock Text="{loc:Loc 'Run a translation to see what the provider returned.'}" Classes="caption" TextWrapping="Wrap"
+                 IsVisible="{Binding HasNoRecentTranslations}"/>
+      <TextBlock Text="{Binding LastTranslationSummary}" TextWrapping="Wrap" FontSize="12"
+                 IsVisible="{Binding HasRecentTranslations}"/>
+      <ItemsControl ItemsSource="{Binding RecentTranslations}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Margin="0,4,0,0">
+              <TextBlock Text="{Binding Heading}" Classes="hint" TextTrimming="CharacterEllipsis"/>
+              <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="12"/>
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <Button Content="{loc:Loc 'Clear'}" Command="{Binding ClearRecentTranslationsCommand}" HorizontalAlignment="Left"
+              IsVisible="{Binding HasRecentTranslations}"/>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

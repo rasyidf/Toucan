@@ -441,6 +441,7 @@ public partial class MainWindowViewModel
     [RelayCommand] private Task ConvertSentenceCase() => ApplyToVisibleValues("Sentence case", v => v.Length > 0 ? char.ToUpper(v[0], CultureInfo.CurrentCulture) + v[1..].ToLower(CultureInfo.CurrentCulture) : v);
     [RelayCommand] private Task ConvertTitleCase() => ApplyToVisibleValues("Title case", v => CultureInfo.CurrentCulture.TextInfo.ToTitleCase(v.ToLower(CultureInfo.CurrentCulture)));
     [RelayCommand] private Task TrimWhitespace() => ApplyToVisibleValues("Trim", v => v.Trim());
+    [RelayCommand] private Task TrimLineByLine() => ApplyToVisibleValues("Trim lines", v => string.Join('\n', v.Split('\n').Select(l => l.Trim())));
     [RelayCommand] private Task SimplifyWhitespace() => ApplyToVisibleValues("Simplify whitespace", v => WhitespaceRegex().Replace(v.Trim(), " "));
 
     [GeneratedRegex(@"\s+")]
@@ -457,6 +458,16 @@ public partial class MainWindowViewModel
         if (items.Count == 0) return;
         await PlatformService.SetClipboardTextAsync(string.Join('\n', items.Select(t => $"{t.Language}={t.Value}")));
         StatusText = $"Copied {items.Count} value(s) of {ns}";
+    }
+
+    /// <summary>Copies the selected key's values, then deletes the key (asking first, like Delete does).</summary>
+    [RelayCommand]
+    private async Task EditCut()
+    {
+        var ns = SelectedGroup?.Namespace ?? SelectedNode?.Namespace;
+        if (string.IsNullOrEmpty(ns) || IsAuditMode) return;
+        await EditCopy();
+        await DeleteKey(ns);
     }
 
     /// <summary>Pastes "language=value" lines into the selected key.</summary>

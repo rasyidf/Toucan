@@ -1,25 +1,26 @@
 <d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.ImportProjectDialog"
                 xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
-                Title="Import Project" Width="640" Height="560">
+                Title="{loc:Loc 'Import Project'}" Width="640" Height="560">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-        <Button Content="Cancel" x:Name="CancelButton"/>
-        <Button Content="Import" Classes="accent" x:Name="OkButton" IsDefault="True" IsEnabled="{Binding IsValid}"/>
+        <Button Content="{loc:Loc 'Cancel'}" x:Name="CancelButton"/>
+        <Button Content="{loc:Loc 'Import'}" Classes="accent" x:Name="OkButton" IsDefault="True" IsEnabled="{Binding IsValid}"/>
       </StackPanel>
     </Border>
     <DockPanel Margin="20,18,20,12">
       <StackPanel DockPanel.Dock="Top" Spacing="4">
-        <TextBlock Text="Import existing project" Classes="dialogTitle"/>
-        <TextBlock Text="Point Toucan at your app's repository or locale folder. It detects the i18n framework and language files." Classes="caption" TextWrapping="Wrap"/>
-        <TextBlock Text="Folder" Classes="label"/>
+        <TextBlock Text="{loc:Loc 'Import existing project'}" Classes="dialogTitle"/>
+        <TextBlock Text="{loc:Loc 'Point Toucan at your app\'s repository or locale folder. It detects the i18n framework and language files.'}" Classes="caption" TextWrapping="Wrap"/>
+        <TextBlock Text="{loc:Loc 'Folder'}" Classes="label"/>
         <DockPanel>
-          <Button DockPanel.Dock="Right" Content="Browse…" Margin="6,0,0,0" Command="{Binding BrowseFolderCommand}"/>
+          <Button DockPanel.Dock="Right" Content="{loc:Loc 'Browse…'}" Margin="6,0,0,0" Command="{Binding BrowseFolderCommand}"/>
           <TextBox Text="{Binding Folder}" PlaceholderText="/path/to/your/app"/>
         </DockPanel>
-        <TextBlock Text="Framework" Classes="label"/>
+        <TextBlock Text="{loc:Loc 'Framework'}" Classes="label"/>
         <ComboBox ItemsSource="{Binding AvailableProfiles}" SelectedItem="{Binding SelectedProfile}" DisplayMemberBinding="{Binding DisplayName}" MinWidth="260"/>
         <TextBlock Text="{Binding DetectionSummary}" Classes="hint" Margin="0,6,0,0"/>
         <ItemsControl ItemsSource="{Binding DetectedLanguages}" Margin="0,6,0,6">
@@ -30,7 +31,7 @@
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <TextBlock Text="Files" Classes="label"/>
+        <TextBlock Text="{loc:Loc 'Files'}" Classes="label"/>
       </StackPanel>
       <Border Classes="card" Padding="2">
         <ListBox Classes="plain" ItemsSource="{Binding DiscoveredFiles}">

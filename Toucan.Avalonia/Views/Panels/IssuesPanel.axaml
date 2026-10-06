@@ -1,13 +1,14 @@
 <UserControl x:Class="Toucan.Avalonia.Views.Panels.IssuesPanel"
              xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls">
   <DockPanel>
     <StackPanel DockPanel.Dock="Top" Margin="12,8" Spacing="8">
       <TextBlock Text="{Binding ValidationSummary}" Classes="caption" TextWrapping="Wrap"/>
       <StackPanel Orientation="Horizontal" Spacing="6">
-        <Button Content="Run validation" Classes="accent" Command="{Binding RunValidationCommand}"/>
-        <Button Content="Analyze with AI…" Command="{Binding AnalyzeTranslationsCommand}"/>
+        <Button Content="{loc:Loc 'Run validation'}" Classes="accent" Command="{Binding RunValidationCommand}"/>
+        <Button Content="{loc:Loc 'Analyze with AI…'}" Command="{Binding AnalyzeTranslationsCommand}"/>
       </StackPanel>
     </StackPanel>
     <ListBox Classes="plain" ItemsSource="{Binding ValidationIssues}">
@@ -24,11 +25,11 @@
               </StackPanel>
             </Button>
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
-              <Button Classes="icon small" ToolTip.Tip="Apply suggested fix" IsVisible="{Binding HasFix}"
+              <Button Classes="icon small" ToolTip.Tip="{loc:Loc 'Apply suggested fix'}" IsVisible="{Binding HasFix}"
                       Command="{Binding $parent[UserControl].DataContext.ApplyFixCommand}" CommandParameter="{Binding}">
                 <ui:FASymbolIcon Symbol="Repair"/>
               </Button>
-              <Button Classes="icon small" ToolTip.Tip="Dismiss"
+              <Button Classes="icon small" ToolTip.Tip="{loc:Loc 'Dismiss'}"
                       Command="{Binding $parent[UserControl].DataContext.DismissIssueCommand}" CommandParameter="{Binding}">
                 <ui:FASymbolIcon Symbol="Dismiss"/>
               </Button>

@@ -8,6 +8,7 @@ using Avalonia.Platform.Storage;
 using FluentAvalonia.UI.Controls;
 using Toucan.Avalonia.Services;
 using Toucan.Avalonia.ViewModels;
+using Toucan.Avalonia.Locales;
 using Toucan.Avalonia.Views.Panels;
 using Toucan.Core.Services;
 
@@ -136,6 +137,7 @@ public partial class MainWindow : Window
             "source-code" => new SourceCodePanel(),
             "languages" => new LanguagesPanel(),
             "inspector" => new InspectorPanel(),
+            "machine-translation" => new MachineTranslationPanel(),
             "translation-memory" => new TranslationMemoryPanel(),
             _ => new TextBlock { Text = "Unknown panel", Margin = new global::Avalonia.Thickness(12) }
         };
@@ -177,6 +179,7 @@ public partial class MainWindow : Window
         CaptureSlotWidths();
         if (id == null) return;
         RightPanelTitle.Text = SidePanelRegistry.Instance.ActiveRightPanel?.Title.ToUpperInvariant() ?? string.Empty;
+        if (id == "machine-translation") _vm.RefreshProviderChoices();
         RightPanelContent.Content = GetPanel(id);
         FillActions(RightPanelActions, id switch
         {
@@ -186,6 +189,11 @@ public partial class MainWindow : Window
                 (FASymbol.Setting, "Manage languages", _vm.ManageLanguagesCommand),
             ],
             "inspector" => [(FASymbol.Character, "Translate selected key", _vm.TranslateSelectedKeyCommand)],
+            "machine-translation" =>
+            [
+                (FASymbol.Character, "Translate selected key", _vm.TranslateSelectedKeyCommand),
+                (FASymbol.Setting, "Provider settings", _vm.OpenProviderSettingsCommand),
+            ],
             "translation-memory" =>
             [
                 (FASymbol.Import, "Import TMX", _vm.ImportTmxCommand),
@@ -202,7 +210,7 @@ public partial class MainWindow : Window
         foreach (var (icon, tip, command) in actions)
         {
             var button = new Button { Classes = { "icon", "small" }, Command = command, Content = new FASymbolIcon { Symbol = icon } };
-            ToolTip.SetTip(button, tip);
+            ToolTip.SetTip(button, Loc.T(tip));
             host.Children.Add(button);
         }
     }

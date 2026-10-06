@@ -36,8 +36,11 @@ public partial class MainWindowViewModel
 
     private async Task RunPreTranslateDialog(List<TranslationItem> items)
     {
-        var vm = new PreTranslateViewModel(OrderedLanguages(), items, _pretranslationService, _dialogService, _providerSettingsService, CurrentPath, PrimaryLanguage);
-        if (!await _dialogService.ShowPreTranslateAsync(vm) || vm.AppliedCount == 0) return;
+        var vm = new PreTranslateViewModel(OrderedLanguages(), items, _pretranslationService, _dialogService, _providerSettingsService, CurrentPath, PrimaryLanguage,
+            UsableProviderNames(), ResolveProvider());
+        var committed = await _dialogService.ShowPreTranslateAsync(vm);
+        RememberProvider(vm.SelectedProvider);
+        if (!committed || vm.AppliedCount == 0) return;
 
         NotifyBulkValueChanges(vm.AppliedItems);
         UpdateSummaryInfo();
@@ -55,7 +58,7 @@ public partial class MainWindowViewModel
             return;
         }
 
-        var provider = PreTranslateViewModel.Providers.Contains(AppOptions.LastProvider) ? AppOptions.LastProvider : "Google";
+        var provider = ResolveProvider();
         IsLoading = true;
         StatusText = $"Translating {missing.Count} value(s) with {provider}…";
         try
@@ -92,6 +95,7 @@ public partial class MainWindowViewModel
             StatusText = failed != null && applied.Count == 0
                 ? $"Translation failed: {failed.ErrorMessage}"
                 : $"{description}: translated {applied.Count} of {missing.Count} value(s) with {provider}.";
+            RecordTranslationRun(StatusText, result.Items);
         }
         catch (Exception ex) when (ex is HttpRequestException or InvalidOperationException or ArgumentException or NotSupportedException or TaskCanceledException)
         {

@@ -1,5 +1,6 @@
 <Application x:Class="Toucan.Avalonia.App"
              xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sty="using:FluentAvalonia.Styling"
              xmlns:conv="using:Toucan.Avalonia.Converters"
@@ -9,9 +10,9 @@
   <!-- macOS application menu (the "Toucan" menu). Other platforms use the in-window menu. -->
   <NativeMenu.Menu>
     <NativeMenu>
-      <NativeMenuItem Header="About Toucan" Click="OnAboutClick"/>
+      <NativeMenuItem Header="{loc:Loc 'About Toucan'}" Click="OnAboutClick"/>
       <NativeMenuItemSeparator/>
-      <NativeMenuItem Header="Settings…" Gesture="Cmd+OemComma" Click="OnPreferencesClick"/>
+      <NativeMenuItem Header="{loc:Loc 'Settings…'}" Gesture="Cmd+OemComma" Click="OnPreferencesClick"/>
     </NativeMenu>
   </NativeMenu.Menu>
 

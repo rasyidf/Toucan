@@ -13,8 +13,12 @@ namespace Toucan.Avalonia.Tests;
 
 public static class TestAppBuilder
 {
-    public static AppBuilder BuildAvaloniaApp() =>
-        AppBuilder.Configure<App>().UseSkia().UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false });
+    public static AppBuilder BuildAvaloniaApp()
+    {
+        // Never depend on the developer's saved UI language.
+        Toucan.Avalonia.Locales.Loc.Use("en-US");
+        return AppBuilder.Configure<App>().UseSkia().UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false });
+    }
 }
 
 /// <summary>
@@ -129,7 +133,13 @@ internal sealed class FakeDialogService : IDialogService
     public Task<NewProjectViewModel?> ShowNewProjectAsync() => Task.FromResult<NewProjectViewModel?>(null);
     public Task<ImportProjectViewModel?> ShowImportProjectAsync() => Task.FromResult<ImportProjectViewModel?>(null);
     public Task<AppOptions?> ShowOptionsAsync(int startPage = 0) => Task.FromResult<AppOptions?>(null);
-    public Task<bool> ShowPreTranslateAsync(PreTranslateViewModel vm) => Task.FromResult(false);
+    /// <summary>Lets a test act as the user inside the Pre-translate dialog.</summary>
+    public Action<PreTranslateViewModel>? OnPreTranslate { get; set; }
+    public Task<bool> ShowPreTranslateAsync(PreTranslateViewModel vm)
+    {
+        OnPreTranslate?.Invoke(vm);
+        return Task.FromResult(false);
+    }
     public Task ShowProviderSettingsAsync(string? projectPath = null) => Task.CompletedTask;
     public Task<ProjectPropertiesViewModel?> ShowProjectPropertiesAsync(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null) => Task.FromResult<ProjectPropertiesViewModel?>(null);
     public Task<LanguageManagerViewModel?> ShowManageLanguagesAsync(IEnumerable<TranslationItem> allTranslations, string? primaryLanguage = null) => Task.FromResult<LanguageManagerViewModel?>(null);
