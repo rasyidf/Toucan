@@ -571,7 +571,7 @@ Toucan/                              Solution root
     ├── toucan.project.schema.json   JSON Schema for project files
     ├── index.html                   Website (toucan.rasyid.dev), self-contained HTML
     ├── todos/
-    │   ├── future-roadmap.md        Roadmap: v0.19 → v1.0, then post-1.0 plans
+    │   ├── future-roadmap.md        Roadmap: v0.20 → v1.0, then post-1.0 plans
     │   ├── panel-extension-plan.md  Inspector panel extension plan
     │   ├── plugin-system-plan.md    Plugin system plan and implementation log
     │   └── ui-polish-plan.md        UI polish items

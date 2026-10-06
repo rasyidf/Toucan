@@ -1,6 +1,6 @@
 # Known Issues & Unfinished Features
 
-Last updated: 2026-10-06. Current releases: v0.18.1 for macOS and Linux, v0.17.3 for Windows (preview).
+Last updated: 2026-10-06. Current releases: v0.19.0 for macOS and Linux, v0.17.3 for Windows (preview).
 
 ## Fixed in v0.17.2
 
@@ -36,7 +36,7 @@ Last updated: 2026-10-06. Current releases: v0.18.1 for macOS and Linux, v0.17.3
 - No signed packages and no release pipeline yet (FG-01).
 
 - Performance not profiled yet (deferred)
-- No auto-updater: the About page shows the settings, but nothing checks for updates yet. Planned for v0.23 (FG-02 in [todos/future-roadmap.md](todos/future-roadmap.md)).
+- No auto-updater: the About page shows the settings, but nothing checks for updates yet. Planned for v0.24 (FG-02 in [todos/future-roadmap.md](todos/future-roadmap.md)).
 - Keybinding customization — display-only reference for now
 - XLIFF save writes key in `<source>` instead of source-language text (round-trip loses source value)
 - PO load/save: no plural form support (msgid_plural/msgstr[N] silently dropped)

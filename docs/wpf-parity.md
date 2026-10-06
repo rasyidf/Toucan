@@ -29,8 +29,8 @@ These exist in WPF but do nothing there, so porting them would add dead UI:
 
 - **Backdrop type** setting: WPF saves it but nothing applies it.
 - **Pin recent project**: toggles a flag in memory; it is never saved or used.
-- **Check for updates / update channel**: a UI shell with no update check behind it. The auto-updater is v0.23 (FG-02).
-- **Dictionary** and **Source Control** panels: "coming soon" placeholders in WPF. They return with the glossary (v0.20) and Git (v0.22) work.
+- **Check for updates / update channel**: a UI shell with no update check behind it. The auto-updater is v0.24 (FG-02).
+- **Dictionary** and **Source Control** panels: "coming soon" placeholders in WPF. They return with the glossary (v0.21) and Git (v0.23) work.
 - **Open log location**: opens the program folder, not a log folder.
 
 ## Not translated yet
