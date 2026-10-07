@@ -2,11 +2,11 @@
 title: "Known Issues & Unfinished Features"
 status: active
 updated: 2026-10-07
-summary: "Open issues for v0.20.1: five tracked format issues, release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
+summary: "Open issues for v0.20.2: one tracked format issue, release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
 ---
 # Known Issues & Unfinished Features
 
-Current release: **v0.20.1** (preview). Last audited **2026-10-07** against the code on `fix/ui-visual-polish`.
+Current release: **v0.20.2** (preview). Last audited **2026-10-07** against the code on `fix/ui-visual-polish`.
 
 This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [CHANGELOG.md](../CHANGELOG.md) (see [Where the old fixes went](#where-the-old-fixes-went)). When a bug is fixed, delete its row and section here and add a `### Fixed` line to the changelog `[Unreleased]` section. Planned work for an ID is linked from [the roadmap](todos/future-roadmap.md) (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from `main` (source: branch `legacy/wpf`), so nothing here is about WPF.
 
@@ -16,10 +16,6 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 
 | ID | Severity | Area | Problem | Checked |
 |----|----------|------|---------|---------|
-| [FMT-05](#fmt-05) | Medium | RESX | Any `A.B.resx` file takes `B` as its language (`Views.Home.Index.resx` becomes language `Index`) | Reproduced |
-| [FMT-06](#fmt-06) | High | XLIFF | Save writes the key as `<source>` and the first language as `source-language`; real source text, notes and state are lost | Reproduced |
-| [FMT-07](#fmt-07) | Medium | ARB | `@key` metadata (description, placeholders) is discarded on save | Reproduced |
-| [FMT-08](#fmt-08) | Medium | ARB | Without `@@locale`, `app_en_US.arb` loads as language `US` | Reproduced |
 | [FMT-09](#fmt-09) | Low | YAML | Flat dotted keys are rewritten as nested maps; a key that is also a parent gets a `__self` entry | Reproduced |
 | [REL-01](#rel-01) | Medium | Release | No CI or release pipeline; every release is built by hand | Reproduced (no config in repo) |
 | [REL-02](#rel-02) | Medium | Release | macOS app is ad-hoc signed and not notarized | From docs and script |
@@ -33,57 +29,13 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
 
-Suggested order: FMT-06 first (data loss in common projects), then FMT-05, FMT-07, FMT-08, then release work, then the rest.
+Suggested order: release work first (REL-01), then FMT-09 and the rest.
 
 ---
 
 ## Format bugs (Toucan.Core)
 
 All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategies/`. Round-trip means: open a folder, change nothing or one value, save.
-
-<a id="fmt-05"></a>
-### FMT-05 — RESX: language detection treats any last name part as a language
-
-- **Severity:** Medium · **Area:** RESX · **Checked:** reproduced · **Code:** `ResxLoadStrategy.cs:42-53`
-- **What happens:** `Resources.en-US.resx` gives `en-US`. But any name with two or more dot parts takes the last one if it is 2 to 10 characters long.
-- **Repro:** files `Resources.resx`, `Resources.fr.resx`, `Views.Home.Index.resx`, `Resources.Designer.resx`.
-- **Actual:** languages `default`, `fr`, `Index`, `Designer`.
-- **Impact:** ASP.NET Core resource files (`Views.Home.Index.resx`, `Controllers.HomeController.resx`) show up as fake languages. Their strings are mixed into language lists and statistics, and a later save writes `Resources.Index.resx`.
-- **Fix direction:** accept the last part only if it is a valid culture name (`CultureInfo.GetCultureInfo` with predefined cultures only, or a BCP 47 pattern like `^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$`).
-- **Tests to add:** the four names above; `Resources.zh-Hans.resx` and `Resources.pt-BR.resx` must still work.
-
-<a id="fmt-06"></a>
-### FMT-06 — XLIFF: save writes the key as `<source>`; source text, notes and state are lost
-
-- **Severity:** High · **Area:** XLIFF · **Checked:** reproduced · **Code:** `XliffSaveStrategy.cs:23,34,39`, `XliffLoadStrategy.cs:44-47`
-- **What happens:** `<source>` is set to the key (`item.Namespace`), `source-language` is `context.Languages.FirstOrDefault()` (the first language in the list, not the project's primary language), and nothing else from the original file is kept.
-- **Repro:** an Angular-style file `messages.fr.xlf` with `id="a1b2c3"`, `<source>Welcome</source>`, `<target state="translated">Bienvenue</target>`, a `<note>` and `datatype="html"`. Load, then save.
-- **Actual saved `fr.xlf`:** `source-language="fr" target-language="fr"`, `<source>a1b2c3</source>`, `<target>Bienvenue</target>`. The English `Welcome`, the note, `state` and `datatype` are gone.
-- **Where the original is overwritten:** the save target is `{language}.xlf` in the project folder. In this repro the original `messages.fr.xlf` survived and a second file was created. If your file is already named `fr.xlf`, it is overwritten with the degraded version.
-- **Impact:** the editor shows hash IDs only, with no source text to translate from. A saved file has no source text, which tools that match on source text (Angular's i18n merge, CAT tools) depend on.
-- **Fix direction:** load `<source>` into the item (a "source text" field shown in the editor and in validation) and write it back. Preserve `<note>`, `state`, `datatype` and `original`, or edit the file in place instead of regenerating it. Use the project's primary language for `source-language`. Support XLIFF 2.0 on save, or refuse to save a 2.0 file as 1.2.
-- **Tests to add:** the Angular file above must round trip with source, note and state intact.
-
-<a id="fmt-07"></a>
-### FMT-07 — ARB: `@key` metadata is discarded on save
-
-- **Severity:** Medium · **Area:** ARB · **Checked:** reproduced · **Code:** `ArbLoadStrategy.cs:38-39`, `ArbSaveStrategy.cs:26-28`
-- **Repro:** `{"@@locale":"en","hi":"Hi {n}","@hi":{"description":"greeting","placeholders":{"n":{}}}}`. Load, then save.
-- **Actual:** `{ "@@locale": "en", "hi": "Hi {n}" }`. The `@hi` block is gone.
-- **Impact:** Flutter's `gen-l10n` reads the `placeholders` block for messages that take arguments, so a project can stop building after one save from Toucan. Descriptions for translators are lost too.
-- **Fix direction:** keep each `@key` object per item (opaque JSON is enough) and write it back next to its key. Do not drop other `@@` metadata such as `@@last_modified` either.
-- **Tests to add:** the repro; unknown `@@` keys survive; key order is stable.
-
-<a id="fmt-08"></a>
-### FMT-08 — ARB: locale from the file name breaks `app_en_US.arb`
-
-- **Severity:** Medium · **Area:** ARB · **Checked:** reproduced · **Code:** `ArbLoadStrategy.cs:31-33`
-- **What happens:** without `@@locale`, the name is split on `_` and the last part is the language.
-- **Repro:** `app_en_US.arb` containing `{"hi":"Hi"}`.
-- **Actual:** language `US`.
-- **Impact:** region locales load as the region code, so they collide with other files and save as `app_US.arb`. Most real ARB files include `@@locale`, which is why this is Medium.
-- **Fix direction:** if the last part is an uppercase region and the one before it is a language, join them as `en_US` (normalize to `en-US` inside Toucan). Write `app_<locale>.arb` using the original separator style.
-- **Tests to add:** `app_en.arb`, `app_en_US.arb`, `intl_zh_Hans_CN.arb`, and one with `@@locale` that disagrees with the name (the header wins).
 
 <a id="fmt-09"></a>
 ### FMT-09 — YAML: flat dotted keys become nested; `__self` is written into the file
@@ -173,7 +125,7 @@ All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategi
 
 - **Severity:** Medium · **Checked:** from code. I found no test that targets these, so they could regress unnoticed.
 - **Bugs fixed without a test:** `DiffMergeEngine` baselines (merged items stayed dirty), `AutoSaveService` dispose during a save, `TranslationManagementService` double `DirtyStateChanged`, iOS `.strings` `\\n` handling, Java `.properties` line continuation. The last two I re-ran by hand on 2026-10-07 and they behave correctly.
-- **Also missing:** every case in FMT-01 to FMT-09. `FormatRoundTripTests` only covers simple keys and values (`app.title=Hello`).
+- **Also missing:** the FMT-09 cases (FMT-05 to FMT-08 now have tests in `FormatBugRegressionTests`). `FormatRoundTripTests` only covers simple keys and values (`app.title=Hello`).
 - **Fix direction:** one test per bug with the exact input from this file. This is the cheapest item here and protects the fixes above.
 
 <a id="qa-02"></a>
@@ -196,6 +148,7 @@ The earlier version of this file kept tables of fixed bugs (B1 to B11 and the v0
 | B5 | iOS `.strings` `\\n` corrupted | 0.17.1 |
 | B6 | Java `.properties` line continuations truncated values | 0.17.1 |
 | B7 to B11 | WPF-only UI fixes (Issues grouping, Search panel sizing, Source Code panel, Explorer foreground, status bar clicks) | 0.17.2 |
+| FMT-05 to FMT-08 | RESX language detection, XLIFF save losing source/notes/state, ARB metadata and region locales | Unreleased |
 | v0.14.1 to v0.16.1 | Earlier bug batches | 0.14.1, 0.14.2, 0.15.0, 0.16.1 |
 
 B7 to B11 were fixed in the WPF app. Whether the Avalonia app has the same problems was not checked in this audit.

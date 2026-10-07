@@ -27,7 +27,7 @@ Requires: [Windows 10 SDK](https://developer.microsoft.com/windows/downloads/win
 Options:
 - `-SkipBuild` — skip the publish step (reuse existing output)
 - `-Sign -CertPath path\to\cert.pfx -CertPassword pwd` — sign the MSIX
-- `-Version 0.20.1.0` — override the version (default: `<Version>` from `Directory.Build.props` plus `.0`)
+- `-Version 0.20.2.0` — override the version (default: `<Version>` from `Directory.Build.props` plus `.0`)
 
 ### Signing for sideloading
 

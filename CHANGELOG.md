@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.20.2] - 2026-10-07
+
+Format fixes: XLIFF no longer loses source text, notes and state on save, and the RESX and ARB language and metadata bugs are gone.
+
+### Fixed
+- **XLIFF save no longer loses data** — Saving wrote the key as `<source>` and the first language as `source-language`, and dropped notes, state, `datatype`, `original` and other elements. The source text is now loaded and written back with the unit's notes, attributes and extra elements (such as Angular's `context-group`). Units go back to the file they came from instead of a new `<language>.xlf`, untranslated units keep their source, a unit gets `state="translated"` once it has a translation, and XLIFF 2.0 files stay 2.0. An untranslated unit now shows an empty value instead of its source text.
+- **RESX language detection** — Only a real culture name counts as a language. `Views.Home.Index.resx` and `Resources.Designer.resx` are no longer read as languages `Index` and `Designer`.
+- **ARB metadata** — `@key` objects (description, placeholders) and other `@@` header entries such as `@@last_modified` survive a save, so Flutter's `gen-l10n` keeps building.
+- **ARB region locales** — `app_en_US.arb` loads as `en_US` (and `intl_zh_Hans_CN.arb` as `zh_Hans_CN`) instead of `US`, and saves back to the same file. `@@locale` still wins over the file name.
+
 ## [0.20.1] - 2026-10-07
 
 Documentation and website update: a browsable changelog, a smaller release plan through v0.30, and refreshed architecture and branding guidance.

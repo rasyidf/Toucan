@@ -2,11 +2,11 @@
 title: "Shipped Features"
 status: active
 updated: 2026-10-07
-summary: "Checklist of shipped features as of v0.20.1 (AI Integration added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md."
+summary: "Checklist of shipped features as of v0.20.2 (AI Integration added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md."
 ---
 # Shipped Features
 
-> As of v0.20.1 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
+> As of v0.20.2 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
 > open work is in [todos/future-roadmap.md](todos/future-roadmap.md) and open bugs in [known-bugs.md](known-bugs.md).
 > This file lists shipped features only: when something ships, add it here and delete it from the roadmap.
 > Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform. Lines marked (WPF) shipped

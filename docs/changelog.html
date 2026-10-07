@@ -69,6 +69,7 @@
       <div class="sidebar-title">Jump to a release</div>
       <nav id="release-index" aria-label="Versions">
 <!-- RELEASE INDEX START -->
+<a href="#v0.20.2">v0.20.2</a>
 <a href="#v0.20.1">v0.20.1</a>
 <a href="#v0.20.0">v0.20.0</a>
 <a href="#v0.19.0">v0.19.0</a>
@@ -96,8 +97,21 @@
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div id="releases">
 <!-- RELEASES START -->
+<article class="release" id="v0.20.2" aria-labelledby="heading-v0.20.2">
+<div class="release-heading"><h2 id="heading-v0.20.2"><a href="#v0.20.2">v0.20.2</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-10-07">Oct 07, 2026</time></div>
+<div class="release-lead"><p>Format fixes: XLIFF no longer loses source text, notes and state on save, and the RESX and ARB language and metadata bugs are gone.</p></div>
+<div class="release-counts"><span class="fixed">4 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.20.2</span></summary><div class="release-notes"><h3>Fixed</h3>
+<ul>
+<li><strong>XLIFF save no longer loses data</strong> — Saving wrote the key as <code>&lt;source&gt;</code> and the first language as <code>source-language</code>, and dropped notes, state, <code>datatype</code>, <code>original</code> and other elements. The source text is now loaded and written back with the unit&#x27;s notes, attributes and extra elements (such as Angular&#x27;s <code>context-group</code>). Units go back to the file they came from instead of a new <code>&lt;language&gt;.xlf</code>, untranslated units keep their source, a unit gets <code>state=&quot;translated&quot;</code> once it has a translation, and XLIFF 2.0 files stay 2.0. An untranslated unit now shows an empty value instead of its source text.</li>
+<li><strong>RESX language detection</strong> — Only a real culture name counts as a language. <code>Views.Home.Index.resx</code> and <code>Resources.Designer.resx</code> are no longer read as languages <code>Index</code> and <code>Designer</code>.</li>
+<li><strong>ARB metadata</strong> — <code>@key</code> objects (description, placeholders) and other <code>@@</code> header entries such as <code>@@last_modified</code> survive a save, so Flutter&#x27;s <code>gen-l10n</code> keeps building.</li>
+<li><strong>ARB region locales</strong> — <code>app_en_US.arb</code> loads as <code>en_US</code> (and <code>intl_zh_Hans_CN.arb</code> as <code>zh_Hans_CN</code>) instead of <code>US</code>, and saves back to the same file. <code>@@locale</code> still wins over the file name.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.20.2" aria-label="Permalink to v0.20.2">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.20.2">Release on GitHub ↗</a></div>
+</article>
 <article class="release" id="v0.20.1" aria-labelledby="heading-v0.20.1">
-<div class="release-heading"><h2 id="heading-v0.20.1"><a href="#v0.20.1">v0.20.1</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-10-07">Oct 07, 2026</time></div>
+<div class="release-heading"><h2 id="heading-v0.20.1"><a href="#v0.20.1">v0.20.1</a></h2><time datetime="2026-10-07">Oct 07, 2026</time></div>
 <div class="release-lead"><p>Documentation and website update: a browsable changelog, a smaller release plan through v0.30, and refreshed architecture and branding guidance.</p></div>
 <div class="release-counts"><span class="added">1 added</span><span class="changed">3 changed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.20.1</span></summary><div class="release-notes"><h3>Added</h3>

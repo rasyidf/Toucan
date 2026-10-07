@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
@@ -39,16 +41,32 @@ public class ResxLoadStrategy : ILoadStrategy
         return items;
     }
 
+    private static readonly Regex s_culturePattern = new("^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     private static string DetectLanguage(string filePath)
     {
-        // Resources.en-US.resx → en-US, Resources.resx → default
+        // Resources.en-US.resx → en-US, Resources.resx → default. Views.Home.Index.resx and
+        // Resources.Designer.resx are not languages: the last part must be a real culture name.
         var name = Path.GetFileNameWithoutExtension(filePath); // Resources.en-US
         var parts = name.Split('.');
-        if (parts.Length >= 2)
-        {
-            var candidate = parts[^1];
-            if (candidate.Length >= 2 && candidate.Length <= 10) return candidate;
-        }
+        if (parts.Length >= 2 && IsCultureName(parts[^1])) return parts[^1];
         return "default";
+    }
+
+    private static bool IsCultureName(string candidate)
+    {
+        if (!s_culturePattern.IsMatch(candidate)) return false;
+
+        // Invariant-globalization builds have no culture data to check against; the pattern is all we have.
+        if (AppContext.TryGetSwitch("System.Globalization.Invariant", out var invariant) && invariant) return true;
+        try
+        {
+            CultureInfo.GetCultureInfo(candidate, predefinedOnly: true);
+            return true;
+        }
+        catch (CultureNotFoundException)
+        {
+            return false;
+        }
     }
 }
