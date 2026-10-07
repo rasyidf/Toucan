@@ -1,3 +1,9 @@
+---
+title: "Pretranslation — Preview & Progress"
+status: active
+updated: 2026-07-02
+summary: "How pre-translation previews, reports progress, cancels and commits with Apply Preview; includes a provider privacy note."
+---
 # Pretranslation — Preview & Progress
 
 Toucan's pretranslation engine now supports safe preview runs with progress reporting and an explicit commit step.

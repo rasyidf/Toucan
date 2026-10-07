@@ -1,3 +1,9 @@
+---
+title: "Writing Toucan plugins"
+status: active
+updated: 2026-10-01
+summary: "Plugin author guide: manifest, formats, providers, rules, framework profiles, trust model, testing. Preview since v0.18.0; Avalonia app and CLI only."
+---
 # Writing Toucan plugins
 
 A plugin is a .NET assembly in its own folder that adds things to Toucan: **file formats**, **machine-translation

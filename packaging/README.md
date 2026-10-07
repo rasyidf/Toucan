@@ -1,3 +1,9 @@
+---
+title: "Toucan Packaging"
+status: active
+updated: 2026-10-06
+summary: "How to build the Windows self-contained EXE, MSIX and installer, plus macOS and Linux packages."
+---
 # Toucan Packaging
 
 ## Quick Start

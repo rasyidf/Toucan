@@ -1,3 +1,9 @@
+---
+title: "Toucan Project (`toucan.project`) — JSON schema documentation"
+status: reference
+updated: 2026-06-27
+summary: "Field-by-field description of the toucan.project JSON manifest (languages, packages, editor configuration)."
+---
 # Toucan Project (`toucan.project`) — JSON schema documentation
 
 This document describes the `toucan.project` JSON format used by Toucan to store translation metadata, file discovery, and editor preferences. This file is intended to be self-contained; however, it can mirror and import information from `.babel` project files through the `tools/babel2toucan.py` converter.

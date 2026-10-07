@@ -66,6 +66,45 @@
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
+          <c:SettingsGroup Header="{loc:Loc 'Recent projects'}">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Projects to remember'}" Description="{loc:Loc 'Pinned projects do not count toward this number.'}">
+                <NumericUpDown Value="{Binding RecentProjectsLimit}" Minimum="1" Maximum="50" Increment="1" FormatString="0" Width="140"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Keep pinned projects when clearing'}">
+                <ToggleSwitch IsChecked="{Binding ClearRecentKeepsPinned}"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Detect preferred language from recent projects'}" Description="{Binding DetectedLanguageText}">
+                <ToggleSwitch IsChecked="{Binding DetectLanguageFromRecent}"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Clear recent projects…'}">
+                <Button Content="{loc:Loc 'Clear'}" Command="{Binding ClearRecentProjectsCommand}"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+          <c:SettingsGroup Header="{loc:Loc 'Manage recent projects'}" IsVisible="{Binding HasRecentItems}">
+            <ItemsControl ItemsSource="{Binding RecentItems}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid ColumnDefinitions="*,Auto,Auto" Margin="14,6">
+                    <StackPanel VerticalAlignment="Center">
+                      <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                      <TextBlock Text="{Binding Path}" Classes="caption" TextTrimming="PathSegmentEllipsis"/>
+                    </StackPanel>
+                    <ToggleButton Grid.Column="1" Classes="icon small" IsChecked="{Binding IsPinned, Mode=OneWay}"
+                                  ToolTip.Tip="{loc:Loc 'Pin or unpin'}" AutomationProperties.Name="{loc:Loc 'Pin or unpin'}"
+                                  Command="{Binding $parent[ItemsControl].DataContext.TogglePinRecentItemCommand}" CommandParameter="{Binding}">
+                      <ui:FASymbolIcon Symbol="Pin"/>
+                    </ToggleButton>
+                    <Button Grid.Column="2" Classes="icon small" ToolTip.Tip="{loc:Loc 'Remove from list'}" AutomationProperties.Name="{loc:Loc 'Remove from list'}"
+                            Command="{Binding $parent[ItemsControl].DataContext.RemoveRecentItemCommand}" CommandParameter="{Binding}">
+                      <ui:FASymbolIcon Symbol="Dismiss"/>
+                    </Button>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </c:SettingsGroup>
           <c:SettingsGroup Header="{loc:Loc 'Lists'}">
             <StackPanel>
               <c:SettingsRow Title="{loc:Loc 'Keys per page'}">

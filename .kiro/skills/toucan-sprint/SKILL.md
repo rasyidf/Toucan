@@ -41,7 +41,7 @@ Focus: Quick fixes without version/commit ceremony. Skip steps 4-8.
 ## Workflow
 
 ### 1. Plan
-- **Feature**: Read `docs/roadmap.json` → find next unchecked items (3-5 per sprint)
+- **Feature**: Read `docs/todos/future-roadmap.md` → find the next feature groups (FG-xx) and unchecked items (2-4 groups per sprint)
 - **Bugbash**: Dispatch parallel analysis agents → produce prioritized findings
 - **Improvement**: Identify architectural issues from recent code or `docs/known-bugs.md`
 - Present plan, get user confirmation
@@ -50,33 +50,37 @@ Focus: Quick fixes without version/commit ceremony. Skip steps 4-8.
 - For each item:
   - Read existing code first (understand before changing)
   - Follow ponytail rules (lazy senior dev, minimum working diff)
-  - Proper MVVM: Model in Core, ViewModel in Toucan/ViewModels, View in Toucan/Views
+  - Proper MVVM: Model in Core, ViewModel in Toucan.Avalonia/ViewModels, View in Toucan.Avalonia/Views
   - Wire commands, menu items, keybindings (via KeybindingService)
   - Centralize shared logic (FileEnumerator, not per-file duplication)
   - Fix root cause, not symptoms — grep all callers
 
 ### 3. Build & Verify
-- Run: `dotnet build --no-restore Toucan.Core\Toucan.Core.csproj`
-- Run: `dotnet build --no-restore Toucan\Toucan.csproj`
+- Run: `dotnet build Toucan.CrossPlatform.slnx`
 - Must be 0 errors, 0 warnings before proceeding
 - Fix any errors immediately
-- Run tests if available: `dotnet test tests\Toucan.Core.Tests`
-- **Important**: Kill running Toucan.exe first if build fails with file-lock errors
+- Run tests: `dotnet test Toucan.CrossPlatform.slnx` (Core and Avalonia tests)
+- **Important**: Quit a running Toucan app first if the build fails with file-lock errors
 
 ### 4. Update Known Bugs
-- `docs/known-bugs.md`: Full inventory with status (Fixed/Open), file locations, descriptions
-- `known-bugs.md` (root): Quick summary — active bugs + fixed-in-version lists
-- Mark fixed items with version number
+- `docs/known-bugs.md` lists open issues only (ID, severity, repro, cause, fix direction)
+- A fixed bug is deleted from it, with a `### Fixed` line in the changelog; never mark it "Fixed" in place
 
-### 5. Update Roadmap (feature sprint only)
-- In `docs/roadmap.json`: set `"done": true` for completed items
-- Update progress counters
+### 4b. Update doc headers
+- Every doc has a YAML status header; follow `.agents/skills/doc-status/SKILL.md`.
+- Update `status`, `progress`, `summary`, `updated` on each doc you touched; archive finished plans instead of deleting.
+- Run `python3 .agents/skills/doc-status/scripts/docs_status.py check && python3 .agents/skills/doc-status/scripts/docs_status.py index`.
+
+### 5. Move shipped work out of the roadmap (feature sprint only)
+- Shipped items are **deleted** from `docs/todos/future-roadmap.md`, not ticked. A group with no open items is deleted with its sprint-table row.
+- Add the user-visible change to `CHANGELOG.md` `[Unreleased]` (history) and, for a lasting capability, a line to `docs/completed-features.md` (shipped features only, no unchecked items)
+- Update the roadmap header `progress` (open item count), `summary` and `updated`
+- Update the README roadmap table and `docs/index.html` to match
+- Run the doc-status `check`: it fails if a tracker still holds a ticked `- [x]` item
 
 ### 6. Bump Version
-- Increment in both files:
-  - `Toucan/Toucan.csproj` → `<AssemblyVersion>` + `<FileVersion>`
-  - `Toucan/Properties/AssemblyInfo.cs` → `[assembly: AssemblyVersion]` + `[assembly: AssemblyFileVersion]`
-- Version scheme: `0.MINOR.PATCH.0`
+- Increment `<Version>` in `Directory.Build.props` (it applies to every project)
+- Version scheme: `0.MINOR.PATCH`
   - Minor: significant new capabilities (new editor mode, new format, new panel)
   - Patch: bug fixes, improvements, refactors
 
@@ -111,15 +115,14 @@ Focus: Quick fixes without version/commit ceremony. Skip steps 4-8.
 
 | What | Where |
 |------|-------|
-| Roadmap | `docs/roadmap.json` |
-| Known bugs (full) | `docs/known-bugs.md` |
-| Known bugs (summary) | `known-bugs.md` |
+| Roadmap | `docs/todos/future-roadmap.md` |
+| Doc index and status headers | `docs/INDEX.md`, skill `.agents/skills/doc-status` |
+| Known bugs | `docs/known-bugs.md` |
 | Changelog | `CHANGELOG.md` |
-| Version (csproj) | `Toucan/Toucan.csproj` → AssemblyVersion/FileVersion |
-| Version (assembly) | `Toucan/Properties/AssemblyInfo.cs` |
-| ViewModels | `Toucan/ViewModels/` |
-| Views/XAML | `Toucan/Views/`, `Toucan/Views/Components/`, `Toucan/Views/Dialogs/` |
-| Services | `Toucan/Services/` |
+| Version | `Directory.Build.props` → `<Version>` |
+| ViewModels | `Toucan.Avalonia/ViewModels/` |
+| Views (AXAML) | `Toucan.Avalonia/Views/`, `Views/Components/`, `Views/Dialogs/`, `Views/Panels/` |
+| Services | `Toucan.Avalonia/Services/` |
 | Core models | `Toucan.Core/Models/` |
 | Core services | `Toucan.Core/Services/` |
 | Core contracts | `Toucan.Core/Contracts/`, `Toucan.Core/Contracts/Services/` |
@@ -129,29 +132,31 @@ Focus: Quick fixes without version/commit ceremony. Skip steps 4-8.
 | Validation rules | `Toucan.Core/Services/Validation/` |
 | File enumeration | `Toucan.Core/Services/FileEnumerator.cs` |
 | Options | `Toucan.Core/Options/AppOptions.cs` |
-| Keybindings | `Toucan/Services/KeybindingService.cs` |
-| Panel state | `Toucan/Services/PanelService.cs` |
-| StatusBar | `Toucan/Services/StatusBarService.cs` |
-| DI registration | `Toucan/App.xaml.cs` (line ~250+) |
-| Design tokens | `Toucan/Resources/DesignTokens.xaml` |
-| Menu | `Toucan/Views/Components/MainMenu.xaml` |
+| Keybindings | `Toucan.Avalonia/Services/KeybindingService.cs` |
+| Panel state | `Toucan.Avalonia/Services/PanelService.cs` |
+| StatusBar | `Toucan.Avalonia/Services/StatusBarService.cs` |
+| DI registration | `Toucan.Core/ToucanCoreServiceCollectionExtensions.cs` (`AddToucanCore()`), `Toucan.Avalonia/App.axaml.cs` |
+| Styles | `Toucan.Avalonia/Styles/AppStyles.axaml` |
+| Menu and command palette | `Toucan.Avalonia/Views/MainMenu.cs` |
+| CLI | `Toucan.CLI/Program.cs` |
+| Plugins | `Toucan.Core/Plugins/`, `Toucan.Plugins.Abstractions/` |
 | Tests (Core) | `tests/Toucan.Core.Tests/` |
-| Tests (WPF) | `tests/Toucan.Tests/` |
+| Tests (Avalonia) | `tests/Toucan.Avalonia.Tests/` |
 
 ## Conventions
 
-- All commands → `MainWindowViewModel.cs` (or partial files) as `[RelayCommand]`
+- All commands → `MainWindowViewModel.cs` (or its partial files in `Toucan.Avalonia/ViewModels/`) as `[RelayCommand]`
 - Use `CommunityToolkit.Mvvm` for ObservableProperty/RelayCommand
-- New panels → register in PanelService
-- New shortcuts → add to `KeybindingService.Apply()` AND `GetDefinitions()`
+- New panels → register in `PanelService`, add the case in `MainWindow.axaml.cs`
+- New shortcuts → `Toucan.Avalonia/Services/KeybindingService.cs` (check how existing ones are defined)
 - New options → add to `AppOptions` with sensible defaults
-- New formats → implement `ISaveStrategy` + `ILoadStrategy`, register in `App.xaml.cs` DI
-- New providers → implement `ITranslationProvider`, register in `TranslationProviderRegistry`
+- New formats → implement `ISaveStrategy` + `ILoadStrategy`, register in `AddToucanFormats()` (see docs/ARCHITECTURE.md, "New Format")
+- New providers → implement `ITranslationProvider` with a `Definition`, register in `AddToucanProviders()`
 - File crawling → use `FileEnumerator.EnumerateFiles()` with appropriate `EnumerateOptions`
 - Thread safety → `ConcurrentBag`/`ConcurrentDictionary` for parallel ops, `Interlocked` for flags
 - String matching → case-insensitive `StringComparer.OrdinalIgnoreCase` on Windows
 - Namespace operations → always use exact match or prefix+dot (`ns == x || ns.StartsWith(x + ".")`)
-- Tests → `tests/Toucan.Core.Tests/` for core logic, `tests/Toucan.Tests/` for VM tests
+- Tests → `tests/Toucan.Core.Tests/` for core logic, `tests/Toucan.Avalonia.Tests/` for view models and headless UI
 
 ## Bug Analysis Pattern
 
@@ -159,7 +164,7 @@ When doing a bugbash, dispatch parallel agents across these areas:
 1. **ViewModels** — null refs, async races, missing dispose, logic errors
 2. **Core Services** — resource leaks, thread safety, incorrect logic, edge cases
 3. **Providers & Strategies** — parsing errors, data loss, encoding, API misuse
-4. **WPF UI** — thread violations, event leaks, broken bindings, missing feedback
+4. **Avalonia UI** — thread violations, event leaks, broken bindings, missing feedback
 5. **Models & Validation** — data integrity, tree operations, validation gaps
 
 Severity levels:

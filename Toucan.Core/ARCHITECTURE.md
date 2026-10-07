@@ -1,3 +1,9 @@
+---
+title: "Toucan.Core — i18n Interop Architecture"
+status: active
+updated: 2026-10-01
+summary: "How Toucan.Core normalizes every i18n format to a flat TranslationItem list and what import/export interop it targets."
+---
 # Toucan.Core — i18n Interop Architecture
 
 Toucan is designed as a **universal i18n resource manager** that can import/export translation files across any framework, format, or tool ecosystem.

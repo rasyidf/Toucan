@@ -1,3 +1,9 @@
+---
+title: "Toucan — Architecture"
+status: active
+updated: 2026-10-07
+summary: "Layers, dependency graph, DI composition, plugin host and file layout of Toucan.Core, Avalonia app and CLI. Reflects v0.19.0 (Avalonia on all platforms; WPF removed)."
+---
 # Toucan — Architecture
 
 > Last updated: 2026-10-01 (plugin system, string format IDs, shared composition root)
@@ -10,16 +16,15 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                         Consumers                                │
 ├──────────────┬──────────────────────┬───────────────────────────┤
-│  Toucan      │  Toucan.CLI          │  Toucan.Avalonia          │
-│  (WPF App)   │  (Console)           │  (Cross-Platform)         │
-│  .NET 10     │  .NET 10             │  .NET 10                  │
-│  WPF-UI 4.3  │  No UI deps          │  Avalonia 12.0.5          │
-│  Ookii.Dlgs  │                      │  FluentAvaloniaUI 3.0     │
-│  MS.Ext.DI   │                      │  MS.Ext.DI               │
-│  MS.Ext.Log  │                      │                           │
-└──────┬───────┴──────────┬───────────┴───────────┬───────────────┘
-       │                  │                       │
-       └──────────────────┼───────────────────────┘
+│  Toucan.CLI                     │  Toucan.Avalonia          │
+│  (Console)                      │  (Windows/macOS/Linux)    │
+│  .NET 10                        │  .NET 10                  │
+│  No UI deps                     │  Avalonia 12.0.5          │
+│                                 │  FluentAvaloniaUI 3.0     │
+│                                 │  MS.Ext.DI                │
+└──────────────┬──────────────────┴───────────┬───────────────┘
+               │                              │
+               └──────────────┬───────────────┘
                           │
                           ▼
               ┌───────────────────────┐
@@ -38,7 +43,7 @@
          └─────────────────────────────────┘        └──────────────────────┘
 ```
 
-All three consumer projects reference `Toucan.Core`, which references `Toucan.Plugins.Abstractions` (the small, stable contract that plugins build against; it has no UI or Core dependencies). The core has no UI dependencies. Its composition root, `AddToucanCore()` (`ToucanCoreServiceCollectionExtensions`), registers formats, providers, validation and the project service; the Avalonia app and the CLI both call it, then add their own services (the WPF app composes its own).
+Both consumer projects reference `Toucan.Core`, which references `Toucan.Plugins.Abstractions` (the small, stable contract that plugins build against; it has no UI or Core dependencies). The core has no UI dependencies. Its composition root, `AddToucanCore()` (`ToucanCoreServiceCollectionExtensions`), registers formats, providers, validation and the project service; the Avalonia app and the CLI both call it, then add their own services.
 
 ---
 
@@ -59,18 +64,6 @@ Platform-agnostic library containing all business logic:
 
 **Dependencies:** CommunityToolkit.Mvvm 8.4.2, ClosedXML 0.105.0, Microsoft.Extensions.DependencyInjection 10.0.9, Microsoft.Extensions.Logging.Abstractions 10.0.9, `Toucan.Plugins.Abstractions`
 
-### Toucan (WPF App)
-
-Primary desktop client — Windows-only, Fluent Design (Mica backdrop, system theme).
-
-- **MVVM** via CommunityToolkit.Mvvm source generators
-- **MainWindowViewModel** split into 5 partial files: base state, navigation, file ops, edit ops, translation ops
-- **Panel system** — VS Code-style left/right activity bars with dynamic panel content
-- **Services** — PanelService (layout), KeybindingService (shortcuts), DialogService, StatusBarService, FileAssociationService
-- **Views** — Components (reusable controls), Panels (sidebar content), Dialogs (modals), Settings (options pages)
-
-**Dependencies:** WPF-UI 4.3.0, Ookii.Dialogs.Wpf 5.0.1, Microsoft.Extensions.DependencyInjection 10.0.9, Microsoft.Extensions.Logging 10.0.9
-
 ### Toucan.CLI
 
 Headless console tool for CI/CD integration.
@@ -84,7 +77,7 @@ Headless console tool for CI/CD integration.
 
 ### Toucan.Avalonia
 
-Cross-platform desktop client, shipped for macOS and Linux since v0.18.0 (preview). Targets `net10.0` (before v0.18.0 it targeted `net10.0-windows`). It shares `Toucan.Core` with the WPF app, so formats, validation and providers behave the same.
+Desktop client for Windows, macOS and Linux (preview; Windows since v0.19.0). Targets `net10.0`. The older WPF app (last release v0.17.3) is on the `legacy/wpf` branch.
 
 - **Framework:** Avalonia 12.0.5 + FluentAvaloniaUI 3.0.0
 - **State:** Zen mode, Editor/Review/Audit modes, search and bulk edits, side panels (Explorer, Search, Issues, Source Code, Translation Memory, Languages, Inspector), plugins. Not ported yet: the Source Control, Translation and Dictionary panels.
@@ -242,7 +235,7 @@ ISidePanel (Core contract)
     │
     ├── SidePanelBase (Core) — ObservableObject base class
     │
-    └── BuiltInSidePanel (WPF App) — concrete registration instances
+    └── BuiltInSidePanel (app) — concrete registration instances
 ```
 
 ### Registry & Service
@@ -250,7 +243,7 @@ ISidePanel (Core contract)
 | Type | Layer | Role |
 |------|-------|------|
 | `SidePanelRegistry` | Core | Singleton. Register/Unregister/Activate/Toggle. Tracks `ActiveLeftPanel` + `ActiveRightPanel`. Fires `PropertyChanged`. |
-| `PanelService` | WPF | Singleton. Wraps registry. Adds toggle commands, zen mode, layout persistence (`~/Documents/Toucan/layout.json`). |
+| `PanelService` | App | Singleton. Wraps registry. Adds toggle commands, zen mode, layout persistence (`~/Documents/Toucan/layout.json`). |
 
 ### Flow
 
@@ -271,7 +264,7 @@ PanelService.ActivateLeftPanel(id) → SidePanelRegistry.Toggle(id)
     │ Sets ActiveLeftPanel, fires PropertyChanged
     │
     ▼
-MainWindow.xaml.cs subscribes → UpdateLeftPanelContent(id)
+MainWindow.axaml.cs subscribes → UpdateLeftPanelContent(id)
     │ Switch on panelId → instantiate UserControl
     │ Set PanelHost.PanelContent + PanelHost.PanelActions
     │
@@ -338,9 +331,9 @@ IStatusBarPanel (Core contract)
 | Type | Layer | Role |
 |------|-------|------|
 | `StatusBarPanelRegistry` | Core | Collects `IStatusBarPanel` implementations, exposes sorted collections |
-| `StatusBarViewModel` | WPF | Singleton. Observable properties for all status fields |
-| `StatusBarService` | WPF | Singleton bridge. Methods: `SetLoading`, `UpdateStatus`, `UpdateProjectName`, `UpdateCursor`, `UpdateDefaultLanguage`, `ShowNotificationBadge`, `UpdateSessionDirtyCount`, `UpdateSourceControl`, `UpdateStatistics` |
-| `StatusBarView` | WPF | 32px footer. DataTemplates per panel type, Left/Right alignment |
+| `StatusBarViewModel` | App | Singleton. Observable properties for all status fields |
+| `StatusBarService` | App | Singleton bridge. Methods: `SetLoading`, `UpdateStatus`, `UpdateProjectName`, `UpdateCursor`, `UpdateDefaultLanguage`, `ShowNotificationBadge`, `UpdateSessionDirtyCount`, `UpdateSourceControl`, `UpdateStatistics` |
+| `StatusBarView` | App | 32px footer. DataTemplates per panel type, Left/Right alignment |
 
 ### Built-in Panels
 
@@ -500,9 +493,9 @@ Persisted by `PanelService`:
 ## Directory Map
 
 ```
-Toucan/                              Solution root
-├── ToucanProject.slnx               Full solution (includes the Windows-only WPF projects)
-├── Toucan.CrossPlatform.slnx        Everything except WPF: builds and tests on macOS/Linux/Windows
+toucan/                              Repository root
+├── ToucanProject.slnx               Full solution
+├── Toucan.CrossPlatform.slnx        Same projects, without the x86/ARM platform mappings
 │
 ├── Toucan.Core/                     Core library (platform-agnostic)
 │   ├── Contracts/                   Interface definitions
@@ -526,21 +519,6 @@ Toucan/                              Solution root
 │
 ├── samples/Toucan.Sample.Plugin/    Complete example plugin (TSV format + rule)
 │
-├── Toucan/                          WPF desktop app (primary)
-│   ├── ViewModels/                  MVVM ViewModels
-│   │   └── StatusBarPanels/        Built-in status bar panel definitions
-│   ├── Services/                    UI-layer services (Panel, Keybinding, Dialog, etc.)
-│   ├── Views/
-│   │   ├── Components/             Reusable UI controls (ActivityBar, PanelHost, etc.)
-│   │   ├── Panels/                 Side panel content (Explorer, Search, Issues, etc.)
-│   │   ├── Dialogs/                Modal windows
-│   │   ├── Settings/               Options dialog pages
-│   │   └── NewProject/             New project wizard steps
-│   ├── Converters/                  WPF value converters
-│   ├── Locales/                     Resx-based UI strings (en + id-ID)
-│   ├── Resources/                   DesignTokens.xaml, merged dictionaries
-│   └── Assets/                      Images, icons, splash screen
-│
 ├── Toucan.CLI/                      Command-line tool
 │   └── Program.cs                   Entry point + all commands
 │
@@ -552,7 +530,6 @@ Toucan/                              Solution root
 ├── tests/Toucan.Core.Tests/         Core unit tests (xUnit v3, FsCheck, NSubstitute): formats, composition root, plugin host/trust
 ├── tests/Toucan.Avalonia.Tests/     Headless Avalonia UI and view-model tests
 ├── tests/Plugins/Toucan.TestPlugins/  Fixture plugins (well-behaved and misbehaving) for the host tests
-├── tests/Toucan.Tests/              WPF ViewModel tests (xUnit v3, Windows only)
 │
 ├── Tools/
 │   ├── Babel2Toucan.cs             .babel → toucan.project converter (C#)
@@ -561,24 +538,24 @@ Toucan/                              Solution root
 └── docs/
     ├── ARCHITECTURE.md              ← this file
     ├── plugins.md                   Plugin author guide
-    ├── completed-features.md        Shipped features (v0.19.0 Avalonia on all platforms; v0.17.3 was the last WPF release)
+    ├── completed-features.md        Shipped features (v0.19.0 Avalonia on all platforms)
     ├── known-bugs.md                Active bug tracker
-    ├── ui-revamp-plan.md            UI redesign plan
     ├── branding.md                  Brand guidelines
     ├── provider-settings.md         Provider configuration docs
     ├── pretranslation-preview.md    Dry-run/preview feature docs
-    ├── roadmap.json                 Legacy WPF feature checklist (no longer read by the website)
+    ├── visual-review.md             Headless screenshots of every screen
+    ├── INDEX.md                     Generated list of every doc with status, progress, summary
     ├── toucan.project.schema.json   JSON Schema for project files
     ├── index.html                   Website (toucan.rasyid.dev), self-contained HTML
     ├── todos/
-    │   ├── future-roadmap.md        Roadmap: v0.20 → v1.0, then post-1.0 plans
-    │   ├── panel-extension-plan.md  Inspector panel extension plan
-    │   ├── plugin-system-plan.md    Plugin system plan and implementation log
-    │   └── ui-polish-plan.md        UI polish items
+    │   └── future-roadmap.md        Roadmap: v0.20 → v1.0, then post-1.0 plans
     ├── research/
     │   ├── babel-format-reference.md
-    │   ├── toucan-project-schema.md
-    │   └── core-modularization-plan.md
+    │   └── toucan-project-schema.md
+    ├── archive/                     Finished or deprecated docs, kept for history (see the doc-status skill)
+    │   ├── plugin-system-plan.md, panel-extension-plan.md, Core-Modularization-Plan.md
+    │   └── UI-Revamp-Plan.md, ui-polish-plan-deprecated.md, wpf-parity.md
+    ├── specs/                       Kiro specs (requirements, design, tasks), moved from .kiro/specs
     └── test-project/                Sample translation files
 ```
 
@@ -616,7 +593,7 @@ Selected via `ModeSelectorBar` in the title bar (`TitleBar.TrailingContent`). Pe
 
 Plugins are .NET assemblies in `Documents/Toucan/plugins/<id>/` with a `plugin.json` manifest. Authors reference the
 `Toucan.Plugins.Abstractions` package; the guide is [plugins.md](plugins.md), the design history is
-[todos/plugin-system-plan.md](todos/plugin-system-plan.md).
+[archive/plugin-system-plan.md](archive/plugin-system-plan.md).
 
 ```
 startup
@@ -640,7 +617,7 @@ startup
 - **Isolation:** one non-collectible `AssemblyLoadContext` per plugin; `Toucan.Plugins.Abstractions`, `Toucan.Core` and the `Microsoft.Extensions` abstractions always resolve from the host so contract types are shared.
 - **All or nothing:** a plugin's registrations are applied only if `Initialize` returns and every registration is valid. IDs of formats, providers, rules and profiles are reserved against the built-ins (read from a throwaway container) and earlier plugins.
 - **Trust:** `IPluginPolicy` / `FilePluginPolicyStore` (`Documents/Toucan/plugin-policy.json`) records enabled state and trusted content hashes; `IPluginSignatureVerifier` is a stub that reports everything "not signed" (signing becomes mandatory with the collaboration/auth milestone).
-- **Hosts:** Avalonia (Settings → Plugins, startup prompt) and the CLI (`toucan plugins …`, never prompts). WPF has no plugin support. Changes need a restart; plugins are never unloaded.
+- **Hosts:** Avalonia (Settings → Plugins, startup prompt) and the CLI (`toucan plugins …`, never prompts).  Changes need a restart; plugins are never unloaded.
 - **Missing plugin:** a project whose format has no strategy fails to open with `FormatUnavailableException` instead of falling back to JSON.
 
 ---
@@ -675,7 +652,7 @@ To ship a format *outside* this repository, write a plugin instead (see [plugins
 1. Create `ISidePanel` implementation (or use `BuiltInSidePanel`)
 2. Register in `SidePanelRegistry` during app startup
 3. Create corresponding `UserControl` (panel content view)
-4. Add case to `UpdateLeftPanelContent` / `UpdateRightPanelContent` in MainWindow.xaml.cs
+4. Add case to `UpdateLeftPanelContent` / `UpdateRightPanelContent` in `MainWindow.axaml.cs`
 
 ### New Validation Rule
 1. Implement `IValidationRule` in `Services/Validation/`

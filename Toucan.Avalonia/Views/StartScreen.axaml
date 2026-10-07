@@ -91,18 +91,28 @@
                 <ItemsControl ItemsSource="{Binding RecentProjects}">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                      <Grid ColumnDefinitions="*,Auto">
+                      <Grid ColumnDefinitions="*,Auto,Auto">
                         <Button Classes="row" Command="{Binding $parent[ItemsControl].DataContext.OpenRecentProjectCommand}"
                                 CommandParameter="{Binding Path}" ToolTip.Tip="{Binding Path}">
                           <StackPanel Orientation="Horizontal" Spacing="12">
                             <ui:FASymbolIcon Symbol="Folder" FontSize="18" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
                             <StackPanel>
-                              <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                              <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                <ui:FASymbolIcon Symbol="Pin" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding IsPinned}"
+                                                 Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+                              </StackPanel>
                               <TextBlock Text="{Binding Path}" Classes="caption" TextTrimming="PathSegmentEllipsis" MaxWidth="320"/>
                             </StackPanel>
                           </StackPanel>
                         </Button>
-                        <Button Grid.Column="1" Classes="icon small" ToolTip.Tip="{loc:Loc 'Remove from list'}"
+                        <ToggleButton Grid.Column="1" Classes="icon small" IsChecked="{Binding IsPinned, Mode=OneWay}"
+                                      ToolTip.Tip="{loc:Loc 'Pin or unpin'}" AutomationProperties.Name="{loc:Loc 'Pin or unpin'}"
+                                      Command="{Binding $parent[ItemsControl].DataContext.TogglePinRecentProjectCommand}"
+                                      CommandParameter="{Binding Path}">
+                          <ui:FASymbolIcon Symbol="Pin"/>
+                        </ToggleButton>
+                        <Button Grid.Column="2" Classes="icon small" ToolTip.Tip="{loc:Loc 'Remove from list'}"
                                 Command="{Binding $parent[ItemsControl].DataContext.RemoveRecentProjectCommand}"
                                 CommandParameter="{Binding Path}">
                           <ui:FASymbolIcon Symbol="Dismiss"/>

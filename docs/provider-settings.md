@@ -1,3 +1,9 @@
+---
+title: "Provider Settings (App-level and Project-level)"
+status: active
+updated: 2026-10-06
+summary: "Where provider credentials live, built-in provider defaults (Google, DeepL, Microsoft, OpenAI, Claude, Gemini, Custom), encryption model and the settings dialog."
+---
 # Provider Settings (App-level and Project-level)
 
 This document explains how provider credentials are stored and how to configure providers in Toucan.

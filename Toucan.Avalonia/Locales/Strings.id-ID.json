@@ -441,5 +441,11 @@
   "plural": "jamak",
   "primary": "utama",
   "seconds": "detik",
-  "“Copy key as” wraps the key in a template. %1 is replaced by the key, e.g. t('%1').": "“Salin kunci sebagai” membungkus kunci dalam templat. %1 diganti dengan kunci, mis. t('%1')."
+  "“Copy key as” wraps the key in a template. %1 is replaced by the key, e.g. t('%1').": "“Salin kunci sebagai” membungkus kunci dalam templat. %1 diganti dengan kunci, mis. t('%1').",
+  "Projects to remember": "Proyek yang diingat",
+  "Pinned projects do not count toward this number.": "Proyek yang disematkan tidak dihitung dalam jumlah ini.",
+  "Keep pinned projects when clearing": "Pertahankan proyek yang disematkan saat menghapus",
+  "Detect preferred language from recent projects": "Deteksi bahasa pilihan dari proyek terbaru",
+  "Manage recent projects": "Kelola proyek terbaru",
+  "Pin or unpin": "Sematkan atau lepas sematan"
 }

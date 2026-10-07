@@ -6,6 +6,7 @@ using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
+using Toucan.Core.Services;
 
 namespace Toucan.Avalonia.ViewModels;
 
@@ -44,7 +45,7 @@ public partial class NewProjectViewModel : ObservableObject
     private readonly IAsyncMessageService? _messageService;
     private readonly string _defaultBaseFolder;
 
-    public NewProjectViewModel(IProjectService? projectService = null, IDialogService? dialogService = null, IAsyncMessageService? messageService = null)
+    public NewProjectViewModel(IProjectService? projectService = null, IDialogService? dialogService = null, IAsyncMessageService? messageService = null, IRecentProjectService? recentProjects = null)
     {
         _projectService = projectService;
         _dialogService = dialogService;
@@ -53,7 +54,8 @@ public partial class NewProjectViewModel : ObservableObject
 
         SelectedFramework = Frameworks[0];
         var opts = AppOptions.LoadFromDisk();
-        var defaultLang = string.IsNullOrWhiteSpace(opts.DefaultLanguage) ? "en-US" : opts.DefaultLanguage;
+        var defaultLang = PreferredLanguageDetector.Resolve(
+            opts.DefaultLanguage, opts.DetectLanguageFromRecent, recentProjects?.LoadRecent() ?? []);
         SourceLanguage = defaultLang;
         Languages.Add(defaultLang);
         Languages.CollectionChanged += (_, _) => OnPropertyChanged(nameof(IsValid));

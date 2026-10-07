@@ -1,4 +1,10 @@
-# Toucan — Brand Guidelines
+---
+title: "Toucan: Brand Guidelines"
+status: reference
+updated: 2026-10-07
+summary: "Brand guidelines: name, voice, colors, logo use. Platform line updated for v0.19.0 (Avalonia on all platforms)."
+---
+# Toucan: Brand Guidelines
 
 > Teach your app every language.
 
@@ -8,11 +14,11 @@
 
 **Toucan** is a professional translation resource editor for developers and localization teams.
 
-It combines the speed of a modern IDE with the completeness of a localization platform — offline-first, format-agnostic, and AI-assisted.
+It combines the speed of a modern IDE with the completeness of a localization platform: offline-first, format-agnostic, and AI-assisted.
 
 Release status: preview until 1.0. Current release: v0.19.0 (Windows, macOS, Linux). The WPF app is deprecated (last release v0.17.3). Say "preview" wherever a version or download is offered.
 
-Platforms: Windows (WPF app), macOS and Linux (Avalonia app), and the `toucan` CLI.
+Platforms: Windows, macOS and Linux (Avalonia app), and the `toucan` CLI.
 
 ---
 
@@ -22,7 +28,7 @@ Help every application speak every language.
 
 ## Vision
 
-The VS Code of localization — a tool developers actually enjoy using.
+The VS Code of localization, a tool developers actually enjoy using.
 
 ---
 
@@ -32,7 +38,7 @@ The VS Code of localization — a tool developers actually enjoy using.
 |-------|-----------|
 | Primary | The Localization IDE |
 | Secondary | Professional translation resource editor |
-| Elevator | Toucan handles 14 i18n formats with AI translation, validation, and source code scanning — all offline, all in one workspace. |
+| Elevator | Toucan handles 14 i18n formats with AI translation, validation, and source code scanning, all offline and in one workspace. |
 
 ---
 
@@ -52,11 +58,11 @@ Alternatives:
 
 | Pillar | Meaning |
 |--------|---------|
-| Developer First | Built for engineers — IDE-familiar patterns, keyboard-driven |
+| Developer First | Built for engineers: IDE-familiar patterns, keyboard-driven |
 | Structured | Translations are data. Treat them like source code. |
 | Fast | 10K keys feel instant. Zero-allocation search. |
-| Confident | Validation, TM, auditing — eliminate mistakes before deploy |
-| Friendly | Powerful but never intimidating |
+| Confident | Validation, TM, auditing: eliminate mistakes before deploy |
+| Friendly | Capable but never intimidating |
 
 ---
 
@@ -106,10 +112,10 @@ Recognizable at a glance. Modern, friendly, premium, geometric.
 Built on golden-ratio circles. No arbitrary curves. Works from 16px to 1024px.
 
 ### Symbolism
-- **Head** — knowledge
-- **Beak** — communication
-- **Eye** — understanding
-- **Colors** — many languages working together
+- **Head**: knowledge
+- **Beak**: communication
+- **Eye**: understanding
+- **Colors**: many languages working together
 
 ### Requirements
 - Readable as a silhouette
@@ -139,21 +145,21 @@ Built on golden-ratio circles. No arbitrary curves. Works from 16px to 1024px.
 
 ### Layout
 Three-pane VS Code-style:
-- **Left** — tree/list sidebar (200px default)
-- **Center** — translation editor (paginated or infinite scroll)
-- **Right** — inspector panel (stats, suggestions, details, validation)
+- **Left**: tree/list sidebar (200px default)
+- **Center**: translation editor (paginated or infinite scroll)
+- **Right**: inspector panel (stats, suggestions, details, validation)
 
 ### Chrome
-- **Title bar** — logo + segmented menu (File, Edit, Tools, Find, View, Help)
-- **Toolbar** — Snipping Tool-style pill-grouped icon buttons, mode selector on right
-- **Footer bar** — Photos-style action bar (left: quick actions, center: status, right: info panels)
-- **No toolbar on start screen** — clean landing with just backdrop
+- **Title bar**: logo + segmented menu (File, Edit, Tools, Find, View, Help)
+- **Toolbar**: Snipping Tool-style pill-grouped icon buttons, mode selector on right
+- **Footer bar**: Photos-style action bar (left: quick actions, center: status, right: info panels)
+- **No toolbar on start screen**: clean landing with just backdrop
 
 ### Modes
 Three editor modes with visual differentiation:
-- **Editor** (default) — full editing, MT suggestions
-- **Review** — approve/reject focus, validation warnings
-- **Audit** — read-only, change history
+- **Editor** (default): full editing, MT suggestions
+- **Review**: approve/reject focus, validation warnings
+- **Audit**: read-only, change history
 
 ### Backdrop
 Mica (Windows 11) with system theme. Start screen shows through backdrop (no opaque background).
@@ -197,7 +203,7 @@ All chrome hidden. Single translation card centered. J/K navigation. Mode-aware.
 
 ## Iconography
 
-- Fluent System Icons (via WPF UI SymbolIcon)
+- Fluent System Icons
 - 16px for inline, 20px for toolbar, 24px for status bar
 - Consistent weight across the app
 
