@@ -1,3 +1,9 @@
+---
+title: "Visual review: screenshots of every screen"
+status: active
+updated: 2026-10-06
+summary: "How to render PNGs of every screen headlessly with TOUCAN_TEST_SCREENSHOTS, what each file shows and the known limits."
+---
 # Visual review: screenshots of every screen
 
 `tests/Toucan.Avalonia.Tests/UiScreenshotTests.cs` renders the real windows, side panels and dialogs headlessly (Avalonia.Headless with Skia) and saves a PNG of each. It is how UI changes get reviewed without clicking through the app, and it works on any OS (no UI Automation tooling needed).

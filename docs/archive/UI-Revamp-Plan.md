@@ -1,3 +1,12 @@
+---
+title: "Toucan UI Revamp Plan"
+status: done
+progress: "delivered in v0.15.0"
+updated: 2026-07-02
+summary: "VS Code-style three-pane layout, editor modes and Zen mode plan for the WPF app. Delivered in v0.15.0; the WPF app was removed after v0.17.3."
+archived: 2026-10-07
+reason: "Delivered in v0.15.0 for the WPF app, which was removed after v0.17.3"
+---
 # Toucan UI Revamp Plan
 
 ## Goal

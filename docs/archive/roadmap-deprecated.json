@@ -1,4 +1,7 @@
 {
+  "_status": "deprecated",
+  "_archived": "2026-10-07",
+  "_reason": "Legacy WPF-parity checklist (88/88); the website no longer reads it. Live roadmap: docs/todos/future-roadmap.md",
   "progress": {
     "done": 88,
     "total": 88,

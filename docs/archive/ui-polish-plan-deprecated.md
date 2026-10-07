@@ -1,3 +1,12 @@
+---
+title: "RC Phase 4: UX & UI Polish Plan"
+status: deprecated
+progress: "0 started"
+updated: 2026-07-02
+summary: "Plan to extract shared WPF dialog components (DialogFooter, SettingsCard). Never started; the WPF app was removed and the Avalonia app got its own polish pass in v0.19.0."
+archived: 2026-10-07
+reason: "Never started; targeted WPF XAML and the WPF app was removed"
+---
 # RC Phase 4: UX & UI Polish Plan
 
 > Goal: Standardize all dialogs/windows, extract reusable components, reduce repetition.

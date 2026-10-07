@@ -1,3 +1,12 @@
+---
+title: "editor-ux-improvements — tasks"
+status: deprecated
+progress: "0/21 tasks"
+updated: 2026-07-06
+summary: "Task list for the WPF editor UX changes. Never started; the WPF app was removed."
+archived: 2026-10-07
+reason: "Never started; targeted WPF views and the WPF app was removed"
+---
 # Implementation Plan: Editor UX Improvements
 
 ## Overview

@@ -76,7 +76,7 @@ The planned order to 1.0:
 | v1.0 | Performance at scale and stabilization. The first stable release. |
 | After 1.0 | Imports from Crowdin, Lokalise, Phrase, and Transifex. Toucan Hub for locking and presence. A GitHub Action for `toucan check`. Avalonia feature parity. |
 
-This is the planned order, not a promise. Details are in [docs/todos/future-roadmap.md](docs/todos/future-roadmap.md); shipped features are listed in [docs/completed-features.md](docs/completed-features.md).
+This is the planned order, not a promise. Details are in [docs/todos/future-roadmap.md](docs/todos/future-roadmap.md); shipped features are listed in [docs/completed-features.md](docs/completed-features.md). Every doc's status and summary is in [docs/INDEX.md](docs/INDEX.md).
 
 ## Tech stack
 

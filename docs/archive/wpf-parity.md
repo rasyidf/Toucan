@@ -1,3 +1,12 @@
+---
+title: "WPF → Avalonia parity"
+status: done
+progress: "WPF retired"
+updated: 2026-10-07
+summary: "Audit comparing the WPF and Avalonia apps: what is equivalent, what was ported, what was deliberately left behind. Kept as the record of retiring WPF."
+archived: 2026-10-07
+reason: "WPF app retired and removed from main; the record is kept as history"
+---
 > The WPF app was removed from `main` after v0.17.3 and lives on the `legacy/wpf` branch. This record stays as history.
 
 # WPF → Avalonia parity

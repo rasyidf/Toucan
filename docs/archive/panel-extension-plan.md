@@ -1,3 +1,12 @@
+---
+title: "Panel Extension System — v0.16 Plan"
+status: done
+progress: "shipped in v0.16.0"
+updated: 2026-10-01
+summary: "Activity bar and extensible side-panel and status-bar system (ISidePanel, registry, PanelHost). Shipped in v0.16.0, polished in v0.16.1."
+archived: 2026-10-07
+reason: "Shipped in v0.16.0"
+---
 # Panel Extension System — v0.16 Plan
 
 > VS Code-style activity bar + extensible panel slots for sidebar and footer.

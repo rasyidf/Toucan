@@ -1,3 +1,12 @@
+---
+title: "rc-phase1-code-health — tasks"
+status: done
+progress: "36/40 tasks"
+updated: 2026-06-27
+summary: "RC Phase 1 task list. All required tasks done; the 4 left are optional tests (round-trip, DI configuration)."
+archived: 2026-10-07
+reason: "Required tasks complete; the remaining four are optional tests"
+---
 # Implementation Plan: RC Phase 1 — Code Health
 
 ## Overview

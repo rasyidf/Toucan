@@ -1,10 +1,17 @@
+---
+title: "Shipped Features"
+status: active
+updated: 2026-10-07
+summary: "Checklist of shipped features as of v0.19.0, grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md."
+---
 # Shipped Features
 
 > As of v0.19.0 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
-> planned work is in [todos/future-roadmap.md](todos/future-roadmap.md).
-> Unless a line says otherwise, a feature is in the WPF app (last release v0.17.3). The Avalonia app, now the app on
-> every platform, shares the core (formats, validation, providers) and has most of the UI; it does not have the Source
-> Control, Translation, and Dictionary panels yet.
+> open work is in [todos/future-roadmap.md](todos/future-roadmap.md) and open bugs in [known-bugs.md](known-bugs.md).
+> This file lists shipped features only: when something ships, add it here and delete it from the roadmap.
+> Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform. Lines marked (WPF) shipped
+> only in the WPF app (last release v0.17.3) and are not in the Avalonia app. The Avalonia app does not have the Source
+> Control and Dictionary panels yet; its Translation panel is the Machine Translation panel.
 
 ## Core Editor
 
@@ -15,7 +22,7 @@
 - [x] Undo / Redo (Ctrl+Z / Ctrl+Y)
 - [x] Comment field per translation
 - [x] Approved flag (toggle per row)
-- [x] Spell checking (WPF native)
+- [x] Spell checking (WPF)
 - [x] Word-wrapping for long IDs
 - [x] Plain text keys mode (no dot-splitting)
 - [x] Auto-select newly added ID
@@ -74,7 +81,7 @@
 
 ## UI / UX
 
-- [x] WPF UI Fluent (Mica backdrop, system theme)
+- [x] Fluent theme with system light/dark (Mica backdrop in WPF)
 - [x] Design system tokens (shared ResourceDictionary)
 - [x] Framework tile grid for new projects (16 frameworks)
 - [x] Start screen with quick actions
@@ -86,7 +93,9 @@
 - [x] Settings dialog with 12 pages and two-tier settings (app defaults, per-project overrides)
 - [x] Filter: untranslated / translated / approved
 - [x] Status bar (project, language, cursor, loading, notifications)
-- [x] Toucan icon in TitleBar
+- [x] Title bar with logo, save-state chip and command palette pill
+- [x] Command palette (Cmd/Ctrl+Shift+P) over every menu command
+- [x] Settings search
 - [x] Compact pagination controls
 - [x] Editor, Review, and Audit modes; Zen mode (J/K navigation)
 - [x] Activity bar with side panels: Explorer, Source Code, Search, Issues, Source Control, Languages, Inspector, Translation, Memory (Dictionary panel is a placeholder)
@@ -98,6 +107,7 @@
 - [x] Bulk delete, move to namespace, pre-translate, approve, and copy source to target
 - [x] Six built-in validation rules: missing, placeholder mismatch, duplicate keys, untranslated (same as source), empty, whitespace mismatch
 - [x] Per-rule enable/disable and severity
+- [x] Auto-fix suggestions for common issues (trailing spaces, wrong quotes)
 - [x] Custom rules per project: max length, forbidden words, regex, required
 
 ## Translation Memory
@@ -105,7 +115,6 @@
 - [x] Trigram fuzzy matching with configurable threshold and scope (global or project)
 - [x] TMX import and export
 - [x] View, delete, and clear stored entries
-- [ ] Inline ghost-text suggestions (suggestion is computed; the editor overlay is not built yet)
 
 ## Advanced Data Model
 
@@ -119,18 +128,12 @@
 
 - [x] Avalonia app for macOS (`Toucan.app`) and Linux (tarball), preview since v0.18.0
 - [x] Windows packaging scripts: portable EXE, Inno Setup installer, MSIX (`publish.ps1`)
-- [ ] Signed packages and a release pipeline
-- [ ] Auto-updater (the About page has the settings, but nothing checks for updates yet)
 - [x] File association (`.tproj` → open app)
 - [x] Git branch and changed-file count in the status bar
 - [x] Translation file locations configurable per language
 
-## AI Features (Low Priority)
 
-- [ ] ConsistencyAI (check translations against source language)
-- [ ] AI-powered translation memory
-
-## Source Code Integration (Low Priority)
+## Source Code Integration
 
 - [x] Source code view panel (show where key is used)
 - [x] Extract translation IDs from source (`t('key')` patterns)
@@ -139,7 +142,7 @@
 - [x] Wire source root configuration
 - [x] Support `.tsx`, `.vue`, `.svelte`, `.py` scanning
 
-## Plugins (v0.18.0; macOS/Linux app and CLI, not the Windows app)
+## Plugins (since v0.18.0; Avalonia app and CLI)
 
 - [x] Plugins add file formats, translation providers, validation rules, and framework profiles from `.dll` assemblies
 - [x] Trust model: a plugin loads only when enabled and trusted (SHA-256 of its files)
@@ -151,4 +154,4 @@
 
 ---
 
-Effort estimates and the order of upcoming work live in [todos/future-roadmap.md](todos/future-roadmap.md).
+Effort estimates, unfinished work and the order of upcoming work live in [todos/future-roadmap.md](todos/future-roadmap.md).

@@ -6,7 +6,7 @@ namespace Toucan.Core.Tests.Formats;
 
 /// <summary>
 /// Characterization tests for the built-in formats, written before the FormatId migration
-/// (docs/todos/plugin-system-plan.md, Phase 2). They pin current save -> load behavior so the
+/// (docs/archive/plugin-system-plan.md, Phase 2). They pin current save -> load behavior so the
 /// refactor can be verified as behavior-preserving.
 /// </summary>
 public sealed class FormatRoundTripTests : IDisposable

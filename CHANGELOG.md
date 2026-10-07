@@ -36,7 +36,7 @@ Indonesian localization, a Machine Translation panel, `.tproj` file association 
 ### Added
 - **Localization (Avalonia app)** — Menus, panels, dialogs, settings, tooltips, pagination and the status bar are translated to Indonesian (id-ID); choose it under Settings → General → Interface language and restart. Translations are embedded JSON maps keyed by the English text (`Locales/Strings.{culture}.json`), so a missing entry falls back to English, and a test fails when a UI string has no translation. Messages built at run time are still English.
 - **Edit menu** — Cut Key Values and Trim Line by Line; copy-template shortcuts now cover all five templates.
-- **WPF parity record** — [docs/wpf-parity.md](docs/wpf-parity.md) lists what the Windows app had, what moved, and what was deliberately left behind, so the WPF app can be retired.
+- **WPF parity record** — [docs/archive/wpf-parity.md](docs/archive/wpf-parity.md) lists what the Windows app had, what moved, and what was deliberately left behind, so the WPF app can be retired.
 - **Machine Translation panel (Avalonia app)** — Right-hand panel with a provider picker built from the registered providers (plugin providers included, with a "Needs API key" badge), quick actions (translate selected key, fill empty values in view, Pre-translate, provider settings), and the last run's results. The Pre-translate dialog now lists the same registered providers, and the provider chosen there carries over to the panel.
 - **`.tproj` file association (Avalonia app)** — Settings → Integration registers Toucan for `.tproj` files: per-user registry keys on Windows, a `.desktop` file and MIME type on Linux. On Windows it also manages the "Open with Toucan" folder menu entry. `Toucan.app` now declares the type in its Info.plist, and the app opens files that Finder passes to it.
 - **macOS DMG installer** — Releases ship `Toucan-<version>-osx-<arch>.dmg` with the usual drag-to-Applications window, next to the zip. `packaging/build-macos-app.sh` writes it (styled when `create-dmg` is installed, plain `hdiutil` otherwise).
@@ -225,7 +225,7 @@ First macOS and Linux release. The Avalonia app now targets `net10.0` (it target
 - README rewritten with accurate feature list and roadmap
 - UI revamp plan finalized (all phases complete except Phase 5 performance)
 - UI polish plan completed
-- Panel extension system plan documented (docs/todos/panel-extension-plan.md)
+- Panel extension system plan documented (docs/archive/panel-extension-plan.md)
 
 ### Additional Fixes
 - TitleBar icon: fixed crash by using `ui:ImageIcon` (correct `IconElement` type for WPF UI 4.x)

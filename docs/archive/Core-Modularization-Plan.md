@@ -1,3 +1,11 @@
+---
+title: "Toucan.Core — Modularization & Framework Standardization Plan"
+status: done
+updated: 2026-06-27
+summary: "Plan to split file format from framework profile (IFrameworkProfile) in Toucan.Core. Implemented; profiles ship in Core and plugins."
+archived: 2026-10-07
+reason: "Implemented: IFrameworkProfile and the format/profile split are in Toucan.Core"
+---
 # Toucan.Core — Modularization & Framework Standardization Plan
 
 ## Problem Statement

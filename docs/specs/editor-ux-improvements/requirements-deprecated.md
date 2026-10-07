@@ -1,3 +1,12 @@
+---
+title: "editor-ux-improvements — requirements"
+status: deprecated
+progress: "0/21 tasks"
+updated: 2026-07-06
+summary: "Requirements for five WPF editor UX changes (mode selector pill and more). Never started; the WPF app was removed."
+archived: 2026-10-07
+reason: "Never started; targeted WPF views and the WPF app was removed"
+---
 # Requirements Document
 
 ## Introduction

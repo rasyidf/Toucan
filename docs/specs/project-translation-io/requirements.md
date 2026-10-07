@@ -1,3 +1,12 @@
+---
+title: "project-translation-io — requirements"
+status: done
+progress: "45/64 tasks"
+updated: 2026-06-28
+summary: "Requirements for project lifecycle and translation IO: dirty tracking, audit, comments, auto-save, file watcher, diff/merge."
+archived: 2026-10-07
+reason: "Required tasks complete; the remaining 19 are optional property and unit tests"
+---
 # Requirements Document
 
 ## Introduction

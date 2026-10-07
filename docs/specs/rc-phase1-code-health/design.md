@@ -1,3 +1,12 @@
+---
+title: "rc-phase1-code-health — design"
+status: done
+progress: "36/40 tasks"
+updated: 2026-06-27
+summary: "RC Phase 1 code-health design: package cleanup, interface consolidation, ViewModel decomposition."
+archived: 2026-10-07
+reason: "Required tasks complete; the remaining four are optional tests"
+---
 # Design Document: RC Phase 1 — Code Health
 
 ## Overview

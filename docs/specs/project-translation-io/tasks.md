@@ -1,3 +1,12 @@
+---
+title: "project-translation-io — tasks"
+status: done
+progress: "45/64 tasks"
+updated: 2026-06-28
+summary: "Project/translation IO task list. All required tasks done; the 19 left are optional property and unit tests."
+archived: 2026-10-07
+reason: "Required tasks complete; the remaining 19 are optional property and unit tests"
+---
 # Implementation Plan: Project and Translation IO
 
 ## Overview

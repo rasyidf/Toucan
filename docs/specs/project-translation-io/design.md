@@ -1,3 +1,12 @@
+---
+title: "project-translation-io — design"
+status: done
+progress: "45/64 tasks"
+updated: 2026-06-28
+summary: "Design of the unified project and translation IO layer in Toucan.Core, with 17 correctness properties."
+archived: 2026-10-07
+reason: "Required tasks complete; the remaining 19 are optional property and unit tests"
+---
 # Design Document: Project and Translation IO
 
 ## Overview

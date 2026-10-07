@@ -1,3 +1,12 @@
+---
+title: "Plugin System Plan (.dll assemblies)"
+status: done
+progress: "6/6 phases"
+updated: 2026-10-01
+summary: "Plugin system plan and implementation log (FormatId migration, abstractions package, loader, trust, sample). All six phases done; author guide is docs/plugins.md."
+archived: 2026-10-07
+reason: "All six phases shipped in v0.18.0; the author guide is docs/plugins.md"
+---
 # Plugin System Plan (.dll assemblies)
 
 > Status: IMPLEMENTED (preview). Phases 1-6 are done for the Avalonia app and the CLI; see the progress log at the end and [docs/plugins.md](../plugins.md) for the author guide.

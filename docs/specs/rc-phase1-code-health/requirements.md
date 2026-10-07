@@ -1,3 +1,12 @@
+---
+title: "rc-phase1-code-health — requirements"
+status: done
+progress: "36/40 tasks"
+updated: 2026-06-27
+summary: "RC Phase 1 code-health requirements: dependency cleanup, analyzer fixes, ViewModel split, DI migration."
+archived: 2026-10-07
+reason: "Required tasks complete; the remaining four are optional tests"
+---
 # Requirements Document
 
 ## Introduction

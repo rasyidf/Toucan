@@ -1,3 +1,9 @@
+---
+title: "`.babel` Format — Reference"
+status: reference
+updated: 2026-07-02
+summary: "Historical reference for the BabelEdit .babel XML format and how it maps to toucan.project, for the babel import."
+---
 # `.babel` Format — Reference
 
 > Historical reference for importing `.babel` project files into Toucan.

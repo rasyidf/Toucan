@@ -1,3 +1,9 @@
+---
+title: "Toucan — Architecture"
+status: active
+updated: 2026-10-07
+summary: "Layers, dependency graph, DI composition, plugin host and file layout of Toucan.Core, Avalonia app and CLI. Reflects v0.19.0 (Avalonia on all platforms; WPF removed)."
+---
 # Toucan — Architecture
 
 > Last updated: 2026-10-01 (plugin system, string format IDs, shared composition root)
@@ -258,7 +264,7 @@ PanelService.ActivateLeftPanel(id) → SidePanelRegistry.Toggle(id)
     │ Sets ActiveLeftPanel, fires PropertyChanged
     │
     ▼
-MainWindow.xaml.cs subscribes → UpdateLeftPanelContent(id)
+MainWindow.axaml.cs subscribes → UpdateLeftPanelContent(id)
     │ Switch on panelId → instantiate UserControl
     │ Set PanelHost.PanelContent + PanelHost.PanelActions
     │
@@ -487,7 +493,7 @@ Persisted by `PanelService`:
 ## Directory Map
 
 ```
-Toucan/                              Solution root
+toucan/                              Repository root
 ├── ToucanProject.slnx               Full solution
 ├── Toucan.CrossPlatform.slnx        Same projects, without the x86/ARM platform mappings
 │
@@ -534,22 +540,22 @@ Toucan/                              Solution root
     ├── plugins.md                   Plugin author guide
     ├── completed-features.md        Shipped features (v0.19.0 Avalonia on all platforms)
     ├── known-bugs.md                Active bug tracker
-    ├── ui-revamp-plan.md            UI redesign plan
     ├── branding.md                  Brand guidelines
     ├── provider-settings.md         Provider configuration docs
     ├── pretranslation-preview.md    Dry-run/preview feature docs
-    ├── roadmap.json                 Legacy feature checklist (no longer read by the website)
+    ├── visual-review.md             Headless screenshots of every screen
+    ├── INDEX.md                     Generated list of every doc with status, progress, summary
     ├── toucan.project.schema.json   JSON Schema for project files
     ├── index.html                   Website (toucan.rasyid.dev), self-contained HTML
     ├── todos/
-    │   ├── future-roadmap.md        Roadmap: v0.20 → v1.0, then post-1.0 plans
-    │   ├── panel-extension-plan.md  Inspector panel extension plan
-    │   ├── plugin-system-plan.md    Plugin system plan and implementation log
-    │   └── ui-polish-plan.md        UI polish items
+    │   └── future-roadmap.md        Roadmap: v0.20 → v1.0, then post-1.0 plans
     ├── research/
     │   ├── babel-format-reference.md
-    │   ├── toucan-project-schema.md
-    │   └── core-modularization-plan.md
+    │   └── toucan-project-schema.md
+    ├── archive/                     Finished or deprecated docs, kept for history (see the doc-status skill)
+    │   ├── plugin-system-plan.md, panel-extension-plan.md, Core-Modularization-Plan.md
+    │   └── UI-Revamp-Plan.md, ui-polish-plan-deprecated.md, wpf-parity.md
+    ├── specs/                       Kiro specs (requirements, design, tasks), moved from .kiro/specs
     └── test-project/                Sample translation files
 ```
 
@@ -587,7 +593,7 @@ Selected via `ModeSelectorBar` in the title bar (`TitleBar.TrailingContent`). Pe
 
 Plugins are .NET assemblies in `Documents/Toucan/plugins/<id>/` with a `plugin.json` manifest. Authors reference the
 `Toucan.Plugins.Abstractions` package; the guide is [plugins.md](plugins.md), the design history is
-[todos/plugin-system-plan.md](todos/plugin-system-plan.md).
+[archive/plugin-system-plan.md](archive/plugin-system-plan.md).
 
 ```
 startup
@@ -646,7 +652,7 @@ To ship a format *outside* this repository, write a plugin instead (see [plugins
 1. Create `ISidePanel` implementation (or use `BuiltInSidePanel`)
 2. Register in `SidePanelRegistry` during app startup
 3. Create corresponding `UserControl` (panel content view)
-4. Add case to `UpdateLeftPanelContent` / `UpdateRightPanelContent` in MainWindow.xaml.cs
+4. Add case to `UpdateLeftPanelContent` / `UpdateRightPanelContent` in `MainWindow.axaml.cs`
 
 ### New Validation Rule
 1. Implement `IValidationRule` in `Services/Validation/`
