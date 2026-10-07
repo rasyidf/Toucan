@@ -2,9 +2,12 @@
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-10-08
+
+Format fidelity and CI: a support matrix for every built-in format, protection against saves that would drop content (Android XML, RESX), fixes for YAML, Laravel PHP, TOML, Java properties, JSON and XML round-trips, and a build-and-test workflow on Windows, macOS and Linux. Also a unified title bar on Windows and Linux, a reusable editable table, and a tidier Project Properties page.
+
 ### Added
 - **Continuous integration** — Pull requests and pushes to `main` and `release/**` build `Toucan.CrossPlatform.slnx` and run the Core and Avalonia tests on Windows, macOS and Linux, and upload coverage reports.
-
 - **Format support matrix** — [docs/formats.md](docs/formats.md) lists, for every built-in format, the versions that work, what survives a save and what does not. It is generated from the code and checked by a test.
 - **Unsafe saves are blocked** — Android XML projects that contain `<plurals>`, other resource types or `translatable="false"`, and RESX projects with non-string resources, `<metadata>` or files not named `Resources*.resx`, open with a warning, and saving them in place is refused, because Toucan would rewrite the files without that content. Save As still writes a copy.
 - **Stability checks** — For every loadable format, saving the same data twice gives identical files, save → load → save changes nothing and creates no new files, and locale variants (`pt-BR`, `zh-Hans`) keep their identity.
@@ -12,17 +15,16 @@
 - **Round-trip fixtures** — Every loadable format is checked for multiline text, CRLF, quotes, backslashes, unicode, placeholders, markup, separators, leading spaces, tabs, percent signs, `$`, and YAML-looking words and numbers.
 
 ### Changed
+- **Unified title bar on Windows and Linux** — The top bar now extends into the title bar like on macOS: the menu, command palette and mode tabs share one row with the window buttons, the empty area drags the window, and the Toucan name shows on every platform.
 - **Editable tables** — Provider options and secrets, and the copy templates in Settings and Project Properties, now use one table control: column titles, borderless cells that show an outline on hover and focus, a divider between key and value, and a remove button on each row. Provider schema keys stay read-only and cannot be removed.
 - **Machine translation provider list** — "Needs API key" shows only on the selected provider. Providers without a key are shown in gray instead of each carrying a badge.
 - **Project Properties** — The General page has a Files group with the project folder, the file format and its support level (Full or Limited), and what the format does not keep when saving (see [docs/formats.md](docs/formats.md)). Languages are split into Source language and Project languages (with a Manage button), so the labels no longer wrap. The description box has a placeholder, and the sidebar shows the format's name instead of its ID.
 
 ### Fixed
-- **Unified title bar on Windows and Linux** — The top bar now extends into the title bar like on macOS: the menu, command palette and mode tabs share one row with the window buttons, the empty area drags the window, and the Toucan name shows on every platform.
 - **Borderless text boxes everywhere** — The borderless look of table cells leaked to every text box in the app. It now applies only inside editable tables.
 - **Multi-line inputs** — Comment, description and context boxes start the text at the top instead of the vertical center.
-- **Compact toolbar and panel headers** — Icon buttons in the panel headers and the editor toolbar are smaller (26 px) with rounded corners and a hover state, and the headers and toolbar are 36 px tall instead of 44 px.
+- **Compact toolbar and panel headers** — Icon buttons in the panel headers and the editor toolbar are smaller (26 px) with rounded corners and a hover state, and the headers and toolbar are 36 px tall instead of 44 px. The Explorer and Inspector headers match the editor's filter toolbar height, so the divider lines up across the three columns.
 - **Mode tab hover** — Hovering Editor, Review or Audit no longer draws a second, lighter box inside the tab.
-- **Panel alignment** — The Explorer and Inspector headers are now the same height as the editor's filter toolbar, so the divider lines up across the three columns.
 - **Laravel PHP** — Multiline values were lost on load, and `\\` was read as two backslashes. The loader now reads single- and double-quoted strings, `array()` syntax, comments and nested arrays properly, and skips computed values.
 - **TOML** — Backslashes, carriage returns, `\uXXXX` escapes and trailing comments are read correctly; literal `'strings'` are no longer unescaped.
 - **Java properties** — A value with leading spaces keeps them, and `\r` and `\f` are escaped.

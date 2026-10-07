@@ -9,7 +9,7 @@
   <Identity
     Name="rasyid.dev.Toucan"
     Publisher="CN=rasyid.dev"
-    Version="0.20.2.0"
+    Version="0.21.0.0"
     ProcessorArchitecture="x64" />
 
   <Properties>

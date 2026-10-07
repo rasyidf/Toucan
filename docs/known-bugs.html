@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Known Issues &amp; Unfinished Features</title>
-<meta name="description" content="Open issues for v0.20.2: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.">
+<meta name="description" content="Open issues for v0.21.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.">
 <link rel="canonical" href="https://toucan.rasyid.dev/known-bugs.html">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
@@ -14,7 +14,7 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Known Issues &amp; Unfinished Features">
-<meta property="og:description" content="Open issues for v0.20.2: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.">
+<meta property="og:description" content="Open issues for v0.21.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.">
 <meta property="og:url" content="https://toucan.rasyid.dev/known-bugs.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script>
@@ -80,11 +80,11 @@
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Known Issues &amp; Unfinished Features</h1>
-        <p class="lead">Open issues for v0.20.2: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.</p>
+        <p class="lead">Open issues for v0.21.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.</p>
         <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-07</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/known-bugs.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
-<p>Current release: <strong>v0.20.2</strong> (preview). Last audited <strong>2026-10-07</strong> against the code on <code>fix/ui-visual-polish</code>.</p>
+<p>Current release: <strong>v0.21.0</strong> (preview). Last audited <strong>2026-10-08</strong> against the code on <code>release/v0.21.0</code>.</p>
 <p>This file lists what is wrong <em>now</em>. Fixed bugs are not kept here: they are in <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md">CHANGELOG.md</a> (see <a href="#where-the-old-fixes-went">Where the old fixes went</a>). When a bug is fixed, delete its row and section here and add a <code>### Fixed</code> line to the changelog <code>[Unreleased]</code> section. Planned work for an ID is linked from <a href="roadmap.html">the roadmap</a> (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from <code>main</code> (source: branch <code>legacy/wpf</code>), so nothing here is about WPF.</p>
 <p><strong>How each issue was checked.</strong> "Reproduced" means I ran the case through the real load and save strategies and the output is quoted. "From code" means the cause is visible in the source but I did not run it. Run the same cases again before fixing, and turn each repro into a test in <code>tests/Toucan.Core.Tests/Formats/</code>.</p>
 <h2 id="open-issues"><a class="anchor" href="#open-issues" aria-label="Link to this section">#</a>Open issues</h2>

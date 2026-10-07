@@ -7,7 +7,7 @@ summary: "Ten focused releases from v0.21 to v0.30: file safety, editing, termin
 ---
 # Toucan roadmap: v0.21 to v1.0
 
-> Current release: **v0.20.2** on Windows, macOS and Linux. Every build before v1.0 is a preview.
+> Current release: **v0.21.0** on Windows, macOS and Linux. Every build before v1.0 is a preview.
 
 ## Product goal
 

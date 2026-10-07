@@ -2,11 +2,11 @@
 title: "Known Issues & Unfinished Features"
 status: active
 updated: 2026-10-07
-summary: "Open issues for v0.20.2: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
+summary: "Open issues for v0.21.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
 ---
 # Known Issues & Unfinished Features
 
-Current release: **v0.20.2** (preview). Last audited **2026-10-07** against the code on `fix/ui-visual-polish`.
+Current release: **v0.21.0** (preview). Last audited **2026-10-08** against the code on `release/v0.21.0`.
 
 This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [CHANGELOG.md](../CHANGELOG.md) (see [Where the old fixes went](#where-the-old-fixes-went)). When a bug is fixed, delete its row and section here and add a `### Fixed` line to the changelog `[Unreleased]` section. Planned work for an ID is linked from [the roadmap](todos/future-roadmap.md) (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from `main` (source: branch `legacy/wpf`), so nothing here is about WPF.
 
