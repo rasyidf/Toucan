@@ -592,20 +592,16 @@
     <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
   </Style>
   <Style Selector="TextBox.cell">
-    <Style.Resources>
-      <SolidColorBrush x:Key="TextControlBackground" Color="Transparent"/>
-      <SolidColorBrush x:Key="TextControlBorderBrush" Color="Transparent"/>
-      <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="Transparent"/>
-      <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="Transparent"/>
-      <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="Transparent"/>
-      <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent"/>
-      <Thickness x:Key="TextControlBorderThemeThickness">1</Thickness>
-      <Thickness x:Key="TextControlBorderThemeThicknessFocused">1</Thickness>
-    </Style.Resources>
     <Setter Property="MinHeight" Value="30"/>
     <Setter Property="MinWidth" Value="0"/>
     <Setter Property="Padding" Value="8,4"/>
     <Setter Property="CornerRadius" Value="6"/>
+  </Style>
+  <!-- Template-part selectors, not Style.Resources: resources declared in a style apply to every TextBox in scope. -->
+  <Style Selector="TextBox.cell /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="1"/>
   </Style>
   <Style Selector="TextBox.cell:pointerover:not(:focus) /template/ Border#PART_BorderElement">
     <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
@@ -613,6 +609,7 @@
   <Style Selector="TextBox.cell:focus /template/ Border#PART_BorderElement">
     <Setter Property="Background" Value="{DynamicResource EditorBackgroundBrush}"/>
     <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
   </Style>
   <Style Selector="TextBox.cell:readonly">
     <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>

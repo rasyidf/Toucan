@@ -88,4 +88,24 @@ public class EditableTableTests
         Assert.Equal('•', value.PasswordChar);
         window.Close();
     }
+
+    [AvaloniaFact]
+    public void BorderlessCellLook_DoesNotLeakToOrdinaryTextBoxes()
+    {
+        var items = new ObservableCollection<CopyTemplateItem> { new("x") };
+        var plain = new TextBox { Text = "plain" };
+        var table = new EditableTable { ItemsSource = items, ShowKey = false };
+        var window = new Window { Width = 600, Height = 400, Content = new StackPanel { Children = { plain, table } } };
+        window.Show();
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+
+        static global::Avalonia.Media.IBrush? BorderOf(TextBox t) =>
+            t.GetVisualDescendants().OfType<Border>().First(b => b.Name == "PART_BorderElement").BorderBrush;
+        var cell = table.GetVisualDescendants().OfType<TextBox>().Single(t => t.Classes.Contains("cell"));
+
+        Assert.Equal(global::Avalonia.Media.Colors.Transparent, ((global::Avalonia.Media.ISolidColorBrush)BorderOf(cell)!).Color);
+        var plainBorder = BorderOf(plain);
+        Assert.False(plainBorder is global::Avalonia.Media.ISolidColorBrush { Color.A: 0 }, "an ordinary text box must keep its Fluent border");
+        window.Close();
+    }
 }
