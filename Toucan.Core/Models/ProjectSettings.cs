@@ -173,15 +173,12 @@ public class ProjectSettings
 
     /// <summary>
     /// Maps (format ID, language) to the default relative file path. Set by the project service so plugin formats
-    /// resolve through their strategy; when null, built-in formats are used.
+    /// resolve through their strategy; when null, <c>{language}.json</c> is used.
     /// </summary>
     [JsonIgnore] public Func<string, string, string>? DefaultPathResolver { get; set; }
 
     private string ResolveDefaultPath(string language) =>
-        (DefaultPathResolver ?? BuiltInFormatPath)(SaveFormat, language);
-
-    private static string BuiltInFormatPath(string formatId, string language) =>
-        Services.BuiltInFormats.DefaultFilePath(formatId, language);
+        DefaultPathResolver?.Invoke(SaveFormat, language) ?? $"{language}.json";
 }
 
 /// <summary>A named package of translation files within a project.</summary>

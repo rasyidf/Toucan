@@ -1,3 +1,4 @@
+using Toucan.Modules;
 using System.Runtime.Loader;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +48,7 @@ public sealed class PluginHostTests : IDisposable
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddToucanCore();
+        services.AddToucanDefaults();
         var options = new PluginHostOptions { IsEnabled = isEnabled };
         options.Roots.Add(_root);
         services.AddToucanPlugins(options);
@@ -409,6 +411,7 @@ public sealed class PluginHostTests : IDisposable
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddToucanCore();
+        services.AddToucanDefaults();
         var options = new PluginHostOptions();
         options.Roots.Add(_root);
         options.Roots.Add(Path.Combine(_root, "does-not-exist"));

@@ -10,6 +10,15 @@
   </Folder>
   <Project Path="Toucan.Avalonia/Toucan.Avalonia.csproj" />
   <Project Path="Toucan.CLI/Toucan.CLI.csproj" />
+  <Project Path="Toucan.Core.Common/Toucan.Core.Common.csproj" />
+  <Project Path="Toucan.Modules.Defaults/Toucan.Modules.Defaults.csproj" />
+  <Project Path="Toucan.Modules.Formats.Json/Toucan.Modules.Formats.Json.csproj" />
+  <Project Path="Toucan.Modules.Formats.Xml/Toucan.Modules.Formats.Xml.csproj" />
+  <Project Path="Toucan.Modules.Formats.Text/Toucan.Modules.Formats.Text.csproj" />
+  <Project Path="Toucan.Modules.Formats.Data/Toucan.Modules.Formats.Data.csproj" />
+  <Project Path="Toucan.Modules.Frameworks/Toucan.Modules.Frameworks.csproj" />
+  <Project Path="Toucan.Modules.Providers/Toucan.Modules.Providers.csproj" />
+  <Project Path="Toucan.Modules.Validation/Toucan.Modules.Validation.csproj" />
   <Project Path="Toucan.Core/Toucan.Core.csproj" />
   <Project Path="Toucan.Plugins.Abstractions/Toucan.Plugins.Abstractions.csproj" />
   <Folder Name="/samples/">

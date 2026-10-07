@@ -450,5 +450,8 @@
   "Keep pinned projects when clearing": "Pertahankan proyek yang disematkan saat menghapus",
   "Detect preferred language from recent projects": "Deteksi bahasa pilihan dari proyek terbaru",
   "Manage recent projects": "Kelola proyek terbaru",
-  "Pin or unpin": "Sematkan atau lepas sematan"
+  "Pin or unpin": "Sematkan atau lepas sematan",
+  "Built-in modules": "Modul bawaan",
+  "Always on. These ship with Toucan as separate assemblies and register the same way plugins do.": "Selalu aktif. Modul ini dikirim bersama Toucan sebagai rakitan terpisah dan mendaftar dengan cara yang sama seperti plugin.",
+  "Always on": "Selalu aktif"
 }

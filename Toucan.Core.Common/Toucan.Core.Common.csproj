@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Helpers shared by Toucan.Core and the built-in modules (file access, file enumeration, nested-JSON parsing).
+    Not a plugin contract: external plugins build against Toucan.Plugins.Abstractions only.
+    Must not reference Toucan.Core or any Toucan.Modules.* assembly.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>13</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Toucan.Core</RootNamespace>
+    <AssemblyName>Toucan.Core.Common</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Toucan.Plugins.Abstractions\Toucan.Plugins.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Toucan.Core" />
+    <InternalsVisibleTo Include="Toucan.Core.Tests" />
+  </ItemGroup>
+
+</Project>

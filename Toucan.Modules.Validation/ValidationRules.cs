@@ -8,7 +8,7 @@ namespace Toucan.Core.Services.Validation;
 public class MissingTranslationRule : IValidationRule
 {
     public string Id => "missing-translation";
-    public string Name => "Missing translations";
+    public string Name => "Missing translation";
     public ValidationSeverity DefaultSeverity => ValidationSeverity.Warning;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext context)
@@ -68,7 +68,7 @@ public partial class PlaceholderMismatchRule : IValidationRule
 public class DuplicateKeyRule : IValidationRule
 {
     public string Id => "duplicate-key";
-    public string Name => "Duplicate keys";
+    public string Name => "Duplicate key";
     public ValidationSeverity DefaultSeverity => ValidationSeverity.Error;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext context)
@@ -87,7 +87,7 @@ public class DuplicateKeyRule : IValidationRule
 public class UntranslatedCopyRule : IValidationRule
 {
     public string Id => "untranslated-copy";
-    public string Name => "Untranslated (same as source)";
+    public string Name => "Untranslated copy of source";
     public ValidationSeverity DefaultSeverity => ValidationSeverity.Info;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext context)
@@ -111,7 +111,7 @@ public class UntranslatedCopyRule : IValidationRule
 public class EmptyValueRule : IValidationRule
 {
     public string Id => "empty-value";
-    public string Name => "Empty values";
+    public string Name => "Empty value";
     public ValidationSeverity DefaultSeverity => ValidationSeverity.Warning;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext context)
@@ -125,7 +125,7 @@ public class EmptyValueRule : IValidationRule
 public class WhitespaceMismatchRule : IValidationRule
 {
     public string Id => "whitespace-mismatch";
-    public string Name => "Whitespace mismatch";
+    public string Name => "Leading/trailing whitespace mismatch";
     public ValidationSeverity DefaultSeverity => ValidationSeverity.Info;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext context)

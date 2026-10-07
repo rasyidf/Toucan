@@ -485,6 +485,11 @@
           <Border IsVisible="{Binding PluginsChanged}" Classes="badge" Padding="10,6" HorizontalAlignment="Left" Margin="14,0,0,16">
             <TextBlock Text="{loc:Loc 'Changes apply immediately to your settings and take effect after restarting Toucan.'}" TextWrapping="Wrap"/>
           </Border>
+          <c:SettingsGroup Margin="0,0,0,12">
+            <c:SettingsRow Title="{loc:Loc 'Open plugins folder'}" Description="{Binding PluginsFolder}">
+              <Button Content="{loc:Loc 'Open'}" Command="{Binding OpenPluginsFolderCommand}"/>
+            </c:SettingsRow>
+          </c:SettingsGroup>
           <c:SettingsGroup IsVisible="{Binding HasNoPlugins}">
             <c:SettingsRow Title="{loc:Loc 'No plugins installed. Put a plugin folder (with a plugin.json) in the plugins folder and restart Toucan.'}"/>
           </c:SettingsGroup>
@@ -542,11 +547,38 @@
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-          <c:SettingsGroup>
-            <c:SettingsRow Title="{loc:Loc 'Open plugins folder'}" Description="{Binding PluginsFolder}">
-              <Button Content="{loc:Loc 'Open'}" Command="{Binding OpenPluginsFolderCommand}"/>
-            </c:SettingsRow>
-          </c:SettingsGroup>
+          <!-- Built-in modules: compiled in, always on, shown read-only so their versions are visible -->
+          <StackPanel IsVisible="{Binding HasBuiltInModules}" Margin="0,8,0,0">
+            <TextBlock Text="{loc:Loc 'Built-in modules'}" FontWeight="SemiBold" FontSize="15" Margin="14,0,0,4"/>
+            <TextBlock TextWrapping="Wrap" Classes="caption" Margin="14,0,14,10"
+                       Text="{loc:Loc 'Always on. These ship with Toucan as separate assemblies and register the same way plugins do.'}"/>
+            <ItemsControl ItemsSource="{Binding BuiltInModules}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <c:SettingsGroup>
+                    <StackPanel>
+                      <Grid ColumnDefinitions="*,Auto" Margin="14,12,14,10">
+                        <StackPanel Spacing="4">
+                          <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <Border Classes="badge" IsVisible="{Binding HasVersion}"><TextBlock Text="{Binding Version, StringFormat='v{0}'}" Classes="mono"/></Border>
+                          </StackPanel>
+                          <TextBlock Text="{Binding Description}" Classes="caption" TextWrapping="Wrap" IsVisible="{Binding HasDescription}"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" Classes="badge" VerticalAlignment="Center"><TextBlock Text="{loc:Loc 'Always on'}"/></Border>
+                      </Grid>
+                      <c:SettingsRow Title="ID" MinRowHeight="36" Padding="14,6">
+                        <TextBlock Text="{Binding Id}" Classes="mono caption"/>
+                      </c:SettingsRow>
+                      <c:SettingsRow Title="{loc:Loc 'Provides'}" MinRowHeight="36" Padding="14,6">
+                        <TextBlock Text="{Binding ProvidesText}" Classes="mono caption" TextWrapping="Wrap" TextAlignment="Right"/>
+                      </c:SettingsRow>
+                    </StackPanel>
+                  </c:SettingsGroup>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
         </StackPanel>
 
         <!-- 12 About -->

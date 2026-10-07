@@ -38,9 +38,13 @@ public sealed record PluginLoadResult(
 public interface IPluginCatalog
 {
     IReadOnlyList<PluginLoadResult> Plugins { get; }
+
+    /// <summary>Modules compiled into Toucan. Read-only: they have no trust or enable state.</summary>
+    IReadOnlyList<BuiltInModuleInfo> BuiltInModules => [];
 }
 
-internal sealed class PluginCatalog(IReadOnlyList<PluginLoadResult> plugins) : IPluginCatalog
+internal sealed class PluginCatalog(IReadOnlyList<PluginLoadResult> plugins, IReadOnlyList<BuiltInModuleInfo>? builtInModules = null) : IPluginCatalog
 {
     public IReadOnlyList<PluginLoadResult> Plugins { get; } = plugins;
+    public IReadOnlyList<BuiltInModuleInfo> BuiltInModules { get; } = builtInModules ?? [];
 }

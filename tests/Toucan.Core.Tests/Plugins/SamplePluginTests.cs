@@ -1,3 +1,4 @@
+using Toucan.Modules;
 using Microsoft.Extensions.DependencyInjection;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
@@ -35,6 +36,7 @@ public sealed class SamplePluginTests : IDisposable
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddToucanCore();
+        services.AddToucanDefaults();
         var options = new PluginHostOptions { Policy = policy };
         options.Roots.Add(Path.Combine(_root, "plugins"));
         services.AddToucanPlugins(options);

@@ -43,7 +43,27 @@ summary: "Layers, dependency graph, DI composition, plugin host and file layout 
          └─────────────────────────────────┘        └──────────────────────┘
 ```
 
-Both consumer projects reference `Toucan.Core`, which references `Toucan.Plugins.Abstractions` (the small, stable contract that plugins build against; it has no UI or Core dependencies). The core has no UI dependencies. Its composition root, `AddToucanCore()` (`ToucanCoreServiceCollectionExtensions`), registers formats, providers, validation and the project service; the Avalonia app and the CLI both call it, then add their own services.
+Both consumer projects reference `Toucan.Core` and `Toucan.Modules.Defaults`. `Toucan.Core` references `Toucan.Core.Common` (shared helpers and the built-in module seam) and `Toucan.Plugins.Abstractions` (the small, stable contract that plugins build against; it has no UI or Core dependencies). The core has no UI dependencies and references no built-in module.
+
+The shipped formats, providers, validation rules and framework profiles live in **built-in modules** (`Toucan.Modules.*`): compiled-in assemblies that reference only Common and Abstractions, never Core. The composition root is two calls: `AddToucanCore()` registers the shared services (project service, strategy factory, format detector, provider registry, validation pipeline), then `AddToucanDefaults()` (`Toucan.Modules.Defaults`) adds every module. The Avalonia app and the CLI both do this, then `AddToucanPlugins()`, then their own services.
+
+```
+Toucan.Core ──► Toucan.Core.Common ──► Toucan.Plugins.Abstractions
+Toucan.Modules.Formats.{Json,Xml,Text,Data}, .Providers, .Validation, .Frameworks ──► Common, Abstractions
+Toucan.Modules.Defaults ──► every module            (Core and the modules never reference each other)
+```
+
+| Module | ID | Contents |
+|---|---|---|
+| `Toucan.Modules.Formats.Json` | `toucan.formats.json` | json, namespaced, manifest loader, arb |
+| `Toucan.Modules.Formats.Xml` | `toucan.formats.xml` | android-xml, xliff, resx |
+| `Toucan.Modules.Formats.Text` | `toucan.formats.text` | po, ini (save only), java-properties, ios-strings, laravel-php, csv |
+| `Toucan.Modules.Formats.Data` | `toucan.formats.data` | yaml, toml |
+| `Toucan.Modules.Providers` | `toucan.providers` | Google, DeepL, Microsoft, OpenAI, Claude, Gemini, Custom, Mock |
+| `Toucan.Modules.Validation` | `toucan.validation` | the six built-in rules |
+| `Toucan.Modules.Frameworks` | `toucan.frameworks` | the eight framework profiles |
+
+Each module registers through `AddToucanModule`, which records what it added in `IPluginCatalog.BuiltInModules` (shown by `toucan plugins list`) and reserves its ID so no external plugin can take it. Formats are grouped by family, not one assembly per format: types that depend on each other concretely (Json, Namespaced, Manifest) must share an assembly. The design and migration record is in [specs/plugin-modularization](specs/plugin-modularization/design.md).
 
 ---
 
@@ -56,24 +76,24 @@ Platform-agnostic library containing all business logic:
 - **Models** — `TranslationItem`, `NsTreeItem`, `ProjectSettings`, `FormatIds`, `SidePanel`, `StatusBarPanel`, and DTOs. The plugin-facing ones (`TranslationItem`, `SaveContext`, `FormatIds`, `ProviderDefinition`, …) live in `Toucan.Plugins.Abstractions` under the same namespaces.
 - **Contracts** — interfaces for every service (`ILoadStrategy`, `ISaveStrategy`, `IProjectLifecycleService`, `ITranslationProvider`, etc.). The plugin-facing contracts (`ISaveStrategy`, `ILoadStrategy`, `ITranslationProvider`, `IValidationRule`, `IFrameworkProfile`) are in `Toucan.Plugins.Abstractions`; host internals (`IValidationPipeline`, `IProjectService`, …) stay in Core.
 - **Services** — implementations: strategy factory, project lifecycle, translation management, validation, TM, audit, auto-save, fuzzy search
-- **Format Engine** — 14 load strategies + 14 save strategies, identified by string format ID (`json`, `android-xml`, …). Each save strategy also owns the format's layout conventions (see below).
-- **Framework Profiles** — 8 auto-detection profiles (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, Generic JSON)
-- **Translation Providers** — Google, DeepL, Microsoft, OpenAI, Claude, Gemini, Custom Webhook, Mock; each carries its own settings definition
-- **Validation** — 6 rules + pipeline
+- **Format engine** — `TranslationStrategyFactory`, `FormatDetector` and the project services that use them. The 14 load and 14 save strategies are identified by string format ID (`json`, `android-xml`, …) and live in the `Toucan.Modules.Formats.*` modules; each save strategy also owns the format's layout conventions (see below).
+- **Provider registry and pretranslation** — `TranslationProviderRegistry` and `PretranslationService` (default provider: Google). The providers (Google, DeepL, Microsoft, OpenAI, Claude, Gemini, Custom Webhook, Mock) are in `Toucan.Modules.Providers`; each carries its own settings definition.
+- **Validation pipeline** — `ValidationPipeline` and the user-configured `CustomValidationRule`; the 6 built-in rules are in `Toucan.Modules.Validation`
+- **Framework profiles** — the 8 auto-detection profiles (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, Generic JSON) are in `Toucan.Modules.Frameworks`
 - **Plugins** — `PluginHost` (discovery, isolated load contexts, registration), trust policy store, content hasher, signature seam (see [Plugin System](#plugin-system))
 
-**Dependencies:** CommunityToolkit.Mvvm 8.4.2, ClosedXML 0.105.0, Microsoft.Extensions.DependencyInjection 10.0.9, Microsoft.Extensions.Logging.Abstractions 10.0.9, `Toucan.Plugins.Abstractions`
+**Dependencies:** CommunityToolkit.Mvvm 8.4.2, ClosedXML 0.105.0, Microsoft.Extensions.DependencyInjection 10.0.9, Microsoft.Extensions.Logging.Abstractions 10.0.9, `Toucan.Core.Common`, `Toucan.Plugins.Abstractions`
 
 ### Toucan.CLI
 
 Headless console tool for CI/CD integration.
 
 - **9 commands:** `check`, `stats`, `translate`, `export`, `list-formats`, `list-keys`, `get`, `set`, `plugins` (`list`, `trust`, `revoke`, `enable`, `disable`)
-- Same composition root as the app (`AddToucanCore()` + `AddToucanPlugins()`), so every registered format, provider and rule (including plugins') is available
+- Same composition root as the app (`AddToucanCore()` + `AddToucanDefaults()` + `AddToucanPlugins()`), so every registered format, provider and rule (including plugins') is available
 - Plugins load only if enabled and already trusted; the CLI never prompts (`--allow-plugin <id>` waives trust for one run)
 - Outputs: color console (progress bars), JSON (get), exit codes for CI
 
-**Dependencies:** Toucan.Core, Microsoft.Extensions.DependencyInjection, Microsoft.Extensions.Logging
+**Dependencies:** Toucan.Core, Toucan.Modules.Defaults, Microsoft.Extensions.DependencyInjection, Microsoft.Extensions.Logging
 
 ### Toucan.Avalonia
 
@@ -82,7 +102,7 @@ Desktop client for Windows, macOS and Linux (preview; Windows since v0.19.0). Ta
 - **Framework:** Avalonia 12.0.5 + FluentAvaloniaUI 3.0.0
 - **State:** Zen mode, Editor/Review/Audit modes, search and bulk edits, overlays (command palette, keyboard shortcut sheet), inline TM ghost text, side panels (Explorer, Search, Issues, Source Code, Translation Memory, Languages, Inspector), plugins. Not ported yet: the Source Control, Translation and Dictionary panels.
 - **Packaging:** `packaging/build-macos-app.sh` (ad-hoc-signed `Toucan.app`); Linux builds are `dotnet publish -r linux-x64|linux-arm64 --self-contained` tarballs.
-- Full DI setup: `AddToucanCore()` + `AddToucanPlugins()` plus UI and editor services; Settings → Plugins page and a startup prompt for untrusted plugins
+- Full DI setup: `AddToucanCore()` + `AddToucanDefaults()` + `AddToucanPlugins()` plus UI and editor services; Settings → Plugins page and a startup prompt for untrusted plugins
 - `MainWindowViewModel` split into partials (File, Edit, Nav, Search, Bulk, Translation); dialogs via Avalonia StorageProvider
 - Provider secrets: DPAPI on Windows, AES-GCM with a per-user key file on macOS/Linux (`SecureStorageService`)
 
@@ -497,20 +517,27 @@ toucan/                              Repository root
 ├── ToucanProject.slnx               Full solution
 ├── Toucan.CrossPlatform.slnx        Same projects, without the x86/ARM platform mappings
 │
-├── Toucan.Core/                     Core library (platform-agnostic)
+├── Toucan.Core/                     Core library (platform-agnostic); references no built-in module
 │   ├── Contracts/                   Interface definitions
 │   │   └── Services/               Service-layer interfaces
 │   ├── Models/                      Domain models and DTOs
 │   ├── Options/                     AppOptions (global prefs)
 │   ├── Helpers/                     JsonHelper, streaming parser
 │   ├── Plugins/                     PluginHost, load context, trust policy, hasher, signature seam
-│   ├── ToucanCoreServiceCollectionExtensions.cs   AddToucanCore() composition root
-│   └── Services/                    All implementations
-│       ├── Frameworks/              8 IFrameworkProfile implementations
-│       ├── LoadStrategies/          14 ILoadStrategy implementations
-│       ├── SaveStrategies/          14 ISaveStrategy implementations
-│       ├── Providers/               6 ITranslationProvider implementations
-│       └── Validation/              ValidationPipeline + 6 rules
+│   ├── ToucanCoreServiceCollectionExtensions.cs   AddToucanCore(): shared services only
+│   └── Services/                    Implementations (project, factory, detector, registry, pipeline, …)
+│
+├── Toucan.Core.Common/              Helpers shared by Core and the modules: IFileService, FileEnumerator,
+│                                    NestedJsonParser, ScanContext, and the built-in module seam (AddToucanModule)
+├── Toucan.Modules.Formats.Json/     json, namespaced, manifest, arb          ┐
+├── Toucan.Modules.Formats.Xml/      android-xml, xliff, resx                 │ built-in modules:
+├── Toucan.Modules.Formats.Text/     po, ini, java-properties, ios-strings,   │ reference Common and
+│                                    laravel-php, csv                         │ Abstractions only
+├── Toucan.Modules.Formats.Data/     yaml, toml                               │
+├── Toucan.Modules.Providers/        8 ITranslationProvider implementations   │
+├── Toucan.Modules.Validation/       the 6 built-in rules                     │
+├── Toucan.Modules.Frameworks/       8 IFrameworkProfile implementations      ┘
+├── Toucan.Modules.Defaults/         AddToucanDefaults(): adds every module above
 │
 ├── Toucan.Plugins.Abstractions/     Plugin contract (also published as a NuGet package)
 │   ├── Contracts/                   ISaveStrategy, ILoadStrategy, ITranslationProvider, IValidationRule, IFrameworkProfile
@@ -597,7 +624,7 @@ Plugins are .NET assemblies in `Documents/Toucan/plugins/<id>/` with a `plugin.j
 
 ```
 startup
-  AddLogging → AddToucanCore() → AddToucanPlugins(options)  → BuildServiceProvider
+  AddLogging → AddToucanCore() → AddToucanDefaults() → AddToucanPlugins(options)  → BuildServiceProvider
                                       │
                     PluginHost.LoadInto(services)
                       for each <plugins>/<folder>/plugin.json (name order):
@@ -615,7 +642,7 @@ startup
 ```
 
 - **Isolation:** one non-collectible `AssemblyLoadContext` per plugin; `Toucan.Plugins.Abstractions`, `Toucan.Core` and the `Microsoft.Extensions` abstractions always resolve from the host so contract types are shared.
-- **All or nothing:** a plugin's registrations are applied only if `Initialize` returns and every registration is valid. IDs of formats, providers, rules and profiles are reserved against the built-ins (read from a throwaway container) and earlier plugins.
+- **All or nothing:** a plugin's registrations are applied only if `Initialize` returns and every registration is valid. IDs of formats, providers, rules and profiles are reserved against the built-ins (read from a throwaway container) and earlier plugins; the IDs of built-in modules (`toucan.*`) are reserved too.
 - **Trust:** `IPluginPolicy` / `FilePluginPolicyStore` (`Documents/Toucan/plugin-policy.json`) records enabled state and trusted content hashes; `IPluginSignatureVerifier` is a stub that reports everything "not signed" (signing becomes mandatory with the collaboration/auth milestone).
 - **Hosts:** Avalonia (Settings → Plugins, startup prompt) and the CLI (`toucan plugins …`, never prompts).  Changes need a restart; plugins are never unloaded.
 - **Missing plugin:** a project whose format has no strategy fails to open with `FormatUnavailableException` instead of falling back to JSON.
@@ -628,7 +655,8 @@ startup
 |---------|-------|---------|
 | Strategy | Load/Save strategies | Format extensibility without modifying core; strategies also own layout conventions |
 | Plugin host | `PluginHost` | Load third-party assemblies in isolated contexts behind a trust gate |
-| Composition root | `AddToucanCore()` | One registration path shared by the GUI, the CLI and plugins |
+| Composition root | `AddToucanCore()` + `AddToucanDefaults()` | One registration path shared by the GUI, the CLI and plugins |
+| Built-in module | `Toucan.Modules.*`, `AddToucanModule` | Ship formats, providers, rules and profiles as compiled-in assemblies that register like plugins, without Core knowing them |
 | Registry | SidePanelRegistry, StatusBarPanelRegistry, TranslationProviderRegistry | Dynamic UI composition from DI |
 | Lifecycle service | IProjectLifecycleService | Orchestrates open/save/close with guards |
 | Baseline diffing | TranslationManagementService | Dirty tracking without filesystem reads |
@@ -641,10 +669,11 @@ startup
 ## Adding New Functionality
 
 ### New Format
-1. Create `XxxLoadStrategy : ILoadStrategy` in `Services/LoadStrategies/` and `XxxSaveStrategy : ISaveStrategy` in `Services/SaveStrategies/`, both returning the same `FormatId`; add the ID as a constant in `FormatIds` (and a `SaveStyles` map entry only if it is a built-in).
-2. On the save strategy implement `DefaultFilePath`, and as needed `DisplayName`, `FileExtensions`, `LanguageFiles`, `StoresCommentsInline` and `Detection`.
-3. Register both in `ToucanCoreServiceCollectionExtensions.AddToucanFormats()` (and add the save strategy to `BuiltInFormats`; a test keeps the two lists in step).
-4. Optionally add an `IFrameworkProfile` for auto-detection.
+1. Create `XxxLoadStrategy : ILoadStrategy` and `XxxSaveStrategy : ISaveStrategy` in the format family module that fits (`Toucan.Modules.Formats.Json`, `.Xml`, `.Text` or `.Data`), both returning the same `FormatId`; add the ID as a constant in `FormatIds` (and a `SaveStyles` map entry only if it is a built-in).
+2. On the save strategy implement `DefaultFilePath`, and as needed `DisplayName`, `FileExtensions`, `LanguageFiles`, `StoresCommentsInline` and `Detection` (priorities must be unique).
+3. Register both with `AddFormatStrategy<ISaveStrategy, …>()` / `AddFormatStrategy<ILoadStrategy, …>()` in that module's `Formats<Family>Module.cs`. To keep it in the format picker's long-standing order, add the ID to `TranslationStrategyFactory`; otherwise it is listed after the shipped formats.
+4. Update `ModuleSnapshotTests` (the IDs are pinned on purpose).
+5. Optionally add an `IFrameworkProfile` for auto-detection.
 
 To ship a format *outside* this repository, write a plugin instead (see [plugins.md](plugins.md)).
 
@@ -655,13 +684,13 @@ To ship a format *outside* this repository, write a plugin instead (see [plugins
 4. Add case to `UpdateLeftPanelContent` / `UpdateRightPanelContent` in `MainWindow.axaml.cs`
 
 ### New Validation Rule
-1. Implement `IValidationRule` in `Services/Validation/`
-2. Register in `AddToucanValidation()` — `ValidationPipeline` picks it up automatically
-3. Add it to the Validation settings list (`OptionsViewModel`) and the defaults in `ProjectDefaults` if it should have enable/severity switches (plugin rules do not have these yet)
+1. Implement `IValidationRule` in `Toucan.Modules.Validation`; its `Name` is the label shown in Settings
+2. Register it in `ValidationModule.AddToucanValidationModule()` — `ValidationPipeline` picks it up automatically
+3. Nothing else: Settings → Validation lists every registered rule (built-in and plugin), with enable and severity switches
 
 ### New Translation Provider
 1. Implement `ITranslationProvider` and set its `Definition` (a `ProviderDefinition`: option/secret fields and defaults for the settings UI)
-2. Register in `AddToucanProviders()` — `TranslationProviderRegistry` is built from the registered providers, so it is listed automatically
+2. Register it in `ProvidersModule.AddToucanProvidersModule()` (`Toucan.Modules.Providers`); keep Google first, since it is the default provider — `TranslationProviderRegistry` is built from the registered providers, so it is listed automatically
 
 ### Plugin
 See [plugins.md](plugins.md). Plugins register formats, providers, rules and profiles through `IPluginContext`; the host applies them to the same container.

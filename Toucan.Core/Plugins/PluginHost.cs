@@ -29,6 +29,8 @@ public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? logger
         var reserved = ReadReservedIds(services);
         var results = new List<PluginLoadResult>();
         var seen = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var module in BuiltInModuleServiceCollectionExtensions.ModulesIn(services))
+            seen[module.Id] = $"built-in module {module.Id}";
 
         foreach (var folder in folders)
             results.Add(LoadOne(folder, services, reserved, seen));
@@ -238,7 +240,7 @@ public static class PluginServiceCollectionExtensions
         // The logger factory belongs to this throwaway container, so keep it alive until loading is finished.
         using var probe = services.BuildServiceProvider();
         var results = new PluginHost(options, probe.GetService<ILoggerFactory>()).LoadInto(services);
-        services.AddSingleton<IPluginCatalog>(new PluginCatalog(results));
+        services.AddSingleton<IPluginCatalog>(new PluginCatalog(results, BuiltInModuleServiceCollectionExtensions.ModulesIn(services)));
         return services;
     }
 }

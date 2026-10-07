@@ -1,7 +1,7 @@
 ---
 title: "Toucan.Core — i18n Interop Architecture"
 status: active
-updated: 2026-10-01
+updated: 2026-10-07
 summary: "How Toucan.Core normalizes every i18n format to a flat TranslationItem list and what import/export interop it targets."
 ---
 # Toucan.Core — i18n Interop Architecture
@@ -102,9 +102,9 @@ Any loaded project can be exported to any supported save format via `ISaveStrate
 
 Built into Toucan:
 
-1. Create `MyFormatLoadStrategy : ILoadStrategy` in `Services/LoadStrategies/` and `MyFormatSaveStrategy : ISaveStrategy` in `Services/SaveStrategies/`; both return the same `FormatId`.
+1. In the format family module that fits (`Toucan.Modules.Formats.Json`, `.Xml`, `.Text` or `.Data`), create `MyFormatLoadStrategy : ILoadStrategy` and `MyFormatSaveStrategy : ISaveStrategy`; both return the same `FormatId`.
 2. Add the ID to `FormatIds` and implement `DefaultFilePath` (plus `FileExtensions`, `Detection`, … as needed) on the save strategy.
-3. Register both in `AddToucanFormats()` and add the save strategy to `BuiltInFormats`.
+3. Register both with `AddFormatStrategy<…>()` in the module's `Formats<Family>Module.cs`, and add the ID to `ModuleSnapshotTests`.
 
 As a plugin (no change to Toucan): see `docs/plugins.md` and `samples/Toucan.Sample.Plugin`.
 

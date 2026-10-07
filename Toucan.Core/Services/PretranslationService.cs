@@ -8,6 +8,9 @@ namespace Toucan.Core.Services;
 
 public class PretranslationService(IEnumerable<ITranslationProvider> providers) : IPretranslationService
 {
+    /// <summary>Provider used when the request names none (or an unknown one), if it is registered; otherwise the first registered provider.</summary>
+    public const string DefaultProviderName = "Google";
+
     public async Task<PretranslationResult> PreTranslateAsync(PretranslationRequest request, IProgress<PretranslationProgress>? progress = null, CancellationToken cancellationToken = default)
     {
         var result = new PretranslationResult();
@@ -15,7 +18,8 @@ public class PretranslationService(IEnumerable<ITranslationProvider> providers) 
 
         var provider = (!string.IsNullOrWhiteSpace(request.Provider)
             ? providers.FirstOrDefault(p => string.Equals(p.Name, request.Provider, StringComparison.OrdinalIgnoreCase))
-            : null) ?? providers.FirstOrDefault();
+            : null) ?? providers.FirstOrDefault(p => string.Equals(p.Name, DefaultProviderName, StringComparison.OrdinalIgnoreCase))
+            ?? providers.FirstOrDefault();
 
         if (provider == null) return result;
 

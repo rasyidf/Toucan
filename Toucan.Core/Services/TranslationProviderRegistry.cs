@@ -18,11 +18,6 @@ public class TranslationProviderRegistry(IEnumerable<ITranslationProvider> provi
         .OfType<ProviderDefinition>()
         .ToList();
 
-    /// <summary>Registry of the built-in providers only, for callers without a container.</summary>
-    public TranslationProviderRegistry() : this(BuiltInProviders.Create())
-    {
-    }
-
     public IReadOnlyList<ProviderDefinition> GetAll() => _definitions;
 
     public ProviderDefinition? GetByName(string name)

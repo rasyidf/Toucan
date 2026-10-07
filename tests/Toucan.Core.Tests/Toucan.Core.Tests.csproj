@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Toucan.Core\Toucan.Core.csproj" />
+    <ProjectReference Include="..\..\Toucan.Modules.Defaults\Toucan.Modules.Defaults.csproj" />
     <!-- Built but not referenced: the plugin host tests load it from disk like a user-installed plugin. -->
     <ProjectReference Include="..\Plugins\Toucan.TestPlugins\Toucan.TestPlugins.csproj" ReferenceOutputAssembly="false" OutputItemType="TestPluginOutput" />
     <!-- The sample plugin is exercised exactly as a user would install it (docs/plugins.md), so the guide cannot rot. -->

@@ -1,3 +1,4 @@
+using Toucan.Modules;
 using Microsoft.Extensions.DependencyInjection;
 using Toucan.Core;
 using Toucan.Core.Contracts;
@@ -16,6 +17,7 @@ public class CompositionRootTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddToucanCore();
+        services.AddToucanDefaults();
         return services;
     }
 
@@ -43,17 +45,6 @@ public class CompositionRootTests
         var ids = factory.SaveStrategies.Select(s => s.FormatId).ToList();
         Assert.Equal(Enum.GetValues<SaveStyles>().Select(FormatIds.FromStyle).Order(), ids.Order());
         Assert.Equal(ids.Count, ids.Distinct(FormatIds.Comparer).Count());
-    }
-
-    [Fact]
-    public void BuiltInFormatsFallbackMatchesTheContainer()
-    {
-        // BuiltInFormats duplicates the registrations for container-less callers; keep the two lists in step.
-        using var sp = Build(NewServices());
-
-        Assert.Equal(
-            sp.GetServices<ISaveStrategy>().Select(s => s.GetType()),
-            BuiltInFormats.SaveStrategies.Select(s => s.GetType()));
     }
 
     [Fact]
@@ -86,13 +77,6 @@ public class CompositionRootTests
         Assert.Null(registry.GetByName("mock"));
         // The mock provider is still registered and usable (CLI and tests rely on it).
         Assert.Contains(sp.GetServices<ITranslationProvider>(), p => p.Name.Equals("mock", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
-    public void ParameterlessRegistryStillServesTheBuiltIns()
-    {
-        var registry = new TranslationProviderRegistry();
-        Assert.Equal(7, registry.GetAll().Count);
     }
 
     [Fact]

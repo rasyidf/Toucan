@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Toucan.Core.Models;
 using Toucan.Core.Services;
 using Xunit;
@@ -60,15 +61,17 @@ public class ScanCancellationTests : IDisposable
     }
 
     [Fact]
-    public void FrameworkDetector_DetectsAndHonoursCancel()
+    public void FormatDetector_DetectsAndHonoursCancel()
     {
+        using var host = new TestHost();
+        var detector = host.Services.GetRequiredService<FormatDetector>();
         File.WriteAllText(Path.Combine(_root, "d3", "x.arb"), "{}");
-        Assert.Equal(SaveStyles.Arb, FrameworkDetector.Detect(_root));
+        Assert.Equal(FormatIds.Arb, detector.Detect(_root));
 
         using var cts = new CancellationTokenSource();
         cts.Cancel();
         using var _ = ScanContext.Begin(cts.Token, null);
-        Assert.Throws<OperationCanceledException>(() => FrameworkDetector.Detect(_root));
+        Assert.Throws<OperationCanceledException>(() => detector.Detect(_root));
     }
 
     private sealed class SyncProgress(Action<ScanProgress> onReport) : IProgress<ScanProgress>

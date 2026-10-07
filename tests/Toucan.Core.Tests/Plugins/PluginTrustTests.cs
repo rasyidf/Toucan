@@ -1,3 +1,4 @@
+using Toucan.Modules;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Toucan.Core.Contracts.Services;
@@ -45,6 +46,7 @@ public sealed class PluginTrustTests : IDisposable
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddToucanCore();
+        services.AddToucanDefaults();
         var options = new PluginHostOptions();
         options.Roots.Add(Path.Combine(_root, "plugins"));
         configure(options);

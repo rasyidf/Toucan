@@ -6,7 +6,7 @@ using Toucan.Core.Models;
 
 namespace Toucan.Core.Services.LoadStrategies;
 
-public class ManifestLoadStrategy(IFileService fileService, ILogger<ManifestLoadStrategy> logger) : ILoadStrategy
+public class ManifestLoadStrategy(IFileService fileService, ILogger<ManifestLoadStrategy> logger) : IManifestLoadStrategy
 {
     public string FormatId => FormatIds.Json;
 

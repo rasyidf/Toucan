@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Toucan.Core.Common\Toucan.Core.Common.csproj" />
     <ProjectReference Include="..\Toucan.Plugins.Abstractions\Toucan.Plugins.Abstractions.csproj" />
   </ItemGroup>
 

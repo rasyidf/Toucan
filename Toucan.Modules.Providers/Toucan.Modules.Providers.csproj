@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Built-in module: the machine-translation providers that ship with Toucan. References Common and Abstractions only, never Toucan.Core. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>13</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Toucan.Core.Services.Providers</RootNamespace>
+    <AssemblyName>Toucan.Modules.Providers</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Toucan.Core.Common\Toucan.Core.Common.csproj" />
+    <ProjectReference Include="..\Toucan.Plugins.Abstractions\Toucan.Plugins.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Toucan.Core.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,3 +1,4 @@
+using Toucan.Modules;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -157,6 +158,7 @@ public partial class App : Application
 
         // Formats, providers, validation, project service (shared with the CLI; plugins add to the same collection)
         services.AddToucanCore();
+        services.AddToucanDefaults();
 
         // Plugins load only when enabled and trusted (decisions live in plugin-policy.json; Settings → Plugins edits them).
         var pluginPolicy = new FilePluginPolicyStore(pluginPolicyPath ?? FilePluginPolicyStore.DefaultPath());

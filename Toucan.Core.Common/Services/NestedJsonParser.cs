@@ -4,7 +4,7 @@ using Toucan.Core.Models;
 
 namespace Toucan.Core.Services;
 
-internal static class NestedJsonParser
+public static class NestedJsonParser
 {
     // ponytail: intern language strings to avoid N duplicates in memory for projects with many files per language
     private static readonly Dictionary<string, string> s_internedLangs = new(StringComparer.Ordinal);

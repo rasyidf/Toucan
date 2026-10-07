@@ -1,7 +1,7 @@
 ---
 title: "Writing Toucan plugins"
 status: active
-updated: 2026-10-01
+updated: 2026-10-07
 summary: "Plugin author guide: manifest, formats, providers, rules, framework profiles, trust model, testing. Preview since v0.18.0; Avalonia app and CLI only."
 ---
 # Writing Toucan plugins
@@ -130,8 +130,8 @@ lose files because a plugin was disabled.
 Implement `IValidationRule`: `Id`, `Name`, `DefaultSeverity` and `Validate(ValidationContext)`, which yields
 `ValidationResult`s. `ValidationContext` has `Items` (all translations) and `PrimaryLanguage`. Prefix rule IDs with
 your plugin ID (`acme.no-todo`); IDs are global and cannot collide with built-ins. Rules run together with the built-in
-ones (validate-on-save and `toucan check`). They are not yet listed in Settings → Validation, so the per-rule
-enable/severity switches there do not apply to them.
+ones (validate-on-save and `toucan check`) and are listed in Settings → Validation, where users can switch each one
+off or change its severity. The name you return from `Name` is the label shown there.
 
 ### Providers: `context.AddProvider(provider)` (capability `providers`)
 
@@ -221,7 +221,6 @@ add members, with defaults wherever an existing implementation would otherwise b
 - Restart required for any change; no unloading.
 - No dependency injection into plugin classes and no access to Toucan's internal services (use `System.IO`, your own
   HTTP client, and so on). Logging goes through `context.Logger`.
-- Plugin validation rules have no per-rule enable/severity setting yet (the Validation page lists only the built-ins).
 - No UI contributions yet (panels, dialogs, menu items). They will arrive as a separate package so headless hosts
   such as the CLI never load UI types.
 - Per-project rule plugins (`.toucan/rules`) and a plugin feed are not implemented.
@@ -234,3 +233,7 @@ add members, with defaults wherever an existing implementation would otherwise b
 - The contract package: `dotnet pack Toucan.Plugins.Abstractions -c Release -o <dir>`. Bump `<Version>` only with
   `PluginApi.Current`, and never remove or change a public member within a major version.
 - `Toucan.Plugins.Abstractions` must not reference `Toucan.Core` or UI packages; a test fails the build if it does.
+- Formats, providers, rules and profiles that ship with Toucan are **built-in modules** (`Toucan.Modules.*`), not plugins:
+  compiled in, always on, listed read-only by `toucan plugins list`, and their `toucan.*` IDs are reserved. They register
+  through the same kinds of calls a plugin makes, so a plugin author can read them as examples. See
+  [ARCHITECTURE.md](ARCHITECTURE.md) and [specs/plugin-modularization](specs/plugin-modularization/design.md).

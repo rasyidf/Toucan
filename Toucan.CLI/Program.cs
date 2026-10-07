@@ -1,3 +1,4 @@
+using Toucan.Modules;
 using Microsoft.Extensions.DependencyInjection;
 using Toucan.Core;
 using Toucan.Core.Contracts;
@@ -37,6 +38,7 @@ internal static class Program
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddToucanCore();
+        services.AddToucanDefaults();
 
         var options = new PluginHostOptions { Policy = s_policy };
         options.Roots.Add(Environment.GetEnvironmentVariable("TOUCAN_PLUGINS_DIR") is { Length: > 0 } dir ? dir : PluginHostOptions.DefaultRoot());
@@ -122,6 +124,11 @@ internal static class Program
 
     private static int ListPlugins()
     {
+        Console.WriteLine("Built-in modules (always on):");
+        foreach (var m in Get<IPluginCatalog>().BuiltInModules)
+            Console.WriteLine($"  {m.Id}{(m.Version.Length > 0 ? $" {m.Version}" : string.Empty)}: {string.Join(", ", m.Registered)}");
+        Console.WriteLine();
+
         if (Plugins.Count == 0)
         {
             Console.WriteLine("No plugins found.");

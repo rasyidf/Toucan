@@ -14,7 +14,7 @@ public class CommentPersistenceServiceTests : IDisposable
 
     public CommentPersistenceServiceTests()
     {
-        _service = new CommentPersistenceService(NullLogger<CommentPersistenceService>.Instance);
+        _service = new CommentPersistenceService(NullLogger<CommentPersistenceService>.Instance, Formats.FormatTestHost.Factory);
         _tempFolder = Path.Combine(Path.GetTempPath(), "toucan-test-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_tempFolder);
     }

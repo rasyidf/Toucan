@@ -34,7 +34,7 @@ public class CommentPersistenceService(ILogger<CommentPersistenceService> logger
 
     // Falls back to the built-ins when no factory was supplied (tests, plain construction).
     private ISaveStrategy? FindStrategy(string formatId) =>
-        strategyFactory?.GetSaveStrategy(formatId) ?? BuiltInFormats.FindSaveStrategy(formatId);
+        strategyFactory?.GetSaveStrategy(formatId);
 
     /// <inheritdoc />
     public void SaveComments(string folder, string formatId, IEnumerable<TranslationItem> translations)

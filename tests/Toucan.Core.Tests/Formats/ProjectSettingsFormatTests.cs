@@ -36,11 +36,24 @@ public sealed class ProjectSettingsFormatTests : IDisposable
     [InlineData(SaveStyles.LaravelPhp, "en/messages.php")]
     public void SaveWritesDefaultPathForStyle(SaveStyles style, string expectedPath)
     {
-        var settings = new ProjectSettings { ProjectPath = _folder, Languages = ["en"], SaveStyle = style };
+        // The project service sets this resolver; the default paths are owned by each format's strategy.
+        var settings = new ProjectSettings
+        {
+            ProjectPath = _folder, Languages = ["en"], SaveStyle = style,
+            DefaultPathResolver = (id, language) => FormatTestHost.Factory.GetSaveStrategy(id)!.DefaultFilePath(language),
+        };
         settings.Save();
 
         var reloaded = ProjectSettings.LoadFrom(_folder)!;
         Assert.Equal(expectedPath, reloaded.TranslationPackages[0].TranslationUrls[0].Path);
+    }
+
+    [Fact]
+    public void WithoutAResolverTheDefaultPathIsLanguageDotJson()
+    {
+        new ProjectSettings { ProjectPath = _folder, Languages = ["en"], SaveStyle = SaveStyles.Properties }.Save();
+
+        Assert.Equal("en.json", ProjectSettings.LoadFrom(_folder)!.TranslationPackages[0].TranslationUrls[0].Path);
     }
 
     [Fact]

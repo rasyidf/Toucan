@@ -122,9 +122,10 @@ public class UiScreenshotTests
         window.Close();
     }
 
-    private sealed class FakeCatalog(params PluginLoadResult[] plugins) : IPluginCatalog
+    private sealed class FakeCatalog(IReadOnlyList<BuiltInModuleInfo> modules, params PluginLoadResult[] plugins) : IPluginCatalog
     {
         public IReadOnlyList<PluginLoadResult> Plugins { get; } = plugins;
+        public IReadOnlyList<BuiltInModuleInfo> BuiltInModules { get; } = modules;
     }
 
     /// <summary>Settings → Plugins filled with the TestPlugins fixture in every state a plugin can be in.</summary>
@@ -138,6 +139,7 @@ public class UiScreenshotTests
 
         var policy = new FilePluginPolicyStore(Path.Combine(host.Root, "policy.json"));
         var catalog = new FakeCatalog(
+            host.Services.GetRequiredService<IPluginCatalog>().BuiltInModules,
             Result("toucan.test.format", "Test format", "Reads and writes simple key=value files.", PluginStatus.Loaded, PluginTrustState.Trusted, null, "format:test-fmt", "profile:test-profile"),
             Result("toucan.test.rule", "Test rule", "Flags values equal to \"forbidden\".", PluginStatus.NeedsTrust, PluginTrustState.Untrusted, null, "rule:test.rule"),
             Result("toucan.test.provider", "Test MT", "Fixture machine translation provider.", PluginStatus.NeedsTrust, PluginTrustState.Changed, null, "provider:TestMt"),
@@ -174,7 +176,7 @@ public class UiScreenshotTests
             searchDialog.Close();
         }
 
-        SnapDialog(new OptionsDialog(PluginsOptions(host)) { Height = 1500 }, "10-options-11-plugins-populated");
+        SnapDialog(new OptionsDialog(PluginsOptions(host)) { Height = 2400 }, "10-options-11-plugins-populated");
 
         SnapDialog(new NewProjectDialog(host.Services.GetRequiredService<NewProjectViewModel>()), "20-new-project");
         SnapDialog(new ImportProjectDialog(new ImportProjectViewModel(host.Services.GetServices<Toucan.Core.Contracts.IFrameworkProfile>(), host.Dialogs)), "21-import-project");

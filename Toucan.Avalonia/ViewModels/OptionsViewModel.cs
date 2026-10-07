@@ -17,6 +17,7 @@ namespace Toucan.Avalonia.ViewModels;
 public partial class OptionsViewModel : ObservableObject
 {
     private readonly IPreferenceService _preferenceService;
+    private readonly IValidationPipeline? _validationPipeline;
     private readonly IProjectDefaultsService _defaultsService;
     private readonly IDialogService _dialogService;
     private readonly IAsyncMessageService _messages;
@@ -31,8 +32,10 @@ public partial class OptionsViewModel : ObservableObject
         IRecentProjectService? recentProjects = null,
         ITranslationMemory? translationMemory = null,
         IPluginCatalog? pluginCatalog = null,
-        IPluginPolicyStore? pluginPolicy = null)
+        IPluginPolicyStore? pluginPolicy = null,
+        IValidationPipeline? validationPipeline = null)
     {
+        _validationPipeline = validationPipeline;
         _preferenceService = preferenceService;
         _defaultsService = defaultsService;
         _dialogService = dialogService;
@@ -44,6 +47,8 @@ public partial class OptionsViewModel : ObservableObject
         LoadFromOptions();
         RefreshIntegration();
 
+        foreach (var module in pluginCatalog?.BuiltInModules ?? [])
+            BuiltInModules.Add(new BuiltInModuleItemViewModel(module));
         foreach (var plugin in pluginCatalog?.Plugins ?? [])
             Plugins.Add(new PluginItemViewModel(plugin, pluginPolicy, messages, () => PluginsChanged = true));
     }
@@ -75,6 +80,10 @@ public partial class OptionsViewModel : ObservableObject
     public const int PluginsPage = 11;
 
     public ObservableCollection<PluginItemViewModel> Plugins { get; } = [];
+
+    /// <summary>Modules compiled into Toucan, listed read-only under the plugins.</summary>
+    public ObservableCollection<BuiltInModuleItemViewModel> BuiltInModules { get; } = [];
+    public bool HasBuiltInModules => BuiltInModules.Count > 0;
     public bool HasPlugins => Plugins.Count > 0;
     public bool HasNoPlugins => Plugins.Count == 0;
     public string PluginsFolder => PluginHostOptions.DefaultRoot();
@@ -260,10 +269,11 @@ public partial class OptionsViewModel : ObservableObject
 
         ValidateOnSave = defs.ValidateOnSave;
         ValidationRules.Clear();
-        foreach (var (id, label, severity) in ValidationRuleOption.Known)
+        // Every registered rule (built-in modules and plugins) is listed; nothing here names a rule.
+        foreach (var rule in _validationPipeline?.Rules ?? [])
         {
-            var cfg = defs.ValidationRules.GetValueOrDefault(id, new ValidationRuleConfig(true, severity));
-            ValidationRules.Add(new ValidationRuleOption(id, label) { Enabled = cfg.Enabled, Severity = cfg.Severity });
+            var cfg = defs.ValidationRules.GetValueOrDefault(rule.Id, new ValidationRuleConfig(true, rule.DefaultSeverity.ToString()));
+            ValidationRules.Add(new ValidationRuleOption(rule.Id, rule.Name) { Enabled = cfg.Enabled, Severity = cfg.Severity });
         }
 
         TmSimilarityThreshold = opts.TmSimilarityThreshold;
@@ -511,16 +521,6 @@ public partial class OptionsViewModel : ObservableObject
 /// <summary>Enable/severity toggle for one validation rule in the Options dialog.</summary>
 public partial class ValidationRuleOption(string id, string label) : ObservableObject
 {
-    public static readonly (string Id, string Label, string DefaultSeverity)[] Known =
-    [
-        ("missing-translation", "Missing translation", "Warning"),
-        ("placeholder-mismatch", "Placeholder mismatch", "Error"),
-        ("duplicate-key", "Duplicate key", "Error"),
-        ("untranslated-copy", "Untranslated copy of source", "Info"),
-        ("empty-value", "Empty value", "Warning"),
-        ("whitespace-mismatch", "Leading/trailing whitespace mismatch", "Info"),
-    ];
-
     public string Id { get; } = id;
     public string Label { get; } = label;
     [ObservableProperty] private bool enabled = true;

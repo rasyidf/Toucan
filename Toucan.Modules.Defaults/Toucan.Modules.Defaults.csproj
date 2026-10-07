@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The one place that lists every built-in module. Apps, the CLI and tests reference this instead of each module. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>13</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Toucan.Modules</RootNamespace>
+    <AssemblyName>Toucan.Modules.Defaults</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Toucan.Modules.Formats.Json\Toucan.Modules.Formats.Json.csproj" />
+    <ProjectReference Include="..\Toucan.Modules.Formats.Xml\Toucan.Modules.Formats.Xml.csproj" />
+    <ProjectReference Include="..\Toucan.Modules.Formats.Text\Toucan.Modules.Formats.Text.csproj" />
+    <ProjectReference Include="..\Toucan.Modules.Formats.Data\Toucan.Modules.Formats.Data.csproj" />
+    <ProjectReference Include="..\Toucan.Modules.Frameworks\Toucan.Modules.Frameworks.csproj" />
+    <ProjectReference Include="..\Toucan.Modules.Providers\Toucan.Modules.Providers.csproj" />
+    <ProjectReference Include="..\Toucan.Modules.Validation\Toucan.Modules.Validation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
+  </ItemGroup>
+
+</Project>
