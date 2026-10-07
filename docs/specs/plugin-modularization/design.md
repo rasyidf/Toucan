@@ -4,6 +4,8 @@ status: done
 progress: "9/9 steps"
 updated: 2026-10-07
 summary: "Target assembly layout, the shared Common assembly, the built-in module seam and the explicit contracts that replace order and name matching."
+archived: 2026-10-07
+reason: "Shipped in v0.20.0"
 ---
 # Design: plugin modularization
 

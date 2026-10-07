@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-10-07
+
+AI Integration: one app-wide switch, off by default, for Claude, OpenAI-compatible servers and Gemini, with prompts you can read and edit and a new Clarity check for source strings. API keys move to one encrypted secret store. Also: color schemes, an update check, search options, per-project encoding and line endings, pinned recent projects, ghost-text suggestions and a keyboard shortcut sheet.
+
 ### Added
 - **AI Integration** — AI is now its own integration under Settings → AI, separate from machine translation. One switch turns every AI feature on or off for the whole app. It is **off** by default, and a first-run onboarding step asks whether to use it. Pick the service (Claude, OpenAI or a compatible server such as Ollama, or Gemini), the model, endpoint and key, and test the connection before saving. See [docs/ai-integration.md](docs/ai-integration.md).
 - **Open, editable prompts** — Every AI feature's system prompt is a plain file. The defaults ship in [`Toucan.Core/Ai/Prompts`](Toucan.Core/Ai/Prompts). Edit them under Settings → AI → Edit prompt… for all projects (`Documents/Toucan/prompts`) or for one project (`.toucan/prompts`, safe to commit). Prompts take `{{variables}}` and `{{#sections}}`, and a variables panel lists what each prompt can use.
@@ -12,12 +16,21 @@
 - **Preferred language from recent projects** — With "Detect preferred language from recent projects" on, the source language for new projects, and for projects that name none, comes from the most recently opened project instead of the Default language setting. Off by default.
 - **Ghost-text suggestions** — When you focus an empty translation field, the best translation-memory match for its source text appears inside the field in faint italics. Press Tab to accept it; type to ignore it. Follows Settings → Translation memory → auto-suggest and the similarity threshold.
 - **Keyboard shortcut sheet** — Cmd/Ctrl+/ (or Help → Keyboard Shortcuts) shows every shortcut grouped by menu. Esc or a click outside closes it.
+- **Color schemes** — Settings → Appearance offers accent presets (Toucan, Ocean, Forest, Sunset, Rose, Violet, Graphite) or a custom accent and per-color edits, separately for light and dark. Colors preview live; Save keeps them, Cancel undoes them.
+- **Update check** — Settings → About → Check for updates looks at GitHub Releases and says whether a newer version exists. The release channel (Stable or Preview) decides whether pre-releases count. It never downloads or installs anything.
+- **Search options** — The Search panel has match case, whole word and regex toggles, highlights matches in the results, and Replace uses the same options.
+- **Encoding and line endings per project** — Click the encoding or line-ending item in the status bar to choose UTF-8 or UTF-8 with BOM, and LF or CRLF, for the project's translation files. Applied on the next save. Java `.properties` keeps ISO-8859-1.
 
 ### Changed
 - **Claude, OpenAI and Gemini are AI services, not translation providers** — Machine translation lists one **AI** provider instead. It uses the AI service and the editable Translate prompt from Settings → AI, and is only offered while AI is on. On first run, the old providers' endpoint, model, key and custom prompt move to AI Integration, and a project or preference that names one of them gets the AI provider. The CLI still accepts `-p claude`, `-p openai` and `-p gemini` as `-p ai`, and `TOUCAN_AI_BACKEND` turns AI on for one CI run.
 - **Analyze with AI** — Uses AI Integration and its editable Analyze prompt instead of the OpenAI provider's settings, so it works with Claude and Gemini too. It replaces only earlier AI findings in the Issues panel, not validation results.
 - **Provider keys** — `providers.json` (app-wide and per project) no longer stores keys; values move to the secret store the next time provider settings are saved. Keys written by older versions are still read.
 - **CLI** — `toucan translate` prints why items failed, and passes the project's context and prompts to the provider.
+- **Built-in modules** — The built-in formats, providers, validation rules and framework profiles now load as compiled-in modules, the same way plugins do. Settings → Plugins lists them (read-only, with versions) after your plugins, and `toucan plugins list` shows them too. Settings → Validation lists every registered rule, plugin rules included. Plugin API stays 1.0.
+- **Settings lists** — Lists in Settings, Project Properties and Provider Settings (recent projects, colors, copy templates, AI features, rules, secrets, built-in modules) share one style, with search on longer lists and a message when a list is empty.
+
+### Removed
+- **WPF app source** — The WPF app is no longer in `main`; its source is on the [`legacy/wpf`](https://github.com/rasyidf/Toucan/tree/legacy/wpf) branch. Its last release was 0.17.3.
 
 ## [0.19.0] - 2026-10-06
 

@@ -4,6 +4,8 @@ status: done
 progress: "9/9 steps"
 updated: 2026-10-07
 summary: "Move the built-in formats, providers, validation rules and framework profiles out of Toucan.Core into compiled-in modules that register the same way external plugins do."
+archived: 2026-10-07
+reason: "Shipped in v0.20.0"
 ---
 # Requirements: plugin modularization
 

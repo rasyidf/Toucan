@@ -2,11 +2,11 @@
 title: "Known Issues & Unfinished Features"
 status: active
 updated: 2026-10-07
-summary: "Open issues for v0.19.0, each with repro, cause and fix direction: 9 format bugs (PO, CSV, RESX, XLIFF, ARB, YAML), release gaps, missing panels. Fixed bugs live in CHANGELOG.md."
+summary: "Open issues for v0.20.0, each with repro, cause and fix direction: 9 format bugs (PO, CSV, RESX, XLIFF, ARB, YAML), release gaps, missing panels. Fixed bugs live in CHANGELOG.md."
 ---
 # Known Issues & Unfinished Features
 
-Current release: **v0.19.0** (preview). Last audited **2026-10-07** against the code on `fix/ui-visual-polish`.
+Current release: **v0.20.0** (preview). Last audited **2026-10-07** against the code on `fix/ui-visual-polish`.
 
 This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [CHANGELOG.md](../CHANGELOG.md) (see [Where the old fixes went](#where-the-old-fixes-went)). When a bug is fixed, delete its row and section here and add a `### Fixed` line to the changelog `[Unreleased]` section. Planned work for an ID is linked from [the roadmap](todos/future-roadmap.md) (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from `main` (source: branch `legacy/wpf`), so nothing here is about WPF.
 
@@ -23,7 +23,7 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [FMT-09](#fmt-09) | Low | YAML | Flat dotted keys are rewritten as nested maps; a key that is also a parent gets a `__self` entry | Reproduced |
 | [REL-01](#rel-01) | Medium | Release | No CI or release pipeline; every release is built by hand | Reproduced (no config in repo) |
 | [REL-02](#rel-02) | Medium | Release | macOS app is ad-hoc signed and not notarized | From docs and script |
-| [REL-03](#rel-03) | Medium | Release | No update check anywhere in the app | Reproduced (no code) |
+| [REL-03](#rel-03) | Low | Release | Update check is manual only: no check on startup, no download or install | From code |
 | [REL-04](#rel-04) | Low | Release | Windows ships as a portable zip; no installer or MSIX in releases | From docs |
 | [APP-01](#app-01) | Low | App | Source Control and Dictionary panels do not exist | Reproduced |
 | [APP-02](#app-02) | Low | App | Keyboard shortcuts cannot be changed | Reproduced |
@@ -128,12 +128,11 @@ All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategi
 - **Fix direction:** an Apple Developer ID and a notary profile stored as CI secrets (needs REL-01).
 
 <a id="rel-03"></a>
-### REL-03 — No auto-updater and no update check
+### REL-03 — No auto-updater; the update check is manual
 
-- **Severity:** Medium · **Checked:** no update or channel code exists in `Toucan.Avalonia` or `Toucan.Core`, and the Settings dialog has no update page.
-- **Correction:** the older version of this file said "the About page shows the settings". That described the removed WPF app. In the Avalonia app there is no update setting at all.
-- **Impact:** users stay on old builds, which matters while the formats above lose data.
-- **Fix direction:** FG-02, planned for v0.24: version check against the GitHub Releases API, a notify-only mode first, then download and apply. Depends on REL-01 and signing (REL-02).
+- **Severity:** Low · **Checked:** since v0.20.0, Settings → About has a release channel (Stable or Preview) and a Check for updates button (`UpdateService`, GitHub Releases API). Nothing checks on startup, and nothing downloads or installs.
+- **Impact:** users who never open About stay on old builds, which matters while the formats above lose data.
+- **Fix direction:** FG-02, planned for v0.24: check on startup (off / notify / auto-install), then download and apply. Depends on REL-01 and signing (REL-02).
 
 <a id="rel-04"></a>
 ### REL-04 — Windows has no installer

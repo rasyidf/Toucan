@@ -1,13 +1,13 @@
 ---
 title: "Toucan — Roadmap (v0.17 to v1.0)"
 status: in-progress
-progress: "79 open items"
+progress: "73 open items"
 updated: 2026-10-07
-summary: "Open work only, in feature groups FG-01 to FG-16 plus post-1.0 ideas, with a suggested sprint order. Shipped items are removed, not ticked. Next: v0.20 onboarding."
+summary: "Open work only, in feature groups FG-01 to FG-16 plus post-1.0 ideas, with a suggested sprint order. Shipped items are removed, not ticked. v0.20 shipped AI Integration; next: v0.21 onboarding, AI follow-ups, glossary."
 ---
 # Toucan — Roadmap (v0.17 → v1.0)
 
-> Current release: **v0.19.0** for Windows, macOS and Linux. Every build before 1.0 is a preview.
+> Current release: **v0.20.0** for Windows, macOS and Linux. Every build before 1.0 is a preview.
 
 **This file lists open work only.** A shipped item is deleted from here, not ticked. Where shipped work goes:
 
@@ -41,20 +41,16 @@ Pick 2-4 groups per sprint. Items under "Future Plan" are deferred past v1.0.
 - [ ] Check for updates on startup (configurable: off / notify / auto-install)
 - [ ] In-app update notification with changelog preview
 - [ ] Download + apply update (restart required)
-- [ ] Update channel (stable / preview) (setting exists in About; no update check behind it yet)
-- [ ] Version check endpoint (GitHub Releases API or custom JSON)
 
 ---
 
 ### FG-04: ConsistencyAI
-**Effort: L | Impact: High | Depends on: Provider keys configured**
+**Effort: S | Impact: Medium | Depends on: AI Integration (v0.20)**
 
-- [ ] Batch check translations against source language using AI
-- [ ] Flag mistranslations, tone shifts, missing placeholders, grammar
-- [ ] Results panel with accept/dismiss/re-translate per finding
+> Today (v0.20): Analyze with AI batch-checks translations for wrong meaning, placeholders, tone and grammar with any AI service, shows progress, and lists findings in the Issues panel with Apply and Dismiss. Clarity does the same for source strings. See [ai-integration.md](../ai-integration.md).
+
+- [ ] Re-translate a finding from the Issues panel
 - [ ] Configurable strictness (relaxed / standard / strict)
-- [ ] Provider selection (OpenAI, custom webhook)
-- [ ] Progress indicator for batch operations
 
 ---
 
@@ -93,7 +89,7 @@ Pick 2-4 groups per sprint. Items under "Future Plan" are deferred past v1.0.
 ### FG-10: Onboarding & UX Polish
 **Effort: S | Impact: Medium**
 
-- [ ] First-run wizard (set default language, provider keys, theme)
+- [ ] First-run wizard: default language, provider keys, theme (onboarding exists since v0.20 with one step, the AI choice)
 - [ ] Tooltip tour for new users (highlight key features)
 - [ ] Empty state improvements (all panels show helpful hints when empty)
 
@@ -210,8 +206,7 @@ For maximum impact toward a v1.0 stable release:
 
 | Sprint | Groups | Theme |
 |--------|--------|-------|
-| v0.20 | FG-10 | Onboarding |
-| v0.21 | FG-04 + FG-15 | AI + Glossary |
+| v0.21 | FG-10 + FG-04 + FG-15 | Onboarding, AI follow-ups, Glossary |
 | v0.22 | FG-01 + FG-16 | Signed packages, release pipeline, CI |
 | v0.23 | FG-05 + FG-06 | Review lifecycle, Git integration |
 | v0.24 | FG-02 + FG-11 | Auto-update + Editor |

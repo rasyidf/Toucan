@@ -4,6 +4,8 @@ status: done
 progress: "9/9 steps"
 updated: 2026-10-07
 summary: "Nine ordered steps from a snapshot safety net to removing the static fallbacks; the build stays green after each."
+archived: 2026-10-07
+reason: "Shipped in v0.20.0"
 ---
 # Tasks: plugin modularization
 

@@ -2,7 +2,7 @@
 title: "Toucan — Architecture"
 status: active
 updated: 2026-10-07
-summary: "Layers, dependency graph, DI composition, plugin host and file layout of Toucan.Core, Avalonia app and CLI. Reflects v0.19.0 (Avalonia on all platforms; WPF removed)."
+summary: "Layers, dependency graph, DI composition, plugin host and file layout of Toucan.Core, Avalonia app and CLI. Reflects v0.20.0 (Avalonia on all platforms, AI Integration, built-in modules; WPF removed)."
 ---
 # Toucan — Architecture
 
@@ -582,7 +582,7 @@ toucan/                              Repository root
 └── docs/
     ├── ARCHITECTURE.md              ← this file
     ├── plugins.md                   Plugin author guide
-    ├── completed-features.md        Shipped features (v0.19.0 Avalonia on all platforms)
+    ├── completed-features.md        Shipped features (v0.20.0)
     ├── known-bugs.md                Active bug tracker
     ├── branding.md                  Brand guidelines
     ├── provider-settings.md         Provider configuration docs

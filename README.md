@@ -5,7 +5,7 @@
 
 Toucan is a desktop editor for translation files on Windows, macOS, and Linux. It opens 14 formats in one workspace, so you can translate, review, and validate every language file in a project without switching tools.
 
-Toucan is in preview: settings and project files can change between releases until 1.0. Current release: **v0.19.0** on Windows, macOS and Linux (v0.18.0 was the first release on macOS and Linux). The old WPF app was retired after v0.17.3 and lives on the [`legacy/wpf`](https://github.com/rasyidf/Toucan/tree/legacy/wpf) branch. Website: [toucan.rasyid.dev](https://toucan.rasyid.dev).
+Toucan is in preview: settings and project files can change between releases until 1.0. Current release: **v0.20.0** on Windows, macOS and Linux (v0.18.0 was the first release on macOS and Linux). The old WPF app was retired after v0.17.3 and lives on the [`legacy/wpf`](https://github.com/rasyidf/Toucan/tree/legacy/wpf) branch. Website: [toucan.rasyid.dev](https://toucan.rasyid.dev).
 
 <img width="878" height="668" alt="Toucan editor with the tree sidebar, translation grid, and inspector panel" src="https://github.com/user-attachments/assets/6c60208e-640a-4fbc-b280-63f5fc856ece" />
 
@@ -14,7 +14,7 @@ Toucan is in preview: settings and project files can change between releases unt
 
 ## Quick start
 
-1. Download the build for your platform from [GitHub Releases](https://github.com/rasyidf/Toucan/releases): v0.19.0 for Windows (portable x64 zip; no installer yet), macOS (`Toucan.app` in a DMG or zip) and Linux (tarball).
+1. Download the build for your platform from [GitHub Releases](https://github.com/rasyidf/Toucan/releases): v0.20.0 for Windows (portable x64 zip; no installer yet), macOS (`Toucan.app` in a DMG or zip) and Linux (tarball).
    macOS: Toucan is free and not signed with a paid Apple Developer ID, so Gatekeeper says it "could not verify" the app on first launch. Open it once, then go to System Settings > Privacy & Security and click **Open Anyway** (on macOS 14 and earlier, right-click `Toucan.app` > Open works too). Or clear the download flag: `xattr -dr com.apple.quarantine Toucan.app`.
 2. Open a folder that contains translation files, or create a new project.
 3. Translate, review, and save.
@@ -25,7 +25,7 @@ Toucan detects the framework when you drop a folder (i18next, Android, Flutter, 
 
 | App | Platforms | Status |
 |-----|-----------|--------|
-| Toucan (Avalonia) | Windows, macOS, Linux | Preview, v0.19.0. The supported app on every platform: Editor/Review/Audit modes, Zen mode, command palette, search and bulk edits, side panels, plugins, file association and Indonesian localization. The Windows builds are this app. |
+| Toucan (Avalonia) | Windows, macOS, Linux | Preview, v0.20.0. The supported app on every platform: Editor/Review/Audit modes, Zen mode, command palette, AI Integration (off by default), search and bulk edits, side panels, plugins, file association and Indonesian localization. The Windows builds are this app. |
 | `toucan` CLI | Any OS with .NET 10 | Preview. `check`, `stats`, `translate`, `export`, `list-formats`, `list-keys`, `get`, `set`. |
 
 ## Supported formats
@@ -58,7 +58,8 @@ The layout follows VS Code: a tree or list sidebar, a translation pane (paginate
 
 ## Configuration
 
-- Provider API keys can be set app-wide or per project. They are encrypted with DPAPI on Windows, and with AES-GCM and a per-user key file on macOS and Linux. See [docs/provider-settings.md](docs/provider-settings.md).
+- Provider settings can be set app-wide or per project. Every API key, for providers and AI services, is kept in one secret store in your user profile, never in a project folder: encrypted with DPAPI on Windows, and with AES-GCM and a per-user key file on macOS and Linux. See [docs/provider-settings.md](docs/provider-settings.md) and [docs/ai-integration.md](docs/ai-integration.md).
+- AI is off until you turn it on (first-run onboarding or Settings > AI). Prompts are plain files you can edit for all projects or commit with one project in `.toucan/prompts`.
 - Pre-translation runs as a dry run first and needs an explicit commit. See [docs/pretranslation-preview.md](docs/pretranslation-preview.md).
 - The default language is set per user under Settings > Options (default: en-US).
 
@@ -70,8 +71,8 @@ The planned order to 1.0:
 |---------|---------|
 | v0.18 | First macOS and Linux release, plugins (preview). |
 | v0.19 | Command palette, a new title bar, Claude and Gemini providers, a UI polish pass, and the Avalonia app on Windows, which replaces the deprecated WPF app. Shipped. |
-| v0.20 | Onboarding and UX polish: first-run wizard, tooltip tour, empty-state hints. Ghost-text suggestions and the keyboard shortcut sheet are in (unreleased). |
-| v0.21 | ConsistencyAI, which batch-checks translations for tone, placeholders, and accuracy. Project glossary. |
+| v0.20 | AI Integration: one switch, off by default, for Claude, OpenAI-compatible servers and Gemini; editable prompts; Analyze and Clarity checks; an encrypted secret store. Also color schemes, an update check, search options, ghost-text suggestions and a keyboard shortcut sheet. Shipped. |
+| v0.21 | Onboarding and UX polish: the rest of the first-run wizard, a tooltip tour, empty-state hints. AI follow-ups (re-translate a finding, strictness). Project glossary. |
 | v0.22 | Signed packages, a release pipeline, and CI. |
 | v0.23 | Review lifecycle (Draft, Review, Approved, Published). Git integration with per-key diffs. |
 | v0.24 | Auto-updater with stable and preview channels. Editor improvements. |

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · The localization IDE</title>
-<meta name="description" content="Toucan is an open-source desktop editor for translation files on Windows, macOS, and Linux. Edit 14 formats side by side, pre-translate with DeepL, Google, Microsoft, OpenAI, Claude or Gemini, and validate before you ship. Preview release.">
+<meta name="description" content="Toucan is an open-source desktop editor for translation files on Windows, macOS, and Linux. Edit 14 formats side by side, pre-translate with DeepL, Google, Microsoft or AI (Claude, OpenAI-compatible, Gemini; off until you turn it on), and validate before you ship. Preview release.">
 <meta name="author" content="Muhammad Fahmi Rasyid">
 <link rel="canonical" href="https://toucan.rasyid.dev/">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,11 +15,11 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://toucan.rasyid.dev/">
 <meta property="og:title" content="Toucan · Teach your app every language">
-<meta property="og:description" content="Open-source localization IDE. 14 file formats, machine translation with preview, validation, and source scanning in one offline workspace.">
+<meta property="og:description" content="Open-source localization IDE. 14 file formats, machine translation with preview, opt-in AI with editable prompts, validation, and source scanning in one offline workspace.">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/logo.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Teach your app every language">
-<meta name="twitter:description" content="Open-source localization IDE. 14 file formats, machine translation with preview, validation, and source scanning in one offline workspace.">
+<meta name="twitter:description" content="Open-source localization IDE. 14 file formats, machine translation with preview, opt-in AI with editable prompts, validation, and source scanning in one offline workspace.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/logo.png">
 
 <script type="application/ld+json">
@@ -30,7 +30,7 @@
   "description": "Open-source localization IDE for translation files",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Windows 10+, macOS, Linux",
-  "softwareVersion": "0.19.0",
+  "softwareVersion": "0.20.0",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "license": "https://opensource.org/licenses/MIT",
   "url": "https://toucan.rasyid.dev/",
@@ -711,7 +711,7 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
 <section class="hero" id="top">
   <div class="wrap hero-grid">
     <div class="intro">
-      <a class="eyebrow" href="https://github.com/rasyidf/Toucan/releases/tag/v0.19.0"><span class="ver">v0.19.0</span><span class="pre">preview</span> · open source · MIT</a>
+      <a class="eyebrow" href="https://github.com/rasyidf/Toucan/releases/tag/v0.20.0"><span class="ver">v0.20.0</span><span class="pre">preview</span> · open source · MIT</a>
       <h1>Teach your app <span class="hl">every language.</span></h1>
       <div class="tagline-i18n" aria-hidden="true">
         <span class="lang" id="tl-lang">id-ID</span>
@@ -725,7 +725,7 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
         </a>
         <a class="btn btn-ghost" href="https://github.com/rasyidf/Toucan">View source</a>
       </div>
-      <p class="hero-note">v0.19.0 on Windows 10+, macOS and Linux (v0.18.0 was the first release on macOS and Linux). Expect rough edges before 1.0.</p>
+      <p class="hero-note">v0.20.0 on Windows 10+, macOS and Linux (v0.18.0 was the first release on macOS and Linux). Expect rough edges before 1.0.</p>
     </div>
 
     <!-- Interactive demo: a small model of the editor, driven by the data in the script below. -->
@@ -857,9 +857,7 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
           <div class="provider">DeepL <small>formality</small></div>
           <div class="provider">Google Translate <small>100+ langs</small></div>
           <div class="provider">Microsoft Translator <small>Azure</small></div>
-          <div class="provider ai">OpenAI <small>or compatible API</small></div>
-          <div class="provider ai">Claude <small>Anthropic</small></div>
-          <div class="provider ai">Gemini <small>free key works</small></div>
+          <div class="provider ai">AI <small>via AI Integration</small></div>
         </div>
       </article>
 
@@ -870,6 +868,28 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
         <div class="diff" aria-label="Example: source and translated string keep the same placeholders">
           <div class="src">Hi <span class="ph">{{name}}</span>, <span class="ph">%s</span> left</div>
           <div class="out">Hai <span class="ph">{{name}}</span>, sisa <span class="ph">%s</span></div>
+        </div>
+      </article>
+
+      <article class="card span-4 reveal">
+        <span class="chip ai tag">ai integration</span>
+        <h3>AI, off until you turn it on</h3>
+        <p>One switch for the whole app, asked once on first run. Connect a service, then translate with it, analyze translations for wrong terms and tone, or check source strings. Every prompt Toucan sends is a plain file you can edit for all projects or commit with one project in <code>.toucan/prompts</code>. Keys stay in an encrypted store in your profile, never in the project.</p>
+        <div class="providers">
+          <div class="provider ai">Claude <small>Anthropic</small></div>
+          <div class="provider ai">OpenAI <small>or compatible API</small></div>
+          <div class="provider ai">Gemini <small>free key works</small></div>
+          <div class="provider ai">Ollama, LM Studio <small>local, no key</small></div>
+        </div>
+      </article>
+
+      <article class="card span-2 reveal" style="--d:80ms">
+        <span class="chip ai tag">clarity</span>
+        <h3>Fix the source first</h3>
+        <p>Check Source Clarity flags strings a translator could misread, then suggests clearer wording and a note for translators.</p>
+        <div class="diff" aria-label="Example: an ambiguous source string and the clearer suggestion">
+          <div class="src">"Hold"</div>
+          <div class="out">"Hold payment"</div>
         </div>
       </article>
 
@@ -912,8 +932,8 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
       <article class="card span-2 reveal" style="--d:120ms">
         <span class="chip ok tag">keyboard</span>
         <h3>Built for the keyboard</h3>
-        <p>Configurable shortcuts, and a Zen mode that leaves one card on screen.</p>
-        <div class="kbd-row"><kbd>J</kbd><kbd>K</kbd> next / prev <kbd>Esc</kbd> exit zen</div>
+        <p>A command palette for every menu command, a sheet of every shortcut, and a Zen mode that leaves one card on screen.</p>
+        <div class="kbd-row"><kbd>Cmd/Ctrl</kbd><kbd>/</kbd> shortcuts <kbd>J</kbd><kbd>K</kbd> next / prev</div>
       </article>
     </div>
   </div>
@@ -1012,22 +1032,22 @@ Languages: 4
     <div class="sec-head reveal">
       <div class="kicker">platforms</div>
       <h2>Runs on your machine. Your files stay there.</h2>
-      <p>No account, no upload, no server. Provider API keys can be set app-wide or per project, and are encrypted at rest: DPAPI on Windows, AES-GCM with a per-user key on macOS and Linux.</p>
+      <p>No account, no upload, no server. Text leaves your machine only when you run a translation provider or turn AI on. API keys live in one secret store in your user profile, encrypted at rest: DPAPI on Windows, AES-GCM with a per-user key on macOS and Linux.</p>
     </div>
     <div class="preview-note reveal" role="note">
-      <strong>Preview software.</strong> Toucan is at v0.19.0 on Windows, macOS and Linux, and every build is a preview until 1.0. Settings and project files can change between releases, so keep your locales in version control and <a href="https://github.com/rasyidf/Toucan/issues">report what breaks</a>.
+      <strong>Preview software.</strong> Toucan is at v0.20.0 on Windows, macOS and Linux, and every build is a preview until 1.0. Settings and project files can change between releases, so keep your locales in version control and <a href="https://github.com/rasyidf/Toucan/issues">report what breaks</a>.
     </div>
     <div class="platforms">
       <div class="platform reveal">
         <span class="chip warn">preview</span>
         <h3>Windows, macOS and Linux</h3>
-        <p>One Avalonia app on the same core everywhere, so formats, validation, and providers behave the same, with the modes, Zen, command palette, side panels, and plugins. Windows 10 and later as a portable zip for now; first released on macOS and Linux in v0.18.0. Not ported yet from the old WPF app: Source Control, Translation, and Dictionary panels.</p>
-        <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.19.0">Download v0.19.0 →</a>
+        <p>One Avalonia app on the same core everywhere, so formats, validation, and providers behave the same, with the modes, Zen, command palette, AI Integration, side panels, and plugins. Windows 10 and later as a portable zip for now; first released on macOS and Linux in v0.18.0. Not ported yet from the old WPF app: the Source Control and Dictionary panels.</p>
+        <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.20.0">Download v0.20.0 →</a>
       </div>
       <div class="platform reveal" style="--d:80ms">
         <span class="chip warn">preview</span>
         <h3>Windows (WPF, deprecated)</h3>
-        <p>The earlier Windows app, with Fluent design and the Mica backdrop. v0.17.3 is its last release; it stays available for the Source Control, Translation, and Dictionary panels until they return in the Avalonia app.</p>
+        <p>The earlier Windows app, with Fluent design and the Mica backdrop. v0.17.3 is its last release; it stays available for the Source Control and Dictionary panels until they return in the Avalonia app.</p>
         <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.3">Download v0.17.3 →</a>
       </div>
       <div class="platform reveal" style="--d:160ms">
@@ -1050,23 +1070,22 @@ Languages: 4
     </div>
     <ol class="timeline reveal">
       <li>
-        <div class="ver">v0.19</div>
-        <span class="when">now · v0.19.0 on Windows, macOS and Linux</span>
-        <h3>Command palette, new providers, UI polish</h3>
+        <div class="ver">v0.20</div>
+        <span class="when">now · v0.20.0 on Windows, macOS and Linux</span>
+        <h3>AI Integration</h3>
         <ul>
-          <li>Command palette and a new title bar with save state</li>
-          <li>Claude and Gemini translation, plus DeepL fixes</li>
-          <li>Grouped settings with search; compact panels; dark-theme pass</li>
-          <li>One Avalonia app on every platform; the WPF app is retired</li>
+          <li>One AI switch, off by default: Claude, OpenAI-compatible, Gemini</li>
+          <li>Editable prompts, app-wide or per project</li>
+          <li>Analyze translations and check source clarity</li>
+          <li>Encrypted secret store; color schemes; update check</li>
         </ul>
       </li>
       <li>
-        <div class="ver">v0.20–0.24</div>
+        <div class="ver">v0.21–0.24</div>
         <span class="when">next</span>
-        <h3>Quality, AI, and team workflow</h3>
+        <h3>Quality and team workflow</h3>
         <ul>
-          <li>Onboarding and UX polish (ghost-text suggestions and the shortcut sheet are done)</li>
-          <li>ConsistencyAI and glossary</li>
+          <li>Onboarding and UX polish; project glossary</li>
           <li>Signed packages, release pipeline, CI</li>
           <li>Review lifecycle and per-key Git diffs</li>
           <li>Auto-updater</li>

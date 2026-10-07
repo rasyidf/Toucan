@@ -2,11 +2,11 @@
 title: "Shipped Features"
 status: active
 updated: 2026-10-07
-summary: "Checklist of shipped features as of v0.19.0, grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md."
+summary: "Checklist of shipped features as of v0.20.0 (AI Integration added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md."
 ---
 # Shipped Features
 
-> As of v0.19.0 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
+> As of v0.20.0 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
 > open work is in [todos/future-roadmap.md](todos/future-roadmap.md) and open bugs in [known-bugs.md](known-bugs.md).
 > This file lists shipped features only: when something ships, add it here and delete it from the roadmap.
 > Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform. Lines marked (WPF) shipped
@@ -65,7 +65,7 @@ summary: "Checklist of shipped features as of v0.19.0, grouped by area. Only shi
 
 ## Machine Translation
 
-- [x] Google Translate, DeepL, Microsoft, OpenAI, Claude, Gemini providers
+- [x] Google Translate, DeepL, Microsoft and AI providers (AI goes through AI Integration)
 - [x] Provider settings dialog
 - [x] Translation context passed to providers
 - [x] Formality setting (formal / informal)
@@ -78,6 +78,19 @@ summary: "Checklist of shipped features as of v0.19.0, grouped by area. Only shi
 - [x] Pre-translate plural forms (i18next/ICU)
 - [x] Translation memory (reuse across projects)
 - [x] Custom webhook provider (your own endpoint, optional auth header)
+- [x] Provider keys kept in an encrypted secret store, never in `providers.json` or a project folder
+
+## AI Integration (since v0.20.0)
+
+- [x] One app-wide AI switch, off by default; first-run onboarding asks whether to use it
+- [x] AI services: Claude, OpenAI or a compatible server (Ollama, LM Studio), Gemini; per-service endpoint, model and key; test connection
+- [x] Translate with AI (the AI provider: Translation panel, Pre-translate, `toucan translate -p ai`)
+- [x] Analyze with AI: wrong terms, tone and meaning in translations, findings in the Issues panel with an Apply fix
+- [x] Clarity: source strings a translator could misread, with a clearer wording and a note for translators
+- [x] Editable prompts for every AI feature, app-wide or per project (`.toucan/prompts`), with variables and a reset to default
+- [x] Per-feature switches and model overrides
+- [x] Settings → Data & privacy lists and removes stored secrets
+- [x] Migration of the 0.19 Claude, OpenAI and Gemini provider settings and keys
 
 ## UI / UX
 
@@ -86,6 +99,10 @@ summary: "Checklist of shipped features as of v0.19.0, grouped by area. Only shi
 - [x] Framework tile grid for new projects (16 frameworks)
 - [x] Start screen with quick actions
 - [x] Recent projects flyout (last 10, clear)
+- [x] Pin recent projects; choose how many to remember (1–50) and whether Clear keeps pinned ones
+- [x] Detect preferred source language from recent projects (opt-in)
+- [x] Color schemes: accent presets, custom accent and per-color edits for light and dark, live preview
+- [x] Check for updates against GitHub Releases (Stable or Preview channel; never installs)
 - [x] Auto-open last project on startup
 - [x] Reveal in Explorer
 - [x] Centralized KeybindingService (22+ shortcuts)
@@ -104,7 +121,7 @@ summary: "Checklist of shipped features as of v0.19.0, grouped by area. Only shi
 
 ## Search, Bulk Edits, Validation
 
-- [x] Search and replace across keys, values, and languages (regex, scope, preview, history)
+- [x] Search and replace across keys, values, and languages (match case, whole word, regex, scope, preview, history, highlighted matches)
 - [x] Bulk delete, move to namespace, pre-translate, approve, and copy source to target
 - [x] Six built-in validation rules: missing, placeholder mismatch, duplicate keys, untranslated (same as source), empty, whitespace mismatch
 - [x] Per-rule enable/disable and severity
@@ -133,6 +150,7 @@ summary: "Checklist of shipped features as of v0.19.0, grouped by area. Only shi
 - [x] File association (`.tproj` → open app)
 - [x] Git branch and changed-file count in the status bar
 - [x] Translation file locations configurable per language
+- [x] Encoding (UTF-8, UTF-8 BOM) and line endings (LF, CRLF) per project, from the status bar
 
 
 ## Source Code Integration
@@ -149,6 +167,7 @@ summary: "Checklist of shipped features as of v0.19.0, grouped by area. Only shi
 - [x] Plugins add file formats, translation providers, validation rules, and framework profiles from `.dll` assemblies
 - [x] Trust model: a plugin loads only when enabled and trusted (SHA-256 of its files)
 - [x] `Toucan.Plugins.Abstractions` contract package (plugin API 1.0) and a sample plugin
+- [x] Built-in formats, providers, rules and profiles load as compiled-in modules, listed in Settings → Plugins and `toucan plugins list`
 
 ## Command Line
 
