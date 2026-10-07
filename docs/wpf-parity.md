@@ -1,3 +1,5 @@
+> The WPF app was removed from `main` after v0.17.3 and lives on the `legacy/wpf` branch. This record stays as history.
+
 # WPF → Avalonia parity
 
 The Avalonia app (`Toucan.Avalonia`) is the supported desktop app on Windows, macOS and Linux. The WPF app (`Toucan`) is

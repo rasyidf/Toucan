@@ -1,6 +1,6 @@
 # Known Issues & Unfinished Features
 
-Last updated: 2026-10-06. Current release: v0.19.0 for Windows, macOS and Linux (preview). The WPF app is deprecated; v0.17.3 was its last release.
+Last updated: 2026-10-06. Current release: v0.19.0 for Windows, macOS and Linux (preview). The WPF app was removed; v0.17.3 was its last release (see `legacy/wpf`).
 
 ## Fixed in v0.17.2
 
