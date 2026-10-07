@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Toucan · The localization IDE</title>
+<title>Toucan · Desktop editor for translation files</title>
 <meta name="description" content="Toucan is an open-source desktop editor for translation files on Windows, macOS, and Linux. Edit 14 formats side by side, pre-translate with DeepL, Google, Microsoft or AI (Claude, OpenAI-compatible, Gemini; off until you turn it on), and validate before you ship. Preview release.">
 <meta name="author" content="Muhammad Fahmi Rasyid">
 <link rel="canonical" href="https://toucan.rasyid.dev/">
@@ -14,12 +14,12 @@
 
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://toucan.rasyid.dev/">
-<meta property="og:title" content="Toucan · Teach your app every language">
-<meta property="og:description" content="Open-source localization IDE. 14 file formats, machine translation with preview, opt-in AI with editable prompts, validation, and source scanning in one offline workspace.">
+<meta property="og:title" content="Toucan · Edit translation files in 14 formats">
+<meta property="og:description" content="Open-source desktop editor for translation files. Reads 14 formats, previews machine translations before writing them, validates placeholders, and finds unused keys in your source. AI is opt-in.">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/logo.png">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Toucan · Teach your app every language">
-<meta name="twitter:description" content="Open-source localization IDE. 14 file formats, machine translation with preview, opt-in AI with editable prompts, validation, and source scanning in one offline workspace.">
+<meta name="twitter:title" content="Toucan · Edit translation files in 14 formats">
+<meta name="twitter:description" content="Open-source desktop editor for translation files. Reads 14 formats, previews machine translations before writing them, validates placeholders, and finds unused keys in your source. AI is opt-in.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/logo.png">
 
 <script type="application/ld+json">
@@ -27,7 +27,7 @@
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "Toucan",
-  "description": "Open-source localization IDE for translation files",
+  "description": "Open-source desktop editor for translation files",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Windows 10+, macOS, Linux",
   "softwareVersion": "0.20.0",
@@ -712,12 +712,12 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
   <div class="wrap hero-grid">
     <div class="intro">
       <a class="eyebrow" href="https://github.com/rasyidf/Toucan/releases/tag/v0.20.0"><span class="ver">v0.20.0</span><span class="pre">preview</span> · open source · MIT</a>
-      <h1>Teach your app <span class="hl">every language.</span></h1>
+      <h1>Every language, <span class="hl">side by side.</span></h1>
       <div class="tagline-i18n" aria-hidden="true">
         <span class="lang" id="tl-lang">id-ID</span>
-        <span class="text" id="tl-text">Ajari aplikasimu semua bahasa.</span>
+        <span class="text" id="tl-text">Semua bahasa, berdampingan.</span>
       </div>
-      <p class="lede">Toucan is a desktop editor for translation files. Open a locale folder, edit every language side by side in 14 formats, and catch broken placeholders before they reach production.</p>
+      <p class="lede">Toucan is a desktop editor for translation files. Open a locale folder, edit all its languages in one grid across 14 formats, and catch broken placeholders before they ship.</p>
       <div class="cta-row">
         <a class="btn btn-primary" href="https://github.com/rasyidf/Toucan/releases">
           <svg class="dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
@@ -817,7 +817,7 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
     <div class="mode-panel" role="tabpanel" id="panel-audit" aria-labelledby="tab-audit" hidden>
       <div class="mode-copy">
         <h3>Audit</h3>
-        <p>Read-only. See approval state and the change history of each key without the risk of editing anything.</p>
+        <p>A read-only view of each key's approval state and change history.</p>
         <ul>
           <li>No accidental edits</li>
           <li>Approval state per language</li>
@@ -844,8 +844,8 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="kicker">features</div>
-      <h2>Treat translations like source code.</h2>
-      <p>Toucan checks your strings the way a compiler checks code, and it never writes a machine translation until you say so.</p>
+      <h2>What Toucan does with your strings.</h2>
+      <p>Validation rules run on save, translation memory suggests earlier work, and no machine translation is written until you accept it.</p>
     </div>
 
     <div class="bento">
@@ -863,8 +863,8 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
 
       <article class="card span-2 reveal" style="--d:80ms">
         <span class="chip ok tag">placeholders</span>
-        <h3>Placeholders survive</h3>
-        <p>Toucan recognises <code>{{var}}</code>, <code>{0}</code>, <code>%s</code>, and <code>:param</code> and keeps them intact.</p>
+        <h3>Placeholders stay intact</h3>
+        <p>Toucan recognises <code>{{var}}</code>, <code>{0}</code>, <code>%s</code> and <code>:param</code> in the source and flags any translation that uses different ones.</p>
         <div class="diff" aria-label="Example: source and translated string keep the same placeholders">
           <div class="src">Hi <span class="ph">{{name}}</span>, <span class="ph">%s</span> left</div>
           <div class="out">Hai <span class="ph">{{name}}</span>, sisa <span class="ph">%s</span></div>
@@ -931,7 +931,7 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
 
       <article class="card span-2 reveal" style="--d:120ms">
         <span class="chip ok tag">keyboard</span>
-        <h3>Built for the keyboard</h3>
+        <h3>Command palette and shortcuts</h3>
         <p>A command palette for every menu command, a sheet of every shortcut, and a Zen mode that leaves one card on screen.</p>
         <div class="kbd-row"><kbd>Cmd/Ctrl</kbd><kbd>/</kbd> shortcuts <kbd>J</kbd><kbd>K</kbd> next / prev</div>
       </article>
@@ -944,7 +944,7 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="kicker">14 formats</div>
-      <h2>One key, every format.</h2>
+      <h2>How one key looks in each format.</h2>
       <p>Pick a format to see how <code>checkout.items_count</code> is stored there. Toucan reads and writes each one, placeholder style included.</p>
     </div>
     <div class="fx">
@@ -984,7 +984,7 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="kicker">cli &amp; plugins</div>
-      <h2>Same engine in your terminal and your CI.</h2>
+      <h2>Run the same checks from the terminal or CI.</h2>
       <p>The CLI shares its format and validation code with the app. <code>toucan check</code> exits with code 1 on errors, so a broken placeholder fails the build.</p>
     </div>
     <div class="split">
@@ -1031,7 +1031,7 @@ Languages: 4
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="kicker">platforms</div>
-      <h2>Runs on your machine. Your files stay there.</h2>
+      <h2>Your files stay on your machine.</h2>
       <p>No account, no upload, no server. Text leaves your machine only when you run a translation provider or turn AI on. API keys live in one secret store in your user profile, encrypted at rest: DPAPI on Windows, AES-GCM with a per-user key on macOS and Linux.</p>
     </div>
     <div class="preview-note reveal" role="note">
@@ -1065,7 +1065,7 @@ Languages: 4
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="kicker">roadmap</div>
-      <h2>The road to 1.0.</h2>
+      <h2>Roadmap to 1.0 and after.</h2>
       <p>The planned order, not a promise. The full list lives in <a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">future-roadmap.md</a>.</p>
     </div>
     <ol class="timeline reveal">
@@ -1104,7 +1104,7 @@ Languages: 4
       <li>
         <div class="ver">after 1.0</div>
         <span class="when">later</span>
-        <h3>Beyond the desktop</h3>
+        <h3>Integrations and team features</h3>
         <ul>
           <li>Crowdin, Lokalise, Phrase, Transifex import</li>
           <li>Toucan Hub for locking and presence</li>
@@ -1124,7 +1124,7 @@ Languages: 4
       <div class="final-body">
         <img src="assets/logo.png" alt="" width="96" height="96">
         <div>
-          <h2>Two languages? Toucan.</h2>
+          <h2>Try the preview.</h2>
           <p>Free and MIT licensed. Preview builds for Windows, macOS, and Linux.</p>
         </div>
         <div class="cta-row">
@@ -1198,12 +1198,12 @@ Languages: 4
 
   /* ---------- Rotating tagline ---------- */
   var taglines = [
-    ['id-ID', 'Ajari aplikasimu semua bahasa.'],
-    ['de-DE', 'Bring deiner App jede Sprache bei.'],
-    ['es-ES', 'Enseña a tu app todos los idiomas.'],
-    ['ja-JP', 'アプリに、すべての言語を。'],
-    ['fr-FR', 'Apprenez toutes les langues à votre app.'],
-    ['pt-BR', 'Ensine todos os idiomas ao seu app.']
+    ['id-ID', 'Semua bahasa, berdampingan.'],
+    ['de-DE', 'Alle Sprachen nebeneinander.'],
+    ['es-ES', 'Todos los idiomas, lado a lado.'],
+    ['ja-JP', 'すべての言語を、並べて編集。'],
+    ['fr-FR', 'Toutes les langues, côte à côte.'],
+    ['pt-BR', 'Todos os idiomas, lado a lado.']
   ];
   var tlLang = $('#tl-lang'), tlText = $('#tl-text'), tlIndex = 0;
   if (!reduceMotion) {
