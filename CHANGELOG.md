@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.20.2] - 2026-10-07
+
+Format fixes (XLIFF no longer loses source text, notes and state on save; RESX and ARB language and metadata bugs), a new app icon, and documentation pages and a web manifest on the website.
+
 ### Added
 - **Website documentation** — The plugin guide, AI Integration, provider settings, architecture, roadmap, known issues and the other guides are now pages on the website, behind a new Docs index, instead of links to GitHub. `python3 tools/build-docs.py` builds them from `docs/*.md`.
 - **Web manifest** — The website has a `site.webmanifest` and the full icon set, including maskable icons.
@@ -9,10 +13,6 @@
 ### Changed
 - **App and website icon** — A new toucan icon on a rounded black square replaces the old logo in the app (window, title bar, macOS and MSIX packages) and on the website.
 - **Website styles** — `site.css` is split into `base.css` (shared by every page), `home.css`, `changelog.css` and `doc.css`, and the theme toggle moves to a shared `site.js`.
-
-## [0.20.2] - 2026-10-07
-
-Format fixes: XLIFF no longer loses source text, notes and state on save, and the RESX and ARB language and metadata bugs are gone.
 
 ### Fixed
 - **XLIFF save no longer loses data** — Saving wrote the key as `<source>` and the first language as `source-language`, and dropped notes, state, `datatype`, `original` and other elements. The source text is now loaded and written back with the unit's notes, attributes and extra elements (such as Angular's `context-group`). Units go back to the file they came from instead of a new `<language>.xlf`, untranslated units keep their source, a unit gets `state="translated"` once it has a translation, and XLIFF 2.0 files stay 2.0. An untranslated unit now shows an empty value instead of its source text.
