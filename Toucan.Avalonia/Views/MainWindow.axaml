@@ -12,7 +12,7 @@
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource ChromeBackgroundBrush}">
 
-  <Grid RowDefinitions="Auto,*,Auto">
+  <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto">
 
     <!-- ═══ Top bar: in-window menu (Windows/Linux) + view controls ═══ -->
     <Border Grid.Row="0" x:Name="TopBar" MinHeight="40">
@@ -24,7 +24,7 @@
             <Image Source="/Assets/logo.png" Width="18" Height="18"/>
             <TextBlock Text="Toucan" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
           </StackPanel>
-          <Button Classes="saveState" Classes.dirty="{Binding IsDirty}" Command="{Binding SaveCommand}"
+          <Button x:Name="SaveStateButton" Classes="saveState" Classes.dirty="{Binding IsDirty}" Command="{Binding SaveCommand}"
                   IsVisible="{Binding HasProject}" ToolTip.Tip="{loc:Loc 'Save now'}" AutomationProperties.Name="{loc:Loc 'Save now'}">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <Ellipse Classes="statusDot" Classes.warn="{Binding IsDirty}" Classes.good="{Binding !IsDirty}"/>

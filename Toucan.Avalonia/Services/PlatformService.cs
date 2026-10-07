@@ -13,6 +13,13 @@ internal static class PlatformService
     public static bool IsMacOS => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
+    /// <summary>
+    /// How much of the extended title bar the window controls cover: macOS puts the traffic lights on the left, Windows and
+    /// Linux put the minimize, maximize and close buttons on the right (3 × 46 px). Nothing is covered in fullscreen.
+    /// </summary>
+    public static (double Leading, double Trailing) TitleBarInsets(bool macOS, bool fullScreen) =>
+        fullScreen ? (0, 0) : macOS ? (78, 0) : (0, 138);
+
     /// <summary>Human-readable name of the platform file manager, for menu labels.</summary>
     public static string FileManagerName => IsMacOS ? "Finder" : IsWindows ? "Explorer" : "File Manager";
 

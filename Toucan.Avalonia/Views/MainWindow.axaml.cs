@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Chrome;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -45,8 +46,7 @@ public partial class MainWindow : Window
         ShowLeftPanel(registry.ActiveLeftPanel?.Id);
         ShowRightPanel(registry.ActiveRightPanel?.Id);
 
-        if (PlatformService.IsMacOS) UseUnifiedTitleBar();
-        TitleBarBrand.IsVisible = PlatformService.IsMacOS;
+        UseUnifiedTitleBar();
         TopBar.LayoutUpdated += (_, _) => UpdateTitleBarLayout();
         Workspace.SizeChanged += (_, _) => FitSidePanels();
         // Clip the content as well as the outline: collapsing either panel brings
@@ -76,25 +76,43 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// macOS: draw the top bar into the title bar area (like VS Code / Claude) with the system traffic lights
-    /// overlaid on the left, instead of a separate native title bar above it.
+    /// Draw the top bar into the title bar area (like VS Code / Claude) with the window controls overlaid, instead of a separate
+    /// native title bar above it: the traffic lights on the left on macOS, the minimize, maximize and close buttons on the right
+    /// on Windows and Linux.
     /// </summary>
     private void UseUnifiedTitleBar()
     {
         ExtendClientAreaToDecorationsHint = true;
         ExtendClientAreaTitleBarHeightHint = 40;
 
-        const double TrafficLightInset = 78;
         TopBar.MinHeight = 40;
-        void UpdateInset()
+        // No native title shows the app name any more, so the top bar carries it on every platform.
+        TitleBarBrand.IsVisible = true;
+        if (!PlatformService.IsMacOS)
         {
-            var inset = WindowState == WindowState.FullScreen ? 0 : TrafficLightInset; // lights are hidden in fullscreen
-            TitleBarLeading.Margin = new Thickness(inset, 0, 0, 0);
-            ZenView.SetTitleBarInset(inset); // Zen mode covers the top bar, so it needs the same clearance
+            // macOS drags the title bar natively. Elsewhere the empty part of the bar is the drag area (it needs a background to be
+            // hit-testable) and the controls on it are marked so they keep receiving clicks.
+            TopBar.Background = Brushes.Transparent;
+            WindowDecorationProperties.SetElementRole(TopBar, WindowDecorationsElementRole.TitleBar);
+            foreach (Control control in new Control[] { MenuHost, SaveStateButton, PalettePill, TitleBarTrailing })
+                WindowDecorationProperties.SetElementRole(control, WindowDecorationsElementRole.User);
+        }
+
+        void UpdateInsets()
+        {
+            var (leading, trailing) = PlatformService.TitleBarInsets(PlatformService.IsMacOS, WindowState == WindowState.FullScreen);
+            TitleBarLeading.Margin = new Thickness(leading, 0, 0, 0);
+            TitleBarTrailing.Margin = new Thickness(0, 0, trailing, 0);
+            ZenView.SetTitleBarInset(leading, trailing); // Zen mode covers the top bar, so it needs the same clearance
             UpdateTitleBarLayout();
         }
-        UpdateInset();
-        PropertyChanged += (_, e) => { if (e.Property == WindowStateProperty) UpdateInset(); };
+        UpdateInsets();
+        PropertyChanged += (_, e) =>
+        {
+            if (e.Property == WindowStateProperty) UpdateInsets();
+            // Maximized Windows windows extend past the screen edge by the frame; keep the content on screen.
+            else if (e.Property == OffScreenMarginProperty) RootGrid.Margin = OffScreenMargin;
+        };
     }
 
     private void UpdateTitleBarLayout()

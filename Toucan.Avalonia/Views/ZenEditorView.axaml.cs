@@ -12,5 +12,5 @@ public partial class ZenEditorView : UserControl
     /// Space reserved on the left of the header for the window controls that macOS draws over the content
     /// (the main window extends into the title bar). Zero elsewhere.
     /// </summary>
-    public void SetTitleBarInset(double inset) => Header.Padding = new Thickness(Math.Max(16, inset), 0, 16, 0);
+    public void SetTitleBarInset(double leading, double trailing = 0) => Header.Padding = new Thickness(Math.Max(16, leading), 0, Math.Max(16, trailing), 0);
 }

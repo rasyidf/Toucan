@@ -106,7 +106,7 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="added">6 added</span><span class="changed">3 changed</span><span class="fixed">12 fixed</span></div>
+<div class="release-counts"><span class="added">6 added</span><span class="changed">3 changed</span><span class="fixed">13 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
 <li><strong>Continuous integration</strong> — Pull requests and pushes to <code>main</code> and <code>release/**</code> build <code>Toucan.CrossPlatform.slnx</code> and run the Core and Avalonia tests on Windows, macOS and Linux, and upload coverage reports.</li>
@@ -126,6 +126,7 @@
 </ul>
 <h3>Fixed</h3>
 <ul>
+<li><strong>Unified title bar on Windows and Linux</strong> — The top bar now extends into the title bar like on macOS: the menu, command palette and mode tabs share one row with the window buttons, the empty area drags the window, and the Toucan name shows on every platform.</li>
 <li><strong>Borderless text boxes everywhere</strong> — The borderless look of table cells leaked to every text box in the app. It now applies only inside editable tables.</li>
 <li><strong>Multi-line inputs</strong> — Comment, description and context boxes start the text at the top instead of the vertical center.</li>
 <li><strong>Compact toolbar and panel headers</strong> — Icon buttons in the panel headers and the editor toolbar are smaller (26 px) with rounded corners and a hover state, and the headers and toolbar are 36 px tall instead of 44 px.</li>
