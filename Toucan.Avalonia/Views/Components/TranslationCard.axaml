@@ -19,7 +19,7 @@
                    FlowDirection="{Binding FlowDirection}"
                    IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}"/>
           <!-- Inline TM suggestion (ghost text): shown while the field is empty; Tab accepts -->
-          <Grid ColumnDefinitions="*,Auto" IsHitTestVisible="False" Margin="11,6,10,0" VerticalAlignment="Top"
+          <Grid ColumnDefinitions="*,Auto" IsHitTestVisible="False" Margin="11,0,10,0" VerticalAlignment="Center"
                 FlowDirection="{Binding FlowDirection}">
             <Grid.IsVisible>
               <MultiBinding Converter="{x:Static BoolConverters.And}">
@@ -27,8 +27,8 @@
                 <Binding Path="IsEmpty"/>
               </MultiBinding>
             </Grid.IsVisible>
-            <TextBlock Text="{Binding GhostText}" Opacity="0.5" FontStyle="Italic" TextTrimming="CharacterEllipsis"/>
-            <Border Grid.Column="1" Classes="badge" Margin="6,0,0,0" VerticalAlignment="Top">
+            <TextBlock Text="{Binding GhostText}" Opacity="0.5" FontStyle="Italic" FontSize="{DynamicResource EditorFontSize}" TextTrimming="CharacterEllipsis"/>
+            <Border Grid.Column="1" Classes="badge" Margin="6,0,0,0">
               <TextBlock Text="{loc:Loc 'Tab to accept'}"/>
             </Border>
           </Grid>

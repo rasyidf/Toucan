@@ -16,9 +16,6 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 
 | ID | Severity | Area | Problem | Checked |
 |----|----------|------|---------|---------|
-| [FMT-01](#fmt-01) | Medium | PO | Language is now read correctly, but save still writes `{language}.po` at the project root instead of back to the original `<lang>/LC_MESSAGES/` file | From code |
-| [FMT-02](#fmt-02) | High | PO | Plural entries (`msgid_plural`, `msgstr[N]`) are dropped completely, not just their plural forms | Reproduced |
-| [FMT-03](#fmt-03) | High | PO | Save rewrites every entry with `msgctxt = msgid = key`, loses the real `msgid` when a context exists, and drops comments, flags and headers | Reproduced |
 | [FMT-05](#fmt-05) | Medium | RESX | Any `A.B.resx` file takes `B` as its language (`Views.Home.Index.resx` becomes language `Index`) | Reproduced |
 | [FMT-06](#fmt-06) | High | XLIFF | Save writes the key as `<source>` and the first language as `source-language`; real source text, notes and state are lost | Reproduced |
 | [FMT-07](#fmt-07) | Medium | ARB | `@key` metadata (description, placeholders) is discarded on save | Reproduced |
@@ -36,72 +33,13 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
 
-Suggested order: FMT-01 (save side), FMT-02, FMT-03 and FMT-06 first (data loss in common projects), then FMT-05, FMT-07, FMT-08, then release work, then the rest.
+Suggested order: FMT-06 first (data loss in common projects), then FMT-05, FMT-07, FMT-08, then release work, then the rest.
 
 ---
 
 ## Format bugs (Toucan.Core)
 
 All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategies/`. Round-trip means: open a folder, change nothing or one value, save.
-
-<a id="fmt-01"></a>
-### FMT-01 — PO: language is the file name, so gettext folder layouts collapse
-
-- **Severity:** High · **Area:** PO · **Checked:** reproduced · **Code:** `PoLoadStrategy.cs:21`
-- **What happens:** `var lang = Path.GetFileNameWithoutExtension(file);` The standard gettext layout is `<lang>/LC_MESSAGES/<domain>.po`, where the file name is the domain (`messages`) and the folder is the language.
-- **Repro:** two files, `fr/LC_MESSAGES/messages.po` and `de/LC_MESSAGES/messages.po`, each with `Language: fr` or `Language: de` in the header. Load the folder.
-- **Expected:** languages `fr` and `de`.
-- **Actual:** `messages:Hello=X-de | messages:menu=O-de | messages:Hello=X-fr | messages:menu=O-fr`. One language, `messages`, with duplicate keys.
-- **Then, on save:** a new `messages.po` appears in the project root with `# Language: messages` and `"Language: messages\n"`. The original `fr/` and `de/` files are left untouched, so nothing is overwritten, but the editor shows one language with duplicated keys and the new file is wrong.
-- **Impact:** projects that use the standard gettext folder layout cannot be translated in Toucan. Only projects that name the files by language (`fr.po`, `de.po`) work.
-- **Cause:** the loader never reads the `Language:` header or the folder name.
-- **Fix direction:** resolve the language in this order: `Language:` header, `.../<lang>/LC_MESSAGES/` folder, file name. Keep the file's original relative path so save writes back to the same file (the save side builds `{language}.po` at the root today).
-- **Tests to add:** the repro above (two languages, same key); a flat `fr.po`; header wins over file name.
-
-<a id="fmt-02"></a>
-### FMT-02 — PO: plural entries are dropped completely
-
-- **Severity:** High · **Area:** PO · **Checked:** reproduced · **Code:** `PoLoadStrategy.cs:44-62`
-- **What happens:** the parser only recognizes `msgid `, `msgstr ` (with a space) and `msgctxt `. `msgid_plural` and `msgstr[0]` / `msgstr[1]` match nothing, so `currentStr` stays null and the entry is discarded at the next blank line.
-- **Repro:**
-  ```
-  msgid "one apple"
-  msgid_plural "%d apples"
-  msgstr[0] "one apple"
-  msgstr[1] "%d apples"
-
-  msgid "hi"
-  msgstr "Hello"
-  ```
-- **Expected:** both entries, the plural one with its forms.
-- **Actual:** `en:hi=Hello` only. The plural entry is gone, including `msgstr[0]`.
-- **Impact:** the old doc said plural forms are dropped. It is worse: the whole entry disappears from the editor, and the next save removes it from the file. Any gettext project with plurals loses strings silently.
-- **Fix direction:** parse `msgid_plural` and `msgstr[N]`. Model a plural entry as one item per form (the app already has plural support for i18next `_one`/`_other` and ICU) or as one item with a form index. Write the `Plural-Forms:` header on save.
-- **Tests to add:** load and save a file with 2 forms (en) and 3 forms (ru); a file that mixes plural and normal entries must keep all of them.
-
-<a id="fmt-03"></a>
-### FMT-03 — PO: save rewrites every entry and loses `msgid`, comments and headers
-
-- **Severity:** High · **Area:** PO · **Checked:** reproduced · **Code:** `PoSaveStrategy.cs:25-38`, `PoLoadStrategy.cs:67,81`
-- **What happens:**
-  1. Load uses `key = msgctxt ?? msgid`. When an entry has a context, the real `msgid` is thrown away.
-  2. Save writes `msgctxt "<key>"`, `msgid "<key>"`, `msgstr "<value>"` for every entry.
-  3. Save writes a fresh header and no comments.
-- **Repro:** entries `msgid "Hello"` (no context) and `msgctxt "menu"` + `msgid "Open"`. Load, then save to a flat folder.
-- **Actual saved file:**
-  ```
-  msgctxt "Hello"
-  msgid "Hello"
-  msgstr "X-de"
-  msgctxt "menu"
-  msgid "menu"
-  msgstr "O-de"
-  ```
-  `msgid "Open"` became `msgid "menu"`. The `Hello` entry gained a `msgctxt` it never had. The `#: src/a.py:3` reference and the `#, fuzzy` flag are gone.
-- **Impact:** gettext looks entries up by `msgctxt` plus `msgid`. A program calling `gettext("Hello")` will not match an entry that now has `msgctxt "Hello"`, so a saved file stops translating at run time. `fuzzy` flags and source references are lost, and the `Plural-Forms` and other headers are replaced.
-- **Cause:** the data model has one string per key, so msgid, msgctxt and comments have nowhere to live.
-- **Fix direction:** keep `msgctxt`, `msgid`, flags and `#:` references per item. Key as `msgctxt\u0004msgid` (gettext's own separator) or add fields. Write back the original header. Only write `msgctxt` when the entry had one. Honor `#, fuzzy` as "not approved".
-- **Tests to add:** byte-for-byte round trip of a small realistic `.po` with context, flags, references and a header; unchanged file must not be modified on save.
 
 <a id="fmt-05"></a>
 ### FMT-05 — RESX: language detection treats any last name part as a language
