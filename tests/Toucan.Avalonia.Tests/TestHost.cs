@@ -29,6 +29,7 @@ internal sealed class TestHost : IDisposable
 {
     public TestHost()
     {
+        ResetProcessWideState();
         Root = Directory.CreateTempSubdirectory("toucan-tests-").FullName;
         Dialogs = new FakeDialogService();
         Messages = new FakeMessageService();
@@ -62,9 +63,22 @@ internal sealed class TestHost : IDisposable
         return folder;
     }
 
+    /// <summary>
+    /// PanelService is a process-wide singleton and every new MainWindowViewModel starts in its editor mode,
+    /// so a test that ends in Audit/Review mode (or Zen) silently turns the next test's text boxes read-only
+    /// and makes its edit commands no-ops. Start and finish every test from the default layout.
+    /// </summary>
+    private static void ResetProcessWideState()
+    {
+        var panels = PanelService.Instance;
+        if (panels.ZenMode) panels.ToggleZenMode();
+        panels.EditorMode = EditorMode.Editor;
+    }
+
     public void Dispose()
     {
         Services.Dispose();
+        ResetProcessWideState();
         try { Directory.Delete(Root, recursive: true); }
         catch (IOException) { }
     }
