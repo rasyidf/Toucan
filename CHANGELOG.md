@@ -10,6 +10,7 @@
 - **Round-trip fixtures** — Every loadable format is checked for multiline text, CRLF, quotes, backslashes, unicode, placeholders, markup, separators, leading spaces, tabs, percent signs, `$`, and YAML-looking words and numbers.
 
 ### Fixed
+- **Panel alignment** — The Explorer and Inspector headers are now the same height as the editor's filter toolbar, so the divider lines up across the three columns.
 - **Laravel PHP** — Multiline values were lost on load, and `\\` was read as two backslashes. The loader now reads single- and double-quoted strings, `array()` syntax, comments and nested arrays properly, and skips computed values.
 - **TOML** — Backslashes, carriage returns, `\uXXXX` escapes and trailing comments are read correctly; literal `'strings'` are no longer unescaped.
 - **Java properties** — A value with leading spaces keeps them, and `\r` and `\f` are escaped.

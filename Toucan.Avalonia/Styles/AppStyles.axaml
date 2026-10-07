@@ -216,14 +216,15 @@
     <Setter Property="CornerRadius" Value="10"/>
     <Setter Property="Padding" Value="12"/>
   </Style>
+  <!-- Same height as the editor's filter toolbar (5 + 32 filter box + 6 padding + 1 border) so the divider lines up across the three columns. -->
   <Style Selector="Border.panelHeader">
-    <Setter Property="Height" Value="36"/>
+    <Setter Property="Height" Value="44"/>
     <Setter Property="Padding" Value="10,0,4,0"/>
     <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
   </Style>
   <Style Selector="Border.toolbar">
-    <Setter Property="Padding" Value="10,6"/>
+    <Setter Property="Padding" Value="10,5,10,6"/>
     <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
   </Style>

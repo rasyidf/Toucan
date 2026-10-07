@@ -106,7 +106,7 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="added">4 added</span><span class="fixed">7 fixed</span></div>
+<div class="release-counts"><span class="added">4 added</span><span class="fixed">8 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
 <li><strong>Continuous integration</strong> — Pull requests and pushes to <code>main</code> and <code>release/**</code> build <code>Toucan.CrossPlatform.slnx</code> and run the Core and Avalonia tests on Windows, macOS and Linux, and upload coverage reports.</li>
@@ -118,6 +118,7 @@
 </ul>
 <h3>Fixed</h3>
 <ul>
+<li><strong>Panel alignment</strong> — The Explorer and Inspector headers are now the same height as the editor&#x27;s filter toolbar, so the divider lines up across the three columns.</li>
 <li><strong>Laravel PHP</strong> — Multiline values were lost on load, and <code>\\</code> was read as two backslashes. The loader now reads single- and double-quoted strings, <code>array()</code> syntax, comments and nested arrays properly, and skips computed values.</li>
 <li><strong>TOML</strong> — Backslashes, carriage returns, <code>\uXXXX</code> escapes and trailing comments are read correctly; literal <code>&#x27;strings&#x27;</code> are no longer unescaped.</li>
 <li><strong>Java properties</strong> — A value with leading spaces keeps them, and <code>\r</code> and <code>\f</code> are escaped.</li>
