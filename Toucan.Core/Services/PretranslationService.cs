@@ -16,8 +16,10 @@ public class PretranslationService(IEnumerable<ITranslationProvider> providers) 
         var result = new PretranslationResult();
         if (request == null) return result;
 
-        var provider = (!string.IsNullOrWhiteSpace(request.Provider)
-            ? providers.FirstOrDefault(p => string.Equals(p.Name, request.Provider, StringComparison.OrdinalIgnoreCase))
+        // Claude, OpenAI and Gemini were providers before 0.20; a project or preference that still names one gets the AI provider.
+        var requested = Ai.LegacyAiMigration.CurrentProviderName(request.Provider);
+        var provider = (!string.IsNullOrWhiteSpace(requested)
+            ? providers.FirstOrDefault(p => string.Equals(p.Name, requested, StringComparison.OrdinalIgnoreCase))
             : null) ?? providers.FirstOrDefault(p => string.Equals(p.Name, DefaultProviderName, StringComparison.OrdinalIgnoreCase))
             ?? providers.FirstOrDefault();
 

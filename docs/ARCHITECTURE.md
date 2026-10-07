@@ -59,7 +59,7 @@ Toucan.Modules.Defaults ──► every module            (Core and the modules 
 | `Toucan.Modules.Formats.Xml` | `toucan.formats.xml` | android-xml, xliff, resx |
 | `Toucan.Modules.Formats.Text` | `toucan.formats.text` | po, ini (save only), java-properties, ios-strings, laravel-php, csv |
 | `Toucan.Modules.Formats.Data` | `toucan.formats.data` | yaml, toml |
-| `Toucan.Modules.Providers` | `toucan.providers` | Google, DeepL, Microsoft, OpenAI, Claude, Gemini, Custom, Mock |
+| `Toucan.Modules.Providers` | `toucan.providers` | Google, DeepL, Microsoft, AI, Custom, Mock; the Claude, OpenAI-compatible and Gemini AI services |
 | `Toucan.Modules.Validation` | `toucan.validation` | the six built-in rules |
 | `Toucan.Modules.Frameworks` | `toucan.frameworks` | the eight framework profiles |
 
@@ -77,7 +77,8 @@ Platform-agnostic library containing all business logic:
 - **Contracts** — interfaces for every service (`ILoadStrategy`, `ISaveStrategy`, `IProjectLifecycleService`, `ITranslationProvider`, etc.). The plugin-facing contracts (`ISaveStrategy`, `ILoadStrategy`, `ITranslationProvider`, `IValidationRule`, `IFrameworkProfile`) are in `Toucan.Plugins.Abstractions`; host internals (`IValidationPipeline`, `IProjectService`, …) stay in Core.
 - **Services** — implementations: strategy factory, project lifecycle, translation management, validation, TM, audit, auto-save, fuzzy search
 - **Format engine** — `TranslationStrategyFactory`, `FormatDetector` and the project services that use them. The 14 load and 14 save strategies are identified by string format ID (`json`, `android-xml`, …) and live in the `Toucan.Modules.Formats.*` modules; each save strategy also owns the format's layout conventions (see below).
-- **Provider registry and pretranslation** — `TranslationProviderRegistry` and `PretranslationService` (default provider: Google). The providers (Google, DeepL, Microsoft, OpenAI, Claude, Gemini, Custom Webhook, Mock) are in `Toucan.Modules.Providers`; each carries its own settings definition.
+- **Provider registry and pretranslation** — `TranslationProviderRegistry` and `PretranslationService` (default provider: Google). The providers (Google, DeepL, Microsoft, AI, Custom Webhook, Mock) are in `Toucan.Modules.Providers`; each carries its own settings definition.
+- **AI Integration and secrets** — `AddToucanAi()`: `ISecretService` (one encrypted store for every key), `IAiService` (the app-wide switch, service, model and key), `IPromptLibrary` (built-in, user and project prompts) and the Analyze and Clarity services. See [AI Integration](#ai-integration).
 - **Validation pipeline** — `ValidationPipeline` and the user-configured `CustomValidationRule`; the 6 built-in rules are in `Toucan.Modules.Validation`
 - **Framework profiles** — the 8 auto-detection profiles (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, Generic JSON) are in `Toucan.Modules.Frameworks`
 - **Plugins** — `PluginHost` (discovery, isolated load contexts, registration), trust policy store, content hasher, signature seam (see [Plugin System](#plugin-system))
@@ -450,15 +451,31 @@ A **save strategy owns the format's layout conventions**, so nothing else switch
 | `GoogleTranslationProvider` | Google Translate API |
 | `DeepLTranslationProvider` | DeepL API (free + pro endpoints) |
 | `MicrosoftTranslationProvider` | Microsoft Translator |
-| `OpenAITranslationProvider` | OpenAI chat completions |
-| `ClaudeTranslationProvider` | Anthropic Messages API (shares batching and parsing with Gemini in `LlmTranslationProvider`) |
-| `GeminiTranslationProvider` | Google Gemini `generateContent` |
+| `AiTranslationProvider` ("AI") | AI Integration with the Translate prompt; no settings of its own, off while AI is off |
 | `CustomWebhookTranslationProvider` | User-defined HTTP endpoint |
 | `MockTranslationProvider` | Testing (prefixes value with `[MOCK]`) |
 
 All implement `ITranslationProvider.PretranslateAsync(jobs, options, progress, ct)`. Placeholder patterns are stripped before API call and restored after via `PlaceholderService`.
 
-Each provider exposes an optional `Definition` (`ProviderDefinition`: option and secret fields, defaults). `TranslationProviderRegistry` is built from the registered providers' definitions, so plugin providers appear in provider settings; the mock provider has none and stays unlisted.
+Each provider exposes an optional `Definition` (`ProviderDefinition`: option and secret fields, defaults). `TranslationProviderRegistry` is built from the registered providers' definitions, so plugin providers appear in provider settings; the mock provider has none and stays unlisted. Secret field values are stored through `ISecretService`, not in `providers.json`.
+
+---
+
+## AI Integration
+
+AI is separate from machine translation: one switch (`AiSettings.Enabled`, off by default, chosen in onboarding), one configured AI service, and features whose system prompts are open files. Full description: [ai-integration.md](ai-integration.md).
+
+| Piece | Role |
+|-------|------|
+| `IAiBackend` (`AnthropicAiBackend`, `OpenAiCompatibleBackend`, `GeminiAiBackend`) | One chat completion against a service's API; no policy |
+| `AiService : IAiService` | Checks the switch and the feature's switch, resolves endpoint, model and key (secret store, then environment), renders the prompt, calls the backend |
+| `PromptLibrary : IPromptLibrary` | Prompt per feature: `<project>/.toucan/prompts`, else `Documents/Toucan/prompts`, else the built-in file in `Toucan.Core/Ai/Prompts` |
+| `PromptTemplate` | `{{var}}`, `{{#var}}…{{/var}}`, `{{^var}}…{{/var}}`; only declared variables are replaced |
+| `AiSettingsStore`, `LegacyAiMigration` | `Documents/Toucan/ai.json`; on first load, moves the 0.19 Claude, OpenAI and Gemini provider entries there |
+| `SecretService : ISecretService` | `secrets.json` in the per-user app-data folder, values encrypted by `SecureStorageService` (DPAPI or AES-GCM); keys `ai/…`, `mt/…`, `project/<hash>/mt/…` |
+| `TranslationAnalyzerService`, `SourceClarityService` | The Analyze and Clarity features; findings go to the Issues panel |
+
+Every AI request goes through `IAiService.CompleteAsync`, so turning AI off stops all of them.
 
 ---
 

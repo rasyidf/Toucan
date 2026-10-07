@@ -358,7 +358,17 @@ internal static class Program
         }
 
         // Run translation
-        var options = new PretranslationOptions { Overwrite = overwrite, PreviewOnly = dryRun };
+        var options = new PretranslationOptions
+        {
+            Overwrite = overwrite,
+            PreviewOnly = dryRun,
+            // The AI provider uses the project's own prompt and context; other providers ignore these.
+            ProviderOptions = new Dictionary<string, string>
+            {
+                ["project_path"] = Path.GetFullPath(folder),
+                ["context"] = settings.Context ?? string.Empty,
+            },
+        };
         var progress = new Progress<PretranslationProgress>(p =>
             Console.Write($"\r  [{p.Completed}/{p.Total}]"));
 
@@ -368,6 +378,9 @@ internal static class Program
         var succeeded = results.Count(r => r.Succeeded);
         var failed = results.Count(r => !r.Succeeded);
         Console.WriteLine($"  {succeeded} translated, {failed} failed");
+        // Say why, once per distinct reason ("AI is turned off…", "HTTP 401 …"), so a failed run is actionable.
+        foreach (var reason in results.Where(r => !r.Succeeded).GroupBy(r => r.ErrorMessage ?? "Unknown error").Take(3))
+            Console.Error.WriteLine($"  {reason.Count()} × {reason.Key}");
 
         if (dryRun)
         {
@@ -402,9 +415,13 @@ internal static class Program
         return failed > 0 ? 1 : 0;
     }
 
-    private static ITranslationProvider? FindProvider(string name) =>
-        s_services.Value.GetServices<ITranslationProvider>()
-            .FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
+    private static ITranslationProvider? FindProvider(string name)
+    {
+        // claude, openai and gemini were providers before AI Integration; they are the "ai" provider now.
+        var current = Toucan.Core.Services.Ai.LegacyAiMigration.CurrentProviderName(name);
+        return s_services.Value.GetServices<ITranslationProvider>()
+            .FirstOrDefault(p => string.Equals(p.Name, current, StringComparison.OrdinalIgnoreCase));
+    }
 
     // --- Helpers ---
 
@@ -450,10 +467,15 @@ internal static class Program
               TOUCAN_PLUGIN_POLICY). --allow-plugin <id> trusts a plugin for one run without saving anything.
 
             Translate options:
-              -p, --provider <name>  Provider: mock, google, deepl, microsoft, openai
+              -p, --provider <name>  Provider: mock, google, deepl, microsoft, ai, custom
               -l, --lang <code>      Target language (default: all non-primary)
               --overwrite            Overwrite existing translations
               --dry-run              Preview without saving
+
+            AI:
+              The "ai" provider uses AI Integration: AI must be turned on in the app (Settings → AI), or set
+              TOUCAN_AI_BACKEND (anthropic, openai, gemini) for one run. The key comes from the app's secret store
+              or ANTHROPIC_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY. A project's .toucan/prompts/translate.md is used.
 
             Export options:
               -f, --format <fmt>   Target format for export

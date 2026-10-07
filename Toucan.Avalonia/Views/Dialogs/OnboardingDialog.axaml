@@ -1,0 +1,50 @@
+<d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.OnboardingDialog"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:loc="using:Toucan.Avalonia.Locales"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                xmlns:c="using:Toucan.Avalonia.Views.Components"
+                Title="{loc:Loc 'Welcome to Toucan'}" Width="600" SizeToContent="Height" CanResize="False">
+  <DockPanel>
+    <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button Content="{loc:Loc 'Continue'}" Classes="accent" Command="{Binding FinishCommand}" IsDefault="True"/>
+      </StackPanel>
+    </Border>
+
+    <StackPanel Margin="24,22,24,20" Spacing="14">
+      <StackPanel Orientation="Horizontal" Spacing="14">
+        <Image Source="/Assets/logo.png" Width="48" Height="48"/>
+        <StackPanel VerticalAlignment="Center" Spacing="2">
+          <TextBlock Text="{loc:Loc 'Welcome to Toucan'}" Classes="dialogTitle"/>
+          <TextBlock Text="{loc:Loc 'One choice before you start. You can change it any time in Settings → AI.'}" Classes="caption" TextWrapping="Wrap"/>
+        </StackPanel>
+      </StackPanel>
+
+      <TextBlock TextWrapping="Wrap"
+                 Text="{loc:Loc 'Toucan can use an AI service to translate, to check translations for wrong terms and tone, and to find source strings translators could misread. When AI is on, the text you run these on is sent to the service you choose. Every prompt Toucan sends is open and editable.'}"/>
+
+      <c:SettingsGroup>
+        <StackPanel>
+          <c:SettingsRow Title="{loc:Loc 'Keep AI off'}" Description="{loc:Loc 'Nothing is sent to an AI service, and AI commands are turned off. Google, DeepL and Microsoft translation still work.'}">
+            <RadioButton GroupName="ai" IsChecked="{Binding KeepAiOff}" AutomationProperties.Name="{loc:Loc 'Keep AI off'}"/>
+          </c:SettingsRow>
+          <c:SettingsRow Title="{loc:Loc 'Use AI features'}" Description="{loc:Loc 'Choose a service now, or add the key later in Settings → AI.'}">
+            <RadioButton GroupName="ai" IsChecked="{Binding UseAi}" AutomationProperties.Name="{loc:Loc 'Use AI features'}"/>
+          </c:SettingsRow>
+        </StackPanel>
+      </c:SettingsGroup>
+
+      <c:SettingsGroup IsVisible="{Binding UseAi}">
+        <StackPanel>
+          <c:SettingsRow Title="{loc:Loc 'AI service'}" Description="{Binding Ai.BackendDescription}">
+            <ComboBox ItemsSource="{Binding Ai.Backends}" SelectedItem="{Binding Ai.SelectedBackend}"/>
+          </c:SettingsRow>
+          <c:SettingsRow Title="{loc:Loc 'API key'}" Description="{Binding Ai.ApiKeyHint}">
+            <TextBox Text="{Binding Ai.ApiKey}" PasswordChar="•" Classes="revealPasswordButton" AutomationProperties.Name="{loc:Loc 'API key'}"/>
+          </c:SettingsRow>
+        </StackPanel>
+      </c:SettingsGroup>
+    </StackPanel>
+  </DockPanel>
+</d:DialogWindow>

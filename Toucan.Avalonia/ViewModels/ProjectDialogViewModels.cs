@@ -325,7 +325,7 @@ public partial class ProjectPropertiesViewModel : ObservableObject
     ];
 
     public static IReadOnlyList<string> TranslationOrderOptions { get; } = ["Alphabetically sorted", "Primary language"];
-    public static IReadOnlyList<string> ProviderOptions { get; } = ["", "Google", "DeepL", "Microsoft", "OpenAI", "Claude", "Gemini", "Custom", "Mock"];
+    public static IReadOnlyList<string> ProviderOptions { get; } = ["", "Google", "DeepL", "Microsoft", "AI", "Custom", "Mock"];
 
     [ObservableProperty] private string projectName = string.Empty;
     [ObservableProperty] private string description = string.Empty;

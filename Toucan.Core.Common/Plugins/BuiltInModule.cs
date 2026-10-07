@@ -35,6 +35,7 @@ public static class BuiltInModuleServiceCollectionExtensions
         (typeof(ISaveStrategy), "save-formats", PluginCapabilities.Formats),
         (typeof(ILoadStrategy), "load-formats", PluginCapabilities.Formats),
         (typeof(ITranslationProvider), "providers", PluginCapabilities.Providers),
+        (typeof(IAiBackend), "ai-services", PluginCapabilities.Providers),
         (typeof(IValidationRule), "rules", PluginCapabilities.Validation),
         (typeof(IFrameworkProfile), "profiles", PluginCapabilities.Frameworks),
     ];

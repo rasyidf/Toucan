@@ -1,8 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
+using Toucan.Core.Models;
+using Toucan.Core.Options;
 using Toucan.Core.Plugins;
 using Toucan.Core.Services;
+using Toucan.Core.Services.Ai;
 using Toucan.Core.Services.Validation;
 
 namespace Toucan.Core;
@@ -20,6 +24,7 @@ public static class ToucanCoreServiceCollectionExtensions
         services.AddToucanFormats();
         services.AddToucanProviders();
         services.AddToucanValidation();
+        services.AddToucanAi();
 
         services.AddSingleton<IProjectModeResolver, ProjectModeResolver>();
         services.AddSingleton<IProjectService, ProjectService>();
@@ -42,6 +47,32 @@ public static class ToucanCoreServiceCollectionExtensions
     {
         services.AddSingleton<ITranslationProviderRegistry, TranslationProviderRegistry>();
         services.AddSingleton<IPretranslationService, PretranslationService>();
+        return services;
+    }
+
+    /// <summary>
+    /// The secret store, AI Integration (settings, prompts, the app-wide switch) and the AI features built on it.
+    /// The AI services themselves (Claude, OpenAI, Gemini) come from <c>Toucan.Modules.Providers</c>. Registered with
+    /// TryAdd, so a host can supply its own store first (tests use temporary folders).
+    /// </summary>
+    public static IServiceCollection AddToucanAi(this IServiceCollection services)
+    {
+        services.TryAddSingleton<ISecureStorageService, SecureStorageService>();
+        services.TryAddSingleton<ISecretService>(sp => new SecretService(sp.GetRequiredService<ISecureStorageService>()));
+
+        foreach (var feature in BuiltInAiFeatures.All) services.AddSingleton(feature);
+        services.TryAddSingleton<IPromptLibrary>(sp => new PromptLibrary(sp.GetServices<AiFeatureDefinition>(), PromptLibrary.DefaultUserFolder));
+        services.TryAddSingleton<IAiSettingsStore>(sp => new AiSettingsStore(AiSettingsStore.DefaultPath, () => LegacyAiMigration.Migrate(
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "providers.json"),
+            sp.GetRequiredService<ISecureStorageService>(),
+            sp.GetRequiredService<ISecretService>(),
+            AppOptions.LoadFromDisk().LastProvider,
+            Path.Combine(PromptLibrary.DefaultUserFolder, AiFeatureIds.Translate + ".md"))));
+
+        services.TryAddSingleton<AiService>();
+        services.TryAddSingleton<IAiService>(sp => sp.GetRequiredService<AiService>());
+        services.TryAddSingleton<ITranslationAnalyzer, TranslationAnalyzerService>();
+        services.TryAddSingleton<ISourceClarityService, SourceClarityService>();
         return services;
     }
 

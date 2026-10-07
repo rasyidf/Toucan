@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Toucan.Core.Contracts;
 using Toucan.Core.Models;
+using Toucan.Core.Services.Ai;
 
 namespace Toucan.Avalonia.ViewModels;
 
@@ -48,13 +49,18 @@ public partial class MainWindowViewModel
     private string ResolveProvider()
     {
         var known = UsableProviderNames();
-        return known.FirstOrDefault(n => string.Equals(n, AppOptions.LastProvider, StringComparison.OrdinalIgnoreCase))
+        // Claude, OpenAI and Gemini were providers before AI Integration; they are the AI provider now.
+        var last = LegacyAiMigration.CurrentProviderName(AppOptions.LastProvider);
+        return known.FirstOrDefault(n => string.Equals(n, last, StringComparison.OrdinalIgnoreCase))
             ?? (ProviderChoices.Count > 0 ? ProviderChoices[0].Name : known[0]);
     }
 
     /// <summary>Listed providers first, then the built-in names not listed (Mock), without duplicates.</summary>
     private List<string> UsableProviderNames() =>
-        [.. ProviderChoices.Select(c => c.Name).Concat(PreTranslateViewModel.Providers).Distinct(StringComparer.OrdinalIgnoreCase)];
+        [.. ProviderChoices.Select(c => c.Name).Concat(PreTranslateViewModel.Providers).Distinct(StringComparer.OrdinalIgnoreCase)
+            .Where(n => IsAiEnabled || !IsAiProvider(n))];
+
+    private static bool IsAiProvider(string name) => string.Equals(name, AiFeatureIds.TranslationProviderName, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Rebuilds the provider list from the registry (so plugin providers appear) and re-checks which have credentials.</summary>
     internal void RefreshProviderChoices()
@@ -63,6 +69,13 @@ public partial class MainWindowViewModel
         var definitions = _providerRegistry.GetAll();
         foreach (var def in definitions)
         {
+            // The AI provider is only offered while AI is on, and is ready when AI Integration has a usable service.
+            if (IsAiProvider(def.Name))
+            {
+                if (!IsAiEnabled) continue;
+                ProviderChoices.Add(new ProviderChoice(def.Name, def.DisplayName, def.Description, _ai.GetStatus().IsReady));
+                continue;
+            }
             var options = ProviderOptionsBuilder.Build(def.Name, _providerSettingsService, string.IsNullOrEmpty(CurrentPath) ? null : CurrentPath);
             var configured = def.SecretFields.Keys.All(k => options.TryGetValue(k, out var v) && !string.IsNullOrWhiteSpace(v));
             ProviderChoices.Add(new ProviderChoice(def.Name, string.IsNullOrWhiteSpace(def.DisplayName) ? def.Name : def.DisplayName, def.Description, configured));
@@ -92,12 +105,20 @@ public partial class MainWindowViewModel
         OnPropertyChanged(nameof(SelectedProviderName));
         StatusText = choice.IsConfigured
             ? $"Machine translation provider: {choice.DisplayName}."
-            : $"{choice.DisplayName} has no API key yet. Add it under Translation Providers.";
+            : IsAiProvider(choice.Name)
+                ? $"AI is not set up yet: {_ai.GetStatus().Problem}"
+                : $"{choice.DisplayName} has no API key yet. Add it under Translation Providers.";
     }
 
     [RelayCommand]
     private async Task OpenProviderSettings()
     {
+        // The AI provider has no provider settings: its service, key and prompt are under Settings → AI.
+        if (IsAiProvider(SelectedProviderName))
+        {
+            await OpenAiSettings();
+            return;
+        }
         await _dialogService.ShowProviderSettingsAsync(HasProject ? CurrentPath : null);
         RefreshProviderChoices();
     }

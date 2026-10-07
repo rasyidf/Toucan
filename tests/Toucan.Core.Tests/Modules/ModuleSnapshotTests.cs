@@ -62,7 +62,7 @@ public class ModuleSnapshotTests
         // Pretranslation falls back to the first registered provider, so Google must stay first.
         using var sp = Build();
         Assert.Equal(
-            ["Google", "DeepL", "Microsoft", "OpenAI", "Claude", "Gemini", "Custom", "mock"],
+            ["Google", "DeepL", "Microsoft", "AI", "Custom", "mock"],
             sp.GetServices<ITranslationProvider>().Select(p => p.Name),
             StringComparer.OrdinalIgnoreCase);
     }
@@ -73,11 +73,20 @@ public class ModuleSnapshotTests
         using var sp = Build();
         var definitions = sp.GetRequiredService<ITranslationProviderRegistry>().GetAll();
 
-        Assert.Equal(["Google", "DeepL", "Microsoft", "OpenAI", "Claude", "Gemini", "Custom"], definitions.Select(d => d.Name));
+        Assert.Equal(["Google", "DeepL", "Microsoft", "AI", "Custom"], definitions.Select(d => d.Name));
         Assert.All(definitions, d => Assert.True(d.IsBuiltIn));
         Assert.Equal(
-            ["Google:0:1", "DeepL:1:1", "Microsoft:2:1", "OpenAI:3:1", "Claude:3:1", "Gemini:3:1", "Custom:2:1"],
+            ["Google:0:1", "DeepL:1:1", "Microsoft:2:1", "AI:0:0", "Custom:2:1"],
             definitions.Select(d => $"{d.Name}:{d.OptionFields.Count}:{d.SecretFields.Count}"));
+    }
+
+    [Fact]
+    public void AiServicesAndFeaturesKeepTheirIds()
+    {
+        // Ids are saved in ai.json and in secret keys (ai/<id>/api_key); renaming one loses the user's settings.
+        using var sp = Build();
+        Assert.Equal(["anthropic", "openai", "gemini"], sp.GetServices<IAiBackend>().Select(b => b.Definition.Id));
+        Assert.Equal(["translate", "analyze", "clarity"], sp.GetRequiredService<IPromptLibrary>().Features.Select(f => f.Id));
     }
 
     [Fact]

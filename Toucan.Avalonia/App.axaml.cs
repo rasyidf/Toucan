@@ -91,6 +91,8 @@ public partial class App : Application
             {
                 var path = startupPath;
                 if (string.IsNullOrEmpty(path) && !activatedByFile && vm.AppOptions.OpenLastProjectOnStartup) path = vm.AppOptions.LastProjectPath;
+                // Before the project opens: on first run the user decides whether to use AI.
+                await vm.RunOnboardingIfNeededAsync();
                 if (!string.IsNullOrEmpty(path) && (Directory.Exists(path) || File.Exists(path)))
                     await vm.OpenProjectAsync(path);
                 // After the project is up, so a pending-plugins question never delays opening it.
@@ -152,8 +154,8 @@ public partial class App : Application
         services.AddSingleton<IMessageService>(sp => sp.GetRequiredService<MessageService>());
         services.AddSingleton<IPreferenceService, PreferenceService>();
         services.AddSingleton<IProjectDefaultsService, ProjectDefaultsService>();
-        services.AddSingleton<ISecureStorageService, SecureStorageService>();
-        services.AddSingleton<IProviderSettingsService, ProviderSettingsService>();
+        services.AddSingleton<IProviderSettingsService>(sp => new ProviderSettingsService(
+            sp.GetRequiredService<ISecretService>(), sp.GetRequiredService<ISecureStorageService>()));
         services.AddSingleton<IUndoRedoService, UndoRedoService>();
         services.AddSingleton<IFileWatcherService, FileWatcherService>();
 
@@ -176,7 +178,6 @@ public partial class App : Application
         services.AddSingleton<ITranslationMemory, TranslationMemoryService>();
         services.AddSingleton<IPackageService, PackageService>();
         services.AddSingleton<ISourceCodeService, SourceCodeService>();
-        services.AddSingleton<ITranslationAnalyzer, TranslationAnalyzerService>();
 
         // Project model
         services.AddSingleton<ITranslationManagementService, TranslationManagementService>();
@@ -226,9 +227,21 @@ public partial class App : Application
             sp.GetRequiredService<ISearchAndReplaceService>(),
             sp.GetRequiredService<ITranslationMemory>(),
             sp.GetRequiredService<BulkOperationService>(),
-            sp.GetRequiredService<ITranslationProviderRegistry>()));
+            sp.GetRequiredService<ITranslationProviderRegistry>(),
+            sp.GetRequiredService<IAiService>(),
+            sp.GetRequiredService<IAiSettingsStore>(),
+            sp.GetRequiredService<ISourceClarityService>()));
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<NewProjectViewModel>();
+        services.AddTransient(sp => new AiSettingsViewModel(
+            sp.GetRequiredService<IAiSettingsStore>(),
+            sp.GetRequiredService<ISecretService>(),
+            sp.GetRequiredService<Toucan.Core.Services.Ai.AiService>(),
+            sp.GetRequiredService<IPromptLibrary>(),
+            sp.GetRequiredService<IDialogService>(),
+            // The open project, so its own prompts can be edited; read when needed, after the main window exists.
+            () => sp.GetService<MainWindowViewModel>() is { HasProject: true } main ? main.CurrentPath : null));
+        services.AddTransient<OnboardingViewModel>();
         services.AddTransient<OptionsViewModel>();
         services.AddTransient<ProviderSettingsViewModel>();
 

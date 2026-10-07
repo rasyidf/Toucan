@@ -30,6 +30,10 @@ public interface IDialogService
     Task<AppOptions?> ShowOptionsAsync(int startPage = 0);
     Task<bool> ShowPreTranslateAsync(PreTranslateViewModel vm);
     Task ShowProviderSettingsAsync(string? projectPath = null);
+    /// <summary>Edits one AI feature's prompt; true when it was saved or reset.</summary>
+    Task<bool> ShowPromptEditorAsync(PromptEditorViewModel vm);
+    /// <summary>First-run setup: asks whether to use AI features.</summary>
+    Task ShowOnboardingAsync();
     Task<ProjectPropertiesViewModel?> ShowProjectPropertiesAsync(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null);
     Task<LanguageManagerViewModel?> ShowManageLanguagesAsync(IEnumerable<TranslationItem> allTranslations, string? primaryLanguage = null);
     Task ShowStatisticsAsync(IEnumerable<TranslationItem> translations);

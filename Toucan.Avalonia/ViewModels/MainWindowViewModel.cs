@@ -33,7 +33,10 @@ public sealed record MainWindowServices(
     ISearchAndReplaceService SearchAndReplace,
     ITranslationMemory TranslationMemory,
     BulkOperationService BulkOperations,
-    ITranslationProviderRegistry ProviderRegistry);
+    ITranslationProviderRegistry ProviderRegistry,
+    IAiService Ai,
+    IAiSettingsStore AiSettings,
+    ISourceClarityService Clarity);
 
 /// <summary>
 /// State and commands for the main editor window. Split across partial files by concern:
@@ -62,6 +65,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly ISearchAndReplaceService _searchAndReplace;
     private readonly ITranslationMemory _translationMemory;
     private readonly BulkOperationService _bulkOperations;
+    private readonly IAiService _ai;
+    private readonly IAiSettingsStore _aiSettings;
+    private readonly ISourceClarityService _clarity;
 
     private readonly DispatcherTimer _searchDebounce;
     /// <summary>Pause between the last keystroke in the Search panel and the search itself.</summary>
@@ -90,10 +96,14 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _searchAndReplace = services.SearchAndReplace;
         _translationMemory = services.TranslationMemory;
         _bulkOperations = services.BulkOperations;
+        _ai = services.Ai;
+        _aiSettings = services.AiSettings;
+        _clarity = services.Clarity;
 
         _translationStore.DirtyStateChanged += OnStoreDirtyStateChanged;
 
         appOptions = _preferenceService.Load();
+        InitAi();
         editorMode = PanelService.Instance.EditorMode;
 
         pagingController = new PaginationViewModel<LanguageGroupViewModel>(EffectivePageSize, [], EffectiveMaxItems);

@@ -1,0 +1,77 @@
+<d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.PromptEditorDialog"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:loc="using:Toucan.Avalonia.Locales"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                xmlns:ui="using:FluentAvalonia.UI.Controls"
+                xmlns:c="using:Toucan.Avalonia.Views.Components"
+                Title="{Binding Title}" Width="860" Height="680" MinWidth="640" MinHeight="460">
+  <DockPanel>
+    <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
+      <DockPanel>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Content="{loc:Loc 'Reset to default'}" Command="{Binding ResetToDefaultCommand}" IsEnabled="{Binding !IsDefault}"/>
+          <Button Content="{loc:Loc 'Remove saved version'}" Command="{Binding RemoveOverrideCommand}" IsEnabled="{Binding HasOverride}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Content="{loc:Loc 'Cancel'}" Command="{Binding CancelCommand}"/>
+          <Button Content="{loc:Loc 'Save'}" Classes="accent" Command="{Binding SaveCommand}"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <!-- Header: what the feature does and which level is being edited -->
+    <Border DockPanel.Dock="Top" Padding="20,16,20,8">
+      <DockPanel>
+        <Border DockPanel.Dock="Right" Background="{DynamicResource SubtleHoverBrush}" CornerRadius="8" Padding="2" VerticalAlignment="Top"
+                IsVisible="{Binding HasProject}">
+          <StackPanel Orientation="Horizontal">
+            <Button Classes="segment" Classes.active="{Binding !ProjectScope}" Content="{loc:Loc 'All projects'}" Command="{Binding UseAllProjectsCommand}"/>
+            <Button Classes="segment" Classes.active="{Binding ProjectScope}" Content="{loc:Loc 'This project'}" Command="{Binding UseThisProjectCommand}"/>
+          </StackPanel>
+        </Border>
+        <StackPanel Spacing="4">
+          <TextBlock Text="{Binding Title}" Classes="dialogTitle"/>
+          <TextBlock Text="{Binding Feature.Description}" Classes="caption" TextWrapping="Wrap"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <Grid ColumnDefinitions="*,250" Margin="20,4,20,16" ColumnSpacing="16">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Top" Text="{Binding OriginText}" Classes="caption" Margin="0,0,0,6" TextWrapping="Wrap"/>
+        <TextBlock DockPanel.Dock="Bottom" Text="{Binding ScopeLabel}" Classes="hint" Margin="0,6,0,0" TextWrapping="Wrap"/>
+        <TextBox Text="{Binding Text}" Classes="mono" AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top"
+                 AutomationProperties.Name="{loc:Loc 'System prompt'}"/>
+      </DockPanel>
+
+      <ScrollViewer Grid.Column="1">
+        <StackPanel Spacing="16">
+          <StackPanel Spacing="6">
+            <TextBlock Text="{loc:Loc 'Variables'}" FontWeight="SemiBold"/>
+            <TextBlock Classes="caption" TextWrapping="Wrap"
+                       Text="{loc:Loc 'Write {{name}} to insert a value. Text between {{#name}} and {{/name}} is kept only when the value is not empty.'}"/>
+            <ItemsControl ItemsSource="{Binding Variables}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Margin="0,4" Spacing="2">
+                    <SelectableTextBlock Text="{Binding Token}" Classes="mono" FontSize="12"/>
+                    <TextBlock Text="{Binding Description}" Classes="caption" TextWrapping="Wrap"/>
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+          <StackPanel Spacing="6">
+            <TextBlock Text="{loc:Loc 'Reply format'}" FontWeight="SemiBold"/>
+            <TextBlock Text="{Binding Feature.ResponseFormat}" Classes="caption" TextWrapping="Wrap"/>
+            <TextBlock Classes="caption" TextWrapping="Wrap"
+                       Text="{loc:Loc 'Toucan reads the reply in this format. If you change the format instructions, results may not be read.'}"/>
+          </StackPanel>
+          <Button Classes="link" Content="{loc:Loc 'Show prompt files'}" Command="{Binding OpenFolderCommand}"/>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+  </DockPanel>
+</d:DialogWindow>

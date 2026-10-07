@@ -6,6 +6,8 @@ using Toucan.Avalonia.ViewModels;
 using Toucan.Core.Contracts;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
+using Toucan.Core.Services;
+using Toucan.Core.Services.Ai;
 
 [assembly: AvaloniaTestApplication(typeof(Toucan.Avalonia.Tests.TestAppBuilder))]
 
@@ -41,6 +43,14 @@ internal sealed class TestHost : IDisposable
             s.AddSingleton<IDialogService>(Dialogs);
             s.AddSingleton<IAsyncMessageService>(Messages);
             s.AddSingleton<IMessageService>(Messages);
+            // AI settings, secrets and prompts live in the temp folder: tests never read the user's keys or run the migration on their files.
+            var protector = new SecureStorageService(Path.Combine(Root, "secret.key"));
+            var secrets = new SecretService(protector, Path.Combine(Root, "secrets.json"));
+            s.AddSingleton<ISecureStorageService>(protector);
+            s.AddSingleton<ISecretService>(secrets);
+            s.AddSingleton<IAiSettingsStore>(new AiSettingsStore(Path.Combine(Root, "ai.json")));
+            s.AddSingleton<IPromptLibrary>(sp => new PromptLibrary(sp.GetServices<AiFeatureDefinition>(), Path.Combine(Root, "prompts")));
+            s.AddSingleton<IProviderSettingsService>(new ProviderSettingsService(secrets, protector, Path.Combine(Root, "providers.json")));
         },
         // Never read or write the real Documents/Toucan plugin folder or trust file from tests.
         pluginRoot: Path.Combine(Root, "plugins"),
@@ -155,6 +165,19 @@ internal sealed class FakeDialogService : IDialogService
         return Task.FromResult(false);
     }
     public Task ShowProviderSettingsAsync(string? projectPath = null) => Task.CompletedTask;
+    /// <summary>Lets a test act as the user inside the prompt editor.</summary>
+    public Action<PromptEditorViewModel>? OnPromptEditor { get; set; }
+    public Task<bool> ShowPromptEditorAsync(PromptEditorViewModel vm)
+    {
+        OnPromptEditor?.Invoke(vm);
+        return Task.FromResult(OnPromptEditor != null);
+    }
+    public int OnboardingShown { get; private set; }
+    public Task ShowOnboardingAsync()
+    {
+        OnboardingShown++;
+        return Task.CompletedTask;
+    }
     public Task<ProjectPropertiesViewModel?> ShowProjectPropertiesAsync(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null) => Task.FromResult<ProjectPropertiesViewModel?>(null);
     public Task<LanguageManagerViewModel?> ShowManageLanguagesAsync(IEnumerable<TranslationItem> allTranslations, string? primaryLanguage = null) => Task.FromResult<LanguageManagerViewModel?>(null);
     public Task ShowStatisticsAsync(IEnumerable<TranslationItem> translations) => Task.CompletedTask;

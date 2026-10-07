@@ -3,11 +3,11 @@ using System.Security.Cryptography;
 using System.Text;
 using Toucan.Core.Contracts;
 
-namespace Toucan.Avalonia.Services;
+namespace Toucan.Core.Services;
 
 /// <summary>
-/// Encrypts provider API keys at rest.
-/// Windows uses DPAPI (same format as the WPF app, so settings files are interchangeable).
+/// Encrypts secrets (API keys) at rest; <see cref="SecretService"/> stores them.
+/// Windows uses DPAPI (same format the WPF app used, so older settings files still decrypt).
 /// macOS and Linux use AES-GCM with a per-user random key stored in the user's config
 /// directory with owner-only (0600) permissions.
 /// </summary>
@@ -21,11 +21,15 @@ public sealed class SecureStorageService : ISecureStorageService
     private byte[]? _key;
 
     public SecureStorageService()
-        : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Toucan", "secret.key"))
+        : this(Path.Combine(DefaultFolder, "secret.key"))
     {
     }
 
-    internal SecureStorageService(string keyFile) => _keyFile = keyFile;
+    /// <param name="keyFile">Where the AES key lives on macOS and Linux (created on first use).</param>
+    public SecureStorageService(string keyFile) => _keyFile = keyFile;
+
+    /// <summary>The per-user folder holding the key and the secret store: <c>Toucan</c> under the application-data folder.</summary>
+    public static string DefaultFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Toucan");
 
     public string Protect(string plain)
     {

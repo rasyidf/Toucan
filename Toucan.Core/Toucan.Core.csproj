@@ -17,6 +17,12 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The default AI prompts. Plain files so anyone can read and improve them; users override them under Settings → AI. -->
+    <EmbeddedResource Include="Ai\Prompts\*.md" LogicalName="Toucan.Core.Ai.Prompts.%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
