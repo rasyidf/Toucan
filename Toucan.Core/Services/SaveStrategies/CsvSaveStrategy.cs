@@ -39,7 +39,7 @@ public class CsvSaveStrategy(IFileService fileService) : ISaveStrategy
     }
 
     private static string CsvEscape(string s) =>
-        s.Contains(',') || s.Contains('"') || s.Contains('\n')
+        s.Contains(',') || s.Contains('"') || s.Contains('\n') || s.Contains('\r')
             ? $"\"{s.Replace("\"", "\"\"")}\""
             : s;
 

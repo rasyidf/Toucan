@@ -44,6 +44,7 @@ internal static class KeybindingService
         new("Find", "Next Page", Key.F3, KeyModifiers.None, vm => vm.NextPageCommand),
         new("Find", "Clear Filter", Key.Escape, KeyModifiers.None, vm => vm.ClearFilterCommand, SkipInTextBox: true),
         new("View", "Command Palette", Key.P, Primary | KeyModifiers.Shift, vm => vm.ToggleCommandPaletteCommand),
+        new("View", "Keyboard Shortcuts", Key.OemQuestion, Primary, vm => vm.ToggleShortcutSheetCommand),
         new("View", "Toggle Left Panel", Key.B, Primary, _ => PanelService.Instance.ToggleSidebarCommand),
         new("View", "Toggle Right Panel", Key.B, Primary | KeyModifiers.Alt, _ => PanelService.Instance.ToggleInspectorCommand),
         new("View", "Focused Editor", Key.E, Primary, vm => vm.ToggleFocusedEditorCommand),

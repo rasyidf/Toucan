@@ -11,4 +11,10 @@ public partial class MainWindowViewModel
 
     [RelayCommand]
     private void ToggleCommandPalette() => IsCommandPaletteOpen = !IsCommandPaletteOpen;
+
+    /// <summary>True while the keyboard shortcut sheet is showing.</summary>
+    [ObservableProperty] private bool isShortcutSheetOpen;
+
+    [RelayCommand]
+    private void ToggleShortcutSheet() => IsShortcutSheetOpen = !IsShortcutSheetOpen;
 }

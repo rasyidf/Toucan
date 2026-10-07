@@ -15,6 +15,7 @@ public partial class TranslationCard : UserControl
     {
         InitializeComponent();
         AddHandler(GotFocusEvent, OnChildGotFocus, RoutingStrategies.Bubble);
+        AddHandler(KeyDownEvent, OnChildKeyDown, RoutingStrategies.Tunnel);
         BulkCheck.IsCheckedChanged += (_, _) =>
         {
             if (DataContext is LanguageGroupViewModel group && MainViewModel is { } vm)
@@ -29,6 +30,16 @@ public partial class TranslationCard : UserControl
     {
         if (e.Source is TextBox { DataContext: TranslationItemViewModel item } && MainViewModel is { } vm)
             vm.FocusedTranslationItem = item;
+    }
+
+    private void OnChildKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Tab || e.KeyModifiers != KeyModifiers.None) return;
+        if (e.Source is TextBox { DataContext: TranslationItemViewModel item } box && MainViewModel is { } vm && vm.AcceptGhostText(item))
+        {
+            box.CaretIndex = box.Text?.Length ?? 0;
+            e.Handled = true;
+        }
     }
 
     private void OnContextRequested(object? sender, ContextRequestedEventArgs e)

@@ -109,6 +109,16 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool isCommentOpen;
 
+    /// <summary>Translation memory suggestion shown as ghost text while this field is focused and empty; Tab accepts it.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasGhostText), nameof(PlaceholderText))]
+    private string? ghostText;
+
+    public bool HasGhostText => !string.IsNullOrEmpty(GhostText);
+
+    /// <summary>Hidden while ghost text is shown so the two do not overlap.</summary>
+    public string PlaceholderText => HasGhostText ? string.Empty : Locales.Loc.T("Not translated");
+
     [RelayCommand]
     private void ToggleApproved() => IsApproved = !IsApproved;
 

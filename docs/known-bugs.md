@@ -16,10 +16,9 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 
 | ID | Severity | Area | Problem | Checked |
 |----|----------|------|---------|---------|
-| [FMT-01](#fmt-01) | High | PO | Language comes from the file name, so `fr/LC_MESSAGES/messages.po` and `de/LC_MESSAGES/messages.po` both load as language `messages` | Reproduced |
+| [FMT-01](#fmt-01) | Medium | PO | Language is now read correctly, but save still writes `{language}.po` at the project root instead of back to the original `<lang>/LC_MESSAGES/` file | From code |
 | [FMT-02](#fmt-02) | High | PO | Plural entries (`msgid_plural`, `msgstr[N]`) are dropped completely, not just their plural forms | Reproduced |
 | [FMT-03](#fmt-03) | High | PO | Save rewrites every entry with `msgctxt = msgid = key`, loses the real `msgid` when a context exists, and drops comments, flags and headers | Reproduced |
-| [FMT-04](#fmt-04) | High | CSV | Loader reads line by line, so values with a line break are cut off; a lone `\r` is also not quoted on save | Reproduced |
 | [FMT-05](#fmt-05) | Medium | RESX | Any `A.B.resx` file takes `B` as its language (`Views.Home.Index.resx` becomes language `Index`) | Reproduced |
 | [FMT-06](#fmt-06) | High | XLIFF | Save writes the key as `<source>` and the first language as `source-language`; real source text, notes and state are lost | Reproduced |
 | [FMT-07](#fmt-07) | Medium | ARB | `@key` metadata (description, placeholders) is discarded on save | Reproduced |
@@ -37,7 +36,7 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
 
-Suggested order: FMT-01 to FMT-04 and FMT-06 first (data loss in common projects), then FMT-05, FMT-07, FMT-08, then release work, then the rest.
+Suggested order: FMT-01 (save side), FMT-02, FMT-03 and FMT-06 first (data loss in common projects), then FMT-05, FMT-07, FMT-08, then release work, then the rest.
 
 ---
 
@@ -103,21 +102,6 @@ All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategi
 - **Cause:** the data model has one string per key, so msgid, msgctxt and comments have nowhere to live.
 - **Fix direction:** keep `msgctxt`, `msgid`, flags and `#:` references per item. Key as `msgctxt\u0004msgid` (gettext's own separator) or add fields. Write back the original header. Only write `msgctxt` when the entry had one. Honor `#, fuzzy` as "not approved".
 - **Tests to add:** byte-for-byte round trip of a small realistic `.po` with context, flags, references and a header; unchanged file must not be modified on save.
-
-<a id="fmt-04"></a>
-### FMT-04 — CSV: line-based loader truncates multi-line values; `\r` is not quoted
-
-- **Severity:** High · **Area:** CSV · **Checked:** reproduced · **Code:** `CsvLoadStrategy.cs:20`, `CsvSaveStrategy.cs:41-44`
-- **Two causes, one symptom:**
-  1. Load uses `File.ReadAllLines`, so a quoted value that contains a line break is split into two "rows" before the CSV parser sees it. This breaks RFC 4180 and affects *every* multi-line value, including ones Toucan itself writes.
-  2. Save quotes values that contain `,`, `"` or `\n`, but not `\r`, so a lone `\r` ends the line when another tool reads the file.
-- **Repro A (multi-line):** file `key,en` / `k,"line1<LF>line2"` / `j,plain`.
-  - **Actual:** `en:k=line1 | en:j=plain`. `line2` is lost.
-- **Repro B (`\r`):** save a value `a<CR>b`.
-  - **Actual file:** `k,a<CR>b` (unquoted). Reloading gives `en:k=a`.
-- **Impact:** any CSV that holds a multi-line string loses text on load, and a save writes the loss back to disk. Spreadsheet exports with line breaks in cells are the common case.
-- **Fix direction:** read the whole file and parse with a real CSV reader (states for in-quotes, `\r\n`, `\n`, `\r`). Quote when the value contains `,`, `"`, `\r` or `\n`, or has leading or trailing spaces. Also handle a UTF-8 BOM and the `key,language,value` layout the loader already accepts but save never writes.
-- **Tests to add:** value with `\n`, `\r`, `\r\n`, `,` and `"`; round trip must be identical.
 
 <a id="fmt-05"></a>
 ### FMT-05 — RESX: language detection treats any last name part as a language

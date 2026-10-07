@@ -34,9 +34,9 @@ JSON, YAML, PO, RESX, Android XML, iOS `.strings`, XLIFF, ARB, CSV, TOML, INI, J
 
 ## Features
 
-**Editing.** The editor has three modes. Editor mode shows inline suggestions from translation memory. Review mode filters to unapproved items and lets you approve or reject each one, with validation warnings shown alongside. Audit mode is read-only and shows approval state and change history.
+**Editing.** The editor has three modes. Editor mode shows inline suggestions from translation memory: focus an empty field and the best match appears as faint ghost text; press Tab to accept it. Review mode filters to unapproved items and lets you approve or reject each one, with validation warnings shown alongside. Audit mode is read-only and shows approval state and change history.
 
-The layout follows VS Code: a tree or list sidebar, a translation pane (paginated or infinite scroll), and an inspector for stats, suggestions, key details, and validation results. Zen mode hides everything except the editor. Press Cmd/Ctrl+Shift+P for the command palette, which finds any menu command and shows its shortcut.
+The layout follows VS Code: a tree or list sidebar, a translation pane (paginated or infinite scroll), and an inspector for stats, suggestions, key details, and validation results. Zen mode hides everything except the editor. Press Cmd/Ctrl+Shift+P for the command palette, which finds any menu command and shows its shortcut, and Cmd/Ctrl+/ opens a sheet of every keyboard shortcut.
 
 **Machine translation.** Pre-translate with Google Translate, DeepL, Microsoft Translator, OpenAI, Claude, or Gemini. Results appear in a preview and are only written when you commit them. Placeholders (`{{var}}`, `{0}`, `%s`, `:param`) are preserved, formality settings are respected, and you can target a single key, a namespace, or a language.
 
@@ -68,7 +68,7 @@ The planned order to 1.0:
 |---------|---------|
 | v0.18 | First macOS and Linux release, plugins (preview). |
 | v0.19 | Command palette, a new title bar, Claude and Gemini providers, a UI polish pass, and the Avalonia app on Windows, which replaces the deprecated WPF app. Shipped. |
-| v0.20 | Onboarding and UX polish. Inline ghost-text suggestions from translation memory. |
+| v0.20 | Onboarding and UX polish: first-run wizard, tooltip tour, empty-state hints. Ghost-text suggestions and the keyboard shortcut sheet are in (unreleased). |
 | v0.21 | ConsistencyAI, which batch-checks translations for tone, placeholders, and accuracy. Project glossary. |
 | v0.22 | Signed packages, a release pipeline, and CI. |
 | v0.23 | Review lifecycle (Draft, Review, Approved, Published). Git integration with per-key diffs. |
