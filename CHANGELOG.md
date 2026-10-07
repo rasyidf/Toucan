@@ -13,6 +13,7 @@
 - **Project Properties** — The General page has a Files group with the project folder, the file format and its support level (Full or Limited), and what the format does not keep when saving (see [docs/formats.md](docs/formats.md)). Languages are split into Source language and Project languages (with a Manage button), so the labels no longer wrap. The description box has a placeholder, and the sidebar shows the format's name instead of its ID.
 
 ### Fixed
+- **Multi-line inputs** — Comment, description and context boxes start the text at the top instead of the vertical center.
 - **Compact toolbar and panel headers** — Icon buttons in the panel headers and the editor toolbar are smaller (26 px) with rounded corners and a hover state, and the headers and toolbar are 36 px tall instead of 44 px.
 - **Mode tab hover** — Hovering Editor, Review or Audit no longer draws a second, lighter box inside the tab.
 - **Panel alignment** — The Explorer and Inspector headers are now the same height as the editor's filter toolbar, so the divider lines up across the three columns.

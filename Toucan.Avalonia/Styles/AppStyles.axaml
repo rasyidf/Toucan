@@ -637,6 +637,10 @@
     <Setter Property="VerticalContentAlignment" Value="Center"/>
     <Setter Property="Padding" Value="10,7,6,7"/>
   </Style>
+  <!-- Multi-line inputs start at the top like any text area; single-line ones stay centered. -->
+  <Style Selector="TextBox[AcceptsReturn=True]">
+    <Setter Property="VerticalContentAlignment" Value="Top"/>
+  </Style>
   <Style Selector="ComboBox">
     <Setter Property="VerticalContentAlignment" Value="Center"/>
     <Setter Property="Padding" Value="10,9,0,5"/>

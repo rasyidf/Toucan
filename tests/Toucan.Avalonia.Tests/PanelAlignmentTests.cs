@@ -61,4 +61,19 @@ public class PanelAlignmentTests
         // The Fluent theme gives #PART_ContentPresenter its own hover background, which showed as a second box inside the tab.
         Assert.All(tabs, t => Assert.DoesNotContain(t.GetVisualDescendants().OfType<ContentPresenter>(), p => p.Name == "PART_ContentPresenter"));
     }
+
+    [AvaloniaFact]
+    public void MultiLineTextBoxes_AlignToTop_SingleLineStayCentered()
+    {
+        using var host = new TestHost();
+        App.RegisterSidePanels();
+        var multi = new TextBox { AcceptsReturn = true };
+        var single = new TextBox();
+        var window = new Window { Content = new StackPanel { Children = { multi, single } } };
+        window.Show();
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+
+        Assert.Equal(global::Avalonia.Layout.VerticalAlignment.Top, multi.VerticalContentAlignment);
+        Assert.Equal(global::Avalonia.Layout.VerticalAlignment.Center, single.VerticalContentAlignment);
+    }
 }
