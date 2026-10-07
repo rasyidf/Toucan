@@ -29,6 +29,14 @@ public class PanelAlignmentTests
         var toolbar = window.GetVisualDescendants().OfType<Border>().First(b => b.Classes.Contains("toolbar") && b.IsEffectivelyVisible);
 
         Assert.NotEmpty(headers);
+        // Header and toolbar icon buttons share one compact, rounded size.
+        var buttons = headers.Concat([toolbar]).SelectMany(b => b.GetVisualDescendants().OfType<Button>()).Where(b => b.Classes.Contains("icon")).ToList();
+        Assert.NotEmpty(buttons);
+        Assert.All(buttons, b =>
+        {
+            Assert.Equal(26, b.Bounds.Width, tolerance: 0.5);
+            Assert.Equal(new CornerRadius(6), b.CornerRadius);
+        });
         foreach (var header in headers)
         {
             Assert.Equal(toolbar.Bounds.Height, header.Bounds.Height, tolerance: 0.5);

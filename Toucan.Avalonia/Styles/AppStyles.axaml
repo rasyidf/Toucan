@@ -217,15 +217,15 @@
     <Setter Property="CornerRadius" Value="10"/>
     <Setter Property="Padding" Value="12"/>
   </Style>
-  <!-- Same height as the editor's filter toolbar (5 + 32 filter box + 6 padding + 1 border) so the divider lines up across the three columns. -->
+  <!-- Same height as the editor's filter toolbar (3 + 28 filter box + 4 padding + 1 border) so the divider lines up across the three columns. -->
   <Style Selector="Border.panelHeader">
-    <Setter Property="Height" Value="44"/>
+    <Setter Property="Height" Value="36"/>
     <Setter Property="Padding" Value="10,0,4,0"/>
     <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
   </Style>
   <Style Selector="Border.toolbar">
-    <Setter Property="Padding" Value="10,5,10,6"/>
+    <Setter Property="Padding" Value="10,3,10,4"/>
     <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
   </Style>
@@ -757,24 +757,32 @@
     <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
   </Style>
 
-  <!-- Editor toolbar: uniform 28px icon buttons, soft checked state, rounded filter box -->
-  <Style Selector="Border.toolbar Button.icon, Border.toolbar ToggleButton.icon">
-    <Setter Property="Width" Value="30"/>
-    <Setter Property="Height" Value="30"/>
+  <!-- Toolbar and panel-header icon buttons: small, rounded, with a soft hover and checked state -->
+  <Style Selector="Border.toolbar Button.icon, Border.toolbar ToggleButton.icon, Border.panelHeader Button.icon, Border.panelHeader ToggleButton.icon">
+    <Setter Property="Width" Value="26"/>
+    <Setter Property="Height" Value="26"/>
     <Setter Property="Padding" Value="0"/>
-    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="Margin" Value="1,0"/>
+    <Setter Property="CornerRadius" Value="6"/>
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
   </Style>
-  <Style Selector="Border.toolbar Button.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter, Border.toolbar ToggleButton.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+  <Style Selector="Border.toolbar Button.icon ui|FASymbolIcon, Border.toolbar ToggleButton.icon ui|FASymbolIcon, Border.panelHeader Button.icon ui|FASymbolIcon, Border.panelHeader ToggleButton.icon ui|FASymbolIcon">
+    <Setter Property="FontSize" Value="14"/>
+  </Style>
+  <Style Selector="Border.toolbar Button.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter, Border.toolbar ToggleButton.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter, Border.panelHeader Button.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter, Border.panelHeader ToggleButton.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="Border.toolbar Button.icon:pressed /template/ ContentPresenter#PART_ContentPresenter, Border.panelHeader Button.icon:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
   </Style>
   <Style Selector="Border.toolbar ToggleButton.icon:checked /template/ ContentPresenter#PART_ContentPresenter, Border.toolbar ToggleButton.icon:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
     <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
   </Style>
   <Style Selector="Border.toolbar TextBox">
-    <Setter Property="MinHeight" Value="32"/>
+    <Setter Property="MinHeight" Value="28"/>
+    <Setter Property="Padding" Value="10,4,6,4"/>
     <Setter Property="CornerRadius" Value="8"/>
   </Style>
   <Style Selector="Rectangle.toolbarSeparator">

@@ -10,6 +10,7 @@
 - **Round-trip fixtures** — Every loadable format is checked for multiline text, CRLF, quotes, backslashes, unicode, placeholders, markup, separators, leading spaces, tabs, percent signs, `$`, and YAML-looking words and numbers.
 
 ### Fixed
+- **Compact toolbar and panel headers** — Icon buttons in the panel headers and the editor toolbar are smaller (26 px) with rounded corners and a hover state, and the headers and toolbar are 36 px tall instead of 44 px.
 - **Mode tab hover** — Hovering Editor, Review or Audit no longer draws a second, lighter box inside the tab.
 - **Panel alignment** — The Explorer and Inspector headers are now the same height as the editor's filter toolbar, so the divider lines up across the three columns.
 - **Laravel PHP** — Multiline values were lost on load, and `\\` was read as two backslashes. The loader now reads single- and double-quoted strings, `array()` syntax, comments and nested arrays properly, and skips computed values.
