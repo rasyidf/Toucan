@@ -5,7 +5,7 @@
 
 Toucan is a desktop editor for translation files on Windows, macOS, and Linux. It opens 14 formats in one workspace, so you can translate, review, and validate every language file in a project without switching tools.
 
-Toucan is in preview: settings and project files can change between releases until 1.0. Current release: **v0.20.0** on Windows, macOS and Linux (v0.18.0 was the first release on macOS and Linux). The old WPF app was retired after v0.17.3 and lives on the [`legacy/wpf`](https://github.com/rasyidf/Toucan/tree/legacy/wpf) branch. Website: [toucan.rasyid.dev](https://toucan.rasyid.dev).
+Toucan is in preview: settings and project files can change between releases until 1.0. Current release: **v0.20.1** on Windows, macOS and Linux (v0.18.0 was the first release on macOS and Linux). The old WPF app was retired after v0.17.3 and lives on the [`legacy/wpf`](https://github.com/rasyidf/Toucan/tree/legacy/wpf) branch. Website: [toucan.rasyid.dev](https://toucan.rasyid.dev).
 
 <img width="878" height="668" alt="Toucan editor with the tree sidebar, translation grid, and inspector panel" src="https://github.com/user-attachments/assets/6c60208e-640a-4fbc-b280-63f5fc856ece" />
 
@@ -14,7 +14,7 @@ Toucan is in preview: settings and project files can change between releases unt
 
 ## Quick start
 
-1. Download the build for your platform from [GitHub Releases](https://github.com/rasyidf/Toucan/releases): v0.20.0 for Windows (portable x64 zip; no installer yet), macOS (`Toucan.app` in a DMG or zip) and Linux (tarball).
+1. Download the build for your platform from [GitHub Releases](https://github.com/rasyidf/Toucan/releases): v0.20.1 for Windows (portable x64 zip; no installer yet), macOS (`Toucan.app` in a DMG or zip) and Linux (tarball).
    macOS: Toucan is free and not signed with a paid Apple Developer ID, so Gatekeeper says it "could not verify" the app on first launch. Open it once, then go to System Settings > Privacy & Security and click **Open Anyway** (on macOS 14 and earlier, right-click `Toucan.app` > Open works too). Or clear the download flag: `xattr -dr com.apple.quarantine Toucan.app`.
 2. Open a folder that contains translation files, or create a new project.
 3. Translate, review, and save.
@@ -25,7 +25,7 @@ Toucan detects the framework when you drop a folder (i18next, Android, Flutter, 
 
 | App | Platforms | Status |
 |-----|-----------|--------|
-| Toucan (Avalonia) | Windows, macOS, Linux | Preview, v0.20.0. The supported app on every platform: Editor/Review/Audit modes, Zen mode, command palette, AI Integration (off by default), search and bulk edits, side panels, plugins, file association and Indonesian localization. The Windows builds are this app. |
+| Toucan (Avalonia) | Windows, macOS, Linux | Preview, v0.20.1. The supported app on every platform: Editor/Review/Audit modes, Zen mode, command palette, AI Integration (off by default), search and bulk edits, side panels, plugins, file association and Indonesian localization. The Windows builds are this app. |
 | `toucan` CLI | Any OS with .NET 10 | Preview. `check`, `stats`, `translate`, `export`, `list-formats`, `list-keys`, `get`, `set`. |
 
 ## Supported formats
@@ -72,12 +72,18 @@ The planned order to 1.0:
 | v0.18 | First macOS and Linux release, plugins (preview). |
 | v0.19 | Command palette, a new title bar, Claude and Gemini providers, a UI polish pass, and the Avalonia app on Windows, which replaces the deprecated WPF app. Shipped. |
 | v0.20 | AI Integration: one switch, off by default, for Claude, OpenAI-compatible servers and Gemini; editable prompts; Analyze and Clarity checks; an encrypted secret store. Also color schemes, an update check, search options, ghost-text suggestions and a keyboard shortcut sheet. Shipped. |
-| v0.21 | Onboarding and UX polish: the rest of the first-run wizard, a tooltip tour, empty-state hints. AI follow-ups (re-translate a finding, strictness). Project glossary. |
-| v0.22 | Signed packages, a release pipeline, and CI. |
-| v0.23 | Review lifecycle (Draft, Review, Approved, Published). Git integration with per-key diffs. |
-| v0.24 | Auto-updater with stable and preview channels. Editor improvements. |
-| v1.0 | Performance at scale and stabilization. The first stable release. |
-| After 1.0 | Imports from Crowdin, Lokalise, Phrase, and Transifex. Toucan Hub for locking and presence. A GitHub Action for `toucan check`. Avalonia feature parity. |
+| v0.21 | File fidelity fixes, format support boundaries, regression fixtures, and cross-platform CI. |
+| v0.22 | Recoverable saves, durable drafts, crash recovery, and failure handling. |
+| v0.23 | Onboarding, comfortable multiline and side-by-side editing, keyboard workflow, and accessibility. |
+| v0.24 | Project glossary, message-aware validation, and AI finding follow-ups. |
+| v0.25 | Draft → Needs review → Approved per language, source-change tracking, and separate delivery state. |
+| v0.26 | Content-source contracts, connection profiles, and local snapshot loading/persistence. |
+| v0.27 | CRUD operations, durable pending changes, three-way synchronization, and conflict resolution. |
+| v0.28 | One online-source connector with explicit pull/push, offline editing, and recovery. |
+| v0.29 | Repeatable release packages, signing/notarization, installers, and startup update notifications. |
+| v0.30 | Measured performance, migration checks, packaged workflow verification, and a release candidate. |
+| v1.0 | First stable release after fidelity, recovery, review, integration, migration, and performance gates pass. |
+| After 1.0 | Additional online connectors, Git integration, automatic update installation, advanced reports, Toucan Hub, and CI integrations. |
 
 This is the planned order, not a promise. Details are in [docs/todos/future-roadmap.md](docs/todos/future-roadmap.md); shipped features are listed in [docs/completed-features.md](docs/completed-features.md). Every doc's status and summary is in [docs/INDEX.md](docs/INDEX.md).
 

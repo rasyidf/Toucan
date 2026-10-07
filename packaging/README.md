@@ -1,7 +1,7 @@
 ---
 title: "Toucan Packaging"
 status: active
-updated: 2026-10-06
+updated: 2026-10-07
 summary: "How to build the Windows self-contained EXE, MSIX and installer, plus macOS and Linux packages."
 ---
 # Toucan Packaging
@@ -27,7 +27,7 @@ Requires: [Windows 10 SDK](https://developer.microsoft.com/windows/downloads/win
 Options:
 - `-SkipBuild` — skip the publish step (reuse existing output)
 - `-Sign -CertPath path\to\cert.pfx -CertPassword pwd` — sign the MSIX
-- `-Version 0.20.0.0` — override the version (default: `<Version>` from `Directory.Build.props` plus `.0`)
+- `-Version 0.20.1.0` — override the version (default: `<Version>` from `Directory.Build.props` plus `.0`)
 
 ### Signing for sideloading
 

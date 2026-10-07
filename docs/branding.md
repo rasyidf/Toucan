@@ -2,86 +2,64 @@
 title: "Toucan: Brand Guidelines"
 status: reference
 updated: 2026-10-07
-summary: "Brand guidelines: name, voice, colors, logo use. Platform line updated for v0.20.0 (Avalonia on all platforms)."
+summary: "Brand guidelines: name, voice, colors, logo use. Platform line updated for v0.20.1 (Avalonia on all platforms)."
 ---
 # Toucan: Brand Guidelines
 
-> Teach your app every language.
+> Every language, side by side.
 
----
+## Overview
 
-## Brand Overview
+Toucan is a desktop editor for translation files, made for developers and localization teams. It reads 14 formats, works offline, and adds validation, translation memory and opt-in AI translation.
 
-**Toucan** is a professional translation resource editor for developers and localization teams.
-
-It combines the speed of a modern IDE with the completeness of a localization platform: offline-first, format-agnostic, and AI-assisted.
-
-Release status: preview until 1.0. Current release: v0.20.0 (Windows, macOS, Linux). The WPF app is deprecated (last release v0.17.3). Say "preview" wherever a version or download is offered.
+Release status: preview until 1.0. Current release: v0.20.1 (Windows, macOS, Linux). The WPF app is deprecated (last release v0.17.3). Say "preview" wherever a version or download is offered.
 
 Platforms: Windows, macOS and Linux (Avalonia app), and the `toucan` CLI.
 
----
-
 ## Mission
 
-Help every application speak every language.
+Make shipping an app in many languages as routine as shipping it in one.
 
 ## Vision
 
-The VS Code of localization, a tool developers actually enjoy using.
-
----
+A localization editor that works like the code editor developers already use.
 
 ## Positioning
 
 | Level | Statement |
 |-------|-----------|
-| Primary | The Localization IDE |
-| Secondary | Professional translation resource editor |
-| Elevator | Toucan handles 14 i18n formats with AI translation, validation, and source code scanning, all offline and in one workspace. |
-
----
+| Primary | Desktop editor for translation files |
+| Secondary | Translation resource editor |
+| Elevator | Toucan reads 14 translation formats, validates them, translates with machine providers or opt-in AI, and scans source code for unused keys. Files stay on your machine. |
 
 ## Taglines
 
-Primary: **Teach your app every language.**
+Primary: Every language, side by side.
 
 Alternatives:
-- Code once. Speak everywhere.
 - Localization without spreadsheets.
-- Two languages? Toucan.
-- Ship globally.
-
----
+- Check your translations before you ship.
 
 ## Brand Pillars
 
 | Pillar | Meaning |
 |--------|---------|
-| Developer First | Built for engineers: IDE-familiar patterns, keyboard-driven |
-| Structured | Translations are data. Treat them like source code. |
+| Developer first | IDE-style layout and keyboard shortcuts |
+| Structured | Translations are data, so they get validation rules the way code gets lint rules |
 | Fast | 10K keys feel instant. Zero-allocation search. |
-| Confident | Validation, TM, auditing: eliminate mistakes before deploy |
-| Friendly | Capable but never intimidating |
-
----
+| Confident | Validation, translation memory and audit mode catch mistakes before deploy |
+| Friendly | Capable without being intimidating |
 
 ## Personality
 
-Professional · Modern · Curious · Helpful · Playful · Reliable
-
-Never childish. Never enterprise-corporate.
-
----
+Professional, curious, playful, reliable. Never childish, never corporate.
 
 ## Voice
 
-Speak like an experienced engineer. Clear. Short. Confident.
+Write like an experienced engineer: short, clear, direct.
 
 Prefer "Missing translation" over "Localization asset unavailable."
 Prefer "Ready" over "Pipeline completed successfully."
-
----
 
 ## Color Palette
 
@@ -101,73 +79,63 @@ Prefer "Ready" over "Pipeline completed successfully."
 
 Light theme follows system WinUI Fluent tokens (Mica backdrop).
 
----
-
 ## Logo
 
 ### Philosophy
-Recognizable at a glance. Modern, friendly, premium, geometric.
+Recognizable at a glance, geometric, friendly.
 
 ### Construction
-Built on golden-ratio circles. No arbitrary curves. Works from 16px to 1024px.
+Built on golden-ratio circles, with no arbitrary curves. Works from 16px to 1024px.
 
 ### Symbolism
-- **Head**: knowledge
-- **Beak**: communication
-- **Eye**: understanding
-- **Colors**: many languages working together
+- Head: knowledge
+- Beak: communication
+- Eye: understanding
+- Colors: many languages working together
 
 ### Requirements
 - Readable as a silhouette
-- No tiny details that vanish at small sizes
+- No small details that disappear at small sizes
 - Never stretched, always proportional
-
----
 
 ## Product Identity
 
-### Toucan IS
-- Translation resource editor
-- Localization IDE
-- Validation platform
-- Developer tool
-- Language workspace
+### Toucan is
+- An editor for translation resource files
+- A validator for placeholders and consistency
+- A developer tool
 
-### Toucan IS NOT
+### Toucan is not
 - Translation agency software
 - Cloud-only SaaS
-- Spreadsheet editor
-- CAT tool (no TM segment-level alignment)
-
----
+- A spreadsheet editor
+- A CAT tool (no TM segment-level alignment)
 
 ## UI Identity (Windows app, v0.17)
 
 ### Layout
-Three-pane VS Code-style:
-- **Left**: tree/list sidebar (200px default)
-- **Center**: translation editor (paginated or infinite scroll)
-- **Right**: inspector panel (stats, suggestions, details, validation)
+Three panes, laid out like VS Code:
+- Left: tree/list sidebar (200px default)
+- Center: translation editor (paginated or infinite scroll)
+- Right: inspector panel (stats, suggestions, details, validation)
 
 ### Chrome
-- **Title bar**: logo + segmented menu (File, Edit, Tools, Find, View, Help)
-- **Toolbar**: Snipping Tool-style pill-grouped icon buttons, mode selector on right
-- **Footer bar**: Photos-style action bar (left: quick actions, center: status, right: info panels)
-- **No toolbar on start screen**: clean landing with just backdrop
+- Title bar: logo and segmented menu (File, Edit, Tools, Find, View, Help)
+- Toolbar: Snipping Tool-style pill-grouped icon buttons, mode selector on the right
+- Footer bar: Photos-style action bar (left: quick actions, center: status, right: info panels)
+- Start screen: no toolbar, only the backdrop
 
 ### Modes
-Three editor modes with visual differentiation:
-- **Editor** (default): full editing, MT suggestions
-- **Review**: approve/reject focus, validation warnings
-- **Audit**: read-only, change history
+Three editor modes, each visually distinct:
+- Editor (default): full editing, MT suggestions
+- Review: approve/reject, validation warnings
+- Audit: read-only, change history
 
 ### Backdrop
-Mica (Windows 11) with system theme. Start screen shows through backdrop (no opaque background).
+Mica (Windows 11) with the system theme. The start screen shows through the backdrop with no opaque background.
 
 ### Zen Mode
-All chrome hidden. Single translation card centered. J/K navigation. Mode-aware.
-
----
+All chrome hidden. One translation card, centered. J/K navigation. Follows the current mode.
 
 ## File Identity
 
@@ -181,39 +149,29 @@ All chrome hidden. Single translation card centered. J/K navigation. Mode-aware.
 | Project settings folder | `<project>/.toucan/` |
 | Provider secrets | `providers.json`; secrets encrypted with DPAPI on Windows, AES-GCM on macOS and Linux |
 
----
-
 ## Typography
 
-- UI: System font (Segoe UI Variable on Windows 11)
-- Code/keys: Cascadia Code / system monospace
-- Sizes: follow WinUI Fluent type ramp
+- UI: system font (Segoe UI Variable on Windows 11)
+- Code and keys: Cascadia Code, or the system monospace font
+- Sizes: follow the WinUI Fluent type ramp
 - Website (`docs/index.html`): headings in Bricolage Grotesque, body in the system UI font, code in Cascadia Code with JetBrains Mono as the web fallback
-
----
 
 ## Motion
 
-- Hover: subtle background fill (SubtleFillColorSecondaryBrush)
+- Hover: light background fill (SubtleFillColorSecondaryBrush)
 - Pressed: slightly darker fill (SubtleFillColorTertiaryBrush)
-- Transitions: 150ms ease-out for panel show/hide
-- Never bouncing, never exaggerated
-
----
+- Panel show/hide: 150ms ease-out
+- No bouncing, no exaggerated easing
 
 ## Iconography
 
 - Fluent System Icons
-- 16px for inline, 20px for toolbar, 24px for status bar
-- Consistent weight across the app
-
----
+- 16px inline, 20px in the toolbar, 24px in the status bar
+- Same stroke weight throughout the app
 
 ## Experience Principles
 
-Fast · Predictable · Dense · Keyboard-driven · Offline-first · Search-first · Developer-friendly
-
----
+Fast, predictable, dense, keyboard-driven, offline-first, search-first, developer-friendly.
 
 ## Product Extensions
 
@@ -223,8 +181,6 @@ Fast · Predictable · Dense · Keyboard-driven · Offline-first · Search-first
 | Toucan SDK | Plugin system for custom formats/providers/rules | Preview since v0.18.0 (`Toucan.Plugins.Abstractions`) |
 | Toucan AI | ConsistencyAI, quality scoring, tone enforcement | Planned (ConsistencyAI in v0.21) |
 | Toucan Hub | Collaboration server (locking, presence) | After 1.0 |
-
----
 
 ## Copyright
 

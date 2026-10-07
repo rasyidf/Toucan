@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toucan · Changelog</title>
+<meta name="description" content="Release notes for Toucan, the open-source desktop translation editor. Browse features, improvements, and fixes from every documented release.">
+<link rel="canonical" href="https://toucan.rasyid.dev/changelog.html">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/logo.png">
+<meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Toucan · Changelog">
+<meta property="og:description" content="Features, improvements, and fixes from every documented Toucan release.">
+<meta property="og:url" content="https://toucan.rasyid.dev/changelog.html">
+<meta property="og:image" content="https://toucan.rasyid.dev/assets/logo.png">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('toucan-theme');
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  } catch (e) {}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/changelog.css">
+<script src="assets/changelog.js" defer></script>
+</head>
+<body>
+<a class="sr-only skip" href="#main">Skip to content</a>
+<header class="site-header" id="site-header">
+  <div class="spectrum" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="Toucan home">
+      <img src="assets/logo.png" alt="" width="30" height="30">
+      Toucan
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">Overview</a>
+      <a href="index.html#roadmap">Roadmap</a>
+      <a href="changelog.html" aria-current="page">Changelog</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle color theme">
+        <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/rasyidf/Toucan" aria-label="Toucan on GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2.02c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+      </a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/rasyidf/Toucan/releases">Download</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap changelog-main">
+  <div class="changelog-intro">
+    <div class="kicker">Release notes</div>
+    <h1>What’s new<br>in <span>Toucan.</span></h1>
+    <p>New features, thoughtful improvements, and the fixes that make daily translation work better.</p>
+    <div class="intro-links"><a href="index.html#roadmap">Explore the road to 1.0 <span aria-hidden="true">↗</span></a><a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md">View Markdown source <span aria-hidden="true">↗</span></a></div>
+  </div>
+  <div class="changelog-layout">
+    <aside class="release-sidebar" aria-label="Release navigation">
+      <div class="sidebar-title">Jump to a release</div>
+      <nav id="release-index" aria-label="Versions">
+<!-- RELEASE INDEX START -->
+<a href="#v0.20.1">v0.20.1</a>
+<a href="#v0.20.0">v0.20.0</a>
+<a href="#v0.19.0">v0.19.0</a>
+<a href="#v0.18.1">v0.18.1</a>
+<a href="#v0.18.0">v0.18.0</a>
+<a href="#v0.17.3">v0.17.3</a>
+<a href="#v0.17.2">v0.17.2</a>
+<a href="#v0.17.1">v0.17.1</a>
+<a href="#v0.17.0">v0.17.0</a>
+<a href="#v0.16.1">v0.16.1</a>
+<a href="#v0.15.0">v0.15.0</a>
+<a href="#v0.14.3">v0.14.3</a>
+<a href="#v0.14.2">v0.14.2</a>
+<a href="#v0.14.1">v0.14.1</a>
+<a href="#v0.14.0">v0.14.0</a>
+<!-- RELEASE INDEX END -->
+      </nav>
+      <p class="preview-note">The road to 1.0<br><span>All 0.x releases are previews.</span></p>
+    </aside>
+    <div class="release-feed">
+      <div class="release-tools" id="release-tools" hidden>
+        <div class="search-field"><label class="sr-only" for="release-search">Search release notes</label><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input id="release-search" type="search" placeholder="Search versions, features, fixes…" aria-controls="releases"></div>
+        <button id="expand-all" type="button">Expand all</button>
+      </div>
+      <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
+      <div id="releases">
+<!-- RELEASES START -->
+<article class="release" id="v0.20.1" aria-labelledby="heading-v0.20.1">
+<div class="release-heading"><h2 id="heading-v0.20.1"><a href="#v0.20.1">v0.20.1</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-10-07">Oct 07, 2026</time></div>
+<div class="release-lead"><p>Documentation and website update: a browsable changelog, a smaller release plan through v0.30, and refreshed architecture and branding guidance.</p></div>
+<div class="release-counts"><span class="added">1 added</span><span class="changed">3 changed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.20.1</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Website changelog</strong> — A searchable release history with expandable notes, version permalinks, and the website’s shared light/dark theme, linked from the homepage and roadmap.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>Roadmap</strong> — Split the path to v1.0 into ten focused releases, v0.21–v0.30, with completion gates and separate milestones for snapshot sources, CRUD synchronization, and the first online connector.</li>
+<li><strong>Documentation</strong> — Refresh application and Core architecture, branding guidance, and the docs index; align the README and website roadmap.</li>
+<li><strong>Website theme</strong> — Share the homepage and changelog styles and adjust responsive navigation for the new page.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.20.1" aria-label="Permalink to v0.20.1">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.20.1">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.20.0" aria-labelledby="heading-v0.20.0">
+<div class="release-heading"><h2 id="heading-v0.20.0"><a href="#v0.20.0">v0.20.0</a></h2><time datetime="2026-10-07">Oct 07, 2026</time></div>
+<div class="release-lead"><p>AI Integration: one app-wide switch, off by default, for Claude, OpenAI-compatible servers and Gemini, with prompts you can read and edit and a new Clarity check for source strings. API keys move to one encrypted secret store. Also: color schemes, an update check, search options, per-project encoding and line endings, pinned recent projects, ghost-text suggestions and a keyboard shortcut sheet.</p></div>
+<div class="release-counts"><span class="added">13 added</span><span class="changed">6 changed</span><span class="removed">1 removed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.20.0</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>AI Integration</strong> — AI is now its own integration under Settings → AI, separate from machine translation. One switch turns every AI feature on or off for the whole app. It is <strong>off</strong> by default, and a first-run onboarding step asks whether to use it. Pick the service (Claude, OpenAI or a compatible server such as Ollama, or Gemini), the model, endpoint and key, and test the connection before saving. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/ai-integration.md">docs/ai-integration.md</a>.</li>
+<li><strong>Open, editable prompts</strong> — Every AI feature&#x27;s system prompt is a plain file. The defaults ship in <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Ai/Prompts"><code>Toucan.Core/Ai/Prompts</code></a>. Edit them under Settings → AI → Edit prompt… for all projects (<code>Documents/Toucan/prompts</code>) or for one project (<code>.toucan/prompts</code>, safe to commit). Prompts take <code>{{variables}}</code> and <code>{{#sections}}</code>, and a variables panel lists what each prompt can use.</li>
+<li><strong>Clarity AI</strong> — Translate → AI → Check Source Clarity… reviews source strings for ambiguous words, strings too short to translate without context, concatenation, idioms and unclear placeholders. It suggests a clearer source string and a note for translators. Findings go to the Issues panel.</li>
+<li><strong>Secret store</strong> — Every API key and token, for providers and AI services, is kept in one encrypted store in your user profile (<code>secrets.json</code> next to <code>secret.key</code>), never in <code>providers.json</code> or a project folder. Settings → Data &amp; privacy lists stored secret names and removes them.</li>
+<li><strong>Pin recent projects</strong> — Pin a project from the Start screen or from Settings → General → Recent projects. Pinned projects stay at the top of the list (Start screen and Open Recent), and they do not count toward the list limit. The old WPF pin button never saved anything; this one does.</li>
+<li><strong>Recent projects settings</strong> — Choose how many projects to remember (1–50), whether Clear keeps pinned projects, and manage the list (pin, unpin, remove) from Settings → General.</li>
+<li><strong>Preferred language from recent projects</strong> — With &quot;Detect preferred language from recent projects&quot; on, the source language for new projects, and for projects that name none, comes from the most recently opened project instead of the Default language setting. Off by default.</li>
+<li><strong>Ghost-text suggestions</strong> — When you focus an empty translation field, the best translation-memory match for its source text appears inside the field in faint italics. Press Tab to accept it; type to ignore it. Follows Settings → Translation memory → auto-suggest and the similarity threshold.</li>
+<li><strong>Keyboard shortcut sheet</strong> — Cmd/Ctrl+/ (or Help → Keyboard Shortcuts) shows every shortcut grouped by menu. Esc or a click outside closes it.</li>
+<li><strong>Color schemes</strong> — Settings → Appearance offers accent presets (Toucan, Ocean, Forest, Sunset, Rose, Violet, Graphite) or a custom accent and per-color edits, separately for light and dark. Colors preview live; Save keeps them, Cancel undoes them.</li>
+<li><strong>Update check</strong> — Settings → About → Check for updates looks at GitHub Releases and says whether a newer version exists. The release channel (Stable or Preview) decides whether pre-releases count. It never downloads or installs anything.</li>
+<li><strong>Search options</strong> — The Search panel has match case, whole word and regex toggles, highlights matches in the results, and Replace uses the same options.</li>
+<li><strong>Encoding and line endings per project</strong> — Click the encoding or line-ending item in the status bar to choose UTF-8 or UTF-8 with BOM, and LF or CRLF, for the project&#x27;s translation files. Applied on the next save. Java <code>.properties</code> keeps ISO-8859-1.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>Claude, OpenAI and Gemini are AI services, not translation providers</strong> — Machine translation lists one <strong>AI</strong> provider instead. It uses the AI service and the editable Translate prompt from Settings → AI, and is only offered while AI is on. On first run, the old providers&#x27; endpoint, model, key and custom prompt move to AI Integration, and a project or preference that names one of them gets the AI provider. The CLI still accepts <code>-p claude</code>, <code>-p openai</code> and <code>-p gemini</code> as <code>-p ai</code>, and <code>TOUCAN_AI_BACKEND</code> turns AI on for one CI run.</li>
+<li><strong>Analyze with AI</strong> — Uses AI Integration and its editable Analyze prompt instead of the OpenAI provider&#x27;s settings, so it works with Claude and Gemini too. It replaces only earlier AI findings in the Issues panel, not validation results.</li>
+<li><strong>Provider keys</strong> — <code>providers.json</code> (app-wide and per project) no longer stores keys; values move to the secret store the next time provider settings are saved. Keys written by older versions are still read.</li>
+<li><strong>CLI</strong> — <code>toucan translate</code> prints why items failed, and passes the project&#x27;s context and prompts to the provider.</li>
+<li><strong>Built-in modules</strong> — The built-in formats, providers, validation rules and framework profiles now load as compiled-in modules, the same way plugins do. Settings → Plugins lists them (read-only, with versions) after your plugins, and <code>toucan plugins list</code> shows them too. Settings → Validation lists every registered rule, plugin rules included. Plugin API stays 1.0.</li>
+<li><strong>Settings lists</strong> — Lists in Settings, Project Properties and Provider Settings (recent projects, colors, copy templates, AI features, rules, secrets, built-in modules) share one style, with search on longer lists and a message when a list is empty.</li>
+</ul>
+<h3>Removed</h3>
+<ul>
+<li><strong>WPF app source</strong> — The WPF app is no longer in <code>main</code>; its source is on the <a href="https://github.com/rasyidf/Toucan/tree/legacy/wpf"><code>legacy/wpf</code></a> branch. Its last release was 0.17.3.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.20.0" aria-label="Permalink to v0.20.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.20.0">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.19.0" aria-labelledby="heading-v0.19.0">
+<div class="release-heading"><h2 id="heading-v0.19.0"><a href="#v0.19.0">v0.19.0</a></h2><time datetime="2026-10-06">Oct 06, 2026</time></div>
+<div class="release-lead"><p>Command palette, a new title bar, Claude and Gemini translation providers, and a UI polish pass across the Avalonia app. The Avalonia app is now the Toucan app on Windows too; the WPF app is deprecated and 0.17.3 was its last release.</p></div>
+<div class="release-counts"><span class="added">5 added</span><span class="changed">2 changed</span><span class="fixed">7 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.19.0</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Claude and Gemini translation providers</strong> — Pre-translate with Anthropic Claude (Messages API) or Google Gemini (a free AI Studio key works). Both appear in the Machine Translation panel, the Pre-translate dialog and Provider Settings, send up to 20 texts per request, add the app context and formality to the prompt, and report the provider&#x27;s error message. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/provider-settings.md">docs/provider-settings.md</a>.</li>
+</ul>
+<ul>
+<li><strong>Command palette (Avalonia app)</strong> — Cmd/Ctrl+Shift+P (or the pill in the title bar) opens a searchable list of every menu command with its shortcut. Type words in any order, Up/Down and Enter to run, Esc to close; commands that cannot run right now sink to the bottom. It reads the menu definitions, so new menu items appear in it automatically.</li>
+<li><strong>Title bar</strong> — Logo and name, a save-state chip (<code>Unsaved</code> / <code>Saved</code>, click to save) and the palette pill centered in the bar. On macOS the Zen-mode header now clears the window controls.</li>
+<li><strong>Settings search</strong> — A search box above the Settings sidebar filters individual settings across all pages.</li>
+<li><strong>Screenshot harness</strong> — <code>TOUCAN_TEST_SCREENSHOTS</code> renders every window, panel and dialog headlessly; see <a href="https://github.com/rasyidf/Toucan/blob/main/docs/visual-review.md">docs/visual-review.md</a>.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>Windows</strong> — The Avalonia app (tested on Windows) is the supported app on Windows, macOS and Linux. The WPF app is deprecated; its last release is 0.17.3. Windows builds ship as a portable x64 zip for now.</li>
+<li><strong>UI polish (Avalonia app)</strong> — Settings and Project Properties use a left page list with grouped rows; Settings has a search box that filters individual settings; plugin cards show status, details and actions; New Project, Provider Settings, Statistics, Import and Pre-translate use the same grouped style; the side panels, pager and hidden-namespaces footer are tidied.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>PO round trip (FMT-01 save, FMT-02, FMT-03)</strong> — plural entries (<code>msgid_plural</code>, <code>msgstr[N]</code>) are kept, <code>msgctxt</code> is kept apart from <code>msgid</code> (key is <code>msgctxt</code> + U+0004 + <code>msgid</code>, as gettext does), and <code>#,</code> flags, <code>#:</code> references, translator comments and the header survive a save. <code>#, fuzzy</code> maps to &quot;not approved&quot;. Entries are written back to the file they came from (for example <code>fr/LC_MESSAGES/messages.po</code>) instead of a new <code>&lt;language&gt;.po</code> at the root.</li>
+</ul>
+<ul>
+<li><strong>PO language detection (FMT-01)</strong> — <code>&lt;lang&gt;/LC_MESSAGES/&lt;domain&gt;.po</code> projects now load one language per folder; the language comes from the <code>Language:</code> header, then the folder, then the file name.</li>
+<li><strong>CSV multi-line values (FMT-04)</strong> — the loader parses RFC 4180 records, so quoted values with line breaks are no longer cut off; the saver now quotes values containing a lone <code>\r</code>.</li>
+<li><strong>Right-click menus</strong> — The editor cards&#x27; menu is now a flyout like the Explorer&#x27;s, with icons and Indonesian labels (the old menu type never appeared on macOS).</li>
+<li><strong>Pre-translate</strong> — The source language is no longer offered as a target language; the preview text is selectable; empty language lists show a message.</li>
+<li><strong>DeepL requests</strong> — Free-plan keys (ending in <code>:fx</code>) now use <code>api-free.deepl.com</code> automatically; the key is sent in the <code>Authorization</code> header instead of the request body; <code>en-US</code> sources and <code>fr-FR</code> targets are sent as DeepL expects (<code>EN</code>, <code>FR</code>); More/Less formality is now applied (as <code>prefer_more</code>/<code>prefer_less</code>); errors include DeepL&#x27;s message.</li>
+<li><strong>Explorer right-click menu on macOS</strong> — The key menu (Add Key, Rename, Delete, …) did not appear; it is now a flyout like the app&#x27;s other menus.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.19.0" aria-label="Permalink to v0.19.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.19.0">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.18.1" aria-labelledby="heading-v0.18.1">
+<div class="release-heading"><h2 id="heading-v0.18.1"><a href="#v0.18.1">v0.18.1</a></h2><time datetime="2026-10-06">Oct 06, 2026</time></div>
+<div class="release-lead"><p>Indonesian localization, a Machine Translation panel, <code>.tproj</code> file association and a proper macOS installer. Windows stays on 0.17.3.</p></div>
+<div class="release-counts"><span class="added">7 added</span><span class="fixed">1 fixed</span><span class="docs">1 docs</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.18.1</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Localization (Avalonia app)</strong> — Menus, panels, dialogs, settings, tooltips, pagination and the status bar are translated to Indonesian (id-ID); choose it under Settings → General → Interface language and restart. Translations are embedded JSON maps keyed by the English text (<code>Locales/Strings.{culture}.json</code>), so a missing entry falls back to English, and a test fails when a UI string has no translation. Messages built at run time are still English.</li>
+<li><strong>Edit menu</strong> — Cut Key Values and Trim Line by Line; copy-template shortcuts now cover all five templates.</li>
+<li><strong>WPF parity record</strong> — <a href="https://github.com/rasyidf/Toucan/blob/main/docs/archive/wpf-parity.md">docs/archive/wpf-parity.md</a> lists what the Windows app had, what moved, and what was deliberately left behind, so the WPF app can be retired.</li>
+<li><strong>Machine Translation panel (Avalonia app)</strong> — Right-hand panel with a provider picker built from the registered providers (plugin providers included, with a &quot;Needs API key&quot; badge), quick actions (translate selected key, fill empty values in view, Pre-translate, provider settings), and the last run&#x27;s results. The Pre-translate dialog now lists the same registered providers, and the provider chosen there carries over to the panel.</li>
+<li><strong><code>.tproj</code> file association (Avalonia app)</strong> — Settings → Integration registers Toucan for <code>.tproj</code> files: per-user registry keys on Windows, a <code>.desktop</code> file and MIME type on Linux. On Windows it also manages the &quot;Open with Toucan&quot; folder menu entry. <code>Toucan.app</code> now declares the type in its Info.plist, and the app opens files that Finder passes to it.</li>
+<li><strong>macOS DMG installer</strong> — Releases ship <code>Toucan-&lt;version&gt;-osx-&lt;arch&gt;.dmg</code> with the usual drag-to-Applications window, next to the zip. <code>packaging/build-macos-app.sh</code> writes it (styled when <code>create-dmg</code> is installed, plain <code>hdiutil</code> otherwise).</li>
+<li><strong>macOS signing and notarization (optional)</strong> — <code>packaging/build-macos-app.sh</code> signs with a Developer ID and the hardened runtime when <code>SIGN_IDENTITY</code> is set, and notarizes when <code>NOTARY_PROFILE</code> is also set. Without them the build is ad-hoc signed as before.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>macOS app icon</strong> — <code>Toucan.app</code> had no icon and showed as a blank gray item in Finder and the Dock; the build now generates <code>AppIcon.icns</code> from the logo.</li>
+</ul>
+<h3>Docs</h3>
+<ul>
+<li>First-launch steps for macOS Gatekeeper now match macOS 15: Privacy &amp; Security &gt; Open Anyway, since right-click &gt; Open no longer bypasses it.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.18.1" aria-label="Permalink to v0.18.1">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.18.1">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.18.0" aria-labelledby="heading-v0.18.0">
+<div class="release-heading"><h2 id="heading-v0.18.0"><a href="#v0.18.0">v0.18.0</a></h2><time datetime="2026-10-01">Oct 01, 2026</time></div>
+<div class="release-lead"><p>First macOS and Linux release. The Avalonia app now targets <code>net10.0</code> (it targeted <code>net10.0-windows</code> before, so no earlier version ran on macOS or Linux). The Windows build of 0.18.0 is not out yet; Windows stays on 0.17.3 until it is.</p></div>
+<div class="release-counts"><span class="added">12 added</span><span class="changed">9 changed</span><span class="breaking">6 breaking changes (for code built on `toucan.core`; the wpf projects still need updating)</span><span class="fixed">3 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.18.0</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Plugin system (preview, Avalonia app and CLI)</strong> — Plugins are .NET assemblies in <code>Documents/Toucan/plugins/&lt;id&gt;/</code> with a <code>plugin.json</code> manifest. They can add file formats, translation providers, validation rules and framework profiles. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/plugins.md">docs/plugins.md</a> and <code>samples/Toucan.Sample.Plugin</code>.</li>
+<li><strong><code>Toucan.Plugins.Abstractions</code></strong> — Small contract assembly and NuGet package (plugin API 1.0) that plugin authors reference; Toucan supplies it at run time so types match.</li>
+<li><strong>Trust model</strong> — Plugins load only when enabled and when you have trusted their exact files (SHA-256 of the plugin folder); changed plugins ask again. Settings → Plugins page, a startup prompt for untrusted plugins, and a signature seam (plugins show &quot;Not signed&quot;; signing becomes mandatory later).</li>
+<li><strong>CLI</strong> — <code>toucan plugins list|trust|revoke|enable|disable</code>, <code>--allow-plugin &lt;id&gt;</code> for a single run, <code>TOUCAN_PLUGINS_DIR</code> and <code>TOUCAN_PLUGIN_POLICY</code>.</li>
+<li><strong>Plugin guide and sample</strong> — <a href="https://github.com/rasyidf/Toucan/blob/main/docs/plugins.md">docs/plugins.md</a> and <code>samples/Toucan.Sample.Plugin</code> (tab-separated-values format plus a TODO/FIXME rule). The sample is built and exercised by the test suite, and verified to build against the packed NuGet package alone.</li>
+<li><strong>Plugins page and menu entry</strong> — Settings → Plugins lists every installed plugin with status, what it provides, signature, hash and folder, with enable, Trust… and Revoke actions; Settings menu → Plugins… opens it.</li>
+<li><strong>Manifest <code>entryType</code></strong> — Optional, for assemblies that contain more than one plugin class.</li>
+<li><strong>Cross-platform solution</strong> — <code>Toucan.CrossPlatform.slnx</code> builds and tests everything except the Windows-only WPF projects.</li>
+<li><strong>macOS and Linux builds</strong> — <code>Toucan.app</code> for Apple silicon and Intel, and self-contained tarballs for Linux x64 and arm64.</li>
+<li><strong>Avalonia app (macOS and Linux)</strong> — Zen mode, Editor/Review/Audit modes, and side panels (Explorer, Search, Issues, Source Code, Translation Memory, Languages, Inspector).</li>
+<li><strong>macOS app bundle</strong> — <code>packaging/build-macos-app.sh</code> builds a self-contained, ad-hoc-signed <code>Toucan.app</code>.</li>
+<li><strong>Tests</strong> — 275 Core tests (format round trips and conventions, composition root, plugin host, trust policy, sample plugin) and 48 Avalonia tests (plugin prompt and page, headless render).</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>Formats are identified by string IDs</strong> (<code>json</code>, <code>android-xml</code>, <code>po</code>, …) instead of the <code>SaveStyles</code> enum. Project files now store <code>&quot;saveFormat&quot;</code>; old <code>&quot;saveStyle&quot;</code> values are migrated on load and not written back. A project whose format is not installed now fails to open with a &quot;format unavailable&quot; message instead of being read as JSON.</li>
+<li><strong>Format conventions live on the format</strong> — default file path, language files, comment storage and detection rules come from each save strategy, replacing four duplicated tables. The export and import pickers list whatever formats are registered.</li>
+<li><strong>Shared composition root</strong> — <code>AddToucanCore()</code> is used by the app and the CLI. The CLI now supports every format, including Java <code>.properties</code> and Laravel PHP, and takes providers from the same container.</li>
+<li><strong>Translation provider settings</strong> are built from the registered providers, so plugin providers appear alongside the built-ins.</li>
+<li><code>ValidationContext.Settings</code> became <code>ValidationContext.PrimaryLanguage</code> (rules only ever read the primary language).</li>
+<li><strong>CLI</strong> — <code>export -f</code> accepts a format ID (<code>android-xml</code>) or the old enum name (<code>AndroidXml</code>); <code>list-formats</code> prints IDs with display names. The export picker in the app lists formats in registration order rather than a hand-written order.</li>
+<li><strong>One version number</strong> — The app version is set once, in <code>Directory.Build.props</code>. <code>publish.ps1</code>, the Inno Setup script, <code>packaging/Build-Msix.ps1</code> and <code>packaging/build-macos-app.sh</code> read it. The v0.17.3 builds reported assembly version 0.17.2, and the CLI reported 1.0.0.</li>
+<li><strong>Docs and website</strong> — The website (<code>docs/index.html</code>), README, roadmap, and shipped-feature list now agree on versions (0.18.0 for macOS and Linux, 0.17.3 for Windows), platform status, and the road to 1.0 from <code>docs/todos/future-roadmap.md</code>.</li>
+<li><strong>Core test project</strong> targets plain <code>net10.0</code> and references the test SDK, so <code>dotnet test</code> works on macOS and Linux.</li>
+</ul>
+<h3>Breaking changes (for code built on <code>Toucan.Core</code>; the WPF projects still need updating)</h3>
+<ul>
+<li><code>ISaveStrategy</code> / <code>ILoadStrategy</code> expose <code>string FormatId</code> instead of <code>SaveStyles Style</code>; <code>ISaveStrategy</code> also requires <code>DefaultFilePath(language)</code>.</li>
+<li><code>ITranslationStrategyFactory</code> looks formats up by ID and exposes <code>SaveStrategies</code>; <code>IProjectService.CreateProject/CreateLanguage/Save</code> and <code>ICommentPersistenceService</code> take a format ID (<code>SaveStyles</code> overloads remain for the comment service and the factory). <code>IProjectService</code> gains <code>GetDefaultFilePath</code> and <code>GetLanguageFiles</code>; <code>IProjectLifecycleService.CreateAndOpenProjectAsync</code> takes a format ID.</li>
+<li><code>IFrameworkProfile.DefaultFormat</code> is now <code>DefaultFormatId</code> (string).</li>
+<li><code>ProjectSettings.SaveFormat</code> replaces <code>SaveStyle</code> as the stored value (<code>SaveStyle</code> remains as a compatibility property that returns JSON for plugin formats).</li>
+<li><code>ProjectOpenStatus.FormatUnavailable</code> and <code>FormatUnavailableException</code> are new; projects with an unavailable format no longer fall back to JSON.</li>
+<li>The plugin-facing types moved to <code>Toucan.Plugins.Abstractions</code> with their namespaces unchanged, so source compiles but the assembly reference is new.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>API keys on macOS and Linux</strong> — Provider API keys are encrypted with AES-GCM and a per-user key file (owner-only permissions), because DPAPI only exists on Windows. Before this change the Avalonia app fell back to base64 when DPAPI was unavailable.</li>
+<li>New projects in Gettext PO, INI, Java <code>.properties</code> and Laravel PHP formats no longer default to <code>en.json</code>.</li>
+<li>Save As on a project no longer resets its format to JSON when the format came from a plugin.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.18.0" aria-label="Permalink to v0.18.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.18.0">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.17.3" aria-labelledby="heading-v0.17.3">
+<div class="release-heading"><h2 id="heading-v0.17.3"><a href="#v0.17.3">v0.17.3</a></h2><time datetime="2026-07-06">Jul 06, 2026</time></div>
+<div class="release-lead"></div>
+<div class="release-counts"><span class="added">11 added</span><span class="changed">16 changed</span><span class="added">1 added (appoptions model)</span><span class="added">1 added (projectsettings model)</span><span class="removed">1 removed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.17.3</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Two-tier settings architecture</strong> — New <code>ProjectDefaults</code> template (<code>project-defaults.json</code>) provides default values for new projects and acts as fallback when a project doesn&#x27;t override a field.</li>
+<li><strong>&quot;Manage Project Defaults&quot; window</strong> — 5-page master-detail editor (Editor, Translation, Validation, Source Code, Features) accessible from Settings → Editor.</li>
+<li><strong>Validation settings page</strong> — Per-rule enable/disable toggles with severity selection (Error/Warning/Info) for all 6 built-in rules.</li>
+<li><strong>Translation Memory settings page</strong> — Similarity threshold slider, scope selector (Global/Project), auto-suggest toggle, max suggestions, clear/import/export buttons.</li>
+<li><strong>Source Code settings page</strong> — Framework presets dropdown (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, Generic JSON) that auto-populates scan extensions, excluded dirs, locale folder pattern, and key matcher regex.</li>
+<li><strong>Data &amp; Privacy settings page</strong> — Clear filter history, recent projects, TM data; export/import settings backup; reset to factory defaults.</li>
+<li><strong>Update panel in About</strong> — &quot;Check for updates&quot; and &quot;Update channel&quot; (Stable/Preview) UI shell for future auto-updater.</li>
+<li><strong>Copy templates CRUD</strong> — Dynamic 1–5 template list with add/remove (replaces fixed 3 textboxes) across app settings, project defaults, and project properties.</li>
+<li><strong>Reusable <code>LanguageListEditor</code> component</strong> — Shared WinUI-style card list for language management, used by both Manage Languages dialog and Suggested Languages settings.</li>
+<li><strong><code>EffectiveSettingsResolver</code></strong> — Static helper that merges nullable project fields with defaults for consumption by the engine.</li>
+<li><strong>Framework-connected source code config</strong> — Locale folder pattern and key matcher regex fields, auto-populated from framework presets.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>Settings dialog expanded to 12 pages</strong> — General, Appearance, Editor, Translation, Validation, Translation Memory, Source Code, Keyboard Shortcuts, Languages, Integration, Data &amp; Privacy, About.</li>
+<li><strong>Settings sidebar</strong> — VS Code-style left accent border indicator on selected item with proper card background; no rounded corners, flush left edge.</li>
+<li><strong>Activity bar</strong> — 3px left accent border on active panel with card background; properties moved into Style triggers for proper WPF precedence.</li>
+<li><strong>&quot;Add ID&quot; → &quot;Add Translation Key&quot;</strong> — Renamed in menu, toolbar, keybinding list, and dialog title.</li>
+<li><strong>PromptDialog redesigned</strong> — Mica backdrop, <code>ui:TextBox</code> with icon and placeholder, validation (won&#x27;t dismiss on empty), &quot;Add&quot; button instead of &quot;OK&quot;.</li>
+<li><strong>Mode selector bar</strong> — Increased height (26→30px), font size (11→12px), adjusted padding to prevent text cropping.</li>
+<li><strong>About menu</strong> — Now opens unified Settings dialog at the About tab instead of a standalone window.</li>
+<li><strong>Plain text keys</strong> — Changed from CheckBox to ToggleSwitch control.</li>
+<li><strong>Validation severity ComboBox</strong> — Widened from 100→120px to prevent &quot;Warning&quot; truncation.</li>
+<li><strong>TM Scope ComboBox</strong> — Widened from 140→200px.</li>
+<li><strong>Copy templates</strong> — Upgraded from raw Border+TextBox to proper <code>ui:CardControl</code> list items.</li>
+<li><strong>Project Languages list</strong> — Upgraded from plain text list to <code>ui:CardControl</code> card items.</li>
+<li><strong>Suggested Languages</strong> — Now uses shared <code>LanguageListEditor</code> component with proper WinUI card styling.</li>
+<li><strong>Settings dialog alignment</strong> — Sidebar and content top padding aligned (4px) across all 3 settings dialogs.</li>
+<li><strong>Startup toggle</strong> — Moved from Integration page to General page.</li>
+<li><strong>App language list</strong> — Expanded from 2 to 8 languages.</li>
+</ul>
+<h3>Added (AppOptions model)</h3>
+<ul>
+<li><code>BackdropType</code>, <code>FontSize</code>, <code>TmAutoSuggest</code>, <code>TmMaxSuggestions</code>, <code>DefaultProjectLanguages</code>, <code>CopyTemplates</code> (list replacing Template1/2/3).</li>
+</ul>
+<h3>Added (ProjectSettings model)</h3>
+<ul>
+<li><code>ValidateOnSave</code>, <code>ValidationRules</code>, <code>ScanExtensions</code>, <code>ExcludedDirectories</code>, <code>AutoScanOnOpen</code>, <code>PreservePlaceholders</code>, <code>PreviewBeforeApply</code>. Made editor/feature fields nullable for override semantics.</li>
+</ul>
+<h3>Removed</h3>
+<ul>
+<li><strong>Standalone <code>AboutDialog</code></strong> — Replaced by About page in Settings. <code>AboutViewModel</code> and DI registration removed.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.17.3" aria-label="Permalink to v0.17.3">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.3">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.17.2" aria-labelledby="heading-v0.17.2">
+<div class="release-heading"><h2 id="heading-v0.17.2"><a href="#v0.17.2">v0.17.2</a></h2><time datetime="2026-07-06">Jul 06, 2026</time></div>
+<div class="release-lead"></div>
+<div class="release-counts"><span class="fixed">5 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.17.2</span></summary><div class="release-notes"><h3>Fixed</h3>
+<ul>
+<li><strong>Issues panel grouping</strong> — Validation issues now grouped by rule type with headers showing counts. Right-click context menu to dismiss one, dismiss all of a type, or dismiss all.</li>
+<li><strong>Search panel sizing</strong> — Regex/chevron buttons and Search button now align properly with TextBox and ComboBox heights.</li>
+<li><strong>Source Code panel</strong> — Removed excess top padding on filter. &quot;Open Settings&quot; now opens project settings (not app preferences). Post-scan empty state shows &quot;No key usages found&quot; instead of the configure buttons.</li>
+<li><strong>Explorer list view foreground</strong> — Removed hardcoded gray text; items now use theme-aware text brush matching the tree view.</li>
+<li><strong>Status bar click actions</strong> — Mode badge cycles Editor→Review→Audit. Translation stats runs validation and opens Issues panel. Git status focuses the Source Control panel.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.17.2" aria-label="Permalink to v0.17.2">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.2">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.17.1" aria-labelledby="heading-v0.17.1">
+<div class="release-heading"><h2 id="heading-v0.17.1"><a href="#v0.17.1">v0.17.1</a></h2><time datetime="2026-07-06">Jul 06, 2026</time></div>
+<div class="release-lead"></div>
+<div class="release-counts"><span class="fixed">6 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.17.1</span></summary><div class="release-notes"><h3>Fixed</h3>
+<ul>
+<li><strong>DiffMergeEngine dirty tracking</strong> — Merged items (added/modified from disk) now update their baselines via <code>MarkSaved</code>, preventing perpetually-dirty state after non-conflicting merges.</li>
+<li><strong>AutoSaveService dispose crash</strong> — Guarded semaphore release against <code>ObjectDisposedException</code> when <code>Dispose()</code> is called during an in-flight save; marked <code>_disposed</code> volatile for cross-thread visibility.</li>
+<li><strong>TranslationManagementService double-fire</strong> — Eliminated TOCTOU race in <code>RaiseDirtyStateChangedIfNeeded</code> by computing dirty state inside the lock, preventing duplicate <code>DirtyStateChanged</code> events.</li>
+<li><strong>External reload threading</strong> — Auto-reload and merge paths now dispatch through a UI-thread marshaler (<code>SetUiDispatcher</code>), preventing cross-thread updates to UI-bound collections.</li>
+<li><strong>iOS .strings escape corruption</strong> — Replaced chained <code>string.Replace</code> with single-pass character scanner; <code>\\n</code> in .strings files now correctly produces literal backslash+n instead of a newline.</li>
+<li><strong>Java .properties line continuations</strong> — Added <code>JoinContinuationLines</code> that handles trailing-backslash multi-line values per the spec; multi-line values are no longer truncated to the first line.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.17.1" aria-label="Permalink to v0.17.1">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.1">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.17.0" aria-labelledby="heading-v0.17.0">
+<div class="release-heading"><h2 id="heading-v0.17.0"><a href="#v0.17.0">v0.17.0</a></h2><time datetime="2026-07-03">Jul 03, 2026</time></div>
+<div class="release-lead"></div>
+<div class="release-counts"><span class="added">4 added</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.17.0</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Search &amp; Replace (FG-07)</strong> — global search across all keys/values/languages with regex support, scope filtering, replace preview, and search history.</li>
+<li><strong>Bulk Operations (FG-08)</strong> — multi-select mode with bulk delete, move to namespace, pre-translate, approve, and copy source→target language.</li>
+<li><strong>Custom Validation Rules (FG-09)</strong> — configurable per-project rules (max length, forbidden words, regex patterns) with severity levels and auto-fix suggestions.</li>
+<li><strong>TM Enhancements (FG-03)</strong> — TMX import/export, TM entry management (view/delete/clear), ghost text suggestion property, configurable similarity threshold and scope.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.17.0" aria-label="Permalink to v0.17.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.0">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.16.1" aria-labelledby="heading-v0.16.1">
+<div class="release-heading"><h2 id="heading-v0.16.1"><a href="#v0.16.1">v0.16.1</a></h2><time datetime="2026-07-03">Jul 03, 2026</time></div>
+<div class="release-lead"></div>
+<div class="release-counts"><span class="improved">6 improved</span><span class="fixed">2 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.16.1</span></summary><div class="release-notes"><h3>Improved</h3>
+<ul>
+<li><strong>Toolbar removed</strong> — ModeSelectorBar and panel toggles moved into TitleBar.TrailingContent for a cleaner layout.</li>
+<li><strong>Inspector split</strong> — Languages panel separated from Inspector; each is now its own right-side panel in the activity bar.</li>
+<li><strong>Inspector redesign</strong> — Details and Suggestions tabs use Fluent bordered cards with contextual icons instead of plain text.</li>
+<li><strong>PanelHost actions slot</strong> — panel-specific action buttons (add, refresh, settings) now render beside the ellipsis menu in the panel header.</li>
+<li><strong>ActivityBar context menu</strong> — right-click to show/hide individual panels with checkmarks.</li>
+<li><strong>Duplicate headers removed</strong> — ResourcesView, LanguagesView, IssuesPanel, and TranslationMemoryPanel no longer have redundant internal headers; PanelHost provides the unified header.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>ManifestLoadStrategy fallback</strong> — projects with empty <code>translationPackages</code> now fall through to format-based file scanning instead of returning nothing.</li>
+<li><strong>ProjectSettings.Save() backfill</strong> — saving the manifest auto-populates <code>translationPackages</code> from <code>Languages</code> when empty, preventing the &quot;no translations&quot; bug after adding a language via Manage Languages.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.16.1" aria-label="Permalink to v0.16.1">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.16.1">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.15.0" aria-labelledby="heading-v0.15.0">
+<div class="release-heading"><h2 id="heading-v0.15.0"><a href="#v0.15.0">v0.15.0</a></h2><time datetime="2026-07-02">Jul 02, 2026</time></div>
+<div class="release-lead"></div>
+<div class="release-counts"><span class="ui">8 ui revamp</span><span class="component">6 component extraction</span><span class="system">4 system integration</span><span class="cli">2 cli</span><span class="bug">5 bug fixes (u1–u5)</span><span class="branding">8 branding</span><span class="documentation">5 documentation</span><span class="additional">11 additional fixes</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.15.0</span></summary><div class="release-notes"><h3>UI Revamp</h3>
+<ul>
+<li>Three-pane VS Code-style layout (sidebar, editor, inspector)</li>
+<li>Editor modes: Editor, Review, Audit with mode selector and auto-filter</li>
+<li>Zen mode overlay with J/K navigation</li>
+<li>Snipping Tool-style minimal toolbar with pill-grouped buttons</li>
+<li>Photos-style footer action bar (borderless buttons, contextual actions)</li>
+<li>Segmented menu bar (File, Edit, Tools, Find, View, Help)</li>
+<li>Toolbar hidden on start screen, Mica backdrop visible</li>
+<li>Default sidebar widths 200px (1:3:1 ratio)</li>
+</ul>
+<h3>Component Extraction</h3>
+<ul>
+<li>Split OptionsDialog into 8 page UserControls (Views/Settings/)</li>
+<li>Split NewProjectPrompt into FrameworkStep + LanguagesStep</li>
+<li>Extracted LanguageGroupCard + TranslationRow from LanguagesView (400→92 lines)</li>
+<li>New reusable components: DialogFooter, SettingsCard, PanelHeader, LanguageChip</li>
+<li>Design tokens standardized (DesignTokens.xaml)</li>
+<li>Accessibility pass on all dialogs (AutomationProperties, FocusManager, Mica)</li>
+</ul>
+<h3>System Integration</h3>
+<ul>
+<li>Project manifest renamed: <code>toucan.project</code> → <code>toucan.tproj</code> (.tproj extension)</li>
+<li>FileAssociationService: Install/Clear/IsInstalled API, OpenWithProgids</li>
+<li>File open dialog supports .tproj filter</li>
+<li>Startup args now handle file paths (resolves to parent directory)</li>
+</ul>
+<h3>CLI</h3>
+<ul>
+<li>Added <code>toucan translate</code> command (batch pre-translate with provider selection, dry-run, language targeting)</li>
+<li>Updated help with translate options and examples</li>
+</ul>
+<h3>Bug Fixes (U1–U5)</h3>
+<ul>
+<li>U1: OptionsViewModel BrowseSourceRoot/BrowseSourceEditor/ConfigureLanguageCodes now functional</li>
+<li>U2: IUnsavedChangesHandler wired — prompts save/discard/cancel on close</li>
+<li>U3: FilterUsedKeys/FilterUnusedKeys now actually filters based on source scan</li>
+<li>U4: ShowMachineTranslations toggle filters to unapproved+filled items</li>
+<li>U5: Shortcuts page shows info banner about read-only status</li>
+</ul>
+<h3>Branding</h3>
+<ul>
+<li>Logo color: purple → blue (#2196F3)</li>
+<li>Copyright: 2023–2026</li>
+<li>AssemblyInfo/csproj: description updated to &quot;Professional translation resource editor&quot;</li>
+<li>Homepage/docs URLs → https://toucan.rasyid.dev</li>
+<li>Splash screen: fixed 78-byte placeholder, replaced with real image</li>
+<li>Version bumped to 0.15.0</li>
+<li>LICENSE.txt: filled in placeholder with real name/years</li>
+<li>Branding doc (docs/branding.md) rewritten with current design decisions</li>
+</ul>
+<h3>Documentation</h3>
+<ul>
+<li>Full docs reorganization: deleted 12 stale files, merged content, renamed to lowercase-dash</li>
+<li>README rewritten with accurate feature list and roadmap</li>
+<li>UI revamp plan finalized (all phases complete except Phase 5 performance)</li>
+<li>UI polish plan completed</li>
+<li>Panel extension system plan documented (docs/archive/panel-extension-plan.md)</li>
+</ul>
+<h3>Additional Fixes</h3>
+<ul>
+<li>TitleBar icon: fixed crash by using <code>ui:ImageIcon</code> (correct <code>IconElement</code> type for WPF UI 4.x)</li>
+<li>Window Title property set — taskbar now shows &quot;Toucan&quot;</li>
+<li>Menu toggle states: checkable items show current state (tree/list, zen, panels, etc.)</li>
+<li>Menu disabled states: Edit/Tools/Find/Save/Close/Reveal/Properties disabled when no project loaded</li>
+<li>Start screen: recent projects now clickable with hover state and delete button</li>
+<li>Start screen: added Quick Tips section with keyboard shortcuts hints</li>
+<li>Start screen: &quot;Open last project on startup&quot; checkbox (persists to settings.json)</li>
+<li>Replaced all emoji with Fluent icons (🕒→History20, ⚡→Flash20, ✕→Dismiss16)</li>
+<li>ResourcesView: removed ui:Card wrapper for proper edge-to-edge content</li>
+<li>StatusBar: fixed vertical centering (32px height, VerticalAlignment=Center on grid)</li>
+<li>Footer buttons: custom PanelButton template with subtle CornerRadius=4 hover/pressed states</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.15.0" aria-label="Permalink to v0.15.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.15.0">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.14.3" aria-labelledby="heading-v0.14.3">
+<div class="release-heading"><h2 id="heading-v0.14.3"><a href="#v0.14.3">v0.14.3</a></h2><time datetime="2026-07-01">Jul 01, 2026</time></div>
+<div class="release-lead"></div>
+<div class="release-counts"><span class="added">6 added</span><span class="changed">2 changed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.14.3</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Modular StatusBar architecture</strong> — Status bar is now composed of independent panels (<code>IStatusBarPanel</code>) managed by a <code>StatusBarPanelRegistry</code>. Each panel can be shown/hidden, reordered, and clicked.</li>
+<li><strong>10 built-in panels</strong>: VCS (branch + changes + sync), Translation Stats (progress + per-language breakdown), Mode (EDITOR/REVIEW/AUDIT badge), Project (name + dirty count), Status (ephemeral text), Language (primary + switcher), Encoding (UTF-8), Line Endings (LF/CRLF toggle), Notifications (badge), Loading (spinner).</li>
+<li><strong>Dynamic panel rendering</strong> — StatusBarView uses <code>ItemsControl</code> with implicit <code>DataTemplate</code> per panel type. Left/Center/Right alignment groups rendered independently.</li>
+<li><strong>Panel click actions</strong> — Each panel has a <code>ClickCommand</code>: VCS opens summary, Stats opens statistics dialog, Language opens switcher, Line Endings toggles LF↔CRLF, etc.</li>
+<li><strong>Panel registry API</strong> — <code>StatusBarPanelRegistry.Register()</code>, <code>.Unregister()</code>, <code>.SetVisibility()</code>, <code>.Reorder()</code> — external services can add custom panels at runtime.</li>
+<li><strong>Rich tooltips</strong> — VCS shows branch + change summary, Stats shows per-language progress bars, all panels have contextual tooltips.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>StatusBarViewModel</strong> — Collapsed from 4 partial files into a single file backed by panel instances. Backward-compatible: existing callers (<code>StatusBarService.UpdateStatus()</code>, <code>.UpdateDefaultLanguage()</code>, etc.) still work unchanged.</li>
+<li><strong>StatusBarView.xaml</strong> — Replaced hardcoded 8-column Grid with 3-column layout (Left/Center/Right) using <code>ItemsControl</code> bound to registry collections.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.14.3" aria-label="Permalink to v0.14.3">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.14.3">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.14.2" aria-labelledby="heading-v0.14.2">
+<div class="release-heading"><h2 id="heading-v0.14.2"><a href="#v0.14.2">v0.14.2</a></h2><time datetime="2026-07-01">Jul 01, 2026</time></div>
+<div class="release-lead"></div>
+<div class="release-counts"><span class="improved">4 improved</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.14.2</span></summary><div class="release-notes"><h3>Improved</h3>
+<ul>
+<li><strong>Centralized FileEnumerator</strong> — Extracted <code>Toucan.Core\Services\FileEnumerator.cs</code> with flags-based <code>EnumerateOptions</code>. All load strategies (JSON, CSV, YAML, PHP) now use a single file crawler with shared directory exclusion list. <code>SkipNestedLocaleDirs</code> flag auto-detects when root has language-code subdirs and skips nested <code>locales/</code>, <code>i18n/</code>, <code>translations/</code>, <code>lang/</code> directories to prevent duplicates.</li>
+<li><strong>UpdateSummaryInfo per-keystroke</strong> — <code>TranslationDetailsView</code> now debounces the update event (300ms idle) instead of firing on every KeyUp.</li>
+<li><strong>JSON key order instability</strong> — <code>JsonSaveStrategy</code> now sorts items by namespace before writing, producing stable key order across saves (reduces VCS noise).</li>
+<li><strong>Placeholder count validation</strong> — <code>PlaceholderService.Validate</code> now uses count-aware comparison instead of set-based <code>Except</code>. Detects when a placeholder appears more times in source than target.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.14.2" aria-label="Permalink to v0.14.2">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.14.2">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.14.1" aria-labelledby="heading-v0.14.1">
+<div class="release-heading"><h2 id="heading-v0.14.1"><a href="#v0.14.1">v0.14.1</a></h2><time datetime="2026-07-01">Jul 01, 2026</time></div>
+<div class="release-lead"></div>
+<div class="release-counts"><span class="fixed">19 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.14.1</span></summary><div class="release-notes"><h3>Fixed</h3>
+<ul>
+<li><strong>Tree corruption on rename</strong> — <code>RenameItem</code> used <code>string.Replace</code> which corrupted unrelated keys sharing a substring (e.g., renaming &quot;app&quot; mangled &quot;application&quot;). Now uses exact prefix + dot delimiter matching.</li>
+<li><strong>Tree corruption on delete</strong> — <code>DeleteItem</code> used bare <code>StartsWith</code> which deleted sibling keys (e.g., deleting &quot;app&quot; also deleted &quot;appSettings&quot;). Now requires exact match or dot-separated child.</li>
+<li><strong>NsTreeItem lazy-load flattening</strong> — The <code>Items</code> getter was flattening grandchildren into the current node via <code>AddRange(child.Items)</code>. Children now retain their subtree structure.</li>
+<li><strong>YAML round-trip data loss</strong> — Save strategy now properly escapes <code>\n</code>/<code>\r</code>/<code>\t</code> in double-quoted values, quotes YAML reserved words (<code>true</code>, <code>false</code>, <code>yes</code>, <code>no</code>, <code>null</code>), and preserves keys that are both parents and leaf values. Load strategy now supports multi-line block scalars (<code>|</code> and <code>&gt;</code>).</li>
+<li><strong>Undo history corruption</strong> — After 200 edits, the undo stack cap logic reversed item order (newest ended up at bottom). Now iterates in reverse when repopulating.</li>
+<li><strong>Dirty tracking bypass</strong> — <code>TranslationItemViewModel.SaveTranslation()</code> now calls <code>ITranslationManagementService.NotifyValueChanged()</code> so the project correctly shows unsaved state.</li>
+<li><strong>Silent data loss on close</strong> — <code>Window_Closing</code> now prompts Save/Discard/Cancel when unsaved changes exist, instead of silently discarding edits.</li>
+<li><strong>Source code scan thread-safety</strong> — Replaced <code>List&lt;KeyUsage&gt;</code> with <code>ConcurrentBag&lt;KeyUsage&gt;</code> in parallel scan. Fixed case-sensitive directory exclusion on Windows (now uses <code>StringComparer.OrdinalIgnoreCase</code>).</li>
+<li><strong>Provider mock fallback</strong> — All providers (OpenAI, Google, DeepL, Microsoft) now report <code>Succeeded = false</code> with &quot;No API key configured&quot; instead of silently injecting fake <code>[provider/lang]</code> translations.</li>
+<li><strong>Provider language code truncation</strong> — Removed <code>Split(&#x27;-&#x27;)[0]</code> that stripped regional variants. Full BCP-47 codes (e.g., <code>zh-CN</code>, <code>pt-BR</code>, <code>EN-US</code>) are now passed to translation APIs.</li>
+<li><strong>Google Translate HTML entities</strong> — Response text is now decoded via <code>WebUtility.HtmlDecode()</code> to fix garbled apostrophes and ampersands.</li>
+<li><strong>Statusbar language selector empty</strong> — <code>AvailableLanguages</code> collection is now populated from project languages after load, so the inline language switcher works.</li>
+<li><strong>Duplicate FileWatcherService</strong> — MainWindow now uses the DI-registered singleton <code>IFileWatcherService</code> instead of creating its own instance. External-change detection is consistent with the lifecycle service.</li>
+<li><strong>CreateNewItem false duplicate</strong> — Replaced <code>Namespace.Contains(newNamespace)</code> with exact <code>==</code> match. Creating &quot;app&quot; is no longer blocked by &quot;wrapper.app.title&quot;.</li>
+<li><strong>Delete/F2/Escape in TextBox</strong> — <code>HandleZenKeys</code> now guards these keys when a TextBox has focus, preventing accidental item deletion or rename while typing.</li>
+<li><strong>FileWatcherService race condition</strong> — Replaced <code>bool _pending</code> with <code>Interlocked.CompareExchange</code> to prevent missed/double-fired change events from concurrent threads.</li>
+<li><strong>PreTranslateViewModel CTS leak</strong> — Previous <code>CancellationTokenSource</code> is now disposed before creating a new one on each Start().</li>
+<li><strong>Provider settings lost on switch</strong> — <code>RebuildFieldItems</code> now flushes field edits to the *previous* selection before clearing, so switching providers no longer discards unsaved config.</li>
+<li><strong>NewProjectViewModel deadlock</strong> — Converted <code>NextStep()</code> from sync (<code>GetAwaiter().GetResult()</code>) to <code>async Task</code>, eliminating potential UI thread deadlock on the existing-project dialog.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.14.1" aria-label="Permalink to v0.14.1">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.14.1">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.14.0" aria-labelledby="heading-v0.14.0">
+<div class="release-heading"><h2 id="heading-v0.14.0"><a href="#v0.14.0">v0.14.0</a></h2><time datetime="2026-06-30">Jun 30, 2026</time></div>
+<div class="release-lead"></div>
+<div class="release-counts"><span class="added">10 added</span><span class="changed">10 changed</span><span class="fixed">5 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.14.0</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Provider Settings integration</strong> — Providers (Google, DeepL, Microsoft, OpenAI, Custom Webhook) now have proper schema definitions with default values. API keys are stored encrypted via DPAPI. Pre-translation works out of the box once an API key is saved.</li>
+<li><strong>Project Properties dialog</strong> — Standalone dialog (File → Project Properties, or toolbar button) with 5 pages: Identity, Translation, Editor, Features, Source Code. Separated from the global Options dialog.</li>
+<li><strong>Namespace hiding</strong> — Right-click any namespace in the tree to hide it from the editor and statistics. Manage hidden namespaces in Project Properties → Editor. Persisted in <code>toucan.project</code>.</li>
+<li><strong>Session dirty tracking</strong> — Modified keys show a caution-colored left indicator bar. Statusbar displays a dirty count badge. Cleared on save.</li>
+<li><strong>BreadcrumbBar</strong> — Added WPF-UI BreadcrumbBar to the Resources panel showing the selected namespace path.</li>
+<li><strong>Fluent MessageBox</strong> — All user-facing message dialogs now use <code>Wpf.Ui.Controls.MessageBox</code> instead of native Win32 MessageBox.</li>
+<li><strong>Default project folder</strong> — New Project dialog defaults to <code>Documents/Toucan/{project-name}</code>, auto-updating as you type.</li>
+<li><strong>Existing project detection</strong> — New Project wizard detects existing <code>toucan.project</code> and offers to open or overwrite.</li>
+<li><strong>Statusbar language selector</strong> — Click the language code in the statusbar to switch the active language via popup menu.</li>
+<li><strong>Provider management tests</strong> — 11 new tests covering provider settings (defaults, add/remove, save flush, schema fields).</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>Pre-Translate dialog</strong> — Redesigned with dual-panel layout (config left, preview right), dropdown provider selector, compact options, Fluent-styled table (no more Vista GridView).</li>
+<li><strong>Inspector panel</strong> — Tabs now use custom Fluent-styled underline indicator (accent-colored bottom border on selected tab). Removed native TabControl chrome.</li>
+<li><strong>About page</strong> — Redesigned to match Files App style: app card with Copy button, Help &amp; support links, Open source section.</li>
+<li><strong>New Project dialog</strong> — Framework tiles reduced (80×60), project name/folder moved to top, Step 2 made compact with inline add buttons.</li>
+<li><strong>Suggested Languages</strong> — Redesigned with card-style items (Globe icon, Fluent Add button).</li>
+<li><strong>Mode selector</strong> — Made more compact (26px height, 11px font, reduced padding).</li>
+<li><strong>Zen mode</strong> — Card now has <code>MinWidth=&quot;500&quot;</code>, <code>MaxWidth=&quot;900&quot;</code>, proper card styling with rounded corners.</li>
+<li><strong>Focused Editor mode</strong> — Now functional: shows single item with navigation bar (↑/↓/exit) when activated.</li>
+<li><strong>Pagination buttons</strong> — Disabled state uses opacity instead of opaque background (dark mode fix).</li>
+<li><strong>Language Prompt dialog</strong> — Width set to 400px (was stretching full screen).</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>Pretranslation mock output</strong> (<code>[provider/lang]</code>) — Root cause: <code>IProviderSettingsService</code> was not being passed to <code>PreTranslateViewModel</code>. Empty API keys were being encrypted/stored. Fixed both the DI wiring and the save/load logic to skip empty secrets.</li>
+<li><strong>Duplicate translations</strong> — When root folder has both <code>en/</code> dirs and a nested <code>locales/en/</code> dir, the loader now skips the nested <code>locales/</code> to prevent duplicates.</li>
+<li><strong>&quot;Showing N of M items&quot;</strong> — Removed redundant text from statusbar (pagination already shows this).</li>
+<li><strong>Provider settings button cropped</strong> — Replaced narrow <code>Width=&quot;30&quot;</code> button with proper <code>ui:Button</code> + SymbolIcon.</li>
+<li><strong>Project Languages showing only 1</strong> — Now loads discovered languages from actual files, not just manifest.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.14.0" aria-label="Permalink to v0.14.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.14.0">Release on GitHub ↗</a></div>
+</article>
+<!-- RELEASES END -->
+      </div>
+      <div id="no-results" class="no-results" hidden><h2>No matching releases</h2><p>Try a version number or a feature such as glossary, DeepL, or search.</p><button id="clear-search" class="btn btn-ghost" type="button">Clear search</button></div>
+      <div class="history-end"><span aria-hidden="true">●</span> You’re at the beginning of the documented history.<br><a href="index.html#roadmap">See what’s planned next →</a></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="" width="24" height="24">Toucan</a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/rasyidf/Toucan">Source</a>
+      <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
+      <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
+      <a href="changelog.html">Changelog</a>
+      <a href="https://github.com/rasyidf/Toucan/blob/main/docs/ARCHITECTURE.md">Architecture</a>
+    </nav>
+    <span class="copy">© 2023–2026 <a href="https://rasyid.dev">rasyid.dev</a> · MIT License</span>
+  </div>
+</footer>
+</body>
+</html>

@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [0.20.1] - 2026-10-07
+
+Documentation and website update: a browsable changelog, a smaller release plan through v0.30, and refreshed architecture and branding guidance.
+
+### Added
+- **Website changelog** — A searchable release history with expandable notes, version permalinks, and the website’s shared light/dark theme, linked from the homepage and roadmap.
+
+### Changed
+- **Roadmap** — Split the path to v1.0 into ten focused releases, v0.21–v0.30, with completion gates and separate milestones for snapshot sources, CRUD synchronization, and the first online connector.
+- **Documentation** — Refresh application and Core architecture, branding guidance, and the docs index; align the README and website roadmap.
+- **Website theme** — Share the homepage and changelog styles and adjust responsive navigation for the new page.
+
 ## [0.20.0] - 2026-10-07
 
 AI Integration: one app-wide switch, off by default, for Claude, OpenAI-compatible servers and Gemini, with prompts you can read and edit and a new Clarity check for source strings. API keys move to one encrypted secret store. Also: color schemes, an update check, search options, per-project encoding and line endings, pinned recent projects, ghost-text suggestions and a keyboard shortcut sheet.
