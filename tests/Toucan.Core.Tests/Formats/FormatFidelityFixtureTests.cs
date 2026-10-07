@@ -25,6 +25,8 @@ public sealed class FormatFidelityFixtureTests : IDisposable
         ("crlf", "line1\r\nline2"),
         ("quotes", "He said \"hi\" and 'bye'"),
         ("backslash", "C:\\dir\\file"),
+        ("literal-escape", "path\\new\\table and \\u0041 and \\\\"),
+        ("trailing-backslash", "ends with \\"),
         ("unicode", "日本語 ñ é 😀"),
         ("placeholders", "{0} %s %d {name} %1$s :count"),
         ("markup", "<b>bold</b> & more"),

@@ -1,7 +1,7 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "56 release tasks; 6 stable gates; 28 deferred tasks"
+progress: "54 release tasks; 6 stable gates; 28 deferred tasks"
 updated: 2026-10-07
 summary: "Ten focused releases from v0.21 to v0.30: file safety, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization."
 ---
@@ -39,11 +39,9 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 ### v0.21: File fidelity and CI
 
-**Outcome:** supported formats can be edited without losing information, with automated protection against regressions. **References:** FMT-05, FMT-06, FMT-07, FMT-08, FMT-09, QA-01, REL-01 in [known issues](../known-bugs.md).
+**Outcome:** supported formats can be edited without losing information, with automated protection against regressions. **References:** REL-01 in [known issues](../known-bugs.md).
 
-- [ ] Extend the round-trip fixtures (multiline text and escaping are covered for every loadable format) to locale variants, plural forms, source text, and opaque metadata for the formats that carry them; verify original file paths and stable output.
-- [ ] Add regression coverage for the previously fixed cases listed under QA-01.
-- [ ] Add pull-request and push CI for build and relevant Core/Avalonia tests on Windows, macOS, and Linux; report coverage without using a percentage as the sole release criterion.
+- [ ] Confirm the CI workflow (`.github/workflows/ci.yml`: build, Core and Avalonia tests with coverage reports on Windows, macOS and Linux) passes on its first pull request, then make it a required check. Coverage stays a report, not a release criterion.
 
 **Completion gate:** every format advertised as editable passes its documented fidelity fixtures, and CI catches the known regression cases.
 

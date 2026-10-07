@@ -2,7 +2,7 @@
 title: "Known Issues & Unfinished Features"
 status: active
 updated: 2026-10-07
-summary: "Open issues for v0.20.2: one tracked format issue, release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
+summary: "Open issues for v0.20.2: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
 ---
 # Known Issues & Unfinished Features
 
@@ -23,7 +23,6 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [APP-01](#app-01) | Low | App | Source Control and Dictionary panels do not exist | Reproduced |
 | [APP-02](#app-02) | Low | App | Keyboard shortcuts cannot be changed | Reproduced |
 | [APP-03](#app-03) | Low | App | No notification history; the status-bar badge only shows a count of empty translations | Reproduced |
-| [QA-01](#qa-01) | Medium | Tests | No tests for the bugs fixed in 0.17.1, and none for the formats' edge cases above | From code |
 | [QA-02](#qa-02) | Info | Perf | Large-project performance has never been profiled | Not checked |
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
@@ -32,9 +31,9 @@ Suggested order: release work first (REL-01), then the rest.
 
 ---
 
-## Format bugs (Toucan.Core)
+## Format bugs
 
-All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategies/`. Round-trip means: open a folder, change nothing or one value, save.
+None are tracked. What each format keeps and drops on save is in [formats.md](formats.md); the tests that guard it are `FormatFidelityFixtureTests`, `FormatStabilityTests`, `FormatBugRegressionTests` and `YamlFidelityTests` in `tests/Toucan.Core.Tests/Formats/`.
 
 ---
 
@@ -97,14 +96,6 @@ All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategi
 
 ## Quality
 
-<a id="qa-01"></a>
-### QA-01 — Missing regression tests
-
-- **Severity:** Medium · **Checked:** from code. I found no test that targets these, so they could regress unnoticed.
-- **Bugs fixed without a test:** `DiffMergeEngine` baselines (merged items stayed dirty), `AutoSaveService` dispose during a save, `TranslationManagementService` double `DirtyStateChanged`, iOS `.strings` `\\n` handling, Java `.properties` line continuation. The last two I re-ran by hand on 2026-10-07 and they behave correctly.
-- **Also missing:** FMT-05 to FMT-08 have tests in `FormatBugRegressionTests` and FMT-09 in `YamlFidelityTests`. `FormatRoundTripTests` covers simple keys; `FormatFidelityFixtureTests` covers awkward values for every loadable format.
-- **Fix direction:** one test per bug with the exact input from this file. This is the cheapest item here and protects the fixes above.
-
 <a id="qa-02"></a>
 ### QA-02 — Performance not profiled
 
@@ -125,6 +116,7 @@ The earlier version of this file kept tables of fixed bugs (B1 to B11 and the v0
 | B5 | iOS `.strings` `\\n` corrupted | 0.17.1 |
 | B6 | Java `.properties` line continuations truncated values | 0.17.1 |
 | B7 to B11 | WPF-only UI fixes (Issues grouping, Search panel sizing, Source Code panel, Explorer foreground, status bar clicks) | 0.17.2 |
+| QA-01 | Missing regression tests for B1 to B6 and the format edge cases | Unreleased (`Qa01RegressionTests`, `FormatFidelityFixtureTests`, `FormatStabilityTests`) |
 | FMT-05 to FMT-09 | RESX language detection, XLIFF save losing source/notes/state, ARB metadata and region locales, YAML flat keys and `__self` | Unreleased |
 | v0.14.1 to v0.16.1 | Earlier bug batches | 0.14.1, 0.14.2, 0.15.0, 0.16.1 |
 

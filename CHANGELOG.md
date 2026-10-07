@@ -7,6 +7,8 @@
 
 - **Format support matrix** — [docs/formats.md](docs/formats.md) lists, for every built-in format, the versions that work, what survives a save and what does not. It is generated from the code and checked by a test.
 - **Unsafe saves are blocked** — Android XML projects that contain `<plurals>`, other resource types or `translatable="false"`, and RESX projects with non-string resources, `<metadata>` or files not named `Resources*.resx`, open with a warning, and saving them in place is refused, because Toucan would rewrite the files without that content. Save As still writes a copy.
+- **Stability checks** — For every loadable format, saving the same data twice gives identical files, save → load → save changes nothing and creates no new files, and locale variants (`pt-BR`, `zh-Hans`) keep their identity.
+- **Regression tests for 0.17.1 fixes** — Merged items stay clean after an external merge, `DirtyStateChanged` fires once per transition under concurrent checks, auto-save survives disposal mid-save, and iOS `.strings` escapes and Java `.properties` line continuations round-trip.
 - **Round-trip fixtures** — Every loadable format is checked for multiline text, CRLF, quotes, backslashes, unicode, placeholders, markup, separators, leading spaces, tabs, percent signs, `$`, and YAML-looking words and numbers.
 
 ### Changed
