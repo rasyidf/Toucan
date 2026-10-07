@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "release/**"]
+  pull_request:
+
+jobs:
+  test:
+    name: Build and test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build
+        run: dotnet build Toucan.CrossPlatform.slnx --configuration Release
+      - name: Test
+        run: dotnet test Toucan.CrossPlatform.slnx --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.os }}
+          path: TestResults/**/coverage.cobertura.xml
+          if-no-files-found: ignore

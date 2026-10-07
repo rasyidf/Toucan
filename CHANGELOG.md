@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added
+- **Continuous integration** — Pull requests and pushes to `main` and `release/**` build `Toucan.CrossPlatform.slnx` and run the Core and Avalonia tests on Windows, macOS and Linux, and upload coverage reports.
+
+### Fixed
+- **YAML flat keys** — A file that uses flat dotted keys (`"a.b.c": x`) is saved flat instead of being rewritten as nested maps, and quoted keys load without their quotes. A key that is also a parent (`app` and `app.title`) is written as flat keys instead of an invented `__self` entry.
+- **YAML scalars** — `on`, `off`, `y`, `n`, `~`, numbers such as `1.0` and `007`, and hex-like text are quoted so YAML 1.1 readers keep them as text. Backslashes and carriage returns in quoted values load correctly.
+
 ## [0.20.2] - 2026-10-07
 
 Format fixes (XLIFF no longer loses source text, notes and state on save; RESX and ARB language and metadata bugs), a new app icon, and documentation pages and a web manifest on the website.

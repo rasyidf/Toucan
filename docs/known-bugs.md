@@ -16,8 +16,7 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 
 | ID | Severity | Area | Problem | Checked |
 |----|----------|------|---------|---------|
-| [FMT-09](#fmt-09) | Low | YAML | Flat dotted keys are rewritten as nested maps; a key that is also a parent gets a `__self` entry | Reproduced |
-| [REL-01](#rel-01) | Medium | Release | No CI or release pipeline; every release is built by hand | Reproduced (no config in repo) |
+| [REL-01](#rel-01) | Medium | Release | No release pipeline; every release is built by hand (CI for pull requests exists) | Reproduced |
 | [REL-02](#rel-02) | Medium | Release | macOS app is ad-hoc signed and not notarized | From docs and script |
 | [REL-03](#rel-03) | Low | Release | Update check is manual only: no check on startup, no download or install | From code |
 | [REL-04](#rel-04) | Low | Release | Windows ships as a portable zip; no installer or MSIX in releases | From docs |
@@ -29,35 +28,13 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
 
-Suggested order: release work first (REL-01), then FMT-09 and the rest.
+Suggested order: release work first (REL-01), then the rest.
 
 ---
 
 ## Format bugs (Toucan.Core)
 
 All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategies/`. Round-trip means: open a folder, change nothing or one value, save.
-
-<a id="fmt-09"></a>
-### FMT-09 — YAML: flat dotted keys become nested; `__self` is written into the file
-
-- **Severity:** Low · **Area:** YAML · **Checked:** reproduced · **Code:** `YamlSaveStrategy.cs:56-79,99-103`
-- **Repro:** items `app.title`, `app` (its own value) and `a.b.c`. Save.
-- **Actual file:**
-  ```yaml
-  a:
-    b:
-      c: x
-  app:
-    __self: Self
-    title: T
-  ```
-  Toucan loads it back to the same three keys, so the round trip inside Toucan is lossless.
-- **What is still wrong:**
-  - A project whose YAML uses flat dotted keys (`"a.b.c": x`, i18next with `keySeparator: false`) is rewritten as nested maps. The app reading it then finds nothing.
-  - A key that is both a value and a parent writes a `__self:` child that no other tool understands.
-- **Fix direction:** remember per file whether keys were flat or nested and write the same style. For the parent-and-child clash, warn and keep the nested key instead of inventing `__self`.
-- **Also noticed, not run:** `EscapeYamlValue` (`YamlSaveStrategy.cs:116-148`) quotes `yes`/`no`/`true`/`false`/`null` but not `on`, `off`, `~`, or number-like text such as `1.0` or `007`. A YAML 1.1 reader would turn those into booleans or numbers. Worth a test before changing anything.
-- **Tests to add:** flat dotted file stays flat; nested stays nested; clash case.
 
 ---
 
@@ -66,8 +43,8 @@ All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategi
 <a id="rel-01"></a>
 ### REL-01 — No CI or release pipeline
 
-- **Severity:** Medium · **Checked:** there is no `.github/`, no workflow and no other CI config in the repo.
-- **State:** release builds come from `publish.ps1`, `packaging/build-macos-app.sh` and `dotnet publish` run by hand. v0.18.0 Linux tarballs were made by hand too. The test suites (`Toucan.Core.Tests`, `Toucan.Avalonia.Tests`) are not run automatically on pull requests.
+- **Severity:** Medium · **Checked:** `.github/workflows/ci.yml` builds and tests on Windows, macOS and Linux for pull requests and pushes. There is no release workflow.
+- **State:** release builds come from `publish.ps1`, `packaging/build-macos-app.sh` and `dotnet publish` run by hand. v0.18.0 Linux tarballs were made by hand too. 
 - **Impact:** no gate on regressions, and releases are only as reproducible as one machine.
 - **Fix direction:** FG-01 and FG-16 in [docs/todos/future-roadmap.md](todos/future-roadmap.md): a PR workflow (build and test on macOS, Linux, Windows with `Toucan.CrossPlatform.slnx`) first, then a tag-triggered release workflow that builds all packages and attaches them to the GitHub release.
 
@@ -125,7 +102,7 @@ All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategi
 
 - **Severity:** Medium · **Checked:** from code. I found no test that targets these, so they could regress unnoticed.
 - **Bugs fixed without a test:** `DiffMergeEngine` baselines (merged items stayed dirty), `AutoSaveService` dispose during a save, `TranslationManagementService` double `DirtyStateChanged`, iOS `.strings` `\\n` handling, Java `.properties` line continuation. The last two I re-ran by hand on 2026-10-07 and they behave correctly.
-- **Also missing:** the FMT-09 cases (FMT-05 to FMT-08 now have tests in `FormatBugRegressionTests`). `FormatRoundTripTests` only covers simple keys and values (`app.title=Hello`).
+- **Also missing:** FMT-05 to FMT-08 have tests in `FormatBugRegressionTests` and FMT-09 in `YamlFidelityTests`. `FormatRoundTripTests` only covers simple keys and values (`app.title=Hello`).
 - **Fix direction:** one test per bug with the exact input from this file. This is the cheapest item here and protects the fixes above.
 
 <a id="qa-02"></a>
@@ -148,7 +125,7 @@ The earlier version of this file kept tables of fixed bugs (B1 to B11 and the v0
 | B5 | iOS `.strings` `\\n` corrupted | 0.17.1 |
 | B6 | Java `.properties` line continuations truncated values | 0.17.1 |
 | B7 to B11 | WPF-only UI fixes (Issues grouping, Search panel sizing, Source Code panel, Explorer foreground, status bar clicks) | 0.17.2 |
-| FMT-05 to FMT-08 | RESX language detection, XLIFF save losing source/notes/state, ARB metadata and region locales | Unreleased |
+| FMT-05 to FMT-09 | RESX language detection, XLIFF save losing source/notes/state, ARB metadata and region locales, YAML flat keys and `__self` | Unreleased |
 | v0.14.1 to v0.16.1 | Earlier bug batches | 0.14.1, 0.14.2, 0.15.0, 0.16.1 |
 
 B7 to B11 were fixed in the WPF app. Whether the Avalonia app has the same problems was not checked in this audit.
