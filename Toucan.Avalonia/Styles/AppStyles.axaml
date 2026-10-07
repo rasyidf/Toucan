@@ -186,7 +186,8 @@
       <ControlTemplate>
         <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}">
-          <ContentPresenter x:Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+          <!-- Not named PART_ContentPresenter: the Fluent theme paints that name on hover, which drew a second, lighter box inside the tab. -->
+          <ContentPresenter x:Name="TabContent" Content="{TemplateBinding Content}"
                             ContentTemplate="{TemplateBinding ContentTemplate}"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         </Border>
