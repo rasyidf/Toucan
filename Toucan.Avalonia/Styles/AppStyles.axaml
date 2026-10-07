@@ -174,9 +174,29 @@
     <Setter Property="FontWeight" Value="SemiBold"/>
   </Style>
 
-  <!-- The title bar is our own top bar; hide the title and icon the drawn window decorations (Windows, Linux) would put on top of its menu. -->
-  <Style Selector=":is(Control)#PART_TitleTextPanel, :is(Control)#PART_TitlePresenter">
-    <Setter Property="IsVisible" Value="False"/>
+  <!-- Window buttons drawn by Toucan on Windows and Linux -->
+  <Style Selector="Button.caption">
+    <Setter Property="Width" Value="40"/>
+    <Setter Property="Height" Value="28"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.caption:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="Button.caption.close:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#E81123"/>
+    <Setter Property="TextElement.Foreground" Value="White"/>
+  </Style>
+  <Style Selector="Button.caption.close:pointerover Path">
+    <Setter Property="Stroke" Value="White"/>
   </Style>
 
   <!-- App-wide workspace modes in the title bar. -->

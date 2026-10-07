@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using Toucan.Avalonia.Locales;
 using Toucan.Avalonia.Services;
 using Toucan.Avalonia.ViewModels;
+using Toucan.Avalonia.Views.Components;
 
 namespace Toucan.Avalonia.Views;
 
@@ -88,7 +89,14 @@ internal static class MainMenu
             }
             else
             {
-                host.Content = new Menu { ItemsSource = items.Select(ToMenuItem).ToList() };
+                var menuItems = items.Select(ToMenuItem).OfType<MenuItem>().ToList();
+                if (host.Content is ResponsiveMenu menu) menu.SetItems(menuItems);
+                else
+                {
+                    var created = new ResponsiveMenu();
+                    created.SetItems(menuItems);
+                    host.Content = created;
+                }
             }
         }
 

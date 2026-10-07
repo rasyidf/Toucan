@@ -86,6 +86,7 @@ public partial class MainWindow : Window
         ExtendClientAreaTitleBarHeightHint = 40;
 
         TopBar.MinHeight = 40;
+        if (!PlatformService.IsMacOS) UseOwnWindowButtons();
         // No native title shows the app name any more, so the top bar carries it on every platform.
         TitleBarBrand.IsVisible = true;
         if (!PlatformService.IsMacOS)
@@ -115,12 +116,41 @@ public partial class MainWindow : Window
         };
     }
 
+    /// <summary>
+    /// Windows and Linux: no system title bar (the window keeps only its border) so nothing draws a title or icon over the menu;
+    /// the top bar carries minimize, maximize/restore and close buttons instead.
+    /// </summary>
+    private void UseOwnWindowButtons()
+    {
+        WindowDecorations = global::Avalonia.Controls.WindowDecorations.BorderOnly;
+        CaptionButtons.IsVisible = true;
+        MinimizeButton.Click += (_, _) => WindowState = WindowState.Minimized;
+        MaximizeButton.Click += (_, _) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        CloseButton.Click += (_, _) => Close();
+
+        void Sync()
+        {
+            var maximized = WindowState == WindowState.Maximized;
+            MaximizeGlyph.IsVisible = !maximized;
+            RestoreGlyph.IsVisible = maximized;
+            ToolTip.SetTip(MaximizeButton, Loc.T(maximized ? "Restore" : "Maximize"));
+            CaptionButtons.IsVisible = WindowState != WindowState.FullScreen;
+        }
+        Sync();
+        PropertyChanged += (_, e) => { if (e.Property == WindowStateProperty) Sync(); };
+    }
+
     private void UpdateTitleBarLayout()
     {
         // Equal reserved wings keep search centered even when the native controls are visible. A wide menu (Windows and Linux)
         // can leave too little room that way, so then settle for whatever is free between the two sides.
         var leading = TitleBarLeading.DesiredSize.Width;
         var trailing = TitleBarTrailing.DesiredSize.Width;
+
+        // The menu folds into "…" rather than overlap the search pill and the controls on the right.
+        var beside = leading - MenuHost.DesiredSize.Width;
+        var menuRoom = Math.Max(0, TitleBarLayout.Bounds.Width - beside - trailing - 180 - 40);
+        if (double.IsInfinity(MenuHost.MaxWidth) || Math.Abs(MenuHost.MaxWidth - menuRoom) > 0.5) MenuHost.MaxWidth = menuRoom;
         var wing = Math.Max(leading, trailing) + 16;
         var free = TitleBarLayout.Bounds.Width - leading - trailing - 32;
         var width = Math.Clamp(TitleBarLayout.Bounds.Width - 2 * wing, Math.Clamp(free, 180, 280), 500);

@@ -549,5 +549,8 @@
   "Template": "Templat",
   "Remove option": "Hapus opsi",
   "Remove secret": "Hapus rahasia",
-  "Remove template": "Hapus templat"
+  "Remove template": "Hapus templat",
+  "Minimize": "Perkecil",
+  "Maximize": "Perbesar",
+  "Restore": "Pulihkan"
 }
