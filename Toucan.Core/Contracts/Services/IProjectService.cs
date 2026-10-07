@@ -33,4 +33,7 @@ public class ProjectLoadResult
 {
     public required ProjectSettings Settings { get; init; }
     public required List<TranslationItem> Translations { get; init; }
+
+    /// <summary>Format limitations the user should know about before editing (empty when none).</summary>
+    public IReadOnlyList<string> Warnings { get; init; } = [];
 }

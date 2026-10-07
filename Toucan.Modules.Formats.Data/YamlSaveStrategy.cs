@@ -9,6 +9,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public string FormatId => FormatIds.Yaml;
+
+    public FormatSupport Support { get; } = new(
+        FormatEditing.Limited,
+        "YAML 1.1 and 1.2 scalar maps; one file per language",
+        ["Nested and flat dotted keys (same style as the file)", "block scalars (| and >) read", "multiline text", "quoted scalars such as on", "off", "~ and numbers"],
+        ["Comments in the file are not kept", "Anchors, aliases, tags and sequences are not read", "Block scalars are written as quoted strings"]);
     public string DisplayName => "YAML";
     public IReadOnlyList<string> FileExtensions => [".yml", ".yaml"];
     public string DefaultFilePath(string language) => $"{language}.yaml";

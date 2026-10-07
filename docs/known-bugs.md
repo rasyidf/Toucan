@@ -102,7 +102,7 @@ All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategi
 
 - **Severity:** Medium · **Checked:** from code. I found no test that targets these, so they could regress unnoticed.
 - **Bugs fixed without a test:** `DiffMergeEngine` baselines (merged items stayed dirty), `AutoSaveService` dispose during a save, `TranslationManagementService` double `DirtyStateChanged`, iOS `.strings` `\\n` handling, Java `.properties` line continuation. The last two I re-ran by hand on 2026-10-07 and they behave correctly.
-- **Also missing:** FMT-05 to FMT-08 have tests in `FormatBugRegressionTests` and FMT-09 in `YamlFidelityTests`. `FormatRoundTripTests` only covers simple keys and values (`app.title=Hello`).
+- **Also missing:** FMT-05 to FMT-08 have tests in `FormatBugRegressionTests` and FMT-09 in `YamlFidelityTests`. `FormatRoundTripTests` covers simple keys; `FormatFidelityFixtureTests` covers awkward values for every loadable format.
 - **Fix direction:** one test per bug with the exact input from this file. This is the cheapest item here and protects the fixes above.
 
 <a id="qa-02"></a>

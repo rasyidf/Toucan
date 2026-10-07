@@ -5,7 +5,16 @@
 ### Added
 - **Continuous integration** — Pull requests and pushes to `main` and `release/**` build `Toucan.CrossPlatform.slnx` and run the Core and Avalonia tests on Windows, macOS and Linux, and upload coverage reports.
 
+- **Format support matrix** — [docs/formats.md](docs/formats.md) lists, for every built-in format, the versions that work, what survives a save and what does not. It is generated from the code and checked by a test.
+- **Unsafe saves are blocked** — Android XML projects that contain `<plurals>`, other resource types or `translatable="false"`, and RESX projects with non-string resources, `<metadata>` or files not named `Resources*.resx`, open with a warning, and saving them in place is refused, because Toucan would rewrite the files without that content. Save As still writes a copy.
+- **Round-trip fixtures** — Every loadable format is checked for multiline text, CRLF, quotes, backslashes, unicode, placeholders, markup, separators, leading spaces, tabs, percent signs, `$`, and YAML-looking words and numbers.
+
 ### Fixed
+- **Laravel PHP** — Multiline values were lost on load, and `\\` was read as two backslashes. The loader now reads single- and double-quoted strings, `array()` syntax, comments and nested arrays properly, and skips computed values.
+- **TOML** — Backslashes, carriage returns, `\uXXXX` escapes and trailing comments are read correctly; literal `'strings'` are no longer unescaped.
+- **Java properties** — A value with leading spaces keeps them, and `\r` and `\f` are escaped.
+- **XML formats** — Carriage returns in Android XML, RESX and XLIFF values survive a save.
+- **JSON numbers and booleans** — `10` and `true` are written back as a number and a boolean unless you edit them, instead of becoming `"10"` and `"True"`.
 - **YAML flat keys** — A file that uses flat dotted keys (`"a.b.c": x`) is saved flat instead of being rewritten as nested maps, and quoted keys load without their quotes. A key that is also a parent (`app` and `app.title`) is written as flat keys instead of an invented `__self` entry.
 - **YAML scalars** — `on`, `off`, `y`, `n`, `~`, numbers such as `1.0` and `007`, and hex-like text are quoted so YAML 1.1 readers keep them as text. Backslashes and carriage returns in quoted values load correctly.
 

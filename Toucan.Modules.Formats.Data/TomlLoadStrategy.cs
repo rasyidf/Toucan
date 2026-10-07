@@ -49,8 +49,46 @@ public class TomlLoadStrategy : ILoadStrategy
         return result;
     }
 
-    private static string StripQuotes(string s) =>
-        s.Length >= 2 && ((s[0] == '"' && s[^1] == '"') || (s[0] == '\'' && s[^1] == '\''))
-            ? s[1..^1].Replace("\\n", "\n").Replace("\\t", "\t").Replace("\\\"", "\"")
-            : s;
+    /// <summary>Reads a TOML string value: basic ("...", with escapes) or literal ('...', none). Text after the closing quote (a comment) is ignored.</summary>
+    private static string StripQuotes(string s)
+    {
+        if (s.Length < 2) return s;
+        if (s[0] == '\'')
+        {
+            var end = s.IndexOf('\'', 1);
+            return end > 0 ? s[1..end] : s;
+        }
+        if (s[0] != '"') return s;
+
+        var sb = new System.Text.StringBuilder(s.Length);
+        for (var i = 1; i < s.Length; i++)
+        {
+            var c = s[i];
+            if (c == '"') return sb.ToString();
+            if (c != '\\' || i + 1 >= s.Length) { sb.Append(c); continue; }
+
+            var n = s[++i];
+            switch (n)
+            {
+                case 'n': sb.Append('\n'); break;
+                case 't': sb.Append('\t'); break;
+                case 'r': sb.Append('\r'); break;
+                case 'b': sb.Append('\b'); break;
+                case 'f': sb.Append('\f'); break;
+                case '"': sb.Append('"'); break;
+                case '\\': sb.Append('\\'); break;
+                case 'u' or 'U':
+                    var len = n == 'u' ? 4 : 8;
+                    if (i + len < s.Length + 0 && int.TryParse(s.AsSpan(i + 1, len), System.Globalization.NumberStyles.HexNumber, null, out var cp) && cp is >= 0 and <= 0x10FFFF)
+                    {
+                        sb.Append(char.ConvertFromUtf32(cp));
+                        i += len;
+                    }
+                    else sb.Append('\\').Append(n);
+                    break;
+                default: sb.Append('\\').Append(n); break;
+            }
+        }
+        return sb.ToString();
+    }
 }

@@ -8,6 +8,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 public class TomlSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public string FormatId => FormatIds.Toml;
+
+    public FormatSupport Support { get; } = new(
+        FormatEditing.Limited,
+        "TOML basic and literal strings; [section] and dotted keys; one file per language",
+        ["Sections", "dotted keys", "multiline text via escapes", "unicode escapes"],
+        ["Comments in the file are not kept", "Arrays, inline tables, multiline (\"\"\") strings and dates are not read"]);
     public string DisplayName => "TOML";
     public IReadOnlyList<string> FileExtensions => [".toml"];
     public string DefaultFilePath(string language) => $"{language}.toml";
@@ -43,7 +49,7 @@ public class TomlSaveStrategy(IFileService fileService) : ISaveStrategy
         }
     }
 
-    private static string Escape(string s) => s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\t", "\\t");
+    private static string Escape(string s) => s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
 
     public Task SaveAsync(string path, SaveContext context) => Task.Run(() => Save(path, context));
 }

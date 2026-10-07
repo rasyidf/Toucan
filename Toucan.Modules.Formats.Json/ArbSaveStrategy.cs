@@ -11,6 +11,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 public class ArbSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public string FormatId => FormatIds.Arb;
+
+    public FormatSupport Support { get; } = new(
+        FormatEditing.Full,
+        "Flutter ARB (intl_*.arb, app_*.arb), region and script locales",
+        ["@key metadata (description, placeholders)", "@@ header entries", "ICU plural and select messages kept as text", "@@locale"],
+        ["ICU messages are edited as one string, not as separate plural forms"]);
     public string DisplayName => "Flutter ARB";
     public IReadOnlyList<string> FileExtensions => [".arb"];
     public string DefaultFilePath(string language) => $"app_{language}.arb";

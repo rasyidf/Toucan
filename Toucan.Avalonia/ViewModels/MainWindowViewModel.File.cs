@@ -181,6 +181,8 @@ public partial class MainWindowViewModel
                     LoadFromStore(path);
                     ShowStartScreen = false;
                     StatusText = $"Opened {ProjectName}";
+                    if (result.Warnings is { Count: > 0 })
+                        await _messageService.ShowMessageAsync(string.Join("\n\n", result.Warnings), "Format limitations");
                     break;
                 case ProjectOpenStatus.Cancelled:
                     StatusText = cts.IsCancellationRequested ? "Load cancelled" : string.Empty;

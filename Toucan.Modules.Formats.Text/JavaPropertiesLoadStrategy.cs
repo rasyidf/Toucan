@@ -105,6 +105,8 @@ public class JavaPropertiesLoadStrategy : ILoadStrategy
                 {
                     case 'n': sb.Append('\n'); break;
                     case 't': sb.Append('\t'); break;
+                    case 'r': sb.Append('\r'); break;
+                    case 'f': sb.Append('\f'); break;
                     case 'u' when i + 4 < s.Length:
                         if (ushort.TryParse(s.AsSpan(i + 1, 4), System.Globalization.NumberStyles.HexNumber, null, out var ch))
                         { sb.Append((char)ch); i += 4; }

@@ -145,7 +145,7 @@ public partial class ProjectLifecycleService(
 
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Project opened successfully: {FolderPath}", folderPath);
-        return new ProjectOpenResult(ProjectOpenStatus.Success);
+        return new ProjectOpenResult(ProjectOpenStatus.Success, Warnings: loadResult.Warnings);
     }
 
     /// <inheritdoc />

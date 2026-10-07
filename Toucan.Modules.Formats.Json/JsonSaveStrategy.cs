@@ -8,6 +8,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public string FormatId => FormatIds.Json;
+
+    public FormatSupport Support { get; } = new(
+        FormatEditing.Full,
+        "Any JSON object; nested objects and arrays",
+        ["Nested keys", "arrays", "multiline text", "escapes", "numbers and booleans left unedited", "placeholders", "sorted stable output"],
+        ["Comments (JSON has none)", "null values are dropped", "Empty values are not written", "Key order is sorted on save"]);
     public string DisplayName => "JSON (flat)";
     public IReadOnlyList<string> FileExtensions => [".json"];
     public string DefaultFilePath(string language) => $"{language}.json";
@@ -21,15 +27,31 @@ public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy
             // ponytail: sort by namespace so JSON keys are stable across saves (reduces VCS noise)
             foreach (var item in list.NoEmpty().OrderBy(i => i.Namespace, StringComparer.Ordinal))
             {
-                SetNestedValue(root, item.Namespace, item.Value ?? string.Empty);
+                SetNestedValue(root, item.Namespace, TypedValue(item));
             }
             fileService.Save(path, language + ".json", root);
         }
     }
 
+    /// <summary>An untouched number or boolean goes back as JSON of the same type; an edited one becomes a string.</summary>
+    private static object TypedValue(TranslationItem item)
+    {
+        var value = item.Value ?? string.Empty;
+        if (item.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey) is { } raw)
+        {
+            try
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(raw);
+                if (doc.RootElement.ToString() == value) return doc.RootElement.Clone();
+            }
+            catch (System.Text.Json.JsonException) { }
+        }
+        return value;
+    }
+
     // ponytail: parses dot-separated keys with [N] array indices into nested dicts/lists.
     // Ceiling: O(n*d) where n=items, d=depth; fine for i18n files.
-    private static void SetNestedValue(Dictionary<string, object> root, string ns, string value)
+    private static void SetNestedValue(Dictionary<string, object> root, string ns, object value)
     {
         var segments = ParseSegments(ns);
         object current = root;

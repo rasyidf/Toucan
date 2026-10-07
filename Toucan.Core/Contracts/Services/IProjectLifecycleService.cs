@@ -45,7 +45,8 @@ public enum ProjectOpenStatus
 }
 
 /// <summary>Result of a project open operation.</summary>
-public record ProjectOpenResult(ProjectOpenStatus Status, string? ErrorMessage = null);
+/// <param name="Warnings">Format limitations to show after a successful open.</param>
+public record ProjectOpenResult(ProjectOpenStatus Status, string? ErrorMessage = null, IReadOnlyList<string>? Warnings = null);
 
 /// <summary>Status codes for project save operations.</summary>
 public enum ProjectSaveStatus

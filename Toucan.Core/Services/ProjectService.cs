@@ -47,7 +47,14 @@ public class ProjectService(
         if (settings.Languages.Count == 0)
             settings.Languages = translations.ToLanguages().ToList();
 
-        return new ProjectLoadResult { Settings = settings, Translations = translations };
+        var warnings = new List<string>();
+        var strategy = strategyFactory.GetSaveStrategy(settings.SaveFormat);
+        var unsupported = strategy?.FindUnsupportedConstructs(folder) ?? [];
+        if (unsupported.Count > 0)
+            warnings.Add($"These {strategy!.DisplayName} files contain content Toucan cannot write back: {string.Join("; ", unsupported)}. "
+                + "You can edit and review, but saving is blocked to protect your files. Use Save As to write a copy.");
+
+        return new ProjectLoadResult { Settings = settings, Translations = translations, Warnings = warnings };
     }
 
     public ProjectSettings CreateProject(string folder, IEnumerable<string> languages, string formatId = FormatIds.Json, bool createManifest = true, string? name = null)
@@ -175,6 +182,10 @@ public class ProjectService(
     {
         var strategy = strategyFactory.GetSaveStrategy(formatId)
             ?? throw new FormatUnavailableException(formatId);
+
+        // Saving rewrites the files; refuse when that would silently drop content the format cannot write back.
+        if (Directory.Exists(path) && strategy.FindUnsupportedConstructs(path) is { Count: > 0 } unsafeConstructs)
+            throw new FormatSaveBlockedException(formatId, unsafeConstructs);
 
         var context = new SaveContext
         {
