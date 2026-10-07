@@ -29,9 +29,8 @@ Last updated: 2026-10-06. Current release: v0.19.0 for Windows, macOS and Linux 
 
 ## Open Issues (Not Bugs — Limitations)
 
-- The Avalonia app does not have every panel the WPF app had yet: Source Control, Translation, and Dictionary are missing.
-- The WPF app is deprecated and no longer builds against the current Core (see the breaking changes in the 0.18.0 entry of [CHANGELOG.md](../CHANGELOG.md)). Windows users should use the Avalonia app, v0.19.0.
-- Plugins work in the Avalonia app and the CLI only, not in the deprecated WPF app.
+- The Avalonia app does not have every panel the retired WPF app had yet: Source Control, Translation, and Dictionary are missing.
+- The WPF app was removed from `main`; its source is on the `legacy/wpf` branch and no longer builds against the current Core. Windows users should use the Avalonia app, v0.19.0.
 - The macOS app is ad-hoc signed, not notarized: macOS asks you to confirm before the first launch.
 - No signed packages and no release pipeline yet (FG-01).
 

@@ -5,7 +5,7 @@
 
 Toucan is a desktop editor for translation files on Windows, macOS, and Linux. It opens 14 formats in one workspace, so you can translate, review, and validate every language file in a project without switching tools.
 
-Toucan is in preview: settings and project files can change between releases until 1.0. Current release: **v0.19.0** on Windows, macOS and Linux (v0.18.0 was the first release on macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Website: [toucan.rasyid.dev](https://toucan.rasyid.dev).
+Toucan is in preview: settings and project files can change between releases until 1.0. Current release: **v0.19.0** on Windows, macOS and Linux (v0.18.0 was the first release on macOS and Linux). The old WPF app was retired after v0.17.3 and lives on the [`legacy/wpf`](https://github.com/rasyidf/Toucan/tree/legacy/wpf) branch. Website: [toucan.rasyid.dev](https://toucan.rasyid.dev).
 
 <img width="878" height="668" alt="Toucan editor with the tree sidebar, translation grid, and inspector panel" src="https://github.com/user-attachments/assets/6c60208e-640a-4fbc-b280-63f5fc856ece" />
 
@@ -26,7 +26,6 @@ Toucan detects the framework when you drop a folder (i18next, Android, Flutter, 
 | App | Platforms | Status |
 |-----|-----------|--------|
 | Toucan (Avalonia) | Windows, macOS, Linux | Preview, v0.19.0. The supported app on every platform: Editor/Review/Audit modes, Zen mode, command palette, search and bulk edits, side panels, plugins, file association and Indonesian localization. The Windows builds are this app. |
-| Toucan (WPF) | Windows 10 and later | Deprecated, v0.17.3 is the last release. Feature parity with the Avalonia app is recorded in [docs/wpf-parity.md](docs/wpf-parity.md). |
 | `toucan` CLI | Any OS with .NET 10 | Preview. `check`, `stats`, `translate`, `export`, `list-formats`, `list-keys`, `get`, `set`. |
 
 ## Supported formats
@@ -83,7 +82,7 @@ This is the planned order, not a promise. Details are in [docs/todos/future-road
 
 | Layer | Technology |
 |-------|-----------|
-| UI | Windows: WPF with [WPF UI](https://github.com/lepoco/wpfui) (Fluent Design, Mica backdrop). macOS and Linux: [Avalonia](https://avaloniaui.net) 12 with FluentAvaloniaUI |
+| UI | [Avalonia](https://avaloniaui.net) 12 with FluentAvaloniaUI (Windows, macOS, Linux) |
 | Architecture | MVVM with CommunityToolkit.Mvvm |
 | Runtime | .NET 10, System.Text.Json |
 | Providers | Google, DeepL, Microsoft, OpenAI, Claude, Gemini, custom webhook |
@@ -92,7 +91,7 @@ This is the planned order, not a promise. Details are in [docs/todos/future-road
 
 ## Plugins
 
-Plugins add file formats, translation providers, validation rules, and framework profiles from `.dll` assemblies, without changing Toucan. They arrived in v0.18.0, work in the Avalonia app (macOS, Linux) and the CLI but not the WPF app, and load only when you have enabled and trusted them: Settings > Plugins in the app, or `toucan plugins list` and `toucan plugins trust <id>` on the command line. To write one, start from [`samples/Toucan.Sample.Plugin`](samples/Toucan.Sample.Plugin) and the [plugin guide](docs/plugins.md); the contracts ship as the `Toucan.Plugins.Abstractions` package.
+Plugins add file formats, translation providers, validation rules, and framework profiles from `.dll` assemblies, without changing Toucan. They arrived in v0.18.0, work in the Avalonia app and the CLI, and load only when you have enabled and trusted them: Settings > Plugins in the app, or `toucan plugins list` and `toucan plugins trust <id>` on the command line. To write one, start from [`samples/Toucan.Sample.Plugin`](samples/Toucan.Sample.Plugin) and the [plugin guide](docs/plugins.md); the contracts ship as the `Toucan.Plugins.Abstractions` package.
 
 ## Build from source
 
@@ -104,7 +103,7 @@ dotnet run --project Toucan.Avalonia
 dotnet run --project Toucan.CLI -- check ./locales
 ```
 
-The WPF app and its tests are Windows-only and are part of `ToucanProject.slnx`. Architecture notes are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+The old WPF app is on the `legacy/wpf` branch. Architecture notes are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 The app version is set once, in `Directory.Build.props`. `publish.ps1` (Windows packages), `packaging/Build-Msix.ps1`, and `packaging/build-macos-app.sh` read it from there.
 
