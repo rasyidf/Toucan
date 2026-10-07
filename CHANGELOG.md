@@ -27,6 +27,8 @@ Command palette, a new title bar, Claude and Gemini translation providers, and a
 
 ### Fixed
 
+- **PO round trip (FMT-01 save, FMT-02, FMT-03)** — plural entries (`msgid_plural`, `msgstr[N]`) are kept, `msgctxt` is kept apart from `msgid` (key is `msgctxt` + U+0004 + `msgid`, as gettext does), and `#,` flags, `#:` references, translator comments and the header survive a save. `#, fuzzy` maps to "not approved". Entries are written back to the file they came from (for example `fr/LC_MESSAGES/messages.po`) instead of a new `<language>.po` at the root.
+
 - **PO language detection (FMT-01)** — `<lang>/LC_MESSAGES/<domain>.po` projects now load one language per folder; the language comes from the `Language:` header, then the folder, then the file name.
 - **CSV multi-line values (FMT-04)** — the loader parses RFC 4180 records, so quoted values with line breaks are no longer cut off; the saver now quotes values containing a lone `\r`.
 - **Right-click menus** — The editor cards' menu is now a flyout like the Explorer's, with icons and Indonesian labels (the old menu type never appeared on macOS).
