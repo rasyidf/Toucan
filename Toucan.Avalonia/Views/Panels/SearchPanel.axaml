@@ -3,7 +3,8 @@
              xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
-             xmlns:vm="using:Toucan.Avalonia.ViewModels">
+             xmlns:c="using:Toucan.Avalonia.Views.Components"
+             xmlns:conv="using:Toucan.Avalonia.Converters">
   <DockPanel>
     <StackPanel DockPanel.Dock="Top" Margin="10,8" Spacing="6">
       <Grid ColumnDefinitions="Auto,*">
@@ -11,38 +12,78 @@
           <ui:FASymbolIcon Symbol="ChevronRight"/>
         </ToggleButton>
         <StackPanel Grid.Column="1" Spacing="6">
-          <TextBox x:Name="QueryBox" Text="{Binding SearchQuery}" PlaceholderText="{loc:Loc 'Search values'}" Classes="clearButton">
+          <!-- Query with its three match options inside the box -->
+          <TextBox x:Name="QueryBox" Classes="clearButton" Text="{Binding SearchQuery}" PlaceholderText="{loc:Loc 'Search keys and values'}">
             <TextBox.InnerRightContent>
-              <ToggleButton Classes="icon small" IsChecked="{Binding UseRegex}" ToolTip.Tip="{loc:Loc 'Use regular expression'}" Margin="0,0,4,0">
-                <TextBlock Text=".*" FontWeight="Bold" FontSize="12"/>
-              </ToggleButton>
+              <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,4,0">
+                <ToggleButton Classes="option" IsChecked="{Binding MatchCase}" ToolTip.Tip="{loc:Loc 'Match case'}">
+                  <TextBlock Text="Aa"/>
+                </ToggleButton>
+                <ToggleButton Classes="option" IsChecked="{Binding WholeWord}" ToolTip.Tip="{loc:Loc 'Match whole word'}">
+                  <TextBlock Text="ab" TextDecorations="Underline"/>
+                </ToggleButton>
+                <ToggleButton Classes="option" IsChecked="{Binding UseRegex}" ToolTip.Tip="{loc:Loc 'Use regular expression'}">
+                  <TextBlock Text=".*"/>
+                </ToggleButton>
+              </StackPanel>
             </TextBox.InnerRightContent>
             <TextBox.KeyBindings>
               <KeyBinding Gesture="Enter" Command="{Binding ExecuteSearchCommand}"/>
             </TextBox.KeyBindings>
           </TextBox>
+
           <DockPanel IsVisible="{Binding ShowReplacePanel}">
             <Button DockPanel.Dock="Right" Classes="icon small" Command="{Binding ExecuteReplaceCommand}" ToolTip.Tip="{loc:Loc 'Replace all matches'}" Margin="4,0,0,0">
               <ui:FASymbolIcon Symbol="Sync"/>
             </Button>
-            <Button DockPanel.Dock="Right" Classes="icon small" Command="{Binding PreviewReplaceCommand}" ToolTip.Tip="{loc:Loc 'Preview replacements'}">
-              <ui:FASymbolIcon Symbol="Preview"/>
-            </Button>
-            <TextBox Text="{Binding ReplaceText}" PlaceholderText="{loc:Loc 'Replace with'}"/>
+            <TextBox Text="{Binding ReplaceText}" PlaceholderText="{loc:Loc 'Replace'}">
+              <TextBox.InnerRightContent>
+                <ToggleButton Classes="option" Margin="0,0,4,0" IsChecked="{Binding PreserveCase}" ToolTip.Tip="{loc:Loc 'Preserve case'}">
+                  <TextBlock Text="AB"/>
+                </ToggleButton>
+              </TextBox.InnerRightContent>
+            </TextBox>
           </DockPanel>
+
+          <!-- Language and key filters (the "..." of an editor's file filters) -->
+          <ToggleButton Classes="option" HorizontalAlignment="Right" IsChecked="{Binding ShowSearchDetails}" ToolTip.Tip="{loc:Loc 'Toggle search details'}"
+                        Classes.active="{Binding HasFilters}">
+            <TextBlock Text="…"/>
+          </ToggleButton>
+          <StackPanel Spacing="4" IsVisible="{Binding ShowSearchDetails}">
+            <TextBlock Text="{loc:Loc 'languages to include'}" Classes="caption"/>
+            <TextBox Text="{Binding IncludeLanguages}" PlaceholderText="en-US, id-ID" Classes="mono"/>
+            <DockPanel Margin="0,4,0,0">
+              <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Use selected key'}" Command="{Binding UseSelectedKeyPathCommand}"
+                      FontSize="11" Padding="0"/>
+              <TextBlock Text="{loc:Loc 'keys to include'}" Classes="caption" VerticalAlignment="Center"/>
+            </DockPanel>
+            <TextBox Text="{Binding IncludeKeys}" PlaceholderText="auth.*, checkout" Classes="mono"/>
+            <TextBlock Text="{loc:Loc 'keys to exclude'}" Classes="caption" Margin="0,4,0,0"/>
+            <TextBox Text="{Binding ExcludeKeys}" PlaceholderText="*.internal" Classes="mono"/>
+          </StackPanel>
         </StackPanel>
       </Grid>
-      <ComboBox ItemsSource="{x:Static vm:MainWindowViewModel.SearchScopes}" SelectedIndex="{Binding SearchScopeIndex}" HorizontalAlignment="Stretch"/>
-      <ComboBox ItemsSource="{Binding LanguageVisibilityFilter}" SelectedValue="{Binding SearchLanguage}" SelectedValueBinding="{Binding Language}"
-                DisplayMemberBinding="{Binding Language}" HorizontalAlignment="Stretch"
-                IsVisible="{Binding IsLanguageScope}" PlaceholderText="{loc:Loc 'Language'}"/>
-      <Button Content="{loc:Loc 'Search'}" Classes="accent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Command="{Binding ExecuteSearchCommand}"/>
-      <TextBlock Text="{Binding SearchStatus}" Classes="caption"/>
+      <!-- Status on the left, expand / collapse on the right (close and collapse of the panel itself live in its header) -->
+      <Grid ColumnDefinitions="*,Auto" Margin="2,0,0,0">
+        <TextBlock Text="{Binding SearchStatus}" Classes="caption" VerticalAlignment="Center" TextWrapping="Wrap"/>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2" IsVisible="{Binding HasSearchResults}">
+          <Button Classes="icon small" Command="{Binding ExpandAllSearchGroupsCommand}" ToolTip.Tip="{loc:Loc 'Expand all'}">
+            <ui:FASymbolIcon Symbol="ChevronDown"/>
+          </Button>
+          <Button Classes="icon small" Command="{Binding CollapseAllSearchGroupsCommand}" ToolTip.Tip="{loc:Loc 'Collapse all'}">
+            <ui:FASymbolIcon Symbol="ChevronUp"/>
+          </Button>
+        </StackPanel>
+      </Grid>
     </StackPanel>
 
-    <!-- History when there are no results -->
+    <!-- History when there is nothing to show -->
     <StackPanel DockPanel.Dock="Bottom" Margin="10,6" IsVisible="{Binding SearchHistory.Count}">
-      <TextBlock Text="{loc:Loc 'Recent searches'}" Classes="caption"/>
+      <DockPanel>
+        <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Clear'}" Command="{Binding ClearSearchHistoryCommand}" FontSize="11" Padding="0"/>
+        <TextBlock Text="{loc:Loc 'Recent searches'}" Classes="caption" VerticalAlignment="Center"/>
+      </DockPanel>
       <ItemsControl ItemsSource="{Binding SearchHistory}">
         <ItemsControl.ItemTemplate>
           <DataTemplate>
@@ -52,21 +93,41 @@
       </ItemsControl>
     </StackPanel>
 
-    <ListBox Classes="plain" ItemsSource="{Binding SearchResults}" SelectedItem="{Binding SelectedSearchResult}">
-      <ListBox.ItemTemplate>
-        <DataTemplate>
-          <StackPanel Spacing="2">
-            <DockPanel>
-              <Border DockPanel.Dock="Right" Classes="badge"><TextBlock Text="{Binding Language}"/></Border>
-              <TextBlock Text="{Binding Key}" Classes="mono caption" TextTrimming="CharacterEllipsis"/>
-            </DockPanel>
-            <TextBlock Text="{Binding Value}" TextWrapping="Wrap" MaxLines="3" FontSize="12"/>
-            <TextBlock Text="{Binding ReplacedValue, StringFormat='→ {0}'}" TextWrapping="Wrap" MaxLines="3" FontSize="12"
-                       Foreground="{DynamicResource GoodBrush}"
-                       IsVisible="{Binding ReplacedValue, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-          </StackPanel>
-        </DataTemplate>
-      </ListBox.ItemTemplate>
-    </ListBox>
+    <!-- Results grouped by key -->
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+      <ItemsControl ItemsSource="{Binding SearchGroups}" Margin="4,0">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <StackPanel>
+              <Button Classes="row" Command="{Binding ToggleCommand}" Padding="4,4">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                  <ui:FASymbolIcon Symbol="{Binding IsExpanded, Converter={x:Static conv:ExpanderChevronConverter.Instance}}" FontSize="11" VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="1" Text="{Binding Key}" Classes="mono" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
+                             ToolTip.Tip="{Binding Key}"/>
+                  <Border Grid.Column="2" Classes="badge"><TextBlock Text="{Binding Count}"/></Border>
+                </Grid>
+              </Button>
+              <ItemsControl ItemsSource="{Binding Matches}" IsVisible="{Binding IsExpanded}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Button Classes="row match" Classes.selected="{Binding IsSelected}"
+                            Command="{Binding $parent[UserControl].DataContext.SelectSearchMatchCommand}" CommandParameter="{Binding}">
+                      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <c:MatchTextBlock SourceText="{Binding Text}" MatchStart="{Binding MatchStart}" MatchLength="{Binding MatchLength}"
+                                          ReplacementText="{Binding Replacement}" FontSize="12" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Top">
+                          <Border Classes="badge" IsVisible="{Binding InKey}"><TextBlock Text="{loc:Loc 'key'}"/></Border>
+                          <Border Classes="badge" IsVisible="{Binding !InKey}"><TextBlock Text="{Binding Language}"/></Border>
+                        </StackPanel>
+                      </Grid>
+                    </Button>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
   </DockPanel>
 </UserControl>

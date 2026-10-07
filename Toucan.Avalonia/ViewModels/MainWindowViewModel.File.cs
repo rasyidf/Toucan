@@ -228,6 +228,7 @@ public partial class MainWindowViewModel
     {
         AllTranslation = _translationStore.Translations.ToList();
         ProjectSettings = _lifecycleService.CurrentProject ?? ProjectSettings.LoadFrom(path);
+        RefreshFileFormatStatus();
         RefreshProviderChoices();
         _undoRedoService.Clear();
 
@@ -257,7 +258,7 @@ public partial class MainWindowViewModel
         OnPropertyChanged(nameof(HasValidationIssues));
         SourceCodeUsages.Clear();
         SourceCodeScanned = false;
-        SearchResults.Clear();
+        ClearSearchResults();
 
         RefreshTree();
         UpdateSummaryInfo();
@@ -429,6 +430,8 @@ public partial class MainWindowViewModel
         AllTranslation = [];
         CurrentPath = string.Empty;
         ProjectSettings = null;
+        StatusBarService.Instance.ViewModel?.Encoding.Update("UTF-8");
+        StatusBarService.Instance.ViewModel?.LineEndings.Update(Environment.NewLine == "\r\n" ? "CRLF" : "LF");
         _primaryLanguage = null;
         SelectedNode = null;
         SelectedGroup = null;
@@ -437,7 +440,7 @@ public partial class MainWindowViewModel
         HiddenNamespaces.Clear();
         ValidationIssues.Clear();
         OnPropertyChanged(nameof(HasValidationIssues));
-        SearchResults.Clear();
+        ClearSearchResults();
         SourceCodeUsages.Clear();
         _undoRedoService.Clear();
         CurrentTreeItems.Clear();

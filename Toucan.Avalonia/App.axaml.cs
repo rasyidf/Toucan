@@ -48,6 +48,7 @@ public partial class App : Application
 
             var vm = _services.GetRequiredService<MainWindowViewModel>();
             ThemeService.Apply(vm.AppOptions.Theme);
+            ColorSchemeService.Apply(vm.AppOptions);
             ThemeService.ApplyFontSize(vm.AppOptions.FontSize);
             RegisterSidePanels();
 

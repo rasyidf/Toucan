@@ -78,7 +78,7 @@
         </StackPanel>
         <c:SettingsGroup DockPanel.Dock="Top" Margin="0,12,0,12">
           <c:SettingsRow Title="{loc:Loc 'Source language'}">
-            <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding SourceLanguage}" MinWidth="200"/>
+            <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding SourceLanguage}"/>
           </c:SettingsRow>
         </c:SettingsGroup>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">

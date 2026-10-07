@@ -7,7 +7,7 @@
                 xmlns:ui="using:FluentAvalonia.UI.Controls"
                 xmlns:c="using:Toucan.Avalonia.Views.Components"
                 xmlns:conv="using:Toucan.Avalonia.Converters"
-                Title="{loc:Loc 'Settings'}" Width="900" Height="720" MinHeight="480">
+                Title="{loc:Loc 'Settings'}" Width="900" Height="720" MinWidth="720" MinHeight="480">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -59,62 +59,64 @@
           <c:SettingsGroup>
             <StackPanel>
               <c:SettingsRow Title="{loc:Loc 'Reopen the last project on startup'}">
-                <ToggleSwitch IsChecked="{Binding OpenLastProjectOnStartup}"/>
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding OpenLastProjectOnStartup}"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Interface language'}" Description="{loc:Loc 'Takes effect after restarting Toucan.'}">
-                <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.AppLanguageOptions}" SelectedItem="{Binding AppLanguage}"/>
+                <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.AppLanguageOptions}" SelectedItem="{Binding SelectedAppLanguage}"/>
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
           <c:SettingsGroup Header="{loc:Loc 'Recent projects'}">
             <StackPanel>
               <c:SettingsRow Title="{loc:Loc 'Projects to remember'}" Description="{loc:Loc 'Pinned projects do not count toward this number.'}">
-                <NumericUpDown Value="{Binding RecentProjectsLimit}" Minimum="1" Maximum="50" Increment="1" FormatString="0" Width="140"/>
+                <NumericUpDown Value="{Binding RecentProjectsLimit}" Minimum="1" Maximum="50" Increment="1" FormatString="0"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Keep pinned projects when clearing'}">
-                <ToggleSwitch IsChecked="{Binding ClearRecentKeepsPinned}"/>
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding ClearRecentKeepsPinned}"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Detect preferred language from recent projects'}" Description="{Binding DetectedLanguageText}">
-                <ToggleSwitch IsChecked="{Binding DetectLanguageFromRecent}"/>
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding DetectLanguageFromRecent}"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Clear recent projects…'}">
                 <Button Content="{loc:Loc 'Clear'}" Command="{Binding ClearRecentProjectsCommand}"/>
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
-          <c:SettingsGroup Header="{loc:Loc 'Manage recent projects'}" IsVisible="{Binding HasRecentItems}">
-            <ItemsControl ItemsSource="{Binding RecentItems}">
-              <ItemsControl.ItemTemplate>
+          <c:SettingsList Header="{loc:Loc 'Manage recent projects'}" ItemsSource="{Binding RecentItems}" IsVisible="{Binding HasRecentItems}">
+              <c:SettingsList.ItemTemplate>
                 <DataTemplate>
-                  <Grid ColumnDefinitions="*,Auto,Auto" Margin="14,6">
-                    <StackPanel VerticalAlignment="Center">
-                      <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-                      <TextBlock Text="{Binding Path}" Classes="caption" TextTrimming="PathSegmentEllipsis"/>
-                    </StackPanel>
-                    <ToggleButton Grid.Column="1" Classes="icon small" IsChecked="{Binding IsPinned, Mode=OneWay}"
-                                  ToolTip.Tip="{loc:Loc 'Pin or unpin'}" AutomationProperties.Name="{loc:Loc 'Pin or unpin'}"
-                                  Command="{Binding $parent[ItemsControl].DataContext.TogglePinRecentItemCommand}" CommandParameter="{Binding}">
-                      <ui:FASymbolIcon Symbol="Pin"/>
-                    </ToggleButton>
-                    <Button Grid.Column="2" Classes="icon small" ToolTip.Tip="{loc:Loc 'Remove from list'}" AutomationProperties.Name="{loc:Loc 'Remove from list'}"
-                            Command="{Binding $parent[ItemsControl].DataContext.RemoveRecentItemCommand}" CommandParameter="{Binding}">
-                      <ui:FASymbolIcon Symbol="Dismiss"/>
-                    </Button>
-                  </Grid>
+                  <c:SettingsRow Stacked="True">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                      <StackPanel VerticalAlignment="Center" Spacing="3">
+                        <TextBlock Text="{Binding Name}" FontWeight="Medium" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding Path}" Classes="caption" TextTrimming="PathSegmentEllipsis" ToolTip.Tip="{Binding Path}"/>
+                      </StackPanel>
+                      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <ToggleButton Classes="icon small settingsAction" IsChecked="{Binding IsPinned, Mode=OneWay}"
+                                      ToolTip.Tip="{loc:Loc 'Pin or unpin'}" AutomationProperties.Name="{loc:Loc 'Pin or unpin'}"
+                                      Command="{Binding $parent[ItemsControl].DataContext.TogglePinRecentItemCommand}" CommandParameter="{Binding}">
+                          <ui:FASymbolIcon Symbol="Pin"/>
+                        </ToggleButton>
+                        <Button Classes="icon small settingsAction" ToolTip.Tip="{loc:Loc 'Remove from list'}"
+                                Command="{Binding $parent[ItemsControl].DataContext.RemoveRecentItemCommand}" CommandParameter="{Binding}">
+                          <ui:FASymbolIcon Symbol="Dismiss"/>
+                        </Button>
+                      </StackPanel>
+                    </Grid>
+                  </c:SettingsRow>
                 </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </c:SettingsGroup>
+              </c:SettingsList.ItemTemplate>
+          </c:SettingsList>
           <c:SettingsGroup Header="{loc:Loc 'Lists'}">
             <StackPanel>
               <c:SettingsRow Title="{loc:Loc 'Keys per page'}">
-                <NumericUpDown Value="{Binding PageSize}" Minimum="5" Maximum="500" Increment="5" FormatString="0" Width="140"/>
+                <NumericUpDown Value="{Binding PageSize}" Minimum="5" Maximum="500" Increment="5" FormatString="0"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Show at most this many search results'}">
-                <NumericUpDown Value="{Binding TruncateSize}" Minimum="100" Maximum="100000" Increment="100" FormatString="0" Width="140"/>
+                <NumericUpDown Value="{Binding TruncateSize}" Minimum="100" Maximum="100000" Increment="100" FormatString="0"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Tree loading depth'}" Description="{loc:Loc 'How many namespace levels are built up-front. Deeper levels load when expanded.'}">
-                <NumericUpDown Value="{Binding LoadingDepth}" Minimum="1" Maximum="5" FormatString="0" Width="140"/>
+                <NumericUpDown Value="{Binding LoadingDepth}" Minimum="1" Maximum="5" FormatString="0"/>
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
@@ -136,10 +138,64 @@
                 <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.ThemeOptions}" SelectedItem="{Binding Theme}"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Editor font size'}">
-                <NumericUpDown Value="{Binding FontSize}" Minimum="11" Maximum="18" FormatString="0" Width="140"/>
+                <NumericUpDown Value="{Binding FontSize}" Minimum="11" Maximum="18" FormatString="0"/>
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
+          <c:SettingsGroup Header="{loc:Loc 'Color scheme'}" Footer="{loc:Loc 'Colors preview live. They are kept when you click Save and undone on Cancel.'}">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Scheme'}">
+                <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.SchemeNames}" SelectedItem="{Binding ColorScheme}"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Presets'}" Stacked="True">
+                <ItemsControl ItemsSource="{x:Static vm:OptionsViewModel.SchemePresets}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Button Classes="swatch" Background="{Binding Swatch}" ToolTip.Tip="{Binding Name}" AutomationProperties.Name="{Binding Name}"
+                              Command="{Binding $parent[ItemsControl].DataContext.SelectPresetCommand}" CommandParameter="{Binding Name}"/>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Accent color'}" Description="{loc:Loc 'Hex value such as #0097A7.'}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <Border Classes="colorChip" Background="{Binding AccentBrush}"/>
+                  <TextBox Classes="mono" Classes.invalid="{Binding AccentInvalid}" Width="110" MinWidth="0" MaxLength="9"
+                           Text="{Binding AccentHex, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Reset color scheme'}" Description="{loc:Loc 'Back to the Toucan preset with no color edits.'}">
+                <Button Content="{loc:Loc 'Reset'}" Command="{Binding ResetColorSchemeCommand}"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+          <c:SettingsList Header="{loc:Loc 'Customize colors'}" ItemsSource="{Binding SchemeColorItems}" MaxListHeight="360"
+                          Footer="{loc:Loc 'Edit the colors of one theme at a time. Colors that differ from the default are marked and can be reset.'}">
+            <c:SettingsList.Actions>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.VariantOptions}" SelectedItem="{Binding EditingVariant}" MinWidth="90"/>
+                <Button Classes="link" Content="{loc:Loc 'Reset colors'}" Command="{Binding ResetSchemeColorsCommand}"/>
+              </StackPanel>
+            </c:SettingsList.Actions>
+            <c:SettingsList.ItemTemplate>
+              <DataTemplate>
+                <c:SettingsRow Compact="True" Title="{Binding Label}">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Border Classes="colorChip" Background="{Binding Brush}"/>
+                    <TextBox Classes="mono" Classes.invalid="{Binding !IsValid}" Width="110" MinWidth="0" MaxLength="9"
+                             Text="{Binding Hex, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Classes="icon small settingsAction" Command="{Binding ResetCommand}" IsEnabled="{Binding IsOverridden}"
+                            ToolTip.Tip="{loc:Loc 'Reset to default'}">
+                      <ui:FASymbolIcon Symbol="Undo"/>
+                    </Button>
+                  </StackPanel>
+                </c:SettingsRow>
+              </DataTemplate>
+            </c:SettingsList.ItemTemplate>
+          </c:SettingsList>
         </StackPanel>
 
         <!-- 2 Editor -->
@@ -155,21 +211,20 @@
           <c:SettingsGroup>
             <StackPanel>
               <c:SettingsRow Title="{loc:Loc 'Default language'}" Description="{loc:Loc 'Used as the source language when a project doesn\'t specify one.'}">
-                <TextBox Text="{Binding DefaultLanguage}" Width="160"/>
+                <Button Content="{Binding DefaultLanguageText}" Command="{Binding ChooseDefaultLanguageCommand}" MinWidth="{DynamicResource SettingsControlWidth}"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Treat keys as plain text (don\'t split on dots)'}">
-                <ToggleSwitch IsChecked="{Binding PlainTextKeys}"/>
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding PlainTextKeys}"/>
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
-          <c:SettingsGroup Header="{loc:Loc 'Copy templates'}" Footer="{loc:Loc '“Copy key as” wraps the key in a template. %1 is replaced by the key, e.g. t(\'%1\').'}">
-            <StackPanel>
-              <ItemsControl Classes="rows" ItemsSource="{Binding CopyTemplates}">
-                <ItemsControl.ItemTemplate>
+          <c:SettingsList Header="{loc:Loc 'Copy templates'}" ShowSearch="False" ItemsSource="{Binding CopyTemplates}"
+                          AddText="{loc:Loc 'Add template'}" AddCommand="{Binding AddCopyTemplateCommand}" CanAdd="{Binding CanAddCopyTemplate}" Footer="{loc:Loc '“Copy key as” wraps the key in a template. %1 is replaced by the key, e.g. t(\'%1\').'}">
+            <c:SettingsList.ItemTemplate>
                   <DataTemplate>
-                    <c:SettingsRow Stacked="True" Padding="14,8">
+                    <c:SettingsRow Stacked="True">
                       <DockPanel>
-                        <Button DockPanel.Dock="Right" Classes="icon small" Margin="6,0,0,0"
+                        <Button DockPanel.Dock="Right" Classes="icon small settingsAction" Margin="10,0,0,0" ToolTip.Tip="Remove template"
                                 Command="{Binding $parent[ItemsControl].DataContext.RemoveCopyTemplateCommand}" CommandParameter="{Binding}">
                           <ui:FASymbolIcon Symbol="Dismiss"/>
                         </Button>
@@ -177,13 +232,8 @@
                       </DockPanel>
                     </c:SettingsRow>
                   </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-              <c:SettingsRow BorderThickness="0,1,0,0">
-                <Button Classes="link" Content="{loc:Loc 'Add template'}" Command="{Binding AddCopyTemplateCommand}" IsEnabled="{Binding CanAddCopyTemplate}"/>
-              </c:SettingsRow>
-            </StackPanel>
-          </c:SettingsGroup>
+                </c:SettingsList.ItemTemplate>
+          </c:SettingsList>
         </StackPanel>
 
         <!-- 3 Translation -->
@@ -205,15 +255,15 @@
                 <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.FormalityOptions}" SelectedItem="{Binding Formality}"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Preserve placeholders ({{name}}, {0}, %s, :param)'}">
-                <ToggleSwitch IsChecked="{Binding PreservePlaceholders}"/>
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding PreservePlaceholders}"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Preview before applying machine translations'}">
-                <ToggleSwitch IsChecked="{Binding PreviewBeforeApply}"/>
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding PreviewBeforeApply}"/>
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
           <c:SettingsGroup Footer="{loc:Loc 'These are defaults for new projects. Each project can override them in Project Properties.'}">
-            <c:SettingsRow Title="{loc:Loc 'Application context'}" Stacked="True" Padding="14,12"
+            <c:SettingsRow Title="{loc:Loc 'Application context'}" Stacked="True"
                            Description="{loc:Loc 'Describe your app so AI providers pick the right terminology'}">
               <StackPanel Spacing="4">
                 <TextBox Text="{Binding Context}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="140"/>
@@ -235,24 +285,22 @@
           <TextBlock Text="{loc:Loc 'Validation'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
             <c:SettingsRow Title="{loc:Loc 'Validate before saving (errors block the save)'}">
-              <ToggleSwitch IsChecked="{Binding ValidateOnSave}"/>
+              <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding ValidateOnSave}"/>
             </c:SettingsRow>
           </c:SettingsGroup>
-          <c:SettingsGroup Header="{loc:Loc 'Rules'}">
-            <ItemsControl Classes="rows" ItemsSource="{Binding ValidationRules}">
-              <ItemsControl.ItemTemplate>
+          <c:SettingsList Header="{loc:Loc 'Rules'}" ItemsSource="{Binding ValidationRules}" MaxListHeight="400">
+              <c:SettingsList.ItemTemplate>
                 <DataTemplate>
                   <c:SettingsRow Title="{Binding Label}">
                     <StackPanel Orientation="Horizontal" Spacing="12">
                       <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.SeverityOptions}" SelectedItem="{Binding Severity}"
-                                IsEnabled="{Binding Enabled}" MinWidth="120"/>
-                      <ToggleSwitch IsChecked="{Binding Enabled}"/>
+                                IsEnabled="{Binding Enabled}"/>
+                      <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding Enabled}"/>
                     </StackPanel>
                   </c:SettingsRow>
                 </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </c:SettingsGroup>
+              </c:SettingsList.ItemTemplate>
+          </c:SettingsList>
         </StackPanel>
 
         <!-- 5 Translation memory -->
@@ -271,13 +319,13 @@
                 <TextBlock Text="{Binding TmEntryCount}" Classes="caption"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Suggest matches while editing'}">
-                <ToggleSwitch IsChecked="{Binding TmAutoSuggest}"/>
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding TmAutoSuggest}"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{Binding TmSimilarityThreshold, StringFormat='Minimum similarity: {0:P0}'}">
                 <Slider Minimum="0.3" Maximum="1" Value="{Binding TmSimilarityThreshold}" TickFrequency="0.05" IsSnapToTickEnabled="True" Width="200"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Maximum suggestions'}">
-                <NumericUpDown Value="{Binding TmMaxSuggestions}" Minimum="1" Maximum="10" FormatString="0" Width="140"/>
+                <NumericUpDown Value="{Binding TmMaxSuggestions}" Minimum="1" Maximum="10" FormatString="0"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Scope'}">
                 <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.TmScopeOptions}" SelectedIndex="{Binding TmGlobalScopeIndex}"/>
@@ -305,7 +353,7 @@
                 </StackPanel>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Scan source code when a project opens'}">
-                <ToggleSwitch IsChecked="{Binding DefaultAutoScanOnOpen}"/>
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding DefaultAutoScanOnOpen}"/>
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
@@ -338,12 +386,11 @@
             </MultiBinding>
           </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Suggested languages'}" Classes="dialogTitle" Margin="0,0,0,16"/>
-          <c:SettingsGroup Footer="{loc:Loc 'Offered by “Add suggested languages” when creating a project.'}">
-            <StackPanel>
-              <ItemsControl Classes="rows" ItemsSource="{Binding SuggestedLanguageEntries}">
-                <ItemsControl.ItemTemplate>
+          <c:SettingsList ItemsSource="{Binding SuggestedLanguageEntries}" EmptyText="{loc:Loc 'No suggested languages'}"
+                          AddText="{loc:Loc 'Add language…'}" AddCommand="{Binding AddSuggestedLanguageCommand}" Footer="{loc:Loc 'Offered by “Add suggested languages” when creating a project.'}">
+            <c:SettingsList.ItemTemplate>
                   <DataTemplate>
-                    <c:SettingsRow Title="{Binding DisplayName}" Padding="14,6">
+                    <c:SettingsRow Compact="True" Title="{Binding DisplayName}">
                       <StackPanel Orientation="Horizontal" Spacing="8">
                         <Border Classes="langBadge" Margin="0" VerticalAlignment="Center"><TextBlock Text="{Binding Code}"/></Border>
                         <Button Classes="icon small" ToolTip.Tip="{loc:Loc 'Remove'}"
@@ -353,13 +400,8 @@
                       </StackPanel>
                     </c:SettingsRow>
                   </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-              <c:SettingsRow BorderThickness="0,1,0,0" HorizontalContentAlignment="Left">
-                <Button Classes="link" Content="{loc:Loc 'Add language…'}" Command="{Binding AddSuggestedLanguageCommand}"/>
-              </c:SettingsRow>
-            </StackPanel>
-          </c:SettingsGroup>
+                </c:SettingsList.ItemTemplate>
+          </c:SettingsList>
         </StackPanel>
 
         <!-- 8 Shortcuts -->
@@ -375,17 +417,15 @@
           <ItemsControl ItemsSource="{Binding ShortcutGroups}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <c:SettingsGroup Header="{Binding Category}">
-                  <ItemsControl Classes="rows" ItemsSource="{Binding Items}">
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate>
-                        <c:SettingsRow Title="{Binding Action}" MinRowHeight="38" Padding="14,6">
-                          <Border Classes="badge"><TextBlock Text="{Binding Shortcut}" Classes="mono"/></Border>
-                        </c:SettingsRow>
-                      </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
-                </c:SettingsGroup>
+                <c:SettingsList Header="{Binding Category}" ItemsSource="{Binding Items}" ShowSearch="False" MaxListHeight="Infinity">
+                  <c:SettingsList.ItemTemplate>
+                    <DataTemplate>
+                      <c:SettingsRow Compact="True" Title="{Binding Action}">
+                        <Border Classes="badge"><TextBlock Text="{Binding Shortcut}" Classes="mono"/></Border>
+                      </c:SettingsRow>
+                    </DataTemplate>
+                  </c:SettingsList.ItemTemplate>
+                </c:SettingsList>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
@@ -417,10 +457,15 @@
               </StackPanel>
             </c:SettingsRow>
           </c:SettingsGroup>
-          <c:SettingsGroup Header="{loc:Loc 'Settings location'}">
-            <c:SettingsRow Title="{Binding SettingsFolder}">
-              <Button Content="{loc:Loc 'Open settings folder'}" Command="{Binding OpenSettingsFolderCommand}"/>
-            </c:SettingsRow>
+          <c:SettingsGroup Header="{loc:Loc 'Folders'}">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Settings folder'}" Description="{Binding SettingsFolder}">
+                <Button Content="{loc:Loc 'Open'}" Command="{Binding OpenSettingsFolderCommand}"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Plugins folder'}" Description="{Binding PluginsFolder}">
+                <Button Content="{loc:Loc 'Open'}" Command="{Binding OpenPluginsFolderCommand}"/>
+              </c:SettingsRow>
+            </StackPanel>
           </c:SettingsGroup>
         </StackPanel>
 
@@ -434,13 +479,10 @@
             </MultiBinding>
           </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Data &amp; privacy'}" Classes="dialogTitle" Margin="0,0,0,16"/>
-          <TextBlock TextWrapping="Wrap" Classes="caption" Margin="14,0,14,16"
+          <TextBlock TextWrapping="Wrap" Classes="caption" Margin="0,0,0,16"
                      Text="{loc:Loc 'Settings, layout, and translation memory are stored in Documents/Toucan. API keys are encrypted (DPAPI on Windows, AES with a per-user key elsewhere). Text is only sent to a translation provider when you run machine translation.'}"/>
           <c:SettingsGroup>
             <StackPanel>
-              <c:SettingsRow Title="{loc:Loc 'Open settings folder'}">
-                <Button Content="{loc:Loc 'Open'}" Command="{Binding OpenSettingsFolderCommand}"/>
-              </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Export settings…'}">
                 <Button Content="{loc:Loc 'Export'}" Command="{Binding ExportSettingsCommand}"/>
               </c:SettingsRow>
@@ -482,14 +524,9 @@
           <TextBlock Text="{loc:Loc 'Plugins'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <TextBlock TextWrapping="Wrap" Classes="caption" Margin="0,0,0,16"
                      Text="{loc:Loc 'Plugins add file formats, translation providers and validation rules. A plugin is ordinary code that runs with your permissions, so Toucan only loads plugins you have enabled and trusted, and asks again if their files change.'}"/>
-          <Border IsVisible="{Binding PluginsChanged}" Classes="badge" Padding="10,6" HorizontalAlignment="Left" Margin="14,0,0,16">
+          <Border IsVisible="{Binding PluginsChanged}" Classes="badge" Padding="10,6" HorizontalAlignment="Left" Margin="0,0,0,16">
             <TextBlock Text="{loc:Loc 'Changes apply immediately to your settings and take effect after restarting Toucan.'}" TextWrapping="Wrap"/>
           </Border>
-          <c:SettingsGroup Margin="0,0,0,12">
-            <c:SettingsRow Title="{loc:Loc 'Open plugins folder'}" Description="{Binding PluginsFolder}">
-              <Button Content="{loc:Loc 'Open'}" Command="{Binding OpenPluginsFolderCommand}"/>
-            </c:SettingsRow>
-          </c:SettingsGroup>
           <c:SettingsGroup IsVisible="{Binding HasNoPlugins}">
             <c:SettingsRow Title="{loc:Loc 'No plugins installed. Put a plugin folder (with a plugin.json) in the plugins folder and restart Toucan.'}"/>
           </c:SettingsGroup>
@@ -499,7 +536,7 @@
                 <c:SettingsGroup>
                   <StackPanel>
                     <!-- Header: name, version, status and the enable switch -->
-                    <Grid ColumnDefinitions="*,Auto" Margin="14,12,14,10">
+                    <Grid ColumnDefinitions="*,Auto" Margin="16,16,16,12">
                       <StackPanel Spacing="4">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                           <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="15" VerticalAlignment="Center"/>
@@ -510,32 +547,32 @@
                           <TextBlock Text="{Binding StatusText}" Classes="caption" VerticalAlignment="Center"/>
                         </StackPanel>
                       </StackPanel>
-                      <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEnabled}" IsEnabled="{Binding CanManage}" VerticalAlignment="Center" OnContent="" OffContent=""/>
+                      <ToggleSwitch Classes="settingsToggle" Grid.Column="1" IsChecked="{Binding IsEnabled}" IsEnabled="{Binding CanManage}" VerticalAlignment="Center" OnContent="" OffContent=""/>
                     </Grid>
-                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="14,0,14,12" IsVisible="{Binding HasDescription}"/>
-                    <TextBlock Text="{Binding Note}" IsVisible="{Binding HasNote}" TextWrapping="Wrap" Margin="14,0,14,12"
+                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="16,0,16,16" IsVisible="{Binding HasDescription}"/>
+                    <TextBlock Text="{Binding Note}" IsVisible="{Binding HasNote}" TextWrapping="Wrap" Margin="16,0,16,16"
                                Foreground="{DynamicResource BadBrush}"/>
 
                     <!-- Details -->
-                    <c:SettingsRow Title="{loc:Loc 'Provides'}" MinRowHeight="36" Padding="14,6" IsVisible="{Binding HasProvides}">
+                    <c:SettingsRow Compact="True" Title="{loc:Loc 'Provides'}" IsVisible="{Binding HasProvides}">
                       <TextBlock Text="{Binding ProvidesText}" Classes="mono caption" TextWrapping="Wrap" TextAlignment="Right"/>
                     </c:SettingsRow>
-                    <c:SettingsRow Title="{loc:Loc 'Author'}" MinRowHeight="36" Padding="14,6" IsVisible="{Binding HasAuthor}">
+                    <c:SettingsRow Compact="True" Title="{loc:Loc 'Author'}" IsVisible="{Binding HasAuthor}">
                       <TextBlock Text="{Binding Author}" Classes="caption"/>
                     </c:SettingsRow>
-                    <c:SettingsRow Title="{loc:Loc 'Signature'}" MinRowHeight="36" Padding="14,6">
+                    <c:SettingsRow Compact="True" Title="{loc:Loc 'Signature'}">
                       <TextBlock Text="{Binding SignatureText}" Classes="caption"/>
                     </c:SettingsRow>
-                    <c:SettingsRow Title="SHA-256" MinRowHeight="36" Padding="14,6">
+                    <c:SettingsRow Compact="True" Title="SHA-256">
                       <TextBlock Text="{Binding ShortHash}" Classes="mono caption"/>
                     </c:SettingsRow>
-                    <c:SettingsRow Title="{loc:Loc 'Folder'}" MinRowHeight="36" Padding="14,6">
+                    <c:SettingsRow Compact="True" Title="{loc:Loc 'Folder'}">
                       <TextBlock Text="{Binding Folder}" Classes="mono caption" TextTrimming="PathSegmentEllipsis" MaxWidth="320"
                                  ToolTip.Tip="{Binding Folder}"/>
                     </c:SettingsRow>
 
                     <!-- Actions -->
-                    <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="14,8">
+                    <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="16,12">
                       <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                         <Button Content="{loc:Loc 'Show folder'}" Command="{Binding OpenFolderCommand}"/>
                         <Button Content="{loc:Loc 'Revoke trust'}" Command="{Binding RevokeCommand}" IsVisible="{Binding CanRevoke}"/>
@@ -547,38 +584,18 @@
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-          <!-- Built-in modules: compiled in, always on, shown read-only so their versions are visible -->
-          <StackPanel IsVisible="{Binding HasBuiltInModules}" Margin="0,8,0,0">
-            <TextBlock Text="{loc:Loc 'Built-in modules'}" FontWeight="SemiBold" FontSize="15" Margin="14,0,0,4"/>
-            <TextBlock TextWrapping="Wrap" Classes="caption" Margin="14,0,14,10"
-                       Text="{loc:Loc 'Always on. These ship with Toucan as separate assemblies and register the same way plugins do.'}"/>
-            <ItemsControl ItemsSource="{Binding BuiltInModules}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <c:SettingsGroup>
-                    <StackPanel>
-                      <Grid ColumnDefinitions="*,Auto" Margin="14,12,14,10">
-                        <StackPanel Spacing="4">
-                          <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            <Border Classes="badge" IsVisible="{Binding HasVersion}"><TextBlock Text="{Binding Version, StringFormat='v{0}'}" Classes="mono"/></Border>
-                          </StackPanel>
-                          <TextBlock Text="{Binding Description}" Classes="caption" TextWrapping="Wrap" IsVisible="{Binding HasDescription}"/>
-                        </StackPanel>
-                        <Border Grid.Column="1" Classes="badge" VerticalAlignment="Center"><TextBlock Text="{loc:Loc 'Always on'}"/></Border>
-                      </Grid>
-                      <c:SettingsRow Title="ID" MinRowHeight="36" Padding="14,6">
-                        <TextBlock Text="{Binding Id}" Classes="mono caption"/>
-                      </c:SettingsRow>
-                      <c:SettingsRow Title="{loc:Loc 'Provides'}" MinRowHeight="36" Padding="14,6">
-                        <TextBlock Text="{Binding ProvidesText}" Classes="mono caption" TextWrapping="Wrap" TextAlignment="Right"/>
-                      </c:SettingsRow>
-                    </StackPanel>
-                  </c:SettingsGroup>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </StackPanel>
+          <!-- Built-in modules: compiled in and always on, so one compact list of name and version -->
+          <c:SettingsList Header="{loc:Loc 'Built-in modules'}" ItemsSource="{Binding BuiltInModules}" IsVisible="{Binding HasBuiltInModules}"
+                          ShowSearch="False" MaxListHeight="Infinity" Margin="0,8,0,24"
+                          Footer="{loc:Loc 'Always on. These ship with Toucan as separate assemblies and register the same way plugins do.'}">
+            <c:SettingsList.ItemTemplate>
+              <DataTemplate>
+                <c:SettingsRow Compact="True" Title="{Binding Name}" Description="{Binding Description}" ToolTip.Tip="{Binding Tooltip}">
+                  <Border Classes="badge" IsVisible="{Binding HasVersion}"><TextBlock Text="{Binding Version, StringFormat='v{0}'}" Classes="mono"/></Border>
+                </c:SettingsRow>
+              </DataTemplate>
+            </c:SettingsList.ItemTemplate>
+          </c:SettingsList>
         </StackPanel>
 
         <!-- 12 About -->
@@ -597,6 +614,19 @@
               <TextBlock Text="{Binding RuntimeText}" Classes="caption"/>
             </StackPanel>
           </StackPanel>
+          <c:SettingsGroup Header="{loc:Loc 'Updates'}" Footer="{loc:Loc 'Checking contacts github.com. No project data is sent, and nothing is downloaded or installed automatically.'}">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Release channel'}" Description="{loc:Loc 'Preview includes pre-releases.'}">
+                <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.UpdateChannelOptions}" SelectedItem="{Binding UpdateChannel}"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{Binding VersionText}" Description="{Binding UpdateStatus}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <Button Content="{loc:Loc 'View release'}" Classes="accent" Command="{Binding OpenUpdateCommand}" IsVisible="{Binding HasUpdate}"/>
+                  <Button Content="{loc:Loc 'Check for updates'}" Command="{Binding CheckForUpdatesCommand}"/>
+                </StackPanel>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
           <c:SettingsGroup>
             <StackPanel>
               <c:SettingsRow Title="{loc:Loc 'A cross-platform editor for translation files. Built with Avalonia and .NET.'}"

@@ -8,8 +8,8 @@
 
     <!-- ═══ Filter toolbar ═══ -->
     <Border DockPanel.Dock="Top" Classes="toolbar">
-      <Grid ColumnDefinitions="*,Auto">
-        <TextBox x:Name="FilterBox" Text="{Binding SearchText}" Classes="clearButton"
+      <Grid Classes="filterLayout" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+        <TextBox Classes="clearButton filterInput" x:Name="FilterBox" Text="{Binding SearchText}"
                  PlaceholderText="{loc:Loc 'Filter keys and values (end with “.” for a key path)'}">
           <TextBox.InnerLeftContent>
             <ui:FASymbolIcon Symbol="Filter" FontSize="14" Margin="8,0,2,0" Foreground="{DynamicResource MutedTextBrush}"/>
@@ -19,7 +19,7 @@
           </TextBox.KeyBindings>
         </TextBox>
 
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2" Margin="8,0,0,0" VerticalAlignment="Center">
+        <StackPanel Classes="filterActions" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
           <!-- Quick filters -->
           <Button Classes="icon" ToolTip.Tip="{loc:Loc 'Quick filters'}">
             <ui:FASymbolIcon Symbol="Bookmarks"/>
@@ -143,22 +143,25 @@
 
       <!-- Focused editor: one card at a time -->
       <DockPanel IsVisible="{Binding FocusedEditorMode}">
-        <Border DockPanel.Dock="Top" Classes="toolbar">
-          <DockPanel>
-            <Button DockPanel.Dock="Right" Classes="link" Content="{loc:Loc 'Exit focused editor'}" Command="{Binding ToggleFocusedEditorCommand}"/>
+        <Border DockPanel.Dock="Top" Classes="toolbar" IsVisible="{Binding !IsEditorEmpty}">
+          <Grid ColumnDefinitions="*,Auto">
             <StackPanel Orientation="Horizontal" Spacing="4">
-              <Button Classes="icon small" Command="{Binding FocusedPreviousCommand}" ToolTip.Tip="{loc:Loc 'Previous (K or ↑)'}">
-                <ui:FASymbolIcon Symbol="ChevronUp"/>
+              <Button Classes="icon" Command="{Binding FocusedPreviousCommand}" ToolTip.Tip="{loc:Loc 'Previous (K or ↑)'}">
+                <ui:FASymbolIcon Symbol="ChevronLeft"/>
               </Button>
-              <Button Classes="icon small" Command="{Binding FocusedNextCommand}" ToolTip.Tip="{loc:Loc 'Next (J or ↓)'}">
-                <ui:FASymbolIcon Symbol="ChevronDown"/>
+              <Button Classes="icon" Command="{Binding FocusedNextCommand}" ToolTip.Tip="{loc:Loc 'Next (J or ↓)'}">
+                <ui:FASymbolIcon Symbol="ChevronRight"/>
               </Button>
               <TextBlock Text="{Binding FocusedPositionText}" Classes="caption" VerticalAlignment="Center" Margin="8,0"/>
             </StackPanel>
-          </DockPanel>
+            <Button Grid.Column="1" Classes="icon" Command="{Binding ToggleFocusedEditorCommand}" ToolTip.Tip="{loc:Loc 'Exit focused editor'}">
+              <ui:FASymbolIcon Symbol="Dismiss"/>
+            </Button>
+          </Grid>
         </Border>
-        <ScrollViewer>
-          <c:TranslationCard DataContext="{Binding ZenCurrentItem}" Margin="24,16" MaxWidth="900" VerticalAlignment="Top"/>
+        <ScrollViewer x:Name="FocusedScroll" HorizontalScrollBarVisibility="Disabled">
+          <c:TranslationCard x:Name="FocusedCard" DataContext="{Binding ZenCurrentItem}" Margin="12" MaxWidth="900"
+                             VerticalAlignment="Top" HorizontalAlignment="Stretch" IsVisible="{Binding !IsEditorEmpty}"/>
         </ScrollViewer>
       </DockPanel>
 

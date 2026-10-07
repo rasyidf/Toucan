@@ -15,8 +15,8 @@
 
   <Panel Background="{DynamicResource EditorBackgroundBrush}">
     <ScrollViewer>
-      <Grid ColumnDefinitions="*,Auto,*" Margin="24,48">
-        <Grid Grid.Column="1" ColumnDefinitions="320,48,420" MaxWidth="820">
+      <Grid Margin="24,40">
+        <Grid ColumnDefinitions="3*,24,4*" MaxWidth="820">
           <!-- Left: branding + actions -->
           <StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="14" Margin="0,0,0,6">

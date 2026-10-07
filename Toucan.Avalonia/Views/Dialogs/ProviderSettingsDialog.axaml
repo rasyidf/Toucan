@@ -60,17 +60,15 @@
 
           <c:SettingsGroup>
             <c:SettingsRow Title="{loc:Loc 'Provider name'}">
-              <TextBox Text="{Binding Selected.Provider}" Width="220"
+              <TextBox Text="{Binding Selected.Provider}"
                        IsReadOnly="{Binding SelectedDefinition, Converter={x:Static ObjectConverters.IsNotNull}}"/>
             </c:SettingsRow>
           </c:SettingsGroup>
 
-          <c:SettingsGroup Header="{loc:Loc 'Options'}">
-            <StackPanel>
-              <ItemsControl Classes="rows" ItemsSource="{Binding OptionItems}">
-                <ItemsControl.ItemTemplate>
+          <c:SettingsList Header="{loc:Loc 'Options'}" ItemsSource="{Binding OptionItems}" AddText="{loc:Loc 'Add option'}" AddCommand="{Binding AddOptionCommand}" ShowSearch="False">
+              <c:SettingsList.ItemTemplate>
                   <DataTemplate>
-                    <c:SettingsRow Stacked="True" Padding="14,8">
+                    <c:SettingsRow Stacked="True">
                       <Grid ColumnDefinitions="150,*,Auto">
                         <TextBox Text="{Binding Key}" IsReadOnly="{Binding IsSchemaField}" Classes="mono" Margin="0,0,8,0"/>
                         <TextBox Grid.Column="1" Text="{Binding Value}" PlaceholderText="{Binding Hint}"/>
@@ -81,20 +79,13 @@
                       </Grid>
                     </c:SettingsRow>
                   </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-              <c:SettingsRow BorderThickness="0,1,0,0" HorizontalContentAlignment="Left">
-                <Button Classes="link" Content="{loc:Loc 'Add option'}" Command="{Binding AddOptionCommand}"/>
-              </c:SettingsRow>
-            </StackPanel>
-          </c:SettingsGroup>
+                </c:SettingsList.ItemTemplate>
+          </c:SettingsList>
 
-          <c:SettingsGroup Header="{loc:Loc 'Secrets (stored encrypted)'}">
-            <StackPanel>
-              <ItemsControl Classes="rows" ItemsSource="{Binding SecretItems}">
-                <ItemsControl.ItemTemplate>
+          <c:SettingsList Header="{loc:Loc 'Secrets (stored encrypted)'}" ItemsSource="{Binding SecretItems}" AddText="{loc:Loc 'Add secret'}" AddCommand="{Binding AddSecretCommand}" ShowSearch="False">
+              <c:SettingsList.ItemTemplate>
                   <DataTemplate>
-                    <c:SettingsRow Stacked="True" Padding="14,8">
+                    <c:SettingsRow Stacked="True">
                       <Grid ColumnDefinitions="150,*,Auto">
                         <TextBox Text="{Binding Key}" IsReadOnly="{Binding IsSchemaField}" Classes="mono" Margin="0,0,8,0"/>
                         <TextBox Grid.Column="1" Text="{Binding Value}" PasswordChar="•" Classes="revealPasswordButton" PlaceholderText="{Binding Hint}"/>
@@ -105,13 +96,8 @@
                       </Grid>
                     </c:SettingsRow>
                   </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-              <c:SettingsRow BorderThickness="0,1,0,0" HorizontalContentAlignment="Left">
-                <Button Classes="link" Content="{loc:Loc 'Add secret'}" Command="{Binding AddSecretCommand}"/>
-              </c:SettingsRow>
-            </StackPanel>
-          </c:SettingsGroup>
+                </c:SettingsList.ItemTemplate>
+          </c:SettingsList>
         </StackPanel>
       </ScrollViewer>
     </Grid>

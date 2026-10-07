@@ -382,6 +382,7 @@ public partial class MainWindowViewModel
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ZenCurrentItem), nameof(FocusedPositionText))]
+    [NotifyCanExecuteChangedFor(nameof(FocusedNextCommand), nameof(FocusedPreviousCommand))]
     private int focusedIndex;
 
     [ObservableProperty] private bool zenMode;
@@ -427,10 +428,25 @@ public partial class MainWindowViewModel
         {
             var selectedIndex = SelectedGroup == null ? -1 : PagingController.Data.IndexOf(SelectedGroup);
             FocusedIndex = Math.Max(0, selectedIndex);
+            SelectedGroup = ZenCurrentItem;
+        }
+        else
+        {
+            SelectedGroup = ZenCurrentItem;
+            PagingController.GoTo(FocusedIndex / Math.Max(1, PagingController.PageSize) + 1);
+            PagedUpdates();
         }
     }
 
-    [RelayCommand]
+    private bool CanFocusedNext() => FocusedIndex < PagingController.Data.Count - 1;
+    private bool CanFocusedPrevious() => FocusedIndex > 0 && PagingController.Data.Count > 0;
+
+    partial void OnFocusedIndexChanged(int value)
+    {
+        if (FocusedEditorMode || ZenMode) SelectedGroup = ZenCurrentItem;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanFocusedNext))]
     private void FocusedNext()
     {
         if (FocusedIndex < PagingController.Data.Count - 1)
@@ -440,7 +456,7 @@ public partial class MainWindowViewModel
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanFocusedPrevious))]
     private void FocusedPrevious()
     {
         if (FocusedIndex > 0)

@@ -5,7 +5,12 @@ namespace Toucan.Avalonia.Views;
 /// <summary>Center editor: filter bar, paged list of key cards, and the focused (one-at-a-time) editor.</summary>
 public partial class TranslationEditorView : UserControl
 {
-    public TranslationEditorView() => InitializeComponent();
+    public TranslationEditorView()
+    {
+        InitializeComponent();
+        SizeChanged += (_, e) => Classes.Set("narrow", e.NewSize.Width < 560);
+        FocusedCard.DataContextChanged += (_, _) => FocusedScroll.Offset = default;
+    }
 
     public void FocusFilter()
     {

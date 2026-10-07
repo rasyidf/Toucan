@@ -114,6 +114,13 @@ public sealed class SettingsPageVisibleConverter : IMultiValueConverter
     }
 }
 
+/// <summary>Converters shared by the settings controls.</summary>
+public static class SettingsListConverters
+{
+    /// <summary>Item count → true when there is at least one item.</summary>
+    public static readonly IValueConverter HasItems = new FuncValueConverter<int, bool>(count => count > 0);
+}
+
 /// <summary>Collapsed/expanded flag → chevron symbol.</summary>
 public sealed class ExpanderChevronConverter : IValueConverter
 {

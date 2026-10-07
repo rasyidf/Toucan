@@ -47,7 +47,7 @@
           <TextBlock Text="{loc:Loc 'General'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
             <StackPanel>
-              <c:SettingsRow Title="{loc:Loc 'Name'}"><TextBox Text="{Binding ProjectName}" Width="240"/></c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Name'}"><TextBox Text="{Binding ProjectName}"/></c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Description'}" Stacked="True">
                 <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" Height="64"/>
               </c:SettingsRow>
@@ -66,7 +66,7 @@
               <c:SettingsRow Title="{loc:Loc 'Auto-save'}"><ToggleSwitch IsChecked="{Binding AutoSaveEnabled}"/></c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Every'}" IsVisible="{Binding AutoSaveEnabled}">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                  <NumericUpDown Value="{Binding AutoSaveInterval}" Minimum="10" Maximum="600" Increment="10" FormatString="0" Width="130"/>
+                  <NumericUpDown Value="{Binding AutoSaveInterval}" Minimum="10" Maximum="600" Increment="10" FormatString="0"/>
                   <TextBlock Text="{loc:Loc 'seconds'}" VerticalAlignment="Center"/>
                 </StackPanel>
               </c:SettingsRow>
@@ -94,7 +94,7 @@
             </StackPanel>
           </c:SettingsGroup>
           <c:SettingsGroup>
-            <c:SettingsRow Title="{loc:Loc 'Application context'}" Stacked="True" Padding="14,12"
+            <c:SettingsRow Title="{loc:Loc 'Application context'}" Stacked="True"
                            Description="{loc:Loc 'What does this app do? Helps AI providers choose terminology.'}">
               <TextBox Text="{Binding Context}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="140"/>
             </c:SettingsRow>
@@ -113,12 +113,10 @@
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
-          <c:SettingsGroup Header="{loc:Loc 'Copy templates (%1 = key)'}">
-            <StackPanel>
-              <ItemsControl Classes="rows" ItemsSource="{Binding CopyTemplates}">
-                <ItemsControl.ItemTemplate>
+          <c:SettingsList Header="{loc:Loc 'Copy templates (%1 = key)'}" ItemsSource="{Binding CopyTemplates}" AddText="{loc:Loc 'Add template'}" AddCommand="{Binding AddCopyTemplateCommand}" ShowSearch="False" CanAdd="{Binding CanAddCopyTemplate}">
+              <c:SettingsList.ItemTemplate>
                   <DataTemplate>
-                    <c:SettingsRow Stacked="True" Padding="14,8">
+                    <c:SettingsRow Stacked="True">
                       <DockPanel>
                         <Button DockPanel.Dock="Right" Classes="icon small" Margin="6,0,0,0"
                                 Command="{Binding $parent[ItemsControl].DataContext.RemoveCopyTemplateCommand}" CommandParameter="{Binding}">
@@ -128,13 +126,8 @@
                       </DockPanel>
                     </c:SettingsRow>
                   </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-              <c:SettingsRow BorderThickness="0,1,0,0" HorizontalContentAlignment="Left">
-                <Button Classes="link" Content="{loc:Loc 'Add template'}" Command="{Binding AddCopyTemplateCommand}" IsEnabled="{Binding CanAddCopyTemplate}"/>
-              </c:SettingsRow>
-            </StackPanel>
-          </c:SettingsGroup>
+                </c:SettingsList.ItemTemplate>
+          </c:SettingsList>
         </StackPanel>
 
         <!-- Source code -->
@@ -172,7 +165,7 @@
               <ItemsControl Classes="rows" ItemsSource="{Binding HiddenNamespaces}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
-                    <c:SettingsRow Title="{Binding}" MinRowHeight="38" Padding="14,6">
+                    <c:SettingsRow Compact="True" Title="{Binding}">
                       <Button Classes="link" Content="{loc:Loc 'Unhide'}"
                               Command="{Binding $parent[ItemsControl].DataContext.RemoveHiddenNamespaceCommand}" CommandParameter="{Binding}"/>
                     </c:SettingsRow>

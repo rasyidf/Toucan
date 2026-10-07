@@ -19,6 +19,19 @@
   <Application.Resources>
     <ResourceDictionary>
       <x:Double x:Key="EditorFontSize">13</x:Double>
+      <!-- Settings layout tokens (cards, lists, dialog pages) -->
+      <CornerRadius x:Key="SettingsCardRadius">8</CornerRadius>
+      <Thickness x:Key="SettingsRowPadding">16,10</Thickness>
+      <Thickness x:Key="SettingsRowCompactPadding">16,6</Thickness>
+      <Thickness x:Key="SettingsHeaderMargin">16,0,0,0</Thickness>
+      <Thickness x:Key="SettingsFooterMargin">16,8,16,0</Thickness>
+      <Thickness x:Key="SettingsCardMargin">0,0,0,24</Thickness>
+      <x:Double x:Key="SettingsRowMinHeight">48</x:Double>
+      <x:Double x:Key="SettingsRowCompactMinHeight">40</x:Double>
+      <x:Double x:Key="SettingsHeaderHeight">24</x:Double>
+      <x:Double x:Key="SettingsControlWidth">200</x:Double>
+      <x:Double x:Key="SettingsListMaxHeight">320</x:Double>
+      <x:Double x:Key="SettingsPageMaxWidth">600</x:Double>
       <conv:LanguageNameConverter x:Key="LanguageName"/>
       <conv:SymbolConverter x:Key="Symbol"/>
       <conv:EqualsConverter x:Key="Equals"/>
@@ -38,18 +51,28 @@
           <SolidColorBrush x:Key="HoverBackgroundBrush" Color="#0F000000"/>
           <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="#1A0097A7"/>
           <SolidColorBrush x:Key="SubtleHoverBrush" Color="#0F000000"/>
-          <SolidColorBrush x:Key="StatusBarBackgroundBrush" Color="#0097A7"/>
-          <SolidColorBrush x:Key="StatusBarForegroundBrush" Color="#FFFFFF"/>
+          <SolidColorBrush x:Key="StatusBarBackgroundBrush" Color="#F3F3F3"/>
+          <SolidColorBrush x:Key="StatusBarForegroundBrush" Color="#6B6B6B"/>
           <SolidColorBrush x:Key="BadgeBackgroundBrush" Color="#EDEDED"/>
           <SolidColorBrush x:Key="DirtyBrush" Color="#D9822B"/>
           <SolidColorBrush x:Key="GoodBrush" Color="#2E8B57"/>
           <SolidColorBrush x:Key="WarnBrush" Color="#C28A00"/>
           <SolidColorBrush x:Key="BadBrush" Color="#D13438"/>
           <SolidColorBrush x:Key="InfoBrush" Color="#2F6FDB"/>
+          <SolidColorBrush x:Key="SearchMatchBrush" Color="#66FFD54F"/>
+          <SolidColorBrush x:Key="SearchRemovedBrush" Color="#33D13438"/>
+          <SolidColorBrush x:Key="SearchAddedBrush" Color="#402E8B57"/>
+          <SolidColorBrush x:Key="SettingsCardBackgroundBrush" Color="#FFFFFF"/>
+          <SolidColorBrush x:Key="SettingsCardBorderBrush" Color="#E5E5E5"/>
+          <SolidColorBrush x:Key="SettingsDividerBrush" Color="#E0E0E0"/>
+          <SolidColorBrush x:Key="SettingsToolbarBackgroundBrush" Color="#FAFAFA"/>
+          <SolidColorBrush x:Key="SettingsHeaderForegroundBrush" Color="#6B6B6B"/>
+          <SolidColorBrush x:Key="SettingsFooterForegroundBrush" Color="#8F8F8F"/>
+          <SolidColorBrush x:Key="SettingsRowHoverBrush" Color="#08000000"/>
         </ResourceDictionary>
         <ResourceDictionary x:Key="Dark">
-          <SolidColorBrush x:Key="ChromeBackgroundBrush" Color="#1F1F1F"/>
-          <SolidColorBrush x:Key="EditorBackgroundBrush" Color="#181818"/>
+          <SolidColorBrush x:Key="ChromeBackgroundBrush" Color="#181818"/>
+          <SolidColorBrush x:Key="EditorBackgroundBrush" Color="#101112"/>
           <SolidColorBrush x:Key="CardBackgroundBrush" Color="#232323"/>
           <SolidColorBrush x:Key="CardBorderBrush" Color="#333333"/>
           <SolidColorBrush x:Key="SubtleBorderBrush" Color="#2E2E2E"/>
@@ -58,14 +81,24 @@
           <SolidColorBrush x:Key="HoverBackgroundBrush" Color="#14FFFFFF"/>
           <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="#2626C6DA"/>
           <SolidColorBrush x:Key="SubtleHoverBrush" Color="#14FFFFFF"/>
-          <SolidColorBrush x:Key="StatusBarBackgroundBrush" Color="#006D7A"/>
-          <SolidColorBrush x:Key="StatusBarForegroundBrush" Color="#FFFFFF"/>
+          <SolidColorBrush x:Key="StatusBarBackgroundBrush" Color="#181818"/>
+          <SolidColorBrush x:Key="StatusBarForegroundBrush" Color="#A8A8A8"/>
           <SolidColorBrush x:Key="BadgeBackgroundBrush" Color="#333333"/>
           <SolidColorBrush x:Key="DirtyBrush" Color="#E8A060"/>
           <SolidColorBrush x:Key="GoodBrush" Color="#4CC38A"/>
           <SolidColorBrush x:Key="WarnBrush" Color="#E0B03C"/>
           <SolidColorBrush x:Key="BadBrush" Color="#F1707A"/>
           <SolidColorBrush x:Key="InfoBrush" Color="#6EA8FE"/>
+          <SolidColorBrush x:Key="SearchMatchBrush" Color="#66FFC107"/>
+          <SolidColorBrush x:Key="SearchRemovedBrush" Color="#40F1707A"/>
+          <SolidColorBrush x:Key="SearchAddedBrush" Color="#404CC38A"/>
+          <SolidColorBrush x:Key="SettingsCardBackgroundBrush" Color="#232323"/>
+          <SolidColorBrush x:Key="SettingsCardBorderBrush" Color="#333333"/>
+          <SolidColorBrush x:Key="SettingsDividerBrush" Color="#2E2E2E"/>
+          <SolidColorBrush x:Key="SettingsToolbarBackgroundBrush" Color="#1E1E1E"/>
+          <SolidColorBrush x:Key="SettingsHeaderForegroundBrush" Color="#A8A8A8"/>
+          <SolidColorBrush x:Key="SettingsFooterForegroundBrush" Color="#7A7A7A"/>
+          <SolidColorBrush x:Key="SettingsRowHoverBrush" Color="#0AFFFFFF"/>
         </ResourceDictionary>
       </ResourceDictionary.ThemeDictionaries>
     </ResourceDictionary>

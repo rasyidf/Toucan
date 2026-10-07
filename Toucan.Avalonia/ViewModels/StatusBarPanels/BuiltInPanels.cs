@@ -326,10 +326,25 @@ public partial class NotificationsPanel : StatusBarPanelBase
     [RelayCommand]
     private void ShowNotifications() { /* ponytail: opens notification flyout */ }
 
+    public int Untranslated { get; private set; }
+    public int Errors { get; private set; }
+    public int Warnings { get; private set; }
+    public int Info { get; private set; }
+
+    public void UpdateSummary(int untranslated, int errors, int warnings, int info)
+    {
+        Untranslated = untranslated;
+        Errors = errors;
+        Warnings = warnings;
+        Info = info;
+        Update(untranslated + errors + warnings + info);
+        ToolTip = $"{untranslated} untranslated, {errors} errors, {warnings} warnings, {info} info";
+    }
+
     public void Update(int notificationCount)
     {
         Count = notificationCount;
-        IsVisible = notificationCount > 0;
+        IsVisible = true;
         Content = "";
         Icon = "Alert24";
         Badge = notificationCount > 0 ? notificationCount.ToString() : null;

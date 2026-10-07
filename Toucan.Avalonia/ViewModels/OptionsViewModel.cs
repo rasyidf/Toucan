@@ -143,7 +143,16 @@ public partial class OptionsViewModel : ObservableObject
     public static IReadOnlyList<string> FormalityOptions { get; } = ["Default", "More", "Less", "Formal", "Informal"];
     public static IReadOnlyList<string> SeverityOptions { get; } = ["Error", "Warning", "Info"];
     public static IReadOnlyList<string> TmScopeOptions { get; } = ["All projects", "Current project only"];
-    public static IReadOnlyList<string> AppLanguageOptions { get; } = Locales.Loc.Available;
+    public static IReadOnlyList<AppLanguageOption> AppLanguageOptions { get; } = [.. Locales.Loc.Available.Select(c => new AppLanguageOption(c, Locales.Loc.NativeName(c)))];
+
+    /// <summary>The interface language as a picker item; <see cref="AppLanguage"/> keeps the plain code that is saved.</summary>
+    public AppLanguageOption? SelectedAppLanguage
+    {
+        get => AppLanguageOptions.FirstOrDefault(o => string.Equals(o.Code, AppLanguage, StringComparison.OrdinalIgnoreCase));
+        set { if (value != null) AppLanguage = value.Code; }
+    }
+
+    partial void OnAppLanguageChanged(string value) => OnPropertyChanged(nameof(SelectedAppLanguage));
 
     public static IReadOnlyList<string> FrameworkPresets { get; } =
     [
@@ -196,6 +205,19 @@ public partial class OptionsViewModel : ObservableObject
     // Editor
     [ObservableProperty] private bool plainTextKeys;
     [ObservableProperty] private string defaultLanguage = "en-US";
+
+
+    /// <summary>"English (United States) · en-US" for the button that opens the language picker.</summary>
+    public string DefaultLanguageText => $"{Cultures.DisplayName(DefaultLanguage)} · {DefaultLanguage}";
+
+    partial void OnDefaultLanguageChanged(string value) => OnPropertyChanged(nameof(DefaultLanguageText));
+
+    [RelayCommand]
+    private async Task ChooseDefaultLanguage()
+    {
+        var code = await _dialogService.ShowLanguagePromptAsync("Default Language", "Used as the source language when a project doesn't specify one.", null);
+        if (!string.IsNullOrWhiteSpace(code)) DefaultLanguage = code;
+    }
     public ObservableCollection<CopyTemplateItem> CopyTemplates { get; } = [];
     public bool CanAddCopyTemplate => CopyTemplates.Count < 5;
 
@@ -254,6 +276,7 @@ public partial class OptionsViewModel : ObservableObject
         TruncateSize = opts.TruncateResultsOver;
         LoadingDepth = opts.LoadingDepth;
         Theme = ThemeOptions.Contains(opts.Theme) ? opts.Theme : "System";
+        LoadSchemeFromOptions();
         FontSize = (decimal)opts.FontSize;
         PlainTextKeys = opts.PlainTextKeys;
         DefaultLanguage = opts.DefaultLanguage ?? "en-US";
@@ -308,6 +331,7 @@ public partial class OptionsViewModel : ObservableObject
         AppOptions.TruncateResultsOver = (int)Math.Max(1, TruncateSize);
         AppOptions.LoadingDepth = (int)Math.Clamp(LoadingDepth, 1, 5);
         AppOptions.Theme = Theme;
+        SaveSchemeToOptions();
         AppOptions.FontSize = (double)Math.Clamp(FontSize, 11, 18);
         AppOptions.PlainTextKeys = PlainTextKeys;
         AppOptions.DefaultLanguage = DefaultLanguage;
@@ -528,6 +552,12 @@ public partial class ValidationRuleOption(string id, string label) : ObservableO
 }
 
 /// <summary>A settings sidebar entry: page title, <c>FASymbol</c> name and the tile color behind the icon.</summary>
+/// <summary>An interface language: the code that is stored and its native name. <c>ToString</c> is what the picker shows.</summary>
+public sealed record AppLanguageOption(string Code, string Name)
+{
+    public override string ToString() => Name;
+}
+
 public sealed record SettingsNavEntry(string Title, string Icon, string Color)
 {
     public global::Avalonia.Media.IBrush TileBrush { get; } = global::Avalonia.Media.Brush.Parse(Color);

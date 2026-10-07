@@ -93,6 +93,14 @@ public class ProjectService(
         }
 
         Save(project.ProjectPath, project.SaveFormat, items, toSave);
+        if (FormatIds.TryGetStyle(project.SaveFormat, out _) && (project.TextEncoding != null || project.LineEnding != null))
+        {
+            var strategy = strategyFactory.GetSaveStrategy(project.SaveFormat)!;
+            var files = toSave.ToLanguages().SelectMany(lang => strategy.LanguageFiles(project.ProjectPath, lang));
+            foreach (var file in files.Distinct(StringComparer.Ordinal))
+                ProjectTextFormat.Apply(file, project.TextEncoding, project.LineEnding,
+                    project.SaveFormat == FormatIds.JavaProperties ? System.Text.Encoding.Latin1 : null);
+        }
 
         // Restore display codes for in-memory state
         if (project.LanguageAliases is { Count: > 0 })

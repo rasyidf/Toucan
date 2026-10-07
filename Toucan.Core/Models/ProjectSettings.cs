@@ -44,6 +44,10 @@ public class ProjectSettings
         get => FormatIds.TryGetStyle(SaveFormat, out var style) ? style : SaveStyles.Json;
         set => SaveFormat = FormatIds.FromStyle(value);
     }
+    /// <summary>Output encoding override: UTF-8 or UTF-8 BOM; null keeps the format default.</summary>
+    public string? TextEncoding { get; set; }
+    /// <summary>Output newline override: LF or CRLF; null keeps the format default.</summary>
+    public string? LineEnding { get; set; }
     public string? Framework { get; set; }
     public List<TranslationPackage> TranslationPackages { get; set; } = [];
 

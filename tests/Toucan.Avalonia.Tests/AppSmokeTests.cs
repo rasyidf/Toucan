@@ -131,6 +131,39 @@ public class AppSmokeTests
     }
 
     [AvaloniaFact]
+    public async Task SearchPanel_SearchesAsYouType_GroupsByKey_AndReplaces()
+    {
+        var (host, window, vm, _) = await OpenAsync("panelsearch");
+        using var _h = host;
+
+        vm.OpenSearchPanelCommand.Execute(null);
+        Pump();
+        vm.MatchCase = false;
+        vm.SearchQuery = "save";
+        await Task.Delay(450); // panel debounce
+        Pump();
+
+        Assert.True(vm.HasSearchResults);
+        var group = Assert.Single(vm.SearchGroups, g => g.Key == "buttons.save");
+        Assert.True(group.Count >= 2); // the key itself plus the English value
+        Assert.Contains(window.GetVisualDescendants().OfType<MatchTextBlock>(), t => t.IsEffectivelyVisible);
+
+        vm.ShowReplacePanel = true;
+        vm.ReplaceText = "Keep";
+        Pump();
+        Assert.All(group.Matches.Where(m => !m.InKey), m => Assert.Equal("Keep", m.Replacement));
+        if (Environment.GetEnvironmentVariable("TOUCAN_TEST_SCREENSHOTS") is { Length: > 0 } shots)
+            window.CaptureRenderedFrame()?.Save(Path.Combine(shots, "search-panel-results.png"));
+
+        await vm.ExecuteReplaceCommand.ExecuteAsync(null);
+        Pump();
+        Assert.Contains(vm.AllTranslation, t => t.Namespace == "buttons.save" && t.Language == "en" && t.Value == "Keep");
+
+        vm.ClearSearchCommand.Execute(null);
+        Assert.False(vm.HasSearchResults);
+    }
+
+    [AvaloniaFact]
     public async Task Close_ReturnsToStartScreen_AndProjectCanBeReopened()
     {
         var (host, window, vm, folder) = await OpenAsync("reopen");

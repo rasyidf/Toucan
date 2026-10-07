@@ -14,6 +14,14 @@ public class AppOptions
     public string DefaultLanguage { get; set; } = "en-US";
     public string Theme { get; set; } = "System";
     public string BackdropType { get; set; } = "Mica";
+    /// <summary>Name of the selected color scheme preset, or "Custom" when <see cref="AccentColor"/> matches no preset.</summary>
+    public string ColorScheme { get; set; } = "Toucan";
+    /// <summary>Accent color as #RRGGBB; null uses the preset's own accent.</summary>
+    public string? AccentColor { get; set; }
+    /// <summary>User edits to individual theme colors, keyed "Light:CardBackgroundBrush" / "Dark:CardBackgroundBrush", values #RRGGBB.</summary>
+    public Dictionary<string, string> SchemeColors { get; set; } = [];
+    /// <summary>"Stable" or "Preview": which GitHub releases "Check for updates" considers.</summary>
+    public string UpdateChannel { get; set; } = "Stable";
     public string AppLanguage { get; set; } = "en-US";
     public double FontSize { get; set; } = 13;
     public int PageSize { get; set; } = 15;

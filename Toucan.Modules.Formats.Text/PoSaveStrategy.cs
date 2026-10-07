@@ -14,6 +14,16 @@ public class PoSaveStrategy(IFileService fileService) : ISaveStrategy
     public IReadOnlyList<string> FileExtensions => [".po"];
     public string DefaultFilePath(string language) => $"{language}.po";
 
+    public IReadOnlyList<string> LanguageFiles(string projectRoot, string language)
+    {
+        if (!Directory.Exists(projectRoot)) return [Path.Combine(projectRoot, DefaultFilePath(language))];
+        var files = Directory.EnumerateFiles(projectRoot, "*.po", SearchOption.AllDirectories)
+            .Concat(Directory.EnumerateFiles(projectRoot, "*.pot", SearchOption.AllDirectories))
+            .Where(file => string.Equals(PoLoadStrategy.ResolveLanguage(projectRoot, file, File.ReadAllText(file)), language, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        return files.Count > 0 ? files : [Path.Combine(projectRoot, DefaultFilePath(language))];
+    }
+
     public bool StoresCommentsInline => true;
     public FormatDetection Detection { get; } = new(2, [".po", ".pot"], []);
 

@@ -1,7 +1,10 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="using:FluentAvalonia.UI.Controls"
-        xmlns:c="using:Toucan.Avalonia.Views.Components">
+        xmlns:c="using:Toucan.Avalonia.Views.Components"
+        xmlns:views="using:Toucan.Avalonia.Views"
+        xmlns:loc="using:Toucan.Avalonia.Locales"
+        xmlns:conv="using:Toucan.Avalonia.Converters">
 
   <!-- ═══ Text ═══ -->
   <Style Selector="TextBlock.caption">
@@ -82,6 +85,33 @@
     <Setter Property="Cursor" Value="Hand"/>
   </Style>
 
+  <!-- Small on/off chips inside a text box (match case, whole word, regex) -->
+  <Style Selector="ToggleButton.option">
+    <Setter Property="Width" Value="24"/>
+    <Setter Property="Height" Value="22"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+  <Style Selector="ToggleButton.option:checked /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.option.active /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+  </Style>
+  <Style Selector="Button.row.match">
+    <Setter Property="Padding" Value="22,3,6,3"/>
+  </Style>
+  <Style Selector="Button.row.match.selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+  </Style>
+
   <!-- Borderless button used as a clickable row -->
   <Style Selector="Button.row">
     <Setter Property="Background" Value="Transparent"/>
@@ -97,13 +127,18 @@
     <Setter Property="Width" Value="40"/>
     <Setter Property="Height" Value="40"/>
     <Setter Property="Padding" Value="0"/>
-    <Setter Property="Margin" Value="2,1"/>
+    <Setter Property="Margin" Value="0,3"/>
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="ToolTip.Placement" Value="Right"/>
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="BorderThickness" Value="0"/>
     <Setter Property="CornerRadius" Value="6"/>
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
     <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+  </Style>
+  <Style Selector="c|ActivityBar.rightRail Button.activity">
+    <Setter Property="ToolTip.Placement" Value="Left"/>
   </Style>
   <Style Selector="Button.activity ui|FASymbolIcon">
     <Setter Property="FontSize" Value="20"/>
@@ -136,7 +171,44 @@
     <Setter Property="FontWeight" Value="SemiBold"/>
   </Style>
 
+  <!-- App-wide workspace modes in the title bar. -->
+  <Style Selector="Button.modeTab">
+    <Setter Property="Padding" Value="12,0"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Height" Value="28"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="FontWeight" Value="Normal"/>
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}">
+          <ContentPresenter x:Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Button.modeTab:pointerover, Button.modeTab:focus-visible">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="Button.modeTab.active">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+  </Style>
+
   <!-- ═══ Surfaces ═══ -->
+  <Style Selector="Border.shellSurface">
+    <Setter Property="CornerRadius" Value="9"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource EditorBackgroundBrush}"/>
+  </Style>
   <Style Selector="Border.card">
     <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
     <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
@@ -193,7 +265,7 @@
     <Setter Property="VerticalContentAlignment" Value="Center"/>
   </Style>
   <Style Selector="Button.status:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="Background" Value="#26FFFFFF"/>
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
     <Setter Property="Foreground" Value="{DynamicResource StatusBarForegroundBrush}"/>
   </Style>
   <Style Selector="Button.status ui|FASymbolIcon">
@@ -222,7 +294,7 @@
   <Style Selector="ListBox.editor">
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="BorderThickness" Value="0"/>
-    <Setter Property="Padding" Value="12,8"/>
+    <Setter Property="Padding" Value="12"/>
   </Style>
   <Style Selector="ListBox.editor ListBoxItem">
     <Setter Property="Padding" Value="0"/>
@@ -252,7 +324,7 @@
   <Style Selector="Grid.translationRow Button.hoverOnly">
     <Setter Property="Opacity" Value="0"/>
   </Style>
-  <Style Selector="Grid.translationRow:pointerover Button.hoverOnly">
+  <Style Selector="Grid.translationRow:pointerover Button.hoverOnly, Grid.translationRow:focus-within Button.hoverOnly">
     <Setter Property="Opacity" Value="1"/>
   </Style>
 
@@ -260,6 +332,8 @@
     <Setter Property="AcceptsReturn" Value="True"/>
     <Setter Property="TextWrapping" Value="Wrap"/>
     <Setter Property="MinHeight" Value="32"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="Padding" Value="10,6"/>
     <Setter Property="MaxHeight" Value="220"/>
     <Setter Property="FontSize" Value="{DynamicResource EditorFontSize}"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -322,18 +396,21 @@
   </Style>
   <!-- ═══ Settings (grouped list) ═══ -->
   <Style Selector="c|SettingsGroup">
-    <Setter Property="Margin" Value="0,0,0,20"/>
+    <Setter Property="CornerRadius" Value="{DynamicResource SettingsCardRadius}"/>
+    <Setter Property="Margin" Value="{DynamicResource SettingsCardMargin}"/>
     <Setter Property="Template">
       <ControlTemplate>
         <StackPanel IsVisible="{TemplateBinding IsMatch}">
-          <TextBlock Text="{TemplateBinding Header}" Classes="groupHeader"
-                     IsVisible="{TemplateBinding Header, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-          <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
-                  BorderThickness="1" CornerRadius="10" ClipToBounds="True">
+          <Grid x:Name="GroupHeaderRow" MinHeight="{DynamicResource SettingsHeaderHeight}" Margin="0,0,0,6"
+                IsVisible="{TemplateBinding Header, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+            <TextBlock x:Name="GroupHeader" Text="{TemplateBinding Header}" Classes="groupHeader" VerticalAlignment="Center"/>
+          </Grid>
+          <Border Background="{DynamicResource SettingsCardBackgroundBrush}" BorderBrush="{DynamicResource SettingsCardBorderBrush}"
+                  BorderThickness="1" CornerRadius="{TemplateBinding CornerRadius}" ClipToBounds="True">
             <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/>
           </Border>
-          <TextBlock Text="{TemplateBinding Footer}" FontSize="12" TextWrapping="Wrap" Margin="14,8,14,0"
-                     Foreground="{DynamicResource FaintTextBrush}"
+          <TextBlock x:Name="GroupFooter" Text="{TemplateBinding Footer}" FontSize="12" TextWrapping="Wrap" Margin="{DynamicResource SettingsFooterMargin}"
+                     Foreground="{DynamicResource SettingsFooterForegroundBrush}"
                      IsVisible="{TemplateBinding Footer, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
         </StackPanel>
       </ControlTemplate>
@@ -342,18 +419,19 @@
   <Style Selector="TextBlock.groupHeader">
     <Setter Property="FontSize" Value="12"/>
     <Setter Property="FontWeight" Value="SemiBold"/>
-    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
-    <Setter Property="Margin" Value="14,0,0,6"/>
+    <Setter Property="Foreground" Value="{DynamicResource SettingsHeaderForegroundBrush}"/>
+    <Setter Property="Margin" Value="{DynamicResource SettingsHeaderMargin}"/>
   </Style>
   <Style Selector="TextBlock.groupFooter">
     <Setter Property="FontSize" Value="12"/>
-    <Setter Property="Foreground" Value="{DynamicResource FaintTextBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource SettingsFooterForegroundBrush}"/>
     <Setter Property="TextWrapping" Value="Wrap"/>
-    <Setter Property="Margin" Value="14,-14,14,20"/>
+    <Setter Property="Margin" Value="{DynamicResource SettingsFooterMargin}"/>
   </Style>
   <Style Selector="c|SettingsRow">
-    <Setter Property="Padding" Value="14,8"/>
-    <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
+    <Setter Property="Padding" Value="{DynamicResource SettingsRowPadding}"/>
+    <Setter Property="MinRowHeight" Value="{DynamicResource SettingsRowMinHeight}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SettingsDividerBrush}"/>
     <Setter Property="HorizontalContentAlignment" Value="Right"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
     <Setter Property="Template">
@@ -362,19 +440,27 @@
                 IsVisible="{TemplateBinding IsMatch}"
                 Padding="{TemplateBinding Padding}" MinHeight="{TemplateBinding MinRowHeight}">
           <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" VerticalAlignment="Center">
-            <StackPanel Spacing="2" VerticalAlignment="Center" Margin="0,0,16,0"
+            <StackPanel x:Name="RowLabels" Spacing="3" VerticalAlignment="Center" Margin="0,0,16,0"
                         IsVisible="{TemplateBinding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
               <TextBlock Text="{TemplateBinding Title}" TextWrapping="Wrap"/>
-              <TextBlock Text="{TemplateBinding Description}" Classes="hint" Margin="0"
+              <TextBlock Text="{TemplateBinding Description}" Classes="hint" Margin="0" TextWrapping="Wrap"
                          IsVisible="{TemplateBinding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
             </StackPanel>
             <ContentPresenter x:Name="PART_ContentPresenter" Grid.Column="1" Content="{TemplateBinding Content}"
                               ContentTemplate="{TemplateBinding ContentTemplate}" VerticalAlignment="Center"
-                              HorizontalAlignment="Right"/>
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              HorizontalContentAlignment="Stretch"/>
           </Grid>
         </Border>
       </ControlTemplate>
     </Setter>
+  </Style>
+  <Style Selector="c|SettingsRow:compact">
+    <Setter Property="Padding" Value="{DynamicResource SettingsRowCompactPadding}"/>
+    <Setter Property="MinRowHeight" Value="{DynamicResource SettingsRowCompactMinHeight}"/>
+  </Style>
+  <Style Selector="c|SettingsRow:not(:stacked) ComboBox, c|SettingsRow:not(:stacked) NumericUpDown, c|SettingsRow:not(:stacked) TextBox:not(.mono)">
+    <Setter Property="Width" Value="{DynamicResource SettingsControlWidth}"/>
   </Style>
   <Style Selector="c|SettingsRow:nth-child(n+2)">
     <Setter Property="BorderThickness" Value="0,1,0,0"/>
@@ -389,7 +475,7 @@
     <Setter Property="HorizontalAlignment" Value="Stretch"/>
     <Setter Property="Margin" Value="0"/>
   </Style>
-  <Style Selector="c|SettingsRow:stacked /template/ StackPanel">
+  <Style Selector="c|SettingsRow:stacked /template/ StackPanel#RowLabels">
     <Setter Property="Margin" Value="0,0,0,8"/>
   </Style>
   <Style Selector="c|SettingsRow ComboBox, c|SettingsRow TextBox, c|SettingsRow NumericUpDown">
@@ -404,7 +490,6 @@
     <Setter Property="MinWidth" Value="0"/>
     <Setter Property="MinHeight" Value="0"/>
     <Setter Property="Margin" Value="0"/>
-    <Setter Property="RenderTransform" Value="translateY(-3px)"/>
     <Setter Property="VerticalAlignment" Value="Center"/>
   </Style>
   <Style Selector="c|SettingsRow StackPanel">
@@ -412,6 +497,97 @@
   </Style>
   <Style Selector="c|SettingsRow ComboBox, c|SettingsRow NumericUpDown, c|SettingsRow Button, c|SettingsRow TextBox">
     <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+
+  <!-- Settings list: card with count, filter box, capped scroll area, empty state and add row -->
+  <Style Selector="c|SettingsList">
+    <Setter Property="Margin" Value="{DynamicResource SettingsCardMargin}"/>
+    <Setter Property="MaxListHeight" Value="{DynamicResource SettingsListMaxHeight}"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel IsVisible="{TemplateBinding IsMatch}">
+          <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,6" MinHeight="{DynamicResource SettingsHeaderHeight}"
+                IsVisible="{TemplateBinding Header, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+            <TextBlock x:Name="GroupHeader" Text="{TemplateBinding Header}" Classes="groupHeader" VerticalAlignment="Center"/>
+            <Border Grid.Column="1" Classes="badge" Margin="8,0,0,0"
+                    IsVisible="{TemplateBinding CountText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+              <TextBlock Text="{TemplateBinding CountText}"/>
+            </Border>
+            <ContentPresenter Grid.Column="2" Margin="8,0,0,0" Content="{TemplateBinding Actions}" VerticalAlignment="Center"/>
+          </Grid>
+          <Border Background="{DynamicResource SettingsCardBackgroundBrush}" BorderBrush="{DynamicResource SettingsCardBorderBrush}"
+                  BorderThickness="1" CornerRadius="{DynamicResource SettingsCardRadius}" ClipToBounds="True">
+            <StackPanel>
+              <Border Classes="settingsListToolbar" IsVisible="{TemplateBinding IsSearchBarVisible}">
+                <TextBox x:Name="PART_SearchBox" Classes="clearButton" Text="{TemplateBinding SearchText, Mode=TwoWay}"
+                         PlaceholderText="{loc:Loc 'Filter list…'}" MinWidth="0">
+                  <TextBox.InnerLeftContent>
+                    <ui:FASymbolIcon Symbol="Find" FontSize="12" Margin="10,0,0,0" Foreground="{DynamicResource FaintTextBrush}"/>
+                  </TextBox.InnerLeftContent>
+                </TextBox>
+              </Border>
+              <ScrollViewer MaxHeight="{TemplateBinding MaxListHeight}" VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled" IsVisible="{TemplateBinding ItemCount, Converter={x:Static conv:SettingsListConverters.HasItems}}">
+                <ItemsPresenter x:Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}"/>
+              </ScrollViewer>
+              <TextBlock Text="{TemplateBinding EmptyMessage}" Classes="caption" TextAlignment="Center" TextWrapping="Wrap" Margin="14,16"
+                         IsVisible="{TemplateBinding EmptyMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+              <Border BorderBrush="{DynamicResource SettingsDividerBrush}" BorderThickness="0,1,0,0" Padding="14,6"
+                      IsVisible="{TemplateBinding AddCommand, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Button Classes="link" HorizontalAlignment="Left" Content="{TemplateBinding AddText}"
+                        Command="{TemplateBinding AddCommand}" IsEnabled="{TemplateBinding CanAdd}"/>
+              </Border>
+            </StackPanel>
+          </Border>
+          <TextBlock Text="{TemplateBinding Footer}" FontSize="12" TextWrapping="Wrap" Margin="{DynamicResource SettingsFooterMargin}"
+                     Foreground="{DynamicResource SettingsFooterForegroundBrush}"
+                     IsVisible="{TemplateBinding Footer, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Button.swatch">
+    <Setter Property="Width" Value="28"/>
+    <Setter Property="Height" Value="28"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Margin" Value="0,0,8,0"/>
+    <Setter Property="CornerRadius" Value="14"/>
+    <Setter Property="BorderThickness" Value="2"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SettingsCardBorderBrush}"/>
+  </Style>
+  <Style Selector="Button.swatch:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+  </Style>
+  <Style Selector="Border.colorChip">
+    <Setter Property="Width" Value="24"/>
+    <Setter Property="Height" Value="24"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SettingsCardBorderBrush}"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="TextBox.invalid">
+    <Setter Property="BorderBrush" Value="{DynamicResource BadBrush}"/>
+  </Style>
+  <Style Selector="Border.settingsListToolbar">
+    <Setter Property="Padding" Value="8"/>
+    <Setter Property="Background" Value="{DynamicResource SettingsToolbarBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SettingsDividerBrush}"/>
+    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+  </Style>
+  <Style Selector="c|SettingsList ContentPresenter:nth-child(n+2) > c|SettingsRow">
+    <Setter Property="BorderThickness" Value="0,1,0,0"/>
+  </Style>
+  <Style Selector="c|SettingsList ContentPresenter.firstVisible > c|SettingsRow">
+    <Setter Property="BorderThickness" Value="0"/>
+  </Style>
+  <Style Selector="c|SettingsList c|SettingsRow:pointerover /template/ Border">
+    <Setter Property="Background" Value="{DynamicResource SettingsRowHoverBrush}"/>
+  </Style>
+  <Style Selector="c|SettingsList.compact">
+    <Setter Property="MaxListHeight" Value="200"/>
   </Style>
 
   <!-- Settings sidebar (rounded colored icon tiles, selection pill) -->
@@ -548,7 +724,7 @@
   </Style>
 
   <!-- Side panels: compact type and controls, one 10px inset -->
-  <Style Selector="ContentControl.panelHost Button:not(.icon):not(.row):not(.link):not(.statRow):not(.segment):not(.page):not(.pager)">
+  <Style Selector="ContentControl.panelHost Button:not(.icon):not(.row):not(.link):not(.statRow):not(.segment):not(.modeTab):not(.page):not(.pager)">
     <Setter Property="FontSize" Value="12"/>
     <Setter Property="MinHeight" Value="28"/>
     <Setter Property="Padding" Value="8,4"/>
@@ -558,7 +734,11 @@
   <Style Selector="ContentControl.panelHost TextBlock.caption">
     <Setter Property="FontSize" Value="11"/>
   </Style>
-  <Style Selector="c|SettingsGroup.compact TextBlock.groupHeader">
+  <Style Selector="c|SettingsGroup.compact /template/ Grid#GroupHeaderRow">
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Margin" Value="0"/>
+  </Style>
+  <Style Selector="c|SettingsGroup.compact /template/ TextBlock#GroupHeader">
     <Setter Property="Margin" Value="4,0,0,4"/>
     <Setter Property="FontSize" Value="11"/>
   </Style>
@@ -644,9 +824,9 @@
     <Setter Property="MinHeight" Value="0"/>
     <Setter Property="Padding" Value="10,0"/>
     <Setter Property="FontSize" Value="12"/>
-    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="CornerRadius" Value="5"/>
     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource ChromeBackgroundBrush}"/>
     <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
     <Setter Property="BorderThickness" Value="1"/>
     <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
@@ -675,5 +855,70 @@
   </Style>
   <Style Selector="Button.saveState:pointerover /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="c|SettingsGroup.compact">
+    <Setter Property="CornerRadius" Value="6"/>
+  </Style>
+  <Style Selector="c|SettingsGroup.compact /template/ TextBlock#GroupFooter">
+    <Setter Property="FontSize" Value="11"/>
+    <Setter Property="Margin" Value="10,6,10,0"/>
+  </Style>
+  <Style Selector="c|TranslationCard Button.icon, c|TranslationCard ToggleButton.icon">
+    <Setter Property="Width" Value="24"/>
+    <Setter Property="Height" Value="24"/>
+    <Setter Property="Padding" Value="4"/>
+  </Style>
+  <Style Selector="c|TranslationCard Panel.valueCell">
+    <Setter Property="Grid.Column" Value="1"/>
+  </Style>
+  <Style Selector="c|TranslationCard Border.rowLanguage">
+    <Setter Property="Margin" Value="0,7,10,0"/>
+  </Style>
+  <Style Selector="c|TranslationCard StackPanel.valueActions">
+    <Setter Property="Margin" Value="6,4,0,0"/>
+  </Style>
+  <Style Selector="views|TranslationEditorView StackPanel.filterActions">
+    <Setter Property="Grid.Column" Value="1"/>
+    <Setter Property="Margin" Value="8,0,0,0"/>
+  </Style>
+  <Style Selector="c|TranslationCard.narrow Grid.translationRow Panel.valueCell">
+    <Setter Property="Grid.Row" Value="1"/>
+    <Setter Property="Grid.Column" Value="0"/>
+    <Setter Property="Grid.ColumnSpan" Value="3"/>
+  </Style>
+  <Style Selector="c|TranslationCard.narrow Border.rowLanguage">
+    <Setter Property="Margin" Value="0,0,10,6"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="c|TranslationCard.narrow StackPanel.valueActions">
+    <Setter Property="Margin" Value="6,0,0,6"/>
+  </Style>
+  <Style Selector="Button.settingsAction, ToggleButton.settingsAction">
+    <Setter Property="Width" Value="28"/>
+    <Setter Property="Height" Value="28"/>
+    <Setter Property="Padding" Value="6"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="views|TranslationEditorView.narrow TextBox.filterInput">
+    <Setter Property="Grid.ColumnSpan" Value="2"/>
+  </Style>
+  <Style Selector="views|TranslationEditorView.narrow StackPanel.filterActions">
+    <Setter Property="Grid.Row" Value="1"/>
+    <Setter Property="Grid.Column" Value="0"/>
+    <Setter Property="Grid.ColumnSpan" Value="2"/>
+    <Setter Property="HorizontalAlignment" Value="Right"/>
+    <Setter Property="Margin" Value="0,6,0,0"/>
+  </Style>
+  <Style Selector="ToggleSwitch.settingsToggle">
+    <Style.Resources>
+      <Thickness x:Key="ToggleSwitchTopHeaderMargin">0</Thickness>
+      <GridLength x:Key="ToggleSwitchPreContentMargin">2</GridLength>
+      <GridLength x:Key="ToggleSwitchPostContentMargin">2</GridLength>
+    </Style.Resources>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="MinWidth" Value="0"/>
+  </Style>
+  <Style Selector="TextBox.mono">
+    <Setter Property="FontFamily" Value="Menlo, Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace"/>
   </Style>
 </Styles>

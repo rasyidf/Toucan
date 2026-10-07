@@ -16,11 +16,59 @@ public partial class StatusBarView : UserControl
         ProjectButton.Click += (_, _) => MainViewModel?.ShowProjectPropertiesCommand.Execute(null);
         ModeButton.Click += (_, _) => MainViewModel?.CycleEditorModeCommand.Execute(null);
         StatsButton.Click += (_, _) => MainViewModel?.RunValidationCommand.Execute(null);
-        NotificationsButton.Click += (_, _) => MainViewModel?.ShowUntranslatedCommand.Execute(null);
+        NotificationsButton.Click += OnNotificationsClick;
+        EncodingButton.Click += OnEncodingClick;
+        LineEndingButton.Click += OnLineEndingClick;
         LanguageButton.Click += OnLanguageClick;
     }
 
     public MainWindowViewModel? MainViewModel { get; set; }
+
+    private void OnEncodingClick(object? sender, RoutedEventArgs e)
+    {
+        if (MainViewModel is not { } vm || !vm.CanChangeFileFormat || DataContext is not StatusBarViewModel status) return;
+        if (!vm.CanChangeTextEncoding)
+        {
+            var flyout = new MenuFlyout { Placement = PlacementMode.TopEdgeAlignedRight };
+            flyout.Items.Add(new MenuItem { Header = "This format uses ISO-8859-1 encoding", IsEnabled = false });
+            flyout.ShowAt(EncodingButton);
+            return;
+        }
+        ShowChoice(EncodingButton, "Save project files with encoding", new[] { "UTF-8", "UTF-8 BOM" }, status.Encoding.Encoding, vm.SetTextEncoding);
+    }
+
+    private void OnLineEndingClick(object? sender, RoutedEventArgs e)
+    {
+        if (MainViewModel is not { } vm || !vm.CanChangeFileFormat || DataContext is not StatusBarViewModel status) return;
+        ShowChoice(LineEndingButton, "Save project files with line endings", new[] { "LF", "CRLF" }, status.LineEndings.LineEnding, vm.SetLineEnding);
+    }
+
+    private static void ShowChoice(Control target, string title, IEnumerable<string> choices, string current, Action<string> select)
+    {
+        var flyout = new MenuFlyout { Placement = PlacementMode.TopEdgeAlignedRight };
+        flyout.Items.Add(new MenuItem { Header = title, IsEnabled = false });
+        foreach (var choice in choices)
+        {
+            var item = new MenuItem { Header = choice, ToggleType = MenuItemToggleType.Radio, IsChecked = choice == current };
+            item.Click += (_, _) => select(choice);
+            flyout.Items.Add(item);
+        }
+        flyout.ShowAt(target);
+    }
+
+    private void OnNotificationsClick(object? sender, RoutedEventArgs e)
+    {
+        if (MainViewModel is not { } vm || DataContext is not StatusBarViewModel status) return;
+        var notifications = status.Notifications;
+        var flyout = new MenuFlyout { Placement = PlacementMode.TopEdgeAlignedRight };
+        flyout.Items.Add(new MenuItem { Header = $"Untranslated entries ({notifications.Untranslated})", Command = vm.ShowUntranslatedCommand });
+        var issues = new MenuItem { Header = $"Validation: {notifications.Errors} errors, {notifications.Warnings} warnings, {notifications.Info} info" };
+        issues.Click += (_, _) => Toucan.Core.Services.SidePanelRegistry.Instance.Activate("issues");
+        flyout.Items.Add(issues);
+        flyout.Items.Add(new Separator());
+        flyout.Items.Add(new MenuItem { Header = "Run validation", Command = vm.RunValidationCommand });
+        flyout.ShowAt(NotificationsButton);
+    }
 
     private void OnLanguageClick(object? sender, RoutedEventArgs e)
     {

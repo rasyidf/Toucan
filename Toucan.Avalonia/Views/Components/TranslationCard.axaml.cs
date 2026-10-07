@@ -14,6 +14,7 @@ public partial class TranslationCard : UserControl
     public TranslationCard()
     {
         InitializeComponent();
+        SizeChanged += (_, e) => Classes.Set("narrow", e.NewSize.Width < 480);
         AddHandler(GotFocusEvent, OnChildGotFocus, RoutingStrategies.Bubble);
         AddHandler(KeyDownEvent, OnChildKeyDown, RoutingStrategies.Tunnel);
         BulkCheck.IsCheckedChanged += (_, _) =>

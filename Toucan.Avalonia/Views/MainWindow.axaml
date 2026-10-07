@@ -15,12 +15,12 @@
   <Grid RowDefinitions="Auto,*,Auto">
 
     <!-- ═══ Top bar: in-window menu (Windows/Linux) + view controls ═══ -->
-    <Border Grid.Row="0" x:Name="TopBar" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,0,1" MinHeight="34">
-      <Grid ColumnDefinitions="*,Auto,*" Margin="4,0">
+    <Border Grid.Row="0" x:Name="TopBar" MinHeight="40">
+      <Grid x:Name="TitleBarLayout" ColumnDefinitions="*,Auto,*" Margin="8,0">
         <!-- Left: (menu on Windows/Linux) · logo and name · save state -->
-        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+        <StackPanel x:Name="TitleBarLeading" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
           <ContentControl x:Name="MenuHost" VerticalAlignment="Center"/>
-          <StackPanel Orientation="Horizontal" Spacing="7" Margin="6,0,2,0" VerticalAlignment="Center">
+          <StackPanel x:Name="TitleBarBrand" Orientation="Horizontal" Spacing="7" Margin="6,0,2,0" VerticalAlignment="Center">
             <Image Source="/Assets/logo.png" Width="18" Height="18"/>
             <TextBlock Text="Toucan" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
           </StackPanel>
@@ -35,7 +35,7 @@
         </StackPanel>
 
         <!-- Center: command palette pill (project and selected key shown while a project is open) -->
-        <Button x:Name="PalettePill" Grid.Column="1" Classes="palettePill" Width="380" MinWidth="180" VerticalAlignment="Center"
+        <Button x:Name="PalettePill" Grid.Column="1" Classes="palettePill" Width="420" MinWidth="180" VerticalAlignment="Center"
                 Command="{Binding ToggleCommandPaletteCommand}" ToolTip.Tip="{loc:Loc 'Command palette'}" AutomationProperties.Name="{loc:Loc 'Command palette'}">
           <Grid ColumnDefinitions="Auto,*,Auto">
             <ui:FASymbolIcon Symbol="Find" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center"/>
@@ -62,19 +62,16 @@
           </Grid>
         </Button>
 
-        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
-          <!-- Editor mode segmented control -->
-          <Border CornerRadius="6" Padding="2" Background="{DynamicResource BadgeBackgroundBrush}" Margin="0,0,8,0"
-                  IsVisible="{Binding !ShowStartScreen}">
-            <StackPanel Orientation="Horizontal" Spacing="2">
-              <Button Classes="segment" Classes.active="{Binding IsEditorMode}" Content="{loc:Loc 'Editor'}"
-                      Command="{Binding SwitchToEditorModeCommand}" ToolTip.Tip="{loc:Loc 'Edit translations'}"/>
-              <Button Classes="segment" Classes.active="{Binding IsReviewMode}" Content="{loc:Loc 'Review'}"
-                      Command="{Binding SwitchToReviewModeCommand}" ToolTip.Tip="{loc:Loc 'Approve or reject unreviewed translations'}"/>
-              <Button Classes="segment" Classes.active="{Binding IsAuditMode}" Content="{loc:Loc 'Audit'}"
-                      Command="{Binding SwitchToAuditModeCommand}" ToolTip.Tip="{loc:Loc 'Read-only view with approval state and history'}"/>
-            </StackPanel>
-          </Border>
+        <StackPanel x:Name="TitleBarTrailing" Grid.Column="2" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right" VerticalAlignment="Center">
+          <StackPanel x:Name="WorkspaceModes" Orientation="Horizontal" Spacing="2" Margin="0,0,10,0"
+                      IsVisible="{Binding !ShowStartScreen}">
+            <Button Classes="modeTab" Classes.active="{Binding IsEditorMode}" Content="{loc:Loc 'Editor'}"
+                    Command="{Binding SwitchToEditorModeCommand}" ToolTip.Tip="{loc:Loc 'Edit translations'}"/>
+            <Button Classes="modeTab" Classes.active="{Binding IsReviewMode}" Content="{loc:Loc 'Review'}"
+                    Command="{Binding SwitchToReviewModeCommand}" ToolTip.Tip="{loc:Loc 'Approve or reject unreviewed translations'}"/>
+            <Button Classes="modeTab" Classes.active="{Binding IsAuditMode}" Content="{loc:Loc 'Audit'}"
+                    Command="{Binding SwitchToAuditModeCommand}" ToolTip.Tip="{loc:Loc 'Read-only view with approval state and history'}"/>
+          </StackPanel>
           <Button Classes="icon" ToolTip.Tip="{loc:Loc 'Toggle left panel'}"
                   Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleSidebarCommand}"
                   IsVisible="{Binding !ShowStartScreen}">
@@ -85,71 +82,80 @@
                   IsVisible="{Binding !ShowStartScreen}">
             <ui:FASymbolIcon Symbol="DockRight"/>
           </Button>
-          <Button Classes="icon" ToolTip.Tip="{loc:Loc 'Settings'}" Command="{Binding ShowPreferencesCommand}">
-            <ui:FASymbolIcon Symbol="Settings"/>
-          </Button>
         </StackPanel>
       </Grid>
     </Border>
 
     <!-- ═══ Workspace ═══ -->
-    <Panel Grid.Row="1">
-      <Grid x:Name="Workspace" IsVisible="{Binding !ShowStartScreen}">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="46"/>
-          <ColumnDefinition Width="280" MinWidth="0"/>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="*" MinWidth="360"/>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="300" MinWidth="0"/>
-          <ColumnDefinition Width="46"/>
-        </Grid.ColumnDefinitions>
+    <Panel Grid.Row="1" Margin="8,0,8,0">
+      <Grid ColumnDefinitions="54,*,Auto">
+        <Border Classes="shellSurface" Background="{DynamicResource ChromeBackgroundBrush}" Margin="0,0,6,0">
+          <DockPanel>
+            <Button x:Name="RailSettings" DockPanel.Dock="Bottom" Classes="activity" Margin="0,3"
+                    HorizontalAlignment="Center" ToolTip.Tip="{loc:Loc 'Settings'}" Command="{Binding ShowPreferencesCommand}">
+              <ui:FASymbolIcon Symbol="Settings"/>
+            </Button>
+            <c:ActivityBar x:Name="LeftActivityBar"/>
+          </DockPanel>
+        </Border>
+        <Border Grid.Column="1" x:Name="WorkspaceSurface" Classes="shellSurface">
+          <Panel x:Name="WorkspaceContent">
+            <Grid x:Name="Workspace" IsVisible="{Binding !ShowStartScreen}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280" MinWidth="0"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" MinWidth="360"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="300" MinWidth="0"/>
+              </Grid.ColumnDefinitions>
 
-        <c:ActivityBar Grid.Column="0" x:Name="LeftActivityBar"
-                       BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0"/>
+              <!-- Left panel host -->
+              <DockPanel Grid.Column="0" x:Name="LeftPanelHost">
+                <Border DockPanel.Dock="Top" Classes="panelHeader">
+                  <DockPanel>
+                    <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="{loc:Loc 'Hide panel'}"
+                            Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleSidebarCommand}">
+                      <ui:FASymbolIcon Symbol="ChevronLeft"/>
+                    </Button>
+                    <StackPanel DockPanel.Dock="Right" x:Name="LeftPanelActions" Orientation="Horizontal"/>
+                    <TextBlock x:Name="LeftPanelTitle" Classes="panelTitle" Text="{loc:Loc 'EXPLORER'}"/>
+                  </DockPanel>
+                </Border>
+                <ContentControl x:Name="LeftPanelContent" Classes="panelHost" FontSize="12"/>
+              </DockPanel>
+              <GridSplitter Grid.Column="1" x:Name="LeftSplitter" Width="4" MinWidth="4" ResizeDirection="Columns" Background="Transparent"
+                            BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0"/>
 
-        <!-- Left panel host -->
-        <DockPanel Grid.Column="1" x:Name="LeftPanelHost">
-          <Border DockPanel.Dock="Top" Classes="panelHeader">
-            <DockPanel>
-              <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="{loc:Loc 'Hide panel'}"
-                      Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleSidebarCommand}">
-                <ui:FASymbolIcon Symbol="ChevronLeft"/>
-              </Button>
-              <StackPanel DockPanel.Dock="Right" x:Name="LeftPanelActions" Orientation="Horizontal"/>
-              <TextBlock x:Name="LeftPanelTitle" Classes="panelTitle" Text="{loc:Loc 'EXPLORER'}"/>
-            </DockPanel>
-          </Border>
-          <ContentControl x:Name="LeftPanelContent" Classes="panelHost" FontSize="12"/>
-        </DockPanel>
-        <GridSplitter Grid.Column="2" x:Name="LeftSplitter" Width="4" ResizeDirection="Columns" Background="Transparent"
-                      BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0"/>
+              <!-- Center editor -->
+              <views:TranslationEditorView Grid.Column="2" x:Name="Editor"/>
 
-        <!-- Center editor -->
-        <views:TranslationEditorView Grid.Column="3" x:Name="Editor"/>
+              <GridSplitter Grid.Column="3" x:Name="RightSplitter" Width="4" MinWidth="4" ResizeDirection="Columns" Background="Transparent"
+                            BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="1,0,0,0"/>
+              <!-- Right panel host -->
+              <DockPanel Grid.Column="4" x:Name="RightPanelHost">
+                <Border DockPanel.Dock="Top" Classes="panelHeader">
+                  <DockPanel>
+                    <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="{loc:Loc 'Hide panel'}"
+                            Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleInspectorCommand}">
+                      <ui:FASymbolIcon Symbol="ChevronRight"/>
+                    </Button>
+                    <StackPanel DockPanel.Dock="Right" x:Name="RightPanelActions" Orientation="Horizontal"/>
+                    <TextBlock x:Name="RightPanelTitle" Classes="panelTitle" Text="{loc:Loc 'LANGUAGES'}"/>
+                  </DockPanel>
+                </Border>
+                <ContentControl x:Name="RightPanelContent" Classes="panelHost" FontSize="12"/>
+              </DockPanel>
 
-        <GridSplitter Grid.Column="4" x:Name="RightSplitter" Width="4" ResizeDirection="Columns" Background="Transparent"
-                      BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="1,0,0,0"/>
-        <!-- Right panel host -->
-        <DockPanel Grid.Column="5" x:Name="RightPanelHost">
-          <Border DockPanel.Dock="Top" Classes="panelHeader">
-            <DockPanel>
-              <Button DockPanel.Dock="Right" Classes="icon small" ToolTip.Tip="{loc:Loc 'Hide panel'}"
-                      Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleInspectorCommand}">
-                <ui:FASymbolIcon Symbol="ChevronRight"/>
-              </Button>
-              <StackPanel DockPanel.Dock="Right" x:Name="RightPanelActions" Orientation="Horizontal"/>
-              <TextBlock x:Name="RightPanelTitle" Classes="panelTitle" Text="{loc:Loc 'LANGUAGES'}"/>
-            </DockPanel>
-          </Border>
-          <ContentControl x:Name="RightPanelContent" Classes="panelHost" FontSize="12"/>
-        </DockPanel>
+            </Grid>
 
-        <c:ActivityBar Grid.Column="6" x:Name="RightActivityBar"
-                       BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="1,0,0,0"/>
+            <views:StartScreen IsVisible="{Binding ShowStartScreen}"/>
+          </Panel>
+        </Border>
+        <Border Grid.Column="2" Classes="shellSurface" Background="{DynamicResource ChromeBackgroundBrush}"
+                Width="48" Margin="6,0,0,0" IsVisible="{Binding !ShowStartScreen}">
+          <c:ActivityBar x:Name="RightActivityBar" Classes="rightRail"/>
+        </Border>
       </Grid>
-
-      <views:StartScreen IsVisible="{Binding ShowStartScreen}"/>
 
       <!-- Loading veil -->
       <Border IsVisible="{Binding IsLoading}" Background="#40000000">

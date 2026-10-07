@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using FluentAvalonia.UI.Controls;
 using Toucan.Avalonia.Services;
@@ -20,8 +21,8 @@ public partial class MainWindow : Window
     private readonly Dictionary<string, Control> _panelCache = [];
     private bool _closeConfirmed;
 
-    private ColumnDefinition LeftColumn => Workspace.ColumnDefinitions[1];
-    private ColumnDefinition RightColumn => Workspace.ColumnDefinitions[5];
+    private ColumnDefinition LeftColumn => Workspace.ColumnDefinitions[0];
+    private ColumnDefinition RightColumn => Workspace.ColumnDefinitions[4];
 
     public MainWindow(MainWindowViewModel viewModel, StatusBarViewModel statusBar)
     {
@@ -45,6 +46,13 @@ public partial class MainWindow : Window
         ShowRightPanel(registry.ActiveRightPanel?.Id);
 
         if (PlatformService.IsMacOS) UseUnifiedTitleBar();
+        TitleBarBrand.IsVisible = PlatformService.IsMacOS;
+        TopBar.LayoutUpdated += (_, _) => UpdateTitleBarLayout();
+        Workspace.SizeChanged += (_, _) => FitSidePanels();
+        // Clip the content as well as the outline: collapsing either panel brings
+        // the editor background directly against these rounded corners.
+        WorkspaceContent.SizeChanged += (_, e) => WorkspaceContent.Clip =
+            new RectangleGeometry(new Rect(e.NewSize), 8, 8);
 
         MainMenu.Attach(this, _vm, MenuHost);
         Palette.CommandSource = () => MainMenu.PaletteCommands(this, _vm);
@@ -74,19 +82,44 @@ public partial class MainWindow : Window
     private void UseUnifiedTitleBar()
     {
         ExtendClientAreaToDecorationsHint = true;
-        ExtendClientAreaTitleBarHeightHint = -1;
+        ExtendClientAreaTitleBarHeightHint = 40;
 
         const double TrafficLightInset = 78;
-        TopBar.MinHeight = 38;
+        TopBar.MinHeight = 40;
         void UpdateInset()
         {
             var inset = WindowState == WindowState.FullScreen ? 0 : TrafficLightInset; // lights are hidden in fullscreen
-            TopBar.Padding = new Thickness(inset, 0, 0, 0);
+            TitleBarLeading.Margin = new Thickness(inset, 0, 0, 0);
             ZenView.SetTitleBarInset(inset); // Zen mode covers the top bar, so it needs the same clearance
-            PalettePill.Margin = new Thickness(0, 0, inset, 0); // the inset shifts the bar's grid right; offset it so the pill sits at the window's center
+            UpdateTitleBarLayout();
         }
         UpdateInset();
         PropertyChanged += (_, e) => { if (e.Property == WindowStateProperty) UpdateInset(); };
+    }
+
+    private void UpdateTitleBarLayout()
+    {
+        // Equal reserved wings keep search centered even when the native controls are visible.
+        var wing = Math.Max(TitleBarLeading.DesiredSize.Width, TitleBarTrailing.DesiredSize.Width) + 16;
+        var width = Math.Clamp(TitleBarLayout.Bounds.Width - 2 * wing, 180, 500);
+        if (Math.Abs(PalettePill.Width - width) > 0.5) PalettePill.Width = width;
+    }
+
+    private void FitSidePanels()
+    {
+        if (Workspace.Bounds.Width <= 0) return;
+        var left = LeftPanelHost.IsVisible ? LeftColumn.Width.Value : 0;
+        var right = RightPanelHost.IsVisible ? RightColumn.Width.Value : 0;
+        var available = Math.Max(320, Workspace.Bounds.Width - 360 - 8);
+        if (left + right <= available) return;
+        if (left > 0 && right > 0)
+        {
+            var fittedLeft = Math.Clamp(available * left / (left + right), 160, available - 160);
+            LeftColumn.Width = new GridLength(fittedLeft);
+            RightColumn.Width = new GridLength(available - fittedLeft);
+        }
+        else if (left > 0) LeftColumn.Width = new GridLength(available);
+        else if (right > 0) RightColumn.Width = new GridLength(available);
     }
 
     private void OnRegistryChanged(object? sender, PropertyChangedEventArgs e)
@@ -117,6 +150,7 @@ public partial class MainWindow : Window
         var registry = SidePanelRegistry.Instance;
         SetSlot(LeftColumn, LeftPanelHost, LeftSplitter, registry.LeftSlotVisible, PanelService.Instance.SidebarWidth);
         SetSlot(RightColumn, RightPanelHost, RightSplitter, registry.RightSlotVisible, PanelService.Instance.InspectorWidth);
+        FitSidePanels();
     }
 
     private static void SetSlot(ColumnDefinition column, Control host, Control splitter, bool visible, double width)

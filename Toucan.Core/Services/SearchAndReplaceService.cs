@@ -5,193 +5,129 @@ using Toucan.Core.Models;
 namespace Toucan.Core.Services;
 
 /// <summary>
-/// Stateless search-and-replace across translation item keys and values.
-/// Supports literal substring and regex modes with scope filtering.
+/// Search-and-replace across translation keys and values. Every mode compiles to one <see cref="Regex"/>
+/// (literal queries are escaped), so match case, whole word and replacement behave the same in all of them.
 /// </summary>
 public class SearchAndReplaceService : ISearchAndReplaceService
 {
-    /// <inheritdoc />
-    public IReadOnlyList<SearchResultItem> Search(
-        IEnumerable<TranslationItem> items,
-        string query,
-        bool useRegex,
-        SearchScope scope,
-        string? scopeFilter = null)
-    {
-        if (string.IsNullOrEmpty(query))
-            return [];
+    private static readonly TimeSpan s_timeout = TimeSpan.FromSeconds(2);
 
-        var filtered = ApplyScope(items, scope, scopeFilter);
+    /// <inheritdoc />
+    public IReadOnlyList<SearchResultItem> Search(IEnumerable<TranslationItem> items, string query, SearchOptions options)
+    {
+        if (string.IsNullOrEmpty(query)) return [];
+        var regex = Build(query, options); // throws ArgumentException for a bad pattern
         var results = new List<SearchResultItem>();
 
-        if (useRegex)
+        var keysReported = new HashSet<string>(StringComparer.Ordinal); // a key exists once, not once per language
+        foreach (var item in Filter(items, options))
         {
-            Regex? regex;
-            try { regex = new Regex(query, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(2)); }
-            catch (ArgumentException) { return []; } // ponytail: invalid regex → empty results, no crash
-
-            foreach (var item in filtered)
-            {
-                CollectRegexMatches(item, regex, results);
-            }
+            if (keysReported.Add(item.Namespace)) Collect(regex, item.Namespace, item, inKey: true, results);
+            Collect(regex, item.Value, item, inKey: false, results);
         }
-        else
-        {
-            foreach (var item in filtered)
-            {
-                CollectLiteralMatches(item, query, results);
-            }
-        }
-
         return results;
     }
 
     /// <inheritdoc />
-    public IReadOnlyList<SearchResultItem> PreviewReplace(
-        IReadOnlyList<SearchResultItem> results,
-        string replacement,
-        bool useRegex)
+    public IReadOnlyList<SearchResultItem> PreviewReplace(IReadOnlyList<SearchResultItem> results, string query, string replacement, SearchOptions options)
     {
-        // ponytail: preview is computed per-item without modifying anything
-        foreach (var result in results)
+        var regex = Build(query, options);
+        // One preview per (key, language): all matches in a value are replaced together, exactly as Apply does.
+        foreach (var group in results.Where(r => !r.InKey).GroupBy(r => (r.Key, r.Language)))
         {
-            // Bounds check: skip stale matches that no longer align with the value
-            if (result.MatchStart + result.MatchLength > result.Value.Length)
-                continue;
-
-            result.ReplacedValue = result.Value[..result.MatchStart]
-                + replacement
-                + result.Value[(result.MatchStart + result.MatchLength)..];
+            var replaced = Replace(regex, group.First().Value, replacement, options);
+            foreach (var r in group)
+            {
+                r.ReplacedValue = replaced;
+                var m = regex.Match(r.Value, r.MatchStart);
+                r.ReplacementText = m.Success && m.Index == r.MatchStart ? Evaluate(m, replacement, options) : replacement;
+            }
         }
-
         return results;
     }
 
     /// <inheritdoc />
-    public int ApplyReplace(
-        IEnumerable<TranslationItem> allItems,
-        IReadOnlyList<SearchResultItem> results,
-        string query,
-        string replacement,
-        bool useRegex)
+    public int ApplyReplace(IEnumerable<TranslationItem> allItems, IReadOnlyList<SearchResultItem> results, string query, string replacement, SearchOptions options)
     {
-        // Build a lookup: (namespace, language) → TranslationItem for O(1) access
-        var lookup = allItems.ToDictionary(
-            i => (i.Namespace, i.Language),
-            i => i,
-            EqualityComparer<(string, string)>.Default);
+        var regex = Build(query, options);
+        var lookup = allItems.ToDictionary(i => (i.Namespace, i.Language), i => i);
+        var modified = 0;
 
-        int modified = 0;
-
-        // Group results by (key, language) to apply all replacements per item in reverse order
-        var grouped = results
-            .GroupBy(r => (r.Key, r.Language))
-            .ToList();
-
-        foreach (var group in grouped)
+        foreach (var group in results.Where(r => !r.InKey).GroupBy(r => (r.Key, r.Language)))
         {
-            if (!lookup.TryGetValue((group.Key.Key, group.Key.Language), out var item))
-                continue;
-
-            if (useRegex)
-            {
-                try
-                {
-                    var regex = new Regex(query, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, TimeSpan.FromSeconds(2));
-                    var newValue = regex.Replace(item.Value, replacement);
-                    if (newValue != item.Value)
-                    {
-                        item.Value = newValue;
-                        modified++;
-                    }
-                }
-                catch { /* invalid regex at apply time — skip */ }
-            }
-            else
-            {
-                var newValue = item.Value.Replace(query, replacement, StringComparison.OrdinalIgnoreCase);
-                if (newValue != item.Value)
-                {
-                    item.Value = newValue;
-                    modified++;
-                }
-            }
+            if (!lookup.TryGetValue(group.Key, out var item)) continue;
+            var newValue = Replace(regex, item.Value, replacement, options);
+            if (newValue == item.Value) continue;
+            item.Value = newValue;
+            modified++;
         }
-
         return modified;
     }
 
-    private static IEnumerable<TranslationItem> ApplyScope(
-        IEnumerable<TranslationItem> items, SearchScope scope, string? filter)
+    /// <summary>Compiles the query. Literal text is escaped; whole word wraps it in word boundaries.</summary>
+    public static Regex Build(string query, SearchOptions options)
     {
-        return scope switch
-        {
-            SearchScope.SpecificLanguage when !string.IsNullOrEmpty(filter) =>
-                items.Where(i => i.Language.Equals(filter, StringComparison.OrdinalIgnoreCase)),
-            SearchScope.CurrentNamespace when !string.IsNullOrEmpty(filter) =>
-                items.Where(i => i.Namespace.StartsWith(filter, StringComparison.OrdinalIgnoreCase)),
-            _ => items
-        };
+        var pattern = options.UseRegex ? query : Regex.Escape(query);
+        if (options.WholeWord) pattern = $@"(?<![\p{{L}}\p{{N}}_])(?:{pattern})(?![\p{{L}}\p{{N}}_])";
+        var flags = RegexOptions.CultureInvariant | (options.MatchCase ? RegexOptions.None : RegexOptions.IgnoreCase);
+        try { return new Regex(pattern, flags, s_timeout); }
+        catch (RegexParseException e) { throw new ArgumentException(e.Message, nameof(query), e); }
     }
 
-    private static void CollectLiteralMatches(TranslationItem item, string query, List<SearchResultItem> results)
-    {
-        // Search in namespace (key)
-        int idx = 0;
-        while ((idx = item.Namespace.IndexOf(query, idx, StringComparison.OrdinalIgnoreCase)) >= 0)
-        {
-            results.Add(new SearchResultItem
-            {
-                Key = item.Namespace,
-                Language = item.Language,
-                Value = item.Namespace,
-                MatchStart = idx,
-                MatchLength = query.Length
-            });
-            idx += query.Length;
-        }
+    private static string Replace(Regex regex, string value, string replacement, SearchOptions options) =>
+        regex.Replace(value, m => Evaluate(m, replacement, options));
 
-        // Search in value
-        idx = 0;
-        while ((idx = item.Value.IndexOf(query, idx, StringComparison.OrdinalIgnoreCase)) >= 0)
-        {
-            results.Add(new SearchResultItem
-            {
-                Key = item.Namespace,
-                Language = item.Language,
-                Value = item.Value,
-                MatchStart = idx,
-                MatchLength = query.Length
-            });
-            idx += query.Length;
-        }
+    private static string Evaluate(Match m, string replacement, SearchOptions options)
+    {
+        var text = options.UseRegex ? m.Result(replacement) : replacement; // $1 etc. only mean something in regex mode
+        return options.PreserveCase ? MatchCaseOf(m.Value, text) : text;
     }
 
-    private static void CollectRegexMatches(TranslationItem item, Regex regex, List<SearchResultItem> results)
+    /// <summary>"TITLE" → upper, "title" → lower, "Title" → first letter upper; anything else is left as typed.</summary>
+    public static string MatchCaseOf(string matched, string replacement)
     {
-        // Search in namespace (key)
-        foreach (Match m in regex.Matches(item.Namespace))
-        {
-            results.Add(new SearchResultItem
-            {
-                Key = item.Namespace,
-                Language = item.Language,
-                Value = item.Namespace,
-                MatchStart = m.Index,
-                MatchLength = m.Length
-            });
-        }
+        var letters = matched.Where(char.IsLetter).ToList();
+        if (letters.Count == 0 || replacement.Length == 0) return replacement;
+        if (letters.All(char.IsUpper) && letters.Count > 1) return replacement.ToUpperInvariant();
+        if (letters.All(char.IsLower)) return replacement.ToLowerInvariant();
+        if (char.IsUpper(letters[0]) && letters.Skip(1).All(char.IsLower)) return char.ToUpperInvariant(replacement[0]) + replacement[1..];
+        return replacement;
+    }
 
-        // Search in value
-        foreach (Match m in regex.Matches(item.Value))
+    private static IEnumerable<TranslationItem> Filter(IEnumerable<TranslationItem> items, SearchOptions options)
+    {
+        var languages = options.Languages is { Count: > 0 } l ? new HashSet<string>(l, StringComparer.OrdinalIgnoreCase) : null;
+        var include = options.IncludeKeys is { Count: > 0 } inc ? inc.Select(KeyPattern).ToList() : null;
+        var exclude = options.ExcludeKeys is { Count: > 0 } exc ? exc.Select(KeyPattern).ToList() : null;
+
+        return items.Where(i =>
+            (languages is null || languages.Contains(i.Language))
+            && (include is null || include.Any(p => p.IsMatch(i.Namespace)))
+            && (exclude is null || !exclude.Any(p => p.IsMatch(i.Namespace))));
+    }
+
+    /// <summary>"auth.*" matches by wildcard; a plain "auth" is a prefix, like the old key-path scope.</summary>
+    private static Regex KeyPattern(string pattern)
+    {
+        var hasWildcard = pattern.Contains('*', StringComparison.Ordinal) || pattern.Contains('?', StringComparison.Ordinal);
+        var body = Regex.Escape(pattern).Replace(@"\*", ".*", StringComparison.Ordinal).Replace(@"\?", ".", StringComparison.Ordinal);
+        return new Regex(hasWildcard ? $"^{body}$" : $"^{body}", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant, s_timeout);
+    }
+
+    private static void Collect(Regex regex, string text, TranslationItem item, bool inKey, List<SearchResultItem> results)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+        foreach (Match m in regex.Matches(text))
         {
+            if (m.Length == 0) continue; // an empty regex match is not a result
             results.Add(new SearchResultItem
             {
                 Key = item.Namespace,
                 Language = item.Language,
-                Value = item.Value,
+                Value = text,
                 MatchStart = m.Index,
-                MatchLength = m.Length
+                MatchLength = m.Length,
+                InKey = inKey,
             });
         }
     }

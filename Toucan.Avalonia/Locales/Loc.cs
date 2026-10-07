@@ -22,6 +22,20 @@ internal static class Loc
     /// <summary>Languages that ship a translation table, for the language picker.</summary>
     public static IReadOnlyList<string> Available { get; } = ["en-US", "id-ID"];
 
+    /// <summary>A language written in itself ("Bahasa Indonesia"), the way language pickers show it so people can find theirs.</summary>
+    public static string NativeName(string code) => code switch
+    {
+        "en-US" => "English",
+        "id-ID" => "Bahasa Indonesia",
+        _ => TryNativeName(code),
+    };
+
+    private static string TryNativeName(string code)
+    {
+        try { var name = CultureInfo.GetCultureInfo(code).NativeName; return char.ToUpper(name[0], CultureInfo.CurrentCulture) + name[1..]; }
+        catch (CultureNotFoundException) { return code; }
+    }
+
     /// <summary>Switches the UI language (affects strings read after this call) and the process UI culture.</summary>
     public static void Use(string? language)
     {

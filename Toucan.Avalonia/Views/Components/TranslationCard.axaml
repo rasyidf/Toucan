@@ -7,12 +7,12 @@
   <UserControl.Resources>
     <!-- One language row: badge · value editor · row actions -->
     <DataTemplate x:Key="RowTemplate">
-      <Grid Classes="translationRow" ColumnDefinitions="64,*,Auto" Margin="0,3" IsVisible="{Binding IsLanguageVisible}">
-        <Border Classes="langBadge" ToolTip.Tip="{Binding Language, Converter={StaticResource LanguageName}}">
+      <Grid Classes="translationRow" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" Margin="0,4" IsVisible="{Binding IsLanguageVisible}">
+        <Border Classes="langBadge rowLanguage" MinWidth="36" MaxWidth="80" ToolTip.Tip="{Binding Language, Converter={StaticResource LanguageName}}">
           <TextBlock Text="{Binding Language}" TextTrimming="CharacterEllipsis"/>
         </Border>
 
-        <Panel Grid.Column="1">
+        <Panel Classes="valueCell">
           <TextBox Classes="translation" Classes.empty="{Binding IsEmpty}"
                    Text="{Binding Value}"
                    PlaceholderText="{Binding PlaceholderText}"
@@ -34,7 +34,7 @@
           </Grid>
         </Panel>
 
-        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="4,3,0,0" Spacing="1">
+        <StackPanel Classes="valueActions" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Spacing="1">
           <!-- Machine-translated marker -->
           <ui:FASymbolIcon Symbol="World" FontSize="12" Margin="4,0" VerticalAlignment="Center"
                            Foreground="{DynamicResource InfoBrush}" IsVisible="{Binding IsMachineTranslated}"
@@ -103,15 +103,15 @@
       <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,6">
         <CheckBox x:Name="BulkCheck" IsChecked="{Binding IsSelectedForBulk}" MinWidth="0" Margin="0,0,6,0"
                   IsVisible="{Binding $parent[Window].DataContext.IsMultiSelectMode, FallbackValue=False}"/>
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+        <Grid Grid.Column="1" ColumnDefinitions="*,Auto" VerticalAlignment="Center">
           <SelectableTextBlock Classes="mono" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap">
             <Run Text="{Binding ParentPrefix}" Foreground="{DynamicResource FaintTextBrush}"/><Run Text="{Binding ShortName}" FontWeight="SemiBold"/>
           </SelectableTextBlock>
-          <Border Classes="badge" IsVisible="{Binding IsPluralGroup}">
+          <Border Grid.Column="1" Classes="badge" Margin="8,0,0,0" IsVisible="{Binding IsPluralGroup}">
             <TextBlock Text="{loc:Loc 'plural'}"/>
           </Border>
-        </StackPanel>
-        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="1">
+        </Grid>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="1" Margin="8,0,0,0">
           <Button Classes="icon small" Command="{Binding TranslateKeyCommand}" ToolTip.Tip="{loc:Loc 'Machine-translate empty values of this key'}"
                   IsVisible="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsEditorMode}">
             <ui:FASymbolIcon Symbol="Character"/>

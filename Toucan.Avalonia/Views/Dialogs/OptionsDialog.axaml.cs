@@ -16,7 +16,11 @@ public partial class OptionsDialog : DialogWindow
         DataContext = vm;
         vm.CloseAction = ok => Close(ok);
         vm.PropertyChanged += OnViewModelPropertyChanged;
-        Closed += (_, _) => vm.PropertyChanged -= OnViewModelPropertyChanged;
+        Closed += (_, _) =>
+        {
+            vm.PropertyChanged -= OnViewModelPropertyChanged;
+            vm.RevertSchemePreview();
+        };
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -45,10 +49,11 @@ public partial class OptionsDialog : DialogWindow
             var pageMatches = terms.Length == 0 || Matches(pageName, terms);
             var any = false;
 
-            foreach (var group in pages[i].GetVisualDescendants().OfType<SettingsGroup>())
+            foreach (var group in pages[i].GetVisualDescendants().OfType<ISettingsSection>().Cast<Control>())
             {
+                var section = (ISettingsSection)group;
                 var rows = group.GetVisualDescendants().OfType<SettingsRow>().ToList();
-                var groupMatches = pageMatches || Matches(group.Header, terms);
+                var groupMatches = pageMatches || Matches(section.Header, terms);
                 var rowHits = rows.Where(r => Matches($"{r.Title} {r.Description}", terms)).ToList();
 
                 foreach (var row in rows)
@@ -56,8 +61,8 @@ public partial class OptionsDialog : DialogWindow
                     var untitled = string.IsNullOrEmpty(row.Title);
                     row.IsMatch = groupMatches || rowHits.Contains(row) || untitled && rowHits.Count > 0;
                 }
-                group.IsMatch = groupMatches || rowHits.Count > 0;
-                any |= group.IsMatch;
+                section.IsMatch = groupMatches || rowHits.Count > 0;
+                any |= section.IsMatch;
             }
             matches[i] = terms.Length == 0 || any || pageMatches;
         }

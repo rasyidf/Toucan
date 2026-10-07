@@ -25,7 +25,7 @@
               </StackPanel>
             </c:SettingsRow>
             <c:SettingsRow Title="{loc:Loc 'Framework'}">
-              <ComboBox ItemsSource="{Binding AvailableProfiles}" SelectedItem="{Binding SelectedProfile}" DisplayMemberBinding="{Binding DisplayName}" MinWidth="220"/>
+              <ComboBox ItemsSource="{Binding AvailableProfiles}" SelectedItem="{Binding SelectedProfile}" DisplayMemberBinding="{Binding DisplayName}"/>
             </c:SettingsRow>
           </StackPanel>
         </c:SettingsGroup>

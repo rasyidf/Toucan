@@ -255,6 +255,8 @@ public partial class ProjectLifecycleService(
                 PrimaryLanguage = _currentProject.PrimaryLanguage,
                 Languages = [.. _currentProject.Languages],
                 SaveFormat = _currentProject.SaveFormat,
+                TextEncoding = _currentProject.TextEncoding,
+                LineEnding = _currentProject.LineEnding,
                 DefaultPathResolver = _currentProject.DefaultPathResolver,
                 Framework = _currentProject.Framework,
                 TranslationPackages = [.. _currentProject.TranslationPackages],

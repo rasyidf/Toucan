@@ -21,6 +21,10 @@ public class SettingsRow : ContentControl
 
     public bool Stacked { get => GetValue(StackedProperty); set => SetValue(StackedProperty, value); }
 
+    /// <summary>Denser row (single-line details such as shortcuts, plugin facts, color values). The only size variation besides the standard row.</summary>
+    public static readonly StyledProperty<bool> CompactProperty = AvaloniaProperty.Register<SettingsRow, bool>(nameof(Compact));
+    public bool Compact { get => GetValue(CompactProperty); set => SetValue(CompactProperty, value); }
+
     /// <summary>False while the settings search is active and this row does not match it. Collapses the row without touching <c>IsVisible</c>, which pages bind.</summary>
     public static readonly StyledProperty<bool> IsMatchProperty = AvaloniaProperty.Register<SettingsRow, bool>(nameof(IsMatch), true);
     public bool IsMatch { get => GetValue(IsMatchProperty); set => SetValue(IsMatchProperty, value); }
@@ -29,11 +33,19 @@ public class SettingsRow : ContentControl
     {
         base.OnPropertyChanged(change);
         if (change.Property == StackedProperty) PseudoClasses.Set(":stacked", Stacked);
+        else if (change.Property == CompactProperty) PseudoClasses.Set(":compact", Compact);
     }
 }
 
+/// <summary>A card on a settings page (<see cref="SettingsGroup"/>, <see cref="SettingsList"/>). The settings search collapses it through <see cref="IsMatch"/>.</summary>
+public interface ISettingsSection
+{
+    string? Header { get; }
+    bool IsMatch { get; set; }
+}
+
 /// <summary>A titled, rounded card holding <see cref="SettingsRow"/>s separated by hairlines (grouped-list style).</summary>
-public class SettingsGroup : ContentControl
+public class SettingsGroup : ContentControl, ISettingsSection
 {
     public static readonly StyledProperty<string?> HeaderProperty = AvaloniaProperty.Register<SettingsGroup, string?>(nameof(Header));
 

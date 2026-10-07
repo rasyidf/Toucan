@@ -64,6 +64,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly BulkOperationService _bulkOperations;
 
     private readonly DispatcherTimer _searchDebounce;
+    /// <summary>Pause between the last keystroke in the Search panel and the search itself.</summary>
+    private readonly DispatcherTimer _panelSearchTimer;
 
     public MainWindowViewModel(MainWindowServices services)
     {
@@ -101,6 +103,13 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         {
             _searchDebounce.Stop();
             Search(SearchText);
+        };
+
+        _panelSearchTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+        _panelSearchTimer.Tick += (_, _) =>
+        {
+            _panelSearchTimer.Stop();
+            RunSearch();
         };
 
         RefreshProviderChoices();
@@ -200,6 +209,10 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         PageMessage = PagingController.PageMessage;
         UpdatePageButtons(1);
         ApplyLanguageVisibility();
+        FocusedIndex = Math.Clamp(FocusedIndex, 0, Math.Max(0, PagingController.Data.Count - 1));
+        if (FocusedEditorMode || ZenMode) SelectedGroup = ZenCurrentItem;
+        FocusedNextCommand.NotifyCanExecuteChanged();
+        FocusedPreviousCommand.NotifyCanExecuteChanged();
         OnPropertyChanged(nameof(ZenCurrentItem));
         OnPropertyChanged(nameof(FocusedPositionText));
         OnPropertyChanged(nameof(IsEditorEmpty));
@@ -263,7 +276,10 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         var errors = ValidationIssues.Count(i => i.Severity == ValidationSeverity.Error);
         var warnings = ValidationIssues.Count(i => i.Severity == ValidationSeverity.Warning);
         StatusBarService.Instance.UpdateStatistics(total, translated, errors, warnings, SummaryInfo.Details);
-        StatusBarService.Instance.ShowNotificationBadge(SummaryInfo.Details.Sum(d => d.Empty));
+        StatusBarService.Instance.ViewModel?.Notifications.UpdateSummary(SummaryInfo.Details.Sum(d => d.Empty),
+            ValidationIssues.Count(i => i.Severity == ValidationSeverity.Error),
+            ValidationIssues.Count(i => i.Severity == ValidationSeverity.Warning),
+            ValidationIssues.Count(i => i.Severity == ValidationSeverity.Info));
     }
 
     // ───────────────────────── Dirty tracking ─────────────────────────
@@ -427,6 +443,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         var plainKeysChanged = AppOptions.PlainTextKeys != updated.PlainTextKeys;
         AppOptions = updated;
         ThemeService.Apply(AppOptions.Theme);
+        ColorSchemeService.Apply(AppOptions);
         ThemeService.ApplyFontSize(AppOptions.FontSize);
 
         if (!string.Equals(previousLanguage, AppOptions.AppLanguage, StringComparison.OrdinalIgnoreCase))
@@ -476,6 +493,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     {
         _translationStore.DirtyStateChanged -= OnStoreDirtyStateChanged;
         _searchDebounce.Stop();
+        _panelSearchTimer.Stop();
         _openCts?.Cancel();
         _openCts?.Dispose();
         foreach (var g in PagingController.Data) g.Dispose();
