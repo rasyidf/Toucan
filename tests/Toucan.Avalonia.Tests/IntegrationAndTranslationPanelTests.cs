@@ -237,4 +237,25 @@ public sealed class IntegrationAndTranslationPanelTests : IDisposable
         Assert.NotNull(window.CaptureRenderedFrame());
         window.Close();
     }
+
+    [AvaloniaFact]
+    public void NeedsApiKeyBadge_ShowsOnlyOnTheSelectedProvider_OthersAreMuted()
+    {
+        using var host = new TestHost();
+        var vm = host.CreateViewModel();
+        var unconfigured = vm.ProviderChoices.Where(c => !c.IsConfigured).ToList();
+        Assert.True(unconfigured.Count >= 2, "the test host should register several providers without keys");
+        vm.SelectProviderCommand.Execute(unconfigured[0]);
+        var window = new global::Avalonia.Controls.Window { Width = 320, Height = 600, Content = new MachineTranslationPanel { DataContext = vm } };
+        window.Show();
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+
+        var all = global::Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(window).OfType<global::Avalonia.Controls.TextBlock>().ToList();
+        var badges = all.Where(t => t.Text == "Needs API key" && t.IsEffectivelyVisible).ToList();
+        var muted = all.Where(t => t.Classes.Contains("unavailable")).Select(t => t.Text).ToList();
+
+        Assert.Single(badges);
+        Assert.Equal(unconfigured.Select(c => c.DisplayName).Order(), muted.Order());
+        window.Close();
+    }
 }

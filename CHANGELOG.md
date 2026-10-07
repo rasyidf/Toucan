@@ -10,6 +10,7 @@
 - **Round-trip fixtures** — Every loadable format is checked for multiline text, CRLF, quotes, backslashes, unicode, placeholders, markup, separators, leading spaces, tabs, percent signs, `$`, and YAML-looking words and numbers.
 
 ### Changed
+- **Machine translation provider list** — "Needs API key" shows only on the selected provider. Providers without a key are shown in gray instead of each carrying a badge.
 - **Project Properties** — The General page has a Files group with the project folder, the file format and its support level (Full or Limited), and what the format does not keep when saving (see [docs/formats.md](docs/formats.md)). Languages are split into Source language and Project languages (with a Manage button), so the labels no longer wrap. The description box has a placeholder, and the sidebar shows the format's name instead of its ID.
 
 ### Fixed
