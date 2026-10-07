@@ -104,6 +104,15 @@ public sealed class DialogService(IServiceProvider services) : IDialogService
         await new ProviderSettingsDialog(vm).ShowDialog(Owner);
     }
 
+    public async Task<bool> ShowPromptEditorAsync(PromptEditorViewModel vm) =>
+        await new PromptEditorDialog(vm).ShowDialog<bool>(Owner);
+
+    public async Task ShowOnboardingAsync()
+    {
+        var vm = services.GetRequiredService<OnboardingViewModel>();
+        await new OnboardingDialog(vm).ShowDialog<bool>(Owner);
+    }
+
     public async Task<ProjectPropertiesViewModel?> ShowProjectPropertiesAsync(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null)
     {
         var vm = new ProjectPropertiesViewModel(settings, this, discoveredLanguages, services.GetService<IProjectDefaultsService>());

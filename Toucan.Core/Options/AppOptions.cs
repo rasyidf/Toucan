@@ -29,7 +29,7 @@ public class AppOptions
     public int TruncateResultsOver { get; set; } = 5000;
     public int LoadingDepth { get; set; } = 1;
 
-    // --- Machine Translation ---
+    // --- Machine Translation (AI settings are in ai.json, see AiSettings) ---
     public string Formality { get; set; } = "Default";
     public string Context { get; set; } = string.Empty;
     public string LastProvider { get; set; } = "Google";
@@ -56,6 +56,10 @@ public class AppOptions
 
     // --- Default project languages ---
     public List<string> DefaultProjectLanguages { get; set; } = ["en-US"];
+    // --- Onboarding ---
+    /// <summary>The onboarding version the user has completed; 0 means first run. Onboarding asks whether to use AI.</summary>
+    public int OnboardingVersion { get; set; }
+
     // --- Last session state ---
     public string? LastProjectPath { get; set; }
     public bool OpenLastProjectOnStartup { get; set; } = true;

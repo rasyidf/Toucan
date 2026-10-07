@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Toucan.Avalonia.Services;
 using Toucan.Core.Contracts;
 using Toucan.Core.Models;
+using Toucan.Core.Services.Ai;
 
 namespace Toucan.Avalonia.ViewModels;
 
@@ -23,7 +24,7 @@ public partial class ProviderSettingsViewModel : ObservableObject
         _dialogs = dialogs ?? throw new ArgumentNullException(nameof(dialogs));
         _registry = registry ?? throw new ArgumentNullException(nameof(registry));
 
-        foreach (var def in _registry.GetAll()) AvailableDefinitions.Add(def);
+        foreach (var def in _registry.GetAll().Where(d => !IsAiManaged(d.Name))) AvailableDefinitions.Add(def);
         LoadAppSettings();
     }
 
@@ -164,7 +165,10 @@ public partial class ProviderSettingsViewModel : ObservableObject
         Selected = null;
         Providers.Clear();
 
-        var builtIn = _registry.GetAll();
+        // The AI provider is configured under Settings → AI, and Claude, OpenAI and Gemini entries from older versions are AI
+        // services now (moved there on first run), so neither is edited here.
+        var builtIn = _registry.GetAll().Where(d => !IsAiManaged(d.Name)).ToList();
+        saved = [.. saved.Where(s => !IsAiManaged(s.Provider))];
         foreach (var def in builtIn)
         {
             var existing = saved.FirstOrDefault(s => string.Equals(s.Provider, def.Name, StringComparison.OrdinalIgnoreCase));
@@ -190,6 +194,10 @@ public partial class ProviderSettingsViewModel : ObservableObject
 
         Selected = Providers.FirstOrDefault();
     }
+
+    private static bool IsAiManaged(string provider) =>
+        string.Equals(provider, AiFeatureIds.TranslationProviderName, StringComparison.OrdinalIgnoreCase)
+        || LegacyAiMigration.LegacyProviders.ContainsKey(provider);
 
     private void RebuildFieldItems()
     {

@@ -1,6 +1,7 @@
 using Toucan.Avalonia.Services;
 using Toucan.Avalonia.ViewModels;
 using Toucan.Core.Models;
+using Toucan.Core.Services;
 using Xunit;
 
 namespace Toucan.Avalonia.Tests;

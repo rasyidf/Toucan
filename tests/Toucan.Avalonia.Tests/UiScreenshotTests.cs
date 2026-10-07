@@ -176,7 +176,21 @@ public class UiScreenshotTests
             searchDialog.Close();
         }
 
-        SnapDialog(new OptionsDialog(PluginsOptions(host)) { Height = 2400 }, "10-options-11-plugins-populated");
+        SnapDialog(new OptionsDialog(PluginsOptions(host)) { Height = 2400 }, "10-options-12-plugins-populated");
+
+        // Settings → AI with AI turned on and a prompt customized, the prompt editor, and first-run onboarding.
+        var prompts = host.Services.GetRequiredService<IPromptLibrary>();
+        prompts.Save(AiFeatureIds.Clarity, "My clarity prompt", PromptSource.User);
+        var aiOn = host.Services.GetRequiredService<OptionsViewModel>();
+        aiOn.Ai!.Enabled = true;
+        aiOn.Ai.ApiKey = "sk-ant-example";
+        aiOn.SelectedPageIndex = OptionsViewModel.AiPage;
+        SnapDialog(new OptionsDialog(aiOn) { Height = 1100 }, "10-options-04-ai-on");
+        prompts.Reset(AiFeatureIds.Clarity, PromptSource.User);
+        SnapDialog(new PromptEditorDialog(new PromptEditorViewModel(prompts, prompts.GetFeature(AiFeatureIds.Translate)!, host.Root)), "29-prompt-editor");
+        var onboarding = host.Services.GetRequiredService<OnboardingViewModel>();
+        onboarding.UseAi = true;
+        SnapDialog(new OnboardingDialog(onboarding), "29-onboarding");
 
         SnapDialog(new NewProjectDialog(host.Services.GetRequiredService<NewProjectViewModel>()), "20-new-project");
         SnapDialog(new ImportProjectDialog(new ImportProjectViewModel(host.Services.GetServices<Toucan.Core.Contracts.IFrameworkProfile>(), host.Dialogs)), "21-import-project");

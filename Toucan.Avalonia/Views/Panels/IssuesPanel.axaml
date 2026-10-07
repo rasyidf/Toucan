@@ -8,7 +8,8 @@
       <TextBlock Text="{Binding ValidationSummary}" Classes="caption" TextWrapping="Wrap"/>
       <StackPanel Spacing="6">
         <Button Content="{loc:Loc 'Run validation'}" Classes="accent" Command="{Binding RunValidationCommand}"/>
-        <Button Content="{loc:Loc 'Analyze with AI…'}" Command="{Binding AnalyzeTranslationsCommand}"/>
+        <Button Content="{loc:Loc 'Analyze with AI…'}" Command="{Binding AnalyzeTranslationsCommand}" IsVisible="{Binding IsAiEnabled}"/>
+        <Button Content="{loc:Loc 'Check source clarity with AI…'}" Command="{Binding CheckSourceClarityCommand}" IsVisible="{Binding IsAiEnabled}"/>
       </StackPanel>
     </StackPanel>
     <ListBox Classes="plain" ItemsSource="{Binding ValidationIssues}">

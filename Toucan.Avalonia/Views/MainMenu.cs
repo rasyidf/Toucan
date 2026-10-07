@@ -234,7 +234,13 @@ internal static class MainMenu
             new("Approve All in View", vm.ApproveVisibleCommand),
             Separator,
             new("Run Validation", vm.RunValidationCommand, Action: "Run Validation"),
-            new("Analyze with AI…", vm.AnalyzeTranslationsCommand),
+            new("AI", Children:
+            [
+                new("Analyze Translations…", vm.AnalyzeTranslationsCommand),
+                new("Check Source Clarity…", vm.CheckSourceClarityCommand),
+                Separator,
+                new("AI Settings…", vm.OpenAiSettingsCommand),
+            ]),
             new("Statistics…", vm.GenerateStatisticsBulkCommand),
             Separator,
             new("Scan Source Code", vm.ScanSourceCodeCommand),

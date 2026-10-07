@@ -23,6 +23,7 @@ public partial class OptionsViewModel : ObservableObject
     private readonly IAsyncMessageService _messages;
     private readonly IRecentProjectService? _recentProjects;
     private readonly ITranslationMemory? _translationMemory;
+    private readonly ISecretService? _secrets;
 
     public OptionsViewModel(
         IPreferenceService preferenceService,
@@ -33,8 +34,13 @@ public partial class OptionsViewModel : ObservableObject
         ITranslationMemory? translationMemory = null,
         IPluginCatalog? pluginCatalog = null,
         IPluginPolicyStore? pluginPolicy = null,
-        IValidationPipeline? validationPipeline = null)
+        IValidationPipeline? validationPipeline = null,
+        AiSettingsViewModel? ai = null,
+        ISecretService? secrets = null)
     {
+        Ai = ai;
+        _secrets = secrets;
+        RefreshStoredSecrets();
         _validationPipeline = validationPipeline;
         _preferenceService = preferenceService;
         _defaultsService = defaultsService;
@@ -54,7 +60,7 @@ public partial class OptionsViewModel : ObservableObject
     }
 
     public static IReadOnlyList<string> Pages { get; } =
-        ["General", "Appearance", "Editor", "Translation", "Validation", "Translation Memory", "Source Code", "Languages", "Shortcuts", "Integration", "Data & Privacy", "Plugins", "About"];
+        ["General", "Appearance", "Editor", "Translation", "AI", "Validation", "Translation Memory", "Source Code", "Languages", "Shortcuts", "Integration", "Data & Privacy", "Plugins", "About"];
 
     /// <summary>Sidebar entries, in the same order as <see cref="Pages"/>: title, icon and tile color.</summary>
     public static IReadOnlyList<SettingsNavEntry> NavEntries { get; } =
@@ -63,6 +69,7 @@ public partial class OptionsViewModel : ObservableObject
         new("Appearance", "DarkTheme", "#5856D6"),
         new("Editor", "Edit", "#007AFF"),
         new("Translation", "Character", "#34C759"),
+        new("AI", "StarEmphasis", "#7D5BED"),
         new("Validation", "Accept", "#FF9500"),
         new("Translation Memory", "Library", "#AF52DE"),
         new("Source Code", "CodeHTML", "#5AC8FA"),
@@ -76,8 +83,46 @@ public partial class OptionsViewModel : ObservableObject
 
     public int PageIndexOf(string page) => Pages.ToList().IndexOf(page);
 
+    /// <summary>Index of the AI page in <see cref="Pages"/>.</summary>
+    public const int AiPage = 4;
+
     /// <summary>Index of the Plugins page in <see cref="Pages"/>.</summary>
-    public const int PluginsPage = 11;
+    public const int PluginsPage = 12;
+
+    /// <summary>Settings → AI: the app-wide switch, the AI service and the editable prompts. Null in tests that do not need it.</summary>
+    public AiSettingsViewModel? Ai { get; }
+
+    // ───────────────────────── Secrets ─────────────────────────
+
+    /// <summary>Names of the stored secrets (never their values), for Data &amp; privacy.</summary>
+    public ObservableCollection<string> StoredSecrets { get; } = [];
+    public bool HasStoredSecrets => StoredSecrets.Count > 0;
+    public bool HasNoStoredSecrets => StoredSecrets.Count == 0;
+
+    private void RefreshStoredSecrets()
+    {
+        StoredSecrets.Clear();
+        foreach (var key in _secrets?.Keys() ?? []) StoredSecrets.Add(key);
+        OnPropertyChanged(nameof(HasStoredSecrets));
+        OnPropertyChanged(nameof(HasNoStoredSecrets));
+    }
+
+    [RelayCommand]
+    private void RemoveSecret(string? key)
+    {
+        if (key == null || _secrets == null) return;
+        _secrets.Remove(key);
+        RefreshStoredSecrets();
+    }
+
+    [RelayCommand]
+    private async Task RemoveAllSecrets()
+    {
+        if (_secrets == null || StoredSecrets.Count == 0) return;
+        if (!await _messages.ConfirmAsync("Remove every stored API key and token? Providers and AI stop working until you enter them again.", "Remove Secrets")) return;
+        _secrets.RemoveAll(string.Empty);
+        RefreshStoredSecrets();
+    }
 
     public ObservableCollection<PluginItemViewModel> Plugins { get; } = [];
 
@@ -320,6 +365,7 @@ public partial class OptionsViewModel : ObservableObject
     [RelayCommand]
     private void Save()
     {
+        Ai?.Save();
         AppOptions.AppLanguage = AppLanguage;
         AppOptions.OpenLastProjectOnStartup = OpenLastProjectOnStartup;
         AppOptions.RecentProjectsLimit = (int)Math.Clamp(RecentProjectsLimit, 1, 50);

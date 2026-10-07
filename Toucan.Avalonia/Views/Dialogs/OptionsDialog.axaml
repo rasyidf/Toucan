@@ -264,7 +264,7 @@
           </c:SettingsGroup>
           <c:SettingsGroup Footer="{loc:Loc 'These are defaults for new projects. Each project can override them in Project Properties.'}">
             <c:SettingsRow Title="{loc:Loc 'Application context'}" Stacked="True"
-                           Description="{loc:Loc 'Describe your app so AI providers pick the right terminology'}">
+                           Description="{loc:Loc 'Describe your app so AI and translation providers pick the right terminology'}">
               <StackPanel Spacing="4">
                 <TextBox Text="{Binding Context}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="140"/>
                 <TextBlock Text="{Binding ContextCharCount, StringFormat='{}{0} characters'}" Classes="hint" HorizontalAlignment="Right"/>
@@ -273,10 +273,72 @@
           </c:SettingsGroup>
         </StackPanel>
 
-        <!-- 4 Validation -->
+        <!-- 4 AI -->
         <StackPanel>
           <StackPanel.IsVisible>
             <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="4">
+              <Binding Path="SelectedPageIndex"/>
+              <Binding Path="IsSearching"/>
+              <Binding Path="SearchMatches"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
+          <TextBlock Text="{loc:Loc 'AI'}" Classes="dialogTitle" Margin="0,0,0,16"/>
+          <Panel IsVisible="{Binding Ai, Converter={x:Static ObjectConverters.IsNotNull}}">
+          <StackPanel DataContext="{Binding Ai}">
+            <c:SettingsGroup Footer="{Binding StatusText}">
+              <c:SettingsRow Title="{loc:Loc 'Use AI features'}" Description="{loc:Loc 'One switch for the whole app: AI translation, Analyze, Clarity and any other AI feature.'}">
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding Enabled}"/>
+              </c:SettingsRow>
+            </c:SettingsGroup>
+
+            <c:SettingsGroup Header="{loc:Loc 'AI service'}" IsEnabled="{Binding Enabled}" Footer="{Binding TestResult}">
+              <StackPanel>
+                <c:SettingsRow Title="{loc:Loc 'Service'}" Description="{Binding BackendDescription}">
+                  <ComboBox ItemsSource="{Binding Backends}" SelectedItem="{Binding SelectedBackend}" MinWidth="{DynamicResource SettingsControlWidth}"/>
+                </c:SettingsRow>
+                <c:SettingsRow Title="{loc:Loc 'API key'}" Description="{Binding ApiKeyHint}">
+                  <TextBox Text="{Binding ApiKey}" PasswordChar="•" Classes="revealPasswordButton mono" MinWidth="{DynamicResource SettingsControlWidth}"
+                           AutomationProperties.Name="{loc:Loc 'API key'}"/>
+                </c:SettingsRow>
+                <c:SettingsRow Title="{loc:Loc 'Model'}" Description="{loc:Loc 'Leave empty to use the default shown.'}">
+                  <TextBox Text="{Binding Model}" PlaceholderText="{Binding ModelPlaceholder}" Classes="mono" MinWidth="{DynamicResource SettingsControlWidth}"/>
+                </c:SettingsRow>
+                <c:SettingsRow Title="{loc:Loc 'Endpoint'}" Description="{loc:Loc 'API base URL. Change it for Azure, a proxy or a local server.'}">
+                  <TextBox Text="{Binding Endpoint}" PlaceholderText="{Binding EndpointPlaceholder}" Classes="mono" MinWidth="{DynamicResource SettingsControlWidth}"/>
+                </c:SettingsRow>
+                <c:SettingsRow Title="{loc:Loc 'Test connection'}" Description="{loc:Loc 'Sends a one-word request with the values above.'}">
+                  <Button Content="{loc:Loc 'Test'}" Command="{Binding TestConnectionCommand}"/>
+                </c:SettingsRow>
+              </StackPanel>
+            </c:SettingsGroup>
+
+            <c:SettingsList Header="{loc:Loc 'Features and prompts'}" ItemsSource="{Binding Features}" ShowSearch="False" MaxListHeight="Infinity"
+                            IsEnabled="{Binding Enabled}"
+                            Footer="{loc:Loc 'Every prompt Toucan sends is open and editable. The defaults are part of Toucan\'s source code; your versions are plain files in Documents/Toucan/prompts, and a project can have its own in .toucan/prompts.'}">
+              <c:SettingsList.Actions>
+                <Button Classes="link" Content="{loc:Loc 'Show prompt files'}" Command="{Binding OpenPromptsFolderCommand}"/>
+              </c:SettingsList.Actions>
+              <c:SettingsList.ItemTemplate>
+                <DataTemplate>
+                  <c:SettingsRow Title="{Binding DisplayName}" Description="{Binding Description}">
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                      <Border Classes="badge" IsVisible="{Binding IsCustomized}"><TextBlock Text="{Binding PromptSourceText}"/></Border>
+                      <Button Content="{loc:Loc 'Edit prompt…'}" Command="{Binding EditPromptCommand}"/>
+                      <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding Enabled}" OnContent="" OffContent=""
+                                    AutomationProperties.Name="{Binding DisplayName}"/>
+                    </StackPanel>
+                  </c:SettingsRow>
+                </DataTemplate>
+              </c:SettingsList.ItemTemplate>
+            </c:SettingsList>
+          </StackPanel>
+          </Panel>
+        </StackPanel>
+
+        <!-- 5 Validation -->
+        <StackPanel>
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="5">
               <Binding Path="SelectedPageIndex"/>
               <Binding Path="IsSearching"/>
               <Binding Path="SearchMatches"/>
@@ -303,10 +365,10 @@
           </c:SettingsList>
         </StackPanel>
 
-        <!-- 5 Translation memory -->
+        <!-- 6 Translation memory -->
         <StackPanel>
           <StackPanel.IsVisible>
-            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="5">
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="6">
               <Binding Path="SelectedPageIndex"/>
               <Binding Path="IsSearching"/>
               <Binding Path="SearchMatches"/>
@@ -334,10 +396,10 @@
           </c:SettingsGroup>
         </StackPanel>
 
-        <!-- 6 Source code -->
+        <!-- 7 Source code -->
         <StackPanel>
           <StackPanel.IsVisible>
-            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="6">
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="7">
               <Binding Path="SelectedPageIndex"/>
               <Binding Path="IsSearching"/>
               <Binding Path="SearchMatches"/>
@@ -376,10 +438,10 @@
           </c:SettingsGroup>
         </StackPanel>
 
-        <!-- 7 Languages -->
+        <!-- 8 Languages -->
         <StackPanel>
           <StackPanel.IsVisible>
-            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="7">
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="8">
               <Binding Path="SelectedPageIndex"/>
               <Binding Path="IsSearching"/>
               <Binding Path="SearchMatches"/>
@@ -404,10 +466,10 @@
           </c:SettingsList>
         </StackPanel>
 
-        <!-- 8 Shortcuts -->
+        <!-- 9 Shortcuts -->
         <StackPanel>
           <StackPanel.IsVisible>
-            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="8">
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="9">
               <Binding Path="SelectedPageIndex"/>
               <Binding Path="IsSearching"/>
               <Binding Path="SearchMatches"/>
@@ -431,10 +493,10 @@
           </ItemsControl>
         </StackPanel>
 
-        <!-- 9 Integration -->
+        <!-- 10 Integration -->
         <StackPanel>
           <StackPanel.IsVisible>
-            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="9">
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="10">
               <Binding Path="SelectedPageIndex"/>
               <Binding Path="IsSearching"/>
               <Binding Path="SearchMatches"/>
@@ -469,10 +531,10 @@
           </c:SettingsGroup>
         </StackPanel>
 
-        <!-- 10 Data & privacy -->
+        <!-- 11 Data & privacy -->
         <StackPanel>
           <StackPanel.IsVisible>
-            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="10">
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="11">
               <Binding Path="SelectedPageIndex"/>
               <Binding Path="IsSearching"/>
               <Binding Path="SearchMatches"/>
@@ -480,7 +542,7 @@
           </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Data &amp; privacy'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <TextBlock TextWrapping="Wrap" Classes="caption" Margin="0,0,0,16"
-                     Text="{loc:Loc 'Settings, layout, and translation memory are stored in Documents/Toucan. API keys are encrypted (DPAPI on Windows, AES with a per-user key elsewhere). Text is only sent to a translation provider when you run machine translation.'}"/>
+                     Text="{loc:Loc 'Settings, layout, prompts and translation memory are stored in Documents/Toucan. API keys are kept in one encrypted secret store in your user profile (DPAPI on Windows, AES with a per-user key elsewhere), never in a project folder. Text is only sent to a translation provider or AI service when you run machine translation or an AI command, and never to an AI service while AI is off.'}"/>
           <c:SettingsGroup>
             <StackPanel>
               <c:SettingsRow Title="{loc:Loc 'Export settings…'}">
@@ -491,6 +553,23 @@
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
+          <c:SettingsList Header="{loc:Loc 'Stored secrets'}" ItemsSource="{Binding StoredSecrets}" ShowSearch="False"
+                          EmptyText="{loc:Loc 'No API keys or tokens are stored.'}"
+                          Footer="{loc:Loc 'Names only; values are never shown. ai/… are AI services, mt/… translation providers, project/… a project\'s own provider keys.'}">
+            <c:SettingsList.Actions>
+              <Button Classes="link" Content="{loc:Loc 'Remove all'}" Command="{Binding RemoveAllSecretsCommand}" IsEnabled="{Binding HasStoredSecrets}"/>
+            </c:SettingsList.Actions>
+            <c:SettingsList.ItemTemplate>
+              <DataTemplate>
+                <c:SettingsRow Compact="True" Title="{Binding}">
+                  <Button Classes="icon small settingsAction" ToolTip.Tip="{loc:Loc 'Remove'}" AutomationProperties.Name="{loc:Loc 'Remove'}"
+                          Command="{Binding $parent[ItemsControl].DataContext.RemoveSecretCommand}" CommandParameter="{Binding}">
+                    <ui:FASymbolIcon Symbol="Dismiss"/>
+                  </Button>
+                </c:SettingsRow>
+              </DataTemplate>
+            </c:SettingsList.ItemTemplate>
+          </c:SettingsList>
           <c:SettingsGroup Header="{loc:Loc 'Clear data'}">
             <StackPanel>
               <c:SettingsRow Title="{loc:Loc 'Clear filter history'}">
@@ -512,10 +591,10 @@
           </c:SettingsGroup>
         </StackPanel>
 
-        <!-- 11 Plugins -->
+        <!-- 12 Plugins -->
         <StackPanel>
           <StackPanel.IsVisible>
-            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="11">
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="12">
               <Binding Path="SelectedPageIndex"/>
               <Binding Path="IsSearching"/>
               <Binding Path="SearchMatches"/>
@@ -598,10 +677,10 @@
           </c:SettingsList>
         </StackPanel>
 
-        <!-- 12 About -->
+        <!-- 13 About -->
         <StackPanel>
           <StackPanel.IsVisible>
-            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="12">
+            <MultiBinding Converter="{x:Static conv:SettingsPageVisibleConverter.Instance}" ConverterParameter="13">
               <Binding Path="SelectedPageIndex"/>
               <Binding Path="IsSearching"/>
               <Binding Path="SearchMatches"/>

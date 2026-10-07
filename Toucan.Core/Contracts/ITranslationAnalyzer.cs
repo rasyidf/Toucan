@@ -3,13 +3,12 @@ using Toucan.Core.Models;
 namespace Toucan.Core.Contracts;
 
 /// <summary>
-/// Context-aware translation quality analysis.
+/// Context-aware translation quality analysis (the Analyze AI feature).
 /// Uses application domain context (banking, education, medical, etc.) to verify
 /// that translations use correct domain-specific terminology.
 ///
 /// Example: "Hold" in banking = freeze funds, not physical hold.
-/// The user provides application context, and the analyzer sends source+translation+context
-/// to an LLM to check semantic correctness.
+/// Requests go through <see cref="IAiService"/> with the editable Analyze prompt, so they follow the app-wide AI switch.
 /// </summary>
 public interface ITranslationAnalyzer
 {
@@ -28,8 +27,8 @@ public class AnalysisRequest
     /// <summary>Optional glossary: domain-specific term → expected translation per language.</summary>
     public Dictionary<string, Dictionary<string, string>>? Glossary { get; init; }
 
-    /// <summary>Provider options (api_key, endpoint, model).</summary>
-    public IDictionary<string, string>? ProviderOptions { get; init; }
+    /// <summary>Open project folder, so the project's own Analyze prompt is used when it has one.</summary>
+    public string? ProjectPath { get; init; }
 
     /// <summary>Source language code.</summary>
     public string SourceLanguage { get; init; } = "en-US";

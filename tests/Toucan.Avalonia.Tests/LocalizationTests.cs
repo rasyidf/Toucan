@@ -21,7 +21,7 @@ public sealed partial class LocalizationTests
     private static readonly HashSet<string> Untranslated =
     [
         "Toucan", "GitHub", "UPPERCASE", "/path/to/your/app", "code --goto \"{file}:{line}\"",
-        "MIT License · Copyright © Rasyidf 2023-2026", "  ·  SHA-256 ", "Audit", "Editor", "OK", "Framework", "Folder",
+        "MIT License · Copyright © Rasyidf 2023-2026", "  ·  SHA-256 ", "Audit", "Editor", "OK", "Framework", "Folder", "AI", "Model", "Endpoint",
     ];
 
     private static string AvaloniaProjectDir([CallerFilePath] string here = "") =>

@@ -106,7 +106,7 @@ public sealed class PluginHostTests : IDisposable
         using var sp = Build(out _);
         var names = sp.GetRequiredService<ITranslationProviderRegistry>().GetAll().Select(d => d.Name).ToList();
 
-        Assert.Equal(["Google", "DeepL", "Microsoft", "OpenAI", "Claude", "Gemini", "Custom", "TestMt"], names);
+        Assert.Equal(["Google", "DeepL", "Microsoft", "AI", "Custom", "TestMt"], names);
         Assert.False(sp.GetRequiredService<ITranslationProviderRegistry>().GetByName("TestMt")!.IsBuiltIn);
         // The pretranslation fallback (first provider) is still Google.
         Assert.Equal("Google", sp.GetServices<ITranslationProvider>().First().Name);

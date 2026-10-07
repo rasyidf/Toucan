@@ -37,6 +37,10 @@ internal static class ProviderOptionsBuilder
             }
         }
 
+        // The AI provider reads the project's own prompts from here; no other provider needs a local path.
+        if (!string.IsNullOrEmpty(projectPath) && string.Equals(provider, AiFeatureIds.TranslationProviderName, StringComparison.OrdinalIgnoreCase))
+            dict["project_path"] = projectPath;
+
         var project = string.IsNullOrEmpty(projectPath) ? null : ProjectSettings.LoadFrom(projectPath);
         var opts = AppOptions.LoadFromDisk();
         var context = project?.Context ?? opts.Context;
@@ -92,7 +96,7 @@ public partial class PreTranslateViewModel : ObservableObject
     public IReadOnlyList<string> ProviderNames { get; }
 
     /// <summary>Built-in provider names, used when no registry list is supplied.</summary>
-    public static IReadOnlyList<string> Providers { get; } = ["Google", "DeepL", "Microsoft", "OpenAI", "Claude", "Gemini", "Custom", "Mock"];
+    public static IReadOnlyList<string> Providers { get; } = ["Google", "DeepL", "Microsoft", "AI", "Custom", "Mock"];
 
     public ObservableCollection<LanguageItem> AvailableLanguages { get; } = [];
     public ObservableCollection<PretranslationItemResult> PreviewResults { get; } = [];
