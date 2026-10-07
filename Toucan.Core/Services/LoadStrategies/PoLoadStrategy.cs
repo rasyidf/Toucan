@@ -18,11 +18,31 @@ public partial class PoLoadStrategy : ILoadStrategy
         var items = new List<TranslationItem>();
         foreach (var file in files)
         {
-            var lang = Path.GetFileNameWithoutExtension(file);
-            items.AddRange(ParsePo(lang, File.ReadAllText(file)));
+            var content = File.ReadAllText(file);
+            items.AddRange(ParsePo(ResolveLanguage(folder, file, content), content));
         }
         return items;
     }
+
+    /// <summary>Language from the <c>Language:</c> header, then a <c>&lt;lang&gt;/LC_MESSAGES/</c> folder, then the file name.</summary>
+    internal static string ResolveLanguage(string root, string file, string content)
+    {
+        var header = HeaderLanguageRegex().Match(content);
+        if (header.Success && header.Groups[1].Value.Trim() is { Length: > 0 } fromHeader)
+            return fromHeader;
+
+        var dir = Path.GetDirectoryName(file);
+        if (dir != null && Path.GetFileName(dir).Equals("LC_MESSAGES", StringComparison.OrdinalIgnoreCase))
+        {
+            var langDir = Path.GetFileName(Path.GetDirectoryName(dir));
+            if (!string.IsNullOrEmpty(langDir)) return langDir;
+        }
+
+        return Path.GetFileNameWithoutExtension(file);
+    }
+
+    [GeneratedRegex(@"^""Language:\s*([^\\""\r\n]*)", RegexOptions.Multiline)]
+    private static partial Regex HeaderLanguageRegex();
 
     private static List<TranslationItem> ParsePo(string language, string content)
     {

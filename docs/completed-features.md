@@ -96,6 +96,7 @@ summary: "Checklist of shipped features as of v0.19.0, grouped by area. Only shi
 - [x] Title bar with logo, save-state chip and command palette pill
 - [x] Command palette (Cmd/Ctrl+Shift+P) over every menu command
 - [x] Settings search
+- [x] Keyboard shortcut sheet (Cmd/Ctrl+/)
 - [x] Compact pagination controls
 - [x] Editor, Review, and Audit modes; Zen mode (J/K navigation)
 - [x] Activity bar with side panels: Explorer, Source Code, Search, Issues, Source Control, Languages, Inspector, Translation, Memory (Dictionary panel is a placeholder)
@@ -115,6 +116,7 @@ summary: "Checklist of shipped features as of v0.19.0, grouped by area. Only shi
 - [x] Trigram fuzzy matching with configurable threshold and scope (global or project)
 - [x] TMX import and export
 - [x] View, delete, and clear stored entries
+- [x] Inline ghost-text suggestion from TM in empty fields (Tab to accept)
 
 ## Advanced Data Model
 

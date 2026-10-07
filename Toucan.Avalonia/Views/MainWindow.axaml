@@ -175,5 +175,6 @@
 
     <!-- ═══ Command palette overlay (above everything, Zen mode included) ═══ -->
     <c:CommandPalette x:Name="Palette" Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsCommandPaletteOpen}"/>
+    <c:ShortcutSheet Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsShortcutSheetOpen}"/>
   </Grid>
 </Window>

@@ -21,7 +21,7 @@ Without `TOUCAN_TEST_SCREENSHOTS` the tests do nothing, so a normal `dotnet test
 
 | Files | Shows |
 |-------|-------|
-| `01`–`11` | Start screen, editor, every side panel, the multi-select bar, Zen mode, the unsaved title bar and the command palette |
+| `01`–`13` | Start screen, editor, every side panel, the multi-select bar, Zen mode, the unsaved title bar, the command palette, the shortcut sheet and ghost text |
 | `10-options-*` | Every Settings page, plus the Plugins page filled with fixture plugins in each state |
 | `20`–`28` | New project, Import, Project Properties (each page), Statistics, Manage languages, Provider settings and the small prompt dialogs |
 | `30`–`38` | The dark theme: Settings, Project Properties, dialogs, the editor and every side panel |

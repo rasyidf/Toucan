@@ -6,6 +6,8 @@
 - **Pin recent projects** — Pin a project from the Start screen or from Settings → General → Recent projects. Pinned projects stay at the top of the list (Start screen and Open Recent), and they do not count toward the list limit. The old WPF pin button never saved anything; this one does.
 - **Recent projects settings** — Choose how many projects to remember (1–50), whether Clear keeps pinned projects, and manage the list (pin, unpin, remove) from Settings → General.
 - **Preferred language from recent projects** — With "Detect preferred language from recent projects" on, the source language for new projects, and for projects that name none, comes from the most recently opened project instead of the Default language setting. Off by default.
+- **Ghost-text suggestions** — When you focus an empty translation field, the best translation-memory match for its source text appears inside the field in faint italics. Press Tab to accept it; type to ignore it. Follows Settings → Translation memory → auto-suggest and the similarity threshold.
+- **Keyboard shortcut sheet** — Cmd/Ctrl+/ (or Help → Keyboard Shortcuts) shows every shortcut grouped by menu. Esc or a click outside closes it.
 
 ## [0.19.0] - 2026-10-06
 
@@ -24,6 +26,9 @@ Command palette, a new title bar, Claude and Gemini translation providers, and a
 - **UI polish (Avalonia app)** — Settings and Project Properties use a left page list with grouped rows; Settings has a search box that filters individual settings; plugin cards show status, details and actions; New Project, Provider Settings, Statistics, Import and Pre-translate use the same grouped style; the side panels, pager and hidden-namespaces footer are tidied.
 
 ### Fixed
+
+- **PO language detection (FMT-01)** — `<lang>/LC_MESSAGES/<domain>.po` projects now load one language per folder; the language comes from the `Language:` header, then the folder, then the file name.
+- **CSV multi-line values (FMT-04)** — the loader parses RFC 4180 records, so quoted values with line breaks are no longer cut off; the saver now quotes values containing a lone `\r`.
 - **Right-click menus** — The editor cards' menu is now a flyout like the Explorer's, with icons and Indonesian labels (the old menu type never appeared on macOS).
 - **Pre-translate** — The source language is no longer offered as a target language; the preview text is selectable; empty language lists show a message.
 - **DeepL requests** — Free-plan keys (ending in `:fx`) now use `api-free.deepl.com` automatically; the key is sent in the `Authorization` header instead of the request body; `en-US` sources and `fr-FR` targets are sent as DeepL expects (`EN`, `FR`); More/Less formality is now applied (as `prefer_more`/`prefer_less`); errors include DeepL's message.

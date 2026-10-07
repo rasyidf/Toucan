@@ -17,18 +17,18 @@ public class CsvLoadStrategy : ILoadStrategy
         var items = new List<TranslationItem>();
         foreach (var file in files)
         {
-            var lines = File.ReadAllLines(file);
-            if (lines.Length < 2) continue;
+            var sepChar = file.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase) ? '\t' : ',';
+            var records = ParseRecords(File.ReadAllText(file), sepChar);
+            if (records.Count < 2) continue;
 
-            var sep = file.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase) ? '\t' : ',';
-            var header = SplitCsv(lines[0], sep);
+            var header = records[0];
 
             if (header.Length >= 3 && header[1].Equals("language", StringComparison.OrdinalIgnoreCase))
             {
                 // Format: key,language,value
-                for (int i = 1; i < lines.Length; i++)
+                for (int i = 1; i < records.Count; i++)
                 {
-                    var cols = SplitCsv(lines[i], sep);
+                    var cols = records[i];
                     if (cols.Length < 3) continue;
                     items.Add(new TranslationItem { Language = cols[1], Namespace = cols[0], Value = cols[2] });
                 }
@@ -37,9 +37,9 @@ public class CsvLoadStrategy : ILoadStrategy
             {
                 // Format: key,en,fr,de,... (columns = languages)
                 var languages = header[1..];
-                for (int i = 1; i < lines.Length; i++)
+                for (int i = 1; i < records.Count; i++)
                 {
-                    var cols = SplitCsv(lines[i], sep);
+                    var cols = records[i];
                     if (cols.Length < 2) continue;
                     var key = cols[0];
                     for (int j = 0; j < languages.Length && j + 1 < cols.Length; j++)
@@ -50,33 +50,43 @@ public class CsvLoadStrategy : ILoadStrategy
         return items;
     }
 
-    private static string[] SplitCsv(string line, char sep)
+    /// <summary>RFC 4180 parser: quoted fields may contain separators, quotes and line breaks.</summary>
+    internal static List<string[]> ParseRecords(string text, char sep)
     {
+        var records = new List<string[]>();
         var fields = new List<string>();
-        bool inQuotes = false;
         var current = new System.Text.StringBuilder();
+        bool inQuotes = false, any = false;
 
-        for (int i = 0; i < line.Length; i++)
+        void EndRecord()
         {
-            char c = line[i];
+            fields.Add(current.ToString());
+            current.Clear();
+            // A line holding a single empty field is a blank line, not a record.
+            if (fields.Count > 1 || fields[0].Length > 0 || any) records.Add(fields.ToArray());
+            fields.Clear();
+            any = false;
+        }
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            char c = text[i];
             if (c == '"')
             {
-                if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
-                {
-                    // Escaped quote ("") → literal "
-                    current.Append('"');
-                    i++;
-                }
-                else
-                {
-                    inQuotes = !inQuotes;
-                }
-                continue;
+                any = true;
+                if (inQuotes && i + 1 < text.Length && text[i + 1] == '"') { current.Append('"'); i++; }
+                else inQuotes = !inQuotes;
             }
-            if (c == sep && !inQuotes) { fields.Add(current.ToString()); current.Clear(); continue; }
-            current.Append(c);
+            else if (inQuotes) current.Append(c);
+            else if (c == sep) { fields.Add(current.ToString()); current.Clear(); }
+            else if (c == '\r' || c == '\n')
+            {
+                if (c == '\r' && i + 1 < text.Length && text[i + 1] == '\n') i++;
+                EndRecord();
+            }
+            else current.Append(c);
         }
-        fields.Add(current.ToString());
-        return fields.ToArray();
+        if (current.Length > 0 || fields.Count > 0 || any) EndRecord();
+        return records;
     }
 }

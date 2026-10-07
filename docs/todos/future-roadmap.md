@@ -1,9 +1,9 @@
 ---
 title: "Toucan — Roadmap (v0.17 to v1.0)"
 status: in-progress
-progress: "81 open items"
+progress: "79 open items"
 updated: 2026-10-07
-summary: "Open work only, in feature groups FG-01 to FG-16 plus post-1.0 ideas, with a suggested sprint order. Shipped items are removed, not ticked. Next: v0.20 onboarding and ghost-text suggestions."
+summary: "Open work only, in feature groups FG-01 to FG-16 plus post-1.0 ideas, with a suggested sprint order. Shipped items are removed, not ticked. Next: v0.20 onboarding."
 ---
 # Toucan — Roadmap (v0.17 → v1.0)
 
@@ -43,13 +43,6 @@ Pick 2-4 groups per sprint. Items under "Future Plan" are deferred past v1.0.
 - [ ] Download + apply update (restart required)
 - [ ] Update channel (stable / preview) (setting exists in About; no update check behind it yet)
 - [ ] Version check endpoint (GitHub Releases API or custom JSON)
-
----
-
-### FG-03: Translation Memory Enhancements
-**Effort: M | Impact: High**
-
-- [ ] Auto-suggest from TM while typing (inline ghost text): suggestion is computed, editor overlay not built
 
 ---
 
@@ -103,7 +96,6 @@ Pick 2-4 groups per sprint. Items under "Future Plan" are deferred past v1.0.
 - [ ] First-run wizard (set default language, provider keys, theme)
 - [ ] Tooltip tour for new users (highlight key features)
 - [ ] Empty state improvements (all panels show helpful hints when empty)
-- [ ] Keyboard shortcut overlay (Ctrl+K Ctrl+S style sheet)
 
 ---
 
@@ -218,7 +210,7 @@ For maximum impact toward a v1.0 stable release:
 
 | Sprint | Groups | Theme |
 |--------|--------|-------|
-| v0.20 | FG-10 + FG-03 | Onboarding, ghost-text suggestions |
+| v0.20 | FG-10 | Onboarding |
 | v0.21 | FG-04 + FG-15 | AI + Glossary |
 | v0.22 | FG-01 + FG-16 | Signed packages, release pipeline, CI |
 | v0.23 | FG-05 + FG-06 | Review lifecycle, Git integration |
