@@ -3,11 +3,21 @@
 ## [Unreleased]
 
 ### Added
+- **AI Integration** — AI is now its own integration under Settings → AI, separate from machine translation. One switch turns every AI feature on or off for the whole app. It is **off** by default, and a first-run onboarding step asks whether to use it. Pick the service (Claude, OpenAI or a compatible server such as Ollama, or Gemini), the model, endpoint and key, and test the connection before saving. See [docs/ai-integration.md](docs/ai-integration.md).
+- **Open, editable prompts** — Every AI feature's system prompt is a plain file. The defaults ship in [`Toucan.Core/Ai/Prompts`](Toucan.Core/Ai/Prompts). Edit them under Settings → AI → Edit prompt… for all projects (`Documents/Toucan/prompts`) or for one project (`.toucan/prompts`, safe to commit). Prompts take `{{variables}}` and `{{#sections}}`, and a variables panel lists what each prompt can use.
+- **Clarity AI** — Translate → AI → Check Source Clarity… reviews source strings for ambiguous words, strings too short to translate without context, concatenation, idioms and unclear placeholders. It suggests a clearer source string and a note for translators. Findings go to the Issues panel.
+- **Secret store** — Every API key and token, for providers and AI services, is kept in one encrypted store in your user profile (`secrets.json` next to `secret.key`), never in `providers.json` or a project folder. Settings → Data & privacy lists stored secret names and removes them.
 - **Pin recent projects** — Pin a project from the Start screen or from Settings → General → Recent projects. Pinned projects stay at the top of the list (Start screen and Open Recent), and they do not count toward the list limit. The old WPF pin button never saved anything; this one does.
 - **Recent projects settings** — Choose how many projects to remember (1–50), whether Clear keeps pinned projects, and manage the list (pin, unpin, remove) from Settings → General.
 - **Preferred language from recent projects** — With "Detect preferred language from recent projects" on, the source language for new projects, and for projects that name none, comes from the most recently opened project instead of the Default language setting. Off by default.
 - **Ghost-text suggestions** — When you focus an empty translation field, the best translation-memory match for its source text appears inside the field in faint italics. Press Tab to accept it; type to ignore it. Follows Settings → Translation memory → auto-suggest and the similarity threshold.
 - **Keyboard shortcut sheet** — Cmd/Ctrl+/ (or Help → Keyboard Shortcuts) shows every shortcut grouped by menu. Esc or a click outside closes it.
+
+### Changed
+- **Claude, OpenAI and Gemini are AI services, not translation providers** — Machine translation lists one **AI** provider instead. It uses the AI service and the editable Translate prompt from Settings → AI, and is only offered while AI is on. On first run, the old providers' endpoint, model, key and custom prompt move to AI Integration, and a project or preference that names one of them gets the AI provider. The CLI still accepts `-p claude`, `-p openai` and `-p gemini` as `-p ai`, and `TOUCAN_AI_BACKEND` turns AI on for one CI run.
+- **Analyze with AI** — Uses AI Integration and its editable Analyze prompt instead of the OpenAI provider's settings, so it works with Claude and Gemini too. It replaces only earlier AI findings in the Issues panel, not validation results.
+- **Provider keys** — `providers.json` (app-wide and per project) no longer stores keys; values move to the secret store the next time provider settings are saved. Keys written by older versions are still read.
+- **CLI** — `toucan translate` prints why items failed, and passes the project's context and prompts to the provider.
 
 ## [0.19.0] - 2026-10-06
 

@@ -38,7 +38,9 @@ JSON, YAML, PO, RESX, Android XML, iOS `.strings`, XLIFF, ARB, CSV, TOML, INI, J
 
 The layout follows VS Code: a tree or list sidebar, a translation pane (paginated or infinite scroll), and an inspector for stats, suggestions, key details, and validation results. Zen mode hides everything except the editor. Press Cmd/Ctrl+Shift+P for the command palette, which finds any menu command and shows its shortcut, and Cmd/Ctrl+/ opens a sheet of every keyboard shortcut.
 
-**Machine translation.** Pre-translate with Google Translate, DeepL, Microsoft Translator, OpenAI, Claude, or Gemini. Results appear in a preview and are only written when you commit them. Placeholders (`{{var}}`, `{0}`, `%s`, `:param`) are preserved, formality settings are respected, and you can target a single key, a namespace, or a language.
+**Machine translation.** Pre-translate with Google Translate, DeepL, Microsoft Translator, or AI. Results appear in a preview and are only written when you commit them. Placeholders (`{{var}}`, `{0}`, `%s`, `:param`) are preserved, formality settings are respected, and you can target a single key, a namespace, or a language.
+
+**AI, off until you turn it on.** One switch for the whole app, chosen on first run. Connect Claude, OpenAI (or a compatible local server such as Ollama), or Gemini, then translate with AI, analyze translations for wrong terms and tone, or check source strings for wording translators could misread. Every prompt Toucan sends is [open and editable](Toucan.Core/Ai/Prompts), app-wide or per project. API keys live in one encrypted secret store, never in a project folder. See [docs/ai-integration.md](docs/ai-integration.md).
 
 **Translation memory.** Fuzzy matching runs on a trigram engine and reuses translations across projects, with a configurable threshold and scope. Matches show in the inspector as you type. TMX import and export are supported.
 
@@ -85,7 +87,8 @@ This is the planned order, not a promise. Details are in [docs/todos/future-road
 | UI | [Avalonia](https://avaloniaui.net) 12 with FluentAvaloniaUI (Windows, macOS, Linux) |
 | Architecture | MVVM with CommunityToolkit.Mvvm |
 | Runtime | .NET 10, System.Text.Json |
-| Providers | Google, DeepL, Microsoft, OpenAI, Claude, Gemini, custom webhook |
+| Providers | Google, DeepL, Microsoft, AI, custom webhook |
+| AI services | Claude, OpenAI / compatible (Ollama, LM Studio, Azure), Gemini |
 | Format engine | Strategy pattern (`ILoadStrategy` / `ISaveStrategy`), string format IDs |
 | Extensibility | Plugins loaded from `.dll` assemblies ([guide](docs/plugins.md)), contract package `Toucan.Plugins.Abstractions` |
 
