@@ -22,6 +22,7 @@ public class SettingsList : ItemsControl, ISettingsSection
     public static readonly StyledProperty<ICommand?> AddCommandProperty = AvaloniaProperty.Register<SettingsList, ICommand?>(nameof(AddCommand));
     public static readonly StyledProperty<bool> CanAddProperty = AvaloniaProperty.Register<SettingsList, bool>(nameof(CanAdd), true);
     public static readonly StyledProperty<object?> ActionsProperty = AvaloniaProperty.Register<SettingsList, object?>(nameof(Actions));
+    public static readonly StyledProperty<object?> ColumnHeaderProperty = AvaloniaProperty.Register<SettingsList, object?>(nameof(ColumnHeader));
     public static readonly StyledProperty<double> MaxListHeightProperty = AvaloniaProperty.Register<SettingsList, double>(nameof(MaxListHeight), 320);
     public static readonly StyledProperty<bool?> ShowSearchProperty = AvaloniaProperty.Register<SettingsList, bool?>(nameof(ShowSearch));
     public static readonly StyledProperty<int> SearchThresholdProperty = AvaloniaProperty.Register<SettingsList, int>(nameof(SearchThreshold), 8);
@@ -43,6 +44,8 @@ public class SettingsList : ItemsControl, ISettingsSection
     public bool CanAdd { get => GetValue(CanAddProperty); set => SetValue(CanAddProperty, value); }
     /// <summary>Extra controls (e.g. a "Clear" button) shown at the right of the header line.</summary>
     public object? Actions { get => GetValue(ActionsProperty); set => SetValue(ActionsProperty, value); }
+    /// <summary>A header line above the rows (column titles of a table). Shown only while the list has items.</summary>
+    public object? ColumnHeader { get => GetValue(ColumnHeaderProperty); set => SetValue(ColumnHeaderProperty, value); }
     /// <summary>The rows scroll once they are taller than this. Use <see cref="double.PositiveInfinity"/> for no limit.</summary>
     public double MaxListHeight { get => GetValue(MaxListHeightProperty); set => SetValue(MaxListHeightProperty, value); }
     /// <summary>True or false forces the filter box on or off; null (default) shows it from <see cref="SearchThreshold"/> items.</summary>

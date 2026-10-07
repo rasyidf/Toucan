@@ -544,5 +544,10 @@
   "File format": "Format berkas",
   "Not kept when saving": "Tidak disimpan saat menyimpan",
   "Manage…": "Kelola…",
-  "What is this project for?": "Untuk apa proyek ini?"
+  "What is this project for?": "Untuk apa proyek ini?",
+  "Value": "Nilai",
+  "Template": "Templat",
+  "Remove option": "Hapus opsi",
+  "Remove secret": "Hapus rahasia",
+  "Remove template": "Hapus templat"
 }

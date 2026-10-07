@@ -208,6 +208,12 @@ public class UiScreenshotTests
         var provider = host.Services.GetRequiredService<ProviderSettingsViewModel>();
         provider.UseProject(null);
         SnapDialog(new ProviderSettingsDialog(provider), "25-provider-settings");
+        if (provider.Providers.Count > 0)
+        {
+            provider.Selected = provider.Providers[^1];
+            Pump();
+            SnapDialog(new ProviderSettingsDialog(provider), "25-provider-settings-selected");
+        }
         SnapDialog(new PromptDialog("Rename key", "Enter a new key name", "app.title"), "26-prompt");
         SnapDialog(new PickDialog("Pick language", "Choose one", ["en", "de", "id"], "en"), "27-pick");
         SnapDialog(new LanguagePromptDialog(new LanguagePromptViewModel()), "28-language-prompt");

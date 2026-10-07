@@ -135,21 +135,9 @@
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
-          <c:SettingsList Header="{loc:Loc 'Copy templates (%1 = key)'}" ItemsSource="{Binding CopyTemplates}" AddText="{loc:Loc 'Add template'}" AddCommand="{Binding AddCopyTemplateCommand}" ShowSearch="False" CanAdd="{Binding CanAddCopyTemplate}">
-              <c:SettingsList.ItemTemplate>
-                  <DataTemplate>
-                    <c:SettingsRow Stacked="True">
-                      <DockPanel>
-                        <Button DockPanel.Dock="Right" Classes="icon small" Margin="6,0,0,0"
-                                Command="{Binding $parent[ItemsControl].DataContext.RemoveCopyTemplateCommand}" CommandParameter="{Binding}">
-                          <ui:FASymbolIcon Symbol="Dismiss"/>
-                        </Button>
-                        <TextBox Text="{Binding Value}" Classes="mono"/>
-                      </DockPanel>
-                    </c:SettingsRow>
-                  </DataTemplate>
-                </c:SettingsList.ItemTemplate>
-          </c:SettingsList>
+          <c:EditableTable Header="{loc:Loc 'Copy templates (%1 = key)'}" ShowKey="False" ValueHeader="Template" ItemsSource="{Binding CopyTemplates}"
+                           AddText="{loc:Loc 'Add template'}" AddCommand="{Binding AddCopyTemplateCommand}" CanAdd="{Binding CanAddCopyTemplate}"
+                           RemoveCommand="{Binding RemoveCopyTemplateCommand}" RemoveTip="{loc:Loc 'Remove template'}"/>
         </StackPanel>
 
         <!-- Source code -->

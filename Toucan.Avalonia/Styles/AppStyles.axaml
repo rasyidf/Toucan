@@ -531,6 +531,9 @@
                   </TextBox.InnerLeftContent>
                 </TextBox>
               </Border>
+              <Border Classes="tableHeader" IsVisible="{TemplateBinding ColumnHeader, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <ContentPresenter Content="{TemplateBinding ColumnHeader}"/>
+              </Border>
               <ScrollViewer MaxHeight="{TemplateBinding MaxListHeight}" VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Disabled" IsVisible="{TemplateBinding ItemCount, Converter={x:Static conv:SettingsListConverters.HasItems}}">
                 <ItemsPresenter x:Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}"/>
@@ -575,6 +578,44 @@
   </Style>
   <Style Selector="TextBox.invalid">
     <Setter Property="BorderBrush" Value="{DynamicResource BadBrush}"/>
+  </Style>
+  <!-- Editable table: column titles, then rows of borderless cells that show their edges on hover and focus -->
+  <Style Selector="Border.tableHeader">
+    <Setter Property="Padding" Value="14,6,12,4"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SettingsDividerBrush}"/>
+    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="Border.tableHeader TextBlock">
+    <Setter Property="FontSize" Value="11"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+  </Style>
+  <Style Selector="TextBox.cell">
+    <Style.Resources>
+      <SolidColorBrush x:Key="TextControlBackground" Color="Transparent"/>
+      <SolidColorBrush x:Key="TextControlBorderBrush" Color="Transparent"/>
+      <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="Transparent"/>
+      <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="Transparent"/>
+      <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="Transparent"/>
+      <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="Transparent"/>
+      <Thickness x:Key="TextControlBorderThemeThickness">1</Thickness>
+      <Thickness x:Key="TextControlBorderThemeThicknessFocused">1</Thickness>
+    </Style.Resources>
+    <Setter Property="MinHeight" Value="30"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="Padding" Value="8,4"/>
+    <Setter Property="CornerRadius" Value="6"/>
+  </Style>
+  <Style Selector="TextBox.cell:pointerover:not(:focus) /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="TextBox.cell:focus /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="{DynamicResource EditorBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+  </Style>
+  <Style Selector="TextBox.cell:readonly">
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
   </Style>
   <Style Selector="Border.settingsListToolbar">
     <Setter Property="Padding" Value="8"/>
