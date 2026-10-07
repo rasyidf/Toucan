@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toucan · Visual review: screenshots of every screen</title>
+<meta name="description" content="How to render PNGs of every screen headlessly with TOUCAN_TEST_SCREENSHOTS, what each file shows and the known limits.">
+<link rel="canonical" href="https://toucan.rasyid.dev/visual-review.html">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Toucan · Visual review: screenshots of every screen">
+<meta property="og:description" content="How to render PNGs of every screen headlessly with TOUCAN_TEST_SCREENSHOTS, what each file shows and the known limits.">
+<meta property="og:url" content="https://toucan.rasyid.dev/visual-review.html">
+<meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('toucan-theme');
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  } catch (e) {}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/doc.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body>
+<a class="sr-only skip" href="#main">Skip to content</a>
+<header class="site-header" id="site-header">
+  <div class="spectrum" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="Toucan home">
+      <img src="assets/logo.png" alt="" width="30" height="30">
+      Toucan
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">Overview</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle color theme"><svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <a class="icon-btn" href="https://github.com/rasyidf/Toucan" aria-label="Toucan on GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2.02c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg></a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/rasyidf/Toucan/releases">Download</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap doc-main">
+  <div class="doc-layout">
+    <aside class="doc-side" aria-label="Documentation">
+      <div class="side-title"><a href="docs.html">All docs</a></div>
+      <nav class="guides" aria-label="Guides">
+<a href="ai-integration.html">AI Integration</a>
+<a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
+<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="plugins.html">Writing Toucan plugins</a>
+<a href="architecture.html">Toucan architecture</a>
+<a href="core-architecture.html">Toucan.Core interop architecture</a>
+<a href="roadmap.html">Toucan roadmap: v0.21 to v1.0</a>
+<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
+<a href="completed-features.html">Shipped Features</a>
+<a href="branding.html">Toucan: Brand Guidelines</a>
+<a href="visual-review.html" aria-current="page">Visual review: screenshots of every screen</a>
+      </nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#run-it">Run it</a><a class="l2" href="#what-you-get">What you get</a><a class="l2" href="#notes">Notes</a></nav>
+    </aside>
+    <article class="doc">
+      <header class="doc-head">
+        <div class="kicker">Documentation</div>
+        <h1>Visual review: screenshots of every screen</h1>
+        <p class="lead">How to render PNGs of every screen headlessly with TOUCAN_TEST_SCREENSHOTS, what each file shows and the known limits.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-06</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/visual-review.md">Edit on GitHub ↗</a></div>
+      </header>
+      <div class="prose">
+<p><code>tests/Toucan.Avalonia.Tests/UiScreenshotTests.cs</code> renders the real windows, side panels and dialogs headlessly (Avalonia.Headless with Skia) and saves a PNG of each. It is how UI changes get reviewed without clicking through the app, and it works on any OS (no UI Automation tooling needed).</p>
+<h2 id="run-it"><a class="anchor" href="#run-it" aria-label="Link to this section">#</a>Run it</h2>
+<pre><code class="language-bash">TOUCAN_TEST_SCREENSHOTS=/tmp/toucan-shots \
+  dotnet run --project tests/Toucan.Avalonia.Tests -- -class Toucan.Avalonia.Tests.UiScreenshotTests</code></pre>
+<p>Without <code>TOUCAN_TEST_SCREENSHOTS</code> the tests do nothing, so a normal <code>dotnet test</code> stays fast and writes no files.</p>
+<h2 id="what-you-get"><a class="anchor" href="#what-you-get" aria-label="Link to this section">#</a>What you get</h2>
+<div class="table-wrap"><table><thead><tr><th>Files</th><th>Shows</th></tr></thead><tbody><tr><td><code>01</code>–<code>13</code></td><td>Start screen, editor, every side panel, the multi-select bar, Zen mode, the unsaved title bar, the command palette, the shortcut sheet and ghost text</td></tr><tr><td><code>10-options-*</code></td><td>Every Settings page, plus the Plugins page filled with fixture plugins in each state</td></tr><tr><td><code>20</code>–<code>28</code></td><td>New project, Import, Project Properties (each page), Statistics, Manage languages, Provider settings and the small prompt dialogs</td></tr><tr><td><code>30</code>–<code>38</code></td><td>The dark theme: Settings, Project Properties, dialogs, the editor and every side panel</td></tr><tr><td><code>40</code>–<code>42</code></td><td>Settings search with a matching query, another matching query, and no matches</td></tr></tbody></table></div>
+<p>The sample project has 60 generated keys so the pager and the Explorer tree have something to show.</p>
+<h2 id="notes"><a class="anchor" href="#notes" aria-label="Link to this section">#</a>Notes</h2>
+<ul>
+<li>Screenshots use the platform fonts and a 1280×800 window, so they are close to, not identical with, a real window. The macOS traffic-light inset is simulated with a fixed 78px.</li>
+<li>Popups (menus, flyouts) are separate windows and do not appear in these captures. Check them in the running app.</li>
+<li>Add a screen by adding a <code>Snap(window, "NN-name")</code> call where it is reachable. Keep new dialogs in <code>CaptureDialogs</code>.</li>
+</ul>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="" width="24" height="24">Toucan</a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/rasyidf/Toucan">Source</a>
+      <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
+      <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <span class="copy">© 2023–2026 <a href="https://rasyid.dev">rasyid.dev</a> · MIT License</span>
+  </div>
+</footer>
+</body>
+</html>

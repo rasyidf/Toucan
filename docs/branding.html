@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toucan · Toucan: Brand Guidelines</title>
+<meta name="description" content="Brand guidelines: name, voice, colors, logo use. Platform line updated for v0.20.2 (Avalonia on all platforms).">
+<link rel="canonical" href="https://toucan.rasyid.dev/branding.html">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Toucan · Toucan: Brand Guidelines">
+<meta property="og:description" content="Brand guidelines: name, voice, colors, logo use. Platform line updated for v0.20.2 (Avalonia on all platforms).">
+<meta property="og:url" content="https://toucan.rasyid.dev/branding.html">
+<meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('toucan-theme');
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  } catch (e) {}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/doc.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body>
+<a class="sr-only skip" href="#main">Skip to content</a>
+<header class="site-header" id="site-header">
+  <div class="spectrum" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="Toucan home">
+      <img src="assets/logo.png" alt="" width="30" height="30">
+      Toucan
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">Overview</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle color theme"><svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <a class="icon-btn" href="https://github.com/rasyidf/Toucan" aria-label="Toucan on GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2.02c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg></a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/rasyidf/Toucan/releases">Download</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap doc-main">
+  <div class="doc-layout">
+    <aside class="doc-side" aria-label="Documentation">
+      <div class="side-title"><a href="docs.html">All docs</a></div>
+      <nav class="guides" aria-label="Guides">
+<a href="ai-integration.html">AI Integration</a>
+<a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
+<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="plugins.html">Writing Toucan plugins</a>
+<a href="architecture.html">Toucan architecture</a>
+<a href="core-architecture.html">Toucan.Core interop architecture</a>
+<a href="roadmap.html">Toucan roadmap: v0.21 to v1.0</a>
+<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
+<a href="completed-features.html">Shipped Features</a>
+<a href="branding.html" aria-current="page">Toucan: Brand Guidelines</a>
+<a href="visual-review.html">Visual review: screenshots of every screen</a>
+      </nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#overview">Overview</a><a class="l2" href="#mission">Mission</a><a class="l2" href="#vision">Vision</a><a class="l2" href="#positioning">Positioning</a><a class="l2" href="#taglines">Taglines</a><a class="l2" href="#brand-pillars">Brand Pillars</a><a class="l2" href="#personality">Personality</a><a class="l2" href="#voice">Voice</a><a class="l2" href="#color-palette">Color Palette</a><a class="l2" href="#logo">Logo</a><a class="l2" href="#product-identity">Product Identity</a><a class="l2" href="#ui-identity-windows-app-v017">UI Identity (Windows app, v0.17)</a><a class="l2" href="#file-identity">File Identity</a><a class="l2" href="#typography">Typography</a><a class="l2" href="#motion">Motion</a><a class="l2" href="#iconography">Iconography</a><a class="l2" href="#experience-principles">Experience Principles</a><a class="l2" href="#product-extensions">Product Extensions</a><a class="l2" href="#copyright">Copyright</a></nav>
+    </aside>
+    <article class="doc">
+      <header class="doc-head">
+        <div class="kicker">Documentation</div>
+        <h1>Toucan: Brand Guidelines</h1>
+        <p class="lead">Brand guidelines: name, voice, colors, logo use. Platform line updated for v0.20.2 (Avalonia on all platforms).</p>
+        <div class="doc-meta"><span class="doc-status">reference</span><span>Updated 2026-10-07</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/branding.md">Edit on GitHub ↗</a></div>
+      </header>
+      <div class="prose">
+<blockquote><p>Every language, side by side.</p></blockquote>
+<h2 id="overview"><a class="anchor" href="#overview" aria-label="Link to this section">#</a>Overview</h2>
+<p>Toucan is a desktop editor for translation files, made for developers and localization teams. It reads 14 formats, works offline, and adds validation, translation memory and opt-in AI translation.</p>
+<p>Release status: preview until 1.0. Current release: v0.20.2 (Windows, macOS, Linux). The WPF app is deprecated (last release v0.17.3). Say "preview" wherever a version or download is offered.</p>
+<p>Platforms: Windows, macOS and Linux (Avalonia app), and the <code>toucan</code> CLI.</p>
+<h2 id="mission"><a class="anchor" href="#mission" aria-label="Link to this section">#</a>Mission</h2>
+<p>Make shipping an app in many languages as routine as shipping it in one.</p>
+<h2 id="vision"><a class="anchor" href="#vision" aria-label="Link to this section">#</a>Vision</h2>
+<p>A localization editor that works like the code editor developers already use.</p>
+<h2 id="positioning"><a class="anchor" href="#positioning" aria-label="Link to this section">#</a>Positioning</h2>
+<div class="table-wrap"><table><thead><tr><th>Level</th><th>Statement</th></tr></thead><tbody><tr><td>Primary</td><td>Desktop editor for translation files</td></tr><tr><td>Secondary</td><td>Translation resource editor</td></tr><tr><td>Elevator</td><td>Toucan reads 14 translation formats, validates them, translates with machine providers or opt-in AI, and scans source code for unused keys. Files stay on your machine.</td></tr></tbody></table></div>
+<h2 id="taglines"><a class="anchor" href="#taglines" aria-label="Link to this section">#</a>Taglines</h2>
+<p>Primary: Every language, side by side.</p>
+<p>Alternatives:</p>
+<ul>
+<li>Localization without spreadsheets.</li>
+<li>Check your translations before you ship.</li>
+</ul>
+<h2 id="brand-pillars"><a class="anchor" href="#brand-pillars" aria-label="Link to this section">#</a>Brand Pillars</h2>
+<div class="table-wrap"><table><thead><tr><th>Pillar</th><th>Meaning</th></tr></thead><tbody><tr><td>Developer first</td><td>IDE-style layout and keyboard shortcuts</td></tr><tr><td>Structured</td><td>Translations are data, so they get validation rules the way code gets lint rules</td></tr><tr><td>Fast</td><td>10K keys feel instant. Zero-allocation search.</td></tr><tr><td>Confident</td><td>Validation, translation memory and audit mode catch mistakes before deploy</td></tr><tr><td>Friendly</td><td>Capable without being intimidating</td></tr></tbody></table></div>
+<h2 id="personality"><a class="anchor" href="#personality" aria-label="Link to this section">#</a>Personality</h2>
+<p>Professional, curious, playful, reliable. Never childish, never corporate.</p>
+<h2 id="voice"><a class="anchor" href="#voice" aria-label="Link to this section">#</a>Voice</h2>
+<p>Write like an experienced engineer: short, clear, direct.</p>
+<p>Prefer "Missing translation" over "Localization asset unavailable." Prefer "Ready" over "Pipeline completed successfully."</p>
+<h2 id="color-palette"><a class="anchor" href="#color-palette" aria-label="Link to this section">#</a>Color Palette</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Hex</th><th>Usage</th></tr></thead><tbody><tr><td>Primary Blue</td><td><code>#2196F3</code></td><td>Logo text, primary actions, accent</td></tr><tr><td>Deep Blue</td><td><code>#1764E8</code></td><td>Hover states, selected items</td></tr><tr><td>Sky</td><td><code>#3CC9FF</code></td><td>Secondary highlights</td></tr><tr><td>Golden Yellow</td><td><code>#FFC93C</code></td><td>Warnings, caution states</td></tr><tr><td>Warm Orange</td><td><code>#FF9A3C</code></td><td>Errors, attention</td></tr><tr><td>Purple Accent</td><td><code>#6F5BFF</code></td><td>Special badges, AI features</td></tr><tr><td>Background</td><td><code>#171B22</code></td><td>Dark theme base</td></tr><tr><td>Surface</td><td><code>#232936</code></td><td>Cards, panels</td></tr><tr><td>Border</td><td><code>#3A4153</code></td><td>Subtle separators</td></tr><tr><td>Text</td><td><code>#FFFFFF</code></td><td>Primary text (dark theme)</td></tr><tr><td>Muted</td><td><code>#A5ACBA</code></td><td>Secondary text, hints</td></tr></tbody></table></div>
+<p>Light theme follows system WinUI Fluent tokens (Mica backdrop).</p>
+<h2 id="logo"><a class="anchor" href="#logo" aria-label="Link to this section">#</a>Logo</h2>
+<h3 id="philosophy"><a class="anchor" href="#philosophy" aria-label="Link to this section">#</a>Philosophy</h3>
+<p>Recognizable at a glance, geometric, friendly.</p>
+<h3 id="construction"><a class="anchor" href="#construction" aria-label="Link to this section">#</a>Construction</h3>
+<p>Built on golden-ratio circles, with no arbitrary curves. Works from 16px to 1024px.</p>
+<h3 id="symbolism"><a class="anchor" href="#symbolism" aria-label="Link to this section">#</a>Symbolism</h3>
+<ul>
+<li>Head: knowledge</li>
+<li>Beak: communication</li>
+<li>Eye: understanding</li>
+<li>Colors: many languages working together</li>
+</ul>
+<h3 id="requirements"><a class="anchor" href="#requirements" aria-label="Link to this section">#</a>Requirements</h3>
+<ul>
+<li>Readable as a silhouette</li>
+<li>No small details that disappear at small sizes</li>
+<li>Never stretched, always proportional</li>
+</ul>
+<h2 id="product-identity"><a class="anchor" href="#product-identity" aria-label="Link to this section">#</a>Product Identity</h2>
+<h3 id="toucan-is"><a class="anchor" href="#toucan-is" aria-label="Link to this section">#</a>Toucan is</h3>
+<ul>
+<li>An editor for translation resource files</li>
+<li>A validator for placeholders and consistency</li>
+<li>A developer tool</li>
+</ul>
+<h3 id="toucan-is-not"><a class="anchor" href="#toucan-is-not" aria-label="Link to this section">#</a>Toucan is not</h3>
+<ul>
+<li>Translation agency software</li>
+<li>Cloud-only SaaS</li>
+<li>A spreadsheet editor</li>
+<li>A CAT tool (no TM segment-level alignment)</li>
+</ul>
+<h2 id="ui-identity-windows-app-v017"><a class="anchor" href="#ui-identity-windows-app-v017" aria-label="Link to this section">#</a>UI Identity (Windows app, v0.17)</h2>
+<h3 id="layout"><a class="anchor" href="#layout" aria-label="Link to this section">#</a>Layout</h3>
+<p>Three panes, laid out like VS Code:</p>
+<ul>
+<li>Left: tree/list sidebar (200px default)</li>
+<li>Center: translation editor (paginated or infinite scroll)</li>
+<li>Right: inspector panel (stats, suggestions, details, validation)</li>
+</ul>
+<h3 id="chrome"><a class="anchor" href="#chrome" aria-label="Link to this section">#</a>Chrome</h3>
+<ul>
+<li>Title bar: logo and segmented menu (File, Edit, Tools, Find, View, Help)</li>
+<li>Toolbar: Snipping Tool-style pill-grouped icon buttons, mode selector on the right</li>
+<li>Footer bar: Photos-style action bar (left: quick actions, center: status, right: info panels)</li>
+<li>Start screen: no toolbar, only the backdrop</li>
+</ul>
+<h3 id="modes"><a class="anchor" href="#modes" aria-label="Link to this section">#</a>Modes</h3>
+<p>Three editor modes, each visually distinct:</p>
+<ul>
+<li>Editor (default): full editing, MT suggestions</li>
+<li>Review: approve/reject, validation warnings</li>
+<li>Audit: read-only, change history</li>
+</ul>
+<h3 id="backdrop"><a class="anchor" href="#backdrop" aria-label="Link to this section">#</a>Backdrop</h3>
+<p>Mica (Windows 11) with the system theme. The start screen shows through the backdrop with no opaque background.</p>
+<h3 id="zen-mode"><a class="anchor" href="#zen-mode" aria-label="Link to this section">#</a>Zen Mode</h3>
+<p>All chrome hidden. One translation card, centered. J/K navigation. Follows the current mode.</p>
+<h2 id="file-identity"><a class="anchor" href="#file-identity" aria-label="Link to this section">#</a>File Identity</h2>
+<div class="table-wrap"><table><thead><tr><th>Item</th><th>Value</th></tr></thead><tbody><tr><td>Project manifest</td><td><code>toucan.tproj</code></td></tr><tr><td>File extension</td><td><code>.tproj</code></td></tr><tr><td>MIME type</td><td><code>application/json</code></td></tr><tr><td>Registry ProgId</td><td><code>Toucan.Project</code></td></tr><tr><td>App settings folder</td><td><code>Documents/Toucan/</code> (providers, layout, plugins)</td></tr><tr><td>Project settings folder</td><td><code>&lt;project&gt;/.toucan/</code></td></tr><tr><td>Provider secrets</td><td><code>providers.json</code>; secrets encrypted with DPAPI on Windows, AES-GCM on macOS and Linux</td></tr></tbody></table></div>
+<h2 id="typography"><a class="anchor" href="#typography" aria-label="Link to this section">#</a>Typography</h2>
+<ul>
+<li>UI: system font (Segoe UI Variable on Windows 11)</li>
+<li>Code and keys: Cascadia Code, or the system monospace font</li>
+<li>Sizes: follow the WinUI Fluent type ramp</li>
+<li>Website (<code>docs/index.html</code>): headings in Bricolage Grotesque, body in the system UI font, code in Cascadia Code with JetBrains Mono as the web fallback</li>
+</ul>
+<h2 id="motion"><a class="anchor" href="#motion" aria-label="Link to this section">#</a>Motion</h2>
+<ul>
+<li>Hover: light background fill (SubtleFillColorSecondaryBrush)</li>
+<li>Pressed: slightly darker fill (SubtleFillColorTertiaryBrush)</li>
+<li>Panel show/hide: 150ms ease-out</li>
+<li>No bouncing, no exaggerated easing</li>
+</ul>
+<h2 id="iconography"><a class="anchor" href="#iconography" aria-label="Link to this section">#</a>Iconography</h2>
+<ul>
+<li>Fluent System Icons</li>
+<li>16px inline, 20px in the toolbar, 24px in the status bar</li>
+<li>Same stroke weight throughout the app</li>
+</ul>
+<h2 id="experience-principles"><a class="anchor" href="#experience-principles" aria-label="Link to this section">#</a>Experience Principles</h2>
+<p>Fast, predictable, dense, keyboard-driven, offline-first, search-first, developer-friendly.</p>
+<h2 id="product-extensions"><a class="anchor" href="#product-extensions" aria-label="Link to this section">#</a>Product Extensions</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Purpose</th><th>Status</th></tr></thead><tbody><tr><td>Toucan CLI</td><td><code>toucan check</code>, <code>toucan translate</code>, <code>toucan export</code></td><td>Preview, shipped since v0.15</td></tr><tr><td>Toucan SDK</td><td>Plugin system for custom formats/providers/rules</td><td>Preview since v0.18.0 (<code>Toucan.Plugins.Abstractions</code>)</td></tr><tr><td>Toucan AI</td><td>ConsistencyAI, quality scoring, tone enforcement</td><td>Planned (ConsistencyAI in v0.21)</td></tr><tr><td>Toucan Hub</td><td>Collaboration server (locking, presence)</td><td>After 1.0</td></tr></tbody></table></div>
+<h2 id="copyright"><a class="anchor" href="#copyright" aria-label="Link to this section">#</a>Copyright</h2>
+<p>© 2023–2026 Muhammad Fahmi Rasyid (rasyid.dev). MIT License.</p>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="" width="24" height="24">Toucan</a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/rasyidf/Toucan">Source</a>
+      <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
+      <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <span class="copy">© 2023–2026 <a href="https://rasyid.dev">rasyid.dev</a> · MIT License</span>
+  </div>
+</footer>
+</body>
+</html>

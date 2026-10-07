@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toucan · Writing Toucan plugins</title>
+<meta name="description" content="Plugin author guide: manifest, formats, providers, rules, framework profiles, trust model, testing. Preview since v0.18.0; Avalonia app and CLI only.">
+<link rel="canonical" href="https://toucan.rasyid.dev/plugins.html">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Toucan · Writing Toucan plugins">
+<meta property="og:description" content="Plugin author guide: manifest, formats, providers, rules, framework profiles, trust model, testing. Preview since v0.18.0; Avalonia app and CLI only.">
+<meta property="og:url" content="https://toucan.rasyid.dev/plugins.html">
+<meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('toucan-theme');
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  } catch (e) {}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/doc.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body>
+<a class="sr-only skip" href="#main">Skip to content</a>
+<header class="site-header" id="site-header">
+  <div class="spectrum" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="Toucan home">
+      <img src="assets/logo.png" alt="" width="30" height="30">
+      Toucan
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">Overview</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html" aria-current="page">Plugins</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle color theme"><svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <a class="icon-btn" href="https://github.com/rasyidf/Toucan" aria-label="Toucan on GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2.02c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg></a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/rasyidf/Toucan/releases">Download</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap doc-main">
+  <div class="doc-layout">
+    <aside class="doc-side" aria-label="Documentation">
+      <div class="side-title"><a href="docs.html">All docs</a></div>
+      <nav class="guides" aria-label="Guides">
+<a href="ai-integration.html">AI Integration</a>
+<a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
+<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="plugins.html" aria-current="page">Writing Toucan plugins</a>
+<a href="architecture.html">Toucan architecture</a>
+<a href="core-architecture.html">Toucan.Core interop architecture</a>
+<a href="roadmap.html">Toucan roadmap: v0.21 to v1.0</a>
+<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
+<a href="completed-features.html">Shipped Features</a>
+<a href="branding.html">Toucan: Brand Guidelines</a>
+<a href="visual-review.html">Visual review: screenshots of every screen</a>
+      </nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#quick-start">Quick start</a><a class="l2" href="#the-manifest-pluginjson">The manifest (plugin.json)</a><a class="l2" href="#what-you-can-add">What you can add</a><a class="l2" href="#how-plugins-are-loaded">How plugins are loaded</a><a class="l2" href="#trust-and-signing">Trust and signing</a><a class="l2" href="#versioning">Versioning</a><a class="l2" href="#testing-your-plugin">Testing your plugin</a><a class="l2" href="#troubleshooting">Troubleshooting</a><a class="l2" href="#limits">Limits</a><a class="l2" href="#for-maintainers">For maintainers</a></nav>
+    </aside>
+    <article class="doc">
+      <header class="doc-head">
+        <div class="kicker">Documentation</div>
+        <h1>Writing Toucan plugins</h1>
+        <p class="lead">Plugin author guide: manifest, formats, providers, rules, framework profiles, trust model, testing. Preview since v0.18.0; Avalonia app and CLI only.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-07</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/plugins.md">Edit on GitHub ↗</a></div>
+      </header>
+      <div class="prose">
+<p>A plugin is a .NET assembly in its own folder that adds things to Toucan: <strong>file formats</strong>, <strong>machine-translation providers</strong>, <strong>validation rules</strong> and <strong>framework profiles</strong>. The working example is <a href="https://github.com/rasyidf/Toucan/blob/main/samples/Toucan.Sample.Plugin"><code>samples/Toucan.Sample.Plugin</code></a> (a tab-separated-values format plus a rule); its build output is exercised by the test suite, so what it does is what this guide describes.</p>
+<blockquote><p>Status: preview, since v0.18.0. Plugins run in the Avalonia app (macOS, Linux) and the <code>toucan</code> CLI; the Windows WPF app does not load plugins.</p></blockquote>
+<ul>
+<li><a href="#quick-start">Quick start</a></li>
+<li><a href="#the-manifest-pluginjson">The manifest</a></li>
+<li><a href="#what-you-can-add">What you can add</a></li>
+<li><a href="#how-plugins-are-loaded">How plugins are loaded</a></li>
+<li><a href="#trust-and-signing">Trust and signing</a></li>
+<li><a href="#versioning">Versioning</a></li>
+<li><a href="#testing-your-plugin">Testing your plugin</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#limits">Limits</a></li>
+<li><a href="#for-maintainers">For maintainers</a></li>
+</ul>
+<h2 id="quick-start"><a class="anchor" href="#quick-start" aria-label="Link to this section">#</a>Quick start</h2>
+<ol>
+<li>Create a class library and reference the contract package. <code>ExcludeAssets="runtime"</code> matters: Toucan supplies the abstractions at run time, which is what makes your <code>ISaveStrategy</code> the same type as Toucan's.
+<pre><code class="language-xml">&lt;Project Sdk="Microsoft.NET.Sdk"&gt;
+  &lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;
+    &lt;Nullable&gt;enable&lt;/Nullable&gt;
+    &lt;ImplicitUsings&gt;enable&lt;/ImplicitUsings&gt;
+    &lt;EnableDynamicLoading&gt;true&lt;/EnableDynamicLoading&gt;
+  &lt;/PropertyGroup&gt;
+  &lt;ItemGroup&gt;
+    &lt;PackageReference Include="Toucan.Plugins.Abstractions" Version="1.0.0" ExcludeAssets="runtime" /&gt;
+  &lt;/ItemGroup&gt;
+  &lt;ItemGroup&gt;
+    &lt;None Include="plugin.json" CopyToOutputDirectory="PreserveNewest" /&gt;
+  &lt;/ItemGroup&gt;
+&lt;/Project&gt;</code></pre></li>
+</ol>
+<ol>
+<li>Add the entry point. Register everything in <code>Initialize</code>:
+<pre><code class="language-csharp">public sealed class MyPlugin : IToucanPlugin
+{
+    public void Initialize(IPluginContext context)
+    {
+        var format = new MyFormat();          // implements ISaveStrategy and ILoadStrategy
+        context.AddFormat(save: format, load: format);
+        context.AddValidationRule(new MyRule());
+    }
+}</code></pre></li>
+</ol>
+<ol>
+<li>Add <code>plugin.json</code> next to it (<a href="#the-manifest-pluginjson">reference</a>):
+<pre><code class="language-json">{
+  "id": "acme.my-format",
+  "name": "Acme format",
+  "version": "1.0.0",
+  "apiVersion": "1.0",
+  "entryAssembly": "Acme.MyFormat.dll",
+  "capabilities": ["formats", "validation"]
+}</code></pre></li>
+</ol>
+<ol>
+<li>Build, then copy the output folder into the plugins folder as a subfolder:
+<div class="table-wrap"><table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>Plugins folder</td><td><code>Documents/Toucan/plugins/</code> (<code>TOUCAN_PLUGINS_DIR</code> overrides it)</td></tr><tr><td>Result</td><td><code>Documents/Toucan/plugins/acme.my-format/{plugin.json, Acme.MyFormat.dll, …}</code></td></tr></tbody></table></div></li>
+</ol>
+<ol>
+<li>Start Toucan (or run <code>toucan plugins list</code>). A new plugin is <strong>not loaded until you trust it</strong>: open Settings → Plugins and choose <em>Trust…</em>, or run <code>toucan plugins trust acme.my-format</code>, then restart.</li>
+</ol>
+<h2 id="the-manifest-pluginjson"><a class="anchor" href="#the-manifest-pluginjson" aria-label="Link to this section">#</a>The manifest (<code>plugin.json</code>)</h2>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Required</th><th>Notes</th></tr></thead><tbody><tr><td><code>id</code></td><td>yes</td><td>Unique and stable. Lowercase letters, digits, <code>.</code> and <code>-</code>; at most 64 characters; starts and ends with a letter or digit. Convention: <code>vendor.name</code>.</td></tr><tr><td><code>name</code></td><td>yes</td><td>Shown in Settings → Plugins.</td></tr><tr><td><code>version</code></td><td>yes</td><td>Your plugin's version, like <code>1.2.3</code>.</td></tr><tr><td><code>apiVersion</code></td><td>yes</td><td>The plugin API you built against, like <code>1.0</code> (see <a href="#versioning">Versioning</a>).</td></tr><tr><td><code>entryAssembly</code></td><td>yes</td><td>File name of your assembly, inside the plugin folder. No paths, must end in <code>.dll</code>.</td></tr><tr><td><code>entryType</code></td><td>no</td><td>Full name of your <code>IToucanPlugin</code> class. Required if the assembly has more than one public implementation.</td></tr><tr><td><code>capabilities</code></td><td>no</td><td>Any of <code>formats</code>, <code>providers</code>, <code>validation</code>, <code>frameworks</code>. Registering something you did not declare fails the plugin.</td></tr><tr><td><code>author</code>, <code>description</code></td><td>no</td><td>Shown when the user decides whether to trust you.</td></tr></tbody></table></div>
+<p>Comments and trailing commas are allowed. All problems are reported together, so one load attempt shows everything to fix.</p>
+<h2 id="what-you-can-add"><a class="anchor" href="#what-you-can-add" aria-label="Link to this section">#</a>What you can add</h2>
+<p>Everything is registered through the <code>IPluginContext</code> passed to <code>Initialize</code>. It also gives you <code>Logger</code>, <code>PluginDirectory</code> (for your own data files) and <code>HostApiVersion</code>. Your classes are created by you (<code>new</code>), not by a container: pass what they need yourself.</p>
+<h3 id="formats-contextaddformatsave-load-capability-formats"><a class="anchor" href="#formats-contextaddformatsave-load-capability-formats" aria-label="Link to this section">#</a>Formats: <code>context.AddFormat(save, load)</code> (capability <code>formats</code>)</h3>
+<p>Implement <code>ISaveStrategy</code> and <code>ILoadStrategy</code>; one class can do both. They must report the same <code>FormatId</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>Purpose</th></tr></thead><tbody><tr><td><code>FormatId</code></td><td>Stable identifier, lowercase letters/digits/<code>.</code>/<code>_</code>/<code>-</code>. Saved in each project's <code>toucan.tproj</code> as <code>saveFormat</code>, so <strong>never change it</strong> once released. Must not collide with a built-in or another plugin.</td></tr><tr><td><code>DisplayName</code></td><td>Name in the export picker and <code>toucan list-formats</code>.</td></tr><tr><td><code>FileExtensions</code></td><td>Extensions (with dot) that map to this format when importing by file name.</td></tr><tr><td><code>DefaultFilePath(language)</code></td><td>Where a new project puts a language's file, relative to the project folder, with <code>/</code> separators. <strong>Required.</strong></td></tr><tr><td><code>LanguageFiles(root, language)</code></td><td>Every file that holds a language's data (default: just the default path). Override if a language spans several files; used when removing a language.</td></tr><tr><td><code>StoresCommentsInline</code></td><td><code>true</code> if your files can hold comments. Otherwise Toucan keeps comments in a <code>.comments.json</code> sidecar next to <code>CommentSidecarBase(language)</code>.</td></tr><tr><td><code>Detection</code></td><td>Optional <code>FormatDetection(priority, extensions, fileNames)</code> so folders of your files are recognised when there is no project file. Lower priority number wins; built-ins use 0–10.</td></tr><tr><td><code>Save(path, context)</code> / <code>SaveAsync</code></td><td>Write <code>context.LanguageDictionary</code> (language → items) into folder <code>path</code>.</td></tr><tr><td><code>Load(folder)</code></td><td>Return every <code>TranslationItem</code> (<code>Language</code>, <code>Namespace</code> = key, <code>Value</code>).</td></tr></tbody></table></div>
+<p>Projects in your format work like any other: create, open, save, export, validate, translate. If the plugin is later missing, those projects refuse to open with "format unavailable" instead of being misread as JSON, so users never lose files because a plugin was disabled.</p>
+<h3 id="validation-rules-contextaddvalidationrulerule-capability-validation"><a class="anchor" href="#validation-rules-contextaddvalidationrulerule-capability-validation" aria-label="Link to this section">#</a>Validation rules: <code>context.AddValidationRule(rule)</code> (capability <code>validation</code>)</h3>
+<p>Implement <code>IValidationRule</code>: <code>Id</code>, <code>Name</code>, <code>DefaultSeverity</code> and <code>Validate(ValidationContext)</code>, which yields <code>ValidationResult</code>s. <code>ValidationContext</code> has <code>Items</code> (all translations) and <code>PrimaryLanguage</code>. Prefix rule IDs with your plugin ID (<code>acme.no-todo</code>); IDs are global and cannot collide with built-ins. Rules run together with the built-in ones (validate-on-save and <code>toucan check</code>) and are listed in Settings → Validation, where users can switch each one off or change its severity. The name you return from <code>Name</code> is the label shown there.</p>
+<h3 id="providers-contextaddproviderprovider-capability-providers"><a class="anchor" href="#providers-contextaddproviderprovider-capability-providers" aria-label="Link to this section">#</a>Providers: <code>context.AddProvider(provider)</code> (capability <code>providers</code>)</h3>
+<p>Implement <code>ITranslationProvider</code>: <code>Name</code> (unique, case-insensitive) and <code>PretranslateAsync(jobs, options, progress, cancellationToken)</code>, returning one <code>PretranslationItemResult</code> per job (<code>Succeeded</code>, <code>TranslatedValue</code> or <code>ErrorMessage</code>). Options and secrets arrive in <code>options.ProviderOptions</code>. Set <code>Definition</code> (a <code>ProviderDefinition</code> with <code>Name</code>, <code>DisplayName</code>, <code>Description</code>, <code>OptionFields</code>, <code>SecretFields</code>, <code>DefaultValues</code>) to appear in <em>Translation Providers…</em>; without it the provider works but is not listed. A definition must have the same <code>Name</code> as the provider and must not set <code>IsBuiltIn</code>.</p>
+<h3 id="framework-profiles-contextaddframeworkprofileprofile-capability-frameworks"><a class="anchor" href="#framework-profiles-contextaddframeworkprofileprofile-capability-frameworks" aria-label="Link to this section">#</a>Framework profiles: <code>context.AddFrameworkProfile(profile)</code> (capability <code>frameworks</code>)</h3>
+<p>Implement <code>IFrameworkProfile</code> (<code>Id</code>, <code>DisplayName</code>, <code>DefaultFormatId</code>, file patterns, <code>DiscoverFiles</code>, <code>ExtractLanguage</code>, <code>GetFilePath</code>, <code>DetectionScore</code>). Profiles appear in the import and new-project dialogs. <code>DefaultFormatId</code> should be a format you or Toucan provide.</p>
+<h2 id="how-plugins-are-loaded"><a class="anchor" href="#how-plugins-are-loaded" aria-label="Link to this section">#</a>How plugins are loaded</h2>
+<ul>
+<li>At startup Toucan looks at each subfolder of the plugins folder that contains a <code>plugin.json</code>, in name order.</li>
+<li>Each plugin gets its <strong>own assembly load context</strong>, so its private dependencies (a parser library, say) never clash with Toucan's or another plugin's. <code>Toucan.Plugins.Abstractions</code>, <code>Toucan.Core</code> and the <code>Microsoft.Extensions</code> abstractions always come from Toucan; copies in your folder are ignored.</li>
+<li>The manifest is checked, then the API version, then enabled/trust state. Only then is your assembly loaded.</li>
+<li><code>Initialize</code> runs once. Registrations are collected and applied <strong>only if it returns normally and every registration is valid</strong>; a plugin that throws, or registers a duplicate ID, an undeclared capability or a malformed format contributes nothing, and does not stop other plugins or the app.</li>
+<li>Static constructors and <code>Initialize</code> run in-process with the user's permissions: keep startup fast and do not block. There is no timeout.</li>
+<li>Changes (adding, updating, enabling, trusting) take effect after a restart. Plugins are never unloaded.</li>
+</ul>
+<h2 id="trust-and-signing"><a class="anchor" href="#trust-and-signing" aria-label="Link to this section">#</a>Trust and signing</h2>
+<p>A plugin is ordinary code, so Toucan loads it only if <strong>you enabled it and trusted its exact files</strong>:</p>
+<ul>
+<li>Trust is tied to a SHA-256 hash over every file in the plugin folder. Updating or editing any file means the user is asked again ("changed since you trusted it").</li>
+<li>Decisions live in <code>Documents/Toucan/plugin-policy.json</code>, shared by the app and the CLI.</li>
+<li>The CLI never prompts (it must work in CI): it loads enabled, trusted plugins, <code>toucan plugins trust &lt;id&gt;</code> records consent, and <code>--allow-plugin &lt;id&gt;</code> waives trust for a single run without saving anything.</li>
+<li><strong>Signing is not enforced yet.</strong> Plugins show as "Not signed". It becomes mandatory when Toucan gains accounts and shared projects; design your release process so you can sign later (stable <code>id</code>, versioned releases).</li>
+</ul>
+<h2 id="versioning"><a class="anchor" href="#versioning" aria-label="Link to this section">#</a>Versioning</h2>
+<p><code>PluginApi.Current</code> is the plugin API version Toucan implements (currently <strong>1.0</strong>). The NuGet package version of <code>Toucan.Plugins.Abstractions</code> tracks it. A plugin loads when its <code>apiVersion</code> has the <strong>same major</strong> version and a <strong>minor no newer</strong> than the host's. So a plugin built for <code>1.0</code> runs on every <code>1.x</code>; one built for <code>1.2</code> is rejected by a Toucan that implements <code>1.1</code> ("built for plugin API 1.2, but this Toucan implements 1.1"). Minor releases only add members, with defaults wherever an existing implementation would otherwise break; a major release may break.</p>
+<h2 id="testing-your-plugin"><a class="anchor" href="#testing-your-plugin" aria-label="Link to this section">#</a>Testing your plugin</h2>
+<ul>
+<li>Point the CLI at a scratch folder and policy file so you never touch your real settings:
+<pre><code class="language-bash">export TOUCAN_PLUGINS_DIR=./plugins TOUCAN_PLUGIN_POLICY=./policy.json
+toucan plugins list
+toucan check ./my-project --allow-plugin acme.my-format
+toucan export ./my-project -f my-format -o ./out --allow-plugin acme.my-format</code></pre></li>
+</ul>
+<ul>
+<li><code>toucan plugins list</code> shows status, signature, hash, what the plugin registered and any error.</li>
+<li>Unit-test your strategies directly: they are plain classes (<code>Save</code> into a temp folder, <code>Load</code> it back, compare).</li>
+<li>The repository's own tests are a good template: <code>tests/Toucan.Core.Tests/Plugins/SamplePluginTests.cs</code> installs a built plugin into a temp folder and drives it through the real host.</li>
+</ul>
+<h2 id="troubleshooting"><a class="anchor" href="#troubleshooting" aria-label="Link to this section">#</a>Troubleshooting</h2>
+<div class="table-wrap"><table><thead><tr><th>Status / message</th><th>Meaning and fix</th></tr></thead><tbody><tr><td><em>NeedsTrust</em>: "you have not trusted it yet"</td><td>Expected for a new plugin. Trust it in Settings → Plugins or with <code>toucan plugins trust &lt;id&gt;</code>.</td></tr><tr><td><em>NeedsTrust</em>: "its files have changed since you trusted it"</td><td>You rebuilt or edited it. Trust again.</td></tr><tr><td><em>Disabled</em></td><td>Switched off in Settings → Plugins (or <code>toucan plugins disable</code>).</td></tr><tr><td><em>Rejected</em>: manifest errors</td><td>Fix the listed <code>plugin.json</code> problems.</td></tr><tr><td><em>Rejected</em>: "Built for plugin API …"</td><td>Rebuild against an API version this Toucan implements.</td></tr><tr><td><em>Rejected</em>: "Plugin ID … is already used"</td><td>Two folders declare the same <code>id</code>.</td></tr><tr><td><em>Failed</em>: "Entry assembly … was not found"</td><td><code>entryAssembly</code> does not match the file in the folder.</td></tr><tr><td><em>Failed</em>: "has N IToucanPlugin implementations"</td><td>Set <code>entryType</code>.</td></tr><tr><td><em>Failed</em>: "does not declare the 'x' capability"</td><td>Add it to <code>capabilities</code>.</td></tr><tr><td><em>Failed</em>: "… is already provided by Toucan or another plugin"</td><td>Pick a unique format/provider/rule/profile ID.</td></tr><tr><td><em>Failed</em>: exception text</td><td>Your constructor or <code>Initialize</code> threw; the message is the exception.</td></tr><tr><td>Project says "format … is not available"</td><td>The project uses a plugin format that is not installed, enabled and trusted.</td></tr><tr><td>Type or cast errors mentioning <code>ISaveStrategy</code></td><td>A private copy of <code>Toucan.Plugins.Abstractions</code> is in your folder; remove it (<code>ExcludeAssets="runtime"</code>).</td></tr></tbody></table></div>
+<h2 id="limits"><a class="anchor" href="#limits" aria-label="Link to this section">#</a>Limits</h2>
+<ul>
+<li>Restart required for any change; no unloading.</li>
+<li>No dependency injection into plugin classes and no access to Toucan's internal services (use <code>System.IO</code>, your own HTTP client, and so on). Logging goes through <code>context.Logger</code>.</li>
+<li>No UI contributions yet (panels, dialogs, menu items). They will arrive as a separate package so headless hosts such as the CLI never load UI types.</li>
+<li>Per-project rule plugins (<code>.toucan/rules</code>) and a plugin feed are not implemented.</li>
+<li>The WPF app has no plugin support; plugins work in the Avalonia app and the CLI.</li>
+</ul>
+<h2 id="for-maintainers"><a class="anchor" href="#for-maintainers" aria-label="Link to this section">#</a>For maintainers</h2>
+<ul>
+<li>Build and test everything that is cross-platform with <code>dotnet test Toucan.CrossPlatform.slnx</code> (it leaves out the two Windows-only WPF projects, so it runs on macOS and Linux CI as well as Windows).</li>
+<li>The contract package: <code>dotnet pack Toucan.Plugins.Abstractions -c Release -o &lt;dir&gt;</code>. Bump <code>&lt;Version&gt;</code> only with <code>PluginApi.Current</code>, and never remove or change a public member within a major version.</li>
+<li><code>Toucan.Plugins.Abstractions</code> must not reference <code>Toucan.Core</code> or UI packages; a test fails the build if it does.</li>
+<li>Formats, providers, rules and profiles that ship with Toucan are <strong>built-in modules</strong> (<code>Toucan.Modules.*</code>), not plugins: compiled in, always on, listed read-only by <code>toucan plugins list</code>, and their <code>toucan.*</code> IDs are reserved. They register through the same kinds of calls a plugin makes, so a plugin author can read them as examples. See <a href="architecture.html">ARCHITECTURE.md</a> and <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/plugin-modularization/design.md">specs/plugin-modularization</a>.</li>
+</ul>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="" width="24" height="24">Toucan</a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/rasyidf/Toucan">Source</a>
+      <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
+      <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <span class="copy">© 2023–2026 <a href="https://rasyid.dev">rasyid.dev</a> · MIT License</span>
+  </div>
+</footer>
+</body>
+</html>

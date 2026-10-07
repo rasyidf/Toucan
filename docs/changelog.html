@@ -7,14 +7,16 @@
 <meta name="description" content="Release notes for Toucan, the open-source desktop translation editor. Browse features, improvements, and fixes from every documented release.">
 <link rel="canonical" href="https://toucan.rasyid.dev/changelog.html">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
-<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Changelog">
 <meta property="og:description" content="Features, improvements, and fixes from every documented Toucan release.">
 <meta property="og:url" content="https://toucan.rasyid.dev/changelog.html">
-<meta property="og:image" content="https://toucan.rasyid.dev/assets/logo.png">
+<meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script>
 (function () {
   try {
@@ -26,8 +28,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/base.css">
 <link rel="stylesheet" href="assets/changelog.css">
+<script src="assets/site.js" defer></script>
 <script src="assets/changelog.js" defer></script>
 </head>
 <body>
@@ -41,7 +44,9 @@
     </a>
     <nav class="nav-links" aria-label="Main navigation">
       <a href="index.html">Overview</a>
-      <a href="index.html#roadmap">Roadmap</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="roadmap.html">Roadmap</a>
       <a href="changelog.html" aria-current="page">Changelog</a>
     </nav>
     <div class="nav-actions">
@@ -69,6 +74,7 @@
       <div class="sidebar-title">Jump to a release</div>
       <nav id="release-index" aria-label="Versions">
 <!-- RELEASE INDEX START -->
+<a href="#unreleased">Unreleased</a>
 <a href="#v0.20.2">v0.20.2</a>
 <a href="#v0.20.1">v0.20.1</a>
 <a href="#v0.20.0">v0.20.0</a>
@@ -97,6 +103,22 @@
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div id="releases">
 <!-- RELEASES START -->
+<article class="release" id="unreleased" aria-labelledby="heading-unreleased">
+<div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
+<div class="release-lead"><p>Changes waiting for the next release.</p></div>
+<div class="release-counts"><span class="added">2 added</span><span class="changed">2 changed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Website documentation</strong> — The plugin guide, AI Integration, provider settings, architecture, roadmap, known issues and the other guides are now pages on the website, behind a new Docs index, instead of links to GitHub. <code>python3 tools/build-docs.py</code> builds them from <code>docs/*.md</code>.</li>
+<li><strong>Web manifest</strong> — The website has a <code>site.webmanifest</code> and the full icon set, including maskable icons.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>App and website icon</strong> — A new toucan icon on a rounded black square replaces the old logo in the app (window, title bar, macOS and MSIX packages) and on the website.</li>
+<li><strong>Website styles</strong> — <code>site.css</code> is split into <code>base.css</code> (shared by every page), <code>home.css</code>, <code>changelog.css</code> and <code>doc.css</code>, and the theme toggle moves to a shared <code>site.js</code>.</li>
+</ul></div></details>
+<div class="release-links"><a href="#unreleased" aria-label="Permalink to Unreleased">Permalink</a></div>
+</article>
 <article class="release" id="v0.20.2" aria-labelledby="heading-v0.20.2">
 <div class="release-heading"><h2 id="heading-v0.20.2"><a href="#v0.20.2">v0.20.2</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-10-07">Oct 07, 2026</time></div>
 <div class="release-lead"><p>Format fixes: XLIFF no longer loses source text, notes and state on save, and the RESX and ARB language and metadata bugs are gone.</p></div>
@@ -132,8 +154,8 @@
 <div class="release-counts"><span class="added">13 added</span><span class="changed">6 changed</span><span class="removed">1 removed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.20.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>AI Integration</strong> — AI is now its own integration under Settings → AI, separate from machine translation. One switch turns every AI feature on or off for the whole app. It is <strong>off</strong> by default, and a first-run onboarding step asks whether to use it. Pick the service (Claude, OpenAI or a compatible server such as Ollama, or Gemini), the model, endpoint and key, and test the connection before saving. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/ai-integration.md">docs/ai-integration.md</a>.</li>
-<li><strong>Open, editable prompts</strong> — Every AI feature&#x27;s system prompt is a plain file. The defaults ship in <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Ai/Prompts"><code>Toucan.Core/Ai/Prompts</code></a>. Edit them under Settings → AI → Edit prompt… for all projects (<code>Documents/Toucan/prompts</code>) or for one project (<code>.toucan/prompts</code>, safe to commit). Prompts take <code>{{variables}}</code> and <code>{{#sections}}</code>, and a variables panel lists what each prompt can use.</li>
+<li><strong>AI Integration</strong> — AI is now its own integration under Settings → AI, separate from machine translation. One switch turns every AI feature on or off for the whole app. It is <strong>off</strong> by default, and a first-run onboarding step asks whether to use it. Pick the service (Claude, OpenAI or a compatible server such as Ollama, or Gemini), the model, endpoint and key, and test the connection before saving. See <a href="ai-integration.html">docs/ai-integration.md</a>.</li>
+<li><strong>Open, editable prompts</strong> — Every AI feature&#x27;s system prompt is a plain file. The defaults ship in <a href="https://github.com/rasyidf/Toucan/tree/main/Toucan.Core/Ai/Prompts"><code>Toucan.Core/Ai/Prompts</code></a>. Edit them under Settings → AI → Edit prompt… for all projects (<code>Documents/Toucan/prompts</code>) or for one project (<code>.toucan/prompts</code>, safe to commit). Prompts take <code>{{variables}}</code> and <code>{{#sections}}</code>, and a variables panel lists what each prompt can use.</li>
 <li><strong>Clarity AI</strong> — Translate → AI → Check Source Clarity… reviews source strings for ambiguous words, strings too short to translate without context, concatenation, idioms and unclear placeholders. It suggests a clearer source string and a note for translators. Findings go to the Issues panel.</li>
 <li><strong>Secret store</strong> — Every API key and token, for providers and AI services, is kept in one encrypted store in your user profile (<code>secrets.json</code> next to <code>secret.key</code>), never in <code>providers.json</code> or a project folder. Settings → Data &amp; privacy lists stored secret names and removes them.</li>
 <li><strong>Pin recent projects</strong> — Pin a project from the Start screen or from Settings → General → Recent projects. Pinned projects stay at the top of the list (Start screen and Open Recent), and they do not count toward the list limit. The old WPF pin button never saved anything; this one does.</li>
@@ -167,13 +189,13 @@
 <div class="release-counts"><span class="added">5 added</span><span class="changed">2 changed</span><span class="fixed">7 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.19.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Claude and Gemini translation providers</strong> — Pre-translate with Anthropic Claude (Messages API) or Google Gemini (a free AI Studio key works). Both appear in the Machine Translation panel, the Pre-translate dialog and Provider Settings, send up to 20 texts per request, add the app context and formality to the prompt, and report the provider&#x27;s error message. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/provider-settings.md">docs/provider-settings.md</a>.</li>
+<li><strong>Claude and Gemini translation providers</strong> — Pre-translate with Anthropic Claude (Messages API) or Google Gemini (a free AI Studio key works). Both appear in the Machine Translation panel, the Pre-translate dialog and Provider Settings, send up to 20 texts per request, add the app context and formality to the prompt, and report the provider&#x27;s error message. See <a href="provider-settings.html">docs/provider-settings.md</a>.</li>
 </ul>
 <ul>
 <li><strong>Command palette (Avalonia app)</strong> — Cmd/Ctrl+Shift+P (or the pill in the title bar) opens a searchable list of every menu command with its shortcut. Type words in any order, Up/Down and Enter to run, Esc to close; commands that cannot run right now sink to the bottom. It reads the menu definitions, so new menu items appear in it automatically.</li>
 <li><strong>Title bar</strong> — Logo and name, a save-state chip (<code>Unsaved</code> / <code>Saved</code>, click to save) and the palette pill centered in the bar. On macOS the Zen-mode header now clears the window controls.</li>
 <li><strong>Settings search</strong> — A search box above the Settings sidebar filters individual settings across all pages.</li>
-<li><strong>Screenshot harness</strong> — <code>TOUCAN_TEST_SCREENSHOTS</code> renders every window, panel and dialog headlessly; see <a href="https://github.com/rasyidf/Toucan/blob/main/docs/visual-review.md">docs/visual-review.md</a>.</li>
+<li><strong>Screenshot harness</strong> — <code>TOUCAN_TEST_SCREENSHOTS</code> renders every window, panel and dialog headlessly; see <a href="visual-review.html">docs/visual-review.md</a>.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
@@ -224,11 +246,11 @@
 <div class="release-counts"><span class="added">12 added</span><span class="changed">9 changed</span><span class="breaking">6 breaking changes (for code built on `toucan.core`; the wpf projects still need updating)</span><span class="fixed">3 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.18.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Plugin system (preview, Avalonia app and CLI)</strong> — Plugins are .NET assemblies in <code>Documents/Toucan/plugins/&lt;id&gt;/</code> with a <code>plugin.json</code> manifest. They can add file formats, translation providers, validation rules and framework profiles. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/plugins.md">docs/plugins.md</a> and <code>samples/Toucan.Sample.Plugin</code>.</li>
+<li><strong>Plugin system (preview, Avalonia app and CLI)</strong> — Plugins are .NET assemblies in <code>Documents/Toucan/plugins/&lt;id&gt;/</code> with a <code>plugin.json</code> manifest. They can add file formats, translation providers, validation rules and framework profiles. See <a href="plugins.html">docs/plugins.md</a> and <code>samples/Toucan.Sample.Plugin</code>.</li>
 <li><strong><code>Toucan.Plugins.Abstractions</code></strong> — Small contract assembly and NuGet package (plugin API 1.0) that plugin authors reference; Toucan supplies it at run time so types match.</li>
 <li><strong>Trust model</strong> — Plugins load only when enabled and when you have trusted their exact files (SHA-256 of the plugin folder); changed plugins ask again. Settings → Plugins page, a startup prompt for untrusted plugins, and a signature seam (plugins show &quot;Not signed&quot;; signing becomes mandatory later).</li>
 <li><strong>CLI</strong> — <code>toucan plugins list|trust|revoke|enable|disable</code>, <code>--allow-plugin &lt;id&gt;</code> for a single run, <code>TOUCAN_PLUGINS_DIR</code> and <code>TOUCAN_PLUGIN_POLICY</code>.</li>
-<li><strong>Plugin guide and sample</strong> — <a href="https://github.com/rasyidf/Toucan/blob/main/docs/plugins.md">docs/plugins.md</a> and <code>samples/Toucan.Sample.Plugin</code> (tab-separated-values format plus a TODO/FIXME rule). The sample is built and exercised by the test suite, and verified to build against the packed NuGet package alone.</li>
+<li><strong>Plugin guide and sample</strong> — <a href="plugins.html">docs/plugins.md</a> and <code>samples/Toucan.Sample.Plugin</code> (tab-separated-values format plus a TODO/FIXME rule). The sample is built and exercised by the test suite, and verified to build against the packed NuGet package alone.</li>
 <li><strong>Plugins page and menu entry</strong> — Settings → Plugins lists every installed plugin with status, what it provides, signature, hash and folder, with enable, Trust… and Revoke actions; Settings menu → Plugins… opens it.</li>
 <li><strong>Manifest <code>entryType</code></strong> — Optional, for assemblies that contain more than one plugin class.</li>
 <li><strong>Cross-platform solution</strong> — <code>Toucan.CrossPlatform.slnx</code> builds and tests everything except the Windows-only WPF projects.</li>
@@ -574,8 +596,9 @@
       <a href="https://github.com/rasyidf/Toucan">Source</a>
       <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
       <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
       <a href="changelog.html">Changelog</a>
-      <a href="https://github.com/rasyidf/Toucan/blob/main/docs/ARCHITECTURE.md">Architecture</a>
     </nav>
     <span class="copy">© 2023–2026 <a href="https://rasyid.dev">rasyid.dev</a> · MIT License</span>
   </div>

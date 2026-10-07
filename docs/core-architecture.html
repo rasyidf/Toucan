@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toucan · Toucan.Core interop architecture</title>
+<meta name="description" content="Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.">
+<link rel="canonical" href="https://toucan.rasyid.dev/core-architecture.html">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Toucan · Toucan.Core interop architecture">
+<meta property="og:description" content="Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.">
+<meta property="og:url" content="https://toucan.rasyid.dev/core-architecture.html">
+<meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('toucan-theme');
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  } catch (e) {}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/doc.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body>
+<a class="sr-only skip" href="#main">Skip to content</a>
+<header class="site-header" id="site-header">
+  <div class="spectrum" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="Toucan home">
+      <img src="assets/logo.png" alt="" width="30" height="30">
+      Toucan
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">Overview</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle color theme"><svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <a class="icon-btn" href="https://github.com/rasyidf/Toucan" aria-label="Toucan on GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2.02c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg></a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/rasyidf/Toucan/releases">Download</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap doc-main">
+  <div class="doc-layout">
+    <aside class="doc-side" aria-label="Documentation">
+      <div class="side-title"><a href="docs.html">All docs</a></div>
+      <nav class="guides" aria-label="Guides">
+<a href="ai-integration.html">AI Integration</a>
+<a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
+<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="plugins.html">Writing Toucan plugins</a>
+<a href="architecture.html">Toucan architecture</a>
+<a href="core-architecture.html" aria-current="page">Toucan.Core interop architecture</a>
+<a href="roadmap.html">Toucan roadmap: v0.21 to v1.0</a>
+<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
+<a href="completed-features.html">Shipped Features</a>
+<a href="branding.html">Toucan: Brand Guidelines</a>
+<a href="visual-review.html">Visual review: screenshots of every screen</a>
+      </nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#model-and-boundaries">Model and boundaries</a><a class="l2" href="#format-contract">Format contract</a><a class="l2" href="#project-loading">Project loading</a><a class="l2" href="#save-and-metadata-integration">Save and metadata integration</a><a class="l2" href="#adding-a-format">Adding a format</a></nav>
+    </aside>
+    <article class="doc">
+      <header class="doc-head">
+        <div class="kicker">Documentation</div>
+        <h1>Toucan.Core interop architecture</h1>
+        <p class="lead">Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-07</span><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/ARCHITECTURE.md">Edit on GitHub ↗</a></div>
+      </header>
+      <div class="prose">
+<p>Toucan normalizes translation resources into a shared model and resolves format implementations through DI. Core coordinates project IO and shared services; concrete parsers and writers live in built-in modules or external plugins. See the <a href="architecture.html">application architecture</a> for host composition, desktop state, lifecycle, AI, and trust integration.</p>
+<h2 id="model-and-boundaries"><a class="anchor" href="#model-and-boundaries" aria-label="Link to this section">#</a>Model and boundaries</h2>
+<p><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Plugins.Abstractions/Models/TranslationItem.cs">TranslationItem</a> represents a language, namespace/key, value, and translation metadata. The editor store identifies records by <code>(Language, Namespace)</code>. Hierarchical resources flatten into namespace paths; settings and individual format implementations govern escaping, structure, plural representation, and round-trip behavior. Normalization does not guarantee lossless conversion between every pair of formats.</p>
+<p>Public plugin contracts and DTOs reside in <code>Toucan.Plugins.Abstractions</code>, even when their namespaces begin with <code>Toucan.Core</code>. Shared parsing/file helpers and the built-in module registration seam reside in <code>Toucan.Core.Common</code>. Core references these projects but no built-in module. Modules reference Common and Abstractions without referencing Core or sibling modules. <a href="https://github.com/rasyidf/Toucan/blob/main/tests/Toucan.Core.Tests/Modules/ArchitectureTests.cs">ArchitectureTests</a> enforces these rules.</p>
+<pre class="mermaid">flowchart LR
+    Host["Desktop or CLI"] --&gt; Core["Core project services and registries"]
+    Host --&gt; Defaults["Defaults composition"]
+    Defaults --&gt; Modules["Built-in format modules"]
+    Modules --&gt; Common["Core.Common"]
+    Core --&gt; Common
+    Core --&gt; Contracts["Plugins.Abstractions"]
+    Common --&gt; Contracts
+    Plugin["External format plugin"] --&gt; Contracts</pre>
+<h2 id="format-contract"><a class="anchor" href="#format-contract" aria-label="Link to this section">#</a>Format contract</h2>
+<p><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Plugins.Abstractions/Contracts/ILoadStrategy.cs">ILoadStrategy</a> exposes <code>FormatId</code> and <code>Load(folder)</code>. <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Plugins.Abstractions/Contracts/ISaveStrategy.cs">ISaveStrategy</a> writes a <code>SaveContext</code> and owns file-layout metadata: <code>DefaultFilePath</code>, <code>LanguageFiles</code>, <code>FileExtensions</code>, <code>CommentSidecarBase</code>, <code>StoresCommentsInline</code>, and optional <code>Detection</code>.</p>
+<p><code>TranslationStrategyFactory</code> resolves these registrations by string ID. <code>FormatDetector</code> evaluates save-strategy detection rules. A plugin format participates through the same contracts; the orchestration layer does not need a new format-specific branch for ordinary loading and serialization.</p>
+<div class="table-wrap"><table><thead><tr><th>Family module</th><th>Registered resource formats</th></tr></thead><tbody><tr><td><code>Toucan.Modules.Formats.Json</code></td><td>JSON, namespaced JSON, ARB; also the manifest loader</td></tr><tr><td><code>Toucan.Modules.Formats.Xml</code></td><td>Android XML, XLIFF, RESX</td></tr><tr><td><code>Toucan.Modules.Formats.Text</code></td><td>PO, INI, Java properties, iOS strings, Laravel PHP, CSV</td></tr><tr><td><code>Toucan.Modules.Formats.Data</code></td><td>YAML, TOML</td></tr></tbody></table></div>
+<p>INI is save-only. Format availability, layout conventions, and fidelity must be checked against its registered strategies rather than inferred from a general supported-formats list.</p>
+<h2 id="project-loading"><a class="anchor" href="#project-loading" aria-label="Link to this section">#</a>Project loading</h2>
+<p>The persisted manifest is <strong><code>toucan.tproj</code></strong>, loaded by <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Models/ProjectSettings.cs">ProjectSettings</a>. It stores a string <code>saveFormat</code>, languages, package URLs, and project preferences. Legacy <code>saveStyle</code> values migrate on load.</p>
+<pre class="mermaid">flowchart TD
+    Folder["Project folder"] --&gt; Settings{"toucan.tproj exists?"}
+    Settings --&gt;|Yes| Manifest["Load ProjectSettings and configured format"]
+    Settings --&gt;|No| Detect["Create defaults and detect format"]
+    Manifest --&gt; Resolve["Resolve load strategy by format ID"]
+    Detect --&gt; Resolve
+    Resolve --&gt; Missing{"Unknown format without loader?"}
+    Missing --&gt;|Yes| Fail["FormatUnavailableException"]
+    Missing --&gt;|No| Mode{"Manifest mode?"}
+    Mode --&gt;|Yes| Packages["Try ManifestLoadStrategy package paths"]
+    Packages --&gt;|No items| Load["Use selected loader"]
+    Mode --&gt;|No| Load
+    Packages --&gt;|Items| Alias["Apply language aliases"]
+    Load --&gt; Alias
+    Alias --&gt; Result["ProjectLoadResult: settings and translations"]</pre>
+<p><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/ProjectService.cs">ProjectService</a> performs this integration. <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/ProjectModeResolver.cs">ProjectModeResolver</a> checks for the manifest; framework detection is a separate registered capability, not a call made by this resolver. Built-in formats without a loader retain the legacy JSON fallback. Unknown external format IDs fail explicitly to prevent misreading and subsequent overwriting.</p>
+<p>The desktop lifecycle wraps loading with cancellation/progress, unsaved-change handling, baseline initialization, file watching, metadata/comments, and auto-save. Direct <code>ProjectService</code> callers do not automatically receive those steps.</p>
+<h2 id="save-and-metadata-integration"><a class="anchor" href="#save-and-metadata-integration" aria-label="Link to this section">#</a>Save and metadata integration</h2>
+<p><code>ProjectService.Save</code> builds a <code>SaveContext</code> containing language groups, language IDs, and namespace tree items, then calls the selected writer. Language aliases are reversed for output and restored for in-memory display. The project-aware overload updates manifest languages and applies configured encoding/line endings to known built-in language files; Java properties keeps Latin-1 encoding.</p>
+<p>The desktop <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/ProjectLifecycleService.cs">ProjectLifecycleService</a> validates before saving. Error-severity results block writes. It then persists resources, comments, audit metadata, and package settings before marking baselines saved and updating watcher/merge snapshots. This is a multi-file sequence, not an atomic project transaction.</p>
+<p><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/CommentPersistenceService.cs">CommentPersistenceService</a> delegates inline-comment support and sidecar placement to strategy metadata. <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/AuditService.cs">AuditService</a> persists <code>.toucan-metadata.json</code>. Neither arbitrary format conversion nor a direct writer call guarantees preservation of every source format's metadata.</p>
+<h2 id="adding-a-format"><a class="anchor" href="#adding-a-format" aria-label="Link to this section">#</a>Adding a format</h2>
+<ol>
+<li>Implement the load and/or save contracts in the appropriate family module. Use a stable format ID; a read/write pair shares it.</li>
+<li>Declare file layout, extensions, detection, and comment capabilities on the writer. Check multiple-language and nested-path behavior.</li>
+<li>Register using <code>AddFormatStrategy</code> in that module. Keep Core independent of concrete implementations.</li>
+<li>Update module snapshots and add meaningful load/save round-trip tests, including escaping, plural data, metadata, and encoding where relevant.</li>
+<li>For external distribution, use the <a href="plugins.html">plugin guide</a> and <a href="https://github.com/rasyidf/Toucan/blob/main/samples/Toucan.Sample.Plugin">sample plugin</a>. Do not add a module reference to Core.</li>
+</ol>
+<p>Cross-tool manifest import, including new ecosystems, requires an explicit implementation and tests; similar resource syntax alone is not evidence of complete interoperability. Future editor syntax coloring is separate from format parsing and remains in the <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/design/editor-syntax-highlighting.md">highlighting plan</a>.</p>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="" width="24" height="24">Toucan</a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/rasyidf/Toucan">Source</a>
+      <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
+      <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <span class="copy">© 2023–2026 <a href="https://rasyid.dev">rasyid.dev</a> · MIT License</span>
+  </div>
+</footer>
+
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+var dark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+  (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+mermaid.initialize({ startOnLoad: true, theme: dark ? 'dark' : 'neutral', securityLevel: 'strict' });
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+/* Documentation pages (docs.html and the pages built by tools/build-docs.py). Needs base.css. */
+.doc-main { max-width: 1160px; }
+.doc-intro { padding: 76px 0 40px; max-width: 700px; }
+.doc-intro h1, .doc-head h1 { font-family: var(--font-display); letter-spacing: -.04em; line-height: 1.06; margin: 18px 0 20px; }
+.doc-intro h1 { font-size: clamp(44px, 6.5vw, 72px); }
+.doc-intro h1 span { color: var(--accent-ink); }
+.lead { color: var(--muted); font-size: 18px; margin: 0; max-width: 640px; }
+
+/* Index */
+.doc-group { padding: 28px 0 8px; }
+.doc-group h2 { font-family: var(--font-display); font-size: 26px; letter-spacing: -.02em; margin: 0 0 4px; }
+.doc-group > p { color: var(--muted); margin: 0 0 18px; }
+.doc-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.doc-card { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); color: var(--text); transition: border-color .15s ease-out, transform .15s ease-out; }
+.doc-card:hover { border-color: var(--link); text-decoration: none; transform: translateY(-2px); }
+.doc-card strong { font-family: var(--font-display); font-size: 17px; }
+.doc-card span { color: var(--muted); font-size: 14px; }
+.doc-main > .doc-group:last-child { padding-bottom: 80px; }
+
+/* Page layout */
+.doc-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 56px; padding: 56px 0 88px; align-items: start; }
+.doc-side { position: sticky; top: 84px; max-height: calc(100vh - 100px); overflow-y: auto; font-size: 14px; }
+.side-title { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 12px; }
+.side-title a { color: inherit; }
+.guides, .toc { display: grid; gap: 1px; border-left: 1px solid var(--border); margin-bottom: 28px; }
+.guides a, .toc a { color: var(--muted); padding: 5px 14px; margin-left: -1px; border-left: 2px solid transparent; }
+.guides a:hover, .toc a:hover, .guides a[aria-current="page"], .toc a[aria-current="location"] { color: var(--link); border-left-color: var(--link); text-decoration: none; background: var(--surface-2); }
+.doc { min-width: 0; max-width: 780px; }
+.doc-head { padding-bottom: 28px; margin-bottom: 8px; border-bottom: 1px solid var(--border); }
+.doc-head h1 { font-size: clamp(34px, 4.6vw, 52px); }
+.doc-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 18px; font-size: 13px; color: var(--muted); align-items: center; }
+.doc-status { font-family: var(--font-mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border: 1px solid var(--border); border-radius: 999px; }
+
+/* Prose */
+.prose { font-size: 16px; line-height: 1.7; }
+.prose > :first-child { margin-top: 28px; }
+.prose h2, .prose h3, .prose h4 { font-family: var(--font-display); letter-spacing: -.02em; line-height: 1.25; scroll-margin-top: 84px; position: relative; }
+.prose h2 { font-size: 28px; margin: 52px 0 14px; padding-top: 8px; }
+.prose h3 { font-size: 21px; margin: 36px 0 10px; }
+.prose h4 { font-size: 17px; margin: 28px 0 8px; }
+.prose .anchor { position: absolute; left: -1.1em; width: 1em; color: var(--faint); opacity: 0; font-weight: 400; }
+.prose h2:hover .anchor, .prose h3:hover .anchor, .prose h4:hover .anchor, .prose .anchor:focus { opacity: 1; text-decoration: none; }
+.prose p { margin: 0 0 16px; }
+.prose ul, .prose ol { margin: 0 0 18px; padding-left: 1.4em; }
+.prose li { margin: 5px 0; }
+.prose li > ul, .prose li > ol { margin: 6px 0; }
+.prose li > pre, .prose li > .table-wrap { margin-top: 10px; }
+.prose ul.tasks { list-style: none; padding-left: 0; }
+.prose li.task { display: flex; gap: 10px; }
+.prose li.task .box { color: var(--accent-ink); flex: none; }
+.prose hr { border: 0; border-top: 1px solid var(--border); margin: 40px 0; }
+.prose code { font-family: var(--font-mono); font-size: .88em; background: var(--surface-2); border: 1px solid var(--border); padding: 1px 6px; border-radius: 6px; overflow-wrap: anywhere; }
+.prose pre { background: var(--code-bg); color: var(--code-text); border-radius: var(--radius); padding: 16px 18px; overflow-x: auto; margin: 0 0 20px; line-height: 1.55; }
+.prose pre code { background: none; border: 0; padding: 0; font-size: 13.5px; color: inherit; overflow-wrap: normal; }
+.prose pre.mermaid { background: var(--surface); color: var(--text); border: 1px solid var(--border); text-align: center; }
+.prose blockquote { margin: 0 0 18px; padding: 12px 18px; border-left: 3px solid var(--yellow); background: var(--warn-bg); border-radius: 0 var(--radius) var(--radius) 0; color: var(--text); }
+.prose blockquote > :last-child { margin-bottom: 0; }
+.table-wrap { overflow-x: auto; margin: 0 0 22px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.prose table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.5; }
+.prose th, .prose td { padding: 9px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+.prose th { background: var(--surface-2); font-weight: 600; white-space: nowrap; }
+.prose tr:last-child td { border-bottom: 0; }
+.prose td code { white-space: nowrap; }
+
+@media (max-width: 960px) {
+  .doc-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-top: 32px; }
+  .doc-side { position: static; max-height: none; }
+  .prose .anchor { display: none; }
+}

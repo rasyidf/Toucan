@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toucan · Shipped Features</title>
+<meta name="description" content="Checklist of shipped features as of v0.20.2 (AI Integration added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md.">
+<link rel="canonical" href="https://toucan.rasyid.dev/completed-features.html">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Toucan · Shipped Features">
+<meta property="og:description" content="Checklist of shipped features as of v0.20.2 (AI Integration added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md.">
+<meta property="og:url" content="https://toucan.rasyid.dev/completed-features.html">
+<meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('toucan-theme');
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  } catch (e) {}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/doc.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body>
+<a class="sr-only skip" href="#main">Skip to content</a>
+<header class="site-header" id="site-header">
+  <div class="spectrum" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="Toucan home">
+      <img src="assets/logo.png" alt="" width="30" height="30">
+      Toucan
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">Overview</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle color theme"><svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <a class="icon-btn" href="https://github.com/rasyidf/Toucan" aria-label="Toucan on GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2.02c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg></a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/rasyidf/Toucan/releases">Download</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap doc-main">
+  <div class="doc-layout">
+    <aside class="doc-side" aria-label="Documentation">
+      <div class="side-title"><a href="docs.html">All docs</a></div>
+      <nav class="guides" aria-label="Guides">
+<a href="ai-integration.html">AI Integration</a>
+<a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
+<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="plugins.html">Writing Toucan plugins</a>
+<a href="architecture.html">Toucan architecture</a>
+<a href="core-architecture.html">Toucan.Core interop architecture</a>
+<a href="roadmap.html">Toucan roadmap: v0.21 to v1.0</a>
+<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
+<a href="completed-features.html" aria-current="page">Shipped Features</a>
+<a href="branding.html">Toucan: Brand Guidelines</a>
+<a href="visual-review.html">Visual review: screenshots of every screen</a>
+      </nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#core-editor">Core Editor</a><a class="l2" href="#editor-modes">Editor Modes</a><a class="l2" href="#file-io">File I/O</a><a class="l2" href="#machine-translation">Machine Translation</a><a class="l2" href="#ai-integration-since-v0200">AI Integration (since v0.20.0)</a><a class="l2" href="#ui--ux">UI / UX</a><a class="l2" href="#search-bulk-edits-validation">Search, Bulk Edits, Validation</a><a class="l2" href="#translation-memory">Translation Memory</a><a class="l2" href="#advanced-data-model">Advanced Data Model</a><a class="l2" href="#distribution--platform">Distribution &amp; Platform</a><a class="l2" href="#source-code-integration">Source Code Integration</a><a class="l2" href="#plugins-since-v0180-avalonia-app-and-cli">Plugins (since v0.18.0; Avalonia app and CLI)</a><a class="l2" href="#command-line">Command Line</a><a class="l2" href="#website">Website</a></nav>
+    </aside>
+    <article class="doc">
+      <header class="doc-head">
+        <div class="kicker">Documentation</div>
+        <h1>Shipped Features</h1>
+        <p class="lead">Checklist of shipped features as of v0.20.2 (AI Integration added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-07</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/completed-features.md">Edit on GitHub ↗</a></div>
+      </header>
+      <div class="prose">
+<blockquote><p>As of v0.20.2 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md">CHANGELOG.md</a>; open work is in <a href="roadmap.html">todos/future-roadmap.md</a> and open bugs in <a href="known-bugs.html">known-bugs.md</a>. This file lists shipped features only: when something ships, add it here and delete it from the roadmap. Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform. Lines marked (WPF) shipped only in the WPF app (last release v0.17.3) and are not in the Avalonia app. The Avalonia app does not have the Source Control and Dictionary panels yet; its Translation panel is the Machine Translation panel.</p></blockquote>
+<h2 id="core-editor"><a class="anchor" href="#core-editor" aria-label="Link to this section">#</a>Core Editor</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Load/save JSON (flat + namespaced)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Tree view + List view toggle</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Add / Remove / Rename / Duplicate translation IDs</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Add / Remove languages</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Undo / Redo (Ctrl+Z / Ctrl+Y)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Comment field per translation</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Approved flag (toggle per row)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Spell checking (WPF)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Word-wrapping for long IDs</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Plain text keys mode (no dot-splitting)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Auto-select newly added ID</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Pagination with compact controls</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Infinite scroll toggle (paginated vs continuous)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Cut / Copy / Paste translation values</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Copy as template (1–5 configurable patterns)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Convert case (lower / upper / sentence / title)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Remove whitespace (trim / line-by-line / simplify)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Tab between edit fields</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Filter expression history (last 15)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Statistics dialog (visual grid, per-language)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Custom language codes (alias mapping)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Better font for RTL languages</li>
+</ul>
+<h2 id="editor-modes"><a class="anchor" href="#editor-modes" aria-label="Link to this section">#</a>Editor Modes</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Focused Editor mode (single-key form, prev/next navigation)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Zen mode (hides toolbar/statusbar/sidepanel, F11)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>PanelService for centralized panel state</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Focused Editor: language subset selector</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Zen mode: keyboard-only navigation (j/k)</li>
+</ul>
+<h2 id="file-io"><a class="anchor" href="#file-io" aria-label="Link to this section">#</a>File I/O</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>JSON (flat), JSON (namespaced/i18next)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>YAML, TOML, INI</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>PO / Gettext</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>RESX (.NET), Android XML, iOS .strings</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>XLIFF, ARB (Flutter), CSV</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Import / Export menu (all formats)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Project manifest (<code>toucan.tproj</code>, JSON)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Excel (.xlsx) import/export</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Export/Import approved flags + comments in Excel</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Java .properties (ISO-8859-1)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Laravel PHP file support</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Auto-detect framework on folder drop</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>File watcher (reload changed files from disk)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Skip unchanged files on reload</li>
+</ul>
+<h2 id="machine-translation"><a class="anchor" href="#machine-translation" aria-label="Link to this section">#</a>Machine Translation</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Google Translate, DeepL, Microsoft and AI providers (AI goes through AI Integration)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Provider settings dialog</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Translation context passed to providers</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Formality setting (formal / informal)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Remember last translation service</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Preserve parameters (<code>{{var}}</code>, <code>{0}</code>, <code>%s</code>, <code>:param</code>)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Keep uppercase first letter</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Per-language / per-namespace / per-key pre-translate</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Preview before apply</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Suggestions panel (fuzzy-match existing translations)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Pre-translate plural forms (i18next/ICU)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Translation memory (reuse across projects)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Custom webhook provider (your own endpoint, optional auth header)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Provider keys kept in an encrypted secret store, never in <code>providers.json</code> or a project folder</li>
+</ul>
+<h2 id="ai-integration-since-v0200"><a class="anchor" href="#ai-integration-since-v0200" aria-label="Link to this section">#</a>AI Integration (since v0.20.0)</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>One app-wide AI switch, off by default; first-run onboarding asks whether to use it</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>AI services: Claude, OpenAI or a compatible server (Ollama, LM Studio), Gemini; per-service endpoint, model and key; test connection</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Translate with AI (the AI provider: Translation panel, Pre-translate, <code>toucan translate -p ai</code>)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Analyze with AI: wrong terms, tone and meaning in translations, findings in the Issues panel with an Apply fix</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Clarity: source strings a translator could misread, with a clearer wording and a note for translators</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Editable prompts for every AI feature, app-wide or per project (<code>.toucan/prompts</code>), with variables and a reset to default</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Per-feature switches and model overrides</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Settings → Data &amp; privacy lists and removes stored secrets</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Migration of the 0.19 Claude, OpenAI and Gemini provider settings and keys</li>
+</ul>
+<h2 id="ui--ux"><a class="anchor" href="#ui--ux" aria-label="Link to this section">#</a>UI / UX</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Fluent theme with system light/dark (Mica backdrop in WPF)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Design system tokens (shared ResourceDictionary)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Framework tile grid for new projects (16 frameworks)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Start screen with quick actions</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Recent projects flyout (last 10, clear)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Pin recent projects; choose how many to remember (1–50) and whether Clear keeps pinned ones</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Detect preferred source language from recent projects (opt-in)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Color schemes: accent presets, custom accent and per-color edits for light and dark, live preview</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Check for updates against GitHub Releases (Stable or Preview channel; never installs)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Auto-open last project on startup</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Reveal in Explorer</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Centralized KeybindingService (22+ shortcuts)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Keyboard Shortcuts page in Settings (reference only, not editable yet)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Settings dialog with 12 pages and two-tier settings (app defaults, per-project overrides)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Filter: untranslated / translated / approved</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Status bar (project, language, cursor, loading, notifications)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Title bar with logo, save-state chip and command palette pill</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Command palette (Cmd/Ctrl+Shift+P) over every menu command</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Settings search</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Keyboard shortcut sheet (Cmd/Ctrl+/)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Compact pagination controls</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Editor, Review, and Audit modes; Zen mode (J/K navigation)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Activity bar with side panels: Explorer, Source Code, Search, Issues, Source Control, Languages, Inspector, Translation, Memory (Dictionary panel is a placeholder)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Panel layout saved between sessions</li>
+</ul>
+<h2 id="search-bulk-edits-validation"><a class="anchor" href="#search-bulk-edits-validation" aria-label="Link to this section">#</a>Search, Bulk Edits, Validation</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Search and replace across keys, values, and languages (match case, whole word, regex, scope, preview, history, highlighted matches)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Bulk delete, move to namespace, pre-translate, approve, and copy source to target</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Six built-in validation rules: missing, placeholder mismatch, duplicate keys, untranslated (same as source), empty, whitespace mismatch</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Per-rule enable/disable and severity</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Auto-fix suggestions for common issues (trailing spaces, wrong quotes)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Custom rules per project: max length, forbidden words, regex, required</li>
+</ul>
+<h2 id="translation-memory"><a class="anchor" href="#translation-memory" aria-label="Link to this section">#</a>Translation Memory</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Trigram fuzzy matching with configurable threshold and scope (global or project)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>TMX import and export</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>View, delete, and clear stored entries</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Inline ghost-text suggestion from TM in empty fields (Tab to accept)</li>
+</ul>
+<h2 id="advanced-data-model"><a class="anchor" href="#advanced-data-model" aria-label="Link to this section">#</a>Advanced Data Model</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Plural forms support (i18next <code>_one/_other</code>, ICU)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Array support in JSON</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Package support (multiple translation sets)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Drag &amp; drop reorder in tree</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Multi-selection in tree (batch operations)</li>
+</ul>
+<h2 id="distribution--platform"><a class="anchor" href="#distribution--platform" aria-label="Link to this section">#</a>Distribution &amp; Platform</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Avalonia app for macOS (<code>Toucan.app</code>) and Linux (tarball), preview since v0.18.0</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Windows packaging scripts: portable EXE, Inno Setup installer, MSIX (<code>publish.ps1</code>)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>File association (<code>.tproj</code> → open app)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Git branch and changed-file count in the status bar</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Translation file locations configurable per language</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Encoding (UTF-8, UTF-8 BOM) and line endings (LF, CRLF) per project, from the status bar</li>
+</ul>
+<h2 id="source-code-integration"><a class="anchor" href="#source-code-integration" aria-label="Link to this section">#</a>Source Code Integration</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Source code view panel (show where key is used)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Extract translation IDs from source (<code>t('key')</code> patterns)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Filter: used / unused in source code</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Double-click opens source in external editor</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Wire source root configuration</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Support <code>.tsx</code>, <code>.vue</code>, <code>.svelte</code>, <code>.py</code> scanning</li>
+</ul>
+<h2 id="plugins-since-v0180-avalonia-app-and-cli"><a class="anchor" href="#plugins-since-v0180-avalonia-app-and-cli" aria-label="Link to this section">#</a>Plugins (since v0.18.0; Avalonia app and CLI)</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Plugins add file formats, translation providers, validation rules, and framework profiles from <code>.dll</code> assemblies</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Trust model: a plugin loads only when enabled and trusted (SHA-256 of its files)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span><code>Toucan.Plugins.Abstractions</code> contract package (plugin API 1.0) and a sample plugin</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Built-in formats, providers, rules and profiles load as compiled-in modules, listed in Settings → Plugins and <code>toucan plugins list</code></li>
+</ul>
+<h2 id="command-line"><a class="anchor" href="#command-line" aria-label="Link to this section">#</a>Command Line</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span><code>toucan check</code> (exits 1 on errors, for CI), <code>stats</code>, <code>translate</code> (with <code>--dry-run</code>), <code>export</code>, <code>list-formats</code>, <code>list-keys</code>, <code>get</code>, <code>set</code></li>
+</ul>
+<hr>
+<p>Effort estimates, unfinished work and the order of upcoming work live in <a href="roadmap.html">todos/future-roadmap.md</a>.</p>
+<h2 id="website"><a class="anchor" href="#website" aria-label="Link to this section">#</a>Website</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Searchable <a href="changelog.html">release history</a> generated from <code>CHANGELOG.md</code>, with expandable notes, version permalinks, and a shared light/dark theme.</li>
+</ul>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="" width="24" height="24">Toucan</a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/rasyidf/Toucan">Source</a>
+      <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
+      <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <span class="copy">© 2023–2026 <a href="https://rasyid.dev">rasyid.dev</a> · MIT License</span>
+  </div>
+</footer>
+</body>
+</html>

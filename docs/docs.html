@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toucan · Documentation</title>
+<meta name="description" content="Guides for Toucan: AI Integration, provider settings, plugins, architecture, roadmap and known issues.">
+<link rel="canonical" href="https://toucan.rasyid.dev/docs.html">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Toucan · Documentation">
+<meta property="og:description" content="Guides for Toucan: AI Integration, provider settings, plugins, architecture, roadmap and known issues.">
+<meta property="og:url" content="https://toucan.rasyid.dev/docs.html">
+<meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('toucan-theme');
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  } catch (e) {}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/doc.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body>
+<a class="sr-only skip" href="#main">Skip to content</a>
+<header class="site-header" id="site-header">
+  <div class="spectrum" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="Toucan home">
+      <img src="assets/logo.png" alt="" width="30" height="30">
+      Toucan
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">Overview</a>
+      <a href="docs.html" aria-current="page">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle color theme"><svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <a class="icon-btn" href="https://github.com/rasyidf/Toucan" aria-label="Toucan on GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2.02c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg></a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/rasyidf/Toucan/releases">Download</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap doc-main">
+  <header class="doc-intro">
+    <div class="kicker">Documentation</div>
+    <h1>Guides for<br>working with <span>Toucan.</span></h1>
+    <p class="lead">Everything lives on this site. Source files, samples and the issue tracker are on GitHub.</p>
+  </header>
+  <section class="doc-group"><h2>Using Toucan</h2><p>Settings and features you meet in the app.</p><div class="doc-cards"><a class="doc-card" href="ai-integration.html"><strong>AI Integration</strong><span>The app-wide AI switch, AI services (Claude, OpenAI-compatible, Gemini), the open and editable prompts of Translate, Analyze and Clarity, the secret store, and the migration from the old LLM providers.</span></a><a class="doc-card" href="provider-settings.html"><strong>Provider Settings (App-level and Project-level)</strong><span>Where provider settings and keys live (keys in the secret store), built-in provider defaults (Google, DeepL, Microsoft, AI, Custom), encryption model and the settings dialog.</span></a><a class="doc-card" href="pretranslation-preview.html"><strong>Pretranslation — Preview &amp; Progress</strong><span>How pre-translation previews, reports progress, cancels and commits with Apply Preview; includes a provider privacy note.</span></a></div></section><section class="doc-group"><h2>Extending Toucan</h2><p>How it is built, and how to add formats, providers and rules.</p><div class="doc-cards"><a class="doc-card" href="plugins.html"><strong>Writing Toucan plugins</strong><span>Plugin author guide: manifest, formats, providers, rules, framework profiles, trust model, testing. Preview since v0.18.0; Avalonia app and CLI only.</span></a><a class="doc-card" href="architecture.html"><strong>Toucan architecture</strong><span>Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.</span></a><a class="doc-card" href="core-architecture.html"><strong>Toucan.Core interop architecture</strong><span>Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.</span></a></div></section><section class="doc-group"><h2>Project status</h2><p>What works, what is broken and what comes next.</p><div class="doc-cards"><a class="doc-card" href="roadmap.html"><strong>Toucan roadmap: v0.21 to v1.0</strong><span>Ten focused releases from v0.21 to v0.30: file safety, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.</span></a><a class="doc-card" href="known-bugs.html"><strong>Known Issues &amp; Unfinished Features</strong><span>Open issues for v0.20.2: one tracked format issue, release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.</span></a><a class="doc-card" href="completed-features.html"><strong>Shipped Features</strong><span>Checklist of shipped features as of v0.20.2 (AI Integration added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md.</span></a></div></section><section class="doc-group"><h2>Design</h2><p>Brand rules and how the UI is reviewed.</p><div class="doc-cards"><a class="doc-card" href="branding.html"><strong>Toucan: Brand Guidelines</strong><span>Brand guidelines: name, voice, colors, logo use. Platform line updated for v0.20.2 (Avalonia on all platforms).</span></a><a class="doc-card" href="visual-review.html"><strong>Visual review: screenshots of every screen</strong><span>How to render PNGs of every screen headlessly with TOUCAN_TEST_SCREENSHOTS, what each file shows and the known limits.</span></a></div></section>
+  <section class="doc-group"><h2>Also on the site</h2><p>Release history and the project on GitHub.</p><div class="doc-cards"><a class="doc-card" href="changelog.html"><strong>Changelog</strong><span>Every documented release, searchable.</span></a><a class="doc-card" href="https://github.com/rasyidf/Toucan#build-from-source"><strong>Build from source ↗</strong><span>Clone, build and run Toucan yourself. On GitHub.</span></a></div></section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="" width="24" height="24">Toucan</a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/rasyidf/Toucan">Source</a>
+      <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
+      <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <span class="copy">© 2023–2026 <a href="https://rasyid.dev">rasyid.dev</a> · MIT License</span>
+  </div>
+</footer>
+</body>
+</html>

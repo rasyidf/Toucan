@@ -8,7 +8,9 @@
 <meta name="author" content="Muhammad Fahmi Rasyid">
 <link rel="canonical" href="https://toucan.rasyid.dev/">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
-<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 
@@ -16,11 +18,11 @@
 <meta property="og:url" content="https://toucan.rasyid.dev/">
 <meta property="og:title" content="Toucan · Edit translation files in 14 formats">
 <meta property="og:description" content="Open-source desktop editor for translation files. Reads 14 formats, previews machine translations before writing them, validates placeholders, and finds unused keys in your source. AI is opt-in.">
-<meta property="og:image" content="https://toucan.rasyid.dev/assets/logo.png">
+<meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Edit translation files in 14 formats">
 <meta name="twitter:description" content="Open-source desktop editor for translation files. Reads 14 formats, previews machine translations before writing them, validates placeholders, and finds unused keys in your source. AI is opt-in.">
-<meta name="twitter:image" content="https://toucan.rasyid.dev/assets/logo.png">
+<meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 
 <script type="application/ld+json">
 {
@@ -55,7 +57,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/home.css">
+<script src="assets/site.js" defer></script>
 </head>
 <body>
 
@@ -75,6 +79,7 @@
       <a href="#cli">CLI &amp; plugins</a>
       <a href="#platforms">Platforms</a>
       <a href="#roadmap">Roadmap</a>
+      <a href="docs.html">Docs</a>
       <a href="changelog.html">Changelog</a>
     </nav>
     <div class="nav-actions">
@@ -348,7 +353,7 @@
         <button type="button" class="fmt" data-fmt="ini" aria-pressed="false"><span class="ext">.ini</span><span class="name">INI</span><span class="use">Desktop apps</span></button>
         <button type="button" class="fmt" data-fmt="properties" aria-pressed="false"><span class="ext">.properties</span><span class="name">Java properties</span><span class="use">Java, Spring</span></button>
         <button type="button" class="fmt" data-fmt="php" aria-pressed="false"><span class="ext">lang/*.php</span><span class="name">Laravel PHP</span><span class="use">Laravel</span></button>
-        <a class="fmt plugin" href="https://github.com/rasyidf/Toucan/blob/main/docs/plugins.md"><span class="ext">your format</span><span class="name">Write a plugin</span><span class="use">Plugin guide →</span></a>
+        <a class="fmt plugin" href="plugins.html"><span class="ext">your format</span><span class="name">Write a plugin</span><span class="use">Plugin guide →</span></a>
       </div>
       <div class="fx-panel reveal" style="--d:80ms" aria-live="polite">
         <div class="fx-bar"><span class="fx-file" id="fx-file">locales/en-US/checkout.json</span><span class="fx-style" id="fx-style">{{count}}</span></div>
@@ -360,7 +365,7 @@
         <div class="fx-foot" id="fx-foot">i18next interpolation, nested keys.</div>
       </div>
     </div>
-    <p class="formats-note">Coming from BabelEdit? Toucan imports <code>.babel</code> projects. A few formats lose detail on save today (PO plurals, ARB metadata, XLIFF source text); see the <a href="https://github.com/rasyidf/Toucan/blob/main/docs/known-bugs.md">known issues</a>.</p>
+    <p class="formats-note">Coming from BabelEdit? Toucan imports <code>.babel</code> projects. A few formats lose detail on save today (PO plurals, ARB metadata, XLIFF source text); see the <a href="known-bugs.html">known issues</a>.</p>
   </div>
 </section>
 
@@ -403,7 +408,7 @@ Languages: 4
           <li>Contracts ship as the <code>Toucan.Plugins.Abstractions</code> package.</li>
         </ul>
         <div class="links">
-          <a href="https://github.com/rasyidf/Toucan/blob/main/docs/plugins.md">Plugin guide →</a>
+          <a href="plugins.html">Plugin guide →</a>
           <a href="https://github.com/rasyidf/Toucan/tree/main/samples/Toucan.Sample.Plugin">Sample plugin →</a>
         </div>
       </div>
@@ -445,7 +450,7 @@ Languages: 4
     <div class="sec-head reveal">
       <div class="kicker">roadmap</div>
       <h2>Roadmap to 1.0 and after.</h2>
-      <p>See what shipped in the <a href="changelog.html">changelog</a>. The planned order is not a promise; the full list lives in <a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">future-roadmap.md</a>.</p>
+      <p>See what shipped in the <a href="changelog.html">changelog</a>. The planned order is not a promise; the full list lives in <a href="roadmap.html">future-roadmap.md</a>.</p>
     </div>
     <ol class="timeline reveal">
       <li>
@@ -524,8 +529,9 @@ Languages: 4
       <a href="https://github.com/rasyidf/Toucan">Source</a>
       <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
       <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
       <a href="changelog.html">Changelog</a>
-      <a href="https://github.com/rasyidf/Toucan/blob/main/docs/ARCHITECTURE.md">Architecture</a>
     </nav>
     <span class="copy">© 2023–2026 <a href="https://rasyid.dev">rasyid.dev</a> · MIT License</span>
   </div>
@@ -543,21 +549,7 @@ Languages: 4
   // Re-adding a class restarts its CSS animation.
   function restart(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
 
-  /* ---------- Theme ---------- */
-  $('#theme-toggle').addEventListener('click', function () {
-    var current = root.getAttribute('data-theme') ||
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    var next = current === 'dark' ? 'light' : 'dark';
-    root.setAttribute('data-theme', next);
-    try { localStorage.setItem('toucan-theme', next); } catch (e) {}
-  });
-
-  /* ---------- Header state and scrollspy ---------- */
-  var header = $('#site-header');
-  function onScroll() { header.classList.toggle('scrolled', window.scrollY > 8); }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-
+  /* ---------- Scrollspy ---------- */
   var navLinks = $$('.nav-links a');
   var spy = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {

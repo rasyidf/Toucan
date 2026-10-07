@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+- **Website documentation** — The plugin guide, AI Integration, provider settings, architecture, roadmap, known issues and the other guides are now pages on the website, behind a new Docs index, instead of links to GitHub. `python3 tools/build-docs.py` builds them from `docs/*.md`.
+- **Web manifest** — The website has a `site.webmanifest` and the full icon set, including maskable icons.
+
+### Changed
+- **App and website icon** — A new toucan icon on a rounded black square replaces the old logo in the app (window, title bar, macOS and MSIX packages) and on the website.
+- **Website styles** — `site.css` is split into `base.css` (shared by every page), `home.css`, `changelog.css` and `doc.css`, and the theme toggle moves to a shared `site.js`.
+
 ## [0.20.2] - 2026-10-07
 
 Format fixes: XLIFF no longer loses source text, notes and state on save, and the RESX and ARB language and metadata bugs are gone.

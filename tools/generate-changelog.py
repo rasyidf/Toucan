@@ -8,10 +8,12 @@ from datetime import date
 from html import escape
 from pathlib import Path
 import re
-from urllib.parse import urlsplit
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from site_links import REPO, attr, resolve  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-REPO = 'https://github.com/rasyidf/Toucan'
 
 
 def inline(text):
@@ -23,11 +25,7 @@ def inline(text):
         if code is not None:
             parts.append(f'<code>{escape(code)}</code>')
         elif label is not None:
-            scheme = urlsplit(target).scheme
-            if scheme and scheme not in ('https', 'http'):
-                raise ValueError(f'Unsupported link scheme: {target}')
-            url = target if scheme or target.startswith('#') else f'{REPO}/blob/main/{target}'
-            parts.append(f'<a href="{escape(url, quote=True)}">{inline(label)}</a>')
+            parts.append(f'<a href="{attr(resolve(target))}">{inline(label)}</a>')
         else:
             parts.append(f'<strong>{inline(bold)}</strong>')
         offset = match.end()

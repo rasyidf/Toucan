@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toucan · Toucan roadmap: v0.21 to v1.0</title>
+<meta name="description" content="Ten focused releases from v0.21 to v0.30: file safety, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.">
+<link rel="canonical" href="https://toucan.rasyid.dev/roadmap.html">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Toucan · Toucan roadmap: v0.21 to v1.0">
+<meta property="og:description" content="Ten focused releases from v0.21 to v0.30: file safety, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.">
+<meta property="og:url" content="https://toucan.rasyid.dev/roadmap.html">
+<meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('toucan-theme');
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  } catch (e) {}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/doc.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body>
+<a class="sr-only skip" href="#main">Skip to content</a>
+<header class="site-header" id="site-header">
+  <div class="spectrum" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="Toucan home">
+      <img src="assets/logo.png" alt="" width="30" height="30">
+      Toucan
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">Overview</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="roadmap.html" aria-current="page">Roadmap</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle color theme"><svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <a class="icon-btn" href="https://github.com/rasyidf/Toucan" aria-label="Toucan on GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2.02c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg></a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/rasyidf/Toucan/releases">Download</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap doc-main">
+  <div class="doc-layout">
+    <aside class="doc-side" aria-label="Documentation">
+      <div class="side-title"><a href="docs.html">All docs</a></div>
+      <nav class="guides" aria-label="Guides">
+<a href="ai-integration.html">AI Integration</a>
+<a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
+<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="plugins.html">Writing Toucan plugins</a>
+<a href="architecture.html">Toucan architecture</a>
+<a href="core-architecture.html">Toucan.Core interop architecture</a>
+<a href="roadmap.html" aria-current="page">Toucan roadmap: v0.21 to v1.0</a>
+<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
+<a href="completed-features.html">Shipped Features</a>
+<a href="branding.html">Toucan: Brand Guidelines</a>
+<a href="visual-review.html">Visual review: screenshots of every screen</a>
+      </nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#product-goal">Product goal</a><a class="l2" href="#maintaining-this-roadmap">Maintaining this roadmap</a><a class="l2" href="#release-overview">Release overview</a><a class="l2" href="#v10-release-gates">v1.0 release gates</a><a class="l2" href="#feature-group-cross-reference">Feature-group cross-reference</a><a class="l2" href="#future-plan-after-v10">Future plan: after v1.0</a></nav>
+    </aside>
+    <article class="doc">
+      <header class="doc-head">
+        <div class="kicker">Documentation</div>
+        <h1>Toucan roadmap: v0.21 to v1.0</h1>
+        <p class="lead">Ten focused releases from v0.21 to v0.30: file safety, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.</p>
+        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-10-07</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
+      </header>
+      <div class="prose">
+<blockquote><p>Current release: <strong>v0.20.2</strong> on Windows, macOS and Linux. Every build before v1.0 is a preview.</p></blockquote>
+<h2 id="product-goal"><a class="anchor" href="#product-goal" aria-label="Link to this section">#</a>Product goal</h2>
+<p>Open a localization project, understand what needs work, translate with context, review confidently, and save or synchronize without losing information. Local files remain a first-class workflow; online connections are optional.</p>
+<p>The order is <strong>reliability → daily workflow → content sources → distribution → stabilization</strong>. Each release has one main outcome and a completion gate. Versions describe the intended sequence, not dates or a promise to ship unfinished work. Split a milestone further if its scope grows; do not move unresolved safety work into v1.0 merely to keep the version schedule.</p>
+<h2 id="maintaining-this-roadmap"><a class="anchor" href="#maintaining-this-roadmap" aria-label="Link to this section">#</a>Maintaining this roadmap</h2>
+<p>This file lists open work only. Remove shipped tasks instead of ticking them. Add user-visible changes to <code>CHANGELOG.md</code> under <code>[Unreleased]</code>, regenerate the <a href="changelog.html">website changelog</a> with <code>python3 tools/generate-changelog.py</code>, lasting capabilities to <a href="completed-features.html">completed-features.md</a>, and remove resolved issues from <a href="known-bugs.html">known-bugs.md</a>. Keep the README roadmap and <a href="index.html">website summary</a> aligned, then refresh <code>docs/INDEX.md</code>.</p>
+<p>Existing bugs are linked by ID instead of duplicated here. Completion gates describe acceptance criteria; checkboxes describe implementation work. The header counts release tasks, v1.0 gates, and deferred tasks separately.</p>
+<h2 id="release-overview"><a class="anchor" href="#release-overview" aria-label="Link to this section">#</a>Release overview</h2>
+<div class="table-wrap"><table><thead><tr><th>Release</th><th>Main outcome</th><th>Depends on</th></tr></thead><tbody><tr><td>v0.21</td><td>File fidelity and automated regression checks</td><td>v0.20</td></tr><tr><td>v0.22</td><td>Recoverable saves and durable drafts</td><td>v0.21</td></tr><tr><td>v0.23</td><td>Comfortable editing and onboarding</td><td>v0.22</td></tr><tr><td>v0.24</td><td>Glossary and message-aware validation</td><td>v0.23</td></tr><tr><td>v0.25</td><td>Review state that follows source changes</td><td>v0.24</td></tr><tr><td>v0.26</td><td>Content-source contracts and local snapshots</td><td>v0.22, v0.25</td></tr><tr><td>v0.27</td><td>CRUD persistence and synchronization engine</td><td>v0.26</td></tr><tr><td>v0.28</td><td>One complete online-source integration</td><td>v0.27</td></tr><tr><td>v0.29</td><td>Repeatable distribution and update notifications</td><td>CI from v0.21</td></tr><tr><td>v0.30</td><td>Measured performance, migration checks, release candidate</td><td>v0.21–v0.29</td></tr><tr><td>v1.0</td><td>First stable release after all release gates pass</td><td>v0.30</td></tr></tbody></table></div>
+<h3 id="v021-file-fidelity-and-ci"><a class="anchor" href="#v021-file-fidelity-and-ci" aria-label="Link to this section">#</a>v0.21: File fidelity and CI</h3>
+<p><strong>Outcome:</strong> supported formats can be edited without losing information, with automated protection against regressions. <strong>References:</strong> FMT-05, FMT-06, FMT-07, FMT-08, FMT-09, QA-01, REL-01 in <a href="known-bugs.html">known issues</a>.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Resolve the tracked format issues, starting with FMT-06 and FMT-07; include an exact regression fixture for each fix.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Define a format support matrix covering versions, plurals, comments, metadata, layout, and unsupported constructs; warn or use read-only mode when safe editing is unavailable.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Expand round-trip fixtures beyond simple strings to multiline text, escaping, locale variants, plural forms, source text, and opaque metadata; verify original file paths and stable output.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add regression coverage for the previously fixed cases listed under QA-01.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add pull-request and push CI for build and relevant Core/Avalonia tests on Windows, macOS, and Linux; report coverage without using a percentage as the sole release criterion.</li>
+</ul>
+<p><strong>Completion gate:</strong> every format advertised as editable passes its documented fidelity fixtures, and CI catches the known regression cases.</p>
+<h3 id="v022-safe-saves-and-recovery"><a class="anchor" href="#v022-safe-saves-and-recovery" aria-label="Link to this section">#</a>v0.22: Safe saves and recovery</h3>
+<p><strong>Outcome:</strong> users can preserve incomplete work and recover from interrupted persistence.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Stage and validate file output before replacement; use atomic replacement where supported and retain recoverable originals.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Make multi-file saves recoverable, including translations, comments, audit data, and the manifest; report partial failures and retain pending changes accurately.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Allow saving drafts with translation-validation findings; apply strict project validation policy to approval and delivery instead of preventing work from being saved.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist recovery drafts and offer recovery after a crash or interrupted save without silently replacing newer disk content.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify undo/redo and dirty tracking across edits, bulk operations, external merges, failed saves, and recovery.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add fault-injection checks for permission errors, disk-write failures, interrupted replacement, and external edits during save.</li>
+</ul>
+<p><strong>Completion gate:</strong> failure scenarios preserve a recoverable copy and never report unsaved work as saved.</p>
+<h3 id="v023-editor-comfort-and-onboarding"><a class="anchor" href="#v023-editor-comfort-and-onboarding" aria-label="Link to this section">#</a>v0.23: Editor comfort and onboarding</h3>
+<p><strong>Outcome:</strong> a new user can open a project and complete a keyboard-driven translation session comfortably. <strong>References:</strong> APP-02, APP-03.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Complete first-run setup for default language, theme, and optional translation-engine credentials; add actionable empty states and a dismissible feature tour.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add reliable inline editing, side-by-side source/target comparison, content-sized multiline fields, and character/word counts.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Make the edit → accept suggestion → approve → next workflow predictable, including focus retention and configurable shortcuts with conflict detection.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Clarify source/target hierarchy, placeholder rendering, descriptions, source references, and suggestion provenance in the editor and inspector.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add notification history with actionable save, validation, and integration failures; distinguish progress, cancellation, and completion.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader labels, and RTL content on supported platforms.</li>
+</ul>
+<p><strong>Completion gate:</strong> a user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved.</p>
+<h3 id="v024-terminology-and-validation"><a class="anchor" href="#v024-terminology-and-validation" aria-label="Link to this section">#</a>v0.24: Terminology and validation</h3>
+<p><strong>Outcome:</strong> translations follow project vocabulary and preserve executable message syntax.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add a project glossary with preferred and forbidden terms, per-language translations, descriptions, and CSV import/export.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Show selected-string glossary matches in a Dictionary panel and suggest glossary terms while editing (APP-01).</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add configurable glossary validation and pass relevant terminology to machine/AI translation requests.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add debounced validation while typing, with clear severity and navigation to affected fields.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Parse and validate supported message syntaxes, including nested ICU plural/select messages, required branches, and placeholders; document syntax/version limits.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Finish AI finding re-translation and configurable analysis strictness, retaining preview and explicit acceptance.</li>
+</ul>
+<p><strong>Completion gate:</strong> glossary and message fixtures detect meaningful errors without blocking draft saves; accepting a suggestion follows normal undo and dirty tracking.</p>
+<h3 id="v025-review-correctness"><a class="anchor" href="#v025-review-correctness" aria-label="Link to this section">#</a>v0.25: Review correctness</h3>
+<p><strong>Outcome:</strong> approval reflects the actual source and target that were reviewed.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist Draft → Needs review → Approved per translation unit and target language, with migration from the existing approval flag.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Record the source revision/hash used for review; mark affected targets Needs review when the source changes, and invalidate approval after target edits.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add status filters and row badges; extend existing batch approval/rejection with comments and consistent validation policy.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist review history with timestamp, action, and available local actor information; do not imply authenticated team identity.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Track delivery separately from review: pending, synchronized, failed, or included in an export; preserve review meaning when remote platforms have different status models.</li>
+</ul>
+<p><strong>Completion gate:</strong> source and target changes cannot leave stale approvals, and review state survives save/reopen and project migration.</p>
+<h3 id="v026-content-sources-and-snapshot-mode"><a class="anchor" href="#v026-content-sources-and-snapshot-mode" aria-label="Link to this section">#</a>v0.26: Content sources and snapshot mode</h3>
+<p><strong>Outcome:</strong> a shared workspace can load and persist content through source adapters without changing translation engines.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Define content-source contracts separately from <code>ITranslationProvider</code> and AI backends; expose optional read, snapshot-write, CRUD, status, revision, and delta capabilities.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add connection profiles with stable provider and connection IDs, project selection, secret references, permissions, and a connection test; support multiple profiles for one service.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Extend workspace identity and persistence for package/resource scope, source/target locales and text, stable unit IDs, remote IDs/revisions, and preserved format metadata.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Implement the local-folder snapshot adapter over existing format strategies, preserving current projects and CLI behavior.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Support initial snapshot loading, cached opening, explicit refresh, and save-plan previews; keep loading policy separate from persistence mode.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add contract and migration tests for read-only sources, unsupported capabilities, duplicate key names across packages, and existing plugin compatibility; version new public contracts deliberately.</li>
+</ul>
+<p><strong>Completion gate:</strong> local projects work through the source boundary without fidelity regressions, credentials in project files, or changes to translation-engine responsibilities.</p>
+<h3 id="v027-crud-and-synchronization-engine"><a class="anchor" href="#v027-crud-and-synchronization-engine" aria-label="Link to this section">#</a>v0.27: CRUD and synchronization engine</h3>
+<p><strong>Outcome:</strong> local edits become durable, reviewable operations that can be reconciled with remote changes.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Define separate operations for key creation, translation creation/update, rename, translation deletion, and whole-key deletion; enforce provider capabilities and permissions.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist a synchronization baseline and pending-operation journal, isolated from local-save baselines; edit locally without issuing a request on each keystroke.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Extend three-way comparison to stable identity, source/target text, supported metadata and status; handle concurrent creation and edit-versus-delete conflicts.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add a conflict-resolution view and explicit pull/push plans; preserve unrelated local edits during refresh and require deliberate inclusion of remote deletions.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Support conditional writes where available, per-operation results, partial success, safe retry/reconciliation, and asynchronous-job completion; disclose weaker concurrency guarantees where necessary.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify restart recovery, ambiguous network failures, duplicate-prevention, pagination completeness, and cancellation with a deterministic test adapter; never infer deletion from an incomplete read.</li>
+</ul>
+<p><strong>Completion gate:</strong> failed or repeated synchronization preserves unsent work, avoids duplicate writes, and cannot silently overwrite detected concurrent edits.</p>
+<h3 id="v028-first-online-connector"><a class="anchor" href="#v028-first-online-connector" aria-label="Link to this section">#</a>v0.28: First online connector</h3>
+<p><strong>Outcome:</strong> users can complete one real online workflow from connection through delivery.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Select one service from actual user demand, such as Crowdin, Lokalise, or a documented custom REST service; specify whether its adapter uses snapshots, CRUD, or both.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Implement authentication, project/resource/language mapping, complete paginated reads, and the supported write operations against that service.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add bounded concurrency, timeout/cancellation, rate-limit handling and backoff, token-expiry handling, and actionable permission errors.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Expose connection settings and status in a Sources area, separate from translation engines and AI; show last successful sync, pending changes, and failures.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Support explicit pull/push, offline cached editing, restart recovery, and distinct Saved locally / Synced remotely indicators.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Run connector contract checks and controlled end-to-end tests covering changed remote content, partial failures, asynchronous jobs where applicable, and secret redaction in diagnostics.</li>
+</ul>
+<p><strong>Completion gate:</strong> the selected connector passes a full offline/edit/reconnect/conflict/push/reopen workflow. If it cannot meet the safety gates, label it preview and exclude it from stable integration claims.</p>
+<h3 id="v029-distribution-and-updates"><a class="anchor" href="#v029-distribution-and-updates" aria-label="Link to this section">#</a>v0.29: Distribution and updates</h3>
+<p><strong>Outcome:</strong> releases are repeatable, installable, and discoverable. <strong>References:</strong> REL-01, REL-02, REL-03, REL-04.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add tag-triggered release builds with version checks, artifact checksums, and packaged-build smoke tests on supported platforms.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Validate and ship a Windows installer alongside the portable package; configure trusted signing for release artifacts where required.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Configure Developer ID signing and notarization for macOS; preserve a documented development-build path.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Script Linux packaging and document supported architectures, dependencies, desktop integration, and installation/removal.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add configurable startup update checks, stable/preview channels, changelog previews, and a clear download/open-release action.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify clean install, upgrade, uninstall, and settings preservation; document signing costs or platform limitations that remain unresolved.</li>
+</ul>
+<p><strong>Completion gate:</strong> a release can be built from its tag and installed/upgraded on each supported platform, with explicit platform limitations and no manual artifact patching. Automatic in-app installation is deferred.</p>
+<h3 id="v030-performance-and-release-candidate"><a class="anchor" href="#v030-performance-and-release-candidate" aria-label="Link to this section">#</a>v0.30: Performance and release candidate</h3>
+<p><strong>Outcome:</strong> the complete workflow has measured limits and survives upgrade and failure scenarios. <strong>Reference:</strong> QA-02.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Profile open, edit, search, save, and sync on named hardware with representative fixtures, including 10,000 keys × 10 locales; record cold/warm timings and memory.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Address measured bottlenecks with virtualization, lazy loading, background persistence, indexed search, or memory changes as justified by profiling.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify editor responsiveness during save/sync and retain accurate cancellation, progress, and partial-result behavior.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Test project, settings, connection, review, and recovery migrations from supported preview versions; document backup and downgrade behavior.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Run packaged end-to-end checks for open → edit → validate → review → save/sync → close → reopen across supported platforms; repeat accessibility and visual checks for changed screens.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Publish a release candidate, document remaining limitations, and resolve release-blocking feedback before v1.0.</li>
+</ul>
+<p><strong>Proposed performance budgets:</strong> usable editor within five seconds for the reference fixture, warm search within 200 ms, and responsive typing while persistence runs. Confirm or revise these budgets against named hardware before claiming them; they are not current measurements.</p>
+<p><strong>Completion gate:</strong> measured budgets are met or the supported scale is explicitly narrowed, migrations pass, and no unresolved data-loss or silent-overwrite issue remains.</p>
+<h2 id="v10-release-gates"><a class="anchor" href="#v10-release-gates" aria-label="Link to this section">#</a>v1.0 release gates</h2>
+<p>Version 1.0 follows v0.30 only when these acceptance checks pass. Freeze public contracts and persistence schemas after reviewing the supported migration policy.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Every format advertised as editable preserves its documented semantics and metadata; unsupported constructs have safe, visible handling.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Failed saves, crashes, and interrupted synchronization preserve recoverable work and accurate pending state.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Daily editing and review workflows pass automated and packaged-build checks on Windows, macOS, and Linux, including source-change approval invalidation.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Stable online connectors handle concurrency, permissions, partial success, and retry/recovery; preview connectors are clearly identified.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Installation, update discovery, settings/project migrations, and stable plugin-contract compatibility are tested and documented.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Performance and accessibility have recorded verification, known limitations are published, and no release-blocking issue remains.</li>
+</ul>
+<h2 id="feature-group-cross-reference"><a class="anchor" href="#feature-group-cross-reference" aria-label="Link to this section">#</a>Feature-group cross-reference</h2>
+<p>Existing docs refer to FG IDs. These map the former groups to the smaller release plan; release sections above own the tasks.</p>
+<div class="table-wrap"><table><thead><tr><th>Group</th><th>Planned location</th></tr></thead><tbody><tr><td>FG-01 Packaging &amp; Distribution</td><td>v0.29</td></tr><tr><td>FG-02 Auto-Updater</td><td>Update notifications in v0.29; automatic installation after v1.0</td></tr><tr><td>FG-04 ConsistencyAI</td><td>v0.24</td></tr><tr><td>FG-05 Review Workflow</td><td>v0.25</td></tr><tr><td>FG-06 Git Integration</td><td>After v1.0</td></tr><tr><td>FG-09 Improved Validation</td><td>v0.24</td></tr><tr><td>FG-10 Onboarding &amp; UX Polish</td><td>v0.23</td></tr><tr><td>FG-11 Editor Improvements</td><td>v0.23; Markdown preview after v1.0</td></tr><tr><td>FG-12 Export &amp; Reporting</td><td>After v1.0</td></tr><tr><td>FG-13 Performance &amp; Scale</td><td>v0.30</td></tr><tr><td>FG-14 Webhook Provider</td><td>After v1.0; machine translation remains separate from content-source CRUD</td></tr><tr><td>FG-15 Glossary &amp; Terminology</td><td>v0.24; TBX after v1.0</td></tr><tr><td>FG-16 Test Coverage &amp; CI</td><td>v0.21 and focused workflow/failure checks in subsequent releases</td></tr><tr><td>Content sources (new)</td><td>Snapshot mode v0.26, CRUD/sync v0.27, first online connector v0.28</td></tr></tbody></table></div>
+<h2 id="future-plan-after-v10"><a class="anchor" href="#future-plan-after-v10" aria-label="Link to this section">#</a>Future plan: after v1.0</h2>
+<p>These remain visible backlog items, not prerequisites for the first stable release.</p>
+<h3 id="additional-sources-and-synchronization"><a class="anchor" href="#additional-sources-and-synchronization" aria-label="Link to this section">#</a>Additional sources and synchronization</h3>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add remaining Crowdin, Lokalise, Phrase, and Transifex adapters after the first connector proves the contracts.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add optional scheduled refresh, delta reads, and automatic background synchronization with the same conflict and recovery guarantees.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add declarative custom REST source mappings if recurring integration needs justify them.</li>
+</ul>
+<h3 id="git-integration-fg-06"><a class="anchor" href="#git-integration-fg-06" aria-label="Link to this section">#</a>Git integration (FG-06)</h3>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Detect Git repositories and show per-key changes since the last commit.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add a Source Control panel with staged/unstaged files and per-key diffs (APP-01).</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add optional auto-commit on save with a configurable message template.</li>
+</ul>
+<h3 id="updates-and-platform-integration"><a class="anchor" href="#updates-and-platform-integration" aria-label="Link to this section">#</a>Updates and platform integration</h3>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add verified update download/application with restart, recovery, and stable/preview channels.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add Linux AppImage/Flatpak distribution and complete XDG integration.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add macOS native menu-bar and system-accent integration.</li>
+</ul>
+<h3 id="editor-glossary-and-reporting"><a class="anchor" href="#editor-glossary-and-reporting" aria-label="Link to this section">#</a>Editor, glossary, and reporting</h3>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add Markdown preview for translation values.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add glossary TBX import/export.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Export translation-progress reports as HTML/PDF and missing/unused-key reports per language.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Export changes since a selected date and add a statistics dashboard with trends.</li>
+</ul>
+<h3 id="custom-webhook-translation-engine-fg-14"><a class="anchor" href="#custom-webhook-translation-engine-fg-14" aria-label="Link to this section">#</a>Custom webhook translation engine (FG-14)</h3>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add configurable request-body templates and response-path mapping.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add timeout settings and safe retries for translation requests.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add opt-in on-save webhook notifications with explicit destination and payload configuration.</li>
+</ul>
+<h3 id="plugin-system"><a class="anchor" href="#plugin-system" aria-label="Link to this section">#</a>Plugin system</h3>
+<p>Core plugins shipped in v0.18.0. See the <a href="plugins.html">plugin guide</a> and <a href="https://github.com/rasyidf/Toucan/blob/main/docs/archive/plugin-system-plan.md">original plan</a>.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add per-project validation rule files under <code>.toucan/rules/</code>.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add plugin UI contributions through a separate Avalonia package.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add mandatory signing and a plugin feed alongside the collaboration/auth milestone.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add per-rule enable/severity settings for plugin rules.</li>
+</ul>
+<h3 id="real-time-collaboration"><a class="anchor" href="#real-time-collaboration" aria-label="Link to this section">#</a>Real-time collaboration</h3>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Build Toucan Hub for authenticated presence and locking.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add WebSocket edit synchronization and concurrent-session conflict handling using the source-sync foundations.</li>
+</ul>
+<h3 id="advanced-ai"><a class="anchor" href="#advanced-ai" aria-label="Link to this section">#</a>Advanced AI</h3>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add embedding-based translation-memory similarity.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add brand voice/tone profiles and translation-quality scoring.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Extend deterministic glossary validation with optional domain-aware AI checks.</li>
+</ul>
+<h3 id="cicd-integrations"><a class="anchor" href="#cicd-integrations" aria-label="Link to this section">#</a>CI/CD integrations</h3>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Publish a GitHub Action for <code>toucan check</code>.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Publish a GitLab CI template.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add configurable missing-translation thresholds for build failures.</li>
+</ul>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="" width="24" height="24">Toucan</a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/rasyidf/Toucan">Source</a>
+      <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
+      <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <span class="copy">© 2023–2026 <a href="https://rasyid.dev">rasyid.dev</a> · MIT License</span>
+  </div>
+</footer>
+</body>
+</html>

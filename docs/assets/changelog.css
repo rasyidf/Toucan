@@ -1,5 +1,3 @@
-.nav-links a[aria-current="page"] { color: var(--text); background: var(--surface-2); }
-[hidden] { display: none !important; }
 .changelog-main { max-width: 1080px; }
 .changelog-intro { padding: 76px 0 54px; max-width: 700px; }
 .changelog-intro h1 { font-family: var(--font-display); font-size: clamp(48px, 7vw, 80px); line-height: 1.04; letter-spacing: -.045em; margin: 18px 0 24px; }
@@ -12,7 +10,7 @@
 #release-index { display: grid; gap: 2px; border-left: 1px solid var(--border); }
 #release-index a { color: var(--muted); font-family: var(--font-mono); font-size: 13px; padding: 6px 16px; margin-left: -1px; border-left: 2px solid transparent; }
 #release-index a:hover, #release-index a[aria-current="location"] { color: var(--link); border-left-color: var(--link); text-decoration: none; background: var(--surface-2); }
-.preview-note { margin: 24px 0 0; color: var(--text); font-size: 13px; }
+.preview-note { margin: 24px 0 0; padding: 14px 18px; border: 1px solid color-mix(in srgb, var(--yellow) 55%, var(--border)); background: var(--warn-bg); border-radius: 12px; color: var(--text); font-size: 13px; }
 .preview-note span { color: var(--muted); font-size: 12px; }
 .release-tools { display: flex; gap: 14px; align-items: center; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
 .search-field { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--muted); }
