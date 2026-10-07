@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Toucan.Avalonia.ViewModels;
 using Toucan.Avalonia.Views.Dialogs;
 using Toucan.Core.Contracts;
+using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
 
@@ -115,7 +116,8 @@ public sealed class DialogService(IServiceProvider services) : IDialogService
 
     public async Task<ProjectPropertiesViewModel?> ShowProjectPropertiesAsync(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null)
     {
-        var vm = new ProjectPropertiesViewModel(settings, this, discoveredLanguages, services.GetService<IProjectDefaultsService>());
+        var vm = new ProjectPropertiesViewModel(settings, this, discoveredLanguages, services.GetService<IProjectDefaultsService>(),
+            services.GetServices<ISaveStrategy>().FirstOrDefault(f => FormatIds.Comparer.Equals(f.FormatId, settings.SaveFormat)));
         return await new ProjectPropertiesDialog(vm).ShowDialog<bool>(Owner) ? vm : null;
     }
 

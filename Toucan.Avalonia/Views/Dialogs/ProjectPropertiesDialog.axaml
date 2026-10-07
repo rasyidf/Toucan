@@ -49,17 +49,39 @@
             <StackPanel>
               <c:SettingsRow Title="{loc:Loc 'Name'}"><TextBox Text="{Binding ProjectName}"/></c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Description'}" Stacked="True">
-                <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" Height="64"/>
+                <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="72"
+                         PlaceholderText="{loc:Loc 'What is this project for?'}"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+          <c:SettingsGroup Header="{loc:Loc 'Files'}">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Folder'}">
+                <SelectableTextBlock Text="{Binding ProjectPath}" Classes="mono caption" MaxWidth="320" TextTrimming="CharacterEllipsis"
+                                     ToolTip.Tip="{Binding ProjectPath}" TextAlignment="Right"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'File format'}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="{Binding SaveStyleName}" VerticalAlignment="Center"/>
+                  <Border Classes="badge" IsVisible="{Binding FormatEditingLabel, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                    <TextBlock Text="{Binding FormatEditingLabel}" FontSize="11"/>
+                  </Border>
+                </StackPanel>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Not kept when saving'}" Stacked="True" IsVisible="{Binding HasFormatLimitations}">
+                <TextBlock Text="{Binding FormatLimitations}" Classes="caption" TextWrapping="Wrap"/>
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
           <c:SettingsGroup Header="{loc:Loc 'Languages'}">
-            <c:SettingsRow Title="{loc:Loc 'Primary (source) language'}">
-              <StackPanel Orientation="Horizontal" Spacing="8">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Source language'}">
                 <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding PrimaryLanguage}"/>
-                <Button Content="{loc:Loc 'Manage languages…'}" Command="{Binding ManageLanguagesCommand}"/>
-              </StackPanel>
-            </c:SettingsRow>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Project languages'}" Description="{Binding LanguageSummary}">
+                <Button Content="{loc:Loc 'Manage…'}" Command="{Binding ManageLanguagesCommand}"/>
+              </c:SettingsRow>
+            </StackPanel>
           </c:SettingsGroup>
           <c:SettingsGroup Header="{loc:Loc 'Saving'}">
             <StackPanel>

@@ -9,6 +9,9 @@
 - **Unsafe saves are blocked** — Android XML projects that contain `<plurals>`, other resource types or `translatable="false"`, and RESX projects with non-string resources, `<metadata>` or files not named `Resources*.resx`, open with a warning, and saving them in place is refused, because Toucan would rewrite the files without that content. Save As still writes a copy.
 - **Round-trip fixtures** — Every loadable format is checked for multiline text, CRLF, quotes, backslashes, unicode, placeholders, markup, separators, leading spaces, tabs, percent signs, `$`, and YAML-looking words and numbers.
 
+### Changed
+- **Project Properties** — The General page has a Files group with the project folder, the file format and its support level (Full or Limited), and what the format does not keep when saving (see [docs/formats.md](docs/formats.md)). Languages are split into Source language and Project languages (with a Manage button), so the labels no longer wrap. The description box has a placeholder, and the sidebar shows the format's name instead of its ID.
+
 ### Fixed
 - **Compact toolbar and panel headers** — Icon buttons in the panel headers and the editor toolbar are smaller (26 px) with rounded corners and a hover state, and the headers and toolbar are 36 px tall instead of 44 px.
 - **Mode tab hover** — Hovering Editor, Review or Audit no longer draws a second, lighter box inside the tab.

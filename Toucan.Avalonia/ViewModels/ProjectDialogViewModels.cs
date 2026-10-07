@@ -302,9 +302,12 @@ public partial class ProjectPropertiesViewModel : ObservableObject
     private readonly IDialogService? _dialogs;
     private readonly IProjectDefaultsService? _defaultsService;
     private readonly IEnumerable<string>? _discoveredLanguages;
+    private readonly ISaveStrategy? _format;
 
-    public ProjectPropertiesViewModel(ProjectSettings settings, IDialogService? dialogs, IEnumerable<string>? discoveredLanguages = null, IProjectDefaultsService? defaultsService = null)
+    public ProjectPropertiesViewModel(ProjectSettings settings, IDialogService? dialogs, IEnumerable<string>? discoveredLanguages = null, IProjectDefaultsService? defaultsService = null, ISaveStrategy? format = null)
     {
+        _format = format;
+        Languages.CollectionChanged += (_, _) => OnPropertyChanged(nameof(LanguageSummary));
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _dialogs = dialogs;
         _defaultsService = defaultsService;
@@ -348,7 +351,20 @@ public partial class ProjectPropertiesViewModel : ObservableObject
     [ObservableProperty] private bool validateOnSave = true;
 
     public string ProjectPath => _settings.ProjectPath;
-    public string SaveStyleName => _settings.SaveFormat;
+    public string SaveStyleName => _format?.DisplayName ?? _settings.SaveFormat;
+
+    /// <summary>How safely the project's format saves: "Full" or "Limited", or empty when the format does not say (plugins).</summary>
+    public string FormatEditingLabel => _format?.Support?.Editing.ToString() ?? string.Empty;
+
+    /// <summary>What the format drops on save, one per line; empty when nothing is dropped or unknown.</summary>
+    public string FormatLimitations => _format?.Support is { Unsupported.Count: > 0 } support
+        ? string.Join('\n', support.Unsupported.Select(u => "• " + u))
+        : string.Empty;
+
+    public bool HasFormatLimitations => FormatLimitations.Length > 0;
+
+    /// <summary>The project's languages as a short list, shown next to the Manage languages button.</summary>
+    public string LanguageSummary => Languages.Count == 0 ? "—" : string.Join(", ", Languages);
 
     public ObservableCollection<CopyTemplateItem> CopyTemplates { get; } = [];
     public bool CanAddCopyTemplate => CopyTemplates.Count < 5;

@@ -106,7 +106,7 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="added">4 added</span><span class="fixed">10 fixed</span></div>
+<div class="release-counts"><span class="added">4 added</span><span class="changed">1 changed</span><span class="fixed">10 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
 <li><strong>Continuous integration</strong> — Pull requests and pushes to <code>main</code> and <code>release/**</code> build <code>Toucan.CrossPlatform.slnx</code> and run the Core and Avalonia tests on Windows, macOS and Linux, and upload coverage reports.</li>
@@ -115,6 +115,10 @@
 <li><strong>Format support matrix</strong> — <a href="formats.html">docs/formats.md</a> lists, for every built-in format, the versions that work, what survives a save and what does not. It is generated from the code and checked by a test.</li>
 <li><strong>Unsafe saves are blocked</strong> — Android XML projects that contain <code>&lt;plurals&gt;</code>, other resource types or <code>translatable=&quot;false&quot;</code>, and RESX projects with non-string resources, <code>&lt;metadata&gt;</code> or files not named <code>Resources*.resx</code>, open with a warning, and saving them in place is refused, because Toucan would rewrite the files without that content. Save As still writes a copy.</li>
 <li><strong>Round-trip fixtures</strong> — Every loadable format is checked for multiline text, CRLF, quotes, backslashes, unicode, placeholders, markup, separators, leading spaces, tabs, percent signs, <code>$</code>, and YAML-looking words and numbers.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>Project Properties</strong> — The General page has a Files group with the project folder, the file format and its support level (Full or Limited), and what the format does not keep when saving (see <a href="formats.html">docs/formats.md</a>). Languages are split into Source language and Project languages (with a Manage button), so the labels no longer wrap. The description box has a placeholder, and the sidebar shows the format&#x27;s name instead of its ID.</li>
 </ul>
 <h3>Fixed</h3>
 <ul>
