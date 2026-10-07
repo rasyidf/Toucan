@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- **Pin recent projects** — Pin a project from the Start screen or from Settings → General → Recent projects. Pinned projects stay at the top of the list (Start screen and Open Recent), and they do not count toward the list limit. The old WPF pin button never saved anything; this one does.
+- **Recent projects settings** — Choose how many projects to remember (1–50), whether Clear keeps pinned projects, and manage the list (pin, unpin, remove) from Settings → General.
+- **Preferred language from recent projects** — With "Detect preferred language from recent projects" on, the source language for new projects, and for projects that name none, comes from the most recently opened project instead of the Default language setting. Off by default.
+
 ## [0.19.0] - 2026-10-06
 
 Command palette, a new title bar, Claude and Gemini translation providers, and a UI polish pass across the Avalonia app. The Avalonia app is now the Toucan app on Windows too; the WPF app is deprecated and 0.17.3 was its last release.

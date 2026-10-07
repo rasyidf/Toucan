@@ -40,6 +40,12 @@ public class AppOptions
     public bool TmAutoSuggest { get; set; } = true;
     public int TmMaxSuggestions { get; set; } = 5;
 
+    // --- Recent projects ---
+    public int RecentProjectsLimit { get; set; } = 10;
+    public bool ClearRecentKeepsPinned { get; set; } = true;
+    /// <summary>Use the language of the most recently opened project instead of <see cref="DefaultLanguage"/>.</summary>
+    public bool DetectLanguageFromRecent { get; set; }
+
     // --- Default project languages ---
     public List<string> DefaultProjectLanguages { get; set; } = ["en-US"];
     // --- Last session state ---
@@ -63,6 +69,7 @@ public class AppOptions
             if (options.MaxItems <= 0) options.MaxItems = 100;
             if (options.TruncateResultsOver <= 0) options.TruncateResultsOver = 2000;
             if (options.LoadingDepth <= 0) options.LoadingDepth = 1;
+            if (options.RecentProjectsLimit <= 0) options.RecentProjectsLimit = 10;
             return options;
         }
         catch { return new AppOptions(); }

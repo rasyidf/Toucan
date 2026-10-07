@@ -121,14 +121,28 @@ public partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    private void ClearRecentProjects()
+    private void TogglePinRecentProject(string? path)
     {
-        foreach (var p in RecentProjects.ToList()) _recentFileService.Remove(p.Path);
+        if (string.IsNullOrEmpty(path)) return;
+        var pinned = RecentProjects.FirstOrDefault(p => p.Path == path)?.IsPinned ?? false;
+        _recentFileService.SetPinned(path, !pinned);
         RefreshRecentProjects();
     }
 
+    [RelayCommand]
+    private void ClearRecentProjects()
+    {
+        _recentFileService.Clear(AppOptions.ClearRecentKeepsPinned);
+        RefreshRecentProjects();
+    }
+
+    /// <summary>The configured default language, or the one the most recent project used when detection is on.</summary>
+    internal string PreferredDefaultLanguage() =>
+        PreferredLanguageDetector.Resolve(AppOptions.DefaultLanguage, AppOptions.DetectLanguageFromRecent, _recentFileService.LoadRecent());
+
     internal void RefreshRecentProjects()
     {
+        _recentFileService.Limit = AppOptions.RecentProjectsLimit;
         RecentProjects = new ObservableCollection<Project>(_recentFileService.LoadRecent());
     }
 
@@ -229,6 +243,7 @@ public partial class MainWindowViewModel
         }
 
         PrimaryLanguage = ResolvePrimaryLanguage();
+        if (!string.IsNullOrEmpty(path)) _recentFileService.SetPrimaryLanguage(path, PrimaryLanguage);
         StatusBarService.Instance.UpdateProjectName(ProjectName);
         if (StatusBarService.Instance.ViewModel is { } sb)
         {
@@ -268,7 +283,8 @@ public partial class MainWindowViewModel
             var prefix = languages.FirstOrDefault(l => l.StartsWith(configured.Split('-')[0], StringComparison.OrdinalIgnoreCase));
             if (prefix != null) return prefix;
         }
-        return languages.FirstOrDefault(l => string.Equals(l, AppOptions.DefaultLanguage, StringComparison.OrdinalIgnoreCase))
+        var preferred = PreferredDefaultLanguage();
+        return languages.FirstOrDefault(l => string.Equals(l, preferred, StringComparison.OrdinalIgnoreCase))
             ?? languages.OrderBy(l => l, StringComparer.Ordinal).FirstOrDefault()
             ?? configured
             ?? "en-US";

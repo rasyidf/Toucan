@@ -25,12 +25,17 @@ localization, in code, not only in the UI.
 Localization, `.tproj` file association, the Machine Translation panel, Trim Line by Line, Cut Key Values, and copy-template
 shortcuts 4 and 5 (WPF stopped at 3).
 
+**Pin recent project** is ported and finished. In WPF the pin toggle only flipped an in-memory flag that was never saved or
+used. In the Avalonia app a pin is stored in `recent_projects.json`, pinned projects sort first on the Start screen and in
+Open Recent, and they do not count toward the list limit. Settings → General → Recent projects adds the list limit, a
+"keep pinned projects when clearing" switch, a manage list (pin, unpin, remove), and a switch that detects the preferred
+language from the most recently opened project (it records each project's source language when it opens).
+
 ## Deliberately not ported
 
 These exist in WPF but do nothing there, so porting them would add dead UI:
 
 - **Backdrop type** setting: WPF saves it but nothing applies it.
-- **Pin recent project**: toggles a flag in memory; it is never saved or used.
 - **Check for updates / update channel**: a UI shell with no update check behind it. The auto-updater is v0.24 (FG-02).
 - **Dictionary** and **Source Control** panels: "coming soon" placeholders in WPF. They return with the glossary (v0.21) and Git (v0.23) work.
 - **Open log location**: opens the program folder, not a log folder.
@@ -40,8 +45,6 @@ These exist in WPF but do nothing there, so porting them would add dead UI:
 Messages built at run time (status text, confirmation prompts, validation messages) are still English. Menus, panels,
 dialogs, tooltips, pagination and the status bar are translated.
 
-## What retiring WPF still involves
+## Retiring WPF
 
-Nothing blocks it in the product. The remaining steps are repository changes: remove `Toucan/` and its tests
-(`tests/Toucan.Tests`) from `ToucanProject.slnx`, drop `Toucan.CrossPlatform.slnx`'s "except WPF" caveat, and delete the
-folders.
+Done. The WPF app and its tests were removed from `main`; the source is on the `legacy/wpf` branch.

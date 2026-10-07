@@ -6,7 +6,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Toucan.Avalonia.Services;
 using Toucan.Core.Contracts;
+using Toucan.Core.Models;
 using Toucan.Core.Options;
+using Toucan.Core.Services;
 using Toucan.Core.Plugins;
 
 namespace Toucan.Avalonia.ViewModels;
@@ -154,6 +156,26 @@ public partial class OptionsViewModel : ObservableObject
     [ObservableProperty] private string appLanguage = "en-US";
     [ObservableProperty] private bool openLastProjectOnStartup = true;
     [ObservableProperty] private decimal pageSize = 15;
+
+    // Recent projects
+    [ObservableProperty] private decimal recentProjectsLimit = 10;
+    [ObservableProperty] private bool clearRecentKeepsPinned = true;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(DetectedLanguageText))] private bool detectLanguageFromRecent;
+
+    /// <summary>The recent list as shown on the Recent projects page; rebuilt after every pin or remove.</summary>
+    public ObservableCollection<Project> RecentItems { get; } = [];
+    public bool HasRecentItems => RecentItems.Count > 0;
+    public bool HasNoRecentItems => RecentItems.Count == 0;
+
+    /// <summary>What detection would pick right now, shown next to the toggle.</summary>
+    public string DetectedLanguageText
+    {
+        get
+        {
+            var detected = PreferredLanguageDetector.Detect(RecentItems);
+            return detected == null ? "No recent project has a language yet." : $"Most recent project uses {detected}.";
+        }
+    }
     [ObservableProperty] private decimal maxItems = 5000;
     [ObservableProperty] private decimal truncateSize = 5000;
     [ObservableProperty] private decimal loadingDepth = 1;
@@ -214,6 +236,10 @@ public partial class OptionsViewModel : ObservableObject
         var defs = ProjectDefaults;
         AppLanguage = opts.AppLanguage ?? "en-US";
         OpenLastProjectOnStartup = opts.OpenLastProjectOnStartup;
+        RecentProjectsLimit = opts.RecentProjectsLimit;
+        ClearRecentKeepsPinned = opts.ClearRecentKeepsPinned;
+        DetectLanguageFromRecent = opts.DetectLanguageFromRecent;
+        RefreshRecentItems();
         PageSize = opts.PageSize;
         MaxItems = opts.MaxItems;
         TruncateSize = opts.TruncateResultsOver;
@@ -263,6 +289,10 @@ public partial class OptionsViewModel : ObservableObject
     {
         AppOptions.AppLanguage = AppLanguage;
         AppOptions.OpenLastProjectOnStartup = OpenLastProjectOnStartup;
+        AppOptions.RecentProjectsLimit = (int)Math.Clamp(RecentProjectsLimit, 1, 50);
+        AppOptions.ClearRecentKeepsPinned = ClearRecentKeepsPinned;
+        AppOptions.DetectLanguageFromRecent = DetectLanguageFromRecent;
+        if (_recentProjects != null) _recentProjects.Limit = AppOptions.RecentProjectsLimit;
         AppOptions.PageSize = (int)Math.Max(1, PageSize);
         AppOptions.MaxItems = (int)Math.Max(1, MaxItems);
         AppOptions.TruncateResultsOver = (int)Math.Max(1, TruncateSize);
@@ -365,9 +395,38 @@ public partial class OptionsViewModel : ObservableObject
     private async Task ClearRecentProjects()
     {
         if (_recentProjects == null) return;
-        if (!await _messages.ConfirmAsync("Remove all projects from the recent list?", "Data & Privacy")) return;
-        foreach (var p in _recentProjects.LoadRecent().ToList()) _recentProjects.Remove(p.Path);
-        await _messages.ShowMessageAsync("Recent projects cleared.", "Data & Privacy");
+        var prompt = ClearRecentKeepsPinned
+            ? "Remove all unpinned projects from the recent list?"
+            : "Remove all projects, including pinned ones, from the recent list?";
+        if (!await _messages.ConfirmAsync(prompt, "Recent projects")) return;
+        _recentProjects.Clear(ClearRecentKeepsPinned);
+        RefreshRecentItems();
+        await _messages.ShowMessageAsync("Recent projects cleared.", "Recent projects");
+    }
+
+    [RelayCommand]
+    private void TogglePinRecentItem(Project? project)
+    {
+        if (project == null || _recentProjects == null) return;
+        _recentProjects.SetPinned(project.Path, !project.IsPinned);
+        RefreshRecentItems();
+    }
+
+    [RelayCommand]
+    private void RemoveRecentItem(Project? project)
+    {
+        if (project == null || _recentProjects == null) return;
+        _recentProjects.Remove(project.Path);
+        RefreshRecentItems();
+    }
+
+    private void RefreshRecentItems()
+    {
+        RecentItems.Clear();
+        foreach (var p in _recentProjects?.LoadRecent() ?? []) RecentItems.Add(p);
+        OnPropertyChanged(nameof(HasRecentItems));
+        OnPropertyChanged(nameof(HasNoRecentItems));
+        OnPropertyChanged(nameof(DetectedLanguageText));
     }
 
     [RelayCommand]
