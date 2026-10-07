@@ -19,11 +19,11 @@
       <Grid x:Name="TitleBarLayout" ColumnDefinitions="*,Auto,*" Margin="8,0">
         <!-- Left: (menu on Windows/Linux) · logo and name · save state -->
         <StackPanel x:Name="TitleBarLeading" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-          <ContentControl x:Name="MenuHost" VerticalAlignment="Center"/>
           <StackPanel x:Name="TitleBarBrand" Orientation="Horizontal" Spacing="7" Margin="6,0,2,0" VerticalAlignment="Center">
             <Image Source="/Assets/logo.png" Width="18" Height="18"/>
             <TextBlock Text="Toucan" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
           </StackPanel>
+          <ContentControl x:Name="MenuHost" VerticalAlignment="Center"/>
           <Button x:Name="SaveStateButton" Classes="saveState" Classes.dirty="{Binding IsDirty}" Command="{Binding SaveCommand}"
                   IsVisible="{Binding HasProject}" ToolTip.Tip="{loc:Loc 'Save now'}" AutomationProperties.Name="{loc:Loc 'Save now'}">
             <StackPanel Orientation="Horizontal" Spacing="6">

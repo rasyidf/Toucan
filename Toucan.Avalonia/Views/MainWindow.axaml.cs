@@ -117,9 +117,13 @@ public partial class MainWindow : Window
 
     private void UpdateTitleBarLayout()
     {
-        // Equal reserved wings keep search centered even when the native controls are visible.
-        var wing = Math.Max(TitleBarLeading.DesiredSize.Width, TitleBarTrailing.DesiredSize.Width) + 16;
-        var width = Math.Clamp(TitleBarLayout.Bounds.Width - 2 * wing, 180, 500);
+        // Equal reserved wings keep search centered even when the native controls are visible. A wide menu (Windows and Linux)
+        // can leave too little room that way, so then settle for whatever is free between the two sides.
+        var leading = TitleBarLeading.DesiredSize.Width;
+        var trailing = TitleBarTrailing.DesiredSize.Width;
+        var wing = Math.Max(leading, trailing) + 16;
+        var free = TitleBarLayout.Bounds.Width - leading - trailing - 32;
+        var width = Math.Clamp(TitleBarLayout.Bounds.Width - 2 * wing, Math.Clamp(free, 180, 280), 500);
         if (Math.Abs(PalettePill.Width - width) > 0.5) PalettePill.Width = width;
     }
 
