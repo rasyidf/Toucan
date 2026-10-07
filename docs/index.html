@@ -609,7 +609,7 @@ kbd { display: inline-block; padding: 1px 6px; border: 1px solid var(--border); 
 /* Platforms */
 .preview-note { padding: 14px 18px; border: 1px solid color-mix(in srgb, var(--yellow) 55%, var(--border)); background: var(--warn-bg); border-radius: 12px; margin-bottom: 20px; font-size: 14.5px; color: var(--text); }
 .preview-note strong { color: var(--warn); font-weight: 600; }
-.platforms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.platforms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 @media (max-width: 900px) { .platforms { grid-template-columns: 1fr; } }
 .platform { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; background: var(--surface); display: flex; flex-direction: column; gap: 10px; transition: border-color .2s ease-out; }
 .platform:hover { border-color: color-mix(in srgb, var(--faint) 70%, var(--border)); }
@@ -725,7 +725,7 @@ footer { padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
         </a>
         <a class="btn btn-ghost" href="https://github.com/rasyidf/Toucan">View source</a>
       </div>
-      <p class="hero-note">v0.20.0 on Windows 10+, macOS and Linux (v0.18.0 was the first release on macOS and Linux). Expect rough edges before 1.0.</p>
+      <p class="hero-note">v0.20.0 on Windows 10+, macOS and Linux. Expect rough edges before 1.0.</p>
     </div>
 
     <!-- Interactive demo: a small model of the editor, driven by the data in the script below. -->
@@ -1011,7 +1011,7 @@ Languages: 4
       <div class="card plugin-card reveal" style="--d:80ms">
         <span class="chip ai tag">plugins · preview</span>
         <h3>Extend it with a .dll</h3>
-        <p>Plugins are .NET assemblies that add file formats, translation providers, validation rules, and framework profiles. New in v0.18.0, they run in the macOS and Linux app and the CLI. The Windows app does not load plugins.</p>
+        <p>Plugins are .NET assemblies that add file formats, translation providers, validation rules, and framework profiles. They run in the app on Windows, macOS and Linux, and in the CLI.</p>
         <ul>
           <li>Nothing loads until you enable and trust it.</li>
           <li>Trust is pinned to a SHA-256 hash of the plugin's files, so a changed plugin asks again.</li>
@@ -1041,16 +1041,10 @@ Languages: 4
       <div class="platform reveal">
         <span class="chip warn">preview</span>
         <h3>Windows, macOS and Linux</h3>
-        <p>One Avalonia app on the same core everywhere, so formats, validation, and providers behave the same, with the modes, Zen, command palette, AI Integration, side panels, and plugins. Windows 10 and later as a portable zip for now; first released on macOS and Linux in v0.18.0. Not ported yet from the old WPF app: the Source Control and Dictionary panels.</p>
+        <p>One app on the same core everywhere, so formats, validation, and providers behave the same, with the modes, Zen, command palette, AI Integration, side panels, and plugins. Windows 10 and later as a portable zip for now, macOS as a DMG, Linux as a tarball.</p>
         <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.20.0">Download v0.20.0 →</a>
       </div>
       <div class="platform reveal" style="--d:80ms">
-        <span class="chip warn">preview</span>
-        <h3>Windows (WPF, deprecated)</h3>
-        <p>The earlier Windows app, with Fluent design and the Mica backdrop. v0.17.3 is its last release; it stays available for the Source Control and Dictionary panels until they return in the Avalonia app.</p>
-        <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.3">Download v0.17.3 →</a>
-      </div>
-      <div class="platform reveal" style="--d:160ms">
         <span class="chip warn">preview</span>
         <h3>Command line</h3>
         <p><code>check</code>, <code>stats</code>, <code>translate</code>, <code>export</code>, <code>get</code> and <code>set</code>, on any OS with .NET 10. Build it from source for now.</p>
@@ -1109,7 +1103,6 @@ Languages: 4
           <li>Crowdin, Lokalise, Phrase, Transifex import</li>
           <li>Toucan Hub for locking and presence</li>
           <li>GitHub Action for <code>toucan check</code></li>
-          <li>macOS and Linux app at full parity</li>
         </ul>
       </li>
     </ol>
