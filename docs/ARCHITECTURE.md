@@ -80,7 +80,7 @@ Headless console tool for CI/CD integration.
 Desktop client for Windows, macOS and Linux (preview; Windows since v0.19.0). Targets `net10.0`. The older WPF app (last release v0.17.3) is on the `legacy/wpf` branch.
 
 - **Framework:** Avalonia 12.0.5 + FluentAvaloniaUI 3.0.0
-- **State:** Zen mode, Editor/Review/Audit modes, search and bulk edits, side panels (Explorer, Search, Issues, Source Code, Translation Memory, Languages, Inspector), plugins. Not ported yet: the Source Control, Translation and Dictionary panels.
+- **State:** Zen mode, Editor/Review/Audit modes, search and bulk edits, overlays (command palette, keyboard shortcut sheet), inline TM ghost text, side panels (Explorer, Search, Issues, Source Code, Translation Memory, Languages, Inspector), plugins. Not ported yet: the Source Control, Translation and Dictionary panels.
 - **Packaging:** `packaging/build-macos-app.sh` (ad-hoc-signed `Toucan.app`); Linux builds are `dotnet publish -r linux-x64|linux-arm64 --self-contained` tarballs.
 - Full DI setup: `AddToucanCore()` + `AddToucanPlugins()` plus UI and editor services; Settings → Plugins page and a startup prompt for untrusted plugins
 - `MainWindowViewModel` split into partials (File, Edit, Nav, Search, Bulk, Translation); dialogs via Avalonia StorageProvider

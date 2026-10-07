@@ -1,0 +1,50 @@
+<UserControl x:Class="Toucan.Avalonia.Views.Components.ShortcutSheet"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:svc="using:Toucan.Avalonia.Services"
+             xmlns:vm="using:Toucan.Avalonia.ViewModels"
+             Focusable="True">
+  <!-- Scrim: a click anywhere outside the sheet closes it. -->
+  <Grid x:Name="Scrim" Background="#59000000">
+    <Border Width="720" MaxHeight="560" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="16"
+            Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
+            CornerRadius="12" ClipToBounds="True" BoxShadow="0 12 40 0 #55000000">
+      <DockPanel>
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="18,14,18,10">
+          <TextBlock Text="{loc:Loc 'Keyboard Shortcuts'}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="1" Text="{loc:Loc 'Esc to close'}" Classes="caption" VerticalAlignment="Center"/>
+        </Grid>
+        <Border DockPanel.Dock="Top" Height="1" Background="{DynamicResource SubtleBorderBrush}"/>
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+          <ItemsControl x:Name="Groups" Margin="18,10,18,16">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <UniformGrid Columns="2"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:ShortcutGroup">
+                <StackPanel Margin="0,6,24,6" Spacing="2" VerticalAlignment="Top">
+                  <TextBlock Text="{Binding Category}" Classes="caption" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                  <ItemsControl ItemsSource="{Binding Items}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="svc:KeybindingEntry">
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                          <TextBlock Text="{Binding Action}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                          <Border Grid.Column="1" Classes="badge">
+                            <TextBlock Text="{Binding Shortcut}" Classes="mono"/>
+                          </Border>
+                        </Grid>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

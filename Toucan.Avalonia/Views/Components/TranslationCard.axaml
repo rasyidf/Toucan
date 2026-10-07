@@ -12,11 +12,27 @@
           <TextBlock Text="{Binding Language}" TextTrimming="CharacterEllipsis"/>
         </Border>
 
-        <TextBox Grid.Column="1" Classes="translation" Classes.empty="{Binding IsEmpty}"
-                 Text="{Binding Value}"
-                 PlaceholderText="{loc:Loc 'Not translated'}"
-                 FlowDirection="{Binding FlowDirection}"
-                 IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}"/>
+        <Panel Grid.Column="1">
+          <TextBox Classes="translation" Classes.empty="{Binding IsEmpty}"
+                   Text="{Binding Value}"
+                   PlaceholderText="{Binding PlaceholderText}"
+                   FlowDirection="{Binding FlowDirection}"
+                   IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}"/>
+          <!-- Inline TM suggestion (ghost text): shown while the field is empty; Tab accepts -->
+          <Grid ColumnDefinitions="*,Auto" IsHitTestVisible="False" Margin="11,6,10,0" VerticalAlignment="Top"
+                FlowDirection="{Binding FlowDirection}">
+            <Grid.IsVisible>
+              <MultiBinding Converter="{x:Static BoolConverters.And}">
+                <Binding Path="HasGhostText"/>
+                <Binding Path="IsEmpty"/>
+              </MultiBinding>
+            </Grid.IsVisible>
+            <TextBlock Text="{Binding GhostText}" Opacity="0.5" FontStyle="Italic" TextTrimming="CharacterEllipsis"/>
+            <Border Grid.Column="1" Classes="badge" Margin="6,0,0,0" VerticalAlignment="Top">
+              <TextBlock Text="{loc:Loc 'Tab to accept'}"/>
+            </Border>
+          </Grid>
+        </Panel>
 
         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="4,3,0,0" Spacing="1">
           <!-- Machine-translated marker -->

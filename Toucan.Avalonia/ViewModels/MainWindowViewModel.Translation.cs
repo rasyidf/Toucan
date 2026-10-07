@@ -462,6 +462,23 @@ public partial class MainWindowViewModel
     [ObservableProperty] private string selectedKeyAuditInfo = string.Empty;
     [ObservableProperty] private bool hasSelectedKeyDetails;
     [ObservableProperty] private string? ghostSuggestion;
+    private TranslationItemViewModel? _ghostTarget;
+
+    partial void OnGhostSuggestionChanged(string? value)
+    {
+        if (_ghostTarget != null) _ghostTarget.GhostText = null;
+        _ghostTarget = string.IsNullOrEmpty(value) ? null : FocusedTranslationItem;
+        if (_ghostTarget != null) _ghostTarget.GhostText = value;
+    }
+
+    /// <summary>Accepts the ghost text into an empty field. Returns false when there was nothing to accept.</summary>
+    internal bool AcceptGhostText(TranslationItemViewModel item)
+    {
+        if (IsAuditMode || !item.IsEmpty || string.IsNullOrEmpty(item.GhostText)) return false;
+        item.Value = item.GhostText;
+        item.GhostText = null;
+        return true;
+    }
 
     public ObservableCollection<KeyLanguageStatus> SelectedKeyLanguages { get; } = [];
     public ObservableCollection<SuggestionItem> Suggestions { get; } = [];
@@ -550,6 +567,7 @@ public partial class MainWindowViewModel
     internal void UpdateGhostSuggestion(TranslationItemViewModel item)
     {
         GhostSuggestion = null;
+        if (_ghostTarget != null) { _ghostTarget.GhostText = null; _ghostTarget = null; }
         if (!AppOptions.TmAutoSuggest || item.Language == PrimaryLanguage) return;
         var source = AllTranslation.FirstOrDefault(t => t.Namespace == item.Namespace && t.Language == PrimaryLanguage);
         if (source == null || string.IsNullOrWhiteSpace(source.Value)) return;

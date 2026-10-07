@@ -262,6 +262,7 @@ internal static class MainMenu
 
         var help = new List<Item>
         {
+            new("Keyboard Shortcuts", vm.ToggleShortcutSheetCommand, Action: "Keyboard Shortcuts"),
             new("Documentation", vm.HelpHomepageCommand),
             new("Report an Issue", vm.ReportIssueCommand),
         };

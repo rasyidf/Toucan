@@ -86,6 +86,22 @@ public class UiScreenshotTests
         vm.IsCommandPaletteOpen = false;
         vm.IsDirty = false;
         Pump();
+        vm.ToggleShortcutSheetCommand.Execute(null);
+        Pump();
+        Snap(window, "12-shortcut-sheet");
+        vm.IsShortcutSheetOpen = false;
+        if (window.GetVisualDescendants().OfType<Toucan.Avalonia.Views.Components.TranslationCard>().FirstOrDefault()?.DataContext is LanguageGroupViewModel ghostGroup
+            && ghostGroup.Translations.LastOrDefault() is { } ghostItem)
+        {
+            var original = ghostItem.Value;
+            ghostItem.Value = string.Empty;
+            ghostItem.GhostText = "Suggestion from translation memory";
+            Pump();
+            Snap(window, "13-ghost-text");
+            ghostItem.GhostText = null;
+            ghostItem.Value = original;
+            Pump();
+        }
         vm.ToggleZenModeCommand.Execute(null);
         window.GetVisualDescendants().OfType<Toucan.Avalonia.Views.ZenEditorView>().First().SetTitleBarInset(78);
         Pump();
