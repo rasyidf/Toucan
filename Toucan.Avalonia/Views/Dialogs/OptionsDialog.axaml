@@ -218,22 +218,10 @@
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
-          <c:SettingsList Header="{loc:Loc 'Copy templates'}" ShowSearch="False" ItemsSource="{Binding CopyTemplates}"
-                          AddText="{loc:Loc 'Add template'}" AddCommand="{Binding AddCopyTemplateCommand}" CanAdd="{Binding CanAddCopyTemplate}" Footer="{loc:Loc '“Copy key as” wraps the key in a template. %1 is replaced by the key, e.g. t(\'%1\').'}">
-            <c:SettingsList.ItemTemplate>
-                  <DataTemplate>
-                    <c:SettingsRow Stacked="True">
-                      <DockPanel>
-                        <Button DockPanel.Dock="Right" Classes="icon small settingsAction" Margin="10,0,0,0" ToolTip.Tip="Remove template"
-                                Command="{Binding $parent[ItemsControl].DataContext.RemoveCopyTemplateCommand}" CommandParameter="{Binding}">
-                          <ui:FASymbolIcon Symbol="Dismiss"/>
-                        </Button>
-                        <TextBox Text="{Binding Value}" Classes="mono"/>
-                      </DockPanel>
-                    </c:SettingsRow>
-                  </DataTemplate>
-                </c:SettingsList.ItemTemplate>
-          </c:SettingsList>
+          <c:EditableTable Header="{loc:Loc 'Copy templates'}" ShowKey="False" ValueHeader="Template" ItemsSource="{Binding CopyTemplates}"
+                           AddText="{loc:Loc 'Add template'}" AddCommand="{Binding AddCopyTemplateCommand}" CanAdd="{Binding CanAddCopyTemplate}"
+                           RemoveCommand="{Binding RemoveCopyTemplateCommand}" RemoveTip="{loc:Loc 'Remove template'}"
+                           Footer="{loc:Loc '“Copy key as” wraps the key in a template. %1 is replaced by the key, e.g. t(\'%1\').'}"/>
         </StackPanel>
 
         <!-- 3 Translation -->
@@ -346,7 +334,7 @@
           </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Validation'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
-            <c:SettingsRow Title="{loc:Loc 'Validate before saving (errors block the save)'}">
+            <c:SettingsRow Title="{loc:Loc 'Check for issues when saving'}" Description="{loc:Loc 'Findings are listed in the Issues panel and never stop a save.'}">
               <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding ValidateOnSave}"/>
             </c:SettingsRow>
           </c:SettingsGroup>

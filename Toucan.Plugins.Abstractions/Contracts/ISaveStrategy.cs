@@ -34,6 +34,15 @@ public interface ISaveStrategy
     /// <summary>Folder-scan detection rule, or null if the format is never auto-detected.</summary>
     FormatDetection? Detection => null;
 
+    /// <summary>What the format keeps and drops, or null when the strategy does not say (plugins).</summary>
+    FormatSupport? Support => null;
+
+    /// <summary>
+    /// Constructs found in the existing files under <paramref name="projectRoot"/> that <see cref="Save"/> would drop
+    /// or rewrite. Toucan opens such a project with a warning and refuses to overwrite its files. Empty means safe.
+    /// </summary>
+    IReadOnlyList<string> FindUnsupportedConstructs(string projectRoot) => [];
+
     void Save(string path, SaveContext context);
     Task SaveAsync(string path, SaveContext context);
 }

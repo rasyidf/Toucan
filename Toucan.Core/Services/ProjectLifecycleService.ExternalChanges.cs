@@ -77,6 +77,7 @@ public partial class ProjectLifecycleService
     /// </summary>
     private void UpdateLastSavedSnapshot()
     {
+        CaptureDiskBaseline();
         _lastSavedSnapshot = translationManagement.Translations
             .Select(t => new TranslationItem
             {
@@ -87,6 +88,9 @@ public partial class ProjectLifecycleService
                 IsApproved = t.IsApproved
             })
             .ToList();
+        _snapshotIndex = _lastSavedSnapshot
+            .GroupBy(t => (t.Language, t.Namespace))
+            .ToDictionary(g => g.Key, g => g.First());
     }
 
     /// <summary>

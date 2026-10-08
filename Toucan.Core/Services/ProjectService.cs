@@ -47,7 +47,14 @@ public class ProjectService(
         if (settings.Languages.Count == 0)
             settings.Languages = translations.ToLanguages().ToList();
 
-        return new ProjectLoadResult { Settings = settings, Translations = translations };
+        var warnings = new List<string>();
+        var strategy = strategyFactory.GetSaveStrategy(settings.SaveFormat);
+        var unsupported = strategy?.FindUnsupportedConstructs(folder) ?? [];
+        if (unsupported.Count > 0)
+            warnings.Add($"These {strategy!.DisplayName} files contain content Toucan cannot write back: {string.Join("; ", unsupported)}. "
+                + "You can edit and review, but saving is blocked to protect your files. Use Save As to write a copy.");
+
+        return new ProjectLoadResult { Settings = settings, Translations = translations, Warnings = warnings };
     }
 
     public ProjectSettings CreateProject(string folder, IEnumerable<string> languages, string formatId = FormatIds.Json, bool createManifest = true, string? name = null)
@@ -92,21 +99,26 @@ public class ProjectService(
             toSave = list;
         }
 
-        Save(project.ProjectPath, project.SaveFormat, items, toSave);
-        if (FormatIds.TryGetStyle(project.SaveFormat, out _) && (project.TextEncoding != null || project.LineEnding != null))
+        try
         {
-            var strategy = strategyFactory.GetSaveStrategy(project.SaveFormat)!;
-            var files = toSave.ToLanguages().SelectMany(lang => strategy.LanguageFiles(project.ProjectPath, lang));
-            foreach (var file in files.Distinct(StringComparer.Ordinal))
-                ProjectTextFormat.Apply(file, project.TextEncoding, project.LineEnding,
-                    project.SaveFormat == FormatIds.JavaProperties ? System.Text.Encoding.Latin1 : null);
+            Save(project.ProjectPath, project.SaveFormat, items, toSave);
+            if (FormatIds.TryGetStyle(project.SaveFormat, out _) && (project.TextEncoding != null || project.LineEnding != null))
+            {
+                var strategy = strategyFactory.GetSaveStrategy(project.SaveFormat)!;
+                var files = toSave.ToLanguages().SelectMany(lang => strategy.LanguageFiles(project.ProjectPath, lang));
+                foreach (var file in files.Distinct(StringComparer.Ordinal))
+                    ProjectTextFormat.Apply(file, project.TextEncoding, project.LineEnding,
+                        project.SaveFormat == FormatIds.JavaProperties ? System.Text.Encoding.Latin1 : null);
+            }
         }
-
-        // Restore display codes for in-memory state
-        if (project.LanguageAliases is { Count: > 0 })
-            foreach (var t in (IEnumerable<TranslationItem>)toSave)
-                if (project.LanguageAliases.TryGetValue(t.Language, out var mapped))
-                    t.Language = mapped;
+        finally
+        {
+            // Restore display codes for in-memory state, also when the write failed
+            if (project.LanguageAliases is { Count: > 0 })
+                foreach (var t in (IEnumerable<TranslationItem>)toSave)
+                    if (project.LanguageAliases.TryGetValue(t.Language, out var mapped))
+                        t.Language = mapped;
+        }
 
         // Update project manifest with current language list
         project.Languages = translations.ToLanguages().ToList();
@@ -176,6 +188,10 @@ public class ProjectService(
         var strategy = strategyFactory.GetSaveStrategy(formatId)
             ?? throw new FormatUnavailableException(formatId);
 
+        // Saving rewrites the files; refuse when that would silently drop content the format cannot write back.
+        if (Directory.Exists(path) && strategy.FindUnsupportedConstructs(path) is { Count: > 0 } unsafeConstructs)
+            throw new FormatSaveBlockedException(formatId, unsafeConstructs);
+
         var context = new SaveContext
         {
             LanguageDictionary = translations.ToLanguageDictionary(),
@@ -194,7 +210,7 @@ public class ProjectService(
     public IReadOnlyList<string> GetLanguageFiles(ProjectSettings settings, string language)
     {
         if (settings.LanguageFilePaths?.TryGetValue(language, out var custom) == true)
-            return [Path.IsPathRooted(custom) ? custom : Path.Combine(settings.ProjectPath, custom)];
+            return [Path.IsPathRooted(custom) ? custom : Path.Combine(settings.ProjectPath, custom.Replace('/', Path.DirectorySeparatorChar))];
 
         var strategy = strategyFactory.GetSaveStrategy(settings.SaveFormat);
         return strategy?.LanguageFiles(settings.ProjectPath, language)

@@ -20,10 +20,18 @@
                   <DockPanel>
                     <ui:FASymbolIcon DockPanel.Dock="Right" Symbol="Accept" FontSize="12" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
                                      IsVisible="{Binding IsSelected}"/>
-                    <Border DockPanel.Dock="Right" Classes="badge" IsVisible="{Binding !IsConfigured}" Margin="6,0,0,0">
+                    <!-- Only the chosen provider asks for a key; the others just look unavailable. -->
+                    <Border DockPanel.Dock="Right" Classes="badge" Margin="6,0,0,0">
+                      <Border.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                          <Binding Path="IsSelected"/>
+                          <Binding Path="!IsConfigured"/>
+                        </MultiBinding>
+                      </Border.IsVisible>
                       <TextBlock Text="{loc:Loc 'Needs API key'}" Foreground="{DynamicResource BadBrush}"/>
                     </Border>
-                    <TextBlock Text="{Binding DisplayName}" FontWeight="Medium" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="{Binding DisplayName}" FontWeight="Medium" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                               Classes.unavailable="{Binding !IsConfigured}"/>
                   </DockPanel>
                 </Button>
               </Border>

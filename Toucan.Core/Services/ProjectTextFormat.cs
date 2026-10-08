@@ -19,6 +19,6 @@ public static class ProjectTextFormat
         }
         var output = encoding == null ? detected : new UTF8Encoding(encoding == "UTF-8 BOM");
         if (lineEnding != null) text = text.ReplaceLineEndings(lineEnding == "LF" ? "\n" : "\r\n");
-        File.WriteAllText(path, text, output);
+        AtomicFile.WriteAllText(path, text, output);
     }
 }

@@ -1,12 +1,12 @@
 ---
 title: "Shipped Features"
 status: active
-updated: 2026-10-07
-summary: "Checklist of shipped features as of v0.20.2 (AI Integration added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md."
+updated: 2026-10-09
+summary: "Checklist of shipped features as of v0.22.0 (AI Integration added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md."
 ---
 # Shipped Features
 
-> As of v0.20.2 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
+> As of v0.22.0 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
 > open work is in [todos/future-roadmap.md](todos/future-roadmap.md) and open bugs in [known-bugs.md](known-bugs.md).
 > This file lists shipped features only: when something ships, add it here and delete it from the roadmap.
 > Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform. Lines marked (WPF) shipped
@@ -49,6 +49,11 @@ summary: "Checklist of shipped features as of v0.20.2 (AI Integration added), gr
 ## File I/O
 
 - [x] JSON (flat), JSON (namespaced/i18next)
+- [x] Atomic file replacement on save (temporary file, flush, swap); failed saves leave the original untouched
+- [x] Journaled multi-file saves: rollback on failure, restore after an interrupted save, previous version kept
+- [x] Save never blocked by validation findings; findings shown in the Issues panel
+- [x] Saving refuses to overwrite files edited outside Toucan without confirmation
+- [x] Recovery drafts of unsaved edits, offered after a crash without overwriting newer disk content
 - [x] YAML, TOML, INI
 - [x] PO / Gettext
 - [x] RESX (.NET), Android XML, iOS .strings

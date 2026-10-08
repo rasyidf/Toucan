@@ -29,5 +29,5 @@ public sealed class PluginHostOptions
 
     /// <summary>Per-user plugin folder: <c>Documents/Toucan/plugins</c>, next to the app's other settings.</summary>
     public static string DefaultRoot() => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "plugins");
+        Toucan.Core.Services.UserDataFolder.Root, "Toucan", "plugins");
 }

@@ -49,17 +49,39 @@
             <StackPanel>
               <c:SettingsRow Title="{loc:Loc 'Name'}"><TextBox Text="{Binding ProjectName}"/></c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Description'}" Stacked="True">
-                <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" Height="64"/>
+                <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="72"
+                         PlaceholderText="{loc:Loc 'What is this project for?'}"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+          <c:SettingsGroup Header="{loc:Loc 'Files'}">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Folder'}">
+                <SelectableTextBlock Text="{Binding ProjectPath}" Classes="mono caption" MaxWidth="320" TextTrimming="CharacterEllipsis"
+                                     ToolTip.Tip="{Binding ProjectPath}" TextAlignment="Right"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'File format'}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="{Binding SaveStyleName}" VerticalAlignment="Center"/>
+                  <Border Classes="badge" IsVisible="{Binding FormatEditingLabel, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                    <TextBlock Text="{Binding FormatEditingLabel}" FontSize="11"/>
+                  </Border>
+                </StackPanel>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Not kept when saving'}" Stacked="True" IsVisible="{Binding HasFormatLimitations}">
+                <TextBlock Text="{Binding FormatLimitations}" Classes="caption" TextWrapping="Wrap"/>
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
           <c:SettingsGroup Header="{loc:Loc 'Languages'}">
-            <c:SettingsRow Title="{loc:Loc 'Primary (source) language'}">
-              <StackPanel Orientation="Horizontal" Spacing="8">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Source language'}">
                 <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding PrimaryLanguage}"/>
-                <Button Content="{loc:Loc 'Manage languages…'}" Command="{Binding ManageLanguagesCommand}"/>
-              </StackPanel>
-            </c:SettingsRow>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Project languages'}" Description="{Binding LanguageSummary}">
+                <Button Content="{loc:Loc 'Manage…'}" Command="{Binding ManageLanguagesCommand}"/>
+              </c:SettingsRow>
+            </StackPanel>
           </c:SettingsGroup>
           <c:SettingsGroup Header="{loc:Loc 'Saving'}">
             <StackPanel>
@@ -70,7 +92,8 @@
                   <TextBlock Text="{loc:Loc 'seconds'}" VerticalAlignment="Center"/>
                 </StackPanel>
               </c:SettingsRow>
-              <c:SettingsRow Title="{loc:Loc 'Validate before saving'}"><ToggleSwitch IsChecked="{Binding ValidateOnSave}"/></c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Check for issues when saving'}" Description="{loc:Loc 'Findings are listed in the Issues panel and never stop a save.'}"><ToggleSwitch IsChecked="{Binding ValidateOnSave}"/></c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Require valid translations to approve'}" Description="{loc:Loc 'Translations with validation errors cannot be approved. Saving is never blocked.'}"><ToggleSwitch IsChecked="{Binding RequireValidForApproval}"/></c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
         </StackPanel>
@@ -113,21 +136,9 @@
               </c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
-          <c:SettingsList Header="{loc:Loc 'Copy templates (%1 = key)'}" ItemsSource="{Binding CopyTemplates}" AddText="{loc:Loc 'Add template'}" AddCommand="{Binding AddCopyTemplateCommand}" ShowSearch="False" CanAdd="{Binding CanAddCopyTemplate}">
-              <c:SettingsList.ItemTemplate>
-                  <DataTemplate>
-                    <c:SettingsRow Stacked="True">
-                      <DockPanel>
-                        <Button DockPanel.Dock="Right" Classes="icon small" Margin="6,0,0,0"
-                                Command="{Binding $parent[ItemsControl].DataContext.RemoveCopyTemplateCommand}" CommandParameter="{Binding}">
-                          <ui:FASymbolIcon Symbol="Dismiss"/>
-                        </Button>
-                        <TextBox Text="{Binding Value}" Classes="mono"/>
-                      </DockPanel>
-                    </c:SettingsRow>
-                  </DataTemplate>
-                </c:SettingsList.ItemTemplate>
-          </c:SettingsList>
+          <c:EditableTable Header="{loc:Loc 'Copy templates (%1 = key)'}" ShowKey="False" ValueHeader="Template" ItemsSource="{Binding CopyTemplates}"
+                           AddText="{loc:Loc 'Add template'}" AddCommand="{Binding AddCopyTemplateCommand}" CanAdd="{Binding CanAddCopyTemplate}"
+                           RemoveCommand="{Binding RemoveCopyTemplateCommand}" RemoveTip="{loc:Loc 'Remove template'}"/>
         </StackPanel>
 
         <!-- Source code -->

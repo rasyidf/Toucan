@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Toucan roadmap: v0.21 to v1.0</title>
-<meta name="description" content="Ten focused releases from v0.21 to v0.30: file safety, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.">
+<meta name="description" content="Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.">
 <link rel="canonical" href="https://toucan.rasyid.dev/roadmap.html">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
@@ -14,7 +14,7 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Toucan roadmap: v0.21 to v1.0">
-<meta property="og:description" content="Ten focused releases from v0.21 to v0.30: file safety, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.">
+<meta property="og:description" content="Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.">
 <meta property="og:url" content="https://toucan.rasyid.dev/roadmap.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script>
@@ -62,6 +62,7 @@
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
 <a href="ai-integration.html">AI Integration</a>
+<a href="formats.html">Format support matrix</a>
 <a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
 <a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
@@ -79,11 +80,11 @@
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Toucan roadmap: v0.21 to v1.0</h1>
-        <p class="lead">Ten focused releases from v0.21 to v0.30: file safety, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.</p>
-        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-10-07</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
+        <p class="lead">Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.</p>
+        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-10-09</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
-<blockquote><p>Current release: <strong>v0.20.2</strong> on Windows, macOS and Linux. Every build before v1.0 is a preview.</p></blockquote>
+<blockquote><p>Current release: <strong>v0.22.0</strong> on Windows, macOS and Linux. Every build before v1.0 is a preview.</p></blockquote>
 <h2 id="product-goal"><a class="anchor" href="#product-goal" aria-label="Link to this section">#</a>Product goal</h2>
 <p>Open a localization project, understand what needs work, translate with context, review confidently, and save or synchronize without losing information. Local files remain a first-class workflow; online connections are optional.</p>
 <p>The order is <strong>reliability → daily workflow → content sources → distribution → stabilization</strong>. Each release has one main outcome and a completion gate. Versions describe the intended sequence, not dates or a promise to ship unfinished work. Split a milestone further if its scope grows; do not move unresolved safety work into v1.0 merely to keep the version schedule.</p>
@@ -91,40 +92,42 @@
 <p>This file lists open work only. Remove shipped tasks instead of ticking them. Add user-visible changes to <code>CHANGELOG.md</code> under <code>[Unreleased]</code>, regenerate the <a href="changelog.html">website changelog</a> with <code>python3 tools/generate-changelog.py</code>, lasting capabilities to <a href="completed-features.html">completed-features.md</a>, and remove resolved issues from <a href="known-bugs.html">known-bugs.md</a>. Keep the README roadmap and <a href="index.html">website summary</a> aligned, then refresh <code>docs/INDEX.md</code>.</p>
 <p>Existing bugs are linked by ID instead of duplicated here. Completion gates describe acceptance criteria; checkboxes describe implementation work. The header counts release tasks, v1.0 gates, and deferred tasks separately.</p>
 <h2 id="release-overview"><a class="anchor" href="#release-overview" aria-label="Link to this section">#</a>Release overview</h2>
-<div class="table-wrap"><table><thead><tr><th>Release</th><th>Main outcome</th><th>Depends on</th></tr></thead><tbody><tr><td>v0.21</td><td>File fidelity and automated regression checks</td><td>v0.20</td></tr><tr><td>v0.22</td><td>Recoverable saves and durable drafts</td><td>v0.21</td></tr><tr><td>v0.23</td><td>Comfortable editing and onboarding</td><td>v0.22</td></tr><tr><td>v0.24</td><td>Glossary and message-aware validation</td><td>v0.23</td></tr><tr><td>v0.25</td><td>Review state that follows source changes</td><td>v0.24</td></tr><tr><td>v0.26</td><td>Content-source contracts and local snapshots</td><td>v0.22, v0.25</td></tr><tr><td>v0.27</td><td>CRUD persistence and synchronization engine</td><td>v0.26</td></tr><tr><td>v0.28</td><td>One complete online-source integration</td><td>v0.27</td></tr><tr><td>v0.29</td><td>Repeatable distribution and update notifications</td><td>CI from v0.21</td></tr><tr><td>v0.30</td><td>Measured performance, migration checks, release candidate</td><td>v0.21–v0.29</td></tr><tr><td>v1.0</td><td>First stable release after all release gates pass</td><td>v0.30</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Release</th><th>Main outcome</th><th>Depends on</th></tr></thead><tbody><tr><td>v0.21</td><td>File fidelity and automated regression checks</td><td>v0.20</td></tr><tr><td>v0.22</td><td>Recoverable saves and durable drafts</td><td>v0.21</td></tr><tr><td>v0.23</td><td>Extension platform: lifecycle, commands, desktop contributions, host services</td><td>v0.22</td></tr><tr><td>v0.24</td><td>Comfortable editing and onboarding</td><td>v0.23</td></tr><tr><td>v0.25</td><td>Glossary and message-aware validation</td><td>v0.24</td></tr><tr><td>v0.26</td><td>Review state that follows source changes</td><td>v0.25</td></tr><tr><td>v0.27</td><td>Content-source contracts and local snapshots</td><td>v0.23, v0.26</td></tr><tr><td>v0.28</td><td>CRUD persistence and synchronization engine</td><td>v0.27</td></tr><tr><td>v0.29</td><td>One complete online-source integration</td><td>v0.28</td></tr><tr><td>v0.30</td><td>Repeatable distribution and update notifications</td><td>CI from v0.21</td></tr><tr><td>v0.31</td><td>Measured performance, migration checks, release candidate</td><td>v0.21–v0.30</td></tr><tr><td>v1.0</td><td>First stable release after all release gates pass</td><td>v0.31</td></tr></tbody></table></div>
 <h3 id="v021-file-fidelity-and-ci"><a class="anchor" href="#v021-file-fidelity-and-ci" aria-label="Link to this section">#</a>v0.21: File fidelity and CI</h3>
-<p><strong>Outcome:</strong> supported formats can be edited without losing information, with automated protection against regressions. <strong>References:</strong> FMT-05, FMT-06, FMT-07, FMT-08, FMT-09, QA-01, REL-01 in <a href="known-bugs.html">known issues</a>.</p>
+<p><strong>Outcome:</strong> supported formats can be edited without losing information, with automated protection against regressions. <strong>References:</strong> REL-01 in <a href="known-bugs.html">known issues</a>.</p>
 <ul class="tasks">
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Resolve the tracked format issues, starting with FMT-06 and FMT-07; include an exact regression fixture for each fix.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Define a format support matrix covering versions, plurals, comments, metadata, layout, and unsupported constructs; warn or use read-only mode when safe editing is unavailable.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Expand round-trip fixtures beyond simple strings to multiline text, escaping, locale variants, plural forms, source text, and opaque metadata; verify original file paths and stable output.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add regression coverage for the previously fixed cases listed under QA-01.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add pull-request and push CI for build and relevant Core/Avalonia tests on Windows, macOS, and Linux; report coverage without using a percentage as the sole release criterion.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Confirm the CI workflow (<code>.github/workflows/ci.yml</code>: build, Core and Avalonia tests with coverage reports on Windows, macOS and Linux) passes on its first pull request, then make it a required check. Coverage stays a report, not a release criterion.</li>
 </ul>
 <p><strong>Completion gate:</strong> every format advertised as editable passes its documented fidelity fixtures, and CI catches the known regression cases.</p>
 <h3 id="v022-safe-saves-and-recovery"><a class="anchor" href="#v022-safe-saves-and-recovery" aria-label="Link to this section">#</a>v0.22: Safe saves and recovery</h3>
 <p><strong>Outcome:</strong> users can preserve incomplete work and recover from interrupted persistence.</p>
-<ul class="tasks">
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Stage and validate file output before replacement; use atomic replacement where supported and retain recoverable originals.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Make multi-file saves recoverable, including translations, comments, audit data, and the manifest; report partial failures and retain pending changes accurately.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Allow saving drafts with translation-validation findings; apply strict project validation policy to approval and delivery instead of preventing work from being saved.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist recovery drafts and offer recovery after a crash or interrupted save without silently replacing newer disk content.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify undo/redo and dirty tracking across edits, bulk operations, external merges, failed saves, and recovery.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add fault-injection checks for permission errors, disk-write failures, interrupted replacement, and external edits during save.</li>
-</ul>
 <p><strong>Completion gate:</strong> failure scenarios preserve a recoverable copy and never report unsaved work as saved.</p>
-<h3 id="v023-editor-comfort-and-onboarding"><a class="anchor" href="#v023-editor-comfort-and-onboarding" aria-label="Link to this section">#</a>v0.23: Editor comfort and onboarding</h3>
+<h3 id="v023-extension-platform"><a class="anchor" href="#v023-extension-platform" aria-label="Link to this section">#</a>v0.23: Extension platform</h3>
+<p><strong>Outcome:</strong> a connector can be built, installed, configured, and used without modifying Toucan's application code, so an optional commercial edition can ship as separate packages on the public SDK. Plugins today extend formats, translation providers, validation rules, and framework detection; this release extends the user workflow. Restart stays required for installing and updating plugins.</p>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Separate registration from activation: register capabilities without network access, activate per project or connection, give each connection its own session, cancel and dispose on project close, and report activation failures separately from registration failures. Keep application, workspace, connection, and panel lifetimes explicit.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add a command registry with stable IDs, localizable titles and categories, availability conditions, asynchronous execution with cancellation and progress, default shortcuts with user overrides, and menu, toolbar, context-menu, and command-palette contributions. Replace the static table in <code>KeybindingService</code> and distinguish hidden, unavailable, disconnected, and unlicensed states.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add a separate desktop contribution package (<code>Toucan.Plugins.Avalonia</code>) so the CLI never loads UI assemblies. Replace the hard-coded panel and toolbar switches in <code>MainWindow</code> with registered side panels, panel toolbars, settings pages, dialogs, inspector sections, and editor actions; give each plugin view model a narrow workspace context instead of <code>MainWindowViewModel</code>. Define supported theme resources, icons, localization, and accessibility conventions, and handle shared Avalonia assemblies in the loader.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Provide supported host services: plugin-scoped settings and writable storage kept outside the trusted plugin directory, connection-scoped secret references, background operations with progress, notifications, redacted diagnostics, and typed configuration fields with validation, defaults, scopes, and schema migrations. Document that in-process plugins are not sandboxed.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add a controlled workspace API: readable snapshots and edit transactions for values, comments, review state, and keys, routed through normal undo, dirty tracking, validation, and persistence. Do not expose mutable store internals or view models.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Extend compatibility checks to host requirements, desktop-contract version, platform support, and configuration migrations, with actionable failure messages.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Ship an SDK test harness (registration and activation, workspace edits, cancellation, CLI operation without desktop dependencies) and a sample connector in a separate project that references only published SDK packages: a connection form, a panel, pull/push commands, and safe workspace changes.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Move existing built-in commands and panels onto the new registration paths as each is introduced, so plugins do not get a weaker parallel system.</li>
+</ul>
+<p><strong>Completion gate:</strong> the sample connector, built outside this repository, works on desktop and in the CLI; its command appears in the palette and a menu, supports shortcut reassignment, and becomes unavailable when its workspace closes; and a plugin batch edit behaves like a native edit through undo, save failure, recovery, and reopen.</p>
+<h3 id="v024-editor-comfort-and-onboarding"><a class="anchor" href="#v024-editor-comfort-and-onboarding" aria-label="Link to this section">#</a>v0.24: Editor comfort and onboarding</h3>
 <p><strong>Outcome:</strong> a new user can open a project and complete a keyboard-driven translation session comfortably. <strong>References:</strong> APP-02, APP-03.</p>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Complete first-run setup for default language, theme, and optional translation-engine credentials; add actionable empty states and a dismissible feature tour.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add reliable inline editing, side-by-side source/target comparison, content-sized multiline fields, and character/word counts.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Make bulk operations (copy to language, replace all, pre-translate, move, delete) undoable as one step; undo covers single value edits only today.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Make the edit → accept suggestion → approve → next workflow predictable, including focus retention and configurable shortcuts with conflict detection.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Clarify source/target hierarchy, placeholder rendering, descriptions, source references, and suggestion provenance in the editor and inspector.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add notification history with actionable save, validation, and integration failures; distinguish progress, cancellation, and completion.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader labels, and RTL content on supported platforms.</li>
 </ul>
 <p><strong>Completion gate:</strong> a user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved.</p>
-<h3 id="v024-terminology-and-validation"><a class="anchor" href="#v024-terminology-and-validation" aria-label="Link to this section">#</a>v0.24: Terminology and validation</h3>
+<h3 id="v025-terminology-and-validation"><a class="anchor" href="#v025-terminology-and-validation" aria-label="Link to this section">#</a>v0.25: Terminology and validation</h3>
 <p><strong>Outcome:</strong> translations follow project vocabulary and preserve executable message syntax.</p>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add a project glossary with preferred and forbidden terms, per-language translations, descriptions, and CSV import/export.</li>
@@ -135,28 +138,28 @@
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Finish AI finding re-translation and configurable analysis strictness, retaining preview and explicit acceptance.</li>
 </ul>
 <p><strong>Completion gate:</strong> glossary and message fixtures detect meaningful errors without blocking draft saves; accepting a suggestion follows normal undo and dirty tracking.</p>
-<h3 id="v025-review-correctness"><a class="anchor" href="#v025-review-correctness" aria-label="Link to this section">#</a>v0.25: Review correctness</h3>
+<h3 id="v026-review-correctness"><a class="anchor" href="#v026-review-correctness" aria-label="Link to this section">#</a>v0.26: Review correctness</h3>
 <p><strong>Outcome:</strong> approval reflects the actual source and target that were reviewed.</p>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist Draft → Needs review → Approved per translation unit and target language, with migration from the existing approval flag.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Record the source revision/hash used for review; mark affected targets Needs review when the source changes, and invalidate approval after target edits.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add status filters and row badges; extend existing batch approval/rejection with comments and consistent validation policy.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist review history with timestamp, action, and available local actor information; do not imply authenticated team identity.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Track delivery separately from review: pending, synchronized, failed, or included in an export; preserve review meaning when remote platforms have different status models.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Track delivery separately from review: pending, synchronized, failed, or included in an export, applying the <code>requireValidForApproval</code> policy to delivery as well; preserve review meaning when remote platforms have different status models.</li>
 </ul>
 <p><strong>Completion gate:</strong> source and target changes cannot leave stale approvals, and review state survives save/reopen and project migration.</p>
-<h3 id="v026-content-sources-and-snapshot-mode"><a class="anchor" href="#v026-content-sources-and-snapshot-mode" aria-label="Link to this section">#</a>v0.26: Content sources and snapshot mode</h3>
+<h3 id="v027-content-sources-and-snapshot-mode"><a class="anchor" href="#v027-content-sources-and-snapshot-mode" aria-label="Link to this section">#</a>v0.27: Content sources and snapshot mode</h3>
 <p><strong>Outcome:</strong> a shared workspace can load and persist content through source adapters without changing translation engines.</p>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Define content-source contracts separately from <code>ITranslationProvider</code> and AI backends; expose optional read, snapshot-write, CRUD, status, revision, and delta capabilities.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add connection profiles with stable provider and connection IDs, project selection, secret references, permissions, and a connection test; support multiple profiles for one service.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Extend workspace identity and persistence for package/resource scope, source/target locales and text, stable unit IDs, remote IDs/revisions, and preserved format metadata.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Extend workspace identity and persistence (building on the v0.23 workspace API) for connection, package/resource scope, source/target locales and text, stable unit IDs, remote IDs/revisions, and preserved format metadata.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Implement the local-folder snapshot adapter over existing format strategies, preserving current projects and CLI behavior.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Support initial snapshot loading, cached opening, explicit refresh, and save-plan previews; keep loading policy separate from persistence mode.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add contract and migration tests for read-only sources, unsupported capabilities, duplicate key names across packages, and existing plugin compatibility; version new public contracts deliberately.</li>
 </ul>
 <p><strong>Completion gate:</strong> local projects work through the source boundary without fidelity regressions, credentials in project files, or changes to translation-engine responsibilities.</p>
-<h3 id="v027-crud-and-synchronization-engine"><a class="anchor" href="#v027-crud-and-synchronization-engine" aria-label="Link to this section">#</a>v0.27: CRUD and synchronization engine</h3>
+<h3 id="v028-crud-and-synchronization-engine"><a class="anchor" href="#v028-crud-and-synchronization-engine" aria-label="Link to this section">#</a>v0.28: CRUD and synchronization engine</h3>
 <p><strong>Outcome:</strong> local edits become durable, reviewable operations that can be reconciled with remote changes.</p>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Define separate operations for key creation, translation creation/update, rename, translation deletion, and whole-key deletion; enforce provider capabilities and permissions.</li>
@@ -167,10 +170,11 @@
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify restart recovery, ambiguous network failures, duplicate-prevention, pagination completeness, and cancellation with a deterministic test adapter; never infer deletion from an incomplete read.</li>
 </ul>
 <p><strong>Completion gate:</strong> failed or repeated synchronization preserves unsent work, avoids duplicate writes, and cannot silently overwrite detected concurrent edits.</p>
-<h3 id="v028-first-online-connector"><a class="anchor" href="#v028-first-online-connector" aria-label="Link to this section">#</a>v0.28: First online connector</h3>
+<h3 id="v029-first-online-connector"><a class="anchor" href="#v029-first-online-connector" aria-label="Link to this section">#</a>v0.29: First online connector</h3>
 <p><strong>Outcome:</strong> users can complete one real online workflow from connection through delivery.</p>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Select one service from actual user demand, such as Crowdin, Lokalise, or a documented custom REST service; specify whether its adapter uses snapshots, CRUD, or both.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Treat installation, trust, activation, and entitlement as separate states: add staged plugin installation with integrity checks and rollback, publisher signature verification for a commercial channel (keeping an explicit community/development path), and an entitlement check with defined offline and expiry behavior that keeps cached work and export available. Keep service authentication separate from Toucan licensing.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Implement authentication, project/resource/language mapping, complete paginated reads, and the supported write operations against that service.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add bounded concurrency, timeout/cancellation, rate-limit handling and backoff, token-expiry handling, and actionable permission errors.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Expose connection settings and status in a Sources area, separate from translation engines and AI; show last successful sync, pending changes, and failures.</li>
@@ -178,7 +182,7 @@
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Run connector contract checks and controlled end-to-end tests covering changed remote content, partial failures, asynchronous jobs where applicable, and secret redaction in diagnostics.</li>
 </ul>
 <p><strong>Completion gate:</strong> the selected connector passes a full offline/edit/reconnect/conflict/push/reopen workflow. If it cannot meet the safety gates, label it preview and exclude it from stable integration claims.</p>
-<h3 id="v029-distribution-and-updates"><a class="anchor" href="#v029-distribution-and-updates" aria-label="Link to this section">#</a>v0.29: Distribution and updates</h3>
+<h3 id="v030-distribution-and-updates"><a class="anchor" href="#v030-distribution-and-updates" aria-label="Link to this section">#</a>v0.30: Distribution and updates</h3>
 <p><strong>Outcome:</strong> releases are repeatable, installable, and discoverable. <strong>References:</strong> REL-01, REL-02, REL-03, REL-04.</p>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add tag-triggered release builds with version checks, artifact checksums, and packaged-build smoke tests on supported platforms.</li>
@@ -189,7 +193,7 @@
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify clean install, upgrade, uninstall, and settings preservation; document signing costs or platform limitations that remain unresolved.</li>
 </ul>
 <p><strong>Completion gate:</strong> a release can be built from its tag and installed/upgraded on each supported platform, with explicit platform limitations and no manual artifact patching. Automatic in-app installation is deferred.</p>
-<h3 id="v030-performance-and-release-candidate"><a class="anchor" href="#v030-performance-and-release-candidate" aria-label="Link to this section">#</a>v0.30: Performance and release candidate</h3>
+<h3 id="v031-performance-and-release-candidate"><a class="anchor" href="#v031-performance-and-release-candidate" aria-label="Link to this section">#</a>v0.31: Performance and release candidate</h3>
 <p><strong>Outcome:</strong> the complete workflow has measured limits and survives upgrade and failure scenarios. <strong>Reference:</strong> QA-02.</p>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Profile open, edit, search, save, and sync on named hardware with representative fixtures, including 10,000 keys × 10 locales; record cold/warm timings and memory.</li>
@@ -202,7 +206,7 @@
 <p><strong>Proposed performance budgets:</strong> usable editor within five seconds for the reference fixture, warm search within 200 ms, and responsive typing while persistence runs. Confirm or revise these budgets against named hardware before claiming them; they are not current measurements.</p>
 <p><strong>Completion gate:</strong> measured budgets are met or the supported scale is explicitly narrowed, migrations pass, and no unresolved data-loss or silent-overwrite issue remains.</p>
 <h2 id="v10-release-gates"><a class="anchor" href="#v10-release-gates" aria-label="Link to this section">#</a>v1.0 release gates</h2>
-<p>Version 1.0 follows v0.30 only when these acceptance checks pass. Freeze public contracts and persistence schemas after reviewing the supported migration policy.</p>
+<p>Version 1.0 follows v0.31 only when these acceptance checks pass. Freeze public contracts and persistence schemas after reviewing the supported migration policy.</p>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Every format advertised as editable preserves its documented semantics and metadata; unsupported constructs have safe, visible handling.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Failed saves, crashes, and interrupted synchronization preserve recoverable work and accurate pending state.</li>
@@ -213,7 +217,7 @@
 </ul>
 <h2 id="feature-group-cross-reference"><a class="anchor" href="#feature-group-cross-reference" aria-label="Link to this section">#</a>Feature-group cross-reference</h2>
 <p>Existing docs refer to FG IDs. These map the former groups to the smaller release plan; release sections above own the tasks.</p>
-<div class="table-wrap"><table><thead><tr><th>Group</th><th>Planned location</th></tr></thead><tbody><tr><td>FG-01 Packaging &amp; Distribution</td><td>v0.29</td></tr><tr><td>FG-02 Auto-Updater</td><td>Update notifications in v0.29; automatic installation after v1.0</td></tr><tr><td>FG-04 ConsistencyAI</td><td>v0.24</td></tr><tr><td>FG-05 Review Workflow</td><td>v0.25</td></tr><tr><td>FG-06 Git Integration</td><td>After v1.0</td></tr><tr><td>FG-09 Improved Validation</td><td>v0.24</td></tr><tr><td>FG-10 Onboarding &amp; UX Polish</td><td>v0.23</td></tr><tr><td>FG-11 Editor Improvements</td><td>v0.23; Markdown preview after v1.0</td></tr><tr><td>FG-12 Export &amp; Reporting</td><td>After v1.0</td></tr><tr><td>FG-13 Performance &amp; Scale</td><td>v0.30</td></tr><tr><td>FG-14 Webhook Provider</td><td>After v1.0; machine translation remains separate from content-source CRUD</td></tr><tr><td>FG-15 Glossary &amp; Terminology</td><td>v0.24; TBX after v1.0</td></tr><tr><td>FG-16 Test Coverage &amp; CI</td><td>v0.21 and focused workflow/failure checks in subsequent releases</td></tr><tr><td>Content sources (new)</td><td>Snapshot mode v0.26, CRUD/sync v0.27, first online connector v0.28</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Group</th><th>Planned location</th></tr></thead><tbody><tr><td>FG-01 Packaging &amp; Distribution</td><td>v0.30</td></tr><tr><td>FG-02 Auto-Updater</td><td>Update notifications in v0.30; automatic installation after v1.0</td></tr><tr><td>FG-04 ConsistencyAI</td><td>v0.25</td></tr><tr><td>FG-05 Review Workflow</td><td>v0.26</td></tr><tr><td>FG-06 Git Integration</td><td>After v1.0</td></tr><tr><td>FG-09 Improved Validation</td><td>v0.25</td></tr><tr><td>FG-10 Onboarding &amp; UX Polish</td><td>v0.24</td></tr><tr><td>FG-11 Editor Improvements</td><td>v0.24; Markdown preview after v1.0</td></tr><tr><td>FG-12 Export &amp; Reporting</td><td>After v1.0</td></tr><tr><td>FG-13 Performance &amp; Scale</td><td>v0.31</td></tr><tr><td>FG-14 Webhook Provider</td><td>After v1.0; machine translation remains separate from content-source CRUD</td></tr><tr><td>FG-15 Glossary &amp; Terminology</td><td>v0.25; TBX after v1.0</td></tr><tr><td>Extension platform (new)</td><td>v0.23; source contracts v0.27; entitlements and signing v0.29</td></tr><tr><td>FG-16 Test Coverage &amp; CI</td><td>v0.21 and focused workflow/failure checks in subsequent releases</td></tr><tr><td>Content sources (new)</td><td>Snapshot mode v0.27, CRUD/sync v0.28, first online connector v0.29</td></tr></tbody></table></div>
 <h2 id="future-plan-after-v10"><a class="anchor" href="#future-plan-after-v10" aria-label="Link to this section">#</a>Future plan: after v1.0</h2>
 <p>These remain visible backlog items, not prerequisites for the first stable release.</p>
 <h3 id="additional-sources-and-synchronization"><a class="anchor" href="#additional-sources-and-synchronization" aria-label="Link to this section">#</a>Additional sources and synchronization</h3>
@@ -251,8 +255,7 @@
 <p>Core plugins shipped in v0.18.0. See the <a href="plugins.html">plugin guide</a> and <a href="https://github.com/rasyidf/Toucan/blob/main/docs/archive/plugin-system-plan.md">original plan</a>.</p>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add per-project validation rule files under <code>.toucan/rules/</code>.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add plugin UI contributions through a separate Avalonia package.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add mandatory signing and a plugin feed alongside the collaboration/auth milestone.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Make signing mandatory for all plugins and add a plugin feed alongside the collaboration/auth milestone (commercial-channel verification ships in v0.29).</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add per-rule enable/severity settings for plugin rules.</li>
 </ul>
 <h3 id="real-time-collaboration"><a class="anchor" href="#real-time-collaboration" aria-label="Link to this section">#</a>Real-time collaboration</h3>

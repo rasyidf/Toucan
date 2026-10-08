@@ -44,7 +44,7 @@ public class YamlLoadStrategy : ILoadStrategy
             var colonIdx = trimmed.IndexOf(':');
             if (colonIdx <= 0) { i++; continue; }
 
-            var key = trimmed[..colonIdx].Trim().ToString();
+            var key = StripQuotes(trimmed[..colonIdx].Trim().ToString());
             var valueSpan = trimmed[(colonIdx + 1)..].Trim();
 
             // Pop stack to current indent level
@@ -95,8 +95,20 @@ public class YamlLoadStrategy : ILoadStrategy
         return result;
     }
 
-    private static string StripQuotes(string s) =>
-        s.Length >= 2 && ((s[0] == '"' && s[^1] == '"') || (s[0] == '\'' && s[^1] == '\''))
-            ? s[1..^1].Replace("\\n", "\n").Replace("\\t", "\t").Replace("\\\"", "\"")
-            : s;
+    private static string StripQuotes(string s)
+    {
+        if (s.Length < 2) return s;
+        if (s[0] == '\'' && s[^1] == '\'') return s[1..^1].Replace("''", "'");
+        if (s[0] != '"' || s[^1] != '"') return s;
+
+        var sb = new System.Text.StringBuilder(s.Length);
+        for (var i = 1; i < s.Length - 1; i++)
+        {
+            if (s[i] != '\\' || i + 1 >= s.Length - 1) { sb.Append(s[i]); continue; }
+            i++;
+            sb.Append(s[i] switch { 'n' => '\n', 't' => '\t', 'r' => '\r', '"' => '"', '\\' => '\\', _ => s[i] });
+            if (s[i] is not ('n' or 't' or 'r' or '"' or '\\')) sb.Insert(sb.Length - 1, '\\');
+        }
+        return sb.ToString();
+    }
 }

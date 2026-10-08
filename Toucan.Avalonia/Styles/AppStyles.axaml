@@ -53,6 +53,9 @@
   <Style Selector="Button.icon ui|FASymbolIcon">
     <Setter Property="FontSize" Value="16"/>
   </Style>
+  <Style Selector="TextBlock.unavailable">
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+  </Style>
   <Style Selector="Button.small">
     <Setter Property="Padding" Value="4"/>
   </Style>
@@ -171,6 +174,31 @@
     <Setter Property="FontWeight" Value="SemiBold"/>
   </Style>
 
+  <!-- Window buttons drawn by Toucan on Windows and Linux -->
+  <Style Selector="Button.caption">
+    <Setter Property="Width" Value="40"/>
+    <Setter Property="Height" Value="28"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.caption:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="Button.caption.close:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#E81123"/>
+    <Setter Property="TextElement.Foreground" Value="White"/>
+  </Style>
+  <Style Selector="Button.caption.close:pointerover Path">
+    <Setter Property="Stroke" Value="White"/>
+  </Style>
+
   <!-- App-wide workspace modes in the title bar. -->
   <Style Selector="Button.modeTab">
     <Setter Property="Padding" Value="12,0"/>
@@ -186,7 +214,8 @@
       <ControlTemplate>
         <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}">
-          <ContentPresenter x:Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+          <!-- Not named PART_ContentPresenter: the Fluent theme paints that name on hover, which drew a second, lighter box inside the tab. -->
+          <ContentPresenter x:Name="TabContent" Content="{TemplateBinding Content}"
                             ContentTemplate="{TemplateBinding ContentTemplate}"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         </Border>
@@ -216,6 +245,7 @@
     <Setter Property="CornerRadius" Value="10"/>
     <Setter Property="Padding" Value="12"/>
   </Style>
+  <!-- Same height as the editor's filter toolbar (3 + 28 filter box + 4 padding + 1 border) so the divider lines up across the three columns. -->
   <Style Selector="Border.panelHeader">
     <Setter Property="Height" Value="36"/>
     <Setter Property="Padding" Value="10,0,4,0"/>
@@ -223,7 +253,8 @@
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
   </Style>
   <Style Selector="Border.toolbar">
-    <Setter Property="Padding" Value="10,6"/>
+    <Setter Property="Height" Value="36"/>
+    <Setter Property="Padding" Value="10,3,10,4"/>
     <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
   </Style>
@@ -526,6 +557,9 @@
                   </TextBox.InnerLeftContent>
                 </TextBox>
               </Border>
+              <Border Classes="tableHeader" IsVisible="{TemplateBinding ColumnHeader, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <ContentPresenter Content="{TemplateBinding ColumnHeader}"/>
+              </Border>
               <ScrollViewer MaxHeight="{TemplateBinding MaxListHeight}" VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Disabled" IsVisible="{TemplateBinding ItemCount, Converter={x:Static conv:SettingsListConverters.HasItems}}">
                 <ItemsPresenter x:Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}"/>
@@ -570,6 +604,41 @@
   </Style>
   <Style Selector="TextBox.invalid">
     <Setter Property="BorderBrush" Value="{DynamicResource BadBrush}"/>
+  </Style>
+  <!-- Editable table: column titles, then rows of borderless cells that show their edges on hover and focus -->
+  <Style Selector="Border.tableHeader">
+    <Setter Property="Padding" Value="14,6,12,4"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SettingsDividerBrush}"/>
+    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="Border.tableHeader TextBlock">
+    <Setter Property="FontSize" Value="11"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+  </Style>
+  <Style Selector="TextBox.cell">
+    <Setter Property="MinHeight" Value="30"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="Padding" Value="8,4"/>
+    <Setter Property="CornerRadius" Value="6"/>
+  </Style>
+  <!-- Template-part selectors, not Style.Resources: resources declared in a style apply to every TextBox in scope. -->
+  <Style Selector="TextBox.cell /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="1"/>
+  </Style>
+  <Style Selector="TextBox.cell:pointerover:not(:focus) /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="TextBox.cell:focus /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="{DynamicResource EditorBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+  </Style>
+  <Style Selector="TextBox.cell:readonly">
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
   </Style>
   <Style Selector="Border.settingsListToolbar">
     <Setter Property="Padding" Value="8"/>
@@ -634,6 +703,10 @@
   <Style Selector="TextBox">
     <Setter Property="VerticalContentAlignment" Value="Center"/>
     <Setter Property="Padding" Value="10,7,6,7"/>
+  </Style>
+  <!-- Multi-line inputs start at the top like any text area; single-line ones stay centered. -->
+  <Style Selector="TextBox[AcceptsReturn=True]">
+    <Setter Property="VerticalContentAlignment" Value="Top"/>
   </Style>
   <Style Selector="ComboBox">
     <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -755,24 +828,32 @@
     <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
   </Style>
 
-  <!-- Editor toolbar: uniform 28px icon buttons, soft checked state, rounded filter box -->
-  <Style Selector="Border.toolbar Button.icon, Border.toolbar ToggleButton.icon">
-    <Setter Property="Width" Value="30"/>
-    <Setter Property="Height" Value="30"/>
+  <!-- Toolbar and panel-header icon buttons: small, rounded, with a soft hover and checked state -->
+  <Style Selector="Border.toolbar Button.icon, Border.toolbar ToggleButton.icon, Border.panelHeader Button.icon, Border.panelHeader ToggleButton.icon">
+    <Setter Property="Width" Value="26"/>
+    <Setter Property="Height" Value="26"/>
     <Setter Property="Padding" Value="0"/>
-    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="Margin" Value="1,0"/>
+    <Setter Property="CornerRadius" Value="6"/>
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
   </Style>
-  <Style Selector="Border.toolbar Button.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter, Border.toolbar ToggleButton.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+  <Style Selector="Border.toolbar Button.icon ui|FASymbolIcon, Border.toolbar ToggleButton.icon ui|FASymbolIcon, Border.panelHeader Button.icon ui|FASymbolIcon, Border.panelHeader ToggleButton.icon ui|FASymbolIcon">
+    <Setter Property="FontSize" Value="14"/>
+  </Style>
+  <Style Selector="Border.toolbar Button.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter, Border.toolbar ToggleButton.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter, Border.panelHeader Button.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter, Border.panelHeader ToggleButton.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="Border.toolbar Button.icon:pressed /template/ ContentPresenter#PART_ContentPresenter, Border.panelHeader Button.icon:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
   </Style>
   <Style Selector="Border.toolbar ToggleButton.icon:checked /template/ ContentPresenter#PART_ContentPresenter, Border.toolbar ToggleButton.icon:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
     <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
   </Style>
   <Style Selector="Border.toolbar TextBox">
-    <Setter Property="MinHeight" Value="32"/>
+    <Setter Property="MinHeight" Value="28"/>
+    <Setter Property="Padding" Value="10,3,6,3"/>
     <Setter Property="CornerRadius" Value="8"/>
   </Style>
   <Style Selector="Rectangle.toolbarSeparator">

@@ -128,7 +128,7 @@ public sealed class FilePluginPolicyStore : IPluginPolicyStore
 
     /// <summary>Per-user policy file: <c>Documents/Toucan/plugin-policy.json</c>.</summary>
     public static string DefaultPath() => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "plugin-policy.json");
+        Toucan.Core.Services.UserDataFolder.Root, "Toucan", "plugin-policy.json");
 
     public bool IsEnabled(string pluginId)
     {

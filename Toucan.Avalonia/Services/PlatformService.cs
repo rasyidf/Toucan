@@ -13,6 +13,13 @@ internal static class PlatformService
     public static bool IsMacOS => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
+    /// <summary>
+    /// How much of the title bar the system window controls cover: only macOS has any (the traffic lights, on the left).
+    /// Windows and Linux use Toucan's own minimize, maximize and close buttons inside the top bar. Nothing is covered in fullscreen.
+    /// </summary>
+    public static (double Leading, double Trailing) TitleBarInsets(bool macOS, bool fullScreen) =>
+        macOS && !fullScreen ? (78, 0) : (0, 0);
+
     /// <summary>Human-readable name of the platform file manager, for menu labels.</summary>
     public static string FileManagerName => IsMacOS ? "Finder" : IsWindows ? "Explorer" : "File Manager";
 

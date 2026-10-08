@@ -24,7 +24,8 @@ public partial class ProjectLifecycleService(
     LanguageManagementService languageManagement,
     IUnsavedChangesHandler? unsavedChangesHandler,
     IExternalChangeHandler? externalChangeHandler,
-    ILogger<ProjectLifecycleService> logger) : IProjectLifecycleService
+    ILogger<ProjectLifecycleService> logger,
+    IRecoveryDraftService? recoveryDrafts = null) : IProjectLifecycleService
 {
     private ProjectSettings? _currentProject;
 
@@ -136,6 +137,10 @@ public partial class ProjectLifecycleService(
             autoSave.Start(interval);
         }
 
+        // 11b. Leftovers from an earlier session: an unsaved-edits draft, or a save that never finished
+        DetectLeftovers(folderPath);
+        StartDraftTimer();
+
         // 12. Raise ProjectChanged event with Opened
         ProjectChanged?.Invoke(this, new ProjectChangedEventArgs
         {
@@ -145,7 +150,8 @@ public partial class ProjectLifecycleService(
 
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Project opened successfully: {FolderPath}", folderPath);
-        return new ProjectOpenResult(ProjectOpenStatus.Success);
+        return new ProjectOpenResult(ProjectOpenStatus.Success, Warnings: loadResult.Warnings,
+            RecoveryDraft: _pendingRecovery, InterruptedSave: HasInterruptedSave);
     }
 
     /// <inheritdoc />
@@ -171,52 +177,62 @@ public partial class ProjectLifecycleService(
     }
 
     /// <inheritdoc />
-    public async Task<ProjectSaveResult> SaveProjectAsync(CancellationToken ct = default)
+    public Task<ProjectSaveResult> SaveProjectAsync(CancellationToken ct = default) => SaveProjectAsync(new SaveOptions(), ct);
+
+    /// <inheritdoc />
+    public Task<ProjectSaveResult> SaveProjectAsync(SaveOptions options, CancellationToken ct = default)
     {
         if (!IsProjectOpen || _currentProject is null)
-            return new ProjectSaveResult(ProjectSaveStatus.FileSystemError, ErrorMessage: "No project is currently open.");
+            return Task.FromResult(new ProjectSaveResult(ProjectSaveStatus.FileSystemError, ErrorMessage: "No project is currently open."));
 
+        SaveTransaction? transaction = null;
         try
         {
-            // 1. Run validation pipeline
-            var validationResults = validationPipeline.RunAll(new ValidationContext
+            // 1. Validate. Findings never stop a draft from being saved; only strict policy (approval, delivery) does.
+            var findings = _currentProject.ValidateOnSave == false && !options.EnforceValidation
+                ? []
+                : validationPipeline.RunAll(new ValidationContext
+                {
+                    Items = translationManagement.Translations,
+                    PrimaryLanguage = _currentProject.PrimaryLanguage
+                }).ToList();
+
+            var errors = findings.Where(r => r.Severity == ValidationSeverity.Error).ToList();
+            if (options.EnforceValidation && errors.Count > 0)
+                return Task.FromResult(new ProjectSaveResult(ProjectSaveStatus.ValidationErrors, Errors: errors, Findings: findings));
+
+            // 2. Refuse to overwrite edits made outside Toucan unless the caller said so
+            var files = TrackedFiles(_currentProject);
+            if (!options.OverwriteExternalChanges)
             {
-                Items = translationManagement.Translations,
-                PrimaryLanguage = _currentProject.PrimaryLanguage
-            }).ToList();
+                var changed = ExternallyChangedFiles(_currentProject);
+                if (changed.Count > 0)
+                    return Task.FromResult(new ProjectSaveResult(ProjectSaveStatus.ExternalChanges,
+                        ErrorMessage: $"{changed.Count} project file(s) changed outside Toucan: {string.Join(", ", changed.Select(Path.GetFileName))}. Nothing was saved.",
+                        Findings: findings, ExternalFiles: changed));
+            }
 
-            var errors = validationResults.Where(r => r.Severity == ValidationSeverity.Error).ToList();
-            if (errors.Count > 0)
-                return new ProjectSaveResult(ProjectSaveStatus.ValidationErrors, Errors: errors);
-
-            // 2. Persist translations via IProjectService
+            // 3. Keep the latest edits in a draft, then snapshot every file the save may touch
+            FlushRecoveryDraft();
             var projectPath = _currentProject.ProjectPath;
+            transaction = SaveTransaction.Begin(projectPath, files);
+
+            // 4. Persist translations, comments, audit data and the manifest as one unit
             projectService.Save(_currentProject, [], translationManagement.Translations);
-
-            // 3. Save comments via ICommentPersistenceService
             commentPersistence.SaveComments(projectPath, _currentProject.SaveFormat, translationManagement.Translations);
-
-            // 4. Save audit sidecar
             auditService.SaveToSidecar(projectPath);
-
-            // 5. Update manifest translationPackages and persist
             UpdateManifestTranslationPackages(_currentProject);
             _currentProject.Save();
+            transaction.Commit();
 
-            // 6. Mark all translations as saved
+            // 5. Everything is on disk: only now do the unsaved edits count as saved
             translationManagement.MarkAllSaved();
-
-            // 7. Update file watcher snapshot
+            DeleteRecoveryDraft();
             fileWatcher.TakeSnapshot();
-
-            // 8. Update last-saved snapshot for merge baseline
             UpdateLastSavedSnapshot();
-
-            // 9. Reset auto-save timer
             if (autoSave.IsEnabled)
                 autoSave.ResetTimer();
 
-            // 10. Raise ProjectChanged with Saved
             ProjectChanged?.Invoke(this, new ProjectChangedEventArgs
             {
                 ProjectPath = projectPath,
@@ -226,12 +242,26 @@ public partial class ProjectLifecycleService(
             if (logger.IsEnabled(LogLevel.Information))
                 logger.LogInformation("Project saved successfully: {ProjectPath}", projectPath);
 
-            return new ProjectSaveResult(ProjectSaveStatus.Success);
+            return Task.FromResult(new ProjectSaveResult(ProjectSaveStatus.Success, Findings: findings));
         }
-        catch (IOException ex)
+        catch (Exception ex)
         {
+            if (ex is not (IOException or UnauthorizedAccessException))
+            {
+                transaction?.Rollback();
+                throw;
+            }
+
             logger.LogError(ex, "Save failed due to file system error");
-            return new ProjectSaveResult(ProjectSaveStatus.FileSystemError, ErrorMessage: ex.Message);
+            var rollback = transaction?.Rollback();
+            var detail = rollback switch
+            {
+                null => "No files were changed.",
+                { Complete: true } => "Your files were restored to their previous content.",
+                _ => $"{rollback.Failed.Count} file(s) could not be restored ({string.Join(", ", rollback.Failed.Select(f => Path.GetFileName(f.File)))}); Toucan will offer to restore them the next time the project opens."
+            };
+            // The in-memory edits stay dirty: nothing was reported as saved.
+            return Task.FromResult(new ProjectSaveResult(ProjectSaveStatus.FileSystemError, ErrorMessage: $"{ex.Message} {detail} Your unsaved changes are still open."));
         }
     }
 
@@ -323,7 +353,7 @@ public partial class ProjectLifecycleService(
 
             return new ProjectSaveResult(ProjectSaveStatus.Success);
         }
-        catch (IOException ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             logger.LogError(ex, "Save As failed due to file system error: {TargetFolder}", targetFolder);
             return new ProjectSaveResult(ProjectSaveStatus.FileSystemError, ErrorMessage: ex.Message);
@@ -380,7 +410,8 @@ public partial class ProjectLifecycleService(
                     break;
 
                 case UnsavedChangesChoice.Discard:
-                    // Nothing to persist — just fall through to cleanup
+                    // The user chose to throw the edits away, so the recovery draft must not bring them back
+                    DeleteRecoveryDraft();
                     break;
 
                 case UnsavedChangesChoice.Cancel:
@@ -412,12 +443,17 @@ public partial class ProjectLifecycleService(
     private void CleanupCurrentProject()
     {
         autoSave.Stop();
+        StopDraftTimer();
+        _pendingRecovery = null;
+        _interruptedSave = null;
+        _diskBaseline = [];
         UnsubscribeFromFileWatcher();
         fileWatcher.Stop();
         translationManagement.Clear();
         auditService.Clear();
         languageManagement.SetProjectSettings(null);
         _lastSavedSnapshot = [];
+        _snapshotIndex = [];
         _currentProject = null;
     }
 }

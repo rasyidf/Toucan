@@ -65,39 +65,13 @@
             </c:SettingsRow>
           </c:SettingsGroup>
 
-          <c:SettingsList Header="{loc:Loc 'Options'}" ItemsSource="{Binding OptionItems}" AddText="{loc:Loc 'Add option'}" AddCommand="{Binding AddOptionCommand}" ShowSearch="False">
-              <c:SettingsList.ItemTemplate>
-                  <DataTemplate>
-                    <c:SettingsRow Stacked="True">
-                      <Grid ColumnDefinitions="150,*,Auto">
-                        <TextBox Text="{Binding Key}" IsReadOnly="{Binding IsSchemaField}" Classes="mono" Margin="0,0,8,0"/>
-                        <TextBox Grid.Column="1" Text="{Binding Value}" PlaceholderText="{Binding Hint}"/>
-                        <Button Grid.Column="2" Classes="icon small" Margin="6,0,0,0" IsVisible="{Binding !IsSchemaField}"
-                                Command="{Binding $parent[ItemsControl].DataContext.RemoveOptionCommand}" CommandParameter="{Binding}">
-                          <ui:FASymbolIcon Symbol="Dismiss"/>
-                        </Button>
-                      </Grid>
-                    </c:SettingsRow>
-                  </DataTemplate>
-                </c:SettingsList.ItemTemplate>
-          </c:SettingsList>
+          <c:EditableTable Header="{loc:Loc 'Options'}" ItemsSource="{Binding OptionItems}" AddText="{loc:Loc 'Add option'}" AddCommand="{Binding AddOptionCommand}"
+                           RemoveCommand="{Binding RemoveOptionCommand}" RemoveTip="{loc:Loc 'Remove option'}"
+                           KeyHeader="Key" ValueHeader="Value"/>
 
-          <c:SettingsList Header="{loc:Loc 'Secrets (stored encrypted)'}" ItemsSource="{Binding SecretItems}" AddText="{loc:Loc 'Add secret'}" AddCommand="{Binding AddSecretCommand}" ShowSearch="False">
-              <c:SettingsList.ItemTemplate>
-                  <DataTemplate>
-                    <c:SettingsRow Stacked="True">
-                      <Grid ColumnDefinitions="150,*,Auto">
-                        <TextBox Text="{Binding Key}" IsReadOnly="{Binding IsSchemaField}" Classes="mono" Margin="0,0,8,0"/>
-                        <TextBox Grid.Column="1" Text="{Binding Value}" PasswordChar="•" Classes="revealPasswordButton" PlaceholderText="{Binding Hint}"/>
-                        <Button Grid.Column="2" Classes="icon small" Margin="6,0,0,0" IsVisible="{Binding !IsSchemaField}"
-                                Command="{Binding $parent[ItemsControl].DataContext.RemoveSecretCommand}" CommandParameter="{Binding}">
-                          <ui:FASymbolIcon Symbol="Dismiss"/>
-                        </Button>
-                      </Grid>
-                    </c:SettingsRow>
-                  </DataTemplate>
-                </c:SettingsList.ItemTemplate>
-          </c:SettingsList>
+          <c:EditableTable Header="{loc:Loc 'Secrets (stored encrypted)'}" ItemsSource="{Binding SecretItems}" AddText="{loc:Loc 'Add secret'}" AddCommand="{Binding AddSecretCommand}"
+                           RemoveCommand="{Binding RemoveSecretCommand}" RemoveTip="{loc:Loc 'Remove secret'}" IsSecret="True"
+                           KeyHeader="Key" ValueHeader="Value"/>
         </StackPanel>
       </ScrollViewer>
     </Grid>

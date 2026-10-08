@@ -1,12 +1,12 @@
 ---
 title: "Known Issues & Unfinished Features"
 status: active
-updated: 2026-10-07
-summary: "Open issues for v0.20.2: one tracked format issue, release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
+updated: 2026-10-09
+summary: "Open issues for v0.22.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
 ---
 # Known Issues & Unfinished Features
 
-Current release: **v0.20.2** (preview). Last audited **2026-10-07** against the code on `fix/ui-visual-polish`.
+Current release: **v0.22.0** (preview). Last audited **2026-10-09** against the code on `release/v0.22.0`.
 
 This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [CHANGELOG.md](../CHANGELOG.md) (see [Where the old fixes went](#where-the-old-fixes-went)). When a bug is fixed, delete its row and section here and add a `### Fixed` line to the changelog `[Unreleased]` section. Planned work for an ID is linked from [the roadmap](todos/future-roadmap.md) (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from `main` (source: branch `legacy/wpf`), so nothing here is about WPF.
 
@@ -16,48 +16,25 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 
 | ID | Severity | Area | Problem | Checked |
 |----|----------|------|---------|---------|
-| [FMT-09](#fmt-09) | Low | YAML | Flat dotted keys are rewritten as nested maps; a key that is also a parent gets a `__self` entry | Reproduced |
-| [REL-01](#rel-01) | Medium | Release | No CI or release pipeline; every release is built by hand | Reproduced (no config in repo) |
+| [REL-01](#rel-01) | Medium | Release | No release pipeline; every release is built by hand (CI for pull requests exists) | Reproduced |
 | [REL-02](#rel-02) | Medium | Release | macOS app is ad-hoc signed and not notarized | From docs and script |
 | [REL-03](#rel-03) | Low | Release | Update check is manual only: no check on startup, no download or install | From code |
 | [REL-04](#rel-04) | Low | Release | Windows ships as a portable zip; no installer or MSIX in releases | From docs |
 | [APP-01](#app-01) | Low | App | Source Control and Dictionary panels do not exist | Reproduced |
 | [APP-02](#app-02) | Low | App | Keyboard shortcuts cannot be changed | Reproduced |
 | [APP-03](#app-03) | Low | App | No notification history; the status-bar badge only shows a count of empty translations | Reproduced |
-| [QA-01](#qa-01) | Medium | Tests | No tests for the bugs fixed in 0.17.1, and none for the formats' edge cases above | From code |
+| [APP-04](#app-04) | Low | App | Bulk operations (copy to language, replace all, pre-translate, move, delete) cannot be undone | From code |
 | [QA-02](#qa-02) | Info | Perf | Large-project performance has never been profiled | Not checked |
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
 
-Suggested order: release work first (REL-01), then FMT-09 and the rest.
+Suggested order: release work first (REL-01), then the rest.
 
 ---
 
-## Format bugs (Toucan.Core)
+## Format bugs
 
-All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategies/`. Round-trip means: open a folder, change nothing or one value, save.
-
-<a id="fmt-09"></a>
-### FMT-09 — YAML: flat dotted keys become nested; `__self` is written into the file
-
-- **Severity:** Low · **Area:** YAML · **Checked:** reproduced · **Code:** `YamlSaveStrategy.cs:56-79,99-103`
-- **Repro:** items `app.title`, `app` (its own value) and `a.b.c`. Save.
-- **Actual file:**
-  ```yaml
-  a:
-    b:
-      c: x
-  app:
-    __self: Self
-    title: T
-  ```
-  Toucan loads it back to the same three keys, so the round trip inside Toucan is lossless.
-- **What is still wrong:**
-  - A project whose YAML uses flat dotted keys (`"a.b.c": x`, i18next with `keySeparator: false`) is rewritten as nested maps. The app reading it then finds nothing.
-  - A key that is both a value and a parent writes a `__self:` child that no other tool understands.
-- **Fix direction:** remember per file whether keys were flat or nested and write the same style. For the parent-and-child clash, warn and keep the nested key instead of inventing `__self`.
-- **Also noticed, not run:** `EscapeYamlValue` (`YamlSaveStrategy.cs:116-148`) quotes `yes`/`no`/`true`/`false`/`null` but not `on`, `off`, `~`, or number-like text such as `1.0` or `007`. A YAML 1.1 reader would turn those into booleans or numbers. Worth a test before changing anything.
-- **Tests to add:** flat dotted file stays flat; nested stays nested; clash case.
+None are tracked. What each format keeps and drops on save is in [formats.md](formats.md); the tests that guard it are `FormatFidelityFixtureTests`, `FormatStabilityTests`, `FormatBugRegressionTests` and `YamlFidelityTests` in `tests/Toucan.Core.Tests/Formats/`.
 
 ---
 
@@ -66,8 +43,8 @@ All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategi
 <a id="rel-01"></a>
 ### REL-01 — No CI or release pipeline
 
-- **Severity:** Medium · **Checked:** there is no `.github/`, no workflow and no other CI config in the repo.
-- **State:** release builds come from `publish.ps1`, `packaging/build-macos-app.sh` and `dotnet publish` run by hand. v0.18.0 Linux tarballs were made by hand too. The test suites (`Toucan.Core.Tests`, `Toucan.Avalonia.Tests`) are not run automatically on pull requests.
+- **Severity:** Medium · **Checked:** `.github/workflows/ci.yml` builds and tests on Windows, macOS and Linux for pull requests and pushes. There is no release workflow.
+- **State:** release builds come from `publish.ps1`, `packaging/build-macos-app.sh` and `dotnet publish` run by hand. v0.18.0 Linux tarballs were made by hand too. 
 - **Impact:** no gate on regressions, and releases are only as reproducible as one machine.
 - **Fix direction:** FG-01 and FG-16 in [docs/todos/future-roadmap.md](todos/future-roadmap.md): a PR workflow (build and test on macOS, Linux, Windows with `Toucan.CrossPlatform.slnx`) first, then a tag-triggered release workflow that builds all packages and attaches them to the GitHub release.
 
@@ -116,17 +93,15 @@ All of these sit in `Toucan.Core/Services/LoadStrategies/` and `.../SaveStrategi
 - **Severity:** Low · **Checked:** `StatusBarService.ShowNotificationBadge` is only fed the number of empty translations (`MainWindowViewModel.cs:266`). There is no `NotificationService` and nothing opens when the badge is clicked.
 - **Fix direction:** a small service holding title, message, severity and time, a flyout anchored to the badge, and producers: save failures, validation summaries, plugin load errors, and (later) update availability.
 
+<a id="app-04"></a>
+### APP-04 — Bulk operations cannot be undone
+
+- **Severity:** Low · **Checked:** `UndoRedoService` records single value edits (`Record(ns, language, old, new)`); `NotifyBulkValueChanges` and the bulk commands never record anything, so Undo after "copy to language" does nothing.
+- **Fix direction:** group the edits of one bulk operation into a single undo step. Planned in v0.24.
+
 ---
 
 ## Quality
-
-<a id="qa-01"></a>
-### QA-01 — Missing regression tests
-
-- **Severity:** Medium · **Checked:** from code. I found no test that targets these, so they could regress unnoticed.
-- **Bugs fixed without a test:** `DiffMergeEngine` baselines (merged items stayed dirty), `AutoSaveService` dispose during a save, `TranslationManagementService` double `DirtyStateChanged`, iOS `.strings` `\\n` handling, Java `.properties` line continuation. The last two I re-ran by hand on 2026-10-07 and they behave correctly.
-- **Also missing:** the FMT-09 cases (FMT-05 to FMT-08 now have tests in `FormatBugRegressionTests`). `FormatRoundTripTests` only covers simple keys and values (`app.title=Hello`).
-- **Fix direction:** one test per bug with the exact input from this file. This is the cheapest item here and protects the fixes above.
 
 <a id="qa-02"></a>
 ### QA-02 — Performance not profiled
@@ -148,7 +123,8 @@ The earlier version of this file kept tables of fixed bugs (B1 to B11 and the v0
 | B5 | iOS `.strings` `\\n` corrupted | 0.17.1 |
 | B6 | Java `.properties` line continuations truncated values | 0.17.1 |
 | B7 to B11 | WPF-only UI fixes (Issues grouping, Search panel sizing, Source Code panel, Explorer foreground, status bar clicks) | 0.17.2 |
-| FMT-05 to FMT-08 | RESX language detection, XLIFF save losing source/notes/state, ARB metadata and region locales | Unreleased |
+| QA-01 | Missing regression tests for B1 to B6 and the format edge cases | Unreleased (`Qa01RegressionTests`, `FormatFidelityFixtureTests`, `FormatStabilityTests`) |
+| FMT-05 to FMT-09 | RESX language detection, XLIFF save losing source/notes/state, ARB metadata and region locales, YAML flat keys and `__self` | Unreleased |
 | v0.14.1 to v0.16.1 | Earlier bug batches | 0.14.1, 0.14.2, 0.15.0, 0.16.1 |
 
 B7 to B11 were fixed in the WPF app. Whether the Avalonia app has the same problems was not checked in this audit.

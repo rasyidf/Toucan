@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Chrome;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -45,8 +46,7 @@ public partial class MainWindow : Window
         ShowLeftPanel(registry.ActiveLeftPanel?.Id);
         ShowRightPanel(registry.ActiveRightPanel?.Id);
 
-        if (PlatformService.IsMacOS) UseUnifiedTitleBar();
-        TitleBarBrand.IsVisible = PlatformService.IsMacOS;
+        UseUnifiedTitleBar();
         TopBar.LayoutUpdated += (_, _) => UpdateTitleBarLayout();
         Workspace.SizeChanged += (_, _) => FitSidePanels();
         // Clip the content as well as the outline: collapsing either panel brings
@@ -76,32 +76,84 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// macOS: draw the top bar into the title bar area (like VS Code / Claude) with the system traffic lights
-    /// overlaid on the left, instead of a separate native title bar above it.
+    /// Draw the top bar into the title bar area (like VS Code / Claude) with the window controls overlaid, instead of a separate
+    /// native title bar above it: the traffic lights on the left on macOS, the minimize, maximize and close buttons on the right
+    /// on Windows and Linux.
     /// </summary>
     private void UseUnifiedTitleBar()
     {
         ExtendClientAreaToDecorationsHint = true;
         ExtendClientAreaTitleBarHeightHint = 40;
 
-        const double TrafficLightInset = 78;
         TopBar.MinHeight = 40;
-        void UpdateInset()
+        if (!PlatformService.IsMacOS) UseOwnWindowButtons();
+        // No native title shows the app name any more, so the top bar carries it on every platform.
+        TitleBarBrand.IsVisible = true;
+        if (!PlatformService.IsMacOS)
         {
-            var inset = WindowState == WindowState.FullScreen ? 0 : TrafficLightInset; // lights are hidden in fullscreen
-            TitleBarLeading.Margin = new Thickness(inset, 0, 0, 0);
-            ZenView.SetTitleBarInset(inset); // Zen mode covers the top bar, so it needs the same clearance
+            // macOS drags the title bar natively. Elsewhere the empty part of the bar is the drag area (it needs a background to be
+            // hit-testable) and the controls on it are marked so they keep receiving clicks.
+            TopBar.Background = Brushes.Transparent;
+            WindowDecorationProperties.SetElementRole(TopBar, WindowDecorationsElementRole.TitleBar);
+            foreach (Control control in new Control[] { MenuHost, SaveStateButton, PalettePill, TitleBarTrailing })
+                WindowDecorationProperties.SetElementRole(control, WindowDecorationsElementRole.User);
+        }
+
+        void UpdateInsets()
+        {
+            var (leading, trailing) = PlatformService.TitleBarInsets(PlatformService.IsMacOS, WindowState == WindowState.FullScreen);
+            TitleBarLeading.Margin = new Thickness(leading, 0, 0, 0);
+            TitleBarTrailing.Margin = new Thickness(0, 0, trailing, 0);
+            ZenView.SetTitleBarInset(leading, trailing); // Zen mode covers the top bar, so it needs the same clearance
             UpdateTitleBarLayout();
         }
-        UpdateInset();
-        PropertyChanged += (_, e) => { if (e.Property == WindowStateProperty) UpdateInset(); };
+        UpdateInsets();
+        PropertyChanged += (_, e) =>
+        {
+            if (e.Property == WindowStateProperty) UpdateInsets();
+            // Maximized Windows windows extend past the screen edge by the frame; keep the content on screen.
+            else if (e.Property == OffScreenMarginProperty) RootGrid.Margin = OffScreenMargin;
+        };
+    }
+
+    /// <summary>
+    /// Windows and Linux: no system title bar (the window keeps only its border) so nothing draws a title or icon over the menu;
+    /// the top bar carries minimize, maximize/restore and close buttons instead.
+    /// </summary>
+    private void UseOwnWindowButtons()
+    {
+        WindowDecorations = global::Avalonia.Controls.WindowDecorations.BorderOnly;
+        CaptionButtons.IsVisible = true;
+        MinimizeButton.Click += (_, _) => WindowState = WindowState.Minimized;
+        MaximizeButton.Click += (_, _) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        CloseButton.Click += (_, _) => Close();
+
+        void Sync()
+        {
+            var maximized = WindowState == WindowState.Maximized;
+            MaximizeGlyph.IsVisible = !maximized;
+            RestoreGlyph.IsVisible = maximized;
+            ToolTip.SetTip(MaximizeButton, Loc.T(maximized ? "Restore" : "Maximize"));
+            CaptionButtons.IsVisible = WindowState != WindowState.FullScreen;
+        }
+        Sync();
+        PropertyChanged += (_, e) => { if (e.Property == WindowStateProperty) Sync(); };
     }
 
     private void UpdateTitleBarLayout()
     {
-        // Equal reserved wings keep search centered even when the native controls are visible.
-        var wing = Math.Max(TitleBarLeading.DesiredSize.Width, TitleBarTrailing.DesiredSize.Width) + 16;
-        var width = Math.Clamp(TitleBarLayout.Bounds.Width - 2 * wing, 180, 500);
+        // Equal reserved wings keep search centered even when the native controls are visible. A wide menu (Windows and Linux)
+        // can leave too little room that way, so then settle for whatever is free between the two sides.
+        var leading = TitleBarLeading.DesiredSize.Width;
+        var trailing = TitleBarTrailing.DesiredSize.Width;
+
+        // The menu folds into "…" rather than overlap the search pill and the controls on the right.
+        var beside = leading - MenuHost.DesiredSize.Width;
+        var menuRoom = Math.Max(0, TitleBarLayout.Bounds.Width - beside - trailing - 180 - 40);
+        if (double.IsInfinity(MenuHost.MaxWidth) || Math.Abs(MenuHost.MaxWidth - menuRoom) > 0.5) MenuHost.MaxWidth = menuRoom;
+        var wing = Math.Max(leading, trailing) + 16;
+        var free = TitleBarLayout.Bounds.Width - leading - trailing - 32;
+        var width = Math.Clamp(TitleBarLayout.Bounds.Width - 2 * wing, Math.Clamp(free, 180, 280), 500);
         if (Math.Abs(PalettePill.Width - width) > 0.5) PalettePill.Width = width;
     }
 

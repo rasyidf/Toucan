@@ -2,6 +2,58 @@
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-10-09
+
+Safer saves: files are replaced atomically, a failed or interrupted multi-file save is rolled back, drafts with validation findings can be saved, and unsaved edits survive a crash.
+
+### Added
+- **Recovery after a crash** — Toucan writes your unsaved edits to a recovery draft every few seconds (in `Documents/Toucan/recovery`, outside the project). When you reopen the project it offers to recover them. Edits to a value that was changed on disk in the meantime are skipped and listed, never overwritten. Discarding changes on close deletes the draft. Drafts include deleted and renamed keys and approval changes, not only edited values; a deleted key is only removed again if its value on disk is unchanged.
+- **Interrupted saves are detected** — Before a save, Toucan copies every file it may touch (language files, comment and audit sidecars, the manifest) to `.toucan/recovery`. If Toucan stops mid-save, the next open offers to restore those files or keep what is on disk. After a successful save the copies stay as the previous version.
+- **Files changed outside Toucan** — Saving no longer overwrites a language file that was edited outside Toucan since it was opened or last saved. You are asked first, and nothing is written until you confirm.
+- **Strict approval policy** — Project Properties → Saving has a new "Require valid translations to approve" switch. When on, a translation with validation errors cannot be approved, and bulk approval skips those items and says how many. It is stored as `requireValidForApproval` in `toucan.tproj`.
+
+### Changed
+- **Atomic saves** — Files are written to a temporary file in the same folder, flushed to disk and then swapped in, so a crash or write error no longer leaves a half-written file. This covers translation files, the project manifest, comment and audit sidecars, and encoding or line-ending rewrites.
+- **Drafts can be saved with validation errors** — Saving no longer asks "Save anyway?". The file is saved and the findings appear in the Issues panel, with the count in the status bar. Automatic saves also go through.
+- **Failed saves roll back** — If one file of a save fails (permissions, a full disk, a locked file), the files already written are restored, the edits stay unsaved, and the message says what happened. Permission errors are reported instead of ending the save with an unhandled error.
+
+- **"Check for issues when saving"** — The old "Validate before saving" setting did nothing; it now controls whether the check runs on save. Findings are listed in the Issues panel and never stop a save. The Options text no longer claims errors block the save.
+
+### Fixed
+- **Files left behind by a failed save** — If a save created a file the project did not have before (for example a new namespace file) and then failed, the new file is removed again when the other files are restored.
+- **Language codes after a failed save** — With language aliases configured, a save that failed halfway left items under their file code instead of their display code.
+
+## [0.21.0] - 2026-10-08
+
+Format fidelity and CI: a support matrix for every built-in format, protection against saves that would drop content (Android XML, RESX), fixes for YAML, Laravel PHP, TOML, Java properties, JSON and XML round-trips, and a build-and-test workflow on Windows, macOS and Linux. Also a unified title bar on Windows and Linux, a reusable editable table, and a tidier Project Properties page.
+
+### Added
+- **Continuous integration** — Pull requests and pushes to `main` and `release/**` build `Toucan.CrossPlatform.slnx` and run the Core and Avalonia tests on Windows, macOS and Linux, and upload coverage reports.
+- **Format support matrix** — [docs/formats.md](docs/formats.md) lists, for every built-in format, the versions that work, what survives a save and what does not. It is generated from the code and checked by a test.
+- **Unsafe saves are blocked** — Android XML projects that contain `<plurals>`, other resource types or `translatable="false"`, and RESX projects with non-string resources, `<metadata>` or files not named `Resources*.resx`, open with a warning, and saving them in place is refused, because Toucan would rewrite the files without that content. Save As still writes a copy.
+- **Stability checks** — For every loadable format, saving the same data twice gives identical files, save → load → save changes nothing and creates no new files, and locale variants (`pt-BR`, `zh-Hans`) keep their identity.
+- **Regression tests for 0.17.1 fixes** — Merged items stay clean after an external merge, `DirtyStateChanged` fires once per transition under concurrent checks, auto-save survives disposal mid-save, and iOS `.strings` escapes and Java `.properties` line continuations round-trip.
+- **Round-trip fixtures** — Every loadable format is checked for multiline text, CRLF, quotes, backslashes, unicode, placeholders, markup, separators, leading spaces, tabs, percent signs, `$`, and YAML-looking words and numbers.
+
+### Changed
+- **Unified title bar on Windows and Linux** — The top bar now extends into the title bar like on macOS: the menu, command palette and mode tabs share one row with Toucan's own minimize, maximize and close buttons, the empty area drags the window, and the Toucan name shows on every platform. When the window is too narrow for the whole menu, the items that do not fit fold into a “…” menu instead of overlapping the search box.
+- **Editable tables** — Provider options and secrets, and the copy templates in Settings and Project Properties, now use one table control: column titles, borderless cells that show an outline on hover and focus, a divider between key and value, and a remove button on each row. Provider schema keys stay read-only and cannot be removed.
+- **Machine translation provider list** — "Needs API key" shows only on the selected provider. Providers without a key are shown in gray instead of each carrying a badge.
+- **Project Properties** — The General page has a Files group with the project folder, the file format and its support level (Full or Limited), and what the format does not keep when saving (see [docs/formats.md](docs/formats.md)). Languages are split into Source language and Project languages (with a Manage button), so the labels no longer wrap. The description box has a placeholder, and the sidebar shows the format's name instead of its ID.
+
+### Fixed
+- **Borderless text boxes everywhere** — The borderless look of table cells leaked to every text box in the app. It now applies only inside editable tables.
+- **Multi-line inputs** — Comment, description and context boxes start the text at the top instead of the vertical center.
+- **Compact toolbar and panel headers** — Icon buttons in the panel headers and the editor toolbar are smaller (26 px) with rounded corners and a hover state, and the headers and toolbar are 36 px tall instead of 44 px. The Explorer and Inspector headers match the editor's filter toolbar height, so the divider lines up across the three columns.
+- **Mode tab hover** — Hovering Editor, Review or Audit no longer draws a second, lighter box inside the tab.
+- **Laravel PHP** — Multiline values were lost on load, and `\\` was read as two backslashes. The loader now reads single- and double-quoted strings, `array()` syntax, comments and nested arrays properly, and skips computed values.
+- **TOML** — Backslashes, carriage returns, `\uXXXX` escapes and trailing comments are read correctly; literal `'strings'` are no longer unescaped.
+- **Java properties** — A value with leading spaces keeps them, and `\r` and `\f` are escaped.
+- **XML formats** — Carriage returns in Android XML, RESX and XLIFF values survive a save.
+- **JSON numbers and booleans** — `10` and `true` are written back as a number and a boolean unless you edit them, instead of becoming `"10"` and `"True"`.
+- **YAML flat keys** — A file that uses flat dotted keys (`"a.b.c": x`) is saved flat instead of being rewritten as nested maps, and quoted keys load without their quotes. A key that is also a parent (`app` and `app.title`) is written as flat keys instead of an invented `__self` entry.
+- **YAML scalars** — `on`, `off`, `y`, `n`, `~`, numbers such as `1.0` and `007`, and hex-like text are quoted so YAML 1.1 readers keep them as text. Backslashes and carriage returns in quoted values load correctly.
+
 ## [0.20.2] - 2026-10-07
 
 Format fixes (XLIFF no longer loses source text, notes and state on save; RESX and ARB language and metadata bugs), a new app icon, and documentation pages and a web manifest on the website.

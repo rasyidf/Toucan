@@ -10,6 +10,7 @@ REPO = 'https://github.com/rasyidf/Toucan'
 PAGES = {
     'docs/plugins.md': 'plugins.html',
     'docs/ai-integration.md': 'ai-integration.html',
+    'docs/formats.md': 'formats.html',
     'docs/provider-settings.md': 'provider-settings.html',
     'docs/pretranslation-preview.md': 'pretranslation-preview.html',
     'docs/visual-review.md': 'visual-review.html',

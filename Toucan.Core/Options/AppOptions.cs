@@ -65,7 +65,7 @@ public class AppOptions
     public bool OpenLastProjectOnStartup { get; set; } = true;
 
     private static readonly string s_path = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan");
+        Toucan.Core.Services.UserDataFolder.Root, "Toucan");
 
     private static readonly JsonSerializerOptions s_options = new() { WriteIndented = true };
 

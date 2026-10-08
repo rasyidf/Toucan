@@ -74,6 +74,8 @@
       <div class="sidebar-title">Jump to a release</div>
       <nav id="release-index" aria-label="Versions">
 <!-- RELEASE INDEX START -->
+<a href="#v0.22.0">v0.22.0</a>
+<a href="#v0.21.0">v0.21.0</a>
 <a href="#v0.20.2">v0.20.2</a>
 <a href="#v0.20.1">v0.20.1</a>
 <a href="#v0.20.0">v0.20.0</a>
@@ -102,8 +104,71 @@
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div id="releases">
 <!-- RELEASES START -->
+<article class="release" id="v0.22.0" aria-labelledby="heading-v0.22.0">
+<div class="release-heading"><h2 id="heading-v0.22.0"><a href="#v0.22.0">v0.22.0</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-10-09">Oct 09, 2026</time></div>
+<div class="release-lead"><p>Safer saves: files are replaced atomically, a failed or interrupted multi-file save is rolled back, drafts with validation findings can be saved, and unsaved edits survive a crash.</p></div>
+<div class="release-counts"><span class="added">4 added</span><span class="changed">4 changed</span><span class="fixed">2 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.22.0</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Recovery after a crash</strong> — Toucan writes your unsaved edits to a recovery draft every few seconds (in <code>Documents/Toucan/recovery</code>, outside the project). When you reopen the project it offers to recover them. Edits to a value that was changed on disk in the meantime are skipped and listed, never overwritten. Discarding changes on close deletes the draft. Drafts include deleted and renamed keys and approval changes, not only edited values; a deleted key is only removed again if its value on disk is unchanged.</li>
+<li><strong>Interrupted saves are detected</strong> — Before a save, Toucan copies every file it may touch (language files, comment and audit sidecars, the manifest) to <code>.toucan/recovery</code>. If Toucan stops mid-save, the next open offers to restore those files or keep what is on disk. After a successful save the copies stay as the previous version.</li>
+<li><strong>Files changed outside Toucan</strong> — Saving no longer overwrites a language file that was edited outside Toucan since it was opened or last saved. You are asked first, and nothing is written until you confirm.</li>
+<li><strong>Strict approval policy</strong> — Project Properties → Saving has a new &quot;Require valid translations to approve&quot; switch. When on, a translation with validation errors cannot be approved, and bulk approval skips those items and says how many. It is stored as <code>requireValidForApproval</code> in <code>toucan.tproj</code>.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>Atomic saves</strong> — Files are written to a temporary file in the same folder, flushed to disk and then swapped in, so a crash or write error no longer leaves a half-written file. This covers translation files, the project manifest, comment and audit sidecars, and encoding or line-ending rewrites.</li>
+<li><strong>Drafts can be saved with validation errors</strong> — Saving no longer asks &quot;Save anyway?&quot;. The file is saved and the findings appear in the Issues panel, with the count in the status bar. Automatic saves also go through.</li>
+<li><strong>Failed saves roll back</strong> — If one file of a save fails (permissions, a full disk, a locked file), the files already written are restored, the edits stay unsaved, and the message says what happened. Permission errors are reported instead of ending the save with an unhandled error.</li>
+</ul>
+<ul>
+<li><strong>&quot;Check for issues when saving&quot;</strong> — The old &quot;Validate before saving&quot; setting did nothing; it now controls whether the check runs on save. Findings are listed in the Issues panel and never stop a save. The Options text no longer claims errors block the save.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>Files left behind by a failed save</strong> — If a save created a file the project did not have before (for example a new namespace file) and then failed, the new file is removed again when the other files are restored.</li>
+<li><strong>Language codes after a failed save</strong> — With language aliases configured, a save that failed halfway left items under their file code instead of their display code.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.22.0" aria-label="Permalink to v0.22.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.22.0">Release on GitHub ↗</a></div>
+</article>
+<article class="release" id="v0.21.0" aria-labelledby="heading-v0.21.0">
+<div class="release-heading"><h2 id="heading-v0.21.0"><a href="#v0.21.0">v0.21.0</a></h2><time datetime="2026-10-08">Oct 08, 2026</time></div>
+<div class="release-lead"><p>Format fidelity and CI: a support matrix for every built-in format, protection against saves that would drop content (Android XML, RESX), fixes for YAML, Laravel PHP, TOML, Java properties, JSON and XML round-trips, and a build-and-test workflow on Windows, macOS and Linux. Also a unified title bar on Windows and Linux, a reusable editable table, and a tidier Project Properties page.</p></div>
+<div class="release-counts"><span class="added">6 added</span><span class="changed">4 changed</span><span class="fixed">11 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.21.0</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Continuous integration</strong> — Pull requests and pushes to <code>main</code> and <code>release/**</code> build <code>Toucan.CrossPlatform.slnx</code> and run the Core and Avalonia tests on Windows, macOS and Linux, and upload coverage reports.</li>
+<li><strong>Format support matrix</strong> — <a href="formats.html">docs/formats.md</a> lists, for every built-in format, the versions that work, what survives a save and what does not. It is generated from the code and checked by a test.</li>
+<li><strong>Unsafe saves are blocked</strong> — Android XML projects that contain <code>&lt;plurals&gt;</code>, other resource types or <code>translatable=&quot;false&quot;</code>, and RESX projects with non-string resources, <code>&lt;metadata&gt;</code> or files not named <code>Resources*.resx</code>, open with a warning, and saving them in place is refused, because Toucan would rewrite the files without that content. Save As still writes a copy.</li>
+<li><strong>Stability checks</strong> — For every loadable format, saving the same data twice gives identical files, save → load → save changes nothing and creates no new files, and locale variants (<code>pt-BR</code>, <code>zh-Hans</code>) keep their identity.</li>
+<li><strong>Regression tests for 0.17.1 fixes</strong> — Merged items stay clean after an external merge, <code>DirtyStateChanged</code> fires once per transition under concurrent checks, auto-save survives disposal mid-save, and iOS <code>.strings</code> escapes and Java <code>.properties</code> line continuations round-trip.</li>
+<li><strong>Round-trip fixtures</strong> — Every loadable format is checked for multiline text, CRLF, quotes, backslashes, unicode, placeholders, markup, separators, leading spaces, tabs, percent signs, <code>$</code>, and YAML-looking words and numbers.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>Unified title bar on Windows and Linux</strong> — The top bar now extends into the title bar like on macOS: the menu, command palette and mode tabs share one row with Toucan&#x27;s own minimize, maximize and close buttons, the empty area drags the window, and the Toucan name shows on every platform. When the window is too narrow for the whole menu, the items that do not fit fold into a “…” menu instead of overlapping the search box.</li>
+<li><strong>Editable tables</strong> — Provider options and secrets, and the copy templates in Settings and Project Properties, now use one table control: column titles, borderless cells that show an outline on hover and focus, a divider between key and value, and a remove button on each row. Provider schema keys stay read-only and cannot be removed.</li>
+<li><strong>Machine translation provider list</strong> — &quot;Needs API key&quot; shows only on the selected provider. Providers without a key are shown in gray instead of each carrying a badge.</li>
+<li><strong>Project Properties</strong> — The General page has a Files group with the project folder, the file format and its support level (Full or Limited), and what the format does not keep when saving (see <a href="formats.html">docs/formats.md</a>). Languages are split into Source language and Project languages (with a Manage button), so the labels no longer wrap. The description box has a placeholder, and the sidebar shows the format&#x27;s name instead of its ID.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>Borderless text boxes everywhere</strong> — The borderless look of table cells leaked to every text box in the app. It now applies only inside editable tables.</li>
+<li><strong>Multi-line inputs</strong> — Comment, description and context boxes start the text at the top instead of the vertical center.</li>
+<li><strong>Compact toolbar and panel headers</strong> — Icon buttons in the panel headers and the editor toolbar are smaller (26 px) with rounded corners and a hover state, and the headers and toolbar are 36 px tall instead of 44 px. The Explorer and Inspector headers match the editor&#x27;s filter toolbar height, so the divider lines up across the three columns.</li>
+<li><strong>Mode tab hover</strong> — Hovering Editor, Review or Audit no longer draws a second, lighter box inside the tab.</li>
+<li><strong>Laravel PHP</strong> — Multiline values were lost on load, and <code>\\</code> was read as two backslashes. The loader now reads single- and double-quoted strings, <code>array()</code> syntax, comments and nested arrays properly, and skips computed values.</li>
+<li><strong>TOML</strong> — Backslashes, carriage returns, <code>\uXXXX</code> escapes and trailing comments are read correctly; literal <code>&#x27;strings&#x27;</code> are no longer unescaped.</li>
+<li><strong>Java properties</strong> — A value with leading spaces keeps them, and <code>\r</code> and <code>\f</code> are escaped.</li>
+<li><strong>XML formats</strong> — Carriage returns in Android XML, RESX and XLIFF values survive a save.</li>
+<li><strong>JSON numbers and booleans</strong> — <code>10</code> and <code>true</code> are written back as a number and a boolean unless you edit them, instead of becoming <code>&quot;10&quot;</code> and <code>&quot;True&quot;</code>.</li>
+<li><strong>YAML flat keys</strong> — A file that uses flat dotted keys (<code>&quot;a.b.c&quot;: x</code>) is saved flat instead of being rewritten as nested maps, and quoted keys load without their quotes. A key that is also a parent (<code>app</code> and <code>app.title</code>) is written as flat keys instead of an invented <code>__self</code> entry.</li>
+<li><strong>YAML scalars</strong> — <code>on</code>, <code>off</code>, <code>y</code>, <code>n</code>, <code>~</code>, numbers such as <code>1.0</code> and <code>007</code>, and hex-like text are quoted so YAML 1.1 readers keep them as text. Backslashes and carriage returns in quoted values load correctly.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.21.0" aria-label="Permalink to v0.21.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.21.0">Release on GitHub ↗</a></div>
+</article>
 <article class="release" id="v0.20.2" aria-labelledby="heading-v0.20.2">
-<div class="release-heading"><h2 id="heading-v0.20.2"><a href="#v0.20.2">v0.20.2</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-10-07">Oct 07, 2026</time></div>
+<div class="release-heading"><h2 id="heading-v0.20.2"><a href="#v0.20.2">v0.20.2</a></h2><time datetime="2026-10-07">Oct 07, 2026</time></div>
 <div class="release-lead"><p>Format fixes (XLIFF no longer loses source text, notes and state on save; RESX and ARB language and metadata bugs), a new app icon, and documentation pages and a web manifest on the website.</p></div>
 <div class="release-counts"><span class="added">2 added</span><span class="changed">2 changed</span><span class="fixed">4 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.20.2</span></summary><div class="release-notes"><h3>Added</h3>

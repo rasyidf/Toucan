@@ -8,6 +8,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 public class CsvSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public string FormatId => FormatIds.Csv;
+
+    public FormatSupport Support { get; } = new(
+        FormatEditing.Full,
+        "RFC 4180 CSV: key column plus one column per language",
+        ["Quoted fields", "embedded commas", "quotes and line breaks"],
+        ["Only the key and language columns are kept; extra columns are dropped"]);
     public string DisplayName => "CSV";
     public IReadOnlyList<string> FileExtensions => [".csv"];
     public string DefaultFilePath(string language) => "translations.csv";

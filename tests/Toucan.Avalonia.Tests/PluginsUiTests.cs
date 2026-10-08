@@ -21,7 +21,11 @@ public sealed class PluginsUiTests : IDisposable
 
     public PluginsUiTests() => _policy = new FilePluginPolicyStore(Path.Combine(_dir, "policy.json"));
 
-    public void Dispose() => Directory.Delete(_dir, recursive: true);
+    public void Dispose()
+    {
+        try { Directory.Delete(_dir, recursive: true); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { } // a loaded plugin DLL stays locked on Windows
+    }
 
     private static PluginManifest Manifest(string id, string name = "Acme Formats") =>
         new() { Id = id, Name = name, Version = "1.2.0", ApiVersion = "1.0", EntryAssembly = "a.dll", Author = "Acme", Description = "Adds formats" };

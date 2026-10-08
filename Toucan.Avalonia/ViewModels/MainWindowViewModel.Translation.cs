@@ -143,9 +143,35 @@ public partial class MainWindowViewModel
     private void ApproveVisible() =>
         ApproveItems(PagingController.Data.SelectMany(g => g.AllItems).Select(i => i.Model).Where(t => !string.IsNullOrEmpty(t.Value) && !t.IsApproved).ToList());
 
+    /// <summary>
+    /// Strict validation policy for approval (<see cref="ProjectSettings.RequireValidForApproval"/>): a translation with
+    /// validation errors cannot be approved. Saving is never affected.
+    /// </summary>
+    internal bool CanApprove(TranslationItem item) => ApprovalBlockers([item]).Count == 0;
+
+    private List<TranslationItem> ApprovalBlockers(IReadOnlyCollection<TranslationItem> items)
+    {
+        if (ProjectSettings?.RequireValidForApproval != true || items.Count == 0) return [];
+        var errors = _validationPipeline.RunAll(new ValidationContext { Items = AllTranslation, PrimaryLanguage = ProjectSettings.PrimaryLanguage })
+            .Where(r => r.Severity == ValidationSeverity.Error)
+            .Select(r => (r.Namespace, r.Language)).ToHashSet();
+        var blocked = items.Where(t => errors.Contains((t.Namespace, t.Language)) || errors.Contains((t.Namespace, null))).ToList();
+        if (blocked.Count > 0)
+            StatusText = blocked.Count == 1
+                ? $"Not approved: {blocked[0].Namespace} [{blocked[0].Language}] has validation errors."
+                : $"Not approved: {blocked.Count} item(s) have validation errors.";
+        return blocked;
+    }
+
     private void ApproveItems(List<TranslationItem> items)
     {
         if (items.Count == 0) return;
+        var blocked = ApprovalBlockers(items);
+        if (blocked.Count > 0)
+        {
+            items = items.Except(blocked).ToList();
+            if (items.Count == 0) return;
+        }
         foreach (var t in items)
         {
             t.IsApproved = true;
@@ -154,7 +180,7 @@ public partial class MainWindowViewModel
         NotifyBulkValueChanges(items);
         foreach (var t in PagingController.Data.SelectMany(g => g.AllItems)) t.Refresh();
         UpdateSummaryInfo();
-        StatusText = $"Approved {items.Count} item(s).";
+        StatusText = $"Approved {items.Count} item(s)." + (blocked.Count > 0 ? $" Skipped {blocked.Count} with validation errors." : string.Empty);
     }
 
     [RelayCommand]

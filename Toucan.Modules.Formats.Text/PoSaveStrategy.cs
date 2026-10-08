@@ -10,6 +10,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 public class PoSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public string FormatId => FormatIds.Po;
+
+    public FormatSupport Support { get; } = new(
+        FormatEditing.Full,
+        "GNU gettext PO",
+        ["msgctxt", "plural forms", "translator and extracted comments", "references", "flags (fuzzy)", "header"],
+        ["Obsolete (#~) entries are not read and are dropped on save", "POT templates are not created automatically"]);
     public string DisplayName => "Gettext PO";
     public IReadOnlyList<string> FileExtensions => [".po"];
     public string DefaultFilePath(string language) => $"{language}.po";

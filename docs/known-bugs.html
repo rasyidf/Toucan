@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Known Issues &amp; Unfinished Features</title>
-<meta name="description" content="Open issues for v0.20.2: one tracked format issue, release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.">
+<meta name="description" content="Open issues for v0.22.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.">
 <link rel="canonical" href="https://toucan.rasyid.dev/known-bugs.html">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
@@ -14,7 +14,7 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Known Issues &amp; Unfinished Features">
-<meta property="og:description" content="Open issues for v0.20.2: one tracked format issue, release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.">
+<meta property="og:description" content="Open issues for v0.22.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.">
 <meta property="og:url" content="https://toucan.rasyid.dev/known-bugs.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script>
@@ -62,6 +62,7 @@
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
 <a href="ai-integration.html">AI Integration</a>
+<a href="formats.html">Format support matrix</a>
 <a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
 <a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
@@ -73,55 +74,33 @@
 <a href="branding.html">Toucan: Brand Guidelines</a>
 <a href="visual-review.html">Visual review: screenshots of every screen</a>
       </nav>
-      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#open-issues">Open issues</a><a class="l2" href="#format-bugs-toucancore">Format bugs (Toucan.Core)</a><a class="l2" href="#release-and-distribution">Release and distribution</a><a class="l2" href="#app-gaps">App gaps</a><a class="l2" href="#quality">Quality</a><a class="l2" href="#where-the-old-fixes-went">Where the old fixes went</a></nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#open-issues">Open issues</a><a class="l2" href="#format-bugs">Format bugs</a><a class="l2" href="#release-and-distribution">Release and distribution</a><a class="l2" href="#app-gaps">App gaps</a><a class="l2" href="#quality">Quality</a><a class="l2" href="#where-the-old-fixes-went">Where the old fixes went</a></nav>
     </aside>
     <article class="doc">
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Known Issues &amp; Unfinished Features</h1>
-        <p class="lead">Open issues for v0.20.2: one tracked format issue, release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-07</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/known-bugs.md">Edit on GitHub ↗</a></div>
+        <p class="lead">Open issues for v0.22.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-09</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/known-bugs.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
-<p>Current release: <strong>v0.20.2</strong> (preview). Last audited <strong>2026-10-07</strong> against the code on <code>fix/ui-visual-polish</code>.</p>
+<p>Current release: <strong>v0.22.0</strong> (preview). Last audited <strong>2026-10-09</strong> against the code on <code>release/v0.22.0</code>.</p>
 <p>This file lists what is wrong <em>now</em>. Fixed bugs are not kept here: they are in <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md">CHANGELOG.md</a> (see <a href="#where-the-old-fixes-went">Where the old fixes went</a>). When a bug is fixed, delete its row and section here and add a <code>### Fixed</code> line to the changelog <code>[Unreleased]</code> section. Planned work for an ID is linked from <a href="roadmap.html">the roadmap</a> (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from <code>main</code> (source: branch <code>legacy/wpf</code>), so nothing here is about WPF.</p>
 <p><strong>How each issue was checked.</strong> "Reproduced" means I ran the case through the real load and save strategies and the output is quoted. "From code" means the cause is visible in the source but I did not run it. Run the same cases again before fixing, and turn each repro into a test in <code>tests/Toucan.Core.Tests/Formats/</code>.</p>
 <h2 id="open-issues"><a class="anchor" href="#open-issues" aria-label="Link to this section">#</a>Open issues</h2>
-<div class="table-wrap"><table><thead><tr><th>ID</th><th>Severity</th><th>Area</th><th>Problem</th><th>Checked</th></tr></thead><tbody><tr><td><a href="#fmt-09">FMT-09</a></td><td>Low</td><td>YAML</td><td>Flat dotted keys are rewritten as nested maps; a key that is also a parent gets a <code>__self</code> entry</td><td>Reproduced</td></tr><tr><td><a href="#rel-01">REL-01</a></td><td>Medium</td><td>Release</td><td>No CI or release pipeline; every release is built by hand</td><td>Reproduced (no config in repo)</td></tr><tr><td><a href="#rel-02">REL-02</a></td><td>Medium</td><td>Release</td><td>macOS app is ad-hoc signed and not notarized</td><td>From docs and script</td></tr><tr><td><a href="#rel-03">REL-03</a></td><td>Low</td><td>Release</td><td>Update check is manual only: no check on startup, no download or install</td><td>From code</td></tr><tr><td><a href="#rel-04">REL-04</a></td><td>Low</td><td>Release</td><td>Windows ships as a portable zip; no installer or MSIX in releases</td><td>From docs</td></tr><tr><td><a href="#app-01">APP-01</a></td><td>Low</td><td>App</td><td>Source Control and Dictionary panels do not exist</td><td>Reproduced</td></tr><tr><td><a href="#app-02">APP-02</a></td><td>Low</td><td>App</td><td>Keyboard shortcuts cannot be changed</td><td>Reproduced</td></tr><tr><td><a href="#app-03">APP-03</a></td><td>Low</td><td>App</td><td>No notification history; the status-bar badge only shows a count of empty translations</td><td>Reproduced</td></tr><tr><td><a href="#qa-01">QA-01</a></td><td>Medium</td><td>Tests</td><td>No tests for the bugs fixed in 0.17.1, and none for the formats' edge cases above</td><td>From code</td></tr><tr><td><a href="#qa-02">QA-02</a></td><td>Info</td><td>Perf</td><td>Large-project performance has never been profiled</td><td>Not checked</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>Severity</th><th>Area</th><th>Problem</th><th>Checked</th></tr></thead><tbody><tr><td><a href="#rel-01">REL-01</a></td><td>Medium</td><td>Release</td><td>No release pipeline; every release is built by hand (CI for pull requests exists)</td><td>Reproduced</td></tr><tr><td><a href="#rel-02">REL-02</a></td><td>Medium</td><td>Release</td><td>macOS app is ad-hoc signed and not notarized</td><td>From docs and script</td></tr><tr><td><a href="#rel-03">REL-03</a></td><td>Low</td><td>Release</td><td>Update check is manual only: no check on startup, no download or install</td><td>From code</td></tr><tr><td><a href="#rel-04">REL-04</a></td><td>Low</td><td>Release</td><td>Windows ships as a portable zip; no installer or MSIX in releases</td><td>From docs</td></tr><tr><td><a href="#app-01">APP-01</a></td><td>Low</td><td>App</td><td>Source Control and Dictionary panels do not exist</td><td>Reproduced</td></tr><tr><td><a href="#app-02">APP-02</a></td><td>Low</td><td>App</td><td>Keyboard shortcuts cannot be changed</td><td>Reproduced</td></tr><tr><td><a href="#app-03">APP-03</a></td><td>Low</td><td>App</td><td>No notification history; the status-bar badge only shows a count of empty translations</td><td>Reproduced</td></tr><tr><td><a href="#app-04">APP-04</a></td><td>Low</td><td>App</td><td>Bulk operations (copy to language, replace all, pre-translate, move, delete) cannot be undone</td><td>From code</td></tr><tr><td><a href="#qa-02">QA-02</a></td><td>Info</td><td>Perf</td><td>Large-project performance has never been profiled</td><td>Not checked</td></tr></tbody></table></div>
 <p>Severity: <strong>High</strong> loses or corrupts user data; <strong>Medium</strong> gives wrong results or blocks a release goal; <strong>Low</strong> is a gap or a cosmetic problem; <strong>Info</strong> is a known unknown.</p>
-<p>Suggested order: release work first (REL-01), then FMT-09 and the rest.</p>
+<p>Suggested order: release work first (REL-01), then the rest.</p>
 <hr>
-<h2 id="format-bugs-toucancore"><a class="anchor" href="#format-bugs-toucancore" aria-label="Link to this section">#</a>Format bugs (Toucan.Core)</h2>
-<p>All of these sit in <code>Toucan.Core/Services/LoadStrategies/</code> and <code>.../SaveStrategies/</code>. Round-trip means: open a folder, change nothing or one value, save.</p>
-<a id="fmt-09"></a>
-<h3 id="fmt-09--yaml-flat-dotted-keys-become-nested-__self-is-written-into-the-file"><a class="anchor" href="#fmt-09--yaml-flat-dotted-keys-become-nested-__self-is-written-into-the-file" aria-label="Link to this section">#</a>FMT-09 — YAML: flat dotted keys become nested; <code>__self</code> is written into the file</h3>
-<ul>
-<li><strong>Severity:</strong> Low · <strong>Area:</strong> YAML · <strong>Checked:</strong> reproduced · <strong>Code:</strong> <code>YamlSaveStrategy.cs:56-79,99-103</code></li>
-<li><strong>Repro:</strong> items <code>app.title</code>, <code>app</code> (its own value) and <code>a.b.c</code>. Save.</li>
-<li><strong>Actual file:</strong>
-<pre><code class="language-yaml">a:
-  b:
-    c: x
-app:
-  __self: Self
-  title: T</code></pre>
-<p>Toucan loads it back to the same three keys, so the round trip inside Toucan is lossless.</p></li>
-<li><strong>What is still wrong:</strong>
-<ul>
-<li>A project whose YAML uses flat dotted keys (<code>"a.b.c": x</code>, i18next with <code>keySeparator: false</code>) is rewritten as nested maps. The app reading it then finds nothing.</li>
-<li>A key that is both a value and a parent writes a <code>__self:</code> child that no other tool understands.</li>
-</ul></li>
-<li><strong>Fix direction:</strong> remember per file whether keys were flat or nested and write the same style. For the parent-and-child clash, warn and keep the nested key instead of inventing <code>__self</code>.</li>
-<li><strong>Also noticed, not run:</strong> <code>EscapeYamlValue</code> (<code>YamlSaveStrategy.cs:116-148</code>) quotes <code>yes</code>/<code>no</code>/<code>true</code>/<code>false</code>/<code>null</code> but not <code>on</code>, <code>off</code>, <code>~</code>, or number-like text such as <code>1.0</code> or <code>007</code>. A YAML 1.1 reader would turn those into booleans or numbers. Worth a test before changing anything.</li>
-<li><strong>Tests to add:</strong> flat dotted file stays flat; nested stays nested; clash case.</li>
-</ul>
+<h2 id="format-bugs"><a class="anchor" href="#format-bugs" aria-label="Link to this section">#</a>Format bugs</h2>
+<p>None are tracked. What each format keeps and drops on save is in <a href="formats.html">formats.md</a>; the tests that guard it are <code>FormatFidelityFixtureTests</code>, <code>FormatStabilityTests</code>, <code>FormatBugRegressionTests</code> and <code>YamlFidelityTests</code> in <code>tests/Toucan.Core.Tests/Formats/</code>.</p>
 <hr>
 <h2 id="release-and-distribution"><a class="anchor" href="#release-and-distribution" aria-label="Link to this section">#</a>Release and distribution</h2>
 <a id="rel-01"></a>
 <h3 id="rel-01--no-ci-or-release-pipeline"><a class="anchor" href="#rel-01--no-ci-or-release-pipeline" aria-label="Link to this section">#</a>REL-01 — No CI or release pipeline</h3>
 <ul>
-<li><strong>Severity:</strong> Medium · <strong>Checked:</strong> there is no <code>.github/</code>, no workflow and no other CI config in the repo.</li>
-<li><strong>State:</strong> release builds come from <code>publish.ps1</code>, <code>packaging/build-macos-app.sh</code> and <code>dotnet publish</code> run by hand. v0.18.0 Linux tarballs were made by hand too. The test suites (<code>Toucan.Core.Tests</code>, <code>Toucan.Avalonia.Tests</code>) are not run automatically on pull requests.</li>
+<li><strong>Severity:</strong> Medium · <strong>Checked:</strong> <code>.github/workflows/ci.yml</code> builds and tests on Windows, macOS and Linux for pull requests and pushes. There is no release workflow.</li>
+<li><strong>State:</strong> release builds come from <code>publish.ps1</code>, <code>packaging/build-macos-app.sh</code> and <code>dotnet publish</code> run by hand. v0.18.0 Linux tarballs were made by hand too.</li>
 <li><strong>Impact:</strong> no gate on regressions, and releases are only as reproducible as one machine.</li>
 <li><strong>Fix direction:</strong> FG-01 and FG-16 in <a href="roadmap.html">docs/todos/future-roadmap.md</a>: a PR workflow (build and test on macOS, Linux, Windows with <code>Toucan.CrossPlatform.slnx</code>) first, then a tag-triggered release workflow that builds all packages and attaches them to the GitHub release.</li>
 </ul>
@@ -168,16 +147,14 @@ app:
 <li><strong>Severity:</strong> Low · <strong>Checked:</strong> <code>StatusBarService.ShowNotificationBadge</code> is only fed the number of empty translations (<code>MainWindowViewModel.cs:266</code>). There is no <code>NotificationService</code> and nothing opens when the badge is clicked.</li>
 <li><strong>Fix direction:</strong> a small service holding title, message, severity and time, a flyout anchored to the badge, and producers: save failures, validation summaries, plugin load errors, and (later) update availability.</li>
 </ul>
+<a id="app-04"></a>
+<h3 id="app-04--bulk-operations-cannot-be-undone"><a class="anchor" href="#app-04--bulk-operations-cannot-be-undone" aria-label="Link to this section">#</a>APP-04 — Bulk operations cannot be undone</h3>
+<ul>
+<li><strong>Severity:</strong> Low · <strong>Checked:</strong> <code>UndoRedoService</code> records single value edits (<code>Record(ns, language, old, new)</code>); <code>NotifyBulkValueChanges</code> and the bulk commands never record anything, so Undo after "copy to language" does nothing.</li>
+<li><strong>Fix direction:</strong> group the edits of one bulk operation into a single undo step. Planned in v0.24.</li>
+</ul>
 <hr>
 <h2 id="quality"><a class="anchor" href="#quality" aria-label="Link to this section">#</a>Quality</h2>
-<a id="qa-01"></a>
-<h3 id="qa-01--missing-regression-tests"><a class="anchor" href="#qa-01--missing-regression-tests" aria-label="Link to this section">#</a>QA-01 — Missing regression tests</h3>
-<ul>
-<li><strong>Severity:</strong> Medium · <strong>Checked:</strong> from code. I found no test that targets these, so they could regress unnoticed.</li>
-<li><strong>Bugs fixed without a test:</strong> <code>DiffMergeEngine</code> baselines (merged items stayed dirty), <code>AutoSaveService</code> dispose during a save, <code>TranslationManagementService</code> double <code>DirtyStateChanged</code>, iOS <code>.strings</code> <code>\\n</code> handling, Java <code>.properties</code> line continuation. The last two I re-ran by hand on 2026-10-07 and they behave correctly.</li>
-<li><strong>Also missing:</strong> the FMT-09 cases (FMT-05 to FMT-08 now have tests in <code>FormatBugRegressionTests</code>). <code>FormatRoundTripTests</code> only covers simple keys and values (<code>app.title=Hello</code>).</li>
-<li><strong>Fix direction:</strong> one test per bug with the exact input from this file. This is the cheapest item here and protects the fixes above.</li>
-</ul>
 <a id="qa-02"></a>
 <h3 id="qa-02--performance-not-profiled"><a class="anchor" href="#qa-02--performance-not-profiled" aria-label="Link to this section">#</a>QA-02 — Performance not profiled</h3>
 <ul>
@@ -186,7 +163,7 @@ app:
 <hr>
 <h2 id="where-the-old-fixes-went"><a class="anchor" href="#where-the-old-fixes-went" aria-label="Link to this section">#</a>Where the old fixes went</h2>
 <p>The earlier version of this file kept tables of fixed bugs (B1 to B11 and the v0.14 to v0.16 sets). All of them are already in <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md">CHANGELOG.md</a>, so the tables were removed here.</p>
-<div class="table-wrap"><table><thead><tr><th>Old ID</th><th>What was fixed</th><th>Changelog entry</th></tr></thead><tbody><tr><td>B1</td><td>DiffMergeEngine merged items stayed dirty</td><td>0.17.1</td></tr><tr><td>B2</td><td>AutoSaveService crash when disposed during a save</td><td>0.17.1</td></tr><tr><td>B3</td><td>Double <code>DirtyStateChanged</code> (TOCTOU)</td><td>0.17.1</td></tr><tr><td>B4</td><td>External reload updated UI collections off the UI thread</td><td>0.17.1</td></tr><tr><td>B5</td><td>iOS <code>.strings</code> <code>\\n</code> corrupted</td><td>0.17.1</td></tr><tr><td>B6</td><td>Java <code>.properties</code> line continuations truncated values</td><td>0.17.1</td></tr><tr><td>B7 to B11</td><td>WPF-only UI fixes (Issues grouping, Search panel sizing, Source Code panel, Explorer foreground, status bar clicks)</td><td>0.17.2</td></tr><tr><td>FMT-05 to FMT-08</td><td>RESX language detection, XLIFF save losing source/notes/state, ARB metadata and region locales</td><td>Unreleased</td></tr><tr><td>v0.14.1 to v0.16.1</td><td>Earlier bug batches</td><td>0.14.1, 0.14.2, 0.15.0, 0.16.1</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Old ID</th><th>What was fixed</th><th>Changelog entry</th></tr></thead><tbody><tr><td>B1</td><td>DiffMergeEngine merged items stayed dirty</td><td>0.17.1</td></tr><tr><td>B2</td><td>AutoSaveService crash when disposed during a save</td><td>0.17.1</td></tr><tr><td>B3</td><td>Double <code>DirtyStateChanged</code> (TOCTOU)</td><td>0.17.1</td></tr><tr><td>B4</td><td>External reload updated UI collections off the UI thread</td><td>0.17.1</td></tr><tr><td>B5</td><td>iOS <code>.strings</code> <code>\\n</code> corrupted</td><td>0.17.1</td></tr><tr><td>B6</td><td>Java <code>.properties</code> line continuations truncated values</td><td>0.17.1</td></tr><tr><td>B7 to B11</td><td>WPF-only UI fixes (Issues grouping, Search panel sizing, Source Code panel, Explorer foreground, status bar clicks)</td><td>0.17.2</td></tr><tr><td>QA-01</td><td>Missing regression tests for B1 to B6 and the format edge cases</td><td>Unreleased (<code>Qa01RegressionTests</code>, <code>FormatFidelityFixtureTests</code>, <code>FormatStabilityTests</code>)</td></tr><tr><td>FMT-05 to FMT-09</td><td>RESX language detection, XLIFF save losing source/notes/state, ARB metadata and region locales, YAML flat keys and <code>__self</code></td><td>Unreleased</td></tr><tr><td>v0.14.1 to v0.16.1</td><td>Earlier bug batches</td><td>0.14.1, 0.14.2, 0.15.0, 0.16.1</td></tr></tbody></table></div>
 <p>B7 to B11 were fixed in the WPF app. Whether the Avalonia app has the same problems was not checked in this audit.</p>
       </div>
     </article>

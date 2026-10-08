@@ -12,6 +12,7 @@ public sealed class FileWatcherService : IFileWatcherService, IDisposable
     private static readonly string[] IgnoredSegments =
     [
         $"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}",
+        $"{Path.DirectorySeparatorChar}.toucan{Path.DirectorySeparatorChar}",
         $"{Path.DirectorySeparatorChar}node_modules{Path.DirectorySeparatorChar}",
         $"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}",
         $"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}",
@@ -92,7 +93,9 @@ public sealed class FileWatcherService : IFileWatcherService, IDisposable
 
     private static bool IsIgnored(string path) =>
         IgnoredSegments.Any(s => path.Contains(s, StringComparison.OrdinalIgnoreCase))
-        || Path.GetFileName(path).Equals(".DS_Store", StringComparison.Ordinal);
+        || Path.GetFileName(path).Equals(".DS_Store", StringComparison.Ordinal)
+        // Staging files of Toucan's own atomic saves (".name.<guid>.tmp")
+        || (Path.GetFileName(path).StartsWith('.') && path.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase));
 
     private void OnChange(object sender, FileSystemEventArgs e)
     {

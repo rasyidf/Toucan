@@ -6,6 +6,9 @@ namespace Toucan.Core.Services;
 
 public static class NestedJsonParser
 {
+    /// <summary><see cref="TranslationItem.FormatData"/> key holding the raw JSON of a number or boolean value.</summary>
+    public const string JsonScalarKey = "json.scalar";
+
     // ponytail: intern language strings to avoid N duplicates in memory for projects with many files per language
     private static readonly Dictionary<string, string> s_internedLangs = new(StringComparer.Ordinal);
 
@@ -54,7 +57,14 @@ public static class NestedJsonParser
             case JsonValueKind.Number:
             case JsonValueKind.True:
             case JsonValueKind.False:
-                result.Add(new TranslationItem { Namespace = path, Value = element.ToString(), Language = language });
+                // Keep the JSON text so an untouched value is written back as a number or boolean, not a string.
+                result.Add(new TranslationItem
+                {
+                    Namespace = path,
+                    Value = element.ToString(),
+                    Language = language,
+                    FormatData = new Dictionary<string, string> { [JsonScalarKey] = element.GetRawText() },
+                });
                 break;
 
             case JsonValueKind.Array:

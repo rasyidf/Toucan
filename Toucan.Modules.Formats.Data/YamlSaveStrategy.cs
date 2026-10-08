@@ -1,3 +1,4 @@
+using System.IO;
 using System.Text;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
@@ -8,6 +9,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public string FormatId => FormatIds.Yaml;
+
+    public FormatSupport Support { get; } = new(
+        FormatEditing.Limited,
+        "YAML 1.1 and 1.2 scalar maps; one file per language",
+        ["Nested and flat dotted keys (same style as the file)", "block scalars (| and >) read", "multiline text", "quoted scalars such as on", "off", "~ and numbers"],
+        ["Comments in the file are not kept", "Anchors, aliases, tags and sequences are not read", "Block scalars are written as quoted strings"]);
     public string DisplayName => "YAML";
     public IReadOnlyList<string> FileExtensions => [".yml", ".yaml"];
     public string DefaultFilePath(string language) => $"{language}.yaml";
@@ -35,12 +42,55 @@ public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
                 dict[item.Namespace] = item.Value ?? string.Empty;
             }
 
-            // Convert flat dict to YAML format with nested keys
-            WriteYamlDict(sb, dict, 0);
+            // Keep the style the file already uses; a key that is also a parent can only be written flat.
+            if (UseFlatKeys(path, language, dict))
+                WriteFlat(sb, dict);
+            else
+                WriteYamlDict(sb, dict, 0);
 
             fileService.SaveText(path, language + ".yaml", sb.ToString());
         }
     }
+
+    private static bool UseFlatKeys(string path, string language, Dictionary<string, string> dict)
+    {
+        if (HasKeyClash(dict)) return true;
+        foreach (var ext in new[] { ".yaml", ".yml" })
+        {
+            var existing = Path.Combine(path, language + ext);
+            if (File.Exists(existing)) return ExistingFileIsFlat(existing);
+        }
+        return false;
+    }
+
+    /// <summary>True when a key is also the parent of another key (<c>app</c> and <c>app.title</c>).</summary>
+    private static bool HasKeyClash(Dictionary<string, string> dict) =>
+        dict.Keys.Any(k => dict.Keys.Any(o => o.Length > k.Length && o.StartsWith(k + ".", StringComparison.Ordinal)));
+
+    private static bool ExistingFileIsFlat(string file)
+    {
+        foreach (var line in File.ReadLines(file))
+        {
+            if (line.Length == 0 || line[0] == ' ' || line[0] == '\t' || line[0] == '#' || line[0] == '-') continue;
+            var colon = line.IndexOf(':');
+            if (colon <= 0) continue;
+            var key = line[..colon].Trim().Trim('"', '\'');
+            if (key.Contains('.')) return true;
+        }
+        return false;
+    }
+
+    private static void WriteFlat(StringBuilder sb, Dictionary<string, string> dict)
+    {
+        foreach (var kv in dict.OrderBy(k => k.Key, StringComparer.Ordinal))
+            sb.AppendLine($"{EscapeYamlKey(kv.Key)}: {EscapeYamlValue(kv.Value)}");
+    }
+
+    private static string EscapeYamlKey(string key) =>
+        key.IndexOfAny([':', '#', '"', '\'', '{', '}', '[', ']', ',', '&', '*', '!', '|', '>', '%', '@', '`']) >= 0
+        || key.StartsWith(' ') || key.EndsWith(' ') || key.StartsWith('-') || key.StartsWith('?')
+            ? $"\"{key.Replace("\\", "\\\\").Replace("\"", "\\\"")}\""
+            : key;
 
     private static void WriteYamlDict(StringBuilder sb, Dictionary<string, string> dict, int indent)
     {
@@ -64,19 +114,8 @@ public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
             }
             else
             {
-                // Nested structure — emit the root key's own value first if it exists
-                var selfItem = items.FirstOrDefault(kvp => kvp.Key == rootKey);
-                if (selfItem.Key != null && !string.IsNullOrEmpty(selfItem.Value))
-                {
-                    // ponytail: YAML can't represent a key that is both a scalar and a mapping parent.
-                    // Store as a special __self child so round-trip doesn't lose it.
-                    sb.AppendLine($"{new string(' ', indent)}{rootKey}:");
-                    sb.AppendLine($"{new string(' ', indent + 2)}__self: {EscapeYamlValue(selfItem.Value)}");
-                }
-                else
-                {
-                    sb.AppendLine($"{new string(' ', indent)}{rootKey}:");
-                }
+                // Nested structure; clashes between a value and a parent never reach here (see HasKeyClash)
+                sb.AppendLine($"{new string(' ', indent)}{rootKey}:");
 
                 var nested = new Dictionary<string, string>();
                 foreach (var item in items)
@@ -130,7 +169,15 @@ public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
             string.Equals(input, "false", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(input, "null", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(input, "yes", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(input, "no", StringComparison.OrdinalIgnoreCase);
+            string.Equals(input, "no", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(input, "on", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(input, "off", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(input, "y", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(input, "n", StringComparison.OrdinalIgnoreCase) ||
+            input == "~" || input == "-" || input.StartsWith("- ") || input.StartsWith('?') ||
+            input.StartsWith('%') || input.StartsWith(',') ||
+            double.TryParse(input, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _) ||
+            (input.StartsWith("0x", StringComparison.OrdinalIgnoreCase) || input.StartsWith("0o", StringComparison.OrdinalIgnoreCase));
 
         if (needsQuote)
         {

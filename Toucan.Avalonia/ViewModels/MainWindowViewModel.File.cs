@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Toucan.Avalonia.Services;
+using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Services;
@@ -181,6 +182,9 @@ public partial class MainWindowViewModel
                     LoadFromStore(path);
                     ShowStartScreen = false;
                     StatusText = $"Opened {ProjectName}";
+                    if (result.Warnings is { Count: > 0 })
+                        await _messageService.ShowMessageAsync(string.Join("\n\n", result.Warnings), "Format limitations");
+                    await OfferRecoveryAsync(path, result);
                     break;
                 case ProjectOpenStatus.Cancelled:
                     StatusText = cts.IsCancellationRequested ? "Load cancelled" : string.Empty;
@@ -209,6 +213,50 @@ public partial class MainWindowViewModel
             cts.Dispose();
             RefreshRecentProjects();
             if (!HasProject) ShowStartScreen = true;
+        }
+    }
+
+    /// <summary>
+    /// After a crash or interrupted save: first offers to put back the files from before the interrupted save, then to
+    /// recover unsaved edits. Declining leaves everything in place; cancelling keeps the offer for next time.
+    /// </summary>
+    private async Task OfferRecoveryAsync(string path, ProjectOpenResult result)
+    {
+        if (result.InterruptedSave)
+        {
+            var choice = await _messageService.ChooseAsync(
+                "Toucan stopped while saving this project, so some files may be only partly updated.\n\nRestore the files from before that save, or keep what is on disk now?",
+                "Interrupted save", "Restore previous files", "Keep current files");
+            if (choice == ChoiceResult.Primary)
+            {
+                var restore = await _lifecycleService.RestoreInterruptedSaveAsync();
+                LoadFromStore(path);
+                if (!restore.Complete)
+                    await _messageService.ShowMessageAsync($"{restore.Failed.Count} file(s) could not be restored: {string.Join(", ", restore.Failed.Select(f => Path.GetFileName(f.File)))}", "Interrupted save");
+            }
+            else if (choice == ChoiceResult.Secondary) _lifecycleService.KeepInterruptedSave();
+        }
+
+        if (_lifecycleService.PendingRecovery is { } draft)
+        {
+            var choice = await _messageService.ChooseAsync(
+                $"Toucan found {draft.ChangeCount} unsaved change(s) from {draft.SavedAtUtc.ToLocalTime():g}, probably from a crash or an interrupted save.\n\nRecover them? Values that were changed on disk since then are left as they are.",
+                "Recover unsaved changes", "Recover", "Discard");
+            if (choice == ChoiceResult.Primary)
+            {
+                var applied = _lifecycleService.ApplyRecovery();
+                LoadFromStore(path);
+                // Deletions and approvals are invisible to the store's dirty tracking, so anything applied counts as unsaved.
+                if (applied.Applied > 0) _hasUntrackedChanges = true;
+                IsDirty = _translationStore.IsDirty || applied.Applied > 0;
+                StatusText = $"Recovered {applied.Applied} unsaved change(s)";
+                if (applied.Conflicts.Count > 0)
+                    await _messageService.ShowMessageAsync(
+                        $"{applied.Conflicts.Count} change(s) were not recovered because the files changed on disk:\n"
+                        + string.Join("\n", applied.Conflicts.Take(8).Select(c => $"• [{c.Language}] {c.Namespace}")),
+                        "Recover unsaved changes");
+            }
+            else if (choice == ChoiceResult.Secondary) _lifecycleService.DiscardRecovery();
         }
     }
 
@@ -317,52 +365,48 @@ public partial class MainWindowViewModel
     private bool CanSave() => IsDirty && HasProject;
 
     [RelayCommand(CanExecute = nameof(CanSave))]
-    private async Task Save()
+    private Task Save() => PersistAsync(new SaveOptions());
+
+    /// <summary>
+    /// Saves through the lifecycle service and reports the outcome. Validation findings never block a save: they are
+    /// shown in the Issues panel. Returns true when everything is on disk.
+    /// </summary>
+    private async Task<bool> PersistAsync(SaveOptions options)
     {
         FlushPendingEdits();
         SyncStore();
-        var result = await _lifecycleService.SaveProjectAsync();
+        var result = await _lifecycleService.SaveProjectAsync(options);
         switch (result.Status)
         {
             case ProjectSaveStatus.Success:
                 AfterSuccessfulSave();
-                break;
+                if (result.Findings is { Count: > 0 } findings)
+                {
+                    ShowValidationResults(findings);
+                    var errorCount = findings.Count(f => f.Severity == ValidationSeverity.Error);
+                    if (errorCount > 0) StatusText = $"Saved {DateTime.Now:t} with {errorCount} validation error(s)";
+                }
+                return true;
+
+            case ProjectSaveStatus.ExternalChanges:
+                var names = string.Join(", ", (result.ExternalFiles ?? []).Select(Path.GetFileName));
+                if (await _messageService.ConfirmAsync(
+                        $"These files were changed outside Toucan since you opened or last saved them:\n{names}\n\nNothing was saved. Overwrite them with your version?",
+                        "Files changed outside Toucan", "Overwrite", "Cancel"))
+                    return await PersistAsync(options with { OverwriteExternalChanges = true });
+                return false;
 
             case ProjectSaveStatus.ValidationErrors:
-                var errors = result.Errors ?? [];
-                var msg = $"{errors.Count} validation error(s) found:\n"
-                    + string.Join("\n", errors.Take(5).Select(e => $"• [{e.Language}] {e.Namespace}: {e.Message}"))
-                    + (errors.Count > 5 ? $"\n… and {errors.Count - 5} more" : string.Empty);
-                if (await _messageService.ConfirmAsync(msg + "\n\nSave anyway?", "Validation Errors", "Save Anyway", "Cancel"))
-                {
-                    ForceSave();
-                }
-                else
-                {
-                    ShowValidationResults(errors);
-                }
-                break;
+                ShowValidationResults(result.Errors ?? []);
+                await _messageService.ShowMessageAsync($"{result.Errors?.Count ?? 0} validation error(s) must be fixed first. Nothing was saved.", "Validation Errors");
+                return false;
 
             case ProjectSaveStatus.FileSystemError:
                 await _messageService.ShowMessageAsync($"Save failed: {result.ErrorMessage}", "Save");
-                break;
-        }
-    }
+                return false;
 
-    /// <summary>Writes files without running validation (after the user accepted validation errors).</summary>
-    private void ForceSave()
-    {
-        if (ProjectSettings == null) return;
-        try
-        {
-            _projectService.Save(ProjectSettings, [], _translationStore.Translations);
-            ProjectSettings.Save();
-            _translationStore.MarkAllSaved();
-            AfterSuccessfulSave();
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            _ = _messageService.ShowMessageAsync($"Save failed: {ex.Message}", "Save");
+            default:
+                return false;
         }
     }
 
@@ -417,7 +461,7 @@ public partial class MainWindowViewModel
         {
             var choice = await _messageService.ChooseAsync("You have unsaved changes. Save before closing?", "Unsaved Changes", "Save", "Don't Save");
             if (choice == ChoiceResult.Cancel) return false;
-            if (choice == ChoiceResult.Primary) ForceSave();
+            if (choice == ChoiceResult.Primary && !await PersistAsync(new SaveOptions())) return false;
             _hasUntrackedChanges = false;
         }
 

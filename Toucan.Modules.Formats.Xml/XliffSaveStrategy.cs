@@ -11,6 +11,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 public class XliffSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public string FormatId => FormatIds.Xliff;
+
+    public FormatSupport Support { get; } = new(
+        FormatEditing.Full,
+        "XLIFF 1.2 and 2.0",
+        ["Source text", "notes", "state", "datatype", "original", "extra elements such as context-group", "original file paths"],
+        ["Segmentation (<seg-source>, <mrk>) is not edited"]);
     public string DisplayName => "XLIFF";
     public IReadOnlyList<string> FileExtensions => [".xlf", ".xliff"];
     public string DefaultFilePath(string language) => $"{language}.xlf";
@@ -62,7 +68,7 @@ public class XliffSaveStrategy(IFileService fileService) : ISaveStrategy
 
         var full = Path.Combine(root, relative);
         Directory.CreateDirectory(Path.GetDirectoryName(full)!);
-        doc.Save(full);
+        XmlFile.Save(doc, full);
     }
 
     private static XDocument Build12(string language, string sourceLang, List<TranslationItem> items, string version)

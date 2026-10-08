@@ -23,7 +23,7 @@ public sealed class PluginHostTests : IDisposable
 
     public void Dispose()
     {
-        if (Directory.Exists(_root)) Directory.Delete(_root, recursive: true);
+        TempFolder.TryDelete(_root);
     }
 
     /// <summary>Installs a plugin folder: a manifest plus a copy of the test plugin assembly.</summary>

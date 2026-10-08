@@ -12,19 +12,19 @@
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource ChromeBackgroundBrush}">
 
-  <Grid RowDefinitions="Auto,*,Auto">
+  <Grid x:Name="RootGrid" RowDefinitions="Auto,*,Auto">
 
     <!-- ═══ Top bar: in-window menu (Windows/Linux) + view controls ═══ -->
     <Border Grid.Row="0" x:Name="TopBar" MinHeight="40">
       <Grid x:Name="TitleBarLayout" ColumnDefinitions="*,Auto,*" Margin="8,0">
         <!-- Left: (menu on Windows/Linux) · logo and name · save state -->
         <StackPanel x:Name="TitleBarLeading" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-          <ContentControl x:Name="MenuHost" VerticalAlignment="Center"/>
           <StackPanel x:Name="TitleBarBrand" Orientation="Horizontal" Spacing="7" Margin="6,0,2,0" VerticalAlignment="Center">
             <Image Source="/Assets/logo.png" Width="18" Height="18"/>
             <TextBlock Text="Toucan" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
           </StackPanel>
-          <Button Classes="saveState" Classes.dirty="{Binding IsDirty}" Command="{Binding SaveCommand}"
+          <ContentControl x:Name="MenuHost" VerticalAlignment="Center"/>
+          <Button x:Name="SaveStateButton" Classes="saveState" Classes.dirty="{Binding IsDirty}" Command="{Binding SaveCommand}"
                   IsVisible="{Binding HasProject}" ToolTip.Tip="{loc:Loc 'Save now'}" AutomationProperties.Name="{loc:Loc 'Save now'}">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <Ellipse Classes="statusDot" Classes.warn="{Binding IsDirty}" Classes.good="{Binding !IsDirty}"/>
@@ -82,6 +82,22 @@
                   IsVisible="{Binding !ShowStartScreen}">
             <ui:FASymbolIcon Symbol="DockRight"/>
           </Button>
+          <!-- Windows and Linux: our own window buttons (the system title bar is not drawn). -->
+          <StackPanel x:Name="CaptionButtons" Orientation="Horizontal" Spacing="2" Margin="8,0,0,0" IsVisible="False">
+            <Button x:Name="MinimizeButton" Classes="caption" ToolTip.Tip="{loc:Loc 'Minimize'}" AutomationProperties.Name="{loc:Loc 'Minimize'}">
+              <Path Data="M0,0.5 L10,0.5" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" Stretch="None"/>
+            </Button>
+            <Button x:Name="MaximizeButton" Classes="caption" ToolTip.Tip="{loc:Loc 'Maximize'}" AutomationProperties.Name="{loc:Loc 'Maximize'}">
+              <Panel>
+                <Path x:Name="MaximizeGlyph" Data="M0.5,0.5 L9.5,0.5 L9.5,9.5 L0.5,9.5 Z" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" Stretch="None"/>
+                <Path x:Name="RestoreGlyph" Data="M2.5,2.5 L2.5,0.5 L9.5,0.5 L9.5,7.5 L7.5,7.5 M0.5,2.5 L7.5,2.5 L7.5,9.5 L0.5,9.5 Z" IsVisible="False"
+                      Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" Stretch="None"/>
+              </Panel>
+            </Button>
+            <Button x:Name="CloseButton" Classes="caption close" ToolTip.Tip="{loc:Loc 'Close'}" AutomationProperties.Name="{loc:Loc 'Close'}">
+              <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" Stretch="None"/>
+            </Button>
+          </StackPanel>
         </StackPanel>
       </Grid>
     </Border>

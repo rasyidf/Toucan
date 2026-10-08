@@ -21,7 +21,7 @@ SITE = 'https://toucan.rasyid.dev'
 # docs.html sections: (heading, blurb, [repo paths]).
 GROUPS = [
     ('Using Toucan', 'Settings and features you meet in the app.', [
-        'docs/ai-integration.md', 'docs/provider-settings.md', 'docs/pretranslation-preview.md']),
+        'docs/ai-integration.md', 'docs/formats.md', 'docs/provider-settings.md', 'docs/pretranslation-preview.md']),
     ('Extending Toucan', 'How it is built, and how to add formats, providers and rules.', [
         'docs/plugins.md', 'docs/ARCHITECTURE.md', 'Toucan.Core/ARCHITECTURE.md']),
     ('Project status', 'What works, what is broken and what comes next.', [

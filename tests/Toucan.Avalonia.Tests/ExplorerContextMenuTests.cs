@@ -26,10 +26,13 @@ public class ExplorerContextMenuTests
         await vm.OpenProjectAsync(folder);
         Toucan.Core.Services.SidePanelRegistry.Instance.Activate("explorer");
         global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick(); // lays the tree out before we aim at a row
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
 
         var tree = window.GetVisualDescendants().OfType<ExplorerPanel>().First().GetVisualDescendants().OfType<TreeView>().First();
         var item = tree.GetVisualDescendants().OfType<TreeViewItem>().First();
-        var point = item.TranslatePoint(new Point(40, 10), window) ?? default;
+        var point = Assert.NotNull(item.TranslatePoint(new Point(40, 10), window));
+        Assert.True(item.Bounds.Height > 0, "the tree row has not been laid out");
 
         window.MouseDown(point, MouseButton.Right);
         window.MouseUp(point, MouseButton.Right);

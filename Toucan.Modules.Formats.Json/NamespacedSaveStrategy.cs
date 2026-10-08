@@ -6,6 +6,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 public class NamespacedSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public string FormatId => FormatIds.Namespaced;
+
+    public FormatSupport Support { get; } = new(
+        FormatEditing.Limited,
+        "One JSON file per namespace under locales/<lang>/",
+        ["Nested keys", "multiline text", "escapes", "numbers and booleans left unedited"],
+        ["Writes both <lang>.json and locales/<lang>/<ns>.json, so a reload sees each key twice", "null values are dropped", "Key order is sorted on save"]);
     public string DisplayName => "JSON (namespaced / i18next)";
     public IReadOnlyList<string> FileExtensions => [];
     public string DefaultFilePath(string language) => $"{language}.json";

@@ -8,6 +8,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 public class IniSaveStrategy(IFileService fileService) : ISaveStrategy
 {
     public string FormatId => FormatIds.Ini;
+
+    public FormatSupport Support { get; } = new(
+        FormatEditing.Limited,
+        "INI sections",
+        ["Export only: flat key=value lines, values with special characters quoted"],
+        ["Cannot be opened again by Toucan (no loader)", "Dots in keys are written as underscores", "Sections and comments are not written"]);
     public string DisplayName => "INI";
     public IReadOnlyList<string> FileExtensions => [".ini"];
     public string DefaultFilePath(string language) => $"{language}.ini";

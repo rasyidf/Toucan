@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Toucan.Core.Contracts;
@@ -29,6 +30,7 @@ public static class ToucanCoreServiceCollectionExtensions
         services.AddSingleton<IProjectModeResolver, ProjectModeResolver>();
         services.AddSingleton<IProjectService, ProjectService>();
         services.AddSingleton<ICommentPersistenceService, CommentPersistenceService>();
+        services.AddSingleton<IRecoveryDraftService>(sp => new RecoveryDraftService(null, sp.GetService<ILogger<RecoveryDraftService>>()));
         return services;
     }
 
@@ -63,7 +65,7 @@ public static class ToucanCoreServiceCollectionExtensions
         foreach (var feature in BuiltInAiFeatures.All) services.AddSingleton(feature);
         services.TryAddSingleton<IPromptLibrary>(sp => new PromptLibrary(sp.GetServices<AiFeatureDefinition>(), PromptLibrary.DefaultUserFolder));
         services.TryAddSingleton<IAiSettingsStore>(sp => new AiSettingsStore(AiSettingsStore.DefaultPath, () => LegacyAiMigration.Migrate(
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "providers.json"),
+            Path.Combine(Toucan.Core.Services.UserDataFolder.Root, "Toucan", "providers.json"),
             sp.GetRequiredService<ISecureStorageService>(),
             sp.GetRequiredService<ISecretService>(),
             AppOptions.LoadFromDisk().LastProvider,

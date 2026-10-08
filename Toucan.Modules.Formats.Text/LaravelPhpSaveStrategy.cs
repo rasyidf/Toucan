@@ -9,6 +9,12 @@ namespace Toucan.Core.Services.SaveStrategies;
 public class LaravelPhpSaveStrategy : ISaveStrategy
 {
     public string FormatId => FormatIds.LaravelPhp;
+
+    public FormatSupport Support { get; } = new(
+        FormatEditing.Limited,
+        "Laravel lang/<locale>/<file>.php returning an array (short and array() syntax)",
+        ["Nested arrays", "single- and double-quoted strings", "multiline text", "escapes", "placeholders (:name)"],
+        ["Computed values (function calls, constants, numbers) are not read and are dropped on save", "Comments and PHP code around the array are not kept", "JSON language files (lang/en.json) are a separate format"]);
     public string DisplayName => "Laravel PHP";
     public IReadOnlyList<string> FileExtensions => [".php"];
     public string DefaultFilePath(string language) => $"{language}/messages.php";
@@ -51,7 +57,7 @@ public class LaravelPhpSaveStrategy : ISaveStrategy
 
                 sb.AppendLine("];");
 
-                File.WriteAllText(Path.Combine(langDir, file + ".php"), sb.ToString(), new UTF8Encoding(false));
+                Toucan.Core.Services.AtomicFile.WriteAllText(Path.Combine(langDir, file + ".php"), sb.ToString(), new UTF8Encoding(false));
             }
         }
     }

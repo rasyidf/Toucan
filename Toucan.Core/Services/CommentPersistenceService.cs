@@ -32,6 +32,10 @@ public class CommentPersistenceService(ILogger<CommentPersistenceService> logger
     /// <inheritdoc />
     public bool RequiresSidecar(string formatId) => FindStrategy(formatId)?.StoresCommentsInline != true;
 
+    /// <inheritdoc />
+    public IReadOnlyList<string> GetSidecarPaths(string folder, string formatId, IEnumerable<string> languages) =>
+        RequiresSidecar(formatId) ? languages.Select(l => GetSidecarPath(folder, formatId, l)).Distinct(StringComparer.Ordinal).ToList() : [];
+
     // Falls back to the built-ins when no factory was supplied (tests, plain construction).
     private ISaveStrategy? FindStrategy(string formatId) =>
         strategyFactory?.GetSaveStrategy(formatId);
@@ -83,7 +87,7 @@ public class CommentPersistenceService(ILogger<CommentPersistenceService> logger
                     Directory.CreateDirectory(directory);
 
                 var json = JsonSerializer.Serialize(document, s_writeOptions);
-                File.WriteAllText(sidecarPath, json);
+                AtomicFile.WriteAllText(sidecarPath, json);
             }
             catch (IOException ex)
             {
