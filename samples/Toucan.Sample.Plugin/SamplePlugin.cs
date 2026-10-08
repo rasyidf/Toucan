@@ -18,5 +18,8 @@ public sealed class SamplePlugin : IToucanPlugin
 
         // Rule IDs are global. Prefix yours with the plugin ID so they cannot collide with built-ins or other plugins.
         context.AddValidationRule(new TodoMarkerRule());
+
+        // Commands show up in the palette, the Extensions menu and the shortcut list. IDs start with the plugin ID.
+        context.AddCommand(StampCommand.Definition, new StampCommand());
     }
 }

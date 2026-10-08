@@ -56,6 +56,7 @@ public partial class App : Application
             StatusBarService.Instance.Register(statusBar);
             statusBar.DefaultLanguage = vm.AppOptions.DefaultLanguage ?? "en-US";
 
+            KeybindingService.UseRegistry(_services.GetRequiredService<global::Toucan.Core.Commands.ICommandRegistry>());
             var window = new MainWindow(vm, statusBar);
             desktop.MainWindow = window;
             desktop.ShutdownMode = global::Avalonia.Controls.ShutdownMode.OnMainWindowClose;

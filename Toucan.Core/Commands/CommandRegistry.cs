@@ -56,6 +56,9 @@ public interface ICommandRegistry : ICommandContext
     /// <summary>Adds a command. Throws <see cref="PluginRegistrationException"/> on a malformed or duplicate ID.</summary>
     void Register(CommandDefinition definition, ICommandHandler handler, string? pluginId = null);
 
+    /// <summary>Removes a command (used when a built-in is rebound to a new window). Its shortcut override is kept.</summary>
+    bool Unregister(string id);
+
     RegisteredCommand? Find(string id);
 
     CommandState GetState(string id);
@@ -169,6 +172,18 @@ public sealed partial class CommandRegistry : ICommandRegistry, IDisposable
             _commands.Add(new RegisteredCommand(definition, handler, pluginId));
         }
         CommandsChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public bool Unregister(string id)
+    {
+        bool removed;
+        lock (_gate) removed = _commands.RemoveAll(c => c.Id == id) > 0;
+        if (removed)
+        {
+            CancelRuns(id);
+            CommandsChanged?.Invoke(this, EventArgs.Empty);
+        }
+        return removed;
     }
 
     public RegisteredCommand? Find(string id)

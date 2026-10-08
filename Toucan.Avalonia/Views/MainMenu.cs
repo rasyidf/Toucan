@@ -8,6 +8,8 @@ using Toucan.Avalonia.Locales;
 using Toucan.Avalonia.Services;
 using Toucan.Avalonia.ViewModels;
 using Toucan.Avalonia.Views.Components;
+using Toucan.Core.Commands;
+using Toucan.Plugins;
 
 namespace Toucan.Avalonia.Views;
 
@@ -39,7 +41,37 @@ internal static class MainMenu
             var category = Loc.T(top.Header).Replace("_", string.Empty, StringComparison.Ordinal);
             Flatten(top.Children ?? [], category, string.Empty, result);
         }
+        AddPluginPaletteCommands(result);
         return result;
+    }
+
+    private static IEnumerable<RegisteredCommand> PluginCommands(CommandPlacement placement) =>
+        KeybindingService.Registry.Commands
+            .Where(c => c.PluginId is not null && c.Definition.Placements.HasFlag(placement) && KeybindingService.Registry.GetState(c.Id).IsVisible);
+
+    private static void AddPluginPaletteCommands(List<PaletteCommand> into)
+    {
+        var registry = KeybindingService.Registry;
+        foreach (var command in PluginCommands(CommandPlacement.CommandPalette))
+        {
+            var shortcut = KeybindingService.ToGesture(registry.GetShortcut(command.Id))?.ToString("p", null);
+            into.Add(new PaletteCommand(registry.GetCategory(command.Id), registry.GetTitle(command.Id), shortcut, RegistryCommand.For(registry, command.Id)));
+        }
+    }
+
+    /// <summary>Plugin commands that asked for a menu, one submenu per category under Extensions.</summary>
+    private static Item? ExtensionsMenu()
+    {
+        var registry = KeybindingService.Registry;
+        var groups = PluginCommands(CommandPlacement.Menu)
+            .GroupBy(c => registry.GetCategory(c.Id))
+            .OrderBy(g => g.Key, StringComparer.CurrentCultureIgnoreCase)
+            .Select(g => new Item(g.Key, Children: g
+                .OrderBy(c => registry.GetTitle(c.Id), StringComparer.CurrentCultureIgnoreCase)
+                .Select(c => new Item(registry.GetTitle(c.Id), RegistryCommand.For(registry, c.Id), Action: c.Id))
+                .ToList()))
+            .ToList();
+        return groups.Count == 0 ? null : new Item("E_xtensions", Children: groups);
     }
 
     private static void Flatten(IEnumerable<Item> items, string category, string prefix, List<PaletteCommand> into)
@@ -101,6 +133,28 @@ internal static class MainMenu
         }
 
         Rebuild();
+        // Plugin commands appear and disappear with the project; shortcut changes show in the menu labels.
+        var registry = KeybindingService.Registry;
+        var rebuildQueued = 0;
+        void RebuildOnUi()
+        {
+            // Rebinding the built-ins raises many change events at once; one rebuild covers them all.
+            if (Interlocked.Exchange(ref rebuildQueued, 1) == 1) return;
+            global::Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                Interlocked.Exchange(ref rebuildQueued, 0);
+                Rebuild();
+            });
+        }
+        void OnCommandsChanged(object? sender, EventArgs e) => RebuildOnUi();
+        void OnShortcutsChanged(object? sender, ShortcutChangedEventArgs e) => RebuildOnUi();
+        registry.CommandsChanged += OnCommandsChanged;
+        registry.ShortcutsChanged += OnShortcutsChanged;
+        window.Closed += (_, _) =>
+        {
+            registry.CommandsChanged -= OnCommandsChanged;
+            registry.ShortcutsChanged -= OnShortcutsChanged;
+        };
         // The Open Recent submenu lists projects, so rebuild when the list changes.
         vm.PropertyChanged += (_, e) =>
         {
@@ -282,16 +336,18 @@ internal static class MainMenu
         };
         if (!mac) help.Add(new Item("About Toucan", vm.HelpAboutCommand));
 
-        return
-        [
+        var menus = new List<Item>
+        {
             new("_File", Children: file),
             new("_Edit", Children: edit),
             new("F_ind", Children: find),
             new("_View", Children: view),
             new("_Translate", Children: translate),
-            new(mac ? "Project" : "_Settings", Children: settings),
-            new("_Help", Children: help),
-        ];
+        };
+        if (ExtensionsMenu() is { } extensions) menus.Add(extensions);
+        menus.Add(new(mac ? "Project" : "_Settings", Children: settings));
+        menus.Add(new("_Help", Children: help));
+        return menus;
     }
 
     /// <summary>Uses the focused text box when there is one (text undo, clipboard), otherwise the app command.</summary>

@@ -2,96 +2,119 @@ using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Toucan.Avalonia.ViewModels;
+using Toucan.Core.Commands;
 
 namespace Toucan.Avalonia.Services;
 
 /// <summary>Describes a keybinding for display in the Options dialog.</summary>
-public sealed record KeybindingEntry(string Category, string Action, string Shortcut);
+public sealed record KeybindingEntry(string Category, string Action, string Shortcut, string? CommandId = null);
 
 /// <summary>
-/// Single source of truth for keyboard shortcuts. "Primary" means Cmd on macOS and Ctrl elsewhere,
-/// so the same table produces native-feeling shortcuts on every platform.
+/// Turns the shortcuts of the command registry into window key bindings and display text. "Mod" in a shortcut means
+/// Cmd on macOS and Ctrl elsewhere, so the same definitions produce native-feeling shortcuts on every platform.
 /// </summary>
 internal static class KeybindingService
 {
-    private sealed record Binding(string Category, string Action, Key Key, KeyModifiers Modifiers, Func<MainWindowViewModel, ICommand> Command, bool SkipInTextBox = false, object? Parameter = null);
+    private static ICommandRegistry? s_registry;
+    private static WeakReference<MainWindowViewModel>? s_boundVm;
 
-    private static KeyModifiers Primary => PlatformService.IsMacOS ? KeyModifiers.Meta : KeyModifiers.Control;
+    /// <summary>The registry in use. Created on first use when the host did not supply one (tests).</summary>
+    public static ICommandRegistry Registry
+    {
+        get
+        {
+            if (s_registry is null)
+            {
+                s_registry = new CommandRegistry();
+                BuiltInCommands.Bind(s_registry, null);
+            }
+            return s_registry;
+        }
+    }
 
-    private static List<Binding> Table =>
-    [
-        new("File", "New Project", Key.N, Primary | KeyModifiers.Shift, vm => vm.NewFolderCommand),
-        new("File", "Open Folder", Key.O, Primary, vm => vm.OpenFolderCommand),
-        new("File", "Open Recent", Key.R, Primary, vm => vm.OpenRecentCommand),
-        new("File", "Save", Key.S, Primary, vm => vm.SaveCommand),
-        new("File", "Save As", Key.S, Primary | KeyModifiers.Shift, vm => vm.SaveToCommand),
-        new("File", "Close Project", Key.W, Primary, vm => vm.CloseProjectCommand),
-        new("File", "Refresh", Key.F5, KeyModifiers.None, vm => vm.RefreshCommand),
-        new("Edit", "Undo", Key.Z, Primary, vm => vm.UndoCommand, SkipInTextBox: true),
-        new("Edit", "Redo", PlatformService.IsMacOS ? Key.Z : Key.Y, PlatformService.IsMacOS ? Primary | KeyModifiers.Shift : Primary, vm => vm.RedoCommand, SkipInTextBox: true),
-        new("Edit", "Add Translation Key", Key.I, Primary, vm => vm.NewItemCommand),
-        new("Edit", "Add Language", Key.L, Primary, vm => vm.NewLanguageCommand),
-        new("Edit", "Rename", Key.F2, KeyModifiers.None, vm => vm.RenameItemCommand, SkipInTextBox: true),
-        new("Edit", "Delete", Key.Delete, KeyModifiers.None, vm => vm.DeleteItemCommand, SkipInTextBox: true),
-        new("Edit", "Duplicate", Key.D, Primary, vm => vm.DuplicateItemCommand),
-        new("Edit", "Copy Template 1", Key.D1, Primary, vm => vm.CopyAsTemplateCommand, Parameter: 0),
-        new("Edit", "Copy Template 2", Key.D2, Primary, vm => vm.CopyAsTemplateCommand, Parameter: 1),
-        new("Edit", "Copy Template 3", Key.D3, Primary, vm => vm.CopyAsTemplateCommand, Parameter: 2),
-        new("Edit", "Copy Template 4", Key.D4, Primary, vm => vm.CopyAsTemplateCommand, Parameter: 3),
-        new("Edit", "Copy Template 5", Key.D5, Primary, vm => vm.CopyAsTemplateCommand, Parameter: 4),
-        new("Find", "Find", Key.F, Primary, vm => vm.FocusSearchCommand),
-        new("Find", "Search & Replace", Key.F, Primary | KeyModifiers.Shift, vm => vm.OpenSearchPanelCommand),
-        new("Find", "Next Page", Key.F3, KeyModifiers.None, vm => vm.NextPageCommand),
-        new("Find", "Clear Filter", Key.Escape, KeyModifiers.None, vm => vm.ClearFilterCommand, SkipInTextBox: true),
-        new("View", "Command Palette", Key.P, Primary | KeyModifiers.Shift, vm => vm.ToggleCommandPaletteCommand),
-        new("View", "Keyboard Shortcuts", Key.OemQuestion, Primary, vm => vm.ToggleShortcutSheetCommand),
-        new("View", "Toggle Left Panel", Key.B, Primary, _ => PanelService.Instance.ToggleSidebarCommand),
-        new("View", "Toggle Right Panel", Key.B, Primary | KeyModifiers.Alt, _ => PanelService.Instance.ToggleInspectorCommand),
-        new("View", "Focused Editor", Key.E, Primary, vm => vm.ToggleFocusedEditorCommand),
-        new("View", "Zen Mode", Key.Enter, Primary | KeyModifiers.Shift, vm => vm.ToggleZenModeCommand),
-        new("View", "Fullscreen", PlatformService.IsMacOS ? Key.F : Key.F11, PlatformService.IsMacOS ? Primary | KeyModifiers.Control : KeyModifiers.None, vm => vm.ToggleFullscreenCommand),
-        new("View", "Editor Mode", Key.D1, Primary | KeyModifiers.Alt, vm => vm.SwitchToEditorModeCommand),
-        new("View", "Review Mode", Key.D2, Primary | KeyModifiers.Alt, vm => vm.SwitchToReviewModeCommand),
-        new("View", "Audit Mode", Key.D3, Primary | KeyModifiers.Alt, vm => vm.SwitchToAuditModeCommand),
-        new("Translate", "Pre-translate", Key.T, Primary | KeyModifiers.Shift, vm => vm.PreTranslateBulkCommand),
-        new("Translate", "Run Validation", Key.F7, KeyModifiers.None, vm => vm.RunValidationCommand),
-        new("Settings", "Preferences", Key.OemComma, Primary, vm => vm.ShowPreferencesCommand),
-    ];
+    /// <summary>Uses the application's registry; call before the main window is created.</summary>
+    public static void UseRegistry(ICommandRegistry registry)
+    {
+        s_registry = registry;
+        s_boundVm = null;
+    }
 
+    /// <summary>Converts portable shortcut text (<c>Mod+Shift+K</c>) to a gesture; null when a key name is unknown.</summary>
+    public static KeyGesture? ToGesture(string? shortcut)
+    {
+        if (!ShortcutText.TryNormalize(shortcut, out var normalized)) return null;
+        var parts = normalized.Split('+');
+        var modifiers = KeyModifiers.None;
+        foreach (var part in parts.Take(parts.Length - 1))
+        {
+            modifiers |= part switch
+            {
+                "Mod" => PlatformService.IsMacOS ? KeyModifiers.Meta : KeyModifiers.Control,
+                "Ctrl" => KeyModifiers.Control,
+                "Alt" => KeyModifiers.Alt,
+                "Shift" => KeyModifiers.Shift,
+                _ => KeyModifiers.Meta,
+            };
+        }
+        return Enum.TryParse<Key>(parts[^1], ignoreCase: true, out var key) && key != Key.None ? new KeyGesture(key, modifiers) : null;
+    }
+
+    private static string Display(KeyGesture gesture) => gesture.ToString("p", null);
+
+    /// <summary>Shortcuts that are bound, for the shortcut sheet and settings.</summary>
     public static List<KeybindingEntry> GetDefinitions()
     {
-        var list = Table.Select(b => new KeybindingEntry(b.Category, b.Action, new KeyGesture(b.Key, b.Modifiers).ToString("p", null))).ToList();
+        var registry = Registry;
+        var list = new List<KeybindingEntry>();
+        foreach (var command in registry.Commands)
+        {
+            if (ToGesture(registry.GetShortcut(command.Id)) is not { } gesture) continue;
+            list.Add(new KeybindingEntry(registry.GetCategory(command.Id), registry.GetTitle(command.Id), Display(gesture), command.Id));
+        }
         list.Add(new KeybindingEntry("View", "Zen / Focused: next item", "J or ↓"));
         list.Add(new KeybindingEntry("View", "Zen / Focused: previous item", "K or ↑"));
         return list;
     }
 
-    /// <summary>Returns the platform gesture for an action, for menu item labels.</summary>
-    public static KeyGesture? GestureFor(string action)
+    /// <summary>Gesture for a built-in action name ("Save") or a command ID, for menu item labels.</summary>
+    public static KeyGesture? GestureFor(string actionOrId)
     {
-        var b = Table.FirstOrDefault(x => x.Action == action);
-        return b == null ? null : new KeyGesture(b.Key, b.Modifiers);
+        var id = Registry.Find(actionOrId) is not null ? actionOrId : BuiltInCommands.FindByAction(actionOrId)?.Id;
+        return id is null ? null : ToGesture(Registry.GetShortcut(id));
     }
 
     /// <summary>True for shortcuts that must keep their text-editing meaning inside a text box.</summary>
-    public static bool IsTextEditingKey(string action) => Table.FirstOrDefault(x => x.Action == action)?.SkipInTextBox == true;
+    public static bool IsTextEditingKey(string action) => BuiltInCommands.FindByAction(action)?.SkipInTextBox == true;
 
     /// <param name="handledByMenu">Gestures already owned by the native (macOS) menu; binding them twice would fire twice.</param>
     public static void Apply(Window window, MainWindowViewModel vm, IReadOnlySet<KeyGesture>? handledByMenu = null)
     {
-        window.KeyBindings.Clear();
-        foreach (var b in Table)
+        var registry = Registry;
+        if (!(s_boundVm?.TryGetTarget(out var bound) == true && ReferenceEquals(bound, vm)))
         {
-            var gesture = new KeyGesture(b.Key, b.Modifiers);
+            BuiltInCommands.Bind(registry, vm);
+            registry.LoadCustomShortcuts(vm.AppOptions.CustomShortcuts);
+            s_boundVm = new WeakReference<MainWindowViewModel>(vm);
+        }
+        Refresh(window, handledByMenu);
+    }
+
+    /// <summary>Rebuilds the window's key bindings from the registry's current shortcuts. Raises no registry events.</summary>
+    public static void Refresh(Window window, IReadOnlySet<KeyGesture>? handledByMenu = null)
+    {
+        var registry = Registry;
+        window.KeyBindings.Clear();
+        foreach (var command in registry.Commands)
+        {
+            if (ToGesture(registry.GetShortcut(command.Id)) is not { } gesture) continue;
             if (handledByMenu?.Contains(gesture) == true) continue;
-            var command = b.Command(vm);
-            var binding = new KeyBinding
+            ICommand registryCommand = RegistryCommand.For(registry, command.Id);
+            var builtIn = BuiltInCommands.All.FirstOrDefault(b => b.Id == command.Id);
+            window.KeyBindings.Add(new KeyBinding
             {
                 Gesture = gesture,
-                Command = b.SkipInTextBox ? new TextBoxGuardCommand(window, command) : command
-            };
-            if (b.Parameter != null) binding.CommandParameter = b.Parameter;
-            window.KeyBindings.Add(binding);
+                Command = builtIn?.SkipInTextBox == true ? new TextBoxGuardCommand(window, registryCommand) : registryCommand,
+            });
         }
     }
 
