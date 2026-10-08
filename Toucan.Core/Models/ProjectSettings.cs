@@ -171,7 +171,7 @@ public class ProjectSettings
         }
 
         var json = JsonSerializer.Serialize(this, s_options);
-        File.WriteAllText(Path.Combine(ProjectPath, "toucan.tproj"), json);
+        Toucan.Core.Services.AtomicFile.WriteAllText(Path.Combine(ProjectPath, "toucan.tproj"), json);
         IsDirty = false;
     }
 

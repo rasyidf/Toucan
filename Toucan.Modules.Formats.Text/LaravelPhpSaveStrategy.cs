@@ -57,7 +57,7 @@ public class LaravelPhpSaveStrategy : ISaveStrategy
 
                 sb.AppendLine("];");
 
-                File.WriteAllText(Path.Combine(langDir, file + ".php"), sb.ToString(), new UTF8Encoding(false));
+                Toucan.Core.Services.AtomicFile.WriteAllText(Path.Combine(langDir, file + ".php"), sb.ToString(), new UTF8Encoding(false));
             }
         }
     }

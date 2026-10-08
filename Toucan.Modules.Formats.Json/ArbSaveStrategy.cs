@@ -69,7 +69,7 @@ public class ArbSaveStrategy(IFileService fileService) : ISaveStrategy
 
         var full = Path.Combine(root, relative);
         Directory.CreateDirectory(Path.GetDirectoryName(full)!);
-        File.WriteAllText(full, obj.ToJsonString(s_options));
+        Toucan.Core.Services.AtomicFile.WriteAllText(full, obj.ToJsonString(s_options));
     }
 
     public Task SaveAsync(string path, SaveContext context) => Task.Run(() => Save(path, context));

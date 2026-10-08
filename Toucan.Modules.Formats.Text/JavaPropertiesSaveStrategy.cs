@@ -36,7 +36,7 @@ public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrateg
                 sb.AppendLine($"{key}={value}");
             }
             Directory.CreateDirectory(path);
-            File.WriteAllText(Path.Combine(path, language + ".properties"), sb.ToString(), Encoding.Latin1);
+            Toucan.Core.Services.AtomicFile.WriteAllText(Path.Combine(path, language + ".properties"), sb.ToString(), Encoding.Latin1);
         }
     }
 
