@@ -139,6 +139,22 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
     }
 
     /// <inheritdoc/>
+    public bool TryGetSavedState(TranslationItem item, out string savedValue, out string savedComment)
+    {
+        lock (_lock)
+        {
+            if (_baselines.TryGetValue((item.Language, item.Namespace), out var baseline))
+            {
+                savedValue = baseline.SavedValue;
+                savedComment = baseline.SavedComment ?? string.Empty;
+                return true;
+            }
+        }
+        savedValue = savedComment = string.Empty;
+        return false;
+    }
+
+    /// <inheritdoc/>
     public void MarkAllSaved()
     {
         lock (_lock)

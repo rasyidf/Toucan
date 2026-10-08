@@ -203,7 +203,8 @@ public partial class App : Application
             sp.GetRequiredService<LanguageManagementService>(),
             null,
             null,
-            sp.GetRequiredService<ILogger<ProjectLifecycleService>>()));
+            sp.GetRequiredService<ILogger<ProjectLifecycleService>>(),
+            sp.GetRequiredService<IRecoveryDraftService>()));
 
         // View models
         services.AddSingleton<StatusBarViewModel>();

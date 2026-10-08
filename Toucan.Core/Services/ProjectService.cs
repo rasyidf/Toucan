@@ -99,21 +99,26 @@ public class ProjectService(
             toSave = list;
         }
 
-        Save(project.ProjectPath, project.SaveFormat, items, toSave);
-        if (FormatIds.TryGetStyle(project.SaveFormat, out _) && (project.TextEncoding != null || project.LineEnding != null))
+        try
         {
-            var strategy = strategyFactory.GetSaveStrategy(project.SaveFormat)!;
-            var files = toSave.ToLanguages().SelectMany(lang => strategy.LanguageFiles(project.ProjectPath, lang));
-            foreach (var file in files.Distinct(StringComparer.Ordinal))
-                ProjectTextFormat.Apply(file, project.TextEncoding, project.LineEnding,
-                    project.SaveFormat == FormatIds.JavaProperties ? System.Text.Encoding.Latin1 : null);
+            Save(project.ProjectPath, project.SaveFormat, items, toSave);
+            if (FormatIds.TryGetStyle(project.SaveFormat, out _) && (project.TextEncoding != null || project.LineEnding != null))
+            {
+                var strategy = strategyFactory.GetSaveStrategy(project.SaveFormat)!;
+                var files = toSave.ToLanguages().SelectMany(lang => strategy.LanguageFiles(project.ProjectPath, lang));
+                foreach (var file in files.Distinct(StringComparer.Ordinal))
+                    ProjectTextFormat.Apply(file, project.TextEncoding, project.LineEnding,
+                        project.SaveFormat == FormatIds.JavaProperties ? System.Text.Encoding.Latin1 : null);
+            }
         }
-
-        // Restore display codes for in-memory state
-        if (project.LanguageAliases is { Count: > 0 })
-            foreach (var t in (IEnumerable<TranslationItem>)toSave)
-                if (project.LanguageAliases.TryGetValue(t.Language, out var mapped))
-                    t.Language = mapped;
+        finally
+        {
+            // Restore display codes for in-memory state, also when the write failed
+            if (project.LanguageAliases is { Count: > 0 })
+                foreach (var t in (IEnumerable<TranslationItem>)toSave)
+                    if (project.LanguageAliases.TryGetValue(t.Language, out var mapped))
+                        t.Language = mapped;
+        }
 
         // Update project manifest with current language list
         project.Languages = translations.ToLanguages().ToList();

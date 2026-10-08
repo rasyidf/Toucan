@@ -36,6 +36,9 @@ public interface ITranslationManagementService
     /// <summary>Checks if a specific item is dirty.</summary>
     bool IsItemDirty(TranslationItem item);
 
+    /// <summary>The value and comment recorded at the last load or save; false for items added since.</summary>
+    bool TryGetSavedState(TranslationItem item, out string savedValue, out string savedComment);
+
     /// <summary>Resets all state (on project close).</summary>
     void Clear();
 

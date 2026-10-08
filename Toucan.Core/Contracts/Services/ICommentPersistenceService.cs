@@ -35,6 +35,9 @@ public interface ICommentPersistenceService
     /// (i.e., does not support inline comments).
     /// </summary>
     bool RequiresSidecar(string formatId);
+
+    /// <summary>Sidecar files <see cref="SaveComments"/> may write or delete for these languages; empty when the format stores comments inline.</summary>
+    IReadOnlyList<string> GetSidecarPaths(string folder, string formatId, IEnumerable<string> languages);
 }
 
 /// <summary>Compatibility overloads for callers that still hold a <see cref="SaveStyles"/>.</summary>

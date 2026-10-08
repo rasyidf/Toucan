@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Toucan.Core.Contracts;
@@ -29,6 +30,7 @@ public static class ToucanCoreServiceCollectionExtensions
         services.AddSingleton<IProjectModeResolver, ProjectModeResolver>();
         services.AddSingleton<IProjectService, ProjectService>();
         services.AddSingleton<ICommentPersistenceService, CommentPersistenceService>();
+        services.AddSingleton<IRecoveryDraftService>(sp => new RecoveryDraftService(null, sp.GetService<ILogger<RecoveryDraftService>>()));
         return services;
     }
 

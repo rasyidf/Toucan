@@ -77,6 +77,7 @@ public partial class ProjectLifecycleService
     /// </summary>
     private void UpdateLastSavedSnapshot()
     {
+        CaptureDiskBaseline();
         _lastSavedSnapshot = translationManagement.Translations
             .Select(t => new TranslationItem
             {
