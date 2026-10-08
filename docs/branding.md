@@ -2,7 +2,7 @@
 title: "Toucan: Brand Guidelines"
 status: reference
 updated: 2026-10-07
-summary: "Brand guidelines: name, voice, colors, logo use. Platform line updated for v0.21.0 (Avalonia on all platforms)."
+summary: "Brand guidelines: name, voice, colors, logo use. Platform line updated for v0.22.0 (Avalonia on all platforms)."
 ---
 # Toucan: Brand Guidelines
 
@@ -12,7 +12,7 @@ summary: "Brand guidelines: name, voice, colors, logo use. Platform line updated
 
 Toucan is a desktop editor for translation files, made for developers and localization teams. It reads 14 formats, works offline, and adds validation, translation memory and opt-in AI translation.
 
-Release status: preview until 1.0. Current release: v0.21.0 (Windows, macOS, Linux). The WPF app is deprecated (last release v0.17.3). Say "preview" wherever a version or download is offered.
+Release status: preview until 1.0. Current release: v0.22.0 (Windows, macOS, Linux). The WPF app is deprecated (last release v0.17.3). Say "preview" wherever a version or download is offered.
 
 Platforms: Windows, macOS and Linux (Avalonia app), and the `toucan` CLI.
 

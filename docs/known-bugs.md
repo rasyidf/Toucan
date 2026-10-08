@@ -1,12 +1,12 @@
 ---
 title: "Known Issues & Unfinished Features"
 status: active
-updated: 2026-10-07
-summary: "Open issues for v0.21.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
+updated: 2026-10-09
+summary: "Open issues for v0.22.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
 ---
 # Known Issues & Unfinished Features
 
-Current release: **v0.21.0** (preview). Last audited **2026-10-08** against the code on `release/v0.21.0`.
+Current release: **v0.22.0** (preview). Last audited **2026-10-09** against the code on `release/v0.22.0`.
 
 This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [CHANGELOG.md](../CHANGELOG.md) (see [Where the old fixes went](#where-the-old-fixes-went)). When a bug is fixed, delete its row and section here and add a `### Fixed` line to the changelog `[Unreleased]` section. Planned work for an ID is linked from [the roadmap](todos/future-roadmap.md) (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from `main` (source: branch `legacy/wpf`), so nothing here is about WPF.
 
@@ -23,6 +23,7 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [APP-01](#app-01) | Low | App | Source Control and Dictionary panels do not exist | Reproduced |
 | [APP-02](#app-02) | Low | App | Keyboard shortcuts cannot be changed | Reproduced |
 | [APP-03](#app-03) | Low | App | No notification history; the status-bar badge only shows a count of empty translations | Reproduced |
+| [APP-04](#app-04) | Low | App | Bulk operations (copy to language, replace all, pre-translate, move, delete) cannot be undone | From code |
 | [QA-02](#qa-02) | Info | Perf | Large-project performance has never been profiled | Not checked |
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
@@ -91,6 +92,12 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 
 - **Severity:** Low · **Checked:** `StatusBarService.ShowNotificationBadge` is only fed the number of empty translations (`MainWindowViewModel.cs:266`). There is no `NotificationService` and nothing opens when the badge is clicked.
 - **Fix direction:** a small service holding title, message, severity and time, a flyout anchored to the badge, and producers: save failures, validation summaries, plugin load errors, and (later) update availability.
+
+<a id="app-04"></a>
+### APP-04 — Bulk operations cannot be undone
+
+- **Severity:** Low · **Checked:** `UndoRedoService` records single value edits (`Record(ns, language, old, new)`); `NotifyBulkValueChanges` and the bulk commands never record anything, so Undo after "copy to language" does nothing.
+- **Fix direction:** group the edits of one bulk operation into a single undo step. Planned in v0.24.
 
 ---
 

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-10-09
+
 Safer saves: files are replaced atomically, a failed or interrupted multi-file save is rolled back, drafts with validation findings can be saved, and unsaved edits survive a crash.
 
 ### Added

@@ -74,7 +74,7 @@
       <div class="sidebar-title">Jump to a release</div>
       <nav id="release-index" aria-label="Versions">
 <!-- RELEASE INDEX START -->
-<a href="#unreleased">Unreleased</a>
+<a href="#v0.22.0">v0.22.0</a>
 <a href="#v0.21.0">v0.21.0</a>
 <a href="#v0.20.2">v0.20.2</a>
 <a href="#v0.20.1">v0.20.1</a>
@@ -104,11 +104,11 @@
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div id="releases">
 <!-- RELEASES START -->
-<article class="release" id="unreleased" aria-labelledby="heading-unreleased">
-<div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
+<article class="release" id="v0.22.0" aria-labelledby="heading-v0.22.0">
+<div class="release-heading"><h2 id="heading-v0.22.0"><a href="#v0.22.0">v0.22.0</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-10-09">Oct 09, 2026</time></div>
 <div class="release-lead"><p>Safer saves: files are replaced atomically, a failed or interrupted multi-file save is rolled back, drafts with validation findings can be saved, and unsaved edits survive a crash.</p></div>
 <div class="release-counts"><span class="added">4 added</span><span class="changed">4 changed</span><span class="fixed">2 fixed</span></div>
-<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
+<details><summary>Read full release notes<span class="sr-only"> for v0.22.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
 <li><strong>Recovery after a crash</strong> — Toucan writes your unsaved edits to a recovery draft every few seconds (in <code>Documents/Toucan/recovery</code>, outside the project). When you reopen the project it offers to recover them. Edits to a value that was changed on disk in the meantime are skipped and listed, never overwritten. Discarding changes on close deletes the draft. Drafts include deleted and renamed keys and approval changes, not only edited values; a deleted key is only removed again if its value on disk is unchanged.</li>
 <li><strong>Interrupted saves are detected</strong> — Before a save, Toucan copies every file it may touch (language files, comment and audit sidecars, the manifest) to <code>.toucan/recovery</code>. If Toucan stops mid-save, the next open offers to restore those files or keep what is on disk. After a successful save the copies stay as the previous version.</li>
@@ -129,10 +129,10 @@
 <li><strong>Files left behind by a failed save</strong> — If a save created a file the project did not have before (for example a new namespace file) and then failed, the new file is removed again when the other files are restored.</li>
 <li><strong>Language codes after a failed save</strong> — With language aliases configured, a save that failed halfway left items under their file code instead of their display code.</li>
 </ul></div></details>
-<div class="release-links"><a href="#unreleased" aria-label="Permalink to Unreleased">Permalink</a></div>
+<div class="release-links"><a href="#v0.22.0" aria-label="Permalink to v0.22.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.22.0">Release on GitHub ↗</a></div>
 </article>
 <article class="release" id="v0.21.0" aria-labelledby="heading-v0.21.0">
-<div class="release-heading"><h2 id="heading-v0.21.0"><a href="#v0.21.0">v0.21.0</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-10-08">Oct 08, 2026</time></div>
+<div class="release-heading"><h2 id="heading-v0.21.0"><a href="#v0.21.0">v0.21.0</a></h2><time datetime="2026-10-08">Oct 08, 2026</time></div>
 <div class="release-lead"><p>Format fidelity and CI: a support matrix for every built-in format, protection against saves that would drop content (Android XML, RESX), fixes for YAML, Laravel PHP, TOML, Java properties, JSON and XML round-trips, and a build-and-test workflow on Windows, macOS and Linux. Also a unified title bar on Windows and Linux, a reusable editable table, and a tidier Project Properties page.</p></div>
 <div class="release-counts"><span class="added">6 added</span><span class="changed">4 changed</span><span class="fixed">11 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.21.0</span></summary><div class="release-notes"><h3>Added</h3>
