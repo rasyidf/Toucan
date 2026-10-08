@@ -8,8 +8,13 @@
     <Border x:Name="Panel" Width="580" MaxHeight="460" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,52,0,0"
             Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
             CornerRadius="12" ClipToBounds="True" BoxShadow="0 12 40 0 #55000000">
+      <Border.Transitions>
+        <Transitions>
+          <DoubleTransition Property="Width" Duration="0:0:0.16" Easing="CubicEaseOut"/>
+        </Transitions>
+      </Border.Transitions>
       <DockPanel>
-        <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*" Margin="14,0" MinHeight="46">
+        <Grid x:Name="InputRow" DockPanel.Dock="Top" ColumnDefinitions="Auto,*" Margin="14,0" MinHeight="46">
           <ui:FASymbolIcon Symbol="Find" FontSize="15" Foreground="{DynamicResource MutedTextBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
           <TextBox x:Name="Input" Grid.Column="1" Classes="paletteInput" AutomationProperties.Name="{loc:Loc 'Command palette'}" PlaceholderText="{loc:Loc 'Type a command…'}"
                    VerticalAlignment="Center" BorderThickness="0" Background="Transparent" FontSize="15"/>

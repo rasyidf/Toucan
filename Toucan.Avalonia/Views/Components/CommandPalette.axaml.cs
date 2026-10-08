@@ -22,6 +22,11 @@ public partial class CommandPalette : UserControl
     /// <summary>Supplies the commands each time the palette opens, so enabled state and recent projects are current.</summary>
     public Func<IReadOnlyList<PaletteCommand>>? CommandSource { get; set; }
 
+    /// <summary>Where the search pill sits, in this control's coordinates. The panel opens over it and widens from there.</summary>
+    public Func<Rect?>? AnchorSource { get; set; }
+
+    private const double PanelWidth = 580;
+
     public CommandPalette()
     {
         InitializeComponent();
@@ -45,10 +50,30 @@ public partial class CommandPalette : UserControl
         base.OnPropertyChanged(change);
         if (change.Property != IsVisibleProperty || change.NewValue is not true) return;
 
+        PlaceOverAnchor();
         _all = CommandSource?.Invoke() ?? [];
         Input.Text = string.Empty;
         Refilter();
         Dispatcher.UIThread.Post(() => Input.Focus(), DispatcherPriority.Input);
+    }
+
+    private void PlaceOverAnchor()
+    {
+        if (AnchorSource?.Invoke() is not { } anchor || anchor.Width <= 0 || Bounds.Width <= 0)
+        {
+            Panel.Margin = new Thickness(0, 52, 0, 0);
+            Panel.Width = PanelWidth;
+            InputRow.MinHeight = 46;
+            return;
+        }
+
+        // The input row takes the pill's place, so the pill seems to grow into the palette instead of a second box appearing below it.
+        var target = Math.Max(PanelWidth, anchor.Width);
+        var shift = anchor.Center.X - Bounds.Width / 2; // the panel is centered; Margin moves its center
+        Panel.Margin = new Thickness(shift > 0 ? 2 * shift : 0, Math.Max(0, anchor.Top), shift < 0 ? -2 * shift : 0, 0);
+        InputRow.MinHeight = anchor.Height;
+        Panel.Width = anchor.Width;
+        Dispatcher.UIThread.Post(() => Panel.Width = target, DispatcherPriority.Render);
     }
 
     private void Close()

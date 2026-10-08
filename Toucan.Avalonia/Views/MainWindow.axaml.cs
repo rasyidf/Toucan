@@ -56,8 +56,10 @@ public partial class MainWindow : Window
 
         MainMenu.Attach(this, _vm, MenuHost);
         Palette.CommandSource = () => MainMenu.PaletteCommands(this, _vm);
-        PaletteShortcut.Text = KeybindingService.GestureFor("Command Palette")?.ToString("p", null);
+        Palette.AnchorSource = () => PalettePill.TranslatePoint(default, Palette) is { } origin ? new Rect(origin, PalettePill.Bounds.Size) : null;
         KeybindingService.Apply(this, _vm, MainMenu.NativeGestures);
+        // After Apply: the built-in commands are registered there, so the shortcut can be looked up.
+        PaletteShortcut.Text = KeybindingService.GestureFor("Command Palette")?.ToString("p", null);
         // A reassigned shortcut takes effect at once. Posted after the menu's own rebuild, which decides the native gestures.
         void OnShortcutsChanged(object? sender, global::Toucan.Core.Commands.ShortcutChangedEventArgs e) => global::Avalonia.Threading.Dispatcher.UIThread.Post(() =>
         {

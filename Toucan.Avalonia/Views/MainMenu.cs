@@ -27,6 +27,8 @@ internal static class MainMenu
         IReadOnlyList<Item>? Children = null,
         bool IsSeparator = false);
 
+    private const string ExtensionsHeader = "E_xtensions";
+
     private static readonly Item Separator = new("-", IsSeparator: true);
 
     /// <summary>
@@ -38,6 +40,8 @@ internal static class MainMenu
         var result = new List<PaletteCommand>();
         foreach (var top in Build(window, vm))
         {
+            // Plugin commands are added below under their own category, not as "Extensions › Category › Title".
+            if (top.Header == ExtensionsHeader) continue;
             var category = Loc.T(top.Header).Replace("_", string.Empty, StringComparison.Ordinal);
             Flatten(top.Children ?? [], category, string.Empty, result);
         }
@@ -54,8 +58,6 @@ internal static class MainMenu
         var registry = KeybindingService.Registry;
         foreach (var command in PluginCommands(CommandPlacement.CommandPalette))
         {
-            // Commands with a menu entry already arrive through the menu, with their category and shortcut.
-            if (command.Definition.Placements.HasFlag(CommandPlacement.Menu)) continue;
             var shortcut = KeybindingService.ToGesture(registry.GetShortcut(command.Id))?.ToString("p", null);
             into.Add(new PaletteCommand(registry.GetCategory(command.Id), registry.GetTitle(command.Id), shortcut, RegistryCommand.For(registry, command.Id)));
         }
@@ -73,7 +75,7 @@ internal static class MainMenu
                 .Select(c => new Item(registry.GetTitle(c.Id), RegistryCommand.For(registry, c.Id), Action: c.Id))
                 .ToList()))
             .ToList();
-        return groups.Count == 0 ? null : new Item("E_xtensions", Children: groups);
+        return groups.Count == 0 ? null : new Item(ExtensionsHeader, Children: groups);
     }
 
     private static void Flatten(IEnumerable<Item> items, string category, string prefix, List<PaletteCommand> into)
