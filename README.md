@@ -74,14 +74,15 @@ The planned order to 1.0:
 | v0.20 | AI Integration: one switch, off by default, for Claude, OpenAI-compatible servers and Gemini; editable prompts; Analyze and Clarity checks; an encrypted secret store. Also color schemes, an update check, search options, ghost-text suggestions and a keyboard shortcut sheet. Shipped. |
 | v0.21 | File fidelity fixes, format support boundaries, regression fixtures, and cross-platform CI. |
 | v0.22 | Recoverable saves, durable drafts, crash recovery, and failure handling. |
-| v0.23 | Onboarding, comfortable multiline and side-by-side editing, keyboard workflow, and accessibility. |
-| v0.24 | Project glossary, message-aware validation, and AI finding follow-ups. |
-| v0.25 | Draft → Needs review → Approved per language, source-change tracking, and separate delivery state. |
-| v0.26 | Content-source contracts, connection profiles, and local snapshot loading/persistence. |
-| v0.27 | CRUD operations, durable pending changes, three-way synchronization, and conflict resolution. |
-| v0.28 | One online-source connector with explicit pull/push, offline editing, and recovery. |
-| v0.29 | Repeatable release packages, signing/notarization, installers, and startup update notifications. |
-| v0.30 | Measured performance, migration checks, packaged workflow verification, and a release candidate. |
+| v0.23 | Extension platform: plugin lifecycle, command registry, desktop contributions, host services, and a sample connector built outside the repo. |
+| v0.24 | Onboarding, comfortable multiline and side-by-side editing, keyboard workflow, and accessibility. |
+| v0.25 | Project glossary, message-aware validation, and AI finding follow-ups. |
+| v0.26 | Draft → Needs review → Approved per language, source-change tracking, and separate delivery state. |
+| v0.27 | Content-source contracts, connection profiles, and local snapshot loading/persistence. |
+| v0.28 | CRUD operations, durable pending changes, three-way synchronization, and conflict resolution. |
+| v0.29 | One online-source connector with explicit pull/push, offline editing, and recovery. |
+| v0.30 | Repeatable release packages, signing/notarization, installers, and startup update notifications. |
+| v0.31 | Measured performance, migration checks, packaged workflow verification, and a release candidate. |
 | v1.0 | First stable release after fidelity, recovery, review, integration, migration, and performance gates pass. |
 | After 1.0 | Additional online connectors, Git integration, automatic update installation, advanced reports, Toucan Hub, and CI integrations. |
 

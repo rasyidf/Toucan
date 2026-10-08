@@ -1,9 +1,9 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "54 release tasks; 6 stable gates; 28 deferred tasks"
-updated: 2026-10-07
-summary: "Ten focused releases from v0.21 to v0.30: file safety, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization."
+progress: "63 release tasks; 6 stable gates; 27 deferred tasks"
+updated: 2026-10-09
+summary: "Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization."
 ---
 # Toucan roadmap: v0.21 to v1.0
 
@@ -27,15 +27,16 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 |---|---|---|
 | v0.21 | File fidelity and automated regression checks | v0.20 |
 | v0.22 | Recoverable saves and durable drafts | v0.21 |
-| v0.23 | Comfortable editing and onboarding | v0.22 |
-| v0.24 | Glossary and message-aware validation | v0.23 |
-| v0.25 | Review state that follows source changes | v0.24 |
-| v0.26 | Content-source contracts and local snapshots | v0.22, v0.25 |
-| v0.27 | CRUD persistence and synchronization engine | v0.26 |
-| v0.28 | One complete online-source integration | v0.27 |
-| v0.29 | Repeatable distribution and update notifications | CI from v0.21 |
-| v0.30 | Measured performance, migration checks, release candidate | v0.21–v0.29 |
-| v1.0 | First stable release after all release gates pass | v0.30 |
+| v0.23 | Extension platform: lifecycle, commands, desktop contributions, host services | v0.22 |
+| v0.24 | Comfortable editing and onboarding | v0.23 |
+| v0.25 | Glossary and message-aware validation | v0.24 |
+| v0.26 | Review state that follows source changes | v0.25 |
+| v0.27 | Content-source contracts and local snapshots | v0.23, v0.26 |
+| v0.28 | CRUD persistence and synchronization engine | v0.27 |
+| v0.29 | One complete online-source integration | v0.28 |
+| v0.30 | Repeatable distribution and update notifications | CI from v0.21 |
+| v0.31 | Measured performance, migration checks, release candidate | v0.21–v0.30 |
+| v1.0 | First stable release after all release gates pass | v0.31 |
 
 ### v0.21: File fidelity and CI
 
@@ -58,7 +59,22 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 **Completion gate:** failure scenarios preserve a recoverable copy and never report unsaved work as saved.
 
-### v0.23: Editor comfort and onboarding
+### v0.23: Extension platform
+
+**Outcome:** a connector can be built, installed, configured, and used without modifying Toucan's application code, so an optional commercial edition can ship as separate packages on the public SDK. Plugins today extend formats, translation providers, validation rules, and framework detection; this release extends the user workflow. Restart stays required for installing and updating plugins.
+
+- [ ] Separate registration from activation: register capabilities without network access, activate per project or connection, give each connection its own session, cancel and dispose on project close, and report activation failures separately from registration failures. Keep application, workspace, connection, and panel lifetimes explicit.
+- [ ] Add a command registry with stable IDs, localizable titles and categories, availability conditions, asynchronous execution with cancellation and progress, default shortcuts with user overrides, and menu, toolbar, context-menu, and command-palette contributions. Replace the static table in `KeybindingService` and distinguish hidden, unavailable, disconnected, and unlicensed states.
+- [ ] Add a separate desktop contribution package (`Toucan.Plugins.Avalonia`) so the CLI never loads UI assemblies. Replace the hard-coded panel and toolbar switches in `MainWindow` with registered side panels, panel toolbars, settings pages, dialogs, inspector sections, and editor actions; give each plugin view model a narrow workspace context instead of `MainWindowViewModel`. Define supported theme resources, icons, localization, and accessibility conventions, and handle shared Avalonia assemblies in the loader.
+- [ ] Provide supported host services: plugin-scoped settings and writable storage kept outside the trusted plugin directory, connection-scoped secret references, background operations with progress, notifications, redacted diagnostics, and typed configuration fields with validation, defaults, scopes, and schema migrations. Document that in-process plugins are not sandboxed.
+- [ ] Add a controlled workspace API: readable snapshots and edit transactions for values, comments, review state, and keys, routed through normal undo, dirty tracking, validation, and persistence. Do not expose mutable store internals or view models.
+- [ ] Extend compatibility checks to host requirements, desktop-contract version, platform support, and configuration migrations, with actionable failure messages.
+- [ ] Ship an SDK test harness (registration and activation, workspace edits, cancellation, CLI operation without desktop dependencies) and a sample connector in a separate project that references only published SDK packages: a connection form, a panel, pull/push commands, and safe workspace changes.
+- [ ] Move existing built-in commands and panels onto the new registration paths as each is introduced, so plugins do not get a weaker parallel system.
+
+**Completion gate:** the sample connector, built outside this repository, works on desktop and in the CLI; its command appears in the palette and a menu, supports shortcut reassignment, and becomes unavailable when its workspace closes; and a plugin batch edit behaves like a native edit through undo, save failure, recovery, and reopen.
+
+### v0.24: Editor comfort and onboarding
 
 **Outcome:** a new user can open a project and complete a keyboard-driven translation session comfortably. **References:** APP-02, APP-03.
 
@@ -71,7 +87,7 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 **Completion gate:** a user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved.
 
-### v0.24: Terminology and validation
+### v0.25: Terminology and validation
 
 **Outcome:** translations follow project vocabulary and preserve executable message syntax.
 
@@ -84,7 +100,7 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 **Completion gate:** glossary and message fixtures detect meaningful errors without blocking draft saves; accepting a suggestion follows normal undo and dirty tracking.
 
-### v0.25: Review correctness
+### v0.26: Review correctness
 
 **Outcome:** approval reflects the actual source and target that were reviewed.
 
@@ -96,20 +112,20 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 **Completion gate:** source and target changes cannot leave stale approvals, and review state survives save/reopen and project migration.
 
-### v0.26: Content sources and snapshot mode
+### v0.27: Content sources and snapshot mode
 
 **Outcome:** a shared workspace can load and persist content through source adapters without changing translation engines.
 
 - [ ] Define content-source contracts separately from `ITranslationProvider` and AI backends; expose optional read, snapshot-write, CRUD, status, revision, and delta capabilities.
 - [ ] Add connection profiles with stable provider and connection IDs, project selection, secret references, permissions, and a connection test; support multiple profiles for one service.
-- [ ] Extend workspace identity and persistence for package/resource scope, source/target locales and text, stable unit IDs, remote IDs/revisions, and preserved format metadata.
+- [ ] Extend workspace identity and persistence (building on the v0.23 workspace API) for connection, package/resource scope, source/target locales and text, stable unit IDs, remote IDs/revisions, and preserved format metadata.
 - [ ] Implement the local-folder snapshot adapter over existing format strategies, preserving current projects and CLI behavior.
 - [ ] Support initial snapshot loading, cached opening, explicit refresh, and save-plan previews; keep loading policy separate from persistence mode.
 - [ ] Add contract and migration tests for read-only sources, unsupported capabilities, duplicate key names across packages, and existing plugin compatibility; version new public contracts deliberately.
 
 **Completion gate:** local projects work through the source boundary without fidelity regressions, credentials in project files, or changes to translation-engine responsibilities.
 
-### v0.27: CRUD and synchronization engine
+### v0.28: CRUD and synchronization engine
 
 **Outcome:** local edits become durable, reviewable operations that can be reconciled with remote changes.
 
@@ -122,11 +138,12 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 **Completion gate:** failed or repeated synchronization preserves unsent work, avoids duplicate writes, and cannot silently overwrite detected concurrent edits.
 
-### v0.28: First online connector
+### v0.29: First online connector
 
 **Outcome:** users can complete one real online workflow from connection through delivery.
 
 - [ ] Select one service from actual user demand, such as Crowdin, Lokalise, or a documented custom REST service; specify whether its adapter uses snapshots, CRUD, or both.
+- [ ] Treat installation, trust, activation, and entitlement as separate states: add staged plugin installation with integrity checks and rollback, publisher signature verification for a commercial channel (keeping an explicit community/development path), and an entitlement check with defined offline and expiry behavior that keeps cached work and export available. Keep service authentication separate from Toucan licensing.
 - [ ] Implement authentication, project/resource/language mapping, complete paginated reads, and the supported write operations against that service.
 - [ ] Add bounded concurrency, timeout/cancellation, rate-limit handling and backoff, token-expiry handling, and actionable permission errors.
 - [ ] Expose connection settings and status in a Sources area, separate from translation engines and AI; show last successful sync, pending changes, and failures.
@@ -135,7 +152,7 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 **Completion gate:** the selected connector passes a full offline/edit/reconnect/conflict/push/reopen workflow. If it cannot meet the safety gates, label it preview and exclude it from stable integration claims.
 
-### v0.29: Distribution and updates
+### v0.30: Distribution and updates
 
 **Outcome:** releases are repeatable, installable, and discoverable. **References:** REL-01, REL-02, REL-03, REL-04.
 
@@ -148,7 +165,7 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 **Completion gate:** a release can be built from its tag and installed/upgraded on each supported platform, with explicit platform limitations and no manual artifact patching. Automatic in-app installation is deferred.
 
-### v0.30: Performance and release candidate
+### v0.31: Performance and release candidate
 
 **Outcome:** the complete workflow has measured limits and survives upgrade and failure scenarios. **Reference:** QA-02.
 
@@ -165,7 +182,7 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 ## v1.0 release gates
 
-Version 1.0 follows v0.30 only when these acceptance checks pass. Freeze public contracts and persistence schemas after reviewing the supported migration policy.
+Version 1.0 follows v0.31 only when these acceptance checks pass. Freeze public contracts and persistence schemas after reviewing the supported migration policy.
 
 - [ ] Every format advertised as editable preserves its documented semantics and metadata; unsupported constructs have safe, visible handling.
 - [ ] Failed saves, crashes, and interrupted synchronization preserve recoverable work and accurate pending state.
@@ -180,20 +197,21 @@ Existing docs refer to FG IDs. These map the former groups to the smaller releas
 
 | Group | Planned location |
 |---|---|
-| FG-01 Packaging & Distribution | v0.29 |
-| FG-02 Auto-Updater | Update notifications in v0.29; automatic installation after v1.0 |
-| FG-04 ConsistencyAI | v0.24 |
-| FG-05 Review Workflow | v0.25 |
+| FG-01 Packaging & Distribution | v0.30 |
+| FG-02 Auto-Updater | Update notifications in v0.30; automatic installation after v1.0 |
+| FG-04 ConsistencyAI | v0.25 |
+| FG-05 Review Workflow | v0.26 |
 | FG-06 Git Integration | After v1.0 |
-| FG-09 Improved Validation | v0.24 |
-| FG-10 Onboarding & UX Polish | v0.23 |
-| FG-11 Editor Improvements | v0.23; Markdown preview after v1.0 |
+| FG-09 Improved Validation | v0.25 |
+| FG-10 Onboarding & UX Polish | v0.24 |
+| FG-11 Editor Improvements | v0.24; Markdown preview after v1.0 |
 | FG-12 Export & Reporting | After v1.0 |
-| FG-13 Performance & Scale | v0.30 |
+| FG-13 Performance & Scale | v0.31 |
 | FG-14 Webhook Provider | After v1.0; machine translation remains separate from content-source CRUD |
-| FG-15 Glossary & Terminology | v0.24; TBX after v1.0 |
+| FG-15 Glossary & Terminology | v0.25; TBX after v1.0 |
+| Extension platform (new) | v0.23; source contracts v0.27; entitlements and signing v0.29 |
 | FG-16 Test Coverage & CI | v0.21 and focused workflow/failure checks in subsequent releases |
-| Content sources (new) | Snapshot mode v0.26, CRUD/sync v0.27, first online connector v0.28 |
+| Content sources (new) | Snapshot mode v0.27, CRUD/sync v0.28, first online connector v0.29 |
 
 ## Future plan: after v1.0
 
@@ -235,8 +253,7 @@ These remain visible backlog items, not prerequisites for the first stable relea
 Core plugins shipped in v0.18.0. See the [plugin guide](../plugins.md) and [original plan](../archive/plugin-system-plan.md).
 
 - [ ] Add per-project validation rule files under `.toucan/rules/`.
-- [ ] Add plugin UI contributions through a separate Avalonia package.
-- [ ] Add mandatory signing and a plugin feed alongside the collaboration/auth milestone.
+- [ ] Make signing mandatory for all plugins and add a plugin feed alongside the collaboration/auth milestone (commercial-channel verification ships in v0.29).
 - [ ] Add per-rule enable/severity settings for plugin rules.
 
 ### Real-time collaboration
