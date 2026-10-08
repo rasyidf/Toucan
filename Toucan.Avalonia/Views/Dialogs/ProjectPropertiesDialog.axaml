@@ -92,7 +92,8 @@
                   <TextBlock Text="{loc:Loc 'seconds'}" VerticalAlignment="Center"/>
                 </StackPanel>
               </c:SettingsRow>
-              <c:SettingsRow Title="{loc:Loc 'Validate before saving'}"><ToggleSwitch IsChecked="{Binding ValidateOnSave}"/></c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Check for issues when saving'}" Description="{loc:Loc 'Findings are listed in the Issues panel and never stop a save.'}"><ToggleSwitch IsChecked="{Binding ValidateOnSave}"/></c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Require valid translations to approve'}" Description="{loc:Loc 'Translations with validation errors cannot be approved. Saving is never blocked.'}"><ToggleSwitch IsChecked="{Binding RequireValidForApproval}"/></c:SettingsRow>
             </StackPanel>
           </c:SettingsGroup>
         </StackPanel>

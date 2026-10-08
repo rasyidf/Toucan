@@ -1,7 +1,7 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "59 release tasks; 6 stable gates; 27 deferred tasks"
+progress: "58 release tasks; 6 stable gates; 27 deferred tasks"
 updated: 2026-10-09
 summary: "Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization."
 ---
@@ -50,9 +50,6 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 **Outcome:** users can preserve incomplete work and recover from interrupted persistence.
 
-- [ ] Extend recovery drafts to deleted and renamed keys and to approvals, which the dirty tracker does not see yet. Add a Project Properties switch for the approval policy (`requireValidForApproval` is manifest-only for now) and apply the same policy to delivery once delivery state exists (v0.26).
-- [ ] Verify undo/redo and dirty tracking across bulk operations and external merges. Failed saves and recovery are covered by tests.
-
 **Completion gate:** failure scenarios preserve a recoverable copy and never report unsaved work as saved.
 
 ### v0.23: Extension platform
@@ -76,6 +73,7 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 - [ ] Complete first-run setup for default language, theme, and optional translation-engine credentials; add actionable empty states and a dismissible feature tour.
 - [ ] Add reliable inline editing, side-by-side source/target comparison, content-sized multiline fields, and character/word counts.
+- [ ] Make bulk operations (copy to language, replace all, pre-translate, move, delete) undoable as one step; undo covers single value edits only today.
 - [ ] Make the edit → accept suggestion → approve → next workflow predictable, including focus retention and configurable shortcuts with conflict detection.
 - [ ] Clarify source/target hierarchy, placeholder rendering, descriptions, source references, and suggestion provenance in the editor and inspector.
 - [ ] Add notification history with actionable save, validation, and integration failures; distinguish progress, cancellation, and completion.
@@ -104,7 +102,7 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 - [ ] Record the source revision/hash used for review; mark affected targets Needs review when the source changes, and invalidate approval after target edits.
 - [ ] Add status filters and row badges; extend existing batch approval/rejection with comments and consistent validation policy.
 - [ ] Persist review history with timestamp, action, and available local actor information; do not imply authenticated team identity.
-- [ ] Track delivery separately from review: pending, synchronized, failed, or included in an export; preserve review meaning when remote platforms have different status models.
+- [ ] Track delivery separately from review: pending, synchronized, failed, or included in an export, applying the `requireValidForApproval` policy to delivery as well; preserve review meaning when remote platforms have different status models.
 
 **Completion gate:** source and target changes cannot leave stale approvals, and review state survives save/reopen and project migration.
 

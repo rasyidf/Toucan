@@ -299,4 +299,28 @@ public class MainWindowViewModelTests
         Assert.False(vm.IsDirty);
         Assert.Equal("Salut {nom", Reload(host, folder)[("hello", "fr")]);
     }
+
+    [AvaloniaFact]
+    public async Task BulkApprove_MarksDirty_IsKeptInTheRecoveryDraft_AndSaves()
+    {
+        using var host = new TestHost();
+        var folder = host.CreateJsonProject("bulk", ("en", En), ("fr", Fr));
+        var vm = host.CreateViewModel();
+        await vm.OpenProjectAsync(folder);
+
+        vm.SelectedKeys.Add("app.title");
+        vm.BulkApproveCommand.Execute(null);
+
+        Assert.True(vm.IsDirty);
+        Assert.All(vm.AllTranslation.Where(t => t.Namespace == "app.title"), t => Assert.True(t.IsApproved));
+        var lifecycle = (Toucan.Core.Services.ProjectLifecycleService)host.Services.GetRequiredService<IProjectLifecycleService>();
+        lifecycle.FlushRecoveryDraft();
+        var draft = host.Services.GetRequiredService<IRecoveryDraftService>().TryRead(folder);
+        Assert.Equal(2, draft!.Approvals!.Count);
+
+        await vm.SaveCommand.ExecuteAsync(null);
+
+        Assert.False(vm.IsDirty);
+        Assert.Null(host.Services.GetRequiredService<IRecoveryDraftService>().TryRead(folder));
+    }
 }

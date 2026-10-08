@@ -349,6 +349,7 @@ public partial class ProjectPropertiesViewModel : ObservableObject
     [ObservableProperty] private string excludedDirectories = string.Empty;
     [ObservableProperty] private bool autoScanOnOpen;
     [ObservableProperty] private bool validateOnSave = true;
+    [ObservableProperty] private bool requireValidForApproval;
 
     public string ProjectPath => _settings.ProjectPath;
     public string SaveStyleName => _format?.DisplayName ?? _settings.SaveFormat;
@@ -397,6 +398,7 @@ public partial class ProjectPropertiesViewModel : ObservableObject
         ExcludedDirectories = string.Join(", ", _settings.ExcludedDirectories ?? []);
         AutoScanOnOpen = _settings.AutoScanOnOpen ?? false;
         ValidateOnSave = _settings.ValidateOnSave ?? true;
+        RequireValidForApproval = _settings.RequireValidForApproval ?? false;
 
         CopyTemplates.Clear();
         foreach (var t in _settings.CopyTemplates is { Count: > 0 } list ? list : ["%1"])
@@ -501,6 +503,7 @@ public partial class ProjectPropertiesViewModel : ObservableObject
         _settings.ExcludedDirectories = SplitList(ExcludedDirectories, ',');
         _settings.AutoScanOnOpen = AutoScanOnOpen;
         _settings.ValidateOnSave = ValidateOnSave;
+        _settings.RequireValidForApproval = RequireValidForApproval ? true : null;
         _settings.CopyTemplates = [.. CopyTemplates.Select(t => t.Value)];
         _settings.HiddenNamespaces = [.. HiddenNamespaces];
         _settings.Save();

@@ -189,11 +189,13 @@ public partial class ProjectLifecycleService(
         try
         {
             // 1. Validate. Findings never stop a draft from being saved; only strict policy (approval, delivery) does.
-            var findings = validationPipeline.RunAll(new ValidationContext
-            {
-                Items = translationManagement.Translations,
-                PrimaryLanguage = _currentProject.PrimaryLanguage
-            }).ToList();
+            var findings = _currentProject.ValidateOnSave == false && !options.EnforceValidation
+                ? []
+                : validationPipeline.RunAll(new ValidationContext
+                {
+                    Items = translationManagement.Translations,
+                    PrimaryLanguage = _currentProject.PrimaryLanguage
+                }).ToList();
 
             var errors = findings.Where(r => r.Severity == ValidationSeverity.Error).ToList();
             if (options.EnforceValidation && errors.Count > 0)

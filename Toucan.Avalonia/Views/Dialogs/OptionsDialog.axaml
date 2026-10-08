@@ -334,7 +334,7 @@
           </StackPanel.IsVisible>
           <TextBlock Text="{loc:Loc 'Validation'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
-            <c:SettingsRow Title="{loc:Loc 'Validate before saving (errors block the save)'}">
+            <c:SettingsRow Title="{loc:Loc 'Check for issues when saving'}" Description="{loc:Loc 'Findings are listed in the Issues panel and never stop a save.'}">
               <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding ValidateOnSave}"/>
             </c:SettingsRow>
           </c:SettingsGroup>

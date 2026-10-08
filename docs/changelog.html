@@ -107,13 +107,13 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Safer saves: files are replaced atomically, a failed or interrupted multi-file save is rolled back, drafts with validation findings can be saved, and unsaved edits survive a crash.</p></div>
-<div class="release-counts"><span class="added">4 added</span><span class="changed">3 changed</span><span class="fixed">1 fixed</span></div>
+<div class="release-counts"><span class="added">4 added</span><span class="changed">4 changed</span><span class="fixed">2 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Recovery after a crash</strong> — Toucan writes your unsaved edits to a recovery draft every few seconds (in <code>Documents/Toucan/recovery</code>, outside the project). When you reopen the project it offers to recover them. Edits to a value that was changed on disk in the meantime are skipped and listed, never overwritten. Discarding changes on close deletes the draft. Deleted keys, renamed keys and approvals are not part of a draft yet.</li>
+<li><strong>Recovery after a crash</strong> — Toucan writes your unsaved edits to a recovery draft every few seconds (in <code>Documents/Toucan/recovery</code>, outside the project). When you reopen the project it offers to recover them. Edits to a value that was changed on disk in the meantime are skipped and listed, never overwritten. Discarding changes on close deletes the draft. Drafts include deleted and renamed keys and approval changes, not only edited values; a deleted key is only removed again if its value on disk is unchanged.</li>
 <li><strong>Interrupted saves are detected</strong> — Before a save, Toucan copies every file it may touch (language files, comment and audit sidecars, the manifest) to <code>.toucan/recovery</code>. If Toucan stops mid-save, the next open offers to restore those files or keep what is on disk. After a successful save the copies stay as the previous version.</li>
 <li><strong>Files changed outside Toucan</strong> — Saving no longer overwrites a language file that was edited outside Toucan since it was opened or last saved. You are asked first, and nothing is written until you confirm.</li>
-<li><strong>Strict approval policy</strong> — Set <code>&quot;requireValidForApproval&quot;: true</code> in <code>toucan.tproj</code> to refuse approving a translation that has validation errors. Bulk approval skips those items and says how many. There is no settings page for it yet.</li>
+<li><strong>Strict approval policy</strong> — Project Properties → Saving has a new &quot;Require valid translations to approve&quot; switch. When on, a translation with validation errors cannot be approved, and bulk approval skips those items and says how many. It is stored as <code>requireValidForApproval</code> in <code>toucan.tproj</code>.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
@@ -121,8 +121,12 @@
 <li><strong>Drafts can be saved with validation errors</strong> — Saving no longer asks &quot;Save anyway?&quot;. The file is saved and the findings appear in the Issues panel, with the count in the status bar. Automatic saves also go through.</li>
 <li><strong>Failed saves roll back</strong> — If one file of a save fails (permissions, a full disk, a locked file), the files already written are restored, the edits stay unsaved, and the message says what happened. Permission errors are reported instead of ending the save with an unhandled error.</li>
 </ul>
+<ul>
+<li><strong>&quot;Check for issues when saving&quot;</strong> — The old &quot;Validate before saving&quot; setting did nothing; it now controls whether the check runs on save. Findings are listed in the Issues panel and never stop a save. The Options text no longer claims errors block the save.</li>
+</ul>
 <h3>Fixed</h3>
 <ul>
+<li><strong>Files left behind by a failed save</strong> — If a save created a file the project did not have before (for example a new namespace file) and then failed, the new file is removed again when the other files are restored.</li>
 <li><strong>Language codes after a failed save</strong> — With language aliases configured, a save that failed halfway left items under their file code instead of their display code.</li>
 </ul></div></details>
 <div class="release-links"><a href="#unreleased" aria-label="Permalink to Unreleased">Permalink</a></div>

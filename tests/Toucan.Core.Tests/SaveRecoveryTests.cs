@@ -42,10 +42,10 @@ public sealed class SaveRecoveryTests : IDisposable
         public required ProjectLifecycleService Lifecycle { get; init; }
         public required TranslationManagementService Store { get; init; }
         public required RecoveryDraftService Drafts { get; init; }
-        public UnsavedChangesChoice Choice { get; set; } = UnsavedChangesChoice.Save;
+        public required IFileWatcherService Watcher { get; init; }
     }
 
-    private async Task<Session> OpenAsync(UnsavedChangesChoice onClose = UnsavedChangesChoice.Save)
+    private async Task<Session> OpenAsync(UnsavedChangesChoice onClose = UnsavedChangesChoice.Save, bool mergeExternalChanges = false)
     {
         var store = new TranslationManagementService(Substitute.For<IUndoRedoService>());
         var projects = new ProjectService(new FileService(NullLogger<FileService>.Instance), FormatTestHost.SaveStrategies, FormatTestHost.Factory,
@@ -56,12 +56,14 @@ public sealed class SaveRecoveryTests : IDisposable
         var unsaved = Substitute.For<IUnsavedChangesHandler>();
         unsaved.PromptAsync().Returns(_ => Task.FromResult(onClose));
         var drafts = new RecoveryDraftService(_drafts);
+        var external = Substitute.For<IExternalChangeHandler>();
+        external.PromptAsync().Returns(Task.FromResult(ExternalChangeChoice.Merge));
         var lifecycle = new ProjectLifecycleService(projects, store, watcher, validation, Substitute.For<IAutoSaveService>(),
-            Substitute.For<IDiffMergeEngine>(), Substitute.For<IAuditService>(), Substitute.For<IRecentProjectService>(),
+            mergeExternalChanges ? new DiffMergeEngine() : Substitute.For<IDiffMergeEngine>(), Substitute.For<IAuditService>(), Substitute.For<IRecentProjectService>(),
             new CommentPersistenceService(NullLogger<CommentPersistenceService>.Instance, FormatTestHost.Factory),
             new LanguageManagementService(store, projects, watcher, NullLogger<LanguageManagementService>.Instance),
-            unsaved, null, NullLogger<ProjectLifecycleService>.Instance, drafts);
-        var session = new Session { Lifecycle = lifecycle, Store = store, Drafts = drafts };
+            unsaved, external, NullLogger<ProjectLifecycleService>.Instance, drafts);
+        var session = new Session { Lifecycle = lifecycle, Store = store, Drafts = drafts, Watcher = watcher };
         Assert.Equal(ProjectOpenStatus.Success, (await lifecycle.OpenProjectAsync(_project)).Status);
         return session;
     }
@@ -315,5 +317,27 @@ public sealed class SaveRecoveryTests : IDisposable
         Assert.False(File.Exists(Path.Combine(_project, "it.json")));
         Assert.True(File.Exists(Path.Combine(_project, "notes.txt")));
         Assert.Contains("Hello", Read("en.json"));
+    }
+
+    [Fact]
+    public async Task ExternalMerge_KeepsLocalEditsUnsaved_AndTakesDiskChangesAsSaved()
+    {
+        var s = await OpenAsync(mergeExternalChanges: true);
+        s.Store.NotifyValueChanged(Item(s, "en", "app.title"), "Mine");
+        File.WriteAllText(Path.Combine(_project, "en.json"), "{\n  \"app\": { \"title\": \"Hello\", \"bye\": \"Bye from disk\" }\n}\n");
+
+        s.Watcher.FilesChanged += Raise.Event();
+        for (var i = 0; i < 50 && Item(s, "en", "app.bye").Value != "Bye from disk"; i++) await Task.Delay(50);
+
+        Assert.Equal("Bye from disk", Item(s, "en", "app.bye").Value);
+        Assert.Equal("Mine", Item(s, "en", "app.title").Value);
+        Assert.Equal(["app.title"], s.Store.GetDirtyItems().Where(t => t.Language == "en").Select(t => t.Namespace));
+
+        // The merge acknowledged the disk change, so saving is allowed and writes both.
+        Assert.Equal(ProjectSaveStatus.Success, (await s.Lifecycle.SaveProjectAsync()).Status);
+        var saved = Read("en.json");
+        Assert.Contains("Mine", saved);
+        Assert.Contains("Bye from disk", saved);
+        Assert.False(s.Store.IsDirty);
     }
 }

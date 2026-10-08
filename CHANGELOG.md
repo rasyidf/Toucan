@@ -5,17 +5,20 @@
 Safer saves: files are replaced atomically, a failed or interrupted multi-file save is rolled back, drafts with validation findings can be saved, and unsaved edits survive a crash.
 
 ### Added
-- **Recovery after a crash** — Toucan writes your unsaved edits to a recovery draft every few seconds (in `Documents/Toucan/recovery`, outside the project). When you reopen the project it offers to recover them. Edits to a value that was changed on disk in the meantime are skipped and listed, never overwritten. Discarding changes on close deletes the draft. Deleted keys, renamed keys and approvals are not part of a draft yet.
+- **Recovery after a crash** — Toucan writes your unsaved edits to a recovery draft every few seconds (in `Documents/Toucan/recovery`, outside the project). When you reopen the project it offers to recover them. Edits to a value that was changed on disk in the meantime are skipped and listed, never overwritten. Discarding changes on close deletes the draft. Drafts include deleted and renamed keys and approval changes, not only edited values; a deleted key is only removed again if its value on disk is unchanged.
 - **Interrupted saves are detected** — Before a save, Toucan copies every file it may touch (language files, comment and audit sidecars, the manifest) to `.toucan/recovery`. If Toucan stops mid-save, the next open offers to restore those files or keep what is on disk. After a successful save the copies stay as the previous version.
 - **Files changed outside Toucan** — Saving no longer overwrites a language file that was edited outside Toucan since it was opened or last saved. You are asked first, and nothing is written until you confirm.
-- **Strict approval policy** — Set `"requireValidForApproval": true` in `toucan.tproj` to refuse approving a translation that has validation errors. Bulk approval skips those items and says how many. There is no settings page for it yet.
+- **Strict approval policy** — Project Properties → Saving has a new "Require valid translations to approve" switch. When on, a translation with validation errors cannot be approved, and bulk approval skips those items and says how many. It is stored as `requireValidForApproval` in `toucan.tproj`.
 
 ### Changed
 - **Atomic saves** — Files are written to a temporary file in the same folder, flushed to disk and then swapped in, so a crash or write error no longer leaves a half-written file. This covers translation files, the project manifest, comment and audit sidecars, and encoding or line-ending rewrites.
 - **Drafts can be saved with validation errors** — Saving no longer asks "Save anyway?". The file is saved and the findings appear in the Issues panel, with the count in the status bar. Automatic saves also go through.
 - **Failed saves roll back** — If one file of a save fails (permissions, a full disk, a locked file), the files already written are restored, the edits stay unsaved, and the message says what happened. Permission errors are reported instead of ending the save with an unhandled error.
 
+- **"Check for issues when saving"** — The old "Validate before saving" setting did nothing; it now controls whether the check runs on save. Findings are listed in the Issues panel and never stop a save. The Options text no longer claims errors block the save.
+
 ### Fixed
+- **Files left behind by a failed save** — If a save created a file the project did not have before (for example a new namespace file) and then failed, the new file is removed again when the other files are restored.
 - **Language codes after a failed save** — With language aliases configured, a save that failed halfway left items under their file code instead of their display code.
 
 ## [0.21.0] - 2026-10-08

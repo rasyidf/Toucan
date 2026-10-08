@@ -101,10 +101,6 @@
 <p><strong>Completion gate:</strong> every format advertised as editable passes its documented fidelity fixtures, and CI catches the known regression cases.</p>
 <h3 id="v022-safe-saves-and-recovery"><a class="anchor" href="#v022-safe-saves-and-recovery" aria-label="Link to this section">#</a>v0.22: Safe saves and recovery</h3>
 <p><strong>Outcome:</strong> users can preserve incomplete work and recover from interrupted persistence.</p>
-<ul class="tasks">
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Extend recovery drafts to deleted and renamed keys and to approvals, which the dirty tracker does not see yet. Add a Project Properties switch for the approval policy (<code>requireValidForApproval</code> is manifest-only for now) and apply the same policy to delivery once delivery state exists (v0.26).</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify undo/redo and dirty tracking across bulk operations and external merges. Failed saves and recovery are covered by tests.</li>
-</ul>
 <p><strong>Completion gate:</strong> failure scenarios preserve a recoverable copy and never report unsaved work as saved.</p>
 <h3 id="v023-extension-platform"><a class="anchor" href="#v023-extension-platform" aria-label="Link to this section">#</a>v0.23: Extension platform</h3>
 <p><strong>Outcome:</strong> a connector can be built, installed, configured, and used without modifying Toucan's application code, so an optional commercial edition can ship as separate packages on the public SDK. Plugins today extend formats, translation providers, validation rules, and framework detection; this release extends the user workflow. Restart stays required for installing and updating plugins.</p>
@@ -124,6 +120,7 @@
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Complete first-run setup for default language, theme, and optional translation-engine credentials; add actionable empty states and a dismissible feature tour.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add reliable inline editing, side-by-side source/target comparison, content-sized multiline fields, and character/word counts.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Make bulk operations (copy to language, replace all, pre-translate, move, delete) undoable as one step; undo covers single value edits only today.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Make the edit → accept suggestion → approve → next workflow predictable, including focus retention and configurable shortcuts with conflict detection.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Clarify source/target hierarchy, placeholder rendering, descriptions, source references, and suggestion provenance in the editor and inspector.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add notification history with actionable save, validation, and integration failures; distinguish progress, cancellation, and completion.</li>
@@ -148,7 +145,7 @@
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Record the source revision/hash used for review; mark affected targets Needs review when the source changes, and invalidate approval after target edits.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add status filters and row badges; extend existing batch approval/rejection with comments and consistent validation policy.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist review history with timestamp, action, and available local actor information; do not imply authenticated team identity.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Track delivery separately from review: pending, synchronized, failed, or included in an export; preserve review meaning when remote platforms have different status models.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Track delivery separately from review: pending, synchronized, failed, or included in an export, applying the <code>requireValidForApproval</code> policy to delivery as well; preserve review meaning when remote platforms have different status models.</li>
 </ul>
 <p><strong>Completion gate:</strong> source and target changes cannot leave stale approvals, and review state survives save/reopen and project migration.</p>
 <h3 id="v027-content-sources-and-snapshot-mode"><a class="anchor" href="#v027-content-sources-and-snapshot-mode" aria-label="Link to this section">#</a>v0.27: Content sources and snapshot mode</h3>
