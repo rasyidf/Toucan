@@ -7,7 +7,7 @@ public static class PluginApi
     /// Version of the plugin API this build of Toucan implements. A plugin loads when its manifest <c>apiVersion</c>
     /// has the same major version and a minor version no newer than this one.
     /// </summary>
-    public static readonly Version Current = new(1, 0);
+    public static readonly Version Current = new(1, 1);
 
     public static bool IsCompatible(Version pluginApiVersion)
     {

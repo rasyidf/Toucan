@@ -204,7 +204,8 @@ public partial class App : Application
             null,
             null,
             sp.GetRequiredService<ILogger<ProjectLifecycleService>>(),
-            sp.GetRequiredService<IRecoveryDraftService>()));
+            sp.GetRequiredService<IRecoveryDraftService>(),
+            sp.GetService<IPluginActivationService>()));
 
         // View models
         services.AddSingleton<StatusBarViewModel>();

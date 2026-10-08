@@ -81,7 +81,8 @@ public class PluginContractTests
 
     [Theory]
     [InlineData("1.0", true)]
-    [InlineData("1.1", false)] // newer minor than the host
+    [InlineData("1.1", true)]
+    [InlineData("1.2", false)] // newer minor than the host
     [InlineData("2.0", false)]
     [InlineData("0.9", false)]
     public void ApiCompatibilityIsSameMajorAndNotNewerMinor(string version, bool expected) =>

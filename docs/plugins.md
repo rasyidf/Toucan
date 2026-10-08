@@ -94,7 +94,7 @@ build output is exercised by the test suite, so what it does is what this guide 
 | `apiVersion` | yes | The plugin API you built against, like `1.0` (see [Versioning](#versioning)). |
 | `entryAssembly` | yes | File name of your assembly, inside the plugin folder. No paths, must end in `.dll`. |
 | `entryType` | no | Full name of your `IToucanPlugin` class. Required if the assembly has more than one public implementation. |
-| `capabilities` | no | Any of `formats`, `providers`, `validation`, `frameworks`. Registering something you did not declare fails the plugin. |
+| `capabilities` | no | Any of `formats`, `providers`, `validation`, `frameworks`, `activation`. Registering something you did not declare fails the plugin. |
 | `author`, `description` | no | Shown when the user decides whether to trust you. |
 
 Comments and trailing commas are allowed. All problems are reported together, so one load attempt shows everything to fix.
@@ -174,9 +174,20 @@ A plugin is ordinary code, so Toucan loads it only if **you enabled it and trust
 - **Signing is not enforced yet.** Plugins show as "Not signed". It becomes mandatory when Toucan gains accounts and
   shared projects; design your release process so you can sign later (stable `id`, versioned releases).
 
+### Activation: `context.AddActivator(id, activator)` (capability `activation`, API 1.1)
+
+Registration happens once at startup and must not touch the network. Work with side effects (connecting, reading
+remote state) belongs in an `IPluginActivator`, which Toucan runs per scope: `Lifetime` is `Application`,
+`Workspace` (one open project) or `Connection` (one connection inside a project). Each activation gets its own
+`IPluginActivationContext` (plugin, workspace and connection IDs, a logger, and a `Scope` token cancelled when the
+scope ends) and returns an optional `IAsyncDisposable` session, disposed when the scope ends: newest first, and
+connections before their workspace. An activator that throws fails only that activation; it is logged and raised
+through `IPluginActivationService.ActivationFailed`, separately from load failures in the plugin catalog. Closing a
+project cancels activations still in flight.
+
 ## Versioning
 
-`PluginApi.Current` is the plugin API version Toucan implements (currently **1.0**). The NuGet package version of
+`PluginApi.Current` is the plugin API version Toucan implements (currently **1.1**). The NuGet package version of
 `Toucan.Plugins.Abstractions` tracks it. A plugin loads when its `apiVersion` has the **same major** version and a
 **minor no newer** than the host's. So a plugin built for `1.0` runs on every `1.x`; one built for `1.2` is rejected
 by a Toucan that implements `1.1` ("built for plugin API 1.2, but this Toucan implements 1.1"). Minor releases only

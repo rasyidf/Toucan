@@ -30,4 +30,10 @@ public interface IPluginContext
 
     /// <summary>Adds a framework profile shown in the import and new-project dialogs.</summary>
     void AddFrameworkProfile(IFrameworkProfile profile);
+
+    /// <summary>
+    /// Adds an activator that runs when a project or connection opens. Needs the <c>activation</c> capability.
+    /// <paramref name="id"/> is unique within the plugin.
+    /// </summary>
+    void AddActivator(string id, IPluginActivator activator);
 }

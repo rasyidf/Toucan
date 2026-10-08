@@ -37,6 +37,7 @@ internal sealed partial class PluginContext : IPluginContext
     private readonly HashSet<string> _providers = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _rules = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _profiles = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _activators = new(StringComparer.OrdinalIgnoreCase);
 
     public PluginContext(PluginManifest manifest, string pluginDirectory, ILogger logger, ReservedIds reserved)
     {
@@ -54,6 +55,7 @@ internal sealed partial class PluginContext : IPluginContext
     public List<ITranslationProvider> Providers { get; } = [];
     public List<IValidationRule> Rules { get; } = [];
     public List<IFrameworkProfile> Profiles { get; } = [];
+    public List<RegisteredActivator> Activators { get; } = [];
 
     /// <summary>Human-readable list of what was registered, e.g. <c>format:acme-po</c>.</summary>
     public IReadOnlyList<string> Summary =>
@@ -62,6 +64,7 @@ internal sealed partial class PluginContext : IPluginContext
         .. Providers.Select(p => $"provider:{p.Name}"),
         .. Rules.Select(r => $"rule:{r.Id}"),
         .. Profiles.Select(p => $"framework:{p.Id}"),
+        .. Activators.Select(a => $"activator:{a.Id}"),
     ];
 
     public void AddFormat(ISaveStrategy save, ILoadStrategy load)
@@ -122,6 +125,19 @@ internal sealed partial class PluginContext : IPluginContext
         Claim(_reserved.Profiles, _profiles, profile.Id, "Framework profile");
 
         Profiles.Add(profile);
+    }
+
+    public void AddActivator(string id, IPluginActivator activator)
+    {
+        ArgumentNullException.ThrowIfNull(activator);
+        RequireCapability(PluginCapabilities.Activation);
+
+        if (string.IsNullOrWhiteSpace(id))
+            throw new PluginRegistrationException("An activator needs a non-empty id.");
+        if (!_activators.Add(id))
+            throw new PluginRegistrationException($"Activator '{id}' is registered twice by this plugin.");
+
+        Activators.Add(new RegisteredActivator(_manifest.Id, id, activator));
     }
 
     /// <summary>Marks this plugin's IDs as taken so later plugins cannot reuse them.</summary>

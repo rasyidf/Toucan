@@ -9,10 +9,10 @@ summary: "v0.23 work order: registration/activation split, command registry, des
 
 Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v023-extension-platform). Each step leaves `dotnet test Toucan.CrossPlatform.slnx` green. Built-in commands and panels move onto the new paths as each piece lands (step 8 is a sweep, not a final rewrite).
 
-- [ ] 1. Registration vs activation
-  - [ ] 1.1 Registration without network access; activation per project or connection with its own session
-  - [ ] 1.2 Cancel and dispose on project close; separate registration and activation failure reporting
-  - [ ] 1.3 Explicit application, workspace, connection and panel lifetimes
+- [~] 1. Registration vs activation
+  - [x] 1.1 Registration without network access; activation per project or connection with its own session
+  - [x] 1.2 Cancel and dispose on project close; separate registration and activation failure reporting
+  - [x] 1.3 Explicit application, workspace, connection and panel lifetimes
 - [ ] 2. Command registry
   - [ ] 2.1 Stable IDs, localizable titles and categories, availability conditions, async execution with cancellation and progress
   - [ ] 2.2 Default shortcuts with user overrides; replace the static table in `KeybindingService`
@@ -25,6 +25,8 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
 - [ ] 6. Compatibility checks: host requirements, desktop-contract version, platform support, configuration migrations, actionable messages
 - [ ] 7. SDK test harness and a sample connector in a separate project that references only published SDK packages
 - [ ] 8. Sweep: move remaining built-in commands and panels onto the registries; update `docs/plugins.md`, architecture docs, changelog
+
+Notes from step 1: `IPluginActivator`, `PluginLifetime` and the `activation` capability are in Abstractions (plugin API 1.1; 1.0 plugins still load). `PluginActivationService` in Core runs activators per application, workspace and connection; `ProjectLifecycleService` opens and closes the workspace scope. Connection scopes are driven by `OpenConnectionAsync` and have no caller until the connector sample (step 7). Panel lifetime moves to step 3 with the desktop contract.
 
 ## Completion gate
 

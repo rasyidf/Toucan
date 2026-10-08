@@ -198,6 +198,7 @@ public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? logger
         foreach (var provider in context.Providers) services.AddSingleton(provider);
         foreach (var rule in context.Rules) services.AddSingleton(rule);
         foreach (var profile in context.Profiles) services.AddSingleton(profile);
+        foreach (var activator in context.Activators) services.AddSingleton(activator);
     }
 
     /// <summary>Reads the IDs the built-ins already use from a throwaway container built from the current registrations.</summary>
@@ -240,6 +241,7 @@ public static class PluginServiceCollectionExtensions
         // The logger factory belongs to this throwaway container, so keep it alive until loading is finished.
         using var probe = services.BuildServiceProvider();
         var results = new PluginHost(options, probe.GetService<ILoggerFactory>()).LoadInto(services);
+        services.AddSingleton<IPluginActivationService, PluginActivationService>();
         services.AddSingleton<IPluginCatalog>(new PluginCatalog(results, BuiltInModuleServiceCollectionExtensions.ModulesIn(services)));
         return services;
     }
