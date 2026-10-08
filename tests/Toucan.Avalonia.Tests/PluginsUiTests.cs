@@ -241,6 +241,27 @@ public sealed class PluginsUiTests : IDisposable
         dialog.Close();
     }
 
+    [AvaloniaFact]
+    public async Task TrustingAPlugin_KeepsThePluginCardsOnScreen()
+    {
+        var vm = Options(Result("pending", PluginStatus.NeedsTrust, PluginTrustState.Untrusted));
+        vm.SelectedPageIndex = OptionsViewModel.PluginsPage;
+        var dialog = new OptionsDialog(vm);
+        dialog.Show();
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+
+        int Cards() => global::Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(dialog)
+            .OfType<global::Avalonia.Controls.TextBlock>().Count(t => t.Text == "Acme Formats" && t.IsEffectivelyVisible && t.Bounds.Height > 0);
+        Assert.Equal(1, Cards());
+
+        await vm.Plugins[0].TrustCommand.ExecuteAsync(null);
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+
+        Assert.True(vm.PluginsChanged);
+        Assert.Equal(1, Cards());
+        dialog.Close();
+    }
+
     [Fact]
     public void AppContainerExposesAnEmptyCatalogAndPolicy()
     {
