@@ -32,6 +32,11 @@ public sealed class ActivationFailedEventArgs(ActivationResult result) : EventAr
     public ActivationResult Result { get; } = result;
 }
 
+public sealed class WorkspaceEventArgs(string workspaceId) : EventArgs
+{
+    public string WorkspaceId { get; } = workspaceId;
+}
+
 /// <summary>
 /// Runs plugin activators for the application, each open project and each connection. Registration happens at
 /// startup without side effects; this is where a plugin first touches the network or disk. A failing activator
@@ -41,6 +46,12 @@ public interface IPluginActivationService
 {
     /// <summary>Raised for every activation that failed, in addition to the returned results.</summary>
     event EventHandler<ActivationFailedEventArgs>? ActivationFailed;
+
+    /// <summary>Raised after a workspace scope starts (before its activators run).</summary>
+    event EventHandler<WorkspaceEventArgs>? WorkspaceOpened;
+
+    /// <summary>Raised after a workspace scope has ended and its sessions are disposed.</summary>
+    event EventHandler<WorkspaceEventArgs>? WorkspaceClosed;
 
     Task<IReadOnlyList<ActivationResult>> ActivateApplicationAsync(CancellationToken cancellationToken = default);
 
@@ -78,6 +89,8 @@ public sealed class PluginActivationService : IPluginActivationService, IAsyncDi
     }
 
     public event EventHandler<ActivationFailedEventArgs>? ActivationFailed;
+    public event EventHandler<WorkspaceEventArgs>? WorkspaceOpened;
+    public event EventHandler<WorkspaceEventArgs>? WorkspaceClosed;
 
     public bool IsWorkspaceOpen(string workspaceId) => _workspaces.ContainsKey(workspaceId);
 
@@ -106,6 +119,7 @@ public sealed class PluginActivationService : IPluginActivationService, IAsyncDi
             if (_workspaces.ContainsKey(workspaceId)) return [];
             var scope = new WorkspaceScope(CancellationTokenSource.CreateLinkedTokenSource(_applicationScope.Token));
             _workspaces[workspaceId] = scope;
+            WorkspaceOpened?.Invoke(this, new WorkspaceEventArgs(workspaceId));
             return await RunAsync(PluginLifetime.Workspace, workspaceId, null, scope.Sessions, scope.Cts.Token, cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -167,6 +181,7 @@ public sealed class PluginActivationService : IPluginActivationService, IAsyncDi
             foreach (var (id, connection) in workspace.Connections)
                 await TearDownAsync(connection.Cts, connection.Sessions, $"connection {id}").ConfigureAwait(false);
             await TearDownAsync(workspace.Cts, workspace.Sessions, $"workspace {workspaceId}").ConfigureAwait(false);
+            WorkspaceClosed?.Invoke(this, new WorkspaceEventArgs(workspaceId));
         }
         finally
         {

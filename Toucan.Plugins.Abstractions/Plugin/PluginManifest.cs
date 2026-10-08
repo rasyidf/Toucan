@@ -103,6 +103,7 @@ public static class PluginCapabilities
     public const string Validation = "validation";
     public const string Frameworks = "frameworks";
     public const string Activation = "activation";
+    public const string Commands = "commands";
 
-    public static IReadOnlyList<string> All { get; } = [Formats, Providers, Validation, Frameworks, Activation];
+    public static IReadOnlyList<string> All { get; } = [Formats, Providers, Validation, Frameworks, Activation, Commands];
 }

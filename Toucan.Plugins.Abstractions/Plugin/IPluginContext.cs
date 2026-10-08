@@ -36,4 +36,10 @@ public interface IPluginContext
     /// <paramref name="id"/> is unique within the plugin.
     /// </summary>
     void AddActivator(string id, IPluginActivator activator);
+
+    /// <summary>
+    /// Adds a command to the palette, menus and shortcut settings. Needs the <c>commands</c> capability, and the
+    /// definition's ID must start with the plugin ID and a dot.
+    /// </summary>
+    void AddCommand(CommandDefinition definition, ICommandHandler handler);
 }

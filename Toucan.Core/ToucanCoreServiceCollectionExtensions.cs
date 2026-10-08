@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Toucan.Core.Commands;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
@@ -26,6 +27,10 @@ public static class ToucanCoreServiceCollectionExtensions
         services.AddToucanProviders();
         services.AddToucanValidation();
         services.AddToucanAi();
+
+        services.TryAddSingleton<IPluginActivationService>(sp => new PluginActivationService(sp.GetServices<RegisteredActivator>(), sp.GetService<ILoggerFactory>()));
+        services.TryAddSingleton<ICommandRegistry>(sp => new CommandRegistry(sp.GetService<IPluginActivationService>(),
+            sp.GetServices<PluginCommandRegistration>(), sp.GetService<ILogger<CommandRegistry>>()));
 
         services.AddSingleton<IProjectModeResolver, ProjectModeResolver>();
         services.AddSingleton<IProjectService, ProjectService>();
