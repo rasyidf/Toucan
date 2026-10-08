@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The desktop contract: what a plugin may add to the Toucan desktop app (panels, settings pages, inspector sections,
+    dialogs, editor actions). It is a separate package so the CLI and any other host without a UI never load Avalonia:
+    a plugin keeps its UI in a second assembly named by the manifest's "desktop" entry. It must not reference Toucan.Core.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>13</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Toucan.Plugins.Desktop</RootNamespace>
+    <AssemblyName>Toucan.Plugins.Avalonia</AssemblyName>
+
+    <!-- NuGet package for plugin authors. The version tracks the desktop contract (DesktopContract.Current). -->
+    <IsPackable>true</IsPackable>
+    <PackageId>Toucan.Plugins.Avalonia</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>rasyid.dev</Authors>
+    <Description>Desktop contract for Toucan plugins: side panels, settings pages, inspector sections, dialogs and editor actions.</Description>
+    <PackageTags>toucan;i18n;localization;translation;plugin;avalonia</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/rasyidf/Toucan</RepositoryUrl>
+    <PackageProjectUrl>https://toucan.rasyid.dev</PackageProjectUrl>
+    <Copyright>Copyright © Rasyidf 2023-2026</Copyright>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.0.5" />
+    <ProjectReference Include="..\Toucan.Plugins.Abstractions\Toucan.Plugins.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

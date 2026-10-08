@@ -233,19 +233,8 @@ public partial class MainWindow : Window
     private Control GetPanel(string id)
     {
         if (_panelCache.TryGetValue(id, out var cached)) return cached;
-        Control panel = id switch
-        {
-            "explorer" => new ExplorerPanel(),
-            "search" => new SearchPanel(),
-            "issues" => new IssuesPanel(),
-            "source-code" => new SourceCodePanel(),
-            "languages" => new LanguagesPanel(),
-            "inspector" => new InspectorPanel(),
-            "machine-translation" => new MachineTranslationPanel(),
-            "translation-memory" => new TranslationMemoryPanel(),
-            _ => new TextBlock { Text = "Unknown panel", Margin = new global::Avalonia.Thickness(12) }
-        };
-        panel.DataContext = _vm;
+        var panel = DesktopContributions.Instance.CreatePanel(id, _vm)
+                    ?? new TextBlock { Text = Loc.T("This panel is not available."), Margin = new global::Avalonia.Thickness(12) };
         _panelCache[id] = panel;
         return panel;
     }
@@ -255,27 +244,9 @@ public partial class MainWindow : Window
         CaptureSlotWidths();
         if (id == null) return;
         LeftPanelTitle.Text = SidePanelRegistry.Instance.ActiveLeftPanel?.Title.ToUpperInvariant() ?? string.Empty;
+        DesktopContributions.Instance.PanelShown(id, _vm);
         LeftPanelContent.Content = GetPanel(id);
-        FillActions(LeftPanelActions, id switch
-        {
-            "explorer" =>
-            [
-                (FASymbol.Add, "Add translation key", _vm.NewItemCommand),
-                (FASymbol.List, "Toggle tree / list", _vm.ToggleViewModeCommand),
-            ],
-            "search" => [(FASymbol.Clear, "Clear search history", _vm.ClearSearchHistoryCommand)],
-            "issues" =>
-            [
-                (FASymbol.Refresh, "Run validation", _vm.RunValidationCommand),
-                (FASymbol.Clear, "Dismiss all", _vm.DismissAllIssuesCommand),
-            ],
-            "source-code" =>
-            [
-                (FASymbol.Sync, "Scan source code", _vm.ScanSourceCodeCommand),
-                (FASymbol.OpenFolder, "Choose source folder", _vm.SelectSourceRootCommand),
-            ],
-            _ => []
-        });
+        FillActions(LeftPanelActions, DesktopContributions.Instance.PanelActions(id, _vm));
     }
 
     private void ShowRightPanel(string? id)
@@ -283,38 +254,19 @@ public partial class MainWindow : Window
         CaptureSlotWidths();
         if (id == null) return;
         RightPanelTitle.Text = SidePanelRegistry.Instance.ActiveRightPanel?.Title.ToUpperInvariant() ?? string.Empty;
-        if (id == "machine-translation") _vm.RefreshProviderChoices();
+        DesktopContributions.Instance.PanelShown(id, _vm);
         RightPanelContent.Content = GetPanel(id);
-        FillActions(RightPanelActions, id switch
-        {
-            "languages" =>
-            [
-                (FASymbol.Add, "Add language", _vm.NewLanguageCommand),
-                (FASymbol.Setting, "Manage languages", _vm.ManageLanguagesCommand),
-            ],
-            "inspector" => [(FASymbol.Character, "Translate selected key", _vm.TranslateSelectedKeyCommand)],
-            "machine-translation" =>
-            [
-                (FASymbol.Character, "Translate selected key", _vm.TranslateSelectedKeyCommand),
-                (FASymbol.Setting, "Provider settings", _vm.OpenProviderSettingsCommand),
-            ],
-            "translation-memory" =>
-            [
-                (FASymbol.Import, "Import TMX", _vm.ImportTmxCommand),
-                (FASymbol.SaveAs, "Export TMX", _vm.ExportTmxCommand),
-                (FASymbol.Delete, "Clear translation memory", _vm.ClearTmCommand),
-            ],
-            _ => []
-        });
+        FillActions(RightPanelActions, DesktopContributions.Instance.PanelActions(id, _vm));
     }
 
-    private static void FillActions(StackPanel host, (FASymbol Icon, string Tip, ICommand Command)[] actions)
+    private static void FillActions(StackPanel host, IReadOnlyList<PanelActionItem> actions)
     {
         host.Children.Clear();
-        foreach (var (icon, tip, command) in actions)
+        foreach (var action in actions)
         {
-            var button = new Button { Classes = { "icon", "small" }, Command = command, Content = new FASymbolIcon { Symbol = icon } };
-            ToolTip.SetTip(button, Loc.T(tip));
+            var button = new Button { Classes = { "icon", "small" }, Command = action.Command, Content = new FASymbolIcon { Symbol = action.Icon } };
+            ToolTip.SetTip(button, Loc.T(action.ToolTip));
+            global::Avalonia.Automation.AutomationProperties.SetName(button, Loc.T(action.ToolTip));
             host.Children.Add(button);
         }
     }

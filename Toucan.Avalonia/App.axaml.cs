@@ -14,6 +14,8 @@ using Toucan.Core.Contracts.Services;
 using Toucan.Core;
 using Toucan.Core.Models;
 using Toucan.Core.Plugins;
+using Toucan.Avalonia.Views.Panels;
+using FluentAvalonia.UI.Controls;
 using Toucan.Core.Services;
 
 namespace Toucan.Avalonia;
@@ -51,6 +53,7 @@ public partial class App : Application
             ColorSchemeService.Apply(vm.AppOptions);
             ThemeService.ApplyFontSize(vm.AppOptions.FontSize);
             RegisterSidePanels();
+            LoadDesktopPlugins(vm);
 
             var statusBar = _services.GetRequiredService<StatusBarViewModel>();
             StatusBarService.Instance.Register(statusBar);
@@ -104,6 +107,17 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
+    /// <summary>Loads the desktop part of each plugin that loaded. Failures are recorded next to the plugin and never stop startup.</summary>
+    private void LoadDesktopPlugins(MainWindowViewModel vm)
+    {
+        if (_services?.GetService<IPluginCatalog>() is not { } catalog) return;
+        var commands = _services.GetRequiredService<global::Toucan.Core.Commands.ICommandRegistry>();
+        var workspace = new PluginWorkspaceContext(vm, commands);
+        var host = new DesktopHost(DesktopContributions.Instance, workspace);
+        DesktopPluginLoader.LoadAll(catalog, DesktopContributions.Instance, SidePanelRegistry.Instance, workspace, host, commands,
+            _services.GetService<ILoggerFactory>());
+    }
+
     private async Task PromptForPendingPluginsAsync(MainWindowViewModel vm)
     {
         try
@@ -128,14 +142,52 @@ public partial class App : Application
     internal static void RegisterSidePanels()
     {
         var registry = SidePanelRegistry.Instance;
-        registry.Register(new BuiltInSidePanel("explorer", "Explorer", "OpenFolder", SidePanelSlot.Left, 10));
-        registry.Register(new BuiltInSidePanel("search", "Search", "Find", SidePanelSlot.Left, 20));
-        registry.Register(new BuiltInSidePanel("issues", "Issues", "Flag", SidePanelSlot.Left, 30));
-        registry.Register(new BuiltInSidePanel("source-code", "Source Code", "CodeHTML", SidePanelSlot.Left, 40));
-        registry.Register(new BuiltInSidePanel("languages", "Languages", "Globe", SidePanelSlot.Right, 10));
-        registry.Register(new BuiltInSidePanel("inspector", "Inspector", "Tag", SidePanelSlot.Right, 20));
-        registry.Register(new BuiltInSidePanel("machine-translation", "Translation", "Character", SidePanelSlot.Right, 25));
-        registry.Register(new BuiltInSidePanel("translation-memory", "Memory", "Library", SidePanelSlot.Right, 30));
+        var panels = DesktopContributions.Instance;
+
+        // Each built-in panel registers like a plugin's would: an activity-bar entry, a factory and a toolbar.
+        void Add(string id, string title, string icon, SidePanelSlot slot, int order, Func<MainWindowViewModel, global::Avalonia.Controls.Control> create,
+            Func<MainWindowViewModel, IReadOnlyList<PanelActionItem>>? actions = null, Action<MainWindowViewModel>? onShow = null)
+        {
+            registry.Register(new BuiltInSidePanel(id, title, icon, slot, order));
+            // Built-in panels bind straight to the main view model; plugin panels get no such data context.
+            if (!panels.HasPanel(id)) panels.AddPanel(id, vm => { var panel = create(vm); panel.DataContext = vm; return panel; }, actions, onShow);
+        }
+
+        Add("explorer", "Explorer", "OpenFolder", SidePanelSlot.Left, 10, _ => new ExplorerPanel(), vm =>
+        [
+            new(FASymbol.Add, "Add translation key", vm.NewItemCommand),
+            new(FASymbol.List, "Toggle tree / list", vm.ToggleViewModeCommand),
+        ]);
+        Add("search", "Search", "Find", SidePanelSlot.Left, 20, _ => new SearchPanel(), vm =>
+            [new(FASymbol.Clear, "Clear search history", vm.ClearSearchHistoryCommand)]);
+        Add("issues", "Issues", "Flag", SidePanelSlot.Left, 30, _ => new IssuesPanel(), vm =>
+        [
+            new(FASymbol.Refresh, "Run validation", vm.RunValidationCommand),
+            new(FASymbol.Clear, "Dismiss all", vm.DismissAllIssuesCommand),
+        ]);
+        Add("source-code", "Source Code", "CodeHTML", SidePanelSlot.Left, 40, _ => new SourceCodePanel(), vm =>
+        [
+            new(FASymbol.Sync, "Scan source code", vm.ScanSourceCodeCommand),
+            new(FASymbol.OpenFolder, "Choose source folder", vm.SelectSourceRootCommand),
+        ]);
+        Add("languages", "Languages", "Globe", SidePanelSlot.Right, 10, _ => new LanguagesPanel(), vm =>
+        [
+            new(FASymbol.Add, "Add language", vm.NewLanguageCommand),
+            new(FASymbol.Setting, "Manage languages", vm.ManageLanguagesCommand),
+        ]);
+        Add("inspector", "Inspector", "Tag", SidePanelSlot.Right, 20, _ => new InspectorPanel(), vm =>
+            [new(FASymbol.Character, "Translate selected key", vm.TranslateSelectedKeyCommand)]);
+        Add("machine-translation", "Translation", "Character", SidePanelSlot.Right, 25, _ => new MachineTranslationPanel(), vm =>
+        [
+            new(FASymbol.Character, "Translate selected key", vm.TranslateSelectedKeyCommand),
+            new(FASymbol.Setting, "Provider settings", vm.OpenProviderSettingsCommand),
+        ], vm => vm.RefreshProviderChoices());
+        Add("translation-memory", "Memory", "Library", SidePanelSlot.Right, 30, _ => new TranslationMemoryPanel(), vm =>
+        [
+            new(FASymbol.Import, "Import TMX", vm.ImportTmxCommand),
+            new(FASymbol.SaveAs, "Export TMX", vm.ExportTmxCommand),
+            new(FASymbol.Delete, "Clear translation memory", vm.ClearTmCommand),
+        ]);
         PanelService.Instance.RestoreActivePanels();
     }
 
@@ -169,6 +221,8 @@ public partial class App : Application
         services.AddSingleton<IPluginPolicyStore>(pluginPolicy);
         var pluginOptions = new PluginHostOptions { Policy = pluginPolicy };
         pluginOptions.Roots.Add(pluginRoot ?? PluginHostOptions.DefaultRoot());
+        // A plugin's desktop part must use the host's UI framework, never a copy of its own.
+        foreach (var prefix in new[] { "Avalonia", "FluentAvalonia", "Toucan.Plugins.Avalonia", "MicroCom" }) pluginOptions.SharedAssemblyPrefixes.Add(prefix);
         services.AddToucanPlugins(pluginOptions);
 
         // Editor services

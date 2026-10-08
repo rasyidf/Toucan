@@ -27,6 +27,12 @@ public sealed class PluginHostOptions
     /// </summary>
     public ISet<string> SharedAssemblies { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Assembly name prefixes that always come from the host (the UI framework, for hosts that load desktop parts), so a
+    /// plugin that ships its own copy by mistake cannot break type identity.
+    /// </summary>
+    public ISet<string> SharedAssemblyPrefixes { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
     /// <summary>Per-user plugin folder: <c>Documents/Toucan/plugins</c>, next to the app's other settings.</summary>
     public static string DefaultRoot() => Path.Combine(
         Toucan.Core.Services.UserDataFolder.Root, "Toucan", "plugins");

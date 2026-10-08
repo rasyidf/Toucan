@@ -33,6 +33,12 @@ public sealed record PluginManifest
     /// </summary>
     public string? EntryType { get; init; }
     public string? Author { get; init; }
+
+    /// <summary>
+    /// The plugin's desktop part: a second assembly with its UI, loaded only by hosts that have one. Needs the
+    /// <c>desktop</c> capability. The CLI never loads it.
+    /// </summary>
+    public DesktopEntry? Desktop { get; init; }
     public string? Description { get; init; }
 
     /// <summary>What the plugin registers; the host rejects registrations outside this set (see <see cref="PluginCapabilities"/>).</summary>
@@ -86,6 +92,13 @@ public sealed record PluginManifest
             yield return "'entryAssembly' must be a file name inside the plugin folder.";
         else if (!EntryAssembly.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) yield return "'entryAssembly' must end with .dll.";
 
+        if (Desktop is not null)
+        {
+            foreach (var problem in Desktop.Validate()) yield return $"'desktop': {problem}";
+            if (!(Capabilities ?? []).Contains(PluginCapabilities.Desktop, StringComparer.OrdinalIgnoreCase))
+                yield return $"'desktop' needs the '{PluginCapabilities.Desktop}' capability.";
+        }
+
         foreach (var capability in (Capabilities ?? []).Except(PluginCapabilities.All, StringComparer.OrdinalIgnoreCase))
             yield return $"Unknown capability '{capability}'. Known: {string.Join(", ", PluginCapabilities.All)}.";
     }
@@ -93,6 +106,33 @@ public sealed record PluginManifest
     private static bool IsValidId(string id) =>
         id.Length <= 64 && id.All(c => c is (>= 'a' and <= 'z') or (>= '0' and <= '9') or '.' or '-')
         && char.IsLetterOrDigit(id[0]) && char.IsLetterOrDigit(id[^1]);
+}
+
+/// <summary>The <c>desktop</c> object of a manifest.</summary>
+public sealed record DesktopEntry
+{
+    /// <summary>File name of the assembly containing the <c>IToucanDesktopPlugin</c>, relative to the plugin folder.</summary>
+    public string EntryAssembly { get; init; } = string.Empty;
+
+    /// <summary>Full name of the <c>IToucanDesktopPlugin</c> class; optional when the assembly has exactly one.</summary>
+    public string? EntryType { get; init; }
+
+    /// <summary>Desktop contract version the assembly was built against, e.g. <c>1.0</c>.</summary>
+    public string ContractVersion { get; init; } = string.Empty;
+
+    [JsonIgnore]
+    public Version? ParsedContractVersion => Version.TryParse(ContractVersion, out var v) ? v : null;
+
+    internal IEnumerable<string> Validate()
+    {
+        if (string.IsNullOrWhiteSpace(EntryAssembly)) yield return "'entryAssembly' is required.";
+        else if (EntryAssembly.Contains("..", StringComparison.Ordinal) || Path.IsPathRooted(EntryAssembly)
+                 || EntryAssembly.AsSpan().IndexOfAny('/', '\\') >= 0)
+            yield return "'entryAssembly' must be a file name inside the plugin folder.";
+        else if (!EntryAssembly.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) yield return "'entryAssembly' must end with .dll.";
+
+        if (ParsedContractVersion is null) yield return "'contractVersion' is required and must look like 1.0.";
+    }
 }
 
 /// <summary>Capabilities a plugin may declare in its manifest.</summary>
@@ -104,6 +144,7 @@ public static class PluginCapabilities
     public const string Frameworks = "frameworks";
     public const string Activation = "activation";
     public const string Commands = "commands";
+    public const string Desktop = "desktop";
 
-    public static IReadOnlyList<string> All { get; } = [Formats, Providers, Validation, Frameworks, Activation, Commands];
+    public static IReadOnlyList<string> All { get; } = [Formats, Providers, Validation, Frameworks, Activation, Commands, Desktop];
 }

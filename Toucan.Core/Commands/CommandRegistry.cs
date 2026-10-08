@@ -331,12 +331,8 @@ public sealed partial class CommandRegistry : ICommandRegistry, IDisposable
     public string GetCategory(string id, CultureInfo? culture = null) =>
         Find(id) is { } c ? Localize(c.Definition.LocalizedCategories, c.Definition.Category, culture) : string.Empty;
 
-    private static string Localize(IReadOnlyDictionary<string, string> table, string fallback, CultureInfo? culture)
-    {
-        for (var c = culture ?? CultureInfo.CurrentUICulture; c.Name.Length > 0; c = c.Parent)
-            if (table.TryGetValue(c.Name, out var text) && !string.IsNullOrWhiteSpace(text)) return text;
-        return fallback;
-    }
+    private static string Localize(IReadOnlyDictionary<string, string> table, string fallback, CultureInfo? culture) =>
+        LocalizedText.Pick(table, fallback, culture);
 
     private string? DefaultShortcut(string id) =>
         _commands.FirstOrDefault(c => c.Id == id)?.Definition.DefaultShortcut is { } d && ShortcutText.TryNormalize(d, out var n) ? n : null;

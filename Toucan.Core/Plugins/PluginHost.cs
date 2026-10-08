@@ -121,7 +121,7 @@ public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? logger
             if (!File.Exists(entryPath))
                 return Reject(log, folder, manifest, PluginStatus.Failed, $"Entry assembly '{manifest.EntryAssembly}' was not found.");
 
-            var loadContext = new PluginLoadContext(manifest.Id, entryPath, options.SharedAssemblies);
+            var loadContext = new PluginLoadContext(manifest.Id, entryPath, options.SharedAssemblies, options.SharedAssemblyPrefixes);
             var assembly = loadContext.LoadFromAssemblyPath(entryPath);
             var pluginType = FindPluginType(assembly, manifest.EntryType, out var typeError);
             if (pluginType is null)
@@ -136,7 +136,7 @@ public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? logger
 
             if (log.IsEnabled(LogLevel.Information))
                 log.LogInformation("Loaded plugin {Id} {Version} ({Summary}).", manifest.Id, manifest.Version, string.Join(", ", context.Summary));
-            return new PluginLoadResult(folder, PluginStatus.Loaded, manifest, Registered: context.Summary);
+            return new PluginLoadResult(folder, PluginStatus.Loaded, manifest, Registered: context.Summary, LoadContext: loadContext);
         }
         catch (PluginRegistrationException ex)
         {
