@@ -137,6 +137,10 @@ public partial class ProjectLifecycleService(
             autoSave.Start(interval);
         }
 
+        // 11b. Leftovers from an earlier session: an unsaved-edits draft, or a save that never finished
+        DetectLeftovers(folderPath);
+        StartDraftTimer();
+
         // 12. Raise ProjectChanged event with Opened
         ProjectChanged?.Invoke(this, new ProjectChangedEventArgs
         {
