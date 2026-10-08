@@ -35,10 +35,10 @@ public class FileService(ILogger<FileService> logger) : IFileService
         Directory.CreateDirectory(folderPath);
         var path = Path.Combine(folderPath, fileName);
 
-        if (content is string text) { File.WriteAllText(path, text, Encoding.UTF8); return; }
-        if (content is byte[] bytes) { File.WriteAllBytes(path, bytes); return; }
+        if (content is string text) { WriteAtomic(path, Utf8Bom.GetBytes(text)); return; }
+        if (content is byte[] bytes) { WriteAtomic(path, bytes); return; }
 
-        File.WriteAllText(path, JsonSerializer.Serialize(content, s_options), Encoding.UTF8);
+        WriteAtomic(path, Utf8Bom.GetBytes(JsonSerializer.Serialize(content, s_options)));
     }
 
     public string ReadText(string folderPath, string fileName)
@@ -50,7 +50,7 @@ public class FileService(ILogger<FileService> logger) : IFileService
     public void SaveText(string folderPath, string fileName, string content)
     {
         Directory.CreateDirectory(folderPath);
-        File.WriteAllText(Path.Combine(folderPath, fileName), content, Encoding.UTF8);
+        WriteAtomic(Path.Combine(folderPath, fileName), Utf8Bom.GetBytes(content));
     }
 
     public byte[] ReadBytes(string folderPath, string fileName)
@@ -62,7 +62,7 @@ public class FileService(ILogger<FileService> logger) : IFileService
     public void SaveBytes(string folderPath, string fileName, byte[] content)
     {
         Directory.CreateDirectory(folderPath);
-        File.WriteAllBytes(Path.Combine(folderPath, fileName), content);
+        WriteAtomic(Path.Combine(folderPath, fileName), content);
     }
 
     public void Delete(string folderPath, string fileName)
@@ -91,14 +91,10 @@ public class FileService(ILogger<FileService> logger) : IFileService
         Directory.CreateDirectory(folderPath);
         var path = Path.Combine(folderPath, fileName);
 
-        if (content is string text) { await File.WriteAllTextAsync(path, text, Encoding.UTF8).ConfigureAwait(false); return; }
-        if (content is byte[] bytes) { await File.WriteAllBytesAsync(path, bytes).ConfigureAwait(false); return; }
+        if (content is string text) { await WriteAtomicAsync(path, Utf8Bom.GetBytes(text)).ConfigureAwait(false); return; }
+        if (content is byte[] bytes) { await WriteAtomicAsync(path, bytes).ConfigureAwait(false); return; }
 
-        var stream = File.Create(path);
-        await using (stream.ConfigureAwait(false))
-        {
-            await JsonSerializer.SerializeAsync(stream, content, s_options).ConfigureAwait(false);
-        }
+        await WriteAtomicAsync(path, Utf8Bom.GetBytes(JsonSerializer.Serialize(content, s_options))).ConfigureAwait(false);
     }
 
     public Task<string> ReadTextAsync(string folderPath, string fileName)
@@ -110,7 +106,7 @@ public class FileService(ILogger<FileService> logger) : IFileService
     public Task SaveTextAsync(string folderPath, string fileName, string content)
     {
         Directory.CreateDirectory(folderPath);
-        return File.WriteAllTextAsync(Path.Combine(folderPath, fileName), content, Encoding.UTF8);
+        return WriteAtomicAsync(Path.Combine(folderPath, fileName), Utf8Bom.GetBytes(content));
     }
 
     public Task<byte[]> ReadBytesAsync(string folderPath, string fileName)
@@ -122,6 +118,84 @@ public class FileService(ILogger<FileService> logger) : IFileService
     public Task SaveBytesAsync(string folderPath, string fileName, byte[] content)
     {
         Directory.CreateDirectory(folderPath);
-        return File.WriteAllBytesAsync(Path.Combine(folderPath, fileName), content);
+        return WriteAtomicAsync(Path.Combine(folderPath, fileName), content);
+    }
+
+    // File.WriteAllText(path, text, Encoding.UTF8) writes a BOM; keep that behaviour byte-for-byte.
+    private static readonly Utf8BomEncoding Utf8Bom = new();
+
+    private sealed class Utf8BomEncoding
+    {
+        public byte[] GetBytes(string text)
+        {
+            var preamble = Encoding.UTF8.GetPreamble();
+            var body = Encoding.UTF8.GetBytes(text);
+            var all = new byte[preamble.Length + body.Length];
+            preamble.CopyTo(all, 0);
+            body.CopyTo(all, preamble.Length);
+            return all;
+        }
+    }
+
+    /// <summary>
+    /// Stages <paramref name="bytes"/> in a temporary file next to <paramref name="path"/>, flushes it to disk, and
+    /// swaps it in. If staging or the swap fails the existing file is left untouched and the temp file is removed.
+    /// </summary>
+    internal static void WriteAtomic(string path, byte[] bytes)
+    {
+        var temp = StageTempPath(path);
+        try
+        {
+            using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                stream.Write(bytes, 0, bytes.Length);
+                stream.Flush(flushToDisk: true);
+            }
+            Commit(temp, path, bytes.Length);
+        }
+        catch
+        {
+            TryDelete(temp);
+            throw;
+        }
+    }
+
+    internal static async Task WriteAtomicAsync(string path, byte[] bytes)
+    {
+        var temp = StageTempPath(path);
+        try
+        {
+            var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, useAsync: true);
+            await using (stream.ConfigureAwait(false))
+            {
+                await stream.WriteAsync(bytes).ConfigureAwait(false);
+                await stream.FlushAsync().ConfigureAwait(false);
+                stream.Flush(flushToDisk: true);
+            }
+            Commit(temp, path, bytes.Length);
+        }
+        catch
+        {
+            TryDelete(temp);
+            throw;
+        }
+    }
+
+    private static string StageTempPath(string path) =>
+        Path.Combine(Path.GetDirectoryName(Path.GetFullPath(path))!, $".{Path.GetFileName(path)}.{Guid.NewGuid():N}.tmp");
+
+    private static void Commit(string temp, string path, int expectedLength)
+    {
+        // Validate the staged copy before it replaces anything.
+        if (new FileInfo(temp).Length != expectedLength)
+            throw new IOException($"Staged file for '{path}' is incomplete; the original was not changed.");
+
+        if (File.Exists(path)) File.Replace(temp, path, destinationBackupFileName: null, ignoreMetadataErrors: true);
+        else File.Move(temp, path);
+    }
+
+    private static void TryDelete(string path)
+    {
+        try { if (File.Exists(path)) File.Delete(path); } catch (IOException) { } catch (UnauthorizedAccessException) { }
     }
 }

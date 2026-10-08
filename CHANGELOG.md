@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- **Atomic saves** — Files are written to a temporary file in the same folder, flushed to disk and then swapped in, so a crash or write error no longer leaves a half-written file, and the previous version stays untouched when a save fails.
+
 ## [0.21.0] - 2026-10-08
 
 Format fidelity and CI: a support matrix for every built-in format, protection against saves that would drop content (Android XML, RESX), fixes for YAML, Laravel PHP, TOML, Java properties, JSON and XML round-trips, and a build-and-test workflow on Windows, macOS and Linux. Also a unified title bar on Windows and Linux, a reusable editable table, and a tidier Project Properties page.
