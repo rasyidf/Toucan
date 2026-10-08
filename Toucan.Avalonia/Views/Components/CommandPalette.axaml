@@ -16,7 +16,7 @@
         </Grid>
         <Border DockPanel.Dock="Top" Height="1" Background="{DynamicResource SubtleBorderBrush}"/>
 
-        <TextBlock x:Name="Empty" Text="{loc:Loc 'No matching commands'}" Classes="caption" HorizontalAlignment="Center" Margin="0,24" IsVisible="False"/>
+        <TextBlock x:Name="Empty" DockPanel.Dock="Top" Text="{loc:Loc 'No matching commands'}" Classes="caption" HorizontalAlignment="Center" Margin="16,24" IsVisible="False"/>
         <ListBox x:Name="List" Classes="plain paletteList" AutomationProperties.Name="{loc:Loc 'Commands'}" Margin="6" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <ListBox.ItemTemplate>
             <DataTemplate>

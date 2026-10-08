@@ -54,6 +54,8 @@ internal static class MainMenu
         var registry = KeybindingService.Registry;
         foreach (var command in PluginCommands(CommandPlacement.CommandPalette))
         {
+            // Commands with a menu entry already arrive through the menu, with their category and shortcut.
+            if (command.Definition.Placements.HasFlag(CommandPlacement.Menu)) continue;
             var shortcut = KeybindingService.ToGesture(registry.GetShortcut(command.Id))?.ToString("p", null);
             into.Add(new PaletteCommand(registry.GetCategory(command.Id), registry.GetTitle(command.Id), shortcut, RegistryCommand.For(registry, command.Id)));
         }
