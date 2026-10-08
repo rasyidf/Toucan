@@ -1,7 +1,7 @@
 ---
 title: "extension-platform — tasks"
 status: in-progress
-progress: "0/8 steps"
+progress: "1/8 steps (step 1 lacks only panel lifetime, moved to step 3)"
 updated: 2026-10-09
 summary: "v0.23 work order: registration/activation split, command registry, desktop contributions, host services, workspace API, compatibility checks, SDK harness and external sample connector, migration of built-ins."
 ---
