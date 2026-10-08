@@ -14,7 +14,7 @@ public class TranslationMemoryService : ITranslationMemory
 {
     private readonly List<TranslationMemoryEntry> _entries = [];
     private static readonly string s_path = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "translation-memory.json");
+        Toucan.Core.Services.UserDataFolder.Root, "Toucan", "translation-memory.json");
     private static readonly JsonSerializerOptions s_json = new() { WriteIndented = false };
     private bool _dirty;
 

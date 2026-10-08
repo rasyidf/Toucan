@@ -253,6 +253,7 @@
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
   </Style>
   <Style Selector="Border.toolbar">
+    <Setter Property="Height" Value="36"/>
     <Setter Property="Padding" Value="10,3,10,4"/>
     <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
     <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -852,7 +853,7 @@
   </Style>
   <Style Selector="Border.toolbar TextBox">
     <Setter Property="MinHeight" Value="28"/>
-    <Setter Property="Padding" Value="10,4,6,4"/>
+    <Setter Property="Padding" Value="10,3,6,3"/>
     <Setter Property="CornerRadius" Value="8"/>
   </Style>
   <Style Selector="Rectangle.toolbarSeparator">

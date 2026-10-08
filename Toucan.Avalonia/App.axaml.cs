@@ -153,7 +153,7 @@ public partial class App : Application
         services.AddSingleton<IAsyncMessageService>(sp => sp.GetRequiredService<MessageService>());
         services.AddSingleton<IMessageService>(sp => sp.GetRequiredService<MessageService>());
         services.AddSingleton<IPreferenceService, PreferenceService>();
-        services.AddSingleton<IProjectDefaultsService, ProjectDefaultsService>();
+        services.AddSingleton<IProjectDefaultsService>(_ => new ProjectDefaultsService());
         services.AddSingleton<IProviderSettingsService>(sp => new ProviderSettingsService(
             sp.GetRequiredService<ISecretService>(), sp.GetRequiredService<ISecureStorageService>()));
         services.AddSingleton<IUndoRedoService, UndoRedoService>();
@@ -261,7 +261,7 @@ public partial class App : Application
     {
         try
         {
-            var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan");
+            var dir = Path.Combine(Toucan.Core.Services.UserDataFolder.Root, "Toucan");
             Directory.CreateDirectory(dir);
             File.AppendAllText(Path.Combine(dir, "toucan-avalonia-errors.log"), $"\n=== {DateTime.UtcNow:u} ({source}) ===\n{ex}\n");
         }

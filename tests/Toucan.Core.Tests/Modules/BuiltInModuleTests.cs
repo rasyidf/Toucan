@@ -18,7 +18,7 @@ public sealed class BuiltInModuleTests : IDisposable
 
     public void Dispose()
     {
-        if (Directory.Exists(_pluginsRoot)) Directory.Delete(_pluginsRoot, recursive: true);
+        TempFolder.TryDelete(_pluginsRoot);
     }
 
     private static ServiceCollection NewServices()

@@ -20,7 +20,7 @@ public sealed class ProviderSettingsService(ISecretService secrets, ISecureStora
     };
 
     private string AppFilePath => appFile ?? Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "providers.json");
+        Toucan.Core.Services.UserDataFolder.Root, "Toucan", "providers.json");
 
     private static string ProjectFilePath(string projectPath) => Path.Combine(projectPath, ".toucan", "providers.json");
 

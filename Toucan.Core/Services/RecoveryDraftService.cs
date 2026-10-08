@@ -13,7 +13,7 @@ public sealed class RecoveryDraftService(string? folder = null, ILogger<Recovery
     private static readonly JsonSerializerOptions s_json = new() { WriteIndented = true };
 
     public static string DefaultFolder => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "recovery");
+        Toucan.Core.Services.UserDataFolder.Root, "Toucan", "recovery");
 
     private readonly string _folder = folder ?? DefaultFolder;
 

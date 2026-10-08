@@ -40,20 +40,17 @@ public sealed class SecureStorageService : ISecureStorageService
     public string Unprotect(string protectedValue)
     {
         if (string.IsNullOrEmpty(protectedValue)) return string.Empty;
-        try
+        if (protectedValue.StartsWith(AesPrefix, StringComparison.Ordinal))
         {
-            if (protectedValue.StartsWith(AesPrefix, StringComparison.Ordinal))
-                return UnprotectAes(protectedValue[AesPrefix.Length..]);
-            if (OperatingSystem.IsWindows())
-                return UnprotectDpapi(protectedValue);
+            try { return UnprotectAes(protectedValue[AesPrefix.Length..]); }
+            catch (Exception ex) when (ex is CryptographicException or FormatException) { return string.Empty; }
         }
-        catch (CryptographicException)
+
+        if (OperatingSystem.IsWindows())
         {
-            return string.Empty;
-        }
-        catch (FormatException)
-        {
-            return string.Empty;
+            // Not DPAPI data (for example plain base64 from the old WPF app): fall through to the legacy reader.
+            try { return UnprotectDpapi(protectedValue); }
+            catch (Exception ex) when (ex is CryptographicException or FormatException) { }
         }
 
         // Legacy fallback: the WPF app stored plain base64 when DPAPI was unavailable.

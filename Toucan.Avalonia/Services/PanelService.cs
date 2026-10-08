@@ -16,7 +16,7 @@ public partial class PanelService : ObservableObject
     public static PanelService Instance => s_instance.Value;
 
     private static readonly string s_layoutPath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "layout.json");
+        Toucan.Core.Services.UserDataFolder.Root, "Toucan", "layout.json");
 
     public SidePanelRegistry SideRegistry => SidePanelRegistry.Instance;
 

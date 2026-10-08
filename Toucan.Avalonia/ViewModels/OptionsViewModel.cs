@@ -149,7 +149,7 @@ public partial class OptionsViewModel : ObservableObject
 
     public bool CanManageAssociation => FileAssociationService.IsSupported;
     public bool CanManageFolderEntry => FileAssociationService.FolderEntrySupported;
-    public string SettingsFolder { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan");
+    public string SettingsFolder { get; } = Path.Combine(Toucan.Core.Services.UserDataFolder.Root, "Toucan");
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AssociationStatus))]
@@ -575,7 +575,7 @@ public partial class OptionsViewModel : ObservableObject
 
     [RelayCommand]
     private static void OpenSettingsFolder() =>
-        PlatformService.RevealInFileManager(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan"));
+        PlatformService.RevealInFileManager(Path.Combine(Toucan.Core.Services.UserDataFolder.Root, "Toucan"));
 
     private static List<string> ParseList(string value) =>
         string.IsNullOrWhiteSpace(value) ? [] : [.. value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];

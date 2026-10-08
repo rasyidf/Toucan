@@ -50,7 +50,7 @@ public partial class NewProjectViewModel : ObservableObject
         _projectService = projectService;
         _dialogService = dialogService;
         _messageService = messageService;
-        _defaultBaseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan");
+        _defaultBaseFolder = Path.Combine(Toucan.Core.Services.UserDataFolder.Root, "Toucan");
 
         SelectedFramework = Frameworks[0];
         var opts = AppOptions.LoadFromDisk();

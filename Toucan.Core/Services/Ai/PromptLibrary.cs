@@ -8,7 +8,7 @@ public sealed class PromptLibrary(IEnumerable<AiFeatureDefinition> features, str
 {
     private readonly IReadOnlyList<AiFeatureDefinition> _features = [.. features.DistinctBy(f => f.Id, StringComparer.OrdinalIgnoreCase)];
 
-    public static string DefaultUserFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "prompts");
+    public static string DefaultUserFolder => Path.Combine(Toucan.Core.Services.UserDataFolder.Root, "Toucan", "prompts");
 
     public IReadOnlyList<AiFeatureDefinition> Features => _features;
 

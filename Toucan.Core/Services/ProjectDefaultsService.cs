@@ -4,23 +4,21 @@ using Toucan.Core.Options;
 
 namespace Toucan.Core.Services;
 
-public class ProjectDefaultsService : IProjectDefaultsService
+/// <param name="folder">Where project-defaults.json lives; null uses the user's Toucan folder.</param>
+public class ProjectDefaultsService(string? folder = null) : IProjectDefaultsService
 {
-    private static readonly string s_dir = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan");
+    private readonly string _folder = folder ?? Path.Combine(UserDataFolder.Root, "Toucan");
 
-    private static readonly string s_file = Path.Combine(s_dir, "project-defaults.json");
-
-    public ProjectDefaults Load() => ProjectDefaults.LoadFromDisk();
+    public ProjectDefaults Load() => ProjectDefaults.LoadFromDisk(_folder);
 
     public void Save(ProjectDefaults defaults)
     {
-        defaults.ToDisk();
+        defaults.ToDisk(_folder);
     }
 
     public ProjectDefaults LoadOrSeed(AppOptions appOptions)
     {
-        if (File.Exists(s_file))
+        if (File.Exists(Path.Combine(_folder, "project-defaults.json")))
             return Load();
 
         // First run or migration: seed from existing app options

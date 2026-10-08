@@ -19,7 +19,7 @@ public sealed class SamplePluginTests : IDisposable
 
     public void Dispose()
     {
-        if (Directory.Exists(_root)) Directory.Delete(_root, recursive: true);
+        TempFolder.TryDelete(_root);
     }
 
     private string InstallSample()

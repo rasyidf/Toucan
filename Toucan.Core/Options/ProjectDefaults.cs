@@ -12,7 +12,7 @@ namespace Toucan.Core.Options;
 public class ProjectDefaults
 {
     private static readonly string s_dir = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan");
+        Toucan.Core.Services.UserDataFolder.Root, "Toucan");
 
     private static readonly JsonSerializerOptions s_options = new() { WriteIndented = true };
 
@@ -58,9 +58,9 @@ public class ProjectDefaults
     // --- Languages ---
     public List<string> DefaultProjectLanguages { get; set; } = ["en-US"];
 
-    public static ProjectDefaults LoadFromDisk()
+    public static ProjectDefaults LoadFromDisk(string? folder = null)
     {
-        var file = Path.Combine(s_dir, "project-defaults.json");
+        var file = Path.Combine(folder ?? s_dir, "project-defaults.json");
         if (!File.Exists(file)) return new ProjectDefaults();
 
         try
@@ -70,10 +70,11 @@ public class ProjectDefaults
         catch { return new ProjectDefaults(); }
     }
 
-    public void ToDisk()
+    public void ToDisk(string? folder = null)
     {
-        Directory.CreateDirectory(s_dir);
-        File.WriteAllText(Path.Combine(s_dir, "project-defaults.json"), JsonSerializer.Serialize(this, s_options));
+        folder ??= s_dir;
+        Directory.CreateDirectory(folder);
+        Toucan.Core.Services.AtomicFile.WriteAllText(Path.Combine(folder, "project-defaults.json"), JsonSerializer.Serialize(this, s_options));
     }
 
     /// <summary>

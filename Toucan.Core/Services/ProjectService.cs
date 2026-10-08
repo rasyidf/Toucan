@@ -210,7 +210,7 @@ public class ProjectService(
     public IReadOnlyList<string> GetLanguageFiles(ProjectSettings settings, string language)
     {
         if (settings.LanguageFilePaths?.TryGetValue(language, out var custom) == true)
-            return [Path.IsPathRooted(custom) ? custom : Path.Combine(settings.ProjectPath, custom)];
+            return [Path.IsPathRooted(custom) ? custom : Path.Combine(settings.ProjectPath, custom.Replace('/', Path.DirectorySeparatorChar))];
 
         var strategy = strategyFactory.GetSaveStrategy(settings.SaveFormat);
         return strategy?.LanguageFiles(settings.ProjectPath, language)

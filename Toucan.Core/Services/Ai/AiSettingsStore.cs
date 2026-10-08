@@ -17,7 +17,7 @@ public sealed class AiSettingsStore(string file, Func<AiSettings>? seed = null) 
     private AiSettings? _cached;
     private DateTime _stamp;
 
-    public static string DefaultPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Toucan", "ai.json");
+    public static string DefaultPath => Path.Combine(Toucan.Core.Services.UserDataFolder.Root, "Toucan", "ai.json");
 
     public event EventHandler? Changed;
 

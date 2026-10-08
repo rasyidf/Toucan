@@ -23,7 +23,7 @@ public sealed class PluginTrustTests : IDisposable
 
     public void Dispose()
     {
-        if (Directory.Exists(_root)) Directory.Delete(_root, recursive: true);
+        TempFolder.TryDelete(_root);
     }
 
     private string Install(string folder, string id)

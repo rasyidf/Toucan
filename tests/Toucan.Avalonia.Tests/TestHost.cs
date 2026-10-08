@@ -42,6 +42,7 @@ internal sealed class TestHost : IDisposable
             s.AddSingleton<IPreferenceService>(new InMemoryPreferences());
             s.AddSingleton<IRecentProjectService>(new RecentProjectService(Path.Combine(Root, "recent.json")));
             s.AddSingleton<ITranslationMemory>(new InMemoryTranslationMemory());
+            s.AddSingleton<IProjectDefaultsService>(new ProjectDefaultsService(Path.Combine(Root, "settings")));
             // Recovery drafts must never land in the developer's Documents folder.
             s.AddSingleton<IRecoveryDraftService>(new RecoveryDraftService(Path.Combine(Root, "recovery")));
             s.AddSingleton<IDialogService>(Dialogs);
@@ -94,7 +95,7 @@ internal sealed class TestHost : IDisposable
         Services.Dispose();
         ResetProcessWideState();
         try { Directory.Delete(Root, recursive: true); }
-        catch (IOException) { }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
     }
 }
 
