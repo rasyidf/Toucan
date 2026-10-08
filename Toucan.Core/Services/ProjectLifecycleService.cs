@@ -451,6 +451,7 @@ public partial class ProjectLifecycleService(
         auditService.Clear();
         languageManagement.SetProjectSettings(null);
         _lastSavedSnapshot = [];
+        _snapshotIndex = [];
         _currentProject = null;
     }
 }

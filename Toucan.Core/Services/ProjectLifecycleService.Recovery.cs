@@ -15,6 +15,7 @@ public partial class ProjectLifecycleService
 
     private Timer? _draftTimer;
     private string _lastDraftSignature = string.Empty;
+    private Dictionary<(string Language, string Namespace), TranslationItem> _snapshotIndex = [];
     private Dictionary<string, string> _diskBaseline = [];
     private RecoveryDraft? _pendingRecovery;
     private SaveTransaction? _interruptedSave;
@@ -102,17 +103,20 @@ public partial class ProjectLifecycleService
         try
         {
             var path = _currentProject.ProjectPath;
-            var entries = BuildDraftEntries();
-            if (entries.Count == 0)
+            var draft = BuildDraft();
+            if (draft.ChangeCount == 0)
             {
                 if (_lastDraftSignature.Length > 0) recoveryDrafts.Delete(path);
                 _lastDraftSignature = string.Empty;
                 return;
             }
 
-            var signature = string.Join('\u001f', entries.Select(e => $"{e.Language}\u001e{e.Namespace}\u001e{e.Value}\u001e{e.Comment}"));
+            var signature = string.Join('\u001f',
+                draft.Entries.Select(e => $"e{e.Language}\u001e{e.Namespace}\u001e{e.Value}\u001e{e.Comment}")
+                    .Concat(draft.Deleted!.Select(d => $"d{d.Language}\u001e{d.Namespace}"))
+                    .Concat(draft.Approvals!.Select(a => $"a{a.Language}\u001e{a.Namespace}\u001e{a.Approved}")));
             if (signature == _lastDraftSignature) return;
-            recoveryDrafts.Write(path, entries);
+            recoveryDrafts.Write(path, draft);
             _lastDraftSignature = signature;
         }
         catch (Exception ex)
@@ -122,7 +126,11 @@ public partial class ProjectLifecycleService
         }
     }
 
-    private List<RecoveryDraftEntry> BuildDraftEntries()
+    /// <summary>
+    /// Everything that differs from the last load or save: edited and added values (from the dirty tracker), and the
+    /// deleted keys and approval changes the dirty tracker cannot see (from the last-saved snapshot).
+    /// </summary>
+    private RecoveryDraft BuildDraft()
     {
         var entries = new List<RecoveryDraftEntry>();
         foreach (var item in translationManagement.GetDirtyItems())
@@ -132,7 +140,19 @@ public partial class ProjectLifecycleService
                 hasBase ? savedValue : null, item.Value ?? string.Empty,
                 hasBase ? savedComment : null, item.Comment ?? string.Empty));
         }
-        return entries;
+
+        var current = translationManagement.Translations.ToArray();
+        var currentKeys = new HashSet<(string, string)>(current.Select(t => (t.Language, t.Namespace)));
+        var deleted = _snapshotIndex.Values
+            .Where(t => !currentKeys.Contains((t.Language, t.Namespace)))
+            .Select(t => new RecoveryDraftDeletion(t.Language, t.Namespace, t.Value ?? string.Empty))
+            .ToList();
+        var approvals = new List<RecoveryDraftApproval>();
+        foreach (var item in current)
+            if (_snapshotIndex.TryGetValue((item.Language, item.Namespace), out var saved) && saved.IsApproved != item.IsApproved)
+                approvals.Add(new RecoveryDraftApproval(item.Language, item.Namespace, item.IsApproved));
+
+        return new RecoveryDraft(_currentProject!.ProjectPath, DateTime.UtcNow, entries, deleted, approvals);
     }
 
     private void DeleteRecoveryDraft()
@@ -194,6 +214,23 @@ public partial class ProjectLifecycleService
         }
 
         if (added.Count > 0) translationManagement.AddItems(added);
+
+        var removals = new HashSet<(string, string)>();
+        foreach (var d in draft.Deleted ?? [])
+        {
+            if (!byKey.TryGetValue((d.Language, d.Namespace), out var existing)) continue; // already gone on disk
+            if (existing.Value == d.BaseValue) { removals.Add((d.Language, d.Namespace)); applied++; }
+            else conflicts.Add(new RecoveryDraftEntry(d.Language, d.Namespace, d.BaseValue, string.Empty, null, null));
+        }
+        if (removals.Count > 0) translationManagement.RemoveItems(t => removals.Contains((t.Language, t.Namespace)));
+
+        foreach (var a in draft.Approvals ?? [])
+        {
+            if (!byKey.TryGetValue((a.Language, a.Namespace), out var existing) || existing.IsApproved == a.Approved) continue;
+            existing.IsApproved = a.Approved;
+            existing.ApprovedAtUtc = a.Approved ? DateTime.UtcNow : null;
+            applied++;
+        }
 
         // The edits are in memory again; the timer rewrites the draft from the dirty state.
         recoveryDrafts?.Delete(_currentProject.ProjectPath);

@@ -29,15 +29,24 @@ public sealed class SaveTransaction
     private readonly string _folder;
     private readonly string _pendingDir;
     private readonly List<Entry> _entries;
+    private readonly Journal _journal;
 
-    private SaveTransaction(string folder, string pendingDir, List<Entry> entries)
+    private SaveTransaction(string folder, string pendingDir, Journal journal)
     {
         _folder = folder;
         _pendingDir = pendingDir;
-        _entries = entries;
+        _journal = journal;
+        _entries = journal.Entries;
     }
 
     private sealed record Entry(string Path, string? Backup);
+
+    /// <summary>
+    /// What the journal remembers. <see cref="Known"/> lists the files that existed under the project (with the
+    /// extensions in <see cref="Extensions"/>) before the save, so files the save created that nobody listed
+    /// (a new namespace file, say) can be removed again on rollback.
+    /// </summary>
+    private sealed record Journal(List<Entry> Entries, List<string> Known, List<string> Extensions);
 
     /// <summary>Files this transaction protects, as absolute paths.</summary>
     public IReadOnlyList<string> Files => _entries.Select(e => Abs(e.Path)).ToList();
@@ -69,9 +78,14 @@ public sealed class SaveTransaction
             entries.Add(new Entry(Rel(folder, file), backup));
         }
 
+        var extensions = entries.Select(e => Path.GetExtension(e.Path)).Where(x => x.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        var known = ListProjectFiles(folder, extensions).Select(f => Rel(folder, f)).ToList();
+
         // The journal is written last: a crash while snapshotting leaves no journal, and nothing has been modified yet.
-        AtomicFile.WriteAllText(Path.Combine(pending, JournalFile), JsonSerializer.Serialize(entries, s_json));
-        return new SaveTransaction(folder, pending, entries);
+        var journal = new Journal(entries, known, extensions);
+        AtomicFile.WriteAllText(Path.Combine(pending, JournalFile), JsonSerializer.Serialize(journal, s_json));
+        return new SaveTransaction(folder, pending, journal);
     }
 
     /// <summary>The save succeeded: keep the originals as the "previous" generation and drop the journal.</summary>
@@ -113,6 +127,15 @@ public sealed class SaveTransaction
             }
         }
 
+        // Files the save created that were not listed up front (same kind as the project's own files).
+        var known = _journal.Known.ToHashSet(StringComparer.Ordinal);
+        foreach (var created in ListProjectFiles(_folder, _journal.Extensions))
+        {
+            if (known.Contains(Rel(_folder, created))) continue;
+            try { File.Delete(created); restored.Add(created); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { failed.Add((created, ex.Message)); }
+        }
+
         if (failed.Count == 0) TryDeleteDir(_pendingDir);
         return new SaveRollbackResult(restored, failed);
     }
@@ -129,8 +152,8 @@ public sealed class SaveTransaction
         if (!File.Exists(journal)) return null;
         try
         {
-            var entries = JsonSerializer.Deserialize<List<Entry>>(File.ReadAllText(journal), s_json);
-            return entries == null ? null : new SaveTransaction(folder, pending, entries);
+            var parsed = JsonSerializer.Deserialize<Journal>(File.ReadAllText(journal), s_json);
+            return parsed?.Entries == null ? null : new SaveTransaction(folder, pending, parsed with { Known = parsed.Known ?? [], Extensions = parsed.Extensions ?? [] });
         }
         catch (JsonException)
         {
@@ -154,6 +177,21 @@ public sealed class SaveTransaction
             }
         }
         return result;
+    }
+
+    private static List<string> ListProjectFiles(string folder, List<string> extensions)
+    {
+        if (extensions.Count == 0 || !Directory.Exists(folder)) return [];
+        try
+        {
+            return FileEnumerator.EnumerateFiles(folder, "*")
+                .Where(f => !Path.GetFileName(f).StartsWith('.') && extensions.Contains(Path.GetExtension(f), StringComparer.OrdinalIgnoreCase))
+                .ToList();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return [];
+        }
     }
 
     private string Abs(string path) => Path.IsPathRooted(path) ? path : Path.Combine(_folder, path);

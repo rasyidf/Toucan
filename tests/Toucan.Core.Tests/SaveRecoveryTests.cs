@@ -265,4 +265,55 @@ public sealed class SaveRecoveryTests : IDisposable
 
         Assert.Equal("Precious", second.Drafts.TryRead(_project)!.Entries.Single().Value);
     }
+
+    [Fact]
+    public async Task Recovery_RestoresDeletedKeysAndApprovals()
+    {
+        var first = await OpenAsync();
+        first.Store.RemoveItems(t => t.Namespace == "app.bye");
+        Item(first, "de", "app.title").IsApproved = true;
+        first.Lifecycle.FlushRecoveryDraft();
+
+        var second = await OpenAsync();
+        Assert.Equal(3, second.Lifecycle.PendingRecovery!.ChangeCount); // two deletions (en, de) and one approval
+        var applied = second.Lifecycle.ApplyRecovery();
+
+        Assert.Equal(3, applied.Applied);
+        Assert.DoesNotContain(second.Store.Translations, t => t.Namespace == "app.bye");
+        Assert.True(Item(second, "de", "app.title").IsApproved);
+        Assert.Equal(ProjectSaveStatus.Success, (await second.Lifecycle.SaveProjectAsync()).Status);
+        Assert.DoesNotContain("bye", Read("en.json"));
+    }
+
+    [Fact]
+    public async Task Recovery_DoesNotDeleteAKeyThatChangedOnDisk()
+    {
+        var first = await OpenAsync();
+        first.Store.RemoveItems(t => t.Language == "en" && t.Namespace == "app.bye");
+        first.Lifecycle.FlushRecoveryDraft();
+        File.WriteAllText(Path.Combine(_project, "en.json"), "{\n  \"app\": { \"title\": \"Hello\", \"bye\": \"Changed elsewhere\" }\n}\n");
+
+        var second = await OpenAsync();
+        var applied = second.Lifecycle.ApplyRecovery();
+
+        Assert.Equal(0, applied.Applied);
+        Assert.Equal("app.bye", Assert.Single(applied.Conflicts).Namespace);
+        Assert.Equal("Changed elsewhere", Item(second, "en", "app.bye").Value);
+    }
+
+    [Fact]
+    public async Task RollbackAlsoRemovesFilesTheSaveCreatedThatNobodyListed()
+    {
+        var transaction = SaveTransaction.Begin(_project, [Path.Combine(_project, "en.json")]);
+        File.WriteAllText(Path.Combine(_project, "en.json"), "changed");
+        File.WriteAllText(Path.Combine(_project, "it.json"), "{}"); // created by the save, never listed
+        File.WriteAllText(Path.Combine(_project, "notes.txt"), "not a project file");
+
+        var result = transaction.Rollback();
+
+        Assert.True(result.Complete);
+        Assert.False(File.Exists(Path.Combine(_project, "it.json")));
+        Assert.True(File.Exists(Path.Combine(_project, "notes.txt")));
+        Assert.Contains("Hello", Read("en.json"));
+    }
 }

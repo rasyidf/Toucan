@@ -18,13 +18,13 @@ public sealed class RecoveryDraftService(string? folder = null, ILogger<Recovery
     private readonly string _folder = folder ?? DefaultFolder;
 
     /// <inheritdoc />
-    public void Write(string projectPath, IReadOnlyList<RecoveryDraftEntry> entries)
+    public void Write(string projectPath, RecoveryDraft draft)
     {
         try
         {
             Directory.CreateDirectory(_folder);
-            var draft = new RecoveryDraft(Path.GetFullPath(projectPath), DateTime.UtcNow, entries);
-            AtomicFile.WriteAllText(PathFor(projectPath), JsonSerializer.Serialize(draft, s_json));
+            var stamped = draft with { ProjectPath = Path.GetFullPath(projectPath), SavedAtUtc = DateTime.UtcNow };
+            AtomicFile.WriteAllText(PathFor(projectPath), JsonSerializer.Serialize(stamped, s_json));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -41,7 +41,7 @@ public sealed class RecoveryDraftService(string? folder = null, ILogger<Recovery
         try
         {
             var draft = JsonSerializer.Deserialize<RecoveryDraft>(File.ReadAllText(file), s_json);
-            return draft is { Entries.Count: > 0 } ? draft : null;
+            return draft is { Entries: not null } && draft.ChangeCount > 0 ? draft : null;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
         {

@@ -88,6 +88,9 @@ public partial class ProjectLifecycleService
                 IsApproved = t.IsApproved
             })
             .ToList();
+        _snapshotIndex = _lastSavedSnapshot
+            .GroupBy(t => (t.Language, t.Namespace))
+            .ToDictionary(g => g.Key, g => g.First());
     }
 
     /// <summary>

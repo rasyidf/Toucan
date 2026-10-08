@@ -240,13 +240,15 @@ public partial class MainWindowViewModel
         if (_lifecycleService.PendingRecovery is { } draft)
         {
             var choice = await _messageService.ChooseAsync(
-                $"Toucan found {draft.Entries.Count} unsaved change(s) from {draft.SavedAtUtc.ToLocalTime():g}, probably from a crash or an interrupted save.\n\nRecover them? Values that were changed on disk since then are left as they are.",
+                $"Toucan found {draft.ChangeCount} unsaved change(s) from {draft.SavedAtUtc.ToLocalTime():g}, probably from a crash or an interrupted save.\n\nRecover them? Values that were changed on disk since then are left as they are.",
                 "Recover unsaved changes", "Recover", "Discard");
             if (choice == ChoiceResult.Primary)
             {
                 var applied = _lifecycleService.ApplyRecovery();
                 LoadFromStore(path);
-                IsDirty = _translationStore.IsDirty;
+                // Deletions and approvals are invisible to the store's dirty tracking, so anything applied counts as unsaved.
+                if (applied.Applied > 0) _hasUntrackedChanges = true;
+                IsDirty = _translationStore.IsDirty || applied.Applied > 0;
                 StatusText = $"Recovered {applied.Applied} unsaved change(s)";
                 if (applied.Conflicts.Count > 0)
                     await _messageService.ShowMessageAsync(
