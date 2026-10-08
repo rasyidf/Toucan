@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using Avalonia.Threading;
 using Toucan.Core.Commands;
 
 namespace Toucan.Avalonia.Services;
@@ -27,9 +28,18 @@ internal sealed class RegistryCommand : ICommand
         _registry = registry;
         _id = id;
         // State can change with the project, the connection or the handler's own conditions.
-        registry.CommandsChanged += (_, _) => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        registry.CommandsChanged += (_, _) => RaiseCanExecuteChanged();
         if (registry.Find(id) is { } command && BuiltInCommands.InnerCommand(command) is { } inner)
-            inner.CanExecuteChanged += (_, _) => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            inner.CanExecuteChanged += (_, _) => RaiseCanExecuteChanged();
+    }
+
+    // The registry raises its events on whatever thread changed it (closing a project, disposing the container).
+    // Avalonia answers CanExecuteChanged by waiting for the UI thread, so raising it from another thread while the UI
+    // thread waits for that thread (container disposal) deadlocks. Hand it to the UI thread instead of waiting.
+    private void RaiseCanExecuteChanged()
+    {
+        if (Dispatcher.UIThread.CheckAccess()) CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        else Dispatcher.UIThread.Post(() => CanExecuteChanged?.Invoke(this, EventArgs.Empty));
     }
 
     public event EventHandler? CanExecuteChanged;

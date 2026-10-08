@@ -466,8 +466,12 @@
           <TextBlock Text="{loc:Loc 'Keyboard shortcuts'}" Classes="dialogTitle" Margin="0,0,0,8"/>
           <TextBlock TextWrapping="Wrap" Classes="caption" Margin="0,0,0,12"
                      Text="{loc:Loc 'Choose Change, then press the new keys. Esc cancels. Changes apply at once and are kept when you press Save.'}"/>
-          <Button Content="{loc:Loc 'Reset all shortcuts'}" Command="{Binding ResetAllShortcutsCommand}" Margin="0,0,0,16"/>
-          <ItemsControl ItemsSource="{Binding ShortcutEditGroups}">
+          <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+            <TextBox Text="{Binding ShortcutFilter, Mode=TwoWay}" PlaceholderText="{loc:Loc 'Search shortcuts…'}" AutomationProperties.Name="{loc:Loc 'Search shortcuts…'}"/>
+            <Button Grid.Column="1" Margin="8,0,0,0" Content="{loc:Loc 'Reset all shortcuts'}" Command="{Binding ResetAllShortcutsCommand}"/>
+          </Grid>
+          <TextBlock Text="{loc:Loc 'No shortcuts match.'}" Classes="caption" IsVisible="{Binding HasNoShortcutMatches}" Margin="0,0,0,16"/>
+          <ItemsControl ItemsSource="{Binding VisibleShortcutGroups}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <c:SettingsList Header="{Binding Category}" ItemsSource="{Binding Rows}" ShowSearch="False" MaxListHeight="Infinity">

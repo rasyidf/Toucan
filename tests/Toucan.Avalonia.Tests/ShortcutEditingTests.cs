@@ -45,6 +45,39 @@ public sealed class ShortcutEditingTests : IDisposable
         Assert.False(Row(vm, Save).IsCustom);
     }
 
+    [Fact]
+    public void SearchNarrowsTheListByNameCategoryOrShortcut()
+    {
+        var vm = Options();
+        var all = vm.VisibleShortcutGroups.Sum(g => g.Rows.Count);
+
+        vm.ShortcutFilter = "save";
+        Assert.Contains(vm.VisibleShortcutGroups.SelectMany(g => g.Rows), r => r.CommandId == Save);
+        Assert.All(vm.VisibleShortcutGroups.SelectMany(g => g.Rows), r => Assert.Contains("save", r.Title + r.Category + r.Shortcut + r.CommandId, StringComparison.OrdinalIgnoreCase));
+
+        vm.ShortcutFilter = "file save"; // words from the category and the name
+        Assert.Equal([Save], vm.VisibleShortcutGroups.SelectMany(g => g.Rows).Select(r => r.CommandId).Where(id => id == Save));
+
+        vm.ShortcutFilter = "zzzz";
+        Assert.True(vm.HasNoShortcutMatches);
+
+        vm.ShortcutFilter = string.Empty;
+        Assert.Equal(all, vm.VisibleShortcutGroups.Sum(g => g.Rows.Count));
+    }
+
+    [Fact]
+    public void ChangingTheFilterCancelsAnEditInProgress()
+    {
+        var vm = Options();
+        var row = Row(vm, Save);
+        vm.Change(row);
+
+        vm.ShortcutFilter = "find";
+
+        Assert.False(row.IsCapturing);
+        Assert.False(vm.IsCapturingShortcut);
+    }
+
     [Theory]
     [InlineData(Key.K, false, true)]   // plain letter: would break typing
     [InlineData(Key.F9, false, false)] // function keys stand alone

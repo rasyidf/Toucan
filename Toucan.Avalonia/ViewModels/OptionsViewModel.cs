@@ -59,6 +59,7 @@ public partial class OptionsViewModel : ObservableObject, IShortcutEditor
         LoadFromOptions();
         RefreshIntegration();
         foreach (var row in ShortcutRows) row.Editor = this;
+        VisibleShortcutGroups = ShortcutEditGroups;
 
         foreach (var module in pluginCatalog?.BuiltInModules ?? [])
             BuiltInModules.Add(new BuiltInModuleItemViewModel(module));
@@ -222,6 +223,36 @@ public partial class OptionsViewModel : ObservableObject, IShortcutEditor
 
     /// <summary>Every command with its shortcut, for the Shortcuts page.</summary>
     public IReadOnlyList<ShortcutEditGroup> ShortcutEditGroups { get; }
+
+    /// <summary>Text typed in the page's search box: every word must appear in a command's name, category or shortcut.</summary>
+    [ObservableProperty] private string shortcutFilter = string.Empty;
+
+    /// <summary>The groups left after <see cref="ShortcutFilter"/>; groups with no matching command are dropped.</summary>
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasNoShortcutMatches))] private IReadOnlyList<ShortcutEditGroup> visibleShortcutGroups = [];
+
+    public bool HasNoShortcutMatches => VisibleShortcutGroups.Count == 0;
+
+    partial void OnShortcutFilterChanged(string value)
+    {
+        StopCapture(); // the row being edited may be about to disappear
+        VisibleShortcutGroups = FilterShortcutGroups(value);
+    }
+
+    private IReadOnlyList<ShortcutEditGroup> FilterShortcutGroups(string filter)
+    {
+        var terms = filter.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (terms.Length == 0) return ShortcutEditGroups;
+
+        bool Matches(ShortcutRowViewModel r) => terms.All(t =>
+            r.Title.Contains(t, StringComparison.CurrentCultureIgnoreCase)
+            || r.Category.Contains(t, StringComparison.CurrentCultureIgnoreCase)
+            || r.Shortcut.Contains(t, StringComparison.CurrentCultureIgnoreCase)
+            || r.CommandId.Contains(t, StringComparison.OrdinalIgnoreCase));
+
+        return [.. ShortcutEditGroups
+            .Select(g => new ShortcutEditGroup(g.Category, [.. g.Rows.Where(Matches)]))
+            .Where(g => g.Rows.Count > 0)];
+    }
 
     private IEnumerable<ShortcutRowViewModel> ShortcutRows => ShortcutEditGroups.SelectMany(g => g.Rows);
 
