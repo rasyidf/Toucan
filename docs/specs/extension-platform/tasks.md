@@ -1,7 +1,7 @@
 ---
 title: "extension-platform — tasks"
 status: in-progress
-progress: "1/8 steps (step 1 lacks only panel lifetime, moved to step 3)"
+progress: "1/8 steps done, step 2 in progress (toolbar and context-menu rendering left for step 3)"
 updated: 2026-10-09
 summary: "v0.23 work order: registration/activation split, command registry, desktop contributions, host services, workspace API, compatibility checks, SDK harness and external sample connector, migration of built-ins."
 ---
@@ -13,9 +13,9 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
   - [x] 1.1 Registration without network access; activation per project or connection with its own session
   - [x] 1.2 Cancel and dispose on project close; separate registration and activation failure reporting
   - [x] 1.3 Explicit application, workspace, connection and panel lifetimes
-- [ ] 2. Command registry
-  - [ ] 2.1 Stable IDs, localizable titles and categories, availability conditions, async execution with cancellation and progress
-  - [ ] 2.2 Default shortcuts with user overrides; replace the static table in `KeybindingService`
+- [~] 2. Command registry
+  - [x] 2.1 Stable IDs, localizable titles and categories, availability conditions, async execution with cancellation and progress
+  - [x] 2.2 Default shortcuts with user overrides; replace the static table in `KeybindingService`
   - [ ] 2.3 Menu, toolbar, context-menu and command-palette contributions; hidden / unavailable / disconnected / unlicensed states
 - [ ] 3. Desktop contributions (`Toucan.Plugins.Avalonia`, so the CLI loads no UI assemblies)
   - [ ] 3.1 Registered side panels, panel toolbars, settings pages, dialogs, inspector sections, editor actions in place of the `MainWindow` switches
@@ -27,6 +27,8 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
 - [ ] 8. Sweep: move remaining built-in commands and panels onto the registries; update `docs/plugins.md`, architecture docs, changelog
 
 Notes from step 1: `IPluginActivator`, `PluginLifetime` and the `activation` capability are in Abstractions (plugin API 1.1; 1.0 plugins still load). `PluginActivationService` in Core runs activators per application, workspace and connection; `ProjectLifecycleService` opens and closes the workspace scope. Connection scopes are driven by `OpenConnectionAsync` and have no caller until the connector sample (step 7). Panel lifetime moves to step 3 with the desktop contract.
+
+Notes from step 2: `ICommandRegistry` (Core) holds built-in and plugin commands; the Avalonia `KeybindingService`, menus, palette and the Shortcuts settings page read from it. Built-in IDs start with `toucan.`, plugin IDs with the plugin ID. User shortcut overrides live in `AppOptions.CustomShortcuts`. Placements for toolbar and context menu are in the model but rendered in step 3. `GetState` distinguishes hidden, unavailable, disconnected and unlicensed; handlers report the last two.
 
 ## Completion gate
 

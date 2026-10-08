@@ -463,15 +463,28 @@
               <Binding Path="SearchMatches"/>
             </MultiBinding>
           </StackPanel.IsVisible>
-          <TextBlock Text="{loc:Loc 'Keyboard shortcuts'}" Classes="dialogTitle" Margin="0,0,0,16"/>
-          <ItemsControl ItemsSource="{Binding ShortcutGroups}">
+          <TextBlock Text="{loc:Loc 'Keyboard shortcuts'}" Classes="dialogTitle" Margin="0,0,0,8"/>
+          <TextBlock TextWrapping="Wrap" Classes="caption" Margin="0,0,0,12"
+                     Text="{loc:Loc 'Choose Change, then press the new keys. Esc cancels. Changes apply at once and are kept when you press Save.'}"/>
+          <Button Content="{loc:Loc 'Reset all shortcuts'}" Command="{Binding ResetAllShortcutsCommand}" Margin="0,0,0,16"/>
+          <ItemsControl ItemsSource="{Binding ShortcutEditGroups}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <c:SettingsList Header="{Binding Category}" ItemsSource="{Binding Items}" ShowSearch="False" MaxListHeight="Infinity">
+                <c:SettingsList Header="{Binding Category}" ItemsSource="{Binding Rows}" ShowSearch="False" MaxListHeight="Infinity">
                   <c:SettingsList.ItemTemplate>
                     <DataTemplate>
-                      <c:SettingsRow Compact="True" Title="{Binding Action}">
-                        <Border Classes="badge"><TextBlock Text="{Binding Shortcut}" Classes="mono"/></Border>
+                      <c:SettingsRow Compact="True" Title="{Binding Title}">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                          <TextBlock Text="{Binding Message}" IsVisible="{Binding HasMessage}" Classes="caption" TextWrapping="Wrap" MaxWidth="260"
+                                     Foreground="{DynamicResource BadBrush}" VerticalAlignment="Center"/>
+                          <Border Classes="badge"><TextBlock Text="{Binding BadgeText}" Classes="mono"/></Border>
+                          <Button Content="{loc:Loc 'Reset'}" IsVisible="{Binding IsCustom}"
+                                  Command="{Binding ResetCommand}"/>
+                          <Button Content="{loc:Loc 'Clear'}" IsVisible="{Binding HasShortcut}"
+                                  Command="{Binding ClearCommand}"/>
+                          <Button Content="{Binding ChangeText}" Classes.accent="{Binding IsCapturing}"
+                                  Command="{Binding ChangeCommand}"/>
+                        </StackPanel>
                       </c:SettingsRow>
                     </DataTemplate>
                   </c:SettingsList.ItemTemplate>

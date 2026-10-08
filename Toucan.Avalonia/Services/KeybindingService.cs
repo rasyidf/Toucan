@@ -59,7 +59,48 @@ internal static class KeybindingService
         return Enum.TryParse<Key>(parts[^1], ignoreCase: true, out var key) && key != Key.None ? new KeyGesture(key, modifiers) : null;
     }
 
-    private static string Display(KeyGesture gesture) => gesture.ToString("p", null);
+    public static string Display(KeyGesture gesture) => gesture.ToString("p", null);
+
+    /// <summary>
+    /// Turns a pressed key combination into portable shortcut text. Null with <paramref name="problem"/> when the
+    /// press is only a modifier or a plain typing key (which would stop working in text boxes).
+    /// </summary>
+    public static string? ToPortable(Key key, KeyModifiers modifiers, out string? problem)
+    {
+        problem = null;
+        if (key is Key.None or Key.LeftShift or Key.RightShift or Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt
+            or Key.LWin or Key.RWin or Key.System or Key.DeadCharProcessed)
+            return null; // still holding modifiers; wait for the real key
+
+        var mac = PlatformService.IsMacOS;
+        var parts = new List<string>();
+        if (modifiers.HasFlag(mac ? KeyModifiers.Meta : KeyModifiers.Control)) parts.Add("Mod");
+        if (modifiers.HasFlag(mac ? KeyModifiers.Control : KeyModifiers.Meta)) parts.Add(mac ? "Ctrl" : "Meta");
+        if (modifiers.HasFlag(KeyModifiers.Alt)) parts.Add("Alt");
+        var hasCommandModifier = parts.Count > 0;
+        if (modifiers.HasFlag(KeyModifiers.Shift)) parts.Add("Shift");
+
+        // Function keys and Delete work on their own; any other key needs Ctrl/Cmd/Alt so typing keeps working.
+        var standalone = key is >= Key.F1 and <= Key.F24 or Key.Delete or Key.Insert;
+        if (!hasCommandModifier && !standalone)
+        {
+            problem = Locales.Loc.T("Add Ctrl/Cmd or Alt, so typing keeps working.");
+            return null;
+        }
+
+        parts.Add(key.ToString());
+        return string.Join('+', parts);
+    }
+
+    /// <summary>Every command with its shortcut, bound or not, for the settings page.</summary>
+    public static IReadOnlyList<ShortcutEditGroup> GetEditableGroups(ICommandRegistry registry)
+    {
+        return registry.Commands
+            .Select(c => new ShortcutRowViewModel(registry, c.Id))
+            .GroupBy(r => r.Category)
+            .Select(g => new ShortcutEditGroup(g.Key, g.ToList()))
+            .ToList();
+    }
 
     /// <summary>Shortcuts that are bound, for the shortcut sheet and settings.</summary>
     public static List<KeybindingEntry> GetDefinitions()

@@ -4,7 +4,9 @@ using System.Reflection;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Toucan.Avalonia.Locales;
 using Toucan.Avalonia.Services;
+using Toucan.Core.Commands;
 using Toucan.Core.Contracts;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
@@ -14,7 +16,7 @@ using Toucan.Core.Plugins;
 namespace Toucan.Avalonia.ViewModels;
 
 /// <summary>Application preferences (AppOptions) plus the defaults applied to new projects (ProjectDefaults).</summary>
-public partial class OptionsViewModel : ObservableObject
+public partial class OptionsViewModel : ObservableObject, IShortcutEditor
 {
     private readonly IPreferenceService _preferenceService;
     private readonly IValidationPipeline? _validationPipeline;
@@ -36,8 +38,12 @@ public partial class OptionsViewModel : ObservableObject
         IPluginPolicyStore? pluginPolicy = null,
         IValidationPipeline? validationPipeline = null,
         AiSettingsViewModel? ai = null,
-        ISecretService? secrets = null)
+        ISecretService? secrets = null,
+        ICommandRegistry? commands = null)
     {
+        _commands = commands ?? KeybindingService.Registry;
+        _shortcutsAtOpen = new Dictionary<string, string>(_commands.CustomShortcuts);
+        ShortcutEditGroups = KeybindingService.GetEditableGroups(_commands);
         Ai = ai;
         _secrets = secrets;
         RefreshStoredSecrets();
@@ -52,6 +58,7 @@ public partial class OptionsViewModel : ObservableObject
         projectDefaults = _defaultsService.Load();
         LoadFromOptions();
         RefreshIntegration();
+        foreach (var row in ShortcutRows) row.Editor = this;
 
         foreach (var module in pluginCatalog?.BuiltInModules ?? [])
             BuiltInModules.Add(new BuiltInModuleItemViewModel(module));
@@ -205,6 +212,121 @@ public partial class OptionsViewModel : ObservableObject
     ];
 
     public IReadOnlyList<KeybindingEntry> Shortcuts { get; } = KeybindingService.GetDefinitions();
+
+    // --- Shortcut editing ---------------------------------------------------------------------------------------
+
+    private readonly ICommandRegistry _commands;
+    private readonly IReadOnlyDictionary<string, string> _shortcutsAtOpen;
+    private bool _shortcutsSaved;
+    private ShortcutRowViewModel? _capturing;
+
+    /// <summary>Every command with its shortcut, for the Shortcuts page.</summary>
+    public IReadOnlyList<ShortcutEditGroup> ShortcutEditGroups { get; }
+
+    private IEnumerable<ShortcutRowViewModel> ShortcutRows => ShortcutEditGroups.SelectMany(g => g.Rows);
+
+    /// <summary>True while a row waits for the user to press a new combination.</summary>
+    public bool IsCapturingShortcut => _capturing is not null;
+
+    public void Change(ShortcutRowViewModel row)
+    {
+        var wasThis = ReferenceEquals(_capturing, row);
+        StopCapture();
+        if (wasThis) return; // the button reads "Cancel" while capturing
+        _capturing = row;
+        row.IsCapturing = true;
+        row.Message = string.Empty;
+        OnPropertyChanged(nameof(IsCapturingShortcut));
+    }
+
+    public void Reset(ShortcutRowViewModel row)
+    {
+        StopCapture();
+        if (!_commands.TrySetShortcut(row.CommandId, null, out var conflicts))
+        {
+            // The default is taken by something the user assigned; say what instead of silently stealing it.
+            row.Message = ConflictText(conflicts);
+            return;
+        }
+        RefreshShortcutRows();
+    }
+
+    public void Clear(ShortcutRowViewModel row)
+    {
+        StopCapture();
+        _commands.TrySetShortcut(row.CommandId, string.Empty, out _);
+        RefreshShortcutRows();
+    }
+
+    [RelayCommand]
+    private void ResetAllShortcuts()
+    {
+        StopCapture();
+        _commands.LoadCustomShortcuts(null);
+        RefreshShortcutRows();
+    }
+
+    /// <summary>Called by the dialog with each key press while a row is capturing. Returns true when the press was consumed.</summary>
+    public bool HandleShortcutKey(global::Avalonia.Input.Key key, global::Avalonia.Input.KeyModifiers modifiers)
+    {
+        if (_capturing is not { } row) return false;
+        if (key == global::Avalonia.Input.Key.Escape && modifiers == global::Avalonia.Input.KeyModifiers.None)
+        {
+            StopCapture();
+            return true;
+        }
+
+        var text = KeybindingService.ToPortable(key, modifiers, out var problem);
+        if (text is null)
+        {
+            if (problem is not null) row.Message = problem;
+            return true;
+        }
+
+        var replace = row.PendingShortcut is not null && ShortcutText.TryNormalize(row.PendingShortcut, out var pending)
+                      && ShortcutText.TryNormalize(text, out var again) && pending == again;
+        if (_commands.TrySetShortcut(row.CommandId, text, out var conflicts, replaceConflicts: replace))
+        {
+            StopCapture();
+            RefreshShortcutRows();
+        }
+        else
+        {
+            row.PendingShortcut = text;
+            row.Message = ConflictText(conflicts) + " " + Loc.T("Press the same keys again to take it over, or Esc to cancel.");
+        }
+        return true;
+    }
+
+    private string ConflictText(IReadOnlyList<ShortcutConflict> conflicts)
+    {
+        var names = conflicts.Select(c => $"“{Loc.T(_commands.GetTitle(c.CommandId))}”");
+        return Loc.T("Already used by {0}.").Replace("{0}", string.Join(", ", names), StringComparison.Ordinal);
+    }
+
+    private void StopCapture()
+    {
+        if (_capturing is { } row)
+        {
+            row.IsCapturing = false;
+            row.PendingShortcut = null;
+            row.Message = string.Empty;
+        }
+        _capturing = null;
+        OnPropertyChanged(nameof(IsCapturingShortcut));
+    }
+
+    private void RefreshShortcutRows()
+    {
+        foreach (var r in ShortcutRows) r.Refresh();
+    }
+
+    /// <summary>Undoes shortcut edits made in this dialog unless they were saved. Called when the dialog closes.</summary>
+    public void RevertShortcutEdits()
+    {
+        StopCapture();
+        if (!_shortcutsSaved) _commands.LoadCustomShortcuts(_shortcutsAtOpen);
+    }
 
     /// <summary>Shortcuts grouped by category for the grouped-list layout.</summary>
     public IReadOnlyList<ShortcutGroup> ShortcutGroups { get; } =
@@ -378,6 +500,8 @@ public partial class OptionsViewModel : ObservableObject
         AppOptions.LoadingDepth = (int)Math.Clamp(LoadingDepth, 1, 5);
         AppOptions.Theme = Theme;
         SaveSchemeToOptions();
+        AppOptions.CustomShortcuts = new Dictionary<string, string>(_commands.CustomShortcuts);
+        _shortcutsSaved = true;
         AppOptions.FontSize = (double)Math.Clamp(FontSize, 11, 18);
         AppOptions.PlainTextKeys = PlainTextKeys;
         AppOptions.DefaultLanguage = DefaultLanguage;

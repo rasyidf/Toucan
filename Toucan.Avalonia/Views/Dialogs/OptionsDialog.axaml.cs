@@ -20,7 +20,10 @@ public partial class OptionsDialog : DialogWindow
         {
             vm.PropertyChanged -= OnViewModelPropertyChanged;
             vm.RevertSchemePreview();
+            vm.RevertShortcutEdits();
         };
+        // Tunnel, so the pressed combination reaches the shortcut being edited instead of a focused button or a menu.
+        AddHandler(KeyDownEvent, (_, e) => e.Handled = vm.HandleShortcutKey(e.Key, e.KeyModifiers), global::Avalonia.Interactivity.RoutingStrategies.Tunnel);
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
