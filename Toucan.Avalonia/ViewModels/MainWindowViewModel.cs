@@ -408,7 +408,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     }
 
     internal TranslationItemViewModel CreateItemViewModel(TranslationItem item) =>
-        new(item, _undoRedoService, _translationStore, OnTranslationItemChanged);
+        new(item, _undoRedoService, _translationStore, OnTranslationItemChanged, CanApprove);
 
     internal LanguageGroupViewModel CreateGroup(string ns)
     {

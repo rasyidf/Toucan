@@ -57,6 +57,12 @@ public class ProjectSettings
     public List<string>? CopyTemplates { get; set; } = ["%1"];
     public bool? CommentsEnabled { get; set; } = true;
 
+    /// <summary>
+    /// When true, a translation with validation errors cannot be approved. Saving is never blocked by validation
+    /// (drafts are always saveable); this is the strict policy for approval, and later delivery.
+    /// </summary>
+    public bool? RequireValidForApproval { get; set; }
+
     // --- Provider overrides (project-scoped) ---
     public string? DefaultProvider { get; set; }
 

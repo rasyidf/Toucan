@@ -211,4 +211,92 @@ public class MainWindowViewModelTests
         Assert.Equal(ChangeType.Suggestion, fr.ChangeType);
         Assert.True(vm.IsDirty);
     }
+
+    [AvaloniaFact]
+    public async Task FailedSave_KeepsEditsUnsaved_UndoStillWorks_AndALaterSaveSucceeds()
+    {
+        using var host = new TestHost();
+        var folder = host.CreateJsonProject("failed-save", ("en", En), ("fr", Fr));
+        var vm = host.CreateViewModel();
+        await vm.OpenProjectAsync(folder);
+
+        var en = vm.PagingController.Data.Single(g => g.Namespace == "app.title").Translations.Single(t => t.Language == "en");
+        en.Value = "Renamed App";
+        vm.FlushPendingEdits();
+        // fr.json turns into a folder, so writing the French file fails.
+        File.Delete(Path.Combine(folder, "fr.json"));
+        Directory.CreateDirectory(Path.Combine(folder, "fr.json"));
+
+        await vm.SaveCommand.ExecuteAsync(null);
+
+        Assert.True(vm.IsDirty);
+        Assert.Contains(host.Messages.Shown, m => m.StartsWith("Save failed", StringComparison.Ordinal));
+        Assert.Contains("My App", File.ReadAllText(Path.Combine(folder, "en.json")));
+
+        vm.UndoCommand.Execute(null);
+        Assert.Equal("My App", vm.AllTranslation.Single(t => t.Namespace == "app.title" && t.Language == "en").Value);
+        vm.RedoCommand.Execute(null);
+        Assert.Equal("Renamed App", vm.AllTranslation.Single(t => t.Namespace == "app.title" && t.Language == "en").Value);
+
+        Directory.Delete(Path.Combine(folder, "fr.json"));
+        File.WriteAllText(Path.Combine(folder, "fr.json"), Fr);
+        await vm.SaveCommand.ExecuteAsync(null);
+
+        Assert.False(vm.IsDirty);
+        Assert.Equal("Renamed App", Reload(host, folder)[("app.title", "en")]);
+    }
+
+    [AvaloniaFact]
+    public async Task UnsavedEdits_AreOfferedBackAfterARestart()
+    {
+        using var first = new TestHost();
+        var folder = first.CreateJsonProject("crash", ("en", En), ("fr", Fr));
+        var vm = first.CreateViewModel();
+        await vm.OpenProjectAsync(folder);
+        var en = vm.PagingController.Data.Single(g => g.Namespace == "app.title").Translations.Single(t => t.Language == "en");
+        en.Value = "Typed before the crash";
+        vm.FlushPendingEdits();
+        ((Toucan.Core.Services.ProjectLifecycleService)first.Services.GetRequiredService<IProjectLifecycleService>()).FlushRecoveryDraft();
+
+        // The app dies here; a new process opens the same project.
+        using var second = new TestHost(first.Root);
+        var restarted = second.CreateViewModel();
+        await restarted.OpenProjectAsync(folder);
+
+        Assert.Single(second.Messages.Choices, c => c.Contains("unsaved change", StringComparison.Ordinal));
+        Assert.True(restarted.IsDirty);
+        Assert.Equal("Typed before the crash", restarted.AllTranslation.Single(t => t.Namespace == "app.title" && t.Language == "en").Value);
+        Assert.Contains("My App", File.ReadAllText(Path.Combine(folder, "en.json")));
+    }
+
+    [AvaloniaFact]
+    public async Task StrictApprovalPolicy_RefusesApprovalWithValidationErrors_ButNeverBlocksSaving()
+    {
+        using var host = new TestHost();
+        var folder = host.CreateJsonProject("strict", ("en", """{"hello": "Hi {name}", "bye": "Bye"}"""), ("fr", """{"hello": "Salut", "bye": "Au revoir"}"""));
+        var vm = host.CreateViewModel();
+        await vm.OpenProjectAsync(folder);
+        vm.ProjectSettings!.PrimaryLanguage = "en";
+        var hello = vm.PagingController.Data.Single(g => g.Namespace == "hello").Translations.Single(t => t.Language == "fr");
+        var bye = vm.PagingController.Data.Single(g => g.Namespace == "bye").Translations.Single(t => t.Language == "fr");
+
+        hello.IsApproved = true; // policy off: allowed
+        Assert.True(hello.IsApproved);
+        hello.IsApproved = false;
+
+        vm.ProjectSettings.RequireValidForApproval = true;
+        hello.IsApproved = true;
+        bye.IsApproved = true;
+
+        Assert.False(hello.IsApproved);
+        Assert.True(bye.IsApproved);
+        Assert.Contains("validation errors", vm.StatusText);
+
+        // The same validation error does not stop the draft from being saved.
+        hello.Value = "Salut {nom";
+        vm.FlushPendingEdits();
+        await vm.SaveCommand.ExecuteAsync(null);
+        Assert.False(vm.IsDirty);
+        Assert.Equal("Salut {nom", Reload(host, folder)[("hello", "fr")]);
+    }
 }

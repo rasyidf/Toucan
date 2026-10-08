@@ -1,7 +1,7 @@
 ---
 title: "Shipped Features"
 status: active
-updated: 2026-10-07
+updated: 2026-10-09
 summary: "Checklist of shipped features as of v0.21.0 (AI Integration added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md."
 ---
 # Shipped Features
@@ -49,6 +49,11 @@ summary: "Checklist of shipped features as of v0.21.0 (AI Integration added), gr
 ## File I/O
 
 - [x] JSON (flat), JSON (namespaced/i18next)
+- [x] Atomic file replacement on save (temporary file, flush, swap); failed saves leave the original untouched
+- [x] Journaled multi-file saves: rollback on failure, restore after an interrupted save, previous version kept
+- [x] Save never blocked by validation findings; findings shown in the Issues panel
+- [x] Saving refuses to overwrite files edited outside Toucan without confirmation
+- [x] Recovery drafts of unsaved edits, offered after a crash without overwriting newer disk content
 - [x] YAML, TOML, INI
 - [x] PO / Gettext
 - [x] RESX (.NET), Android XML, iOS .strings

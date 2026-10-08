@@ -19,6 +19,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     private readonly IUndoRedoService? _undoRedoService;
     private readonly ITranslationManagementService? _translationManagement;
     private readonly Action<TranslationItemViewModel>? _onChanged;
+    private readonly Func<TranslationItem, bool>? _canApprove;
 
     private string _value;
     private string _valueBeforeEdit;
@@ -28,8 +29,10 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         TranslationItem model,
         IUndoRedoService? undoRedoService = null,
         ITranslationManagementService? translationManagement = null,
-        Action<TranslationItemViewModel>? onChanged = null)
+        Action<TranslationItemViewModel>? onChanged = null,
+        Func<TranslationItem, bool>? canApprove = null)
     {
+        _canApprove = canApprove;
         _model = model;
         _undoRedoService = undoRedoService;
         _translationManagement = translationManagement;
@@ -91,6 +94,12 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         set
         {
             if (_model.IsApproved == value) return;
+            if (value && _canApprove?.Invoke(_model) == false)
+            {
+                // Policy refused: tell bound controls to show the unchanged state again.
+                OnPropertyChanged();
+                return;
+            }
             _model.IsApproved = value;
             _model.ApprovedAtUtc = value ? DateTime.UtcNow : null;
             OnPropertyChanged();

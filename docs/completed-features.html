@@ -81,7 +81,7 @@
         <div class="kicker">Documentation</div>
         <h1>Shipped Features</h1>
         <p class="lead">Checklist of shipped features as of v0.21.0 (AI Integration added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-07</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/completed-features.md">Edit on GitHub ↗</a></div>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-09</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/completed-features.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <blockquote><p>As of v0.21.0 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md">CHANGELOG.md</a>; open work is in <a href="roadmap.html">todos/future-roadmap.md</a> and open bugs in <a href="known-bugs.html">known-bugs.md</a>. This file lists shipped features only: when something ships, add it here and delete it from the roadmap. Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform. Lines marked (WPF) shipped only in the WPF app (last release v0.17.3) and are not in the Avalonia app. The Avalonia app does not have the Source Control and Dictionary panels yet; its Translation panel is the Machine Translation panel.</p></blockquote>
@@ -121,6 +121,11 @@
 <h2 id="file-io"><a class="anchor" href="#file-io" aria-label="Link to this section">#</a>File I/O</h2>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>JSON (flat), JSON (namespaced/i18next)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Atomic file replacement on save (temporary file, flush, swap); failed saves leave the original untouched</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Journaled multi-file saves: rollback on failure, restore after an interrupted save, previous version kept</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Save never blocked by validation findings; findings shown in the Issues panel</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Saving refuses to overwrite files edited outside Toucan without confirmation</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Recovery drafts of unsaved edits, offered after a crash without overwriting newer disk content</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>YAML, TOML, INI</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>PO / Gettext</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>RESX (.NET), Android XML, iOS .strings</li>

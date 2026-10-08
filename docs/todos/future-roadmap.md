@@ -1,7 +1,7 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "63 release tasks; 6 stable gates; 27 deferred tasks"
+progress: "59 release tasks; 6 stable gates; 27 deferred tasks"
 updated: 2026-10-09
 summary: "Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization."
 ---
@@ -50,12 +50,8 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 **Outcome:** users can preserve incomplete work and recover from interrupted persistence.
 
-- [ ] Stage and validate file output before replacement; use atomic replacement where supported and retain recoverable originals.
-- [ ] Make multi-file saves recoverable, including translations, comments, audit data, and the manifest; report partial failures and retain pending changes accurately.
-- [ ] Allow saving drafts with translation-validation findings; apply strict project validation policy to approval and delivery instead of preventing work from being saved.
-- [ ] Persist recovery drafts and offer recovery after a crash or interrupted save without silently replacing newer disk content.
-- [ ] Verify undo/redo and dirty tracking across edits, bulk operations, external merges, failed saves, and recovery.
-- [ ] Add fault-injection checks for permission errors, disk-write failures, interrupted replacement, and external edits during save.
+- [ ] Extend recovery drafts to deleted and renamed keys and to approvals, which the dirty tracker does not see yet. Add a Project Properties switch for the approval policy (`requireValidForApproval` is manifest-only for now) and apply the same policy to delivery once delivery state exists (v0.26).
+- [ ] Verify undo/redo and dirty tracking across bulk operations and external merges. Failed saves and recovery are covered by tests.
 
 **Completion gate:** failure scenarios preserve a recoverable copy and never report unsaved work as saved.
 

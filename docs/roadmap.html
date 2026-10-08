@@ -102,12 +102,8 @@
 <h3 id="v022-safe-saves-and-recovery"><a class="anchor" href="#v022-safe-saves-and-recovery" aria-label="Link to this section">#</a>v0.22: Safe saves and recovery</h3>
 <p><strong>Outcome:</strong> users can preserve incomplete work and recover from interrupted persistence.</p>
 <ul class="tasks">
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Stage and validate file output before replacement; use atomic replacement where supported and retain recoverable originals.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Make multi-file saves recoverable, including translations, comments, audit data, and the manifest; report partial failures and retain pending changes accurately.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Allow saving drafts with translation-validation findings; apply strict project validation policy to approval and delivery instead of preventing work from being saved.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist recovery drafts and offer recovery after a crash or interrupted save without silently replacing newer disk content.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify undo/redo and dirty tracking across edits, bulk operations, external merges, failed saves, and recovery.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add fault-injection checks for permission errors, disk-write failures, interrupted replacement, and external edits during save.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Extend recovery drafts to deleted and renamed keys and to approvals, which the dirty tracker does not see yet. Add a Project Properties switch for the approval policy (<code>requireValidForApproval</code> is manifest-only for now) and apply the same policy to delivery once delivery state exists (v0.26).</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify undo/redo and dirty tracking across bulk operations and external merges. Failed saves and recovery are covered by tests.</li>
 </ul>
 <p><strong>Completion gate:</strong> failure scenarios preserve a recoverable copy and never report unsaved work as saved.</p>
 <h3 id="v023-extension-platform"><a class="anchor" href="#v023-extension-platform" aria-label="Link to this section">#</a>v0.23: Extension platform</h3>

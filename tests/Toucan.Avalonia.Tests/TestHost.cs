@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Toucan.Avalonia.Services;
 using Toucan.Avalonia.ViewModels;
 using Toucan.Core.Contracts;
+using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Options;
 using Toucan.Core.Services;
@@ -29,10 +30,11 @@ public static class TestAppBuilder
 /// </summary>
 internal sealed class TestHost : IDisposable
 {
-    public TestHost()
+    /// <param name="root">Reuse another host's folders, to model a restart of the app on the same files.</param>
+    public TestHost(string? root = null)
     {
         ResetProcessWideState();
-        Root = Directory.CreateTempSubdirectory("toucan-tests-").FullName;
+        Root = root ?? Directory.CreateTempSubdirectory("toucan-tests-").FullName;
         Dialogs = new FakeDialogService();
         Messages = new FakeMessageService();
         Services = App.ConfigureServices(s =>
@@ -40,6 +42,8 @@ internal sealed class TestHost : IDisposable
             s.AddSingleton<IPreferenceService>(new InMemoryPreferences());
             s.AddSingleton<IRecentProjectService>(new RecentProjectService(Path.Combine(Root, "recent.json")));
             s.AddSingleton<ITranslationMemory>(new InMemoryTranslationMemory());
+            // Recovery drafts must never land in the developer's Documents folder.
+            s.AddSingleton<IRecoveryDraftService>(new RecoveryDraftService(Path.Combine(Root, "recovery")));
             s.AddSingleton<IDialogService>(Dialogs);
             s.AddSingleton<IAsyncMessageService>(Messages);
             s.AddSingleton<IMessageService>(Messages);
