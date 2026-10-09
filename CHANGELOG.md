@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+Extension platform: a connector can be built, installed, configured and used without changing Toucan.
+
+### Added
+- **Compatibility checks** — A plugin manifest can declare `minHostVersion` and `platforms`. A plugin that needs a newer Toucan, or is not built for this operating system, is not loaded, and the Plugins page and `toucan plugins list` say what to do about it. API and desktop-contract mismatches now say whether to update Toucan or ask the author for a new build. Settings saved by a newer version of a plugin are kept and reported instead of being overwritten, and a settings migration that could never run is refused when the schema is registered.
+- **SDK test harness** — `Toucan.Plugins.Testing` runs a plugin's registration and activation without Toucan, with in-memory settings, secrets, notifications and workspace, command states, cancellation on close, and a check that the plugin references no UI assembly.
+- **Sample connector** — `samples/Toucan.Sample.Connector` (in-memory service) and, in the separate `toucan-plugins` repository, a REST connector built only from the published SDK packages: a settings form, a Server panel, Pull and Push commands that edit the project through the workspace API and never overwrite what you typed or what the server changed.
+
+### Changed
+- **Toolbar buttons use the command registry** — Save, the command palette, the Editor/Review/Audit tabs, the panel toggles and Settings now run the same registered commands as the menus and shortcuts, so they follow reassigned shortcuts and command availability.
+- The `Toucan.Plugins.Abstractions` package is version 1.1.0 to match plugin API 1.1.
+
 ## [0.22.0] - 2026-10-09
 
 Safer saves: files are replaced atomically, a failed or interrupted multi-file save is rolled back, drafts with validation findings can be saved, and unsaved edits survive a crash.

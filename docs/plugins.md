@@ -92,6 +92,8 @@ build output is exercised by the test suite, so what it does is what this guide 
 | `name` | yes | Shown in Settings → Plugins. |
 | `version` | yes | Your plugin's version, like `1.2.3`. |
 | `apiVersion` | yes | The plugin API you built against, like `1.0` (see [Versioning](#versioning)). |
+| `minHostVersion` | no | Oldest Toucan you support, like `0.23.0`. An older Toucan does not load the plugin and says which version it needs. |
+| `platforms` | no | Any of `windows`, `macos`, `linux`. Omit it to run everywhere; on another system the plugin is not loaded and the message names the platforms it supports. |
 | `entryAssembly` | yes | File name of your assembly, inside the plugin folder. No paths, must end in `.dll`. |
 | `entryType` | no | Full name of your `IToucanPlugin` class. Required if the assembly has more than one public implementation. |
 | `desktop` | no | The plugin's UI assembly: `{ "entryAssembly": "Acme.Ui.dll", "entryType": "Acme.Ui.Entry", "contractVersion": "1.0" }`. Needs the `desktop` capability. See [Desktop parts](#desktop-parts-ui). |
@@ -317,6 +319,14 @@ If the desktop part cannot load, the plugin still loads without its UI and the P
 by a Toucan that implements `1.1` ("built for plugin API 1.2, but this Toucan implements 1.1"). Minor releases only
 add members, with defaults wherever an existing implementation would otherwise break; a major release may break.
 
+**What is checked, in order, before any of your code loads:** the manifest; the plugin API version; `minHostVersion`; `platforms`;
+then enabled and trust state. Each failure is *Rejected* and the Plugins page and `toucan plugins list` show a sentence that says
+what is wrong and what to do (update Toucan, rebuild against a newer API, use a build for this system). The desktop contract
+version is checked when the desktop part loads; a mismatch skips only that part and the rest of the plugin works. Settings are
+checked when they are first read: settings saved by a newer version of your plugin are kept and reported in the diagnostics (they
+are never rewritten with an older version number), and a `ConfigMigration` whose `FromVersion` is below 1 or not below the
+schema `Version` is refused when you register the schema, because it could never run.
+
 ## Testing your plugin
 
 - Point the CLI at a scratch folder and policy file so you never touch your real settings:
@@ -330,6 +340,25 @@ add members, with defaults wherever an existing implementation would otherwise b
 
 - `toucan plugins list` shows status, signature, hash, what the plugin registered and any error.
 - Unit-test your strategies directly: they are plain classes (`Save` into a temp folder, `Load` it back, compare).
+- Test registration, activation, commands and workspace edits with **`Toucan.Plugins.Testing`** (NuGet, references only the
+  contract, no UI). `PluginTestHost` runs your `IToucanPlugin`, records what it registers, activates your activators per
+  workspace or connection, runs commands as the palette would (with the right unavailable and disconnected states), and cancels
+  background work when the workspace closes. `TestPluginServices` gives you in-memory settings, secrets, notifications and
+  diagnostics; `InMemoryWorkspace` implements `IWorkspaceApi` with the same all-or-nothing, stale-revision and conflict rules, and
+  lets a test play the user (`UserEdit`) to provoke them. `CliCompatibility.UiReferences` tells you whether your main assembly
+  references a UI framework, which would stop the CLI from loading it.
+
+  ```csharp
+  await using var host = new PluginTestHost("acme.sync");
+  host.Register(new SyncPlugin());
+  host.Services.InMemory.Open("en", ["en", "de"], values);
+  await host.ActivateAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
+  await host.RunAsync("acme.sync.pull");
+  ```
+
+  The harness does not model undo, validation or the approval policy; those belong to the application. A connector built only
+  from the published packages, with these tests, is in the `toucan-plugins` repository (`src/Toucan.Connector.Rest`); a
+  smaller in-memory one is `samples/Toucan.Sample.Connector` here.
 - The repository's own tests are a good template: `tests/Toucan.Core.Tests/Plugins/SamplePluginTests.cs` installs a
   built plugin into a temp folder and drives it through the real host.
 
@@ -341,7 +370,9 @@ add members, with defaults wherever an existing implementation would otherwise b
 | *NeedsTrust*: "its files have changed since you trusted it" | You rebuilt or edited it. Trust again. |
 | *Disabled* | Switched off in Settings → Plugins (or `toucan plugins disable`). |
 | *Rejected*: manifest errors | Fix the listed `plugin.json` problems. |
-| *Rejected*: "Built for plugin API …" | Rebuild against an API version this Toucan implements. |
+| *Rejected*: "Built for plugin API …" | Rebuild against an API version this Toucan implements, or update Toucan if the plugin is newer. |
+| *Rejected*: "Needs Toucan … or newer" | Update Toucan, or use an older version of the plugin. |
+| *Rejected*: "Supports … only" | The plugin is not built for this operating system. |
 | *Rejected*: "Plugin ID … is already used" | Two folders declare the same `id`. |
 | *Failed*: "Entry assembly … was not found" | `entryAssembly` does not match the file in the folder. |
 | *Failed*: "has N IToucanPlugin implementations" | Set `entryType`. |
@@ -356,8 +387,8 @@ add members, with defaults wherever an existing implementation would otherwise b
 - Restart required for any change; no unloading.
 - No dependency injection into plugin classes and no access to Toucan's internal services (use `System.IO`, your own
   HTTP client, and so on). Logging goes through `context.Logger`.
-- No UI contributions yet (panels, dialogs, menu items). They will arrive as a separate package so headless hosts
-  such as the CLI never load UI types.
+- UI contributions go in a second, desktop-only assembly (see *Desktop parts*). A plugin cannot yet open a *connection* scope
+  itself (the host drives workspace scopes); a connector uses a workspace activator and keeps its own sessions.
 - Per-project rule plugins (`.toucan/rules`) and a plugin feed are not implemented.
 - The WPF app has no plugin support; plugins work in the Avalonia app and the CLI.
 
@@ -365,7 +396,9 @@ add members, with defaults wherever an existing implementation would otherwise b
 
 - Build and test everything that is cross-platform with `dotnet test Toucan.CrossPlatform.slnx` (it leaves out the two
   Windows-only WPF projects, so it runs on macOS and Linux CI as well as Windows).
-- The contract package: `dotnet pack Toucan.Plugins.Abstractions -c Release -o <dir>`. Bump `<Version>` only with
+- The packages: `dotnet pack Toucan.Plugins.Abstractions`, `Toucan.Plugins.Avalonia` and `Toucan.Plugins.Testing` with `-c Release -o <dir>`
+  (the `toucan-plugins` repository reads them from its `feed` folder until they are published).
+  The contract package: Bump `<Version>` only with
   `PluginApi.Current`, and never remove or change a public member within a major version.
 - `Toucan.Plugins.Abstractions` must not reference `Toucan.Core` or UI packages; a test fails the build if it does.
 - Formats, providers, rules and profiles that ship with Toucan are **built-in modules** (`Toucan.Modules.*`), not plugins:

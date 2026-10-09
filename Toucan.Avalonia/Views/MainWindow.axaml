@@ -24,7 +24,7 @@
             <TextBlock Text="Toucan" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
           </StackPanel>
           <ContentControl x:Name="MenuHost" VerticalAlignment="Center"/>
-          <Button x:Name="SaveStateButton" Classes="saveState" Classes.dirty="{Binding IsDirty}" Command="{Binding SaveCommand}"
+          <Button x:Name="SaveStateButton" Classes="saveState" Classes.dirty="{Binding IsDirty}"
                   IsVisible="{Binding HasProject}" ToolTip.Tip="{loc:Loc 'Save now'}" AutomationProperties.Name="{loc:Loc 'Save now'}">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <Ellipse Classes="statusDot" Classes.warn="{Binding IsDirty}" Classes.good="{Binding !IsDirty}"/>
@@ -36,7 +36,7 @@
 
         <!-- Center: command palette pill (project and selected key shown while a project is open) -->
         <Button x:Name="PalettePill" Grid.Column="1" Classes="palettePill" Width="420" MinWidth="180" VerticalAlignment="Center"
-                Command="{Binding ToggleCommandPaletteCommand}" ToolTip.Tip="{loc:Loc 'Command palette'}" AutomationProperties.Name="{loc:Loc 'Command palette'}">
+                ToolTip.Tip="{loc:Loc 'Command palette'}" AutomationProperties.Name="{loc:Loc 'Command palette'}">
           <Grid ColumnDefinitions="Auto,*,Auto">
             <ui:FASymbolIcon Symbol="Find" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" ClipToBounds="True">
@@ -65,20 +65,18 @@
         <StackPanel x:Name="TitleBarTrailing" Grid.Column="2" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right" VerticalAlignment="Center">
           <StackPanel x:Name="WorkspaceModes" Orientation="Horizontal" Spacing="2" Margin="0,0,10,0"
                       IsVisible="{Binding !ShowStartScreen}">
-            <Button Classes="modeTab" Classes.active="{Binding IsEditorMode}" Content="{loc:Loc 'Editor'}"
-                    Command="{Binding SwitchToEditorModeCommand}" ToolTip.Tip="{loc:Loc 'Edit translations'}"/>
-            <Button Classes="modeTab" Classes.active="{Binding IsReviewMode}" Content="{loc:Loc 'Review'}"
-                    Command="{Binding SwitchToReviewModeCommand}" ToolTip.Tip="{loc:Loc 'Approve or reject unreviewed translations'}"/>
-            <Button Classes="modeTab" Classes.active="{Binding IsAuditMode}" Content="{loc:Loc 'Audit'}"
-                    Command="{Binding SwitchToAuditModeCommand}" ToolTip.Tip="{loc:Loc 'Read-only view with approval state and history'}"/>
+            <Button x:Name="ModeEditor" Classes="modeTab" Classes.active="{Binding IsEditorMode}" Content="{loc:Loc 'Editor'}"
+                    ToolTip.Tip="{loc:Loc 'Edit translations'}"/>
+            <Button x:Name="ModeReview" Classes="modeTab" Classes.active="{Binding IsReviewMode}" Content="{loc:Loc 'Review'}"
+                    ToolTip.Tip="{loc:Loc 'Approve or reject unreviewed translations'}"/>
+            <Button x:Name="ModeAudit" Classes="modeTab" Classes.active="{Binding IsAuditMode}" Content="{loc:Loc 'Audit'}"
+                    ToolTip.Tip="{loc:Loc 'Read-only view with approval state and history'}"/>
           </StackPanel>
-          <Button Classes="icon" ToolTip.Tip="{loc:Loc 'Toggle left panel'}"
-                  Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleSidebarCommand}"
+          <Button x:Name="ToggleLeftButton" Classes="icon" ToolTip.Tip="{loc:Loc 'Toggle left panel'}"
                   IsVisible="{Binding !ShowStartScreen}">
             <ui:FASymbolIcon Symbol="DockLeft"/>
           </Button>
-          <Button Classes="icon" ToolTip.Tip="{loc:Loc 'Toggle right panel'}"
-                  Command="{Binding Source={x:Static svc:PanelService.Instance}, Path=ToggleInspectorCommand}"
+          <Button x:Name="ToggleRightButton" Classes="icon" ToolTip.Tip="{loc:Loc 'Toggle right panel'}"
                   IsVisible="{Binding !ShowStartScreen}">
             <ui:FASymbolIcon Symbol="DockRight"/>
           </Button>
@@ -108,7 +106,7 @@
         <Border Classes="shellSurface" Background="{DynamicResource ChromeBackgroundBrush}" Margin="0,0,6,0">
           <DockPanel>
             <Button x:Name="RailSettings" DockPanel.Dock="Bottom" Classes="activity" Margin="0,3"
-                    HorizontalAlignment="Center" ToolTip.Tip="{loc:Loc 'Settings'}" Command="{Binding ShowPreferencesCommand}">
+                    HorizontalAlignment="Center" ToolTip.Tip="{loc:Loc 'Settings'}">
               <ui:FASymbolIcon Symbol="Settings"/>
             </Button>
             <c:ActivityBar x:Name="LeftActivityBar"/>

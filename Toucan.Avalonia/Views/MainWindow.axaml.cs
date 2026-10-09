@@ -58,6 +58,7 @@ public partial class MainWindow : Window
         Palette.CommandSource = () => MainMenu.PaletteCommands(this, _vm);
         Palette.AnchorSource = () => PalettePill.TranslatePoint(default, Palette) is { } origin ? new Rect(origin, PalettePill.Bounds.Size) : null;
         KeybindingService.Apply(this, _vm, MainMenu.NativeGestures);
+        BindChromeCommands();
         // After Apply: the built-in commands are registered there, so the shortcut can be looked up.
         PaletteShortcut.Text = KeybindingService.GestureFor("Command Palette")?.ToString("p", null);
         // A reassigned shortcut takes effect at once. Posted after the menu's own rebuild, which decides the native gestures.
@@ -84,6 +85,23 @@ public partial class MainWindow : Window
         });
         _vm.FullscreenRequested += (_, _) =>
             WindowState = WindowState == WindowState.FullScreen ? WindowState.Normal : WindowState.FullScreen;
+    }
+
+    // The chrome's buttons run the same registry commands as the menu, the palette and the shortcuts, so they follow a reassigned
+    // shortcut, a plugin's disabling of a command and the command's own availability, and a plugin can never be offered less.
+    private void BindChromeCommands()
+    {
+        var registry = KeybindingService.Registry;
+        void Bind(Button button, string category, string action) =>
+            button.Command = RegistryCommand.For(registry, BuiltInCommands.IdFor(category, action));
+        Bind(SaveStateButton, "File", "Save");
+        Bind(PalettePill, "View", "Command Palette");
+        Bind(ModeEditor, "View", "Editor Mode");
+        Bind(ModeReview, "View", "Review Mode");
+        Bind(ModeAudit, "View", "Audit Mode");
+        Bind(ToggleLeftButton, "View", "Toggle Left Panel");
+        Bind(ToggleRightButton, "View", "Toggle Right Panel");
+        Bind(RailSettings, "Settings", "Preferences");
     }
 
     /// <summary>
