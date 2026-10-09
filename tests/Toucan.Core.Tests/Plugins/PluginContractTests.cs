@@ -72,6 +72,34 @@ public class PluginContractTests
         Assert.Contains(errors, e => e.Contains(expected, StringComparison.Ordinal));
     }
 
+    private static string WithDesktop(string desktop, string capabilities = "[\"formats\", \"desktop\"]") =>
+        Valid.Replace("[\"formats\", \"validation\"]", capabilities, StringComparison.Ordinal).Replace("\"author\": \"Acme\",", $"\"author\": \"Acme\", \"desktop\": {desktop},", StringComparison.Ordinal);
+
+    [Fact]
+    public void ADesktopPartParsesAndNeedsItsCapability()
+    {
+        const string good = "{ \"entryAssembly\": \"Acme.Ui.dll\", \"entryType\": \"Acme.Ui.Entry\", \"contractVersion\": \"1.0\" }";
+
+        Assert.True(PluginManifest.TryParse(WithDesktop(good), out var m, out var errors), string.Join("; ", errors));
+        Assert.Equal("Acme.Ui.dll", m.Desktop!.EntryAssembly);
+        Assert.Equal(new Version(1, 0), m.Desktop.ParsedContractVersion);
+
+        Assert.False(PluginManifest.TryParse(WithDesktop(good, "[\"formats\"]"), out _, out errors));
+        Assert.Contains(errors, e => e.Contains("needs the 'desktop' capability", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("{ \"entryAssembly\": \"../Evil.dll\", \"contractVersion\": \"1.0\" }", "inside the plugin folder")]
+    [InlineData("{ \"entryAssembly\": \"Ui.exe\", \"contractVersion\": \"1.0\" }", "must end with .dll")]
+    [InlineData("{ \"contractVersion\": \"1.0\" }", "'entryAssembly' is required")]
+    [InlineData("{ \"entryAssembly\": \"Ui.dll\", \"contractVersion\": \"banana\" }", "'contractVersion'")]
+    [InlineData("{ \"entryAssembly\": \"Ui.dll\" }", "'contractVersion'")]
+    public void BadDesktopEntriesAreReported(string desktop, string expected)
+    {
+        Assert.False(PluginManifest.TryParse(WithDesktop(desktop), out _, out var errors));
+        Assert.Contains(errors, e => e.Contains("'desktop':", StringComparison.Ordinal) && e.Contains(expected, StringComparison.Ordinal));
+    }
+
     [Fact]
     public void AllProblemsAreReportedTogether()
     {

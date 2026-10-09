@@ -17,6 +17,7 @@ public sealed class StampCommand : ICommandHandler
         Description = "Writes the project path and time to a file in the temp folder.",
         DefaultShortcut = "Mod+Alt+K",
         RequiresWorkspace = true,
+        Icon = "Edit",
     };
 
     public static string OutputPath { get; } = Path.Combine(Path.GetTempPath(), "toucan-sample-stamp.txt");

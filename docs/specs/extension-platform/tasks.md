@@ -1,7 +1,7 @@
 ---
 title: "extension-platform — tasks"
 status: in-progress
-progress: "1/8 steps done, step 2 in progress (toolbar and context-menu rendering left for step 3)"
+progress: "3/8 steps done"
 updated: 2026-10-09
 summary: "v0.23 work order: registration/activation split, command registry, desktop contributions, host services, workspace API, compatibility checks, SDK harness and external sample connector, migration of built-ins."
 ---
@@ -13,13 +13,13 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
   - [x] 1.1 Registration without network access; activation per project or connection with its own session
   - [x] 1.2 Cancel and dispose on project close; separate registration and activation failure reporting
   - [x] 1.3 Explicit application, workspace, connection and panel lifetimes
-- [~] 2. Command registry
+- [x] 2. Command registry
   - [x] 2.1 Stable IDs, localizable titles and categories, availability conditions, async execution with cancellation and progress
   - [x] 2.2 Default shortcuts with user overrides; replace the static table in `KeybindingService`
-  - [ ] 2.3 Menu, toolbar, context-menu and command-palette contributions; hidden / unavailable / disconnected / unlicensed states
-- [ ] 3. Desktop contributions (`Toucan.Plugins.Avalonia`, so the CLI loads no UI assemblies)
-  - [ ] 3.1 Registered side panels, panel toolbars, settings pages, dialogs, inspector sections, editor actions in place of the `MainWindow` switches
-  - [ ] 3.2 Narrow workspace context for plugin view models; theme, icon, localization and accessibility conventions; shared Avalonia assemblies in the loader
+  - [x] 2.3 Menu, toolbar, context-menu and command-palette contributions; hidden / unavailable / disconnected / unlicensed states
+- [x] 3. Desktop contributions (`Toucan.Plugins.Avalonia`, so the CLI loads no UI assemblies)
+  - [x] 3.1 Registered side panels, panel toolbars, settings pages, dialogs, inspector sections, editor actions in place of the `MainWindow` switches
+  - [x] 3.2 Narrow workspace context for plugin view models; theme, icon, localization and accessibility conventions; shared Avalonia assemblies in the loader
 - [ ] 4. Host services: plugin settings and storage outside the plugin directory, connection secret references, background operations, notifications, redacted diagnostics, typed configuration fields with migrations; document that plugins are not sandboxed
 - [ ] 5. Workspace API: snapshots and edit transactions for values, comments, review state and keys via normal undo, dirty tracking, validation and persistence
 - [ ] 6. Compatibility checks: host requirements, desktop-contract version, platform support, configuration migrations, actionable messages
@@ -29,6 +29,8 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
 Notes from step 1: `IPluginActivator`, `PluginLifetime` and the `activation` capability are in Abstractions (plugin API 1.1; 1.0 plugins still load). `PluginActivationService` in Core runs activators per application, workspace and connection; `ProjectLifecycleService` opens and closes the workspace scope. Connection scopes are driven by `OpenConnectionAsync` and have no caller until the connector sample (step 7). Panel lifetime moves to step 3 with the desktop contract.
 
 Notes from step 2: `ICommandRegistry` (Core) holds built-in and plugin commands; the Avalonia `KeybindingService`, menus, palette and the Shortcuts settings page read from it. Built-in IDs start with `toucan.`, plugin IDs with the plugin ID. User shortcut overrides live in `AppOptions.CustomShortcuts`. Placements for toolbar and context menu are in the model but rendered in step 3. `GetState` distinguishes hidden, unavailable, disconnected and unlicensed; handlers report the last two.
+
+Notes from step 3: `Toucan.Plugins.Avalonia` (desktop contract 1.0) holds the contribution types; a plugin names its UI assembly in `plugin.json` under `desktop` and the CLI never loads it. `DesktopPluginLoader` loads it through the plugin's own load context, with Avalonia, FluentAvalonia and the contract shared from the host, and applies the registrations all or nothing. `DesktopContributions` is the one place `MainWindow` asks for panels and toolbars; the eight built-in panels register there like a plugin's. Plugin settings appear on the Plugins page (not as new pages in the sidebar, which are index-based). Toolbar placement for commands outside panels and plugin-defined dialogs beyond a hosted control are not built. Theme, icon, localization and accessibility conventions are in `docs/plugins.md`.
 
 ## Completion gate
 

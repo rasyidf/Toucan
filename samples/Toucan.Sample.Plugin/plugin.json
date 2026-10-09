@@ -7,5 +7,10 @@
   "entryType": "Toucan.Sample.Plugin.SamplePlugin",
   "author": "Toucan",
   "description": "Reads and writes one tab-separated file per language, and flags values that still contain TODO or FIXME.",
-  "capabilities": ["formats", "validation", "commands"]
+  "capabilities": ["formats", "validation", "commands", "desktop"],
+  "desktop": {
+    "entryAssembly": "Toucan.Sample.Plugin.Desktop.dll",
+    "entryType": "Toucan.Sample.Plugin.Desktop.SampleDesktopPlugin",
+    "contractVersion": "1.0"
+  }
 }

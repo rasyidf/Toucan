@@ -28,6 +28,8 @@
               <Button Grid.Row="1" Content="{loc:Loc 'Plural forms'}" Command="{Binding GeneratePluralFormsCommand}" Classes="inspectorAction"/>
               <Button Grid.Row="1" Grid.Column="1" Content="{loc:Loc 'Gender forms'}" Command="{Binding GenerateGenderFormsCommand}" Classes="inspectorAction"/>
             </Grid>
+            <!-- Actions plugins offer for the selected key -->
+            <StackPanel x:Name="PluginKeyActions" Spacing="6" IsVisible="False"/>
           </StackPanel>
         </c:SettingsGroup>
 
@@ -115,6 +117,9 @@
         <c:SettingsGroup Classes="compact" Margin="0" Header="{loc:Loc 'HISTORY'}">
           <SelectableTextBlock Text="{Binding SelectedKeyAuditInfo}" FontSize="12" Foreground="{DynamicResource MutedTextBrush}" TextWrapping="Wrap" Margin="10,8"/>
         </c:SettingsGroup>
+
+        <!-- Sections plugins add -->
+        <StackPanel x:Name="PluginSections" Margin="0,10,0,0" Spacing="10"/>
       </StackPanel>
     </ScrollViewer>
   </Panel>

@@ -94,7 +94,8 @@ build output is exercised by the test suite, so what it does is what this guide 
 | `apiVersion` | yes | The plugin API you built against, like `1.0` (see [Versioning](#versioning)). |
 | `entryAssembly` | yes | File name of your assembly, inside the plugin folder. No paths, must end in `.dll`. |
 | `entryType` | no | Full name of your `IToucanPlugin` class. Required if the assembly has more than one public implementation. |
-| `capabilities` | no | Any of `formats`, `providers`, `validation`, `frameworks`, `activation`. Registering something you did not declare fails the plugin. |
+| `desktop` | no | The plugin's UI assembly: `{ "entryAssembly": "Acme.Ui.dll", "entryType": "Acme.Ui.Entry", "contractVersion": "1.0" }`. Needs the `desktop` capability. See [Desktop parts](#desktop-parts-ui). |
+| `capabilities` | no | Any of `formats`, `providers`, `validation`, `frameworks`, `activation`, `commands`, `desktop`. Registering something you did not declare fails the plugin. |
 | `author`, `description` | no | Shown when the user decides whether to trust you. |
 
 Comments and trailing commas are allowed. All problems are reported together, so one load attempt shows everything to fix.
@@ -184,6 +185,62 @@ scope ends) and returns an optional `IAsyncDisposable` session, disposed when th
 connections before their workspace. An activator that throws fails only that activation; it is logged and raised
 through `IPluginActivationService.ActivationFailed`, separately from load failures in the plugin catalog. Closing a
 project cancels activations still in flight.
+
+### Commands: `context.AddCommand(definition, handler)` (capability `commands`, API 1.1)
+
+A command is something the user can run from the command palette, a menu or a shortcut. `CommandDefinition` gives it a
+stable `Id` (it must start with your plugin ID and a dot), a `Title` and `Category` (with optional translations in
+`LocalizedTitles` and `LocalizedCategories`), a `DefaultShortcut` such as `Mod+Shift+K` (`Mod` is Cmd on macOS and Ctrl
+elsewhere), the `Placements` you want (palette, menu, toolbar, context menu) and whether it `RequiresWorkspace`.
+`ICommandHandler.GetState` reports `Available`, `Hidden`, `Unavailable`, `Disconnected` or `Unlicensed` (keep it fast: it
+runs whenever a menu is built); `ExecuteAsync` does the work, reports progress through `invocation.Progress` and must
+honour its cancellation token, which is cancelled when the user cancels or the project closes. Users can reassign or clear
+your shortcut in Settings → Shortcuts; the choice is kept by command ID. Commands that need a project are unavailable
+until one opens and are cancelled when it closes.
+
+### Desktop parts (UI)
+
+The CLI has no UI, so a plugin's screens live in a second assembly that only the desktop app loads. Reference the
+`Toucan.Plugins.Avalonia` package and Avalonia with `ExcludeAssets="runtime"` (Toucan supplies both; copying them next to
+your plugin would make your controls different types from Toucan's), name the assembly in `plugin.json` under `desktop`,
+and implement `IToucanDesktopPlugin`:
+
+```csharp
+public sealed class Entry : IToucanDesktopPlugin
+{
+    public void InitializeDesktop(IDesktopPluginContext context)
+    {
+        context.AddSidePanel(new SidePanelContribution
+        {
+            Id = "acme.sync.panel", Title = "Sync", Slot = PanelSlot.Right, Icon = "Sync",
+            Actions = [new PanelAction("acme.sync.pull", "Download", "Pull changes")],
+            CreateContent = workspace => new SyncPanel(workspace),
+        });
+    }
+}
+```
+
+What you can add (all IDs start with your plugin ID and a dot; nothing is registered if the entry point throws):
+
+| Contribution | Where it appears |
+|---|---|
+| `AddSidePanel` | An activity-bar button and a panel in the left or right side bar, with a toolbar of command buttons. |
+| `AddInspectorSection` | A section at the bottom of the inspector while a key is selected. |
+| `AddSettingsPage` | A group under the plugin list on the Plugins page of Settings. |
+| `AddDialog` | A window you open with `context.Host.ShowDialogAsync(id)`. |
+| `AddEditorAction` | A button in the inspector's key actions and an item in the key context menus; it runs a command with the key's name as parameter. |
+
+Views get an `IPluginWorkspace`, not Toucan's view models: whether a project is open, its folder, the selected key, a
+`Changed` event and `ExecuteCommandAsync`. Conventions:
+
+- **Theme.** Use `DynamicResource` with the keys in `DesktopTheme` (`TextBrush`, `MutedTextBrush`, `CardBackgroundBrush`, `BadBrush`, …) so views follow light and dark mode. Other host resource keys may change.
+- **Icons.** Name an icon from the host's icon set (`Sync`, `Add`, `Setting`, …); an unknown name shows no icon, so always give a tooltip.
+- **Localization.** Titles take a `LocalizedTitles` table by culture (`fr`, `pt-BR`); the host falls back to the parent culture, then the default. Text inside your own views is yours to localize; `context.Host.Culture` is the UI culture.
+- **Accessibility.** Give controls without visible text an `AutomationProperties.Name`, keep everything reachable with the keyboard, and do not rely on colour alone. Toolbar buttons and key actions already carry their tooltip as their accessible name.
+- **Contract version.** `desktop.contractVersion` follows the same rule as the plugin API: the same major version and a minor no newer than the host's (currently `DesktopContract.Current`, 1.0). A newer one is reported on the Plugins page and the desktop part is skipped; the rest of the plugin still works.
+- **Shared assemblies.** Avalonia, FluentAvalonia and `Toucan.Plugins.Avalonia` always come from Toucan; a copy in your folder is ignored.
+
+If the desktop part cannot load, the plugin still loads without its UI and the Plugins page says why.
 
 ## Versioning
 

@@ -668,6 +668,8 @@
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
+          <!-- Settings sections that plugins add; filled in code, since they are plugin controls -->
+          <StackPanel x:Name="PluginSettingsHost" Margin="0,8,0,0" Spacing="12"/>
           <!-- Built-in modules: compiled in and always on, so one compact list of name and version -->
           <c:SettingsList Header="{loc:Loc 'Built-in modules'}" ItemsSource="{Binding BuiltInModules}" IsVisible="{Binding HasBuiltInModules}"
                           ShowSearch="False" MaxListHeight="Infinity" Margin="0,8,0,24"
