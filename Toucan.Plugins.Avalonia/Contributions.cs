@@ -85,3 +85,43 @@ public sealed record EditorActionContribution : DesktopContribution
 
     public string? Icon { get; init; }
 }
+
+/// <summary>Which end of the status bar an item sits at.</summary>
+public enum StatusBarSide
+{
+    Left,
+    Right,
+}
+
+/// <summary>How a badge is coloured.</summary>
+public enum StatusBarSeverity
+{
+    Info,
+    Success,
+    Warning,
+    Error,
+}
+
+/// <summary>
+/// An item in the status bar. <see cref="DesktopContribution.Title"/> names it for screen readers and is its tooltip until the
+/// plugin sets one; the initial text, icon and badge are what it shows at first.
+/// </summary>
+public sealed record StatusBarItemContribution : DesktopContribution
+{
+    public StatusBarSide Side { get; init; } = StatusBarSide.Left;
+
+    /// <summary>Position among the items on the same side; built-in items use 10 to 50.</summary>
+    public int Order { get; init; } = 100;
+
+    public string? Text { get; init; }
+
+    /// <summary>Name of an icon from the host's icon set.</summary>
+    public string? Icon { get; init; }
+
+    public string? Badge { get; init; }
+
+    public StatusBarSeverity BadgeSeverity { get; init; } = StatusBarSeverity.Info;
+
+    /// <summary>A command to run when the item is clicked. Without one the item is only informational.</summary>
+    public string? CommandId { get; init; }
+}

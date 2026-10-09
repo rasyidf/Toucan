@@ -337,6 +337,7 @@ internal static class MainMenu
             new("Keyboard Shortcuts", vm.ToggleShortcutSheetCommand, Action: "Keyboard Shortcuts"),
             new("Documentation", vm.HelpHomepageCommand),
             new("Report an Issue", vm.ReportIssueCommand),
+            new("Copy Diagnostics", vm.CopyDiagnosticsCommand),
         };
         if (!mac) help.Add(new Item("About Toucan", vm.HelpAboutCommand));
 

@@ -17,12 +17,27 @@ public partial class StatusBarView : UserControl
         ModeButton.Click += (_, _) => MainViewModel?.CycleEditorModeCommand.Execute(null);
         StatsButton.Click += (_, _) => MainViewModel?.RunValidationCommand.Execute(null);
         NotificationsButton.Click += OnNotificationsClick;
+        OperationsButton.Click += OnOperationsClick;
         EncodingButton.Click += OnEncodingClick;
         LineEndingButton.Click += OnLineEndingClick;
         LanguageButton.Click += OnLanguageClick;
     }
 
     public MainWindowViewModel? MainViewModel { get; set; }
+
+    /// <summary>Lists what is running, each with what it says and a Cancel item when it can be stopped.</summary>
+    private void OnOperationsClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not StatusBarViewModel status) return;
+        var flyout = new MenuFlyout { Placement = PlacementMode.TopEdgeAlignedRight };
+        foreach (var operation in status.Operations.Items.ToList())
+        {
+            flyout.Items.Add(new MenuItem { Header = OperationsViewModel.Describe(operation, withPercent: true), IsEnabled = false });
+            if (operation.IsCancellable)
+                flyout.Items.Add(new MenuItem { Header = Locales.Loc.T("Cancel"), Command = new CommunityToolkit.Mvvm.Input.RelayCommand(operation.Cancel) });
+        }
+        if (flyout.Items.Count > 0) flyout.ShowAt(OperationsButton);
+    }
 
     private void OnEncodingClick(object? sender, RoutedEventArgs e)
     {

@@ -67,6 +67,9 @@ public interface IPluginActivationService
     Task CloseWorkspaceAsync(string workspaceId);
 
     bool IsWorkspaceOpen(string workspaceId);
+
+    /// <summary>The projects that are open now, so a service created later can catch up with what it missed.</summary>
+    IReadOnlyList<string> OpenWorkspaceIds { get; }
 }
 
 public sealed class PluginActivationService : IPluginActivationService, IAsyncDisposable, IDisposable
@@ -93,6 +96,8 @@ public sealed class PluginActivationService : IPluginActivationService, IAsyncDi
     public event EventHandler<WorkspaceEventArgs>? WorkspaceClosed;
 
     public bool IsWorkspaceOpen(string workspaceId) => _workspaces.ContainsKey(workspaceId);
+
+    public IReadOnlyList<string> OpenWorkspaceIds => [.. _workspaces.Keys];
 
     public async Task<IReadOnlyList<ActivationResult>> ActivateApplicationAsync(CancellationToken cancellationToken = default)
     {

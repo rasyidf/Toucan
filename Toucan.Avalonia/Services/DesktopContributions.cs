@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Avalonia.Controls;
 using FluentAvalonia.UI.Controls;
@@ -26,6 +27,9 @@ internal enum DesktopLoadStatus
 /// <summary>Outcome of loading one plugin's desktop part, shown next to the plugin in Settings.</summary>
 internal sealed record DesktopLoadResult(string PluginId, DesktopLoadStatus Status, string? Error = null);
 
+/// <summary>A plugin's typed settings, with the name to show over them.</summary>
+internal sealed record PluginConfigurationEntry(string PluginId, string Name, Toucan.Plugins.IPluginConfiguration Configuration);
+
 /// <summary>
 /// Everything that appears in the main window beyond the fixed layout: side panels (with their toolbars), inspector
 /// sections, plugin settings, dialogs and key actions. The built-in panels register here exactly like a plugin's, so
@@ -46,6 +50,26 @@ internal sealed class DesktopContributions
     public static DesktopContributions Instance { get; } = new();
 
     public event EventHandler? Changed;
+
+    /// <summary>Status bar items from plugins, sorted by order, for the two ends of the bar.</summary>
+    public ObservableCollection<PluginStatusBarItem> LeftStatusItems { get; } = [];
+    public ObservableCollection<PluginStatusBarItem> RightStatusItems { get; } = [];
+
+    /// <summary>Plugins that declared settings, for the Plugins page.</summary>
+    public IReadOnlyList<PluginConfigurationEntry> Configurations { get; private set; } = [];
+
+    /// <summary>Which project is open, for settings that belong to a project.</summary>
+    public Toucan.Plugins.Desktop.IPluginWorkspace? Workspace { get; set; }
+
+    public void SetConfigurations(IEnumerable<PluginConfigurationEntry> entries) => Configurations = [.. entries];
+
+    public void AddStatusItem(PluginStatusBarItem item)
+    {
+        var target = item.Side == Toucan.Plugins.Desktop.StatusBarSide.Left ? LeftStatusItems : RightStatusItems;
+        var index = 0;
+        while (index < target.Count && target[index].Order <= item.Order) index++;
+        target.Insert(index, item);
+    }
 
     public IReadOnlyList<DesktopLoadResult> LoadResults => _results;
 
@@ -114,6 +138,8 @@ internal sealed class DesktopContributions
         _settings.RemoveAll(s => s.PluginId == pluginId);
         foreach (var id in _dialogs.Where(d => d.Value.PluginId == pluginId).Select(d => d.Key).ToList()) _dialogs.Remove(id);
         _keyActions.RemoveAll(a => a.PluginId == pluginId);
+        foreach (var item in LeftStatusItems.Where(i => i.PluginId == pluginId).ToList()) LeftStatusItems.Remove(item);
+        foreach (var item in RightStatusItems.Where(i => i.PluginId == pluginId).ToList()) RightStatusItems.Remove(item);
         Changed?.Invoke(this, EventArgs.Empty);
     }
 }

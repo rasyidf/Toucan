@@ -116,6 +116,12 @@ public sealed partial class CommandRegistry : ICommandRegistry, IDisposable
         {
             _activation.WorkspaceOpened += OnWorkspaceOpened;
             _activation.WorkspaceClosed += OnWorkspaceClosed;
+            // A project may already be open (the registry is created on first use): start from what is true now.
+            foreach (var id in _activation.OpenWorkspaceIds)
+            {
+                _openWorkspaces.Add(id);
+                _workspaceId = id;
+            }
         }
 
         foreach (var registration in pluginCommands ?? [])

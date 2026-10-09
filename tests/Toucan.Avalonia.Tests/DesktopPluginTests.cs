@@ -52,7 +52,7 @@ public sealed class DesktopPluginTests : IDisposable
         var (workspace, desktop) = Context(host, contributions);
 
         var results = DesktopPluginLoader.LoadAll(host.Services.GetRequiredService<IPluginCatalog>(), contributions, panels, workspace, desktop,
-            host.Services.GetRequiredService<ICommandRegistry>());
+            host.Services.GetRequiredService<ICommandRegistry>(), services: host.Services.GetServices<PluginServicesRegistration>());
 
         Assert.Equal(DesktopLoadStatus.Loaded, Assert.Single(results).Status);
         Assert.True(contributions.HasPanel("sample.tsv.panel"));
@@ -76,7 +76,7 @@ public sealed class DesktopPluginTests : IDisposable
         var contributions = new DesktopContributions();
         var (workspace, desktop) = Context(host, contributions);
         DesktopPluginLoader.LoadAll(host.Services.GetRequiredService<IPluginCatalog>(), contributions, new SidePanelRegistry(), workspace, desktop,
-            host.Services.GetRequiredService<ICommandRegistry>());
+            host.Services.GetRequiredService<ICommandRegistry>(), services: host.Services.GetServices<PluginServicesRegistration>());
 
         var panel = contributions.CreatePanel("sample.tsv.panel", host.CreateViewModel())!;
 
@@ -90,7 +90,8 @@ public sealed class DesktopPluginTests : IDisposable
         var contributions = new DesktopContributions();
         var (workspace, desktop) = Context(host, contributions);
         var commands = host.Services.GetRequiredService<ICommandRegistry>();
-        DesktopPluginLoader.LoadAll(host.Services.GetRequiredService<IPluginCatalog>(), contributions, new SidePanelRegistry(), workspace, desktop, commands);
+        DesktopPluginLoader.LoadAll(host.Services.GetRequiredService<IPluginCatalog>(), contributions, new SidePanelRegistry(), workspace, desktop, commands,
+            services: host.Services.GetServices<PluginServicesRegistration>());
 
         var actions = KeyActions.Collect(commands, contributions);
 

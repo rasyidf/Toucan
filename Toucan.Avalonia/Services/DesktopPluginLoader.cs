@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using FluentAvalonia.UI.Controls;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Toucan.Avalonia.ViewModels;
 using Toucan.Core.Commands;
 using Toucan.Core.Models;
 using Toucan.Core.Plugins;
@@ -36,13 +37,16 @@ internal static class DesktopPluginLoader
     }
 
     public static IReadOnlyList<DesktopLoadResult> LoadAll(IPluginCatalog catalog, DesktopContributions contributions, SidePanelRegistry panels,
-        IPluginWorkspace workspace, IDesktopHost host, ICommandRegistry commands, ILoggerFactory? loggerFactory = null)
+        IPluginWorkspace workspace, IDesktopHost host, ICommandRegistry commands, ILoggerFactory? loggerFactory = null,
+        IEnumerable<PluginServicesRegistration>? services = null)
     {
+        var byPlugin = (services ?? []).ToDictionary(s => s.PluginId, s => s.Services, StringComparer.Ordinal);
         var results = new List<DesktopLoadResult>();
         foreach (var plugin in catalog.Plugins.Where(p => p is { Status: PluginStatus.Loaded, Manifest.Desktop: not null }))
         {
             var manifest = plugin.Manifest!;
-            var result = LoadOne(plugin, manifest, contributions, panels, workspace, host, commands, loggerFactory ?? NullLoggerFactory.Instance);
+            var result = LoadOne(plugin, manifest, contributions, panels, workspace, host, commands, loggerFactory ?? NullLoggerFactory.Instance,
+                byPlugin.GetValueOrDefault(manifest.Id));
             contributions.RecordResult(result);
             results.Add(result);
         }
@@ -52,7 +56,7 @@ internal static class DesktopPluginLoader
     // Plugin code is untrusted: anything its desktop part throws is a failure of that part only.
 #pragma warning disable CA1031
     private static DesktopLoadResult LoadOne(PluginLoadResult plugin, PluginManifest manifest, DesktopContributions contributions, SidePanelRegistry panels,
-        IPluginWorkspace workspace, IDesktopHost host, ICommandRegistry commands, ILoggerFactory loggerFactory)
+        IPluginWorkspace workspace, IDesktopHost host, ICommandRegistry commands, ILoggerFactory loggerFactory, IPluginServices? services)
     {
         var desktop = manifest.Desktop!;
         var contract = desktop.ParsedContractVersion!;
@@ -74,7 +78,7 @@ internal static class DesktopPluginLoader
             if (type is null) return new DesktopLoadResult(manifest.Id, DesktopLoadStatus.Failed, error);
 
             var instance = (IToucanDesktopPlugin)Activator.CreateInstance(type)!;
-            return Initialize(manifest.Id, instance, contributions, panels, workspace, host, commands, loggerFactory.CreateLogger($"Plugin.{manifest.Id}"));
+            return Initialize(manifest.Id, instance, contributions, panels, workspace, host, commands, loggerFactory.CreateLogger($"Plugin.{manifest.Id}"), services);
         }
         catch (Exception ex)
         {
@@ -84,9 +88,9 @@ internal static class DesktopPluginLoader
 
     /// <summary>Runs the plugin's desktop entry point and applies what it registered, all or nothing.</summary>
     internal static DesktopLoadResult Initialize(string pluginId, IToucanDesktopPlugin plugin, DesktopContributions contributions, SidePanelRegistry panels,
-        IPluginWorkspace workspace, IDesktopHost host, ICommandRegistry commands, ILogger logger)
+        IPluginWorkspace workspace, IDesktopHost host, ICommandRegistry commands, ILogger logger, IPluginServices? services = null)
     {
-        var context = new Context(pluginId, workspace, host, logger);
+        var context = new Context(pluginId, workspace, host, logger, services, commands);
         try
         {
             plugin.InitializeDesktop(context);
@@ -128,6 +132,8 @@ internal static class DesktopPluginLoader
         foreach (var c in context.Settings)
             contributions.AddSettingsSection(new SettingsSectionItem(pluginId, c.Id, LocalizedText.Pick(c.LocalizedTitles, c.Title), c.Description, () => c.CreateContent(context.Workspace)));
 
+        foreach (var item in context.StatusItems) contributions.AddStatusItem(item);
+
         foreach (var c in context.Dialogs) contributions.AddDialog(pluginId, c);
         foreach (var c in context.Actions) contributions.AddKeyAction(pluginId, c);
     }
@@ -165,7 +171,7 @@ internal static class DesktopPluginLoader
         ex is TargetInvocationException { InnerException: { } inner } ? Describe(inner) : $"{ex.GetType().Name}: {ex.Message}";
 
     /// <summary>Collects one plugin's registrations and checks them; nothing reaches the host unless the plugin's entry point returns normally.</summary>
-    private sealed class Context(string pluginId, IPluginWorkspace workspace, IDesktopHost host, ILogger logger) : IDesktopPluginContext
+    private sealed class Context(string pluginId, IPluginWorkspace workspace, IDesktopHost host, ILogger logger, IPluginServices? services, ICommandRegistry commands) : IDesktopPluginContext
     {
         private readonly HashSet<string> _ids = new(StringComparer.Ordinal);
 
@@ -174,6 +180,21 @@ internal static class DesktopPluginLoader
         public ILogger Logger { get; } = logger;
         public IPluginWorkspace Workspace { get; } = workspace;
         public IDesktopHost Host { get; } = host;
+        public IPluginServices Services => services ?? throw new InvalidOperationException("Plugin services are not available in this host.");
+        public List<PluginStatusBarItem> StatusItems { get; } = [];
+
+        /// <summary>Returns the item the status bar will show; it is added to the bar only if the whole desktop entry point succeeds.</summary>
+        public IStatusBarItem AddStatusBarItem(StatusBarItemContribution contribution)
+        {
+            var claimed = Claim(contribution);
+            var command = claimed.CommandId is { Length: > 0 } id ? RegistryCommand.For(commands, id) : null;
+            var item = new PluginStatusBarItem(PluginId, claimed.Id, LocalizedText.Pick(claimed.LocalizedTitles, claimed.Title), claimed.Side, claimed.Order, command)
+            {
+                Text = claimed.Text, Icon = claimed.Icon, Badge = claimed.Badge, BadgeSeverity = claimed.BadgeSeverity,
+            };
+            StatusItems.Add(item);
+            return item;
+        }
 
         public List<SidePanelContribution> Panels { get; } = [];
         public List<SettingsPageContribution> Settings { get; } = [];

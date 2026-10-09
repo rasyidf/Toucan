@@ -198,6 +198,40 @@ honour its cancellation token, which is cancelled when the user cancels or the p
 your shortcut in Settings → Shortcuts; the choice is kept by command ID. Commands that need a project are unavailable
 until one opens and are cancelled when it closes.
 
+### Host services: `context.Services` (API 1.1)
+
+`IPluginServices` gives every plugin the same tidy set of things, scoped to its own ID. Use them from commands, activators
+and views, after startup: during `Initialize` only register things (a service used then throws).
+
+> **Plugins are not sandboxed.** They run in Toucan's process with your permissions, exactly like any program you install.
+> These services keep a well-behaved plugin tidy and its secrets out of logs; they do not stop a malicious plugin from
+> reading files, using the network or reading what other code in the process holds. That is why each plugin has to be
+> trusted first, and why a changed plugin has to be trusted again.
+
+| Service | What it does |
+|---|---|
+| `Storage` | A folder under `Documents/Toucan/plugin-data/<plugin id>` with atomic text and JSON writes. Paths are relative and cannot leave the folder. Never write next to your own DLLs: the plugin folder is trusted by its hash, so changing it makes Toucan ask again. |
+| `Configuration` | Typed settings (below). |
+| `Secrets` | Credentials in the encrypted secret store, scoped to the plugin and optionally a project or connection. Anything read or written is masked from then on. |
+| `Notifier` | `Notify(new PluginNotification { Title, Message, Severity, ActionCommandId, ActionLabel, Sticky })`: a toast in the desktop app (clicking it runs the action's command), a line on stderr in the CLI, and an entry in the notification history. |
+| `Operations` | `Start(new OperationOptions { Title }, async (ctx, ct) => …)`: runs in the background with progress (`ctx.Report(message, fraction)`) and a cancel button in the status bar. An exception ends it as failed and is reported, never thrown. Operations end when the project closes unless `CancelWithWorkspace` is false. |
+| `Diagnostics` | `Redact(text)`, `Write(level, message)` for the report that **Help → Copy Diagnostics** builds, and `RegisterSecret(value)` for a token you received that did not come through `Secrets`. What `context.Logger` logs is masked too. |
+
+**Settings.** Describe them once with `context.SetConfiguration(new ConfigSchema { Version = 1, Fields = [...] })`. A field has a
+`Key`, `Label` (with `LocalizedLabels`), a `Type` (`Text`, `Boolean`, `WholeNumber`, `Number`, `Choice`, `Secret`, `Path`,
+`Url`), a `Default`, `Required`, `Minimum`/`Maximum` (a number's bounds, or a text's length), a `Pattern`, `Choices`, and a
+`Scope`: `App`, `Workspace` (one value per project) or `Connection` (one per connection, optionally within a project; pass
+`ConfigTarget.ForConnection(id, workspaceId)`). Read with `Configuration.GetValue<T>(key, target)`; write with
+`SetAsync`, which validates first and refuses a bad value without changing anything. A `Secret` field goes to the secret
+store, never to the settings file, and `GetValue` never returns it (use `GetSecretAsync`). The desktop app generates a form
+for the schema under your plugin on the Plugins page of Settings, so a simple plugin needs no settings UI of its own.
+
+When a change would misread values saved by an older version, raise `Version` and add a `ConfigMigration(fromVersion, apply)`
+that edits the old values in place (rename a key, convert a type). Toucan applies the migrations in order the first time it
+loads older settings and writes the result back. If a step is missing, values that no longer fit fall back to their defaults
+and the diagnostics say so. Mistakes in a schema (duplicate keys, a choice with no choices, a default that breaks its own
+rule) fail the plugin at load with a message that names the field.
+
 ### Desktop parts (UI)
 
 The CLI has no UI, so a plugin's screens live in a second assembly that only the desktop app loads. Reference the
@@ -228,9 +262,10 @@ What you can add (all IDs start with your plugin ID and a dot; nothing is regist
 | `AddInspectorSection` | A section at the bottom of the inspector while a key is selected. |
 | `AddSettingsPage` | A group under the plugin list on the Plugins page of Settings. |
 | `AddDialog` | A window you open with `context.Host.ShowDialogAsync(id)`. |
+| `AddStatusBarItem` | An item at the left or right end of the status bar (text, icon, tooltip, badge with a severity, optional click command). It returns an `IStatusBarItem` you keep and change from any thread; the display updates on the UI thread. An item with nothing to show takes no room. |
 | `AddEditorAction` | A button in the inspector's key actions and an item in the key context menus; it runs a command with the key's name as parameter. |
 
-Views get an `IPluginWorkspace`, not Toucan's view models: whether a project is open, its folder, the selected key, a
+The desktop context also carries `Services`, the same `IPluginServices` the main part gets. Views get an `IPluginWorkspace`, not Toucan's view models: whether a project is open, its folder, the selected key, a
 `Changed` event and `ExecuteCommandAsync`. Conventions:
 
 - **Theme.** Use `DynamicResource` with the keys in `DesktopTheme` (`TextBrush`, `MutedTextBrush`, `CardBackgroundBrush`, `BadBrush`, …) so views follow light and dark mode. Other host resource keys may change.

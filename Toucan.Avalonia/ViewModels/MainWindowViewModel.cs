@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Toucan.Core.Plugins;
 using CommunityToolkit.Mvvm.Input;
 using Toucan.Avalonia.Services;
 using Toucan.Core.Contracts;
@@ -36,7 +37,9 @@ public sealed record MainWindowServices(
     ITranslationProviderRegistry ProviderRegistry,
     IAiService Ai,
     IAiSettingsStore AiSettings,
-    ISourceClarityService Clarity);
+    ISourceClarityService Clarity,
+    IDiagnosticsService? Diagnostics = null,
+    IPluginCatalog? PluginCatalog = null);
 
 /// <summary>
 /// State and commands for the main editor window. Split across partial files by concern:
@@ -68,6 +71,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly IAiService _ai;
     private readonly IAiSettingsStore _aiSettings;
     private readonly ISourceClarityService _clarity;
+    private readonly IDiagnosticsService? _diagnostics;
+    private readonly IPluginCatalog? _pluginCatalog;
 
     private readonly DispatcherTimer _searchDebounce;
     /// <summary>Pause between the last keystroke in the Search panel and the search itself.</summary>
@@ -99,6 +104,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _ai = services.Ai;
         _aiSettings = services.AiSettings;
         _clarity = services.Clarity;
+        _diagnostics = services.Diagnostics;
+        _pluginCatalog = services.PluginCatalog;
 
         _translationStore.DirtyStateChanged += OnStoreDirtyStateChanged;
 
@@ -434,6 +441,15 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     [RelayCommand]
     private static void ReportIssue() => PlatformService.OpenUrl("https://github.com/rasyidf/Toucan/issues");
+
+    /// <summary>Puts a report on the clipboard that is safe to paste into a bug report: versions, plugins and their recent logs, with secrets masked.</summary>
+    [RelayCommand]
+    private async Task CopyDiagnostics()
+    {
+        if (_diagnostics is null) return;
+        await PlatformService.SetClipboardTextAsync(_diagnostics.BuildReport(_pluginCatalog));
+        StatusText = Locales.Loc.T("Diagnostics copied to the clipboard.");
+    }
 
     [RelayCommand]
     private async Task HelpAbout() => await ShowPreferencesAtAsync(OptionsViewModel.Pages.Count - 1);

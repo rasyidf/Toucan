@@ -102,6 +102,20 @@ public class PluginActivationTests
     }
 
     [Fact]
+    public async Task AServiceCreatedLaterCatchesUpWithOpenProjects()
+    {
+        await using var activation = new PluginActivationService([]);
+        await activation.OpenWorkspaceAsync("/p/one");
+        var commands = new Toucan.Core.Commands.CommandRegistry(activation);
+
+        Assert.True(commands.HasWorkspace);
+        Assert.Equal("/p/one", commands.WorkspaceId);
+        await activation.CloseWorkspaceAsync("/p/one");
+        Assert.False(commands.HasWorkspace);
+        commands.Dispose();
+    }
+
+    [Fact]
     public async Task ConnectionNeedsAnOpenWorkspace()
     {
         await using var service = Create(("a", new Probe(PluginLifetime.Connection)));

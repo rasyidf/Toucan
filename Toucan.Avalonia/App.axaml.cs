@@ -62,6 +62,9 @@ public partial class App : Application
             KeybindingService.UseRegistry(_services.GetRequiredService<global::Toucan.Core.Commands.ICommandRegistry>());
             var window = new MainWindow(vm, statusBar);
             desktop.MainWindow = window;
+            var notifications = new NotificationPresenter(window, _services.GetRequiredService<INotificationCenter>(),
+                _services.GetRequiredService<global::Toucan.Core.Commands.ICommandRegistry>());
+            window.Closed += (_, _) => notifications.Dispose();
             desktop.ShutdownMode = global::Avalonia.Controls.ShutdownMode.OnMainWindowClose;
 
             var messages = _services.GetRequiredService<IAsyncMessageService>();
@@ -114,8 +117,13 @@ public partial class App : Application
         var commands = _services.GetRequiredService<global::Toucan.Core.Commands.ICommandRegistry>();
         var workspace = new PluginWorkspaceContext(vm, commands);
         var host = new DesktopHost(DesktopContributions.Instance, workspace);
+        var registrations = _services.GetServices<PluginServicesRegistration>().ToList();
+        DesktopContributions.Instance.Workspace = workspace;
+        DesktopContributions.Instance.SetConfigurations(registrations
+            .Where(r => r.Services.Configuration.Schema is { Fields.Count: > 0 })
+            .Select(r => new PluginConfigurationEntry(r.PluginId, catalog.Plugins.FirstOrDefault(p => p.DisplayId == r.PluginId)?.Manifest?.Name ?? r.PluginId, r.Services.Configuration)));
         DesktopPluginLoader.LoadAll(catalog, DesktopContributions.Instance, SidePanelRegistry.Instance, workspace, host, commands,
-            _services.GetService<ILoggerFactory>());
+            _services.GetService<ILoggerFactory>(), registrations);
     }
 
     private async Task PromptForPendingPluginsAsync(MainWindowViewModel vm)
@@ -194,7 +202,8 @@ public partial class App : Application
     /// <param name="overrides">Test hook: registrations applied last, so they win over the defaults.</param>
     /// <param name="pluginRoot">Test hook: plugin folder to scan instead of Documents/Toucan/plugins.</param>
     /// <param name="pluginPolicyPath">Test hook: plugin enable/trust file instead of Documents/Toucan/plugin-policy.json.</param>
-    internal static ServiceProvider ConfigureServices(Action<ServiceCollection>? overrides = null, string? pluginRoot = null, string? pluginPolicyPath = null)
+    /// <param name="pluginDataRoot">Test hook: where plugins keep their own settings and files instead of Documents/Toucan/plugin-data.</param>
+    internal static ServiceProvider ConfigureServices(Action<ServiceCollection>? overrides = null, string? pluginRoot = null, string? pluginPolicyPath = null, string? pluginDataRoot = null)
     {
         var services = new ServiceCollection();
         services.AddLogging(b => b.AddConsole().SetMinimumLevel(LogLevel.Warning));
@@ -220,6 +229,7 @@ public partial class App : Application
         var pluginPolicy = new FilePluginPolicyStore(pluginPolicyPath ?? FilePluginPolicyStore.DefaultPath());
         services.AddSingleton<IPluginPolicyStore>(pluginPolicy);
         var pluginOptions = new PluginHostOptions { Policy = pluginPolicy };
+        if (pluginDataRoot is not null) pluginOptions.DataRoot = pluginDataRoot;
         pluginOptions.Roots.Add(pluginRoot ?? PluginHostOptions.DefaultRoot());
         // A plugin's desktop part must use the host's UI framework, never a copy of its own.
         foreach (var prefix in new[] { "Avalonia", "FluentAvalonia", "Toucan.Plugins.Avalonia", "MicroCom" }) pluginOptions.SharedAssemblyPrefixes.Add(prefix);
@@ -287,7 +297,9 @@ public partial class App : Application
             sp.GetRequiredService<ITranslationProviderRegistry>(),
             sp.GetRequiredService<IAiService>(),
             sp.GetRequiredService<IAiSettingsStore>(),
-            sp.GetRequiredService<ISourceClarityService>()));
+            sp.GetRequiredService<ISourceClarityService>(),
+            sp.GetService<IDiagnosticsService>(),
+            sp.GetService<IPluginCatalog>()));
         services.AddSingleton<MainWindowViewModel>();
         services.AddTransient<NewProjectViewModel>();
         services.AddTransient(sp => new AiSettingsViewModel(

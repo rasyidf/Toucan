@@ -71,8 +71,8 @@ public sealed class SampleDesktopPlugin : IToucanDesktopPlugin
         {
             Id = "sample.tsv.settings",
             Title = "Sample plugin",
-            Description = "Settings the plugin offers. Saving them arrives with the host services in a later release.",
-            CreateContent = _ => new TextBlock { Text = "Nothing to configure yet.", Margin = new Avalonia.Thickness(16, 8, 16, 16), FontStyle = FontStyle.Italic },
+            Description = "Extra settings the plugin draws itself. The typed settings above are generated from its schema.",
+            CreateContent = _ => new TextBlock { Text = "Custom views can sit next to generated settings.", Margin = new Avalonia.Thickness(16, 8, 16, 16), FontStyle = FontStyle.Italic },
         });
 
         context.AddDialog(new DialogContribution
@@ -87,6 +87,23 @@ public sealed class SampleDesktopPlugin : IToucanDesktopPlugin
                 HorizontalAlignment = HorizontalAlignment.Stretch,
             },
         });
+
+        // A status bar item: shows the greeting from the settings and runs the stamp command when clicked. The plugin keeps the
+        // handle and changes it whenever something happens; the host updates the display on the UI thread.
+        var status = context.AddStatusBarItem(new StatusBarItemContribution
+        {
+            Id = "sample.tsv.status",
+            Title = "Sample plugin",
+            Side = StatusBarSide.Left,
+            Icon = "Edit",
+            CommandId = StampCommand,
+            Text = context.Services.Configuration.GetValue<string>("greeting"),
+        });
+        status.ToolTip = "Sample plugin: click to write a stamp";
+        context.Services.Configuration.Changed += (_, e) =>
+        {
+            if (e.Key == "greeting") status.Text = context.Services.Configuration.GetValue<string>("greeting");
+        };
 
         // Shown in the inspector's key actions and in the key context menus; the command receives the key's name.
         context.AddEditorAction(new EditorActionContribution

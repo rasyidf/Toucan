@@ -31,6 +31,11 @@ public partial class OptionsDialog : DialogWindow
     private void FillPluginSettings()
     {
         if (this.FindControl<StackPanel>("PluginSettingsHost") is not { } host) return;
+        // The typed settings plugins declared: a generated form for each.
+        var workspace = Services.DesktopContributions.Instance.Workspace;
+        foreach (var entry in Services.DesktopContributions.Instance.Configurations)
+            host.Children.Add(new SettingsGroup { Header = Loc.Format("{0} settings", entry.Name), Content = new ConfigForm(entry.Configuration, () => workspace?.WorkspaceId) });
+
         foreach (var section in Services.DesktopContributions.Instance.SettingsSections)
         {
             var body = new StackPanel { Spacing = 8 };

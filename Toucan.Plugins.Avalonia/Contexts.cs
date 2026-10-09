@@ -27,6 +27,20 @@ public interface IPluginWorkspace
     Task<bool> ExecuteCommandAsync(string commandId, object? parameter = null, CancellationToken cancellationToken = default);
 }
 
+/// <summary>
+/// Handle to the plugin's status bar item. Change it from any thread; the host updates the display on the UI thread. An item
+/// with no text, icon or badge is hidden.
+/// </summary>
+public interface IStatusBarItem
+{
+    string? Text { get; set; }
+    string? Icon { get; set; }
+    string? ToolTip { get; set; }
+    string? Badge { get; set; }
+    StatusBarSeverity BadgeSeverity { get; set; }
+    bool IsVisible { get; set; }
+}
+
 /// <summary>Application services for plugin views.</summary>
 public interface IDesktopHost
 {
@@ -51,6 +65,9 @@ public interface IDesktopPluginContext
 
     IDesktopHost Host { get; }
 
+    /// <summary>The plugin's host services (settings, files, secrets, notifications, background work, diagnostics): the same object the main part gets.</summary>
+    IPluginServices Services { get; }
+
     void AddSidePanel(SidePanelContribution contribution);
 
     void AddSettingsPage(SettingsPageContribution contribution);
@@ -60,6 +77,9 @@ public interface IDesktopPluginContext
     void AddDialog(DialogContribution contribution);
 
     void AddEditorAction(EditorActionContribution contribution);
+
+    /// <summary>Adds an item to the status bar and returns the handle the plugin updates it through.</summary>
+    IStatusBarItem AddStatusBarItem(StatusBarItemContribution contribution);
 }
 
 /// <summary>
