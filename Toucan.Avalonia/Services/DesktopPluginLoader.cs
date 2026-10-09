@@ -62,7 +62,9 @@ internal static class DesktopPluginLoader
         var contract = desktop.ParsedContractVersion!;
         if (!DesktopContract.IsCompatible(contract))
             return new DesktopLoadResult(manifest.Id, DesktopLoadStatus.Incompatible,
-                $"Its desktop part was built for desktop contract {contract}, but this Toucan implements {DesktopContract.Current}.");
+                contract.Major != DesktopContract.Current.Major
+                    ? $"Its desktop part was built for desktop contract {contract}, but this Toucan implements {DesktopContract.Current}. Ask the author for a build for desktop contract {DesktopContract.Current.Major}.x."
+                    : $"Its desktop part was built for desktop contract {contract}, which is newer than the {DesktopContract.Current} this Toucan implements. Update Toucan, or use an older version of the plugin. The rest of the plugin still works.");
 
         try
         {

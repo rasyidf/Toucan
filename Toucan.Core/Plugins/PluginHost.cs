@@ -75,10 +75,8 @@ public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? logger
             return new PluginLoadResult(folder, PluginStatus.Disabled, manifest);
         }
 
-        var apiVersion = manifest.ParsedApiVersion!;
-        if (!PluginApi.IsCompatible(apiVersion))
-            return Reject(log, folder, manifest, PluginStatus.Rejected,
-                $"Built for plugin API {apiVersion}, but this Toucan implements {PluginApi.Current}.");
+        if (PluginCompatibility.Check(manifest, options.HostVersion, options.Platform) is { } incompatible)
+            return Reject(log, folder, manifest, PluginStatus.Rejected, incompatible);
 
         string hash;
         try

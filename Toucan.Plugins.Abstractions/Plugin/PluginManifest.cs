@@ -24,6 +24,14 @@ public sealed record PluginManifest
     /// <summary>Plugin API version the plugin was built against, e.g. <c>1.0</c>.</summary>
     public string ApiVersion { get; init; } = string.Empty;
 
+    /// <summary>Oldest Toucan release the plugin supports, e.g. <c>0.23.0</c>. Optional; a host older than this does not load the plugin.</summary>
+    public string? MinHostVersion { get; init; }
+
+    /// <summary>
+    /// Operating systems the plugin runs on: any of <see cref="PluginPlatforms.All"/>. Optional; empty means all of them.
+    /// </summary>
+    public IReadOnlyList<string> Platforms { get; init; } = [];
+
     /// <summary>File name of the assembly containing the <see cref="IToucanPlugin"/>, relative to the plugin folder.</summary>
     public string EntryAssembly { get; init; } = string.Empty;
 
@@ -77,8 +85,16 @@ public sealed record PluginManifest
     [JsonIgnore]
     public Version? ParsedApiVersion => System.Version.TryParse(ApiVersion, out var v) ? v : null;
 
+    /// <summary>The manifest's <see cref="MinHostVersion"/> as a <see cref="System.Version"/>, or null when absent or malformed.</summary>
+    [JsonIgnore]
+    public Version? ParsedMinHostVersion => System.Version.TryParse(MinHostVersion, out var v) ? v : null;
+
     private IEnumerable<string> Validate()
     {
+        if (MinHostVersion is { } min && !System.Version.TryParse(min, out _)) yield return "'minHostVersion' must look like 0.23.0.";
+        foreach (var platform in (Platforms ?? []).Except(PluginPlatforms.All, StringComparer.OrdinalIgnoreCase))
+            yield return $"Unknown platform '{platform}'. Known: {string.Join(", ", PluginPlatforms.All)}.";
+
         if (string.IsNullOrWhiteSpace(Id)) yield return "'id' is required.";
         else if (!IsValidId(Id)) yield return $"'id' must use lowercase letters, digits, '.' and '-' only: '{Id}'.";
 
@@ -147,4 +163,18 @@ public static class PluginCapabilities
     public const string Desktop = "desktop";
 
     public static IReadOnlyList<string> All { get; } = [Formats, Providers, Validation, Frameworks, Activation, Commands, Desktop];
+}
+
+/// <summary>Operating systems a plugin can name in its manifest <c>platforms</c>.</summary>
+public static class PluginPlatforms
+{
+    public const string Windows = "windows";
+    public const string MacOS = "macos";
+    public const string Linux = "linux";
+
+    public static IReadOnlyList<string> All { get; } = [Windows, MacOS, Linux];
+
+    /// <summary>The platform this process runs on, or an empty string on one Toucan has no name for.</summary>
+    public static string Current =>
+        OperatingSystem.IsWindows() ? Windows : OperatingSystem.IsMacOS() ? MacOS : OperatingSystem.IsLinux() ? Linux : string.Empty;
 }

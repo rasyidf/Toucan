@@ -377,6 +377,31 @@ public sealed class PluginServicesTests : IDisposable
     }
 
     [Fact]
+    public async Task SettingsSavedByANewerPluginAreKeptAndReported()
+    {
+        var v2 = Create().PluginConfiguration;
+        v2.SetSchema(Schema(2, Field("mode", ConfigFieldType.Text)));
+        await v2.SetAsync("mode", "x");
+
+        var v1 = Create().PluginConfiguration;
+        v1.SetSchema(Schema(1, Field("mode", ConfigFieldType.Text)));
+        await v1.SetAsync("mode", "y");
+
+        Assert.Contains(_host.Diagnostics.Recent("acme.sync"), l => l.Message.Contains("newer version of this plugin", StringComparison.Ordinal));
+        var text = await File.ReadAllTextAsync(Path.Combine(Create().Storage.DataDirectory, "config.json"));
+        Assert.Contains("\"schemaVersion\": 2", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AMigrationThatCanNeverRunIsReportedToTheAuthor() =>
+        Assert.Throws<PluginRegistrationException>(() => Create().PluginConfiguration.SetSchema(new ConfigSchema
+        {
+            Version = 2,
+            Fields = [Field("a")],
+            Migrations = [new ConfigMigration(2, (_, _) => { })],
+        }));
+
+    [Fact]
     public async Task AnUnreadableSettingsFileIsResetNotFatal()
     {
         var services = Create();

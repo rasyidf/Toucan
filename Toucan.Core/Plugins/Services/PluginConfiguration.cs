@@ -91,7 +91,7 @@ internal sealed class PluginConfiguration(string pluginId, IPluginStorage storag
                     var bag = state.Bag(resolved, create: true)!;
                     if (value is null) bag.Remove(key);
                     else bag[key] = Normalize(field, value);
-                    json = state.Serialize((_schema?.Version) ?? state.Version);
+                    json = state.Serialize(Math.Max(_schema?.Version ?? 0, state.Version));
                 }
                 await storage.WriteTextAsync(FileName, json, cancellationToken).ConfigureAwait(false);
             }
@@ -121,6 +121,13 @@ internal sealed class PluginConfiguration(string pluginId, IPluginStorage storag
             // An unreadable file must not stop the plugin; start from defaults and say so where support can see it.
             diagnostics.Write(pluginId, DiagnosticLevel.Warning, $"Settings could not be read and were reset to defaults: {ex.Message}");
             state = new State(_schema?.Version ?? 1);
+        }
+
+        if (_schema is { } newer && state.Version > newer.Version)
+        {
+            // Saved by a newer build of the plugin. Keep the file as it is (the stamp below never goes backwards) and say so.
+            diagnostics.Write(pluginId, DiagnosticLevel.Warning,
+                $"Settings were saved by a newer version of this plugin (settings version {state.Version}; this one reads {newer.Version}). Values it cannot read fall back to their defaults.");
         }
 
         if (_schema is { } schema && state.Version < schema.Version)
@@ -268,6 +275,8 @@ internal sealed class PluginConfiguration(string pluginId, IPluginStorage storag
                 yield return $"The default of '{field.Key}' does not pass its own rules.";
         }
         if (schema.Migrations.GroupBy(m => m.FromVersion).Any(g => g.Count() > 1)) yield return "Two migrations start from the same version.";
+        foreach (var migration in schema.Migrations.Where(m => m.FromVersion < 1 || m.FromVersion >= schema.Version))
+            yield return $"The migration from version {migration.FromVersion} never runs: settings versions go from 1 up to {schema.Version}.";
     }
 
     // ─── file state ───
