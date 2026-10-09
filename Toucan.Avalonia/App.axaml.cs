@@ -301,6 +301,8 @@ public partial class App : Application
             sp.GetService<IDiagnosticsService>(),
             sp.GetService<IPluginCatalog>()));
         services.AddSingleton<MainWindowViewModel>();
+        // Plugins read and edit the open project through this (see IWorkspaceApi); it resolves the view model on first use.
+        services.AddSingleton<global::Toucan.Core.Plugins.IWorkspaceBackend>(sp => new WorkspaceBackend(sp.GetRequiredService<MainWindowViewModel>()));
         services.AddTransient<NewProjectViewModel>();
         services.AddTransient(sp => new AiSettingsViewModel(
             sp.GetRequiredService<IAiSettingsStore>(),

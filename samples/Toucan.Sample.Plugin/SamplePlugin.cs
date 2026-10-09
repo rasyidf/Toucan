@@ -22,6 +22,9 @@ public sealed class SamplePlugin : IToucanPlugin
         // Commands show up in the palette, the Extensions menu and the shortcut list. IDs start with the plugin ID.
         context.AddCommand(StampCommand.Definition, new StampCommand(context.Services));
 
+        // A command that changes the project through the workspace API: one edit, one undo step, like the user's own.
+        context.AddCommand(CopySourceCommand.Definition, new CopySourceCommand(context.Services));
+
         // Typed settings: the desktop app builds a form for them on the Plugins page of Settings, and stores them (outside the
         // plugin folder) with validation, defaults and migrations. Raise Version and add a ConfigMigration when a change would
         // misread values saved by an older version.

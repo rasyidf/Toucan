@@ -64,7 +64,7 @@ public sealed class SamplePluginTests : IDisposable
 
         var result = Assert.Single(sp.GetRequiredService<IPluginCatalog>().Plugins);
         Assert.Equal(PluginStatus.Loaded, result.Status);
-        Assert.Equal(["format:sample-tsv", "rule:sample.todo-marker", "command:sample.tsv.stamp"], result.Registered);
+        Assert.Equal(["format:sample-tsv", "rule:sample.todo-marker", "command:sample.tsv.stamp", "command:sample.tsv.copy-source"], result.Registered);
     }
 
     [Fact]

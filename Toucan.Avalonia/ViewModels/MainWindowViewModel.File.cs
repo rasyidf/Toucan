@@ -180,6 +180,7 @@ public partial class MainWindowViewModel
                     AppOptions.LastProjectPath = path;
                     _preferenceService.Save(AppOptions);
                     LoadFromStore(path);
+                    BumpWorkspaceRevision();
                     ShowStartScreen = false;
                     StatusText = $"Opened {ProjectName}";
                     if (result.Warnings is { Count: > 0 })
@@ -497,6 +498,7 @@ public partial class MainWindowViewModel
         PagedUpdates();
         StatusBarService.Instance.UpdateProjectName(Locales.Loc.T("No project"));
         RefreshRecentProjects();
+        BumpWorkspaceRevision();
     }
 
     [RelayCommand]

@@ -10,5 +10,8 @@ public enum ChangeType
     Suggestion,
 
     /// <summary>The item was modified as part of a change request workflow.</summary>
-    ChangeRequest
+    ChangeRequest,
+
+    /// <summary>The item was changed by a plugin through the workspace API (for example a connector pulling from a platform).</summary>
+    External
 }

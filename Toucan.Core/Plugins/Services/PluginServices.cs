@@ -11,8 +11,25 @@ namespace Toucan.Core.Plugins;
 internal sealed class PluginServicesBroker
 {
     private IServiceProvider? _provider;
+    private event Action? Attached;
 
-    public void Attach(IServiceProvider provider) => _provider = provider;
+    public bool IsAttached => _provider is not null;
+
+    public void Attach(IServiceProvider provider)
+    {
+        _provider = provider;
+        Attached?.Invoke();
+    }
+
+    /// <summary>Runs <paramref name="action"/> once the container is connected: now if it already is.</summary>
+    public void WhenAttached(Action action)
+    {
+        if (_provider is not null) action();
+        else Attached += action;
+    }
+
+    /// <summary>A service the host may or may not provide.</summary>
+    public T? TryGet<T>() where T : class => _provider?.GetService<T>();
 
     public T Require<T>() where T : notnull =>
         (_provider ?? throw new InvalidOperationException(
@@ -52,6 +69,7 @@ internal sealed class PluginServices : IPluginServices
         Notifier = new PluginNotifier(pluginId, host.Notifications);
         Operations = new PluginOperations(pluginId, host.Operations);
         Diagnostics = new PluginDiagnostics(pluginId, host.Diagnostics);
+        Workspace = new PluginWorkspaceApi(pluginId, host.Broker);
     }
 
     public IPluginStorage Storage { get; }
@@ -61,6 +79,7 @@ internal sealed class PluginServices : IPluginServices
     public IPluginNotifier Notifier { get; }
     public IBackgroundOperations Operations { get; }
     public IPluginDiagnostics Diagnostics { get; }
+    public IWorkspaceApi Workspace { get; }
 }
 
 internal sealed class PluginNotifier(string pluginId, INotificationCenter center) : IPluginNotifier

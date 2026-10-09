@@ -378,30 +378,41 @@ public partial class MainWindowViewModel
     private void Undo()
     {
         FlushPendingEdits();
-        if (_undoRedoService.Undo() is { } action) ApplyUndoRedo(action.Namespace, action.Language, action.OldValue);
+        // A step may hold several edits (a bulk operation); undo them last to first.
+        if (_undoRedoService.Undo() is { } step) ApplyUndoRedo(step.Reverse().Select(a => (a.Namespace, a.Language, a.OldValue)).ToList());
     }
 
     [RelayCommand]
     private void Redo()
     {
         FlushPendingEdits();
-        if (_undoRedoService.Redo() is { } action) ApplyUndoRedo(action.Namespace, action.Language, action.NewValue);
+        if (_undoRedoService.Redo() is { } step) ApplyUndoRedo(step.Select(a => (a.Namespace, a.Language, a.NewValue)).ToList());
     }
 
-    private void ApplyUndoRedo(string ns, string language, string value)
+    private void ApplyUndoRedo(IReadOnlyList<(string Namespace, string Language, string Value)> edits)
     {
-        var item = AllTranslation.FirstOrDefault(t => t.Namespace == ns && t.Language == language);
-        if (item == null) return;
-        _translationStore.NotifyValueChanged(item, value);
-        SessionDirtyKeys.Add(ns);
+        var restored = new List<TranslationItem>();
+        foreach (var (ns, language, value) in edits)
+        {
+            var item = AllTranslation.FirstOrDefault(t => t.Namespace == ns && t.Language == language);
+            if (item == null) continue;
+            _translationStore.NotifyValueChanged(item, value);
+            SessionDirtyKeys.Add(ns);
+            restored.Add(item);
+        }
+        if (restored.Count == 0) return;
+        var last = restored[^1];
+
         SessionDirtyCount = SessionDirtyKeys.Count;
         IsDirty = true;
+        BumpWorkspaceRevision();
 
-        var vm = PagingController.PageData.SelectMany(g => g.AllItems).FirstOrDefault(t => ReferenceEquals(t.Model, item));
-        if (vm != null) vm.Refresh();
-        else RevealKey(ns);
+        var changed = restored.ToHashSet();
+        var shown = PagingController.PageData.SelectMany(g => g.AllItems).ToList();
+        foreach (var vm in shown.Where(v => changed.Contains(v.Model))) vm.Refresh();
+        if (!shown.Any(v => ReferenceEquals(v.Model, last))) RevealKey(last.Namespace);
         UpdateSummaryInfo();
-        StatusText = $"{ns} [{language}] restored";
+        StatusText = restored.Count == 1 ? $"{last.Namespace} [{last.Language}] restored" : $"{restored.Count} edits restored";
     }
 
     // ───────────────────────── Text transforms ─────────────────────────

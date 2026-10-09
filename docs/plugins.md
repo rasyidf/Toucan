@@ -215,6 +215,7 @@ and views, after startup: during `Initialize` only register things (a service us
 | `Secrets` | Credentials in the encrypted secret store, scoped to the plugin and optionally a project or connection. Anything read or written is masked from then on. |
 | `Notifier` | `Notify(new PluginNotification { Title, Message, Severity, ActionCommandId, ActionLabel, Sticky })`: a toast in the desktop app (clicking it runs the action's command), a line on stderr in the CLI, and an entry in the notification history. |
 | `Operations` | `Start(new OperationOptions { Title }, async (ctx, ct) => …)`: runs in the background with progress (`ctx.Report(message, fraction)`) and a cancel button in the status bar. An exception ends it as failed and is reported, never thrown. Operations end when the project closes unless `CancelWithWorkspace` is false. |
+| `Workspace` | Read and change the open project (below). |
 | `Diagnostics` | `Redact(text)`, `Write(level, message)` for the report that **Help → Copy Diagnostics** builds, and `RegisterSecret(value)` for a token you received that did not come through `Secrets`. What `context.Logger` logs is masked too. |
 
 **Settings.** Describe them once with `context.SetConfiguration(new ConfigSchema { Version = 1, Fields = [...] })`. A field has a
@@ -231,6 +232,37 @@ that edits the old values in place (rename a key, convert a type). Toucan applie
 loads older settings and writes the result back. If a step is missing, values that no longer fit fall back to their defaults
 and the diagnostics say so. Mistakes in a schema (duplicate keys, a choice with no choices, a default that breaks its own
 rule) fail the plugin at load with a message that names the field.
+
+### Reading and changing the project: `Services.Workspace` (`IWorkspaceApi`)
+
+A plugin never gets Toucan's models or view models. It reads an immutable **snapshot** and sends back an **edit**.
+
+```csharp
+var snapshot = await services.Workspace.SnapshotAsync(ct);          // null when no project is open
+var edit = new WorkspaceEdit { Label = "Pulled 12 translations", BasedOnRevision = snapshot.Revision };
+edit.SetValue("home.title", "fr", "Accueil", expectedValue: snapshot.Find("home.title", "fr")!.Value);
+edit.SetReview("home.title", "fr", ReviewState.Approved);
+var result = await services.Workspace.ApplyAsync(edit, ct);        // result.Applied, .ChangedUnits, .Issues, .Findings
+```
+
+- **Snapshot.** Keys, languages and every translation's text, comment, review state and whether it has unsaved changes. It
+  includes what the user has typed but not yet committed, and it never changes afterwards. `Revision` goes up with every edit,
+  yours or the user's.
+- **Edit.** Steps run in order and later steps see earlier ones: `SetValue`, `SetComment`, `SetReview`, `AddKey`,
+  `RenameKey` (a key and everything below it) and `DeleteKey`. The edit is checked in full before anything is touched, and by
+  default it is **all or nothing**: one bad step refuses the whole edit and changes nothing. Set `AllowPartial` to apply the
+  good steps and have the rest reported in `Issues`. Each issue has a kind (`UnknownKey`, `UnknownLanguage`, `InvalidKey`,
+  `KeyExists`, `Conflict`, `Stale`, `ApprovalRefused`, `Empty`, `NoProject`) and the number of the step.
+- **Not clobbering the user.** `BasedOnRevision` refuses the edit when anything changed since the snapshot. `expectedValue` on
+  `SetValue` is narrower: only that translation must still have the text you saw.
+- **Behaves like a native edit.** The values of an edit are **one undo step**; they mark the project as having unsaved changes,
+  show in the open editor at once, are saved with the project, covered by autosave and offered back after a crash, and a failed
+  save leaves them unsaved. Approving obeys the project's strict-approval policy, judged on the project as the edit leaves it.
+  Adding, renaming and deleting keys are not undoable, exactly as in the editor.
+- **Validation never blocks.** After applying, validation runs and the findings for what you changed come back in
+  `result.Findings` (and appear in the Issues panel); they do not refuse or revert anything, just as they never stop a save.
+- Calls may come from any thread; the host applies them on the UI thread. In a host with no open project (the CLI today) the
+  workspace is simply never open.
 
 ### Desktop parts (UI)
 

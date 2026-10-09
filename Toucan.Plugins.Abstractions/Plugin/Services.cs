@@ -18,6 +18,9 @@ public interface IPluginServices
     IPluginNotifier Notifier { get; }
     IBackgroundOperations Operations { get; }
     IPluginDiagnostics Diagnostics { get; }
+
+    /// <summary>Read and change the open project. See <see cref="IWorkspaceApi"/>.</summary>
+    IWorkspaceApi Workspace { get; }
 }
 
 // ───────────────────────────── storage ─────────────────────────────

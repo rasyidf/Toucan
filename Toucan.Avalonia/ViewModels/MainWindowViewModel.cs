@@ -357,6 +357,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         SessionDirtyCount = SessionDirtyKeys.Count;
         _hasUntrackedChanges = true;
         IsDirty = true;
+        BumpWorkspaceRevision();
     }
 
     /// <summary>Records edits made directly on model objects (bulk operations, approvals, undo).</summary>
@@ -371,6 +372,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _hasUntrackedChanges = true;
         IsDirty = true;
         MarkDirtyGroups();
+        BumpWorkspaceRevision();
     }
 
     private void MarkDirtyGroups()
@@ -403,6 +405,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     {
         if (!string.IsNullOrEmpty(item.Namespace)) SessionDirtyKeys.Add(item.Namespace);
         SessionDirtyCount = SessionDirtyKeys.Count;
+        BumpWorkspaceRevision();
         if (!_translationStore.IsItemDirty(item.Model))
         {
             // Approval-only changes are invisible to the store's baselines.
