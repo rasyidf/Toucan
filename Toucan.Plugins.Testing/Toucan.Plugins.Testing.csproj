@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Test harness for plugin authors: runs a plugin's registration and activation, and gives it in-memory services and a
+    workspace, with no Toucan application and no UI. It references only the plugin contract, like a plugin does.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>13</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Toucan.Plugins.Testing</RootNamespace>
+
+    <IsPackable>true</IsPackable>
+    <PackageId>Toucan.Plugins.Testing</PackageId>
+    <Version>1.1.0</Version>
+    <Authors>rasyid.dev</Authors>
+    <Description>Test harness for Toucan plugins: registration and activation, in-memory host services and workspace, cancellation, and a check that a plugin runs without UI assemblies.</Description>
+    <PackageTags>toucan;i18n;localization;plugin;testing</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/rasyidf/Toucan</RepositoryUrl>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Toucan.Plugins.Abstractions\Toucan.Plugins.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
