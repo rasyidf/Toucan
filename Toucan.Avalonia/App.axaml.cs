@@ -303,7 +303,9 @@ public partial class App : Application
         services.AddTransient<ProviderSettingsViewModel>();
 
         overrides?.Invoke(services);
-        return services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
+        var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
+        provider.UsePluginServices();
+        return provider;
     }
 
     private void OnUnhandledException(object? sender, DispatcherUnhandledExceptionEventArgs e)

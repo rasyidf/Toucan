@@ -45,7 +45,15 @@ internal static class Program
         foreach (var id in s_allowedPlugins) options.AllowForThisRun.Add(id);
         services.AddToucanPlugins(options);
 
-        return services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
+        var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
+        provider.UsePluginServices();
+        // No UI here: what plugins notify goes to the error stream, so it never mixes with a command's output.
+        provider.GetRequiredService<INotificationCenter>().Notified += (_, e) =>
+        {
+            var n = e.Notification;
+            Console.Error.WriteLine($"[{n.Source}] {n.Content.Severity}: {n.Content.Title}{(string.IsNullOrEmpty(n.Content.Message) ? string.Empty : " - " + n.Content.Message)}");
+        };
+        return provider;
     });
 
     private static T Get<T>() where T : notnull => s_services.Value.GetRequiredService<T>();

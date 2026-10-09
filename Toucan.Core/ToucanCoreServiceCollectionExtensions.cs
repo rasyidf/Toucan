@@ -28,6 +28,10 @@ public static class ToucanCoreServiceCollectionExtensions
         services.AddToucanValidation();
         services.AddToucanAi();
 
+        // Defaults for hosts that never load plugins; AddToucanPlugins replaces them with the instances plugins were given.
+        services.TryAddSingleton<IDiagnosticsService, DiagnosticsService>();
+        services.TryAddSingleton<INotificationCenter>(sp => new NotificationCenter(sp.GetService<IDiagnosticsService>()));
+        services.TryAddSingleton<IBackgroundOperationService>(sp => new BackgroundOperationService(sp.GetService<IDiagnosticsService>()));
         services.TryAddSingleton<IPluginActivationService>(sp => new PluginActivationService(sp.GetServices<RegisteredActivator>(), sp.GetService<ILoggerFactory>()));
         services.TryAddSingleton<ICommandRegistry>(sp => new CommandRegistry(sp.GetService<IPluginActivationService>(),
             sp.GetServices<PluginCommandRegistration>(), sp.GetService<ILogger<CommandRegistry>>()));

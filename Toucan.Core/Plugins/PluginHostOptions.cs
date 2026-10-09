@@ -33,6 +33,11 @@ public sealed class PluginHostOptions
     /// </summary>
     public ISet<string> SharedAssemblyPrefixes { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Folder holding each plugin's own settings and files (one subfolder per plugin ID). Defaults to <c>Documents/Toucan/plugin-data</c>.</summary>
+    public string DataRoot { get; set; } = DefaultDataRoot();
+
+    public static string DefaultDataRoot() => Path.Combine(Toucan.Core.Services.UserDataFolder.Root, "Toucan", "plugin-data");
+
     /// <summary>Per-user plugin folder: <c>Documents/Toucan/plugins</c>, next to the app's other settings.</summary>
     public static string DefaultRoot() => Path.Combine(
         Toucan.Core.Services.UserDataFolder.Root, "Toucan", "plugins");

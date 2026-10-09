@@ -44,6 +44,9 @@ public static class SecretKeys
     public static string Provider(string provider, string field, string? projectPath = null) =>
         $"{ProviderScope(projectPath)}{Normalize(provider)}/{Normalize(field)}";
 
+    /// <summary><c>plugin/&lt;plugin&gt;/&lt;scope&gt;/&lt;name&gt;</c>: a plugin's secret. The scope is <c>app</c>, <c>ws-&lt;project id&gt;</c> or <c>conn-&lt;id&gt;</c>.</summary>
+    public static string Plugin(string pluginId, string scope, string name) => $"plugin/{Normalize(pluginId)}/{scope}/{Normalize(name)}";
+
     /// <summary>A short stable id for a project folder: the first 16 hex digits of the SHA-256 of its full path.</summary>
     public static string ProjectId(string projectPath)
     {

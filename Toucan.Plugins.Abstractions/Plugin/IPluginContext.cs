@@ -42,4 +42,16 @@ public interface IPluginContext
     /// definition's ID must start with the plugin ID and a dot.
     /// </summary>
     void AddCommand(CommandDefinition definition, ICommandHandler handler);
+
+    /// <summary>
+    /// Services for the plugin (settings, files, secrets, notifications, background work, diagnostics). Use them after startup,
+    /// from commands, activators and views; registration itself must not.
+    /// </summary>
+    IPluginServices Services { get; }
+
+    /// <summary>
+    /// Declares the plugin's settings: typed fields with defaults, validation, scopes and migrations. The desktop app shows a
+    /// form for them on the Plugins page. Call it once.
+    /// </summary>
+    void SetConfiguration(ConfigSchema schema);
 }

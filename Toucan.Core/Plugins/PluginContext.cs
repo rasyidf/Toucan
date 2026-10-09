@@ -43,13 +43,31 @@ internal sealed partial class PluginContext : IPluginContext
     private readonly HashSet<string> _activators = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _commandIds = new(StringComparer.Ordinal);
 
-    public PluginContext(PluginManifest manifest, string pluginDirectory, ILogger logger, ReservedIds reserved)
+    public PluginContext(PluginManifest manifest, string pluginDirectory, ILogger logger, ReservedIds reserved, PluginServices? services = null, IDiagnosticsService? diagnostics = null)
     {
         _manifest = manifest;
         _reserved = reserved;
         PluginDirectory = pluginDirectory;
-        Logger = logger;
+        // What a plugin logs is masked before it reaches any log, and is kept for the diagnostics report.
+        Logger = diagnostics is null ? logger : new RedactingLogger(logger, diagnostics, manifest.Id);
+        _services = services;
     }
+
+    private readonly PluginServices? _services;
+    private bool _configurationSet;
+
+    public IPluginServices Services => _services ?? throw new InvalidOperationException("Plugin services are not available in this host.");
+
+    public void SetConfiguration(ConfigSchema schema)
+    {
+        ArgumentNullException.ThrowIfNull(schema);
+        if (_services is null) throw new InvalidOperationException("Plugin services are not available in this host.");
+        if (_configurationSet) throw new PluginRegistrationException($"Plugin '{_manifest.Id}' set its configuration twice.");
+        _services.PluginConfiguration.SetSchema(schema);
+        _configurationSet = true;
+    }
+
+    internal PluginServices? ServicesInternal => _services;
 
     public Version HostApiVersion => PluginApi.Current;
     public string PluginId => _manifest.Id;
