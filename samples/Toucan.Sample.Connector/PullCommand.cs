@@ -19,9 +19,9 @@ public sealed class PullCommand(IPluginServices services, IRemoteSource remote, 
 
     public async Task ExecuteAsync(ICommandInvocation invocation, CancellationToken cancellationToken)
     {
-        var connection = sessions.First!;
+        var workspace = sessions.First!;
         invocation.Progress.Report(new CommandProgressInfo("Reading from the server", 0.1));
-        var units = await remote.PullAsync(connection, cancellationToken).ConfigureAwait(false);
+        var units = await remote.PullAsync(workspace, cancellationToken).ConfigureAwait(false);
         var snapshot = await services.Workspace.SnapshotAsync(cancellationToken).ConfigureAwait(false);
         if (snapshot is null) return;
 

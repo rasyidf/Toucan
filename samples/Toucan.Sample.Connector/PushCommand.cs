@@ -18,11 +18,11 @@ public sealed class PushCommand(IPluginServices services, IRemoteSource remote, 
 
     public async Task ExecuteAsync(ICommandInvocation invocation, CancellationToken cancellationToken)
     {
-        var connection = sessions.First!;
+        var workspace = sessions.First!;
         var snapshot = await services.Workspace.SnapshotAsync(cancellationToken).ConfigureAwait(false);
         if (snapshot is null) return;
 
-        var remoteUnits = (await remote.PullAsync(connection, cancellationToken).ConfigureAwait(false))
+        var remoteUnits = (await remote.PullAsync(workspace, cancellationToken).ConfigureAwait(false))
             .ToDictionary(u => (u.Key, u.Language));
         var modified = snapshot.Units.Where(u => u.IsModified && u.Value.Length > 0).ToList();
         int sent = 0, skipped = 0;
@@ -31,7 +31,7 @@ public sealed class PushCommand(IPluginServices services, IRemoteSource remote, 
             invocation.Progress.Report(new CommandProgressInfo($"Sending {i + 1} of {modified.Count}", (double)i / modified.Count));
             var u = modified[i];
             var known = remoteUnits.GetValueOrDefault((u.Key, u.Language));
-            if (await remote.PushAsync(connection, new RemoteUnit(u.Key, u.Language, u.Value, 0), known?.Revision ?? 0, cancellationToken).ConfigureAwait(false)) sent++;
+            if (await remote.PushAsync(workspace, new RemoteUnit(u.Key, u.Language, u.Value, 0), known?.Revision ?? 0, cancellationToken).ConfigureAwait(false)) sent++;
             else skipped++;
         }
 

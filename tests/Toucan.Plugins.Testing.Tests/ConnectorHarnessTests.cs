@@ -43,30 +43,30 @@ public sealed class ConnectorHarnessTests : IAsyncDisposable
         OpenProject();
         Assert.Equal(CommandAvailability.Disconnected, _host.StateOf("sample.connector.pull").Availability);
 
-        await _host.ActivateAsync(PluginLifetime.Connection, connectionId: "c1");
+        await _host.ActivateAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
         Assert.Equal(CommandAvailability.Available, _host.StateOf("sample.connector.pull").Availability);
     }
 
     [Fact]
-    public async Task ClosingTheConnectionDisconnectsAndClosingTheWorkspaceMakesCommandsUnavailable()
+    public async Task ClosingTheProjectEndsTheSessionAndMakesCommandsUnavailable()
     {
         OpenProject();
-        await _host.ActivateAsync(PluginLifetime.Connection, connectionId: "c1");
+        await _host.ActivateAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
+        Assert.Equal(1, _host.ActiveCount);
 
-        await _host.CloseAsync(PluginLifetime.Connection, connectionId: "c1");
-        Assert.Equal(CommandAvailability.Disconnected, _host.StateOf("sample.connector.push").Availability);
+        await _host.CloseAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
 
-        await _host.ActivateAsync(PluginLifetime.Connection, connectionId: "c1");
-        await _host.CloseAsync(PluginLifetime.Workspace);
+        Assert.Equal(0, _host.ActiveCount);
         Assert.Equal(CommandAvailability.Unavailable, _host.StateOf("sample.connector.push").Availability);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _host.RunAsync("sample.connector.push"));
     }
 
     [Fact]
     public async Task PullFillsTheProjectInOneEditAndReportsIt()
     {
         OpenProject();
-        _remote.Seed("c1", new RemoteUnit("app.save", "de", "Speichern", 1));
-        await _host.ActivateAsync(PluginLifetime.Connection, connectionId: "c1");
+        _remote.Seed("test-workspace", new RemoteUnit("app.save", "de", "Speichern", 1));
+        await _host.ActivateAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
 
         var progress = await _host.RunAsync("sample.connector.pull");
 
@@ -111,15 +111,15 @@ public sealed class ConnectorHarnessTests : IAsyncDisposable
     public async Task PushSendsModifiedValues()
     {
         OpenProject();
-        _remote.Seed("c1", new RemoteUnit("app.cancel", "de", "Abbruch", 5));
-        await _host.ActivateAsync(PluginLifetime.Connection, connectionId: "c1");
+        _remote.Seed("test-workspace", new RemoteUnit("app.cancel", "de", "Abbruch", 5));
+        await _host.ActivateAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
         _host.Services.InMemory.UserEdit("app.save", "de", "Speichern");
         _host.Services.InMemory.UserEdit("app.cancel", "de", "Abbrechen");
 
         await _host.RunAsync("sample.connector.push");
 
-        Assert.Equal("Speichern", _remote.Get("c1", "app.save", "de")!.Text);
-        Assert.Equal("Abbrechen", _remote.Get("c1", "app.cancel", "de")!.Text);
+        Assert.Equal("Speichern", _remote.Get("test-workspace", "app.save", "de")!.Text);
+        Assert.Equal("Abbrechen", _remote.Get("test-workspace", "app.cancel", "de")!.Text);
         Assert.Contains(_host.Services.Notifications.Items, n => n.Title == "Pushed");
     }
 
@@ -132,12 +132,12 @@ public sealed class ConnectorHarnessTests : IAsyncDisposable
         {
             ["app.save"] = new Dictionary<string, string> { ["en"] = "Save", ["de"] = "" },
         });
-        await host.ActivateAsync(PluginLifetime.Connection, connectionId: "c1");
+        await host.ActivateAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
         host.Services.InMemory.UserEdit("app.save", "de", "Speichern");
 
         await host.RunAsync("sample.connector.push");
 
-        Assert.Null(_remote.Get("c1", "app.save", "de"));
+        Assert.Null(_remote.Get("test-workspace", "app.save", "de"));
         Assert.Contains(host.Services.Notifications.Items, n => n.Title == "Pushed with skipped items" && n.Severity == NotificationSeverity.Warning);
     }
 

@@ -3,8 +3,8 @@ using Toucan.Plugins;
 namespace Toucan.Sample.Connector;
 
 /// <summary>
-/// Registers settings, a per-connection activator and the Pull and Push commands. Registration touches no network:
-/// the session is opened when a connection is activated, and closed when its scope is cancelled.
+/// Registers settings, a per-project activator and the Pull and Push commands. Registration touches no network:
+/// the session is opened when a project is activated, and closed when its scope is cancelled.
 /// </summary>
 public sealed class ConnectorPlugin : IToucanPlugin
 {
@@ -25,7 +25,7 @@ public sealed class ConnectorPlugin : IToucanPlugin
             [
                 new ConfigField { Key = "serverUrl", Label = "Server address", Type = ConfigFieldType.Url, Scope = ConfigScope.Connection, Required = true },
                 new ConfigField { Key = "apiToken", Label = "API token", Type = ConfigFieldType.Secret, Scope = ConfigScope.Connection, Required = true },
-                new ConfigField { Key = "connectionId", Label = "Connection name", Scope = ConfigScope.Workspace, Default = "default", Pattern = "^[a-z0-9-]+$" },
+                new ConfigField { Key = "workspaceId", Label = "Connection name", Scope = ConfigScope.Workspace, Default = "default", Pattern = "^[a-z0-9-]+$" },
             ],
         });
 
@@ -36,11 +36,11 @@ public sealed class ConnectorPlugin : IToucanPlugin
     }
 }
 
-/// <summary>The connections that are open now.</summary>
+/// <summary>The projects that have a session open now.</summary>
 public sealed class ConnectorSessions
 {
     private readonly HashSet<string> _open = [];
-    public bool IsOpen(string connectionId) { lock (_open) return _open.Contains(connectionId); }
+    public bool IsOpen(string workspaceId) { lock (_open) return _open.Contains(workspaceId); }
     public bool AnyOpen { get { lock (_open) return _open.Count > 0; } }
     internal void Open(string id) { lock (_open) _open.Add(id); }
     internal void Close(string id) { lock (_open) _open.Remove(id); }
@@ -49,11 +49,11 @@ public sealed class ConnectorSessions
 
 internal sealed class SessionActivator(ConnectorSessions sessions) : IPluginActivator
 {
-    public PluginLifetime Lifetime => PluginLifetime.Connection;
+    public PluginLifetime Lifetime => PluginLifetime.Workspace;
 
     public Task<IAsyncDisposable?> ActivateAsync(IPluginActivationContext context, CancellationToken cancellationToken)
     {
-        var id = context.ConnectionId ?? throw new InvalidOperationException("A connection activator needs a connection.");
+        var id = context.WorkspaceId ?? throw new InvalidOperationException("A workspace activator needs a workspace.");
         sessions.Open(id);
         return Task.FromResult<IAsyncDisposable?>(new Session(sessions, id));
     }
