@@ -81,7 +81,7 @@
         <div class="kicker">Documentation</div>
         <h1>Toucan roadmap: v0.21 to v1.0</h1>
         <p class="lead">Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.</p>
-        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-10-09</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
+        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-10-11</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <blockquote><p>Current release: <strong>v0.22.0</strong> on Windows, macOS and Linux. Every build before v1.0 is a preview.</p></blockquote>
@@ -94,15 +94,15 @@
 <h2 id="release-overview"><a class="anchor" href="#release-overview" aria-label="Link to this section">#</a>Release overview</h2>
 <div class="table-wrap"><table><thead><tr><th>Release</th><th>Main outcome</th><th>Depends on</th></tr></thead><tbody><tr><td>v0.21</td><td>File fidelity and automated regression checks</td><td>v0.20</td></tr><tr><td>v0.22</td><td>Recoverable saves and durable drafts</td><td>v0.21</td></tr><tr><td>v0.23</td><td>Extension platform: lifecycle, commands, desktop contributions, host services</td><td>v0.22</td></tr><tr><td>v0.24</td><td>Comfortable editing and onboarding</td><td>v0.23</td></tr><tr><td>v0.25</td><td>Glossary and message-aware validation</td><td>v0.24</td></tr><tr><td>v0.26</td><td>Review state that follows source changes</td><td>v0.25</td></tr><tr><td>v0.27</td><td>Content-source contracts and local snapshots</td><td>v0.23, v0.26</td></tr><tr><td>v0.28</td><td>CRUD persistence and synchronization engine</td><td>v0.27</td></tr><tr><td>v0.29</td><td>One complete online-source integration</td><td>v0.28</td></tr><tr><td>v0.30</td><td>Repeatable distribution and update notifications</td><td>CI from v0.21</td></tr><tr><td>v0.31</td><td>Measured performance, migration checks, release candidate</td><td>v0.21–v0.30</td></tr><tr><td>v1.0</td><td>First stable release after all release gates pass</td><td>v0.31</td></tr></tbody></table></div>
 <h3 id="v021-file-fidelity-and-ci"><a class="anchor" href="#v021-file-fidelity-and-ci" aria-label="Link to this section">#</a>v0.21: File fidelity and CI</h3>
-<p><strong>Outcome:</strong> supported formats can be edited without losing information, with automated protection against regressions. <strong>References:</strong> REL-01 in <a href="known-bugs.html">known issues</a>.</p>
-<ul class="tasks">
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Confirm the CI workflow (<code>.github/workflows/ci.yml</code>: build, Core and Avalonia tests with coverage reports on Windows, macOS and Linux) passes on its first pull request, then make it a required check. Coverage stays a report, not a release criterion.</li>
-</ul>
+<p><strong>Outcome:</strong> supported formats can be edited without losing information, with automated protection against regressions.</p>
+<p><strong>Status:</strong> complete. The cross-platform CI workflow is fixed and finalized; no CI work remains open. Coverage stays a report, not a release criterion.</p>
 <p><strong>Completion gate:</strong> every format advertised as editable passes its documented fidelity fixtures, and CI catches the known regression cases.</p>
 <h3 id="v022-safe-saves-and-recovery"><a class="anchor" href="#v022-safe-saves-and-recovery" aria-label="Link to this section">#</a>v0.22: Safe saves and recovery</h3>
 <p><strong>Outcome:</strong> users can preserve incomplete work and recover from interrupted persistence.</p>
 <p><strong>Completion gate:</strong> failure scenarios preserve a recoverable copy and never report unsaved work as saved.</p>
 <h3 id="v023-extension-platform"><a class="anchor" href="#v023-extension-platform" aria-label="Link to this section">#</a>v0.23: Extension platform</h3>
+<p>This is intentionally a major platform milestone. The full scope below belongs to v0.23; implementation can proceed in stages within the milestone, with the completion gate covering the integrated result.</p>
+<p><strong>Progress:</strong> all eight implementation steps are recorded on <code>release/v0.23.0</code>; integrated release acceptance remains pending. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/v0.23-progress.md">v0.23 progress and remaining verification</a> and the <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/extension-platform/tasks.md">implementation task record</a>.</p>
 <p><strong>Outcome:</strong> a connector can be built, installed, configured, and used without modifying Toucan's application code, so an optional commercial edition can ship as separate packages on the public SDK. Plugins today extend formats, translation providers, validation rules, and framework detection; this release extends the user workflow. Restart stays required for installing and updating plugins.</p>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Separate registration from activation: register capabilities without network access, activate per project or connection, give each connection its own session, cancel and dispose on project close, and report activation failures separately from registration failures. Keep application, workspace, connection, and panel lifetimes explicit.</li>

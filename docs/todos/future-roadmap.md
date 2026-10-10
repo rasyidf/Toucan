@@ -1,8 +1,8 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "58 release tasks; 6 stable gates; 27 deferred tasks"
-updated: 2026-10-09
+progress: "57 release tasks; 6 stable gates; 27 deferred tasks"
+updated: 2026-10-11
 summary: "Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization."
 ---
 # Toucan roadmap: v0.21 to v1.0
@@ -40,9 +40,9 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 ### v0.21: File fidelity and CI
 
-**Outcome:** supported formats can be edited without losing information, with automated protection against regressions. **References:** REL-01 in [known issues](../known-bugs.md).
+**Outcome:** supported formats can be edited without losing information, with automated protection against regressions.
 
-- [ ] Confirm the CI workflow (`.github/workflows/ci.yml`: build, Core and Avalonia tests with coverage reports on Windows, macOS and Linux) passes on its first pull request, then make it a required check. Coverage stays a report, not a release criterion.
+**Status:** complete. The cross-platform CI workflow is fixed and finalized; no CI work remains open. Coverage stays a report, not a release criterion.
 
 **Completion gate:** every format advertised as editable passes its documented fidelity fixtures, and CI catches the known regression cases.
 
@@ -53,6 +53,10 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 **Completion gate:** failure scenarios preserve a recoverable copy and never report unsaved work as saved.
 
 ### v0.23: Extension platform
+
+This is intentionally a major platform milestone. The full scope below belongs to v0.23; implementation can proceed in stages within the milestone, with the completion gate covering the integrated result.
+
+**Progress:** all eight implementation steps are recorded on `release/v0.23.0`; integrated release acceptance remains pending. See [v0.23 progress and remaining verification](v0.23-progress.md) and the [implementation task record](../specs/extension-platform/tasks.md).
 
 **Outcome:** a connector can be built, installed, configured, and used without modifying Toucan's application code, so an optional commercial edition can ship as separate packages on the public SDK. Plugins today extend formats, translation providers, validation rules, and framework detection; this release extends the user workflow. Restart stays required for installing and updating plugins.
 

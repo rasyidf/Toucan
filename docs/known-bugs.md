@@ -1,7 +1,7 @@
 ---
 title: "Known Issues & Unfinished Features"
 status: active
-updated: 2026-10-09
+updated: 2026-10-11
 summary: "Open issues for v0.22.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
 ---
 # Known Issues & Unfinished Features
@@ -16,7 +16,7 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 
 | ID | Severity | Area | Problem | Checked |
 |----|----------|------|---------|---------|
-| [REL-01](#rel-01) | Medium | Release | No release pipeline; every release is built by hand (CI for pull requests exists) | Reproduced |
+| [REL-01](#rel-01) | Medium | Release | No release pipeline; every release is built by hand (cross-platform CI is finalized) | Reproduced |
 | [REL-02](#rel-02) | Medium | Release | macOS app is ad-hoc signed and not notarized | From docs and script |
 | [REL-03](#rel-03) | Low | Release | Update check is manual only: no check on startup, no download or install | From code |
 | [REL-04](#rel-04) | Low | Release | Windows ships as a portable zip; no installer or MSIX in releases | From docs |
@@ -41,12 +41,12 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 ## Release and distribution
 
 <a id="rel-01"></a>
-### REL-01 — No CI or release pipeline
+### REL-01 — No automated release pipeline
 
-- **Severity:** Medium · **Checked:** `.github/workflows/ci.yml` builds and tests on Windows, macOS and Linux for pull requests and pushes. There is no release workflow.
+- **Severity:** Medium · **Checked:** `.github/workflows/ci.yml` builds and tests on Windows, macOS and Linux for pull requests and pushes. CI is fixed and finalized. There is no release workflow.
 - **State:** release builds come from `publish.ps1`, `packaging/build-macos-app.sh` and `dotnet publish` run by hand. v0.18.0 Linux tarballs were made by hand too. 
-- **Impact:** no gate on regressions, and releases are only as reproducible as one machine.
-- **Fix direction:** FG-01 and FG-16 in [docs/todos/future-roadmap.md](todos/future-roadmap.md): a PR workflow (build and test on macOS, Linux, Windows with `Toucan.CrossPlatform.slnx`) first, then a tag-triggered release workflow that builds all packages and attaches them to the GitHub release.
+- **Impact:** CI protects against regressions, but release artifacts are still built manually and depend on the build machine.
+- **Fix direction:** FG-01 and FG-16 in [docs/todos/future-roadmap.md](todos/future-roadmap.md): CI is complete; the remaining work is the v0.30 tag-triggered release workflow that builds all packages and attaches them to the GitHub release.
 
 <a id="rel-02"></a>
 ### REL-02 — macOS app is not notarized
