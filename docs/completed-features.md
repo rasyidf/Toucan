@@ -1,12 +1,12 @@
 ---
 title: "Shipped Features"
 status: active
-updated: 2026-10-09
-summary: "Checklist of shipped features as of v0.22.0 (AI Integration added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md."
+updated: 2026-10-13
+summary: "Checklist of shipped features as of v0.23.0 (extension platform added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md."
 ---
 # Shipped Features
 
-> As of v0.22.0 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
+> As of v0.23.0 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
 > open work is in [todos/future-roadmap.md](todos/future-roadmap.md) and open bugs in [known-bugs.md](known-bugs.md).
 > This file lists shipped features only: when something ships, add it here and delete it from the roadmap.
 > Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform. Lines marked (WPF) shipped
@@ -111,7 +111,7 @@ summary: "Checklist of shipped features as of v0.22.0 (AI Integration added), gr
 - [x] Auto-open last project on startup
 - [x] Reveal in Explorer
 - [x] Centralized KeybindingService (22+ shortcuts)
-- [x] Keyboard Shortcuts page in Settings (reference only, not editable yet)
+- [x] Keyboard Shortcuts page in Settings (reassign shortcuts with conflict detection; reset to default)
 - [x] Settings dialog with 12 pages and two-tier settings (app defaults, per-project overrides)
 - [x] Filter: untranslated / translated / approved
 - [x] Status bar (project, language, cursor, loading, notifications)
@@ -171,8 +171,19 @@ summary: "Checklist of shipped features as of v0.22.0 (AI Integration added), gr
 
 - [x] Plugins add file formats, translation providers, validation rules, and framework profiles from `.dll` assemblies
 - [x] Trust model: a plugin loads only when enabled and trusted (SHA-256 of its files)
-- [x] `Toucan.Plugins.Abstractions` contract package (plugin API 1.0) and a sample plugin
+- [x] `Toucan.Plugins.Abstractions` contract package (plugin API 1.1) and a sample plugin
 - [x] Built-in formats, providers, rules and profiles load as compiled-in modules, listed in Settings → Plugins and `toucan plugins list`
+
+### Extension platform (since v0.23.0)
+
+- [x] Registration separated from activation: a plugin registers capabilities without network access, then activates per application, workspace or connection with its own session, cancelled and disposed when the project closes; activation failures are reported separately from registration failures
+- [x] Command registry with stable IDs, localizable titles and categories, availability states (hidden / unavailable / disconnected / unlicensed), async execution with cancellation and progress, and palette, menu, toolbar and context-menu placements; built-in commands, menus, shortcuts and the chrome buttons all read from it
+- [x] User-reassignable shortcuts with conflict detection, replacing the former static keybinding table
+- [x] Desktop contribution package (`Toucan.Plugins.Avalonia`, contract 1.0) for side panels, panel toolbars, settings pages, dialogs, inspector sections and editor actions, loaded only by the desktop app so the CLI never loads UI assemblies; the built-in panels register through the same path
+- [x] Host services for plugins: scoped settings and writable storage outside the trusted plugin folder, connection secret references, background operations with progress, notifications, redacted diagnostics, and typed configuration fields with validation, defaults, scopes and schema migrations (in-process plugins are not sandboxed)
+- [x] Workspace API: readable snapshots and all-or-nothing edit transactions for values, comments, review state and keys, routed through normal undo (one step), dirty tracking, validation and persistence
+- [x] Compatibility checks before any plugin code loads: plugin API version, `minHostVersion`, desktop-contract version and platform support, each with an actionable message
+- [x] `Toucan.Plugins.Testing` SDK harness (registration, activation, workspace edits, cancellation, CLI-without-desktop check) and a sample REST connector built outside the repository from the published SDK packages only
 
 ## Command Line
 

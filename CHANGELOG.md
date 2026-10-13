@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-10-13
+
 Extension platform: a connector can be built, installed, configured and used without changing Toucan.
 
 ### Added
@@ -12,6 +14,9 @@ Extension platform: a connector can be built, installed, configured and used wit
 ### Changed
 - **Toolbar buttons use the command registry** — Save, the command palette, the Editor/Review/Audit tabs, the panel toggles and Settings now run the same registered commands as the menus and shortcuts, so they follow reassigned shortcuts and command availability.
 - The `Toucan.Plugins.Abstractions` package is version 1.1.0 to match plugin API 1.1.
+
+### Fixed
+- **Keyboard shortcuts can be reassigned** — Settings → Shortcuts now edits shortcuts with conflict detection and a reset to default, and the overrides are stored per user. Previously the page only listed the fixed shortcuts.
 
 ## [0.22.0] - 2026-10-09
 

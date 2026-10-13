@@ -1,12 +1,12 @@
 ---
 title: "Known Issues & Unfinished Features"
 status: active
-updated: 2026-10-11
-summary: "Open issues for v0.22.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
+updated: 2026-10-13
+summary: "Open issues for v0.23.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
 ---
 # Known Issues & Unfinished Features
 
-Current release: **v0.22.0** (preview). Last audited **2026-10-09** against the code on `release/v0.22.0`.
+Current release: **v0.23.0** (preview). Last audited **2026-10-13** against the code on `release/v0.23.0`.
 
 This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [CHANGELOG.md](../CHANGELOG.md) (see [Where the old fixes went](#where-the-old-fixes-went)). When a bug is fixed, delete its row and section here and add a `### Fixed` line to the changelog `[Unreleased]` section. Planned work for an ID is linked from [the roadmap](todos/future-roadmap.md) (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from `main` (source: branch `legacy/wpf`), so nothing here is about WPF.
 
@@ -21,7 +21,6 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [REL-03](#rel-03) | Low | Release | Update check is manual only: no check on startup, no download or install | From code |
 | [REL-04](#rel-04) | Low | Release | Windows ships as a portable zip; no installer or MSIX in releases | From docs |
 | [APP-01](#app-01) | Low | App | Source Control and Dictionary panels do not exist | Reproduced |
-| [APP-02](#app-02) | Low | App | Keyboard shortcuts cannot be changed | Reproduced |
 | [APP-03](#app-03) | Low | App | No notification history; the status-bar badge only shows a count of empty translations | Reproduced |
 | [APP-04](#app-04) | Low | App | Bulk operations (copy to language, replace all, pre-translate, move, delete) cannot be undone | From code |
 | [QA-02](#qa-02) | Info | Perf | Large-project performance has never been profiled | Not checked |
@@ -80,12 +79,6 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 - **Severity:** Low · **Checked:** `App.RegisterSidePanels` registers Explorer, Search, Issues, Source Code, Languages, Inspector, Translation, Memory. No panel for Git or glossary.
 - **Correction:** the old text also listed "Translation" as missing. It exists (`machine-translation`, titled Translation).
 - **Plan:** Git integration is FG-06 (v0.23), the glossary is FG-15 (v0.21).
-
-<a id="app-02"></a>
-### APP-02 — Shortcuts cannot be changed
-
-- **Severity:** Low · **Checked:** Settings → Shortcuts lists `KeybindingService.GetDefinitions()` with no edit control and nothing is stored.
-- **Fix direction:** per-user overrides in `settings.json`, a conflict check, a reset button, and the command palette showing the active shortcut (it already reads the definitions).
 
 <a id="app-03"></a>
 ### APP-03 — No notification history
