@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The desktop part of the sample plugin: a panel, an inspector section, a settings section, a dialog and a key action.
+    It lives in its own assembly so the CLI, which has no UI, never loads Avalonia. plugin.json names it under "desktop".
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>Toucan.Sample.Plugin.Desktop</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Outside this repository, reference the NuGet packages instead:
+        <PackageReference Include="Toucan.Plugins.Avalonia" Version="1.0.0" ExcludeAssets="runtime" />
+        <PackageReference Include="Avalonia" Version="12.0.5" ExcludeAssets="runtime" />
+      Toucan supplies Avalonia and both contract assemblies at run time; copying them next to the plugin would make its
+      controls different types from Toucan's.
+    -->
+    <ProjectReference Include="..\..\Toucan.Plugins.Avalonia\Toucan.Plugins.Avalonia.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <PackageReference Include="Avalonia" Version="12.0.5" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+</Project>

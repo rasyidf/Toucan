@@ -59,7 +59,8 @@ internal sealed class TestHost : IDisposable
         },
         // Never read or write the real Documents/Toucan plugin folder or trust file from tests.
         pluginRoot: Path.Combine(Root, "plugins"),
-        pluginPolicyPath: Path.Combine(Root, "plugin-policy.json"));
+        pluginPolicyPath: Path.Combine(Root, "plugin-policy.json"),
+        pluginDataRoot: Path.Combine(Root, "plugin-data"));
     }
 
     public string Root { get; }

@@ -56,8 +56,20 @@ public partial class MainWindow : Window
 
         MainMenu.Attach(this, _vm, MenuHost);
         Palette.CommandSource = () => MainMenu.PaletteCommands(this, _vm);
-        PaletteShortcut.Text = KeybindingService.GestureFor("Command Palette")?.ToString("p", null);
+        Palette.AnchorSource = () => PalettePill.TranslatePoint(default, Palette) is { } origin ? new Rect(origin, PalettePill.Bounds.Size) : null;
         KeybindingService.Apply(this, _vm, MainMenu.NativeGestures);
+        BindChromeCommands();
+        // After Apply: the built-in commands are registered there, so the shortcut can be looked up.
+        PaletteShortcut.Text = KeybindingService.GestureFor("Command Palette")?.ToString("p", null);
+        // A reassigned shortcut takes effect at once. Posted after the menu's own rebuild, which decides the native gestures.
+        void OnShortcutsChanged(object? sender, global::Toucan.Core.Commands.ShortcutChangedEventArgs e) => global::Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            PaletteShortcut.Text = KeybindingService.GestureFor("Command Palette")?.ToString("p", null);
+            KeybindingService.Refresh(this, MainMenu.NativeGestures);
+        });
+        var shortcutRegistry = KeybindingService.Registry;
+        shortcutRegistry.ShortcutsChanged += OnShortcutsChanged;
+        Closed += (_, _) => shortcutRegistry.ShortcutsChanged -= OnShortcutsChanged;
         AddHandler(KeyDownEvent, (_, e) => KeybindingService.HandleZenKeys(this, e, _vm), RoutingStrategies.Tunnel);
 
         _vm.FocusSearchRequested += (_, _) => Editor.FocusFilter();
@@ -73,6 +85,23 @@ public partial class MainWindow : Window
         });
         _vm.FullscreenRequested += (_, _) =>
             WindowState = WindowState == WindowState.FullScreen ? WindowState.Normal : WindowState.FullScreen;
+    }
+
+    // The chrome's buttons run the same registry commands as the menu, the palette and the shortcuts, so they follow a reassigned
+    // shortcut, a plugin's disabling of a command and the command's own availability, and a plugin can never be offered less.
+    private void BindChromeCommands()
+    {
+        var registry = KeybindingService.Registry;
+        void Bind(Button button, string category, string action) =>
+            button.Command = RegistryCommand.For(registry, BuiltInCommands.IdFor(category, action));
+        Bind(SaveStateButton, "File", "Save");
+        Bind(PalettePill, "View", "Command Palette");
+        Bind(ModeEditor, "View", "Editor Mode");
+        Bind(ModeReview, "View", "Review Mode");
+        Bind(ModeAudit, "View", "Audit Mode");
+        Bind(ToggleLeftButton, "View", "Toggle Left Panel");
+        Bind(ToggleRightButton, "View", "Toggle Right Panel");
+        Bind(RailSettings, "Settings", "Preferences");
     }
 
     /// <summary>
@@ -222,19 +251,8 @@ public partial class MainWindow : Window
     private Control GetPanel(string id)
     {
         if (_panelCache.TryGetValue(id, out var cached)) return cached;
-        Control panel = id switch
-        {
-            "explorer" => new ExplorerPanel(),
-            "search" => new SearchPanel(),
-            "issues" => new IssuesPanel(),
-            "source-code" => new SourceCodePanel(),
-            "languages" => new LanguagesPanel(),
-            "inspector" => new InspectorPanel(),
-            "machine-translation" => new MachineTranslationPanel(),
-            "translation-memory" => new TranslationMemoryPanel(),
-            _ => new TextBlock { Text = "Unknown panel", Margin = new global::Avalonia.Thickness(12) }
-        };
-        panel.DataContext = _vm;
+        var panel = DesktopContributions.Instance.CreatePanel(id, _vm)
+                    ?? new TextBlock { Text = Loc.T("This panel is not available."), Margin = new global::Avalonia.Thickness(12) };
         _panelCache[id] = panel;
         return panel;
     }
@@ -244,27 +262,9 @@ public partial class MainWindow : Window
         CaptureSlotWidths();
         if (id == null) return;
         LeftPanelTitle.Text = SidePanelRegistry.Instance.ActiveLeftPanel?.Title.ToUpperInvariant() ?? string.Empty;
+        DesktopContributions.Instance.PanelShown(id, _vm);
         LeftPanelContent.Content = GetPanel(id);
-        FillActions(LeftPanelActions, id switch
-        {
-            "explorer" =>
-            [
-                (FASymbol.Add, "Add translation key", _vm.NewItemCommand),
-                (FASymbol.List, "Toggle tree / list", _vm.ToggleViewModeCommand),
-            ],
-            "search" => [(FASymbol.Clear, "Clear search history", _vm.ClearSearchHistoryCommand)],
-            "issues" =>
-            [
-                (FASymbol.Refresh, "Run validation", _vm.RunValidationCommand),
-                (FASymbol.Clear, "Dismiss all", _vm.DismissAllIssuesCommand),
-            ],
-            "source-code" =>
-            [
-                (FASymbol.Sync, "Scan source code", _vm.ScanSourceCodeCommand),
-                (FASymbol.OpenFolder, "Choose source folder", _vm.SelectSourceRootCommand),
-            ],
-            _ => []
-        });
+        FillActions(LeftPanelActions, DesktopContributions.Instance.PanelActions(id, _vm));
     }
 
     private void ShowRightPanel(string? id)
@@ -272,38 +272,19 @@ public partial class MainWindow : Window
         CaptureSlotWidths();
         if (id == null) return;
         RightPanelTitle.Text = SidePanelRegistry.Instance.ActiveRightPanel?.Title.ToUpperInvariant() ?? string.Empty;
-        if (id == "machine-translation") _vm.RefreshProviderChoices();
+        DesktopContributions.Instance.PanelShown(id, _vm);
         RightPanelContent.Content = GetPanel(id);
-        FillActions(RightPanelActions, id switch
-        {
-            "languages" =>
-            [
-                (FASymbol.Add, "Add language", _vm.NewLanguageCommand),
-                (FASymbol.Setting, "Manage languages", _vm.ManageLanguagesCommand),
-            ],
-            "inspector" => [(FASymbol.Character, "Translate selected key", _vm.TranslateSelectedKeyCommand)],
-            "machine-translation" =>
-            [
-                (FASymbol.Character, "Translate selected key", _vm.TranslateSelectedKeyCommand),
-                (FASymbol.Setting, "Provider settings", _vm.OpenProviderSettingsCommand),
-            ],
-            "translation-memory" =>
-            [
-                (FASymbol.Import, "Import TMX", _vm.ImportTmxCommand),
-                (FASymbol.SaveAs, "Export TMX", _vm.ExportTmxCommand),
-                (FASymbol.Delete, "Clear translation memory", _vm.ClearTmCommand),
-            ],
-            _ => []
-        });
+        FillActions(RightPanelActions, DesktopContributions.Instance.PanelActions(id, _vm));
     }
 
-    private static void FillActions(StackPanel host, (FASymbol Icon, string Tip, ICommand Command)[] actions)
+    private static void FillActions(StackPanel host, IReadOnlyList<PanelActionItem> actions)
     {
         host.Children.Clear();
-        foreach (var (icon, tip, command) in actions)
+        foreach (var action in actions)
         {
-            var button = new Button { Classes = { "icon", "small" }, Command = command, Content = new FASymbolIcon { Symbol = icon } };
-            ToolTip.SetTip(button, Loc.T(tip));
+            var button = new Button { Classes = { "icon", "small" }, Command = action.Command, Content = new FASymbolIcon { Symbol = action.Icon } };
+            ToolTip.SetTip(button, Loc.T(action.ToolTip));
+            global::Avalonia.Automation.AutomationProperties.SetName(button, Loc.T(action.ToolTip));
             host.Children.Add(button);
         }
     }

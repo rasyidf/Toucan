@@ -45,7 +45,7 @@ public sealed class SaveRecoveryTests : IDisposable
         public required IFileWatcherService Watcher { get; init; }
     }
 
-    private async Task<Session> OpenAsync(UnsavedChangesChoice onClose = UnsavedChangesChoice.Save, bool mergeExternalChanges = false)
+    private async Task<Session> OpenAsync(UnsavedChangesChoice onClose = UnsavedChangesChoice.Save, bool mergeExternalChanges = false, Toucan.Core.Plugins.IPluginActivationService? activation = null)
     {
         var store = new TranslationManagementService(Substitute.For<IUndoRedoService>());
         var projects = new ProjectService(new FileService(NullLogger<FileService>.Instance), FormatTestHost.SaveStrategies, FormatTestHost.Factory,
@@ -62,10 +62,26 @@ public sealed class SaveRecoveryTests : IDisposable
             mergeExternalChanges ? new DiffMergeEngine() : Substitute.For<IDiffMergeEngine>(), Substitute.For<IAuditService>(), Substitute.For<IRecentProjectService>(),
             new CommentPersistenceService(NullLogger<CommentPersistenceService>.Instance, FormatTestHost.Factory),
             new LanguageManagementService(store, projects, watcher, NullLogger<LanguageManagementService>.Instance),
-            unsaved, external, NullLogger<ProjectLifecycleService>.Instance, drafts);
+            unsaved, external, NullLogger<ProjectLifecycleService>.Instance, drafts, activation);
         var session = new Session { Lifecycle = lifecycle, Store = store, Drafts = drafts, Watcher = watcher };
         Assert.Equal(ProjectOpenStatus.Success, (await lifecycle.OpenProjectAsync(_project)).Status);
         return session;
+    }
+
+    [Fact]
+    public async Task PluginsActivateWhenTheProjectOpensAndEndWhenItCloses()
+    {
+        var activation = Substitute.For<Toucan.Core.Plugins.IPluginActivationService>();
+        activation.OpenWorkspaceAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult<IReadOnlyList<Toucan.Core.Plugins.ActivationResult>>([]));
+        var s = await OpenAsync(UnsavedChangesChoice.Discard, activation: activation);
+
+        await activation.Received(1).OpenWorkspaceAsync(s.Lifecycle.CurrentProject!.ProjectPath, Arg.Any<CancellationToken>());
+        await activation.DidNotReceive().CloseWorkspaceAsync(Arg.Any<string>());
+
+        var path = s.Lifecycle.CurrentProject.ProjectPath;
+        await s.Lifecycle.CloseProjectAsync();
+
+        await activation.Received(1).CloseWorkspaceAsync(path);
     }
 
     private static TranslationItem Item(Session s, string language, string key) =>

@@ -1,5 +1,6 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Toucan.Core.Contracts;
@@ -16,6 +17,9 @@ namespace Toucan.Core.Plugins;
 public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? loggerFactory = null)
 {
     private readonly ILoggerFactory _loggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
+
+    /// <summary>The services every plugin shares. Set by <c>AddToucanPlugins</c>; without them (a bare host) plugins load but have no services.</summary>
+    internal PluginHostServices? HostServices { get; init; }
 
     /// <summary>
     /// Loads every plugin and applies the accepted ones to <paramref name="services"/>.
@@ -71,10 +75,8 @@ public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? logger
             return new PluginLoadResult(folder, PluginStatus.Disabled, manifest);
         }
 
-        var apiVersion = manifest.ParsedApiVersion!;
-        if (!PluginApi.IsCompatible(apiVersion))
-            return Reject(log, folder, manifest, PluginStatus.Rejected,
-                $"Built for plugin API {apiVersion}, but this Toucan implements {PluginApi.Current}.");
+        if (PluginCompatibility.Check(manifest, options.HostVersion, options.Platform) is { } incompatible)
+            return Reject(log, folder, manifest, PluginStatus.Rejected, incompatible);
 
         string hash;
         try
@@ -121,14 +123,15 @@ public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? logger
             if (!File.Exists(entryPath))
                 return Reject(log, folder, manifest, PluginStatus.Failed, $"Entry assembly '{manifest.EntryAssembly}' was not found.");
 
-            var loadContext = new PluginLoadContext(manifest.Id, entryPath, options.SharedAssemblies);
+            var loadContext = new PluginLoadContext(manifest.Id, entryPath, options.SharedAssemblies, options.SharedAssemblyPrefixes);
             var assembly = loadContext.LoadFromAssemblyPath(entryPath);
             var pluginType = FindPluginType(assembly, manifest.EntryType, out var typeError);
             if (pluginType is null)
                 return Reject(log, folder, manifest, PluginStatus.Failed, typeError!);
 
             var plugin = (IToucanPlugin)Activator.CreateInstance(pluginType)!;
-            var context = new PluginContext(manifest, folder, _loggerFactory.CreateLogger($"Plugin.{manifest.Id}"), reserved);
+            var pluginServices = HostServices is { } host ? new PluginServices(manifest.Id, host, options.DataRoot) : null;
+            var context = new PluginContext(manifest, folder, _loggerFactory.CreateLogger($"Plugin.{manifest.Id}"), reserved, pluginServices, HostServices?.Diagnostics);
             plugin.Initialize(context);
 
             context.Commit();
@@ -136,7 +139,7 @@ public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? logger
 
             if (log.IsEnabled(LogLevel.Information))
                 log.LogInformation("Loaded plugin {Id} {Version} ({Summary}).", manifest.Id, manifest.Version, string.Join(", ", context.Summary));
-            return new PluginLoadResult(folder, PluginStatus.Loaded, manifest, Registered: context.Summary);
+            return new PluginLoadResult(folder, PluginStatus.Loaded, manifest, Registered: context.Summary, LoadContext: loadContext);
         }
         catch (PluginRegistrationException ex)
         {
@@ -198,6 +201,9 @@ public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? logger
         foreach (var provider in context.Providers) services.AddSingleton(provider);
         foreach (var rule in context.Rules) services.AddSingleton(rule);
         foreach (var profile in context.Profiles) services.AddSingleton(profile);
+        foreach (var activator in context.Activators) services.AddSingleton(activator);
+        if (context.ServicesInternal is { } pluginServices) services.AddSingleton(new PluginServicesRegistration(context.PluginId, pluginServices));
+        foreach (var (definition, handler) in context.Commands) services.AddSingleton(new PluginCommandRegistration(context.PluginId, definition, handler));
     }
 
     /// <summary>Reads the IDs the built-ins already use from a throwaway container built from the current registrations.</summary>
@@ -239,8 +245,14 @@ public static class PluginServiceCollectionExtensions
 
         // The logger factory belongs to this throwaway container, so keep it alive until loading is finished.
         using var probe = services.BuildServiceProvider();
-        var results = new PluginHost(options, probe.GetService<ILoggerFactory>()).LoadInto(services);
-        services.AddSingleton<IPluginCatalog>(new PluginCatalog(results, BuiltInModuleServiceCollectionExtensions.ModulesIn(services)));
+        var hostServices = new PluginHostServices();
+        var results = new PluginHost(options, probe.GetService<ILoggerFactory>()) { HostServices = hostServices }.LoadInto(services);
+        // The services plugins were given are the ones the application must use, so replace any defaults AddToucanCore registered.
+        services.Replace(ServiceDescriptor.Singleton(hostServices.Diagnostics));
+        services.Replace(ServiceDescriptor.Singleton(hostServices.Notifications));
+        services.Replace(ServiceDescriptor.Singleton(hostServices.Operations));
+        services.AddSingleton(new PluginHostServicesAccessor(hostServices));
+                services.AddSingleton<IPluginCatalog>(new PluginCatalog(results, BuiltInModuleServiceCollectionExtensions.ModulesIn(services)));
         return services;
     }
 }

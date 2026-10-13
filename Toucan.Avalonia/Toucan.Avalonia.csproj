@@ -29,6 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Toucan.Core\Toucan.Core.csproj" />
     <ProjectReference Include="..\Toucan.Modules.Defaults\Toucan.Modules.Defaults.csproj" />
+    <ProjectReference Include="..\Toucan.Plugins.Avalonia\Toucan.Plugins.Avalonia.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.0.5" />

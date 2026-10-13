@@ -30,4 +30,28 @@ public interface IPluginContext
 
     /// <summary>Adds a framework profile shown in the import and new-project dialogs.</summary>
     void AddFrameworkProfile(IFrameworkProfile profile);
+
+    /// <summary>
+    /// Adds an activator that runs when a project or connection opens. Needs the <c>activation</c> capability.
+    /// <paramref name="id"/> is unique within the plugin.
+    /// </summary>
+    void AddActivator(string id, IPluginActivator activator);
+
+    /// <summary>
+    /// Adds a command to the palette, menus and shortcut settings. Needs the <c>commands</c> capability, and the
+    /// definition's ID must start with the plugin ID and a dot.
+    /// </summary>
+    void AddCommand(CommandDefinition definition, ICommandHandler handler);
+
+    /// <summary>
+    /// Services for the plugin (settings, files, secrets, notifications, background work, diagnostics). Use them after startup,
+    /// from commands, activators and views; registration itself must not.
+    /// </summary>
+    IPluginServices Services { get; }
+
+    /// <summary>
+    /// Declares the plugin's settings: typed fields with defaults, validation, scopes and migrations. The desktop app shows a
+    /// form for them on the Plugins page. Call it once.
+    /// </summary>
+    void SetConfiguration(ConfigSchema schema);
 }

@@ -2,6 +2,24 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls">
+  <UserControl.Resources>
+    <!-- One plugin status item: icon, text and badge, clickable when it has a command. Empty items take no room. -->
+    <DataTemplate x:Key="PluginStatusItem">
+      <Button Classes="status" Command="{Binding Command}" IsVisible="{Binding IsShown}" ToolTip.Tip="{Binding DisplayToolTip}"
+              AutomationProperties.Name="{Binding Title}">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <ui:FASymbolIcon Symbol="{Binding IconSymbol}" IsVisible="{Binding HasIcon}"/>
+          <TextBlock Text="{Binding Text}" IsVisible="{Binding HasText}" VerticalAlignment="Center" MaxWidth="220" TextTrimming="CharacterEllipsis"/>
+          <Border Background="{DynamicResource BadgeBackgroundBrush}" CornerRadius="7" Padding="5,0" IsVisible="{Binding HasBadge}">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <Ellipse Classes="statusDot" Classes.good="{Binding IsBadgeGood}" Classes.warn="{Binding IsBadgeWarn}" Classes.bad="{Binding IsBadgeBad}"/>
+              <TextBlock Text="{Binding Badge}" FontSize="11" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </Button>
+    </DataTemplate>
+  </UserControl.Resources>
   <Border Background="{DynamicResource StatusBarBackgroundBrush}" Height="28" Padding="6,0">
     <Grid ColumnDefinitions="Auto,*,Auto">
       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -31,6 +49,10 @@
             </Border>
           </StackPanel>
         </Button>
+        <!-- Items plugins add at this end -->
+        <ItemsControl ItemsSource="{Binding PluginLeftItems}" ItemTemplate="{StaticResource PluginStatusItem}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        </ItemsControl>
       </StackPanel>
 
       <TextBlock Grid.Column="1" Classes="status" Text="{Binding StatusText}" TextTrimming="CharacterEllipsis"/>
@@ -38,6 +60,16 @@
       <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
         <ProgressBar IsIndeterminate="True" Width="80" MinWidth="0" Height="4" Margin="8,0" VerticalAlignment="Center"
                      IsVisible="{Binding Loading.IsActive}"/>
+        <Button Classes="status" x:Name="OperationsButton" IsVisible="{Binding Operations.HasActive}" ToolTip.Tip="{Binding Operations.ToolTip}"
+                AutomationProperties.Name="Background tasks">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <ui:FAProgressRing IsIndeterminate="True" Width="14" Height="14"/>
+            <TextBlock Text="{Binding Operations.Summary}" VerticalAlignment="Center" MaxWidth="260" TextTrimming="CharacterEllipsis"/>
+          </StackPanel>
+        </Button>
+        <ItemsControl ItemsSource="{Binding PluginRightItems}" ItemTemplate="{StaticResource PluginStatusItem}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        </ItemsControl>
         <TextBlock Classes="status" Text="{Binding CursorPosition}" Opacity="0.85" MaxWidth="140" TextTrimming="CharacterEllipsis"/>
         <Button Classes="status" x:Name="LanguageButton" ToolTip.Tip="{Binding Language.ToolTip}">
           <StackPanel Orientation="Horizontal" Spacing="6">

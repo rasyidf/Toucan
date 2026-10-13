@@ -217,9 +217,9 @@ Source scanning is a separate desktop service. It supplies key usages, unused-ke
 
 ## Plugin loading and trust
 
-[PluginHost](../Toucan.Core/Plugins/PluginHost.cs) discovers child folders containing `plugin.json`, validates manifests and identities, checks enabled/trusted policy and content hashes, checks signatures through its verifier seam, then activates accepted plugins. Registration is staged in `PluginContext` and committed before applying it to the host service collection. Failures are reported per plugin rather than aborting all loading.
+[PluginHost](../Toucan.Core/Plugins/PluginHost.cs) discovers child folders containing `plugin.json`, validates manifests and identities, checks compatibility ([PluginCompatibility](../Toucan.Core/Plugins/PluginCompatibility.cs): plugin API, minimum host version, platform) with an actionable message, checks enabled/trusted policy and content hashes, checks signatures through its verifier seam, then activates accepted plugins. Registration is staged in `PluginContext` and committed before applying it to the host service collection. Failures are reported per plugin rather than aborting all loading.
 
-[PluginLoadContext](../Toucan.Core/Plugins/PluginLoadContext.cs) isolates private assembly resolution while sharing host contracts and DI/logging abstractions. This is in-process dependency isolation, not a security sandbox. Load contexts are non-collectible; enable/trust changes should not be described as live unloading. GUI prompts and CLI policy controls wrap the same host machinery. See [plugin authoring and policy](plugins.md).
+[PluginLoadContext](../Toucan.Core/Plugins/PluginLoadContext.cs) isolates private assembly resolution while sharing host contracts and DI/logging abstractions. This is in-process dependency isolation, not a security sandbox. Load contexts are non-collectible; enable/trust changes should not be described as live unloading. GUI prompts and CLI policy controls wrap the same host machinery. Plugins are tested without the host through `Toucan.Plugins.Testing`, which depends only on the abstractions. See [plugin authoring and policy](plugins.md).
 
 ## Configuration ownership
 

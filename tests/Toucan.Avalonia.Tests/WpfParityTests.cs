@@ -63,8 +63,9 @@ public class WpfParityTests
 
         KeybindingService.Apply(window, vm);
 
-        var indexes = window.KeyBindings.Where(b => ReferenceEquals(b.Command, vm.CopyAsTemplateCommand)).Select(b => b.CommandParameter).Cast<int>().Order().ToList();
-        Assert.Equal([0, 1, 2, 3, 4], indexes);
+        // Each template shortcut runs its own registry command, which passes that template's index to the view-model command.
+        var ids = Enumerable.Range(1, 5).Select(n => $"toucan.edit.copy-template-{n}").ToList();
+        Assert.All(ids, id => Assert.Contains(window.KeyBindings, b => b.Command is Toucan.Avalonia.Services.RegistryCommand && KeybindingService.ToGesture(KeybindingService.Registry.GetShortcut(id)) == b.Gesture));
         Assert.Equal(5, KeybindingService.GetDefinitions().Count(d => d.Action.StartsWith("Copy Template", StringComparison.Ordinal)));
     }
 }

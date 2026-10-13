@@ -101,6 +101,13 @@ public partial class PluginItemViewModel : ObservableObject
     [RelayCommand]
     private void OpenFolder() => PlatformService.RevealInFileManager(Folder);
 
+    /// <summary>Why the plugin's desktop part (its UI) is missing, when it loaded but the UI did not.</summary>
+    private string DesktopNote() =>
+        _result.Status == PluginStatus.Loaded && _result.Manifest is { } m
+        && DesktopContributions.Instance.LoadResults.FirstOrDefault(r => r.PluginId == m.Id) is { Status: not DesktopLoadStatus.Loaded } failed
+            ? $"Its desktop part did not load: {failed.Error}"
+            : string.Empty;
+
     private void RefreshStatus(bool pending = false)
     {
         if (pending)
@@ -120,6 +127,6 @@ public partial class PluginItemViewModel : ObservableObject
             PluginStatus.Rejected => "Rejected",
             _ => "Failed to load",
         };
-        Note = _result.Status is PluginStatus.Rejected or PluginStatus.Failed ? _result.Error ?? string.Empty : string.Empty;
+        Note = _result.Status is PluginStatus.Rejected or PluginStatus.Failed ? _result.Error ?? string.Empty : DesktopNote();
     }
 }

@@ -15,7 +15,7 @@
     <!-- NuGet package for plugin authors. The version tracks the plugin API (PluginApi.Current), not the app. -->
     <IsPackable>true</IsPackable>
     <PackageId>Toucan.Plugins.Abstractions</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>rasyid.dev</Authors>
     <Description>Contracts for writing Toucan plugins: file formats, translation providers, validation rules and framework profiles.</Description>
     <PackageTags>toucan;i18n;localization;translation;plugin</PackageTags>

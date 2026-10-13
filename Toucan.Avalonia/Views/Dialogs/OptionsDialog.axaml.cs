@@ -14,13 +14,36 @@ public partial class OptionsDialog : DialogWindow
     public OptionsDialog(OptionsViewModel vm) : this()
     {
         DataContext = vm;
+        FillPluginSettings();
         vm.CloseAction = ok => Close(ok);
         vm.PropertyChanged += OnViewModelPropertyChanged;
         Closed += (_, _) =>
         {
             vm.PropertyChanged -= OnViewModelPropertyChanged;
             vm.RevertSchemePreview();
+            vm.RevertShortcutEdits();
         };
+        // Tunnel, so the pressed combination reaches the shortcut being edited instead of a focused button or a menu.
+        AddHandler(KeyDownEvent, (_, e) => e.Handled = vm.HandleShortcutKey(e.Key, e.KeyModifiers), global::Avalonia.Interactivity.RoutingStrategies.Tunnel);
+    }
+
+    /// <summary>Adds the settings sections plugins registered, each under its own heading on the Plugins page.</summary>
+    private void FillPluginSettings()
+    {
+        if (this.FindControl<StackPanel>("PluginSettingsHost") is not { } host) return;
+        // The typed settings plugins declared: a generated form for each.
+        var workspace = Services.DesktopContributions.Instance.Workspace;
+        foreach (var entry in Services.DesktopContributions.Instance.Configurations)
+            host.Children.Add(new SettingsGroup { Header = Loc.Format("{0} settings", entry.Name), Content = new ConfigForm(entry.Configuration, () => workspace?.WorkspaceId) });
+
+        foreach (var section in Services.DesktopContributions.Instance.SettingsSections)
+        {
+            var body = new StackPanel { Spacing = 8 };
+            if (!string.IsNullOrWhiteSpace(section.Description))
+                body.Children.Add(new TextBlock { Text = section.Description, Classes = { "caption" }, TextWrapping = global::Avalonia.Media.TextWrapping.Wrap, Margin = new global::Avalonia.Thickness(16, 12, 16, 0) });
+            body.Children.Add(section.Create());
+            host.Children.Add(new SettingsGroup { Header = section.Title, Content = body });
+        }
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)

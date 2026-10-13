@@ -29,7 +29,8 @@ public sealed record PluginLoadResult(
     IReadOnlyList<string>? Registered = null,
     string? ContentHash = null,
     PluginSignatureStatus Signature = PluginSignatureStatus.NotSigned,
-    PluginTrustState? Trust = null)
+    PluginTrustState? Trust = null,
+    System.Runtime.Loader.AssemblyLoadContext? LoadContext = null)
 {
     public string DisplayId => Manifest?.Id is { Length: > 0 } id ? id : Path.GetFileName(Directory);
 }

@@ -92,9 +92,12 @@ build output is exercised by the test suite, so what it does is what this guide 
 | `name` | yes | Shown in Settings → Plugins. |
 | `version` | yes | Your plugin's version, like `1.2.3`. |
 | `apiVersion` | yes | The plugin API you built against, like `1.0` (see [Versioning](#versioning)). |
+| `minHostVersion` | no | Oldest Toucan you support, like `0.23.0`. An older Toucan does not load the plugin and says which version it needs. |
+| `platforms` | no | Any of `windows`, `macos`, `linux`. Omit it to run everywhere; on another system the plugin is not loaded and the message names the platforms it supports. |
 | `entryAssembly` | yes | File name of your assembly, inside the plugin folder. No paths, must end in `.dll`. |
 | `entryType` | no | Full name of your `IToucanPlugin` class. Required if the assembly has more than one public implementation. |
-| `capabilities` | no | Any of `formats`, `providers`, `validation`, `frameworks`. Registering something you did not declare fails the plugin. |
+| `desktop` | no | The plugin's UI assembly: `{ "entryAssembly": "Acme.Ui.dll", "entryType": "Acme.Ui.Entry", "contractVersion": "1.0" }`. Needs the `desktop` capability. See [Desktop parts](#desktop-parts-ui). |
+| `capabilities` | no | Any of `formats`, `providers`, `validation`, `frameworks`, `activation`, `commands`, `desktop`. Registering something you did not declare fails the plugin. |
 | `author`, `description` | no | Shown when the user decides whether to trust you. |
 
 Comments and trailing commas are allowed. All problems are reported together, so one load attempt shows everything to fix.
@@ -174,13 +177,155 @@ A plugin is ordinary code, so Toucan loads it only if **you enabled it and trust
 - **Signing is not enforced yet.** Plugins show as "Not signed". It becomes mandatory when Toucan gains accounts and
   shared projects; design your release process so you can sign later (stable `id`, versioned releases).
 
+### Activation: `context.AddActivator(id, activator)` (capability `activation`, API 1.1)
+
+Registration happens once at startup and must not touch the network. Work with side effects (connecting, reading
+remote state) belongs in an `IPluginActivator`, which Toucan runs per scope: `Lifetime` is `Application`,
+`Workspace` (one open project) or `Connection` (one connection inside a project). Each activation gets its own
+`IPluginActivationContext` (plugin, workspace and connection IDs, a logger, and a `Scope` token cancelled when the
+scope ends) and returns an optional `IAsyncDisposable` session, disposed when the scope ends: newest first, and
+connections before their workspace. An activator that throws fails only that activation; it is logged and raised
+through `IPluginActivationService.ActivationFailed`, separately from load failures in the plugin catalog. Closing a
+project cancels activations still in flight.
+
+### Commands: `context.AddCommand(definition, handler)` (capability `commands`, API 1.1)
+
+A command is something the user can run from the command palette, a menu or a shortcut. `CommandDefinition` gives it a
+stable `Id` (it must start with your plugin ID and a dot), a `Title` and `Category` (with optional translations in
+`LocalizedTitles` and `LocalizedCategories`), a `DefaultShortcut` such as `Mod+Shift+K` (`Mod` is Cmd on macOS and Ctrl
+elsewhere), the `Placements` you want (palette, menu, toolbar, context menu) and whether it `RequiresWorkspace`.
+`ICommandHandler.GetState` reports `Available`, `Hidden`, `Unavailable`, `Disconnected` or `Unlicensed` (keep it fast: it
+runs whenever a menu is built); `ExecuteAsync` does the work, reports progress through `invocation.Progress` and must
+honour its cancellation token, which is cancelled when the user cancels or the project closes. Users can reassign or clear
+your shortcut in Settings → Shortcuts; the choice is kept by command ID. Commands that need a project are unavailable
+until one opens and are cancelled when it closes.
+
+### Host services: `context.Services` (API 1.1)
+
+`IPluginServices` gives every plugin the same tidy set of things, scoped to its own ID. Use them from commands, activators
+and views, after startup: during `Initialize` only register things (a service used then throws).
+
+> **Plugins are not sandboxed.** They run in Toucan's process with your permissions, exactly like any program you install.
+> These services keep a well-behaved plugin tidy and its secrets out of logs; they do not stop a malicious plugin from
+> reading files, using the network or reading what other code in the process holds. That is why each plugin has to be
+> trusted first, and why a changed plugin has to be trusted again.
+
+| Service | What it does |
+|---|---|
+| `Storage` | A folder under `Documents/Toucan/plugin-data/<plugin id>` with atomic text and JSON writes. Paths are relative and cannot leave the folder. Never write next to your own DLLs: the plugin folder is trusted by its hash, so changing it makes Toucan ask again. |
+| `Configuration` | Typed settings (below). |
+| `Secrets` | Credentials in the encrypted secret store, scoped to the plugin and optionally a project or connection. Anything read or written is masked from then on. |
+| `Notifier` | `Notify(new PluginNotification { Title, Message, Severity, ActionCommandId, ActionLabel, Sticky })`: a toast in the desktop app (clicking it runs the action's command), a line on stderr in the CLI, and an entry in the notification history. |
+| `Operations` | `Start(new OperationOptions { Title }, async (ctx, ct) => …)`: runs in the background with progress (`ctx.Report(message, fraction)`) and a cancel button in the status bar. An exception ends it as failed and is reported, never thrown. Operations end when the project closes unless `CancelWithWorkspace` is false. |
+| `Workspace` | Read and change the open project (below). |
+| `Diagnostics` | `Redact(text)`, `Write(level, message)` for the report that **Help → Copy Diagnostics** builds, and `RegisterSecret(value)` for a token you received that did not come through `Secrets`. What `context.Logger` logs is masked too. |
+
+**Settings.** Describe them once with `context.SetConfiguration(new ConfigSchema { Version = 1, Fields = [...] })`. A field has a
+`Key`, `Label` (with `LocalizedLabels`), a `Type` (`Text`, `Boolean`, `WholeNumber`, `Number`, `Choice`, `Secret`, `Path`,
+`Url`), a `Default`, `Required`, `Minimum`/`Maximum` (a number's bounds, or a text's length), a `Pattern`, `Choices`, and a
+`Scope`: `App`, `Workspace` (one value per project) or `Connection` (one per connection, optionally within a project; pass
+`ConfigTarget.ForConnection(id, workspaceId)`). Read with `Configuration.GetValue<T>(key, target)`; write with
+`SetAsync`, which validates first and refuses a bad value without changing anything. A `Secret` field goes to the secret
+store, never to the settings file, and `GetValue` never returns it (use `GetSecretAsync`). The desktop app generates a form
+for the schema under your plugin on the Plugins page of Settings, so a simple plugin needs no settings UI of its own.
+
+When a change would misread values saved by an older version, raise `Version` and add a `ConfigMigration(fromVersion, apply)`
+that edits the old values in place (rename a key, convert a type). Toucan applies the migrations in order the first time it
+loads older settings and writes the result back. If a step is missing, values that no longer fit fall back to their defaults
+and the diagnostics say so. Mistakes in a schema (duplicate keys, a choice with no choices, a default that breaks its own
+rule) fail the plugin at load with a message that names the field.
+
+### Reading and changing the project: `Services.Workspace` (`IWorkspaceApi`)
+
+A plugin never gets Toucan's models or view models. It reads an immutable **snapshot** and sends back an **edit**.
+
+```csharp
+var snapshot = await services.Workspace.SnapshotAsync(ct);          // null when no project is open
+var edit = new WorkspaceEdit { Label = "Pulled 12 translations", BasedOnRevision = snapshot.Revision };
+edit.SetValue("home.title", "fr", "Accueil", expectedValue: snapshot.Find("home.title", "fr")!.Value);
+edit.SetReview("home.title", "fr", ReviewState.Approved);
+var result = await services.Workspace.ApplyAsync(edit, ct);        // result.Applied, .ChangedUnits, .Issues, .Findings
+```
+
+- **Snapshot.** Keys, languages and every translation's text, comment, review state and whether it has unsaved changes. It
+  includes what the user has typed but not yet committed, and it never changes afterwards. `Revision` goes up with every edit,
+  yours or the user's.
+- **Edit.** Steps run in order and later steps see earlier ones: `SetValue`, `SetComment`, `SetReview`, `AddKey`,
+  `RenameKey` (a key and everything below it) and `DeleteKey`. The edit is checked in full before anything is touched, and by
+  default it is **all or nothing**: one bad step refuses the whole edit and changes nothing. Set `AllowPartial` to apply the
+  good steps and have the rest reported in `Issues`. Each issue has a kind (`UnknownKey`, `UnknownLanguage`, `InvalidKey`,
+  `KeyExists`, `Conflict`, `Stale`, `ApprovalRefused`, `Empty`, `NoProject`) and the number of the step.
+- **Not clobbering the user.** `BasedOnRevision` refuses the edit when anything changed since the snapshot. `expectedValue` on
+  `SetValue` is narrower: only that translation must still have the text you saw.
+- **Behaves like a native edit.** The values of an edit are **one undo step**; they mark the project as having unsaved changes,
+  show in the open editor at once, are saved with the project, covered by autosave and offered back after a crash, and a failed
+  save leaves them unsaved. Approving obeys the project's strict-approval policy, judged on the project as the edit leaves it.
+  Adding, renaming and deleting keys are not undoable, exactly as in the editor.
+- **Validation never blocks.** After applying, validation runs and the findings for what you changed come back in
+  `result.Findings` (and appear in the Issues panel); they do not refuse or revert anything, just as they never stop a save.
+- Calls may come from any thread; the host applies them on the UI thread. In a host with no open project (the CLI today) the
+  workspace is simply never open.
+
+### Desktop parts (UI)
+
+The CLI has no UI, so a plugin's screens live in a second assembly that only the desktop app loads. Reference the
+`Toucan.Plugins.Avalonia` package and Avalonia with `ExcludeAssets="runtime"` (Toucan supplies both; copying them next to
+your plugin would make your controls different types from Toucan's), name the assembly in `plugin.json` under `desktop`,
+and implement `IToucanDesktopPlugin`:
+
+```csharp
+public sealed class Entry : IToucanDesktopPlugin
+{
+    public void InitializeDesktop(IDesktopPluginContext context)
+    {
+        context.AddSidePanel(new SidePanelContribution
+        {
+            Id = "acme.sync.panel", Title = "Sync", Slot = PanelSlot.Right, Icon = "Sync",
+            Actions = [new PanelAction("acme.sync.pull", "Download", "Pull changes")],
+            CreateContent = workspace => new SyncPanel(workspace),
+        });
+    }
+}
+```
+
+What you can add (all IDs start with your plugin ID and a dot; nothing is registered if the entry point throws):
+
+| Contribution | Where it appears |
+|---|---|
+| `AddSidePanel` | An activity-bar button and a panel in the left or right side bar, with a toolbar of command buttons. |
+| `AddInspectorSection` | A section at the bottom of the inspector while a key is selected. |
+| `AddSettingsPage` | A group under the plugin list on the Plugins page of Settings. |
+| `AddDialog` | A window you open with `context.Host.ShowDialogAsync(id)`. |
+| `AddStatusBarItem` | An item at the left or right end of the status bar (text, icon, tooltip, badge with a severity, optional click command). It returns an `IStatusBarItem` you keep and change from any thread; the display updates on the UI thread. An item with nothing to show takes no room. |
+| `AddEditorAction` | A button in the inspector's key actions and an item in the key context menus; it runs a command with the key's name as parameter. |
+
+The desktop context also carries `Services`, the same `IPluginServices` the main part gets. Views get an `IPluginWorkspace`, not Toucan's view models: whether a project is open, its folder, the selected key, a
+`Changed` event and `ExecuteCommandAsync`. Conventions:
+
+- **Theme.** Use `DynamicResource` with the keys in `DesktopTheme` (`TextBrush`, `MutedTextBrush`, `CardBackgroundBrush`, `BadBrush`, …) so views follow light and dark mode. Other host resource keys may change.
+- **Icons.** Name an icon from the host's icon set (`Sync`, `Add`, `Setting`, …); an unknown name shows no icon, so always give a tooltip.
+- **Localization.** Titles take a `LocalizedTitles` table by culture (`fr`, `pt-BR`); the host falls back to the parent culture, then the default. Text inside your own views is yours to localize; `context.Host.Culture` is the UI culture.
+- **Accessibility.** Give controls without visible text an `AutomationProperties.Name`, keep everything reachable with the keyboard, and do not rely on colour alone. Toolbar buttons and key actions already carry their tooltip as their accessible name.
+- **Contract version.** `desktop.contractVersion` follows the same rule as the plugin API: the same major version and a minor no newer than the host's (currently `DesktopContract.Current`, 1.0). A newer one is reported on the Plugins page and the desktop part is skipped; the rest of the plugin still works.
+- **Shared assemblies.** Avalonia, FluentAvalonia and `Toucan.Plugins.Avalonia` always come from Toucan; a copy in your folder is ignored.
+
+If the desktop part cannot load, the plugin still loads without its UI and the Plugins page says why.
+
 ## Versioning
 
-`PluginApi.Current` is the plugin API version Toucan implements (currently **1.0**). The NuGet package version of
+`PluginApi.Current` is the plugin API version Toucan implements (currently **1.1**). The NuGet package version of
 `Toucan.Plugins.Abstractions` tracks it. A plugin loads when its `apiVersion` has the **same major** version and a
 **minor no newer** than the host's. So a plugin built for `1.0` runs on every `1.x`; one built for `1.2` is rejected
 by a Toucan that implements `1.1` ("built for plugin API 1.2, but this Toucan implements 1.1"). Minor releases only
 add members, with defaults wherever an existing implementation would otherwise break; a major release may break.
+
+**What is checked, in order, before any of your code loads:** the manifest; the plugin API version; `minHostVersion`; `platforms`;
+then enabled and trust state. Each failure is *Rejected* and the Plugins page and `toucan plugins list` show a sentence that says
+what is wrong and what to do (update Toucan, rebuild against a newer API, use a build for this system). The desktop contract
+version is checked when the desktop part loads; a mismatch skips only that part and the rest of the plugin works. Settings are
+checked when they are first read: settings saved by a newer version of your plugin are kept and reported in the diagnostics (they
+are never rewritten with an older version number), and a `ConfigMigration` whose `FromVersion` is below 1 or not below the
+schema `Version` is refused when you register the schema, because it could never run.
 
 ## Testing your plugin
 
@@ -195,6 +340,25 @@ add members, with defaults wherever an existing implementation would otherwise b
 
 - `toucan plugins list` shows status, signature, hash, what the plugin registered and any error.
 - Unit-test your strategies directly: they are plain classes (`Save` into a temp folder, `Load` it back, compare).
+- Test registration, activation, commands and workspace edits with **`Toucan.Plugins.Testing`** (NuGet, references only the
+  contract, no UI). `PluginTestHost` runs your `IToucanPlugin`, records what it registers, activates your activators per
+  workspace or connection, runs commands as the palette would (with the right unavailable and disconnected states), and cancels
+  background work when the workspace closes. `TestPluginServices` gives you in-memory settings, secrets, notifications and
+  diagnostics; `InMemoryWorkspace` implements `IWorkspaceApi` with the same all-or-nothing, stale-revision and conflict rules, and
+  lets a test play the user (`UserEdit`) to provoke them. `CliCompatibility.UiReferences` tells you whether your main assembly
+  references a UI framework, which would stop the CLI from loading it.
+
+  ```csharp
+  await using var host = new PluginTestHost("acme.sync");
+  host.Register(new SyncPlugin());
+  host.Services.InMemory.Open("en", ["en", "de"], values);
+  await host.ActivateAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
+  await host.RunAsync("acme.sync.pull");
+  ```
+
+  The harness does not model undo, validation or the approval policy; those belong to the application. A connector built only
+  from the published packages, with these tests, is in the `toucan-plugins` repository (`src/Toucan.Connector.Rest`); a
+  smaller in-memory one is `samples/Toucan.Sample.Connector` here.
 - The repository's own tests are a good template: `tests/Toucan.Core.Tests/Plugins/SamplePluginTests.cs` installs a
   built plugin into a temp folder and drives it through the real host.
 
@@ -206,7 +370,9 @@ add members, with defaults wherever an existing implementation would otherwise b
 | *NeedsTrust*: "its files have changed since you trusted it" | You rebuilt or edited it. Trust again. |
 | *Disabled* | Switched off in Settings → Plugins (or `toucan plugins disable`). |
 | *Rejected*: manifest errors | Fix the listed `plugin.json` problems. |
-| *Rejected*: "Built for plugin API …" | Rebuild against an API version this Toucan implements. |
+| *Rejected*: "Built for plugin API …" | Rebuild against an API version this Toucan implements, or update Toucan if the plugin is newer. |
+| *Rejected*: "Needs Toucan … or newer" | Update Toucan, or use an older version of the plugin. |
+| *Rejected*: "Supports … only" | The plugin is not built for this operating system. |
 | *Rejected*: "Plugin ID … is already used" | Two folders declare the same `id`. |
 | *Failed*: "Entry assembly … was not found" | `entryAssembly` does not match the file in the folder. |
 | *Failed*: "has N IToucanPlugin implementations" | Set `entryType`. |
@@ -221,8 +387,8 @@ add members, with defaults wherever an existing implementation would otherwise b
 - Restart required for any change; no unloading.
 - No dependency injection into plugin classes and no access to Toucan's internal services (use `System.IO`, your own
   HTTP client, and so on). Logging goes through `context.Logger`.
-- No UI contributions yet (panels, dialogs, menu items). They will arrive as a separate package so headless hosts
-  such as the CLI never load UI types.
+- UI contributions go in a second, desktop-only assembly (see *Desktop parts*). A plugin cannot yet open a *connection* scope
+  itself (the host drives workspace scopes); a connector uses a workspace activator and keeps its own sessions.
 - Per-project rule plugins (`.toucan/rules`) and a plugin feed are not implemented.
 - The WPF app has no plugin support; plugins work in the Avalonia app and the CLI.
 
@@ -230,7 +396,9 @@ add members, with defaults wherever an existing implementation would otherwise b
 
 - Build and test everything that is cross-platform with `dotnet test Toucan.CrossPlatform.slnx` (it leaves out the two
   Windows-only WPF projects, so it runs on macOS and Linux CI as well as Windows).
-- The contract package: `dotnet pack Toucan.Plugins.Abstractions -c Release -o <dir>`. Bump `<Version>` only with
+- The packages: `dotnet pack Toucan.Plugins.Abstractions`, `Toucan.Plugins.Avalonia` and `Toucan.Plugins.Testing` with `-c Release -o <dir>`
+  (the `toucan-plugins` repository reads them from its `feed` folder until they are published).
+  The contract package: Bump `<Version>` only with
   `PluginApi.Current`, and never remove or change a public member within a major version.
 - `Toucan.Plugins.Abstractions` must not reference `Toucan.Core` or UI packages; a test fails the build if it does.
 - Formats, providers, rules and profiles that ship with Toucan are **built-in modules** (`Toucan.Modules.*`), not plugins:

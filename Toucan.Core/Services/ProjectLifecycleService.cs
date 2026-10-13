@@ -25,7 +25,8 @@ public partial class ProjectLifecycleService(
     IUnsavedChangesHandler? unsavedChangesHandler,
     IExternalChangeHandler? externalChangeHandler,
     ILogger<ProjectLifecycleService> logger,
-    IRecoveryDraftService? recoveryDrafts = null) : IProjectLifecycleService
+    IRecoveryDraftService? recoveryDrafts = null,
+    Plugins.IPluginActivationService? pluginActivation = null) : IProjectLifecycleService
 {
     private ProjectSettings? _currentProject;
 
@@ -51,7 +52,7 @@ public partial class ProjectLifecycleService(
         else if (IsProjectOpen)
         {
             // Project is open but not dirty — just clean up
-            CleanupCurrentProject();
+            await CleanupCurrentProjectAsync().ConfigureAwait(false);
         }
 
         // 2. Validate folder exists
@@ -141,6 +142,14 @@ public partial class ProjectLifecycleService(
         DetectLeftovers(folderPath);
         StartDraftTimer();
 
+        // 11c. Registered plugins activate for this project; failures are reported, never fatal
+        if (pluginActivation is not null)
+        {
+            var activations = await pluginActivation.OpenWorkspaceAsync(folderPath, ct).ConfigureAwait(false);
+            foreach (var failed in activations.Where(a => a.Status == Plugins.ActivationStatus.Failed))
+                logger.LogWarning("Plugin {Plugin} could not activate for {FolderPath}: {Error}", failed.PluginId, folderPath, failed.Error);
+        }
+
         // 12. Raise ProjectChanged event with Opened
         ProjectChanged?.Invoke(this, new ProjectChangedEventArgs
         {
@@ -166,7 +175,7 @@ public partial class ProjectLifecycleService(
         }
         else if (IsProjectOpen)
         {
-            CleanupCurrentProject();
+            await CleanupCurrentProjectAsync().ConfigureAwait(false);
         }
 
         // 2. Create the project folder, manifest, and language files
@@ -428,7 +437,7 @@ public partial class ProjectLifecycleService(
         });
 
         // Cleanup all project state
-        CleanupCurrentProject();
+        await CleanupCurrentProjectAsync().ConfigureAwait(false);
 
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Project closed: {ProjectPath}", projectPath);
@@ -440,8 +449,12 @@ public partial class ProjectLifecycleService(
     /// Cleans up the current project state without prompting for unsaved changes.
     /// Used internally when switching projects where the current one is not dirty.
     /// </summary>
-    private void CleanupCurrentProject()
+    private async Task CleanupCurrentProjectAsync()
     {
+        // Plugin sessions end first, while the project is still the one they were activated for.
+        if (pluginActivation is not null && _currentProject is { } closing)
+            await pluginActivation.CloseWorkspaceAsync(closing.ProjectPath).ConfigureAwait(false);
+
         autoSave.Stop();
         StopDraftTimer();
         _pendingRecovery = null;

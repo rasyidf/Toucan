@@ -27,8 +27,10 @@
   <Project Path="Toucan.Modules.Providers/Toucan.Modules.Providers.csproj" />
   <Project Path="Toucan.Modules.Validation/Toucan.Modules.Validation.csproj" />
   <Project Path="Toucan.Plugins.Abstractions/Toucan.Plugins.Abstractions.csproj" />
+  <Project Path="Toucan.Plugins.Avalonia/Toucan.Plugins.Avalonia.csproj" />
   <Folder Name="/samples/">
     <Project Path="samples/Toucan.Sample.Plugin/Toucan.Sample.Plugin.csproj" />
+    <Project Path="samples/Toucan.Sample.Plugin.Desktop/Toucan.Sample.Plugin.Desktop.csproj" />
   </Folder>
   <Project Path="Toucan.Core/Toucan.Core.csproj">
     <Platform Solution="*|x64" Project="x64" />

@@ -37,6 +37,9 @@ public class AppOptions
     // --- Copy Templates (1-5 dynamic list) ---
     public List<string> CopyTemplates { get; set; } = ["%1", "{ this.props.t('%1') }", "{ t('%1') }"];
 
+    /// <summary>User-assigned keyboard shortcuts by command ID (<c>Mod+Shift+K</c>); an empty value unbinds the command.</summary>
+    public Dictionary<string, string> CustomShortcuts { get; set; } = [];
+
     // --- Editor behavior ---
     public bool PlainTextKeys { get; set; }
     public List<string> FilterHistory { get; set; } = [];

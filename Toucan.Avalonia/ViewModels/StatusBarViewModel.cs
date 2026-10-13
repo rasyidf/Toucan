@@ -25,8 +25,16 @@ public partial class StatusBarViewModel : ObservableObject
     public NotificationsPanel Notifications { get; }
     public LoadingPanel Loading { get; }
 
-    public StatusBarViewModel()
+    /// <summary>Status bar items plugins added, for the two ends of the bar.</summary>
+    public ObservableCollection<PluginStatusBarItem> PluginLeftItems => Services.DesktopContributions.Instance.LeftStatusItems;
+    public ObservableCollection<PluginStatusBarItem> PluginRightItems => Services.DesktopContributions.Instance.RightStatusItems;
+
+    /// <summary>Background work, with the means to cancel it.</summary>
+    public OperationsViewModel Operations { get; }
+
+    public StatusBarViewModel(Toucan.Core.Plugins.IBackgroundOperationService? operations = null)
     {
+        Operations = new OperationsViewModel(operations);
         Vcs = new VcsPanel { Order = 10 };
         Stats = new TranslationStatsPanel { Order = 20 };
         Mode = new ModePanel { Order = 30 };

@@ -37,6 +37,7 @@ internal static class KeyMenus
         flyout.Items.Add(Item("Copy Key", FASymbol.Link, vm.CopyKeyCommand, ns));
         flyout.Items.Add(Item("Translate Empty Values", FASymbol.Character, new AsyncRelayCommand(() => vm.TranslateKeyAsync(ns))));
         flyout.Items.Add(Item("Hide Namespace", FASymbol.View, vm.HideNamespaceCommand, ns));
+        AddPluginActions(flyout, ns);
         return flyout;
     }
 
@@ -69,7 +70,22 @@ internal static class KeyMenus
             flyout.Items.Add(Item("Duplicate", FASymbol.Copy, vm.DuplicateKeyCommand, ns));
         }
         flyout.Items.Add(Item("Delete…", FASymbol.Delete, vm.DeleteKeyCommand, ns));
+        AddPluginActions(flyout, ns);
         return flyout;
+    }
+
+    /// <summary>Key actions from plugins, after a separator. Unavailable ones stay in the menu, disabled.</summary>
+    private static void AddPluginActions(MenuFlyout flyout, string ns)
+    {
+        var actions = KeyActions.Collect(KeybindingService.Registry, DesktopContributions.Instance);
+        if (actions.Count == 0) return;
+        flyout.Items.Add(new Separator());
+        foreach (var action in actions)
+        {
+            var item = new MenuItem { Header = action.Title, Command = action.Command, CommandParameter = ns };
+            if (action.Icon is { } icon) item.Icon = new FASymbolIcon { Symbol = icon };
+            flyout.Items.Add(item);
+        }
     }
 
     /// <summary>Opens at the pointer for a real right-click, or under <paramref name="anchor"/> for a keyboard-invoked menu.</summary>

@@ -24,6 +24,14 @@ public sealed record PluginManifest
     /// <summary>Plugin API version the plugin was built against, e.g. <c>1.0</c>.</summary>
     public string ApiVersion { get; init; } = string.Empty;
 
+    /// <summary>Oldest Toucan release the plugin supports, e.g. <c>0.23.0</c>. Optional; a host older than this does not load the plugin.</summary>
+    public string? MinHostVersion { get; init; }
+
+    /// <summary>
+    /// Operating systems the plugin runs on: any of <see cref="PluginPlatforms.All"/>. Optional; empty means all of them.
+    /// </summary>
+    public IReadOnlyList<string> Platforms { get; init; } = [];
+
     /// <summary>File name of the assembly containing the <see cref="IToucanPlugin"/>, relative to the plugin folder.</summary>
     public string EntryAssembly { get; init; } = string.Empty;
 
@@ -33,6 +41,12 @@ public sealed record PluginManifest
     /// </summary>
     public string? EntryType { get; init; }
     public string? Author { get; init; }
+
+    /// <summary>
+    /// The plugin's desktop part: a second assembly with its UI, loaded only by hosts that have one. Needs the
+    /// <c>desktop</c> capability. The CLI never loads it.
+    /// </summary>
+    public DesktopEntry? Desktop { get; init; }
     public string? Description { get; init; }
 
     /// <summary>What the plugin registers; the host rejects registrations outside this set (see <see cref="PluginCapabilities"/>).</summary>
@@ -71,8 +85,16 @@ public sealed record PluginManifest
     [JsonIgnore]
     public Version? ParsedApiVersion => System.Version.TryParse(ApiVersion, out var v) ? v : null;
 
+    /// <summary>The manifest's <see cref="MinHostVersion"/> as a <see cref="System.Version"/>, or null when absent or malformed.</summary>
+    [JsonIgnore]
+    public Version? ParsedMinHostVersion => System.Version.TryParse(MinHostVersion, out var v) ? v : null;
+
     private IEnumerable<string> Validate()
     {
+        if (MinHostVersion is { } min && !System.Version.TryParse(min, out _)) yield return "'minHostVersion' must look like 0.23.0.";
+        foreach (var platform in (Platforms ?? []).Except(PluginPlatforms.All, StringComparer.OrdinalIgnoreCase))
+            yield return $"Unknown platform '{platform}'. Known: {string.Join(", ", PluginPlatforms.All)}.";
+
         if (string.IsNullOrWhiteSpace(Id)) yield return "'id' is required.";
         else if (!IsValidId(Id)) yield return $"'id' must use lowercase letters, digits, '.' and '-' only: '{Id}'.";
 
@@ -86,6 +108,13 @@ public sealed record PluginManifest
             yield return "'entryAssembly' must be a file name inside the plugin folder.";
         else if (!EntryAssembly.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) yield return "'entryAssembly' must end with .dll.";
 
+        if (Desktop is not null)
+        {
+            foreach (var problem in Desktop.Validate()) yield return $"'desktop': {problem}";
+            if (!(Capabilities ?? []).Contains(PluginCapabilities.Desktop, StringComparer.OrdinalIgnoreCase))
+                yield return $"'desktop' needs the '{PluginCapabilities.Desktop}' capability.";
+        }
+
         foreach (var capability in (Capabilities ?? []).Except(PluginCapabilities.All, StringComparer.OrdinalIgnoreCase))
             yield return $"Unknown capability '{capability}'. Known: {string.Join(", ", PluginCapabilities.All)}.";
     }
@@ -95,6 +124,33 @@ public sealed record PluginManifest
         && char.IsLetterOrDigit(id[0]) && char.IsLetterOrDigit(id[^1]);
 }
 
+/// <summary>The <c>desktop</c> object of a manifest.</summary>
+public sealed record DesktopEntry
+{
+    /// <summary>File name of the assembly containing the <c>IToucanDesktopPlugin</c>, relative to the plugin folder.</summary>
+    public string EntryAssembly { get; init; } = string.Empty;
+
+    /// <summary>Full name of the <c>IToucanDesktopPlugin</c> class; optional when the assembly has exactly one.</summary>
+    public string? EntryType { get; init; }
+
+    /// <summary>Desktop contract version the assembly was built against, e.g. <c>1.0</c>.</summary>
+    public string ContractVersion { get; init; } = string.Empty;
+
+    [JsonIgnore]
+    public Version? ParsedContractVersion => Version.TryParse(ContractVersion, out var v) ? v : null;
+
+    internal IEnumerable<string> Validate()
+    {
+        if (string.IsNullOrWhiteSpace(EntryAssembly)) yield return "'entryAssembly' is required.";
+        else if (EntryAssembly.Contains("..", StringComparison.Ordinal) || Path.IsPathRooted(EntryAssembly)
+                 || EntryAssembly.AsSpan().IndexOfAny('/', '\\') >= 0)
+            yield return "'entryAssembly' must be a file name inside the plugin folder.";
+        else if (!EntryAssembly.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) yield return "'entryAssembly' must end with .dll.";
+
+        if (ParsedContractVersion is null) yield return "'contractVersion' is required and must look like 1.0.";
+    }
+}
+
 /// <summary>Capabilities a plugin may declare in its manifest.</summary>
 public static class PluginCapabilities
 {
@@ -102,6 +158,23 @@ public static class PluginCapabilities
     public const string Providers = "providers";
     public const string Validation = "validation";
     public const string Frameworks = "frameworks";
+    public const string Activation = "activation";
+    public const string Commands = "commands";
+    public const string Desktop = "desktop";
 
-    public static IReadOnlyList<string> All { get; } = [Formats, Providers, Validation, Frameworks];
+    public static IReadOnlyList<string> All { get; } = [Formats, Providers, Validation, Frameworks, Activation, Commands, Desktop];
+}
+
+/// <summary>Operating systems a plugin can name in its manifest <c>platforms</c>.</summary>
+public static class PluginPlatforms
+{
+    public const string Windows = "windows";
+    public const string MacOS = "macos";
+    public const string Linux = "linux";
+
+    public static IReadOnlyList<string> All { get; } = [Windows, MacOS, Linux];
+
+    /// <summary>The platform this process runs on, or an empty string on one Toucan has no name for.</summary>
+    public static string Current =>
+        OperatingSystem.IsWindows() ? Windows : OperatingSystem.IsMacOS() ? MacOS : OperatingSystem.IsLinux() ? Linux : string.Empty;
 }

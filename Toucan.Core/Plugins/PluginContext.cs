@@ -14,6 +14,9 @@ public sealed class PluginRegistrationException : Exception
     public PluginRegistrationException(string message, Exception innerException) : base(message, innerException) { }
 }
 
+/// <summary>A command a plugin registered, held until the command registry is built.</summary>
+public sealed record PluginCommandRegistration(string PluginId, CommandDefinition Definition, ICommandHandler Handler);
+
 /// <summary>IDs already taken by built-ins and plugins loaded earlier. Mutated only when a plugin is accepted.</summary>
 internal sealed class ReservedIds
 {
@@ -37,16 +40,37 @@ internal sealed partial class PluginContext : IPluginContext
     private readonly HashSet<string> _providers = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _rules = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _profiles = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _activators = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _commandIds = new(StringComparer.Ordinal);
 
-    public PluginContext(PluginManifest manifest, string pluginDirectory, ILogger logger, ReservedIds reserved)
+    public PluginContext(PluginManifest manifest, string pluginDirectory, ILogger logger, ReservedIds reserved, PluginServices? services = null, IDiagnosticsService? diagnostics = null)
     {
         _manifest = manifest;
         _reserved = reserved;
         PluginDirectory = pluginDirectory;
-        Logger = logger;
+        // What a plugin logs is masked before it reaches any log, and is kept for the diagnostics report.
+        Logger = diagnostics is null ? logger : new RedactingLogger(logger, diagnostics, manifest.Id);
+        _services = services;
     }
 
+    private readonly PluginServices? _services;
+    private bool _configurationSet;
+
+    public IPluginServices Services => _services ?? throw new InvalidOperationException("Plugin services are not available in this host.");
+
+    public void SetConfiguration(ConfigSchema schema)
+    {
+        ArgumentNullException.ThrowIfNull(schema);
+        if (_services is null) throw new InvalidOperationException("Plugin services are not available in this host.");
+        if (_configurationSet) throw new PluginRegistrationException($"Plugin '{_manifest.Id}' set its configuration twice.");
+        _services.PluginConfiguration.SetSchema(schema);
+        _configurationSet = true;
+    }
+
+    internal PluginServices? ServicesInternal => _services;
+
     public Version HostApiVersion => PluginApi.Current;
+    public string PluginId => _manifest.Id;
     public string PluginDirectory { get; }
     public ILogger Logger { get; }
 
@@ -54,6 +78,8 @@ internal sealed partial class PluginContext : IPluginContext
     public List<ITranslationProvider> Providers { get; } = [];
     public List<IValidationRule> Rules { get; } = [];
     public List<IFrameworkProfile> Profiles { get; } = [];
+    public List<RegisteredActivator> Activators { get; } = [];
+    public List<(CommandDefinition Definition, ICommandHandler Handler)> Commands { get; } = [];
 
     /// <summary>Human-readable list of what was registered, e.g. <c>format:acme-po</c>.</summary>
     public IReadOnlyList<string> Summary =>
@@ -62,6 +88,8 @@ internal sealed partial class PluginContext : IPluginContext
         .. Providers.Select(p => $"provider:{p.Name}"),
         .. Rules.Select(r => $"rule:{r.Id}"),
         .. Profiles.Select(p => $"framework:{p.Id}"),
+        .. Activators.Select(a => $"activator:{a.Id}"),
+        .. Commands.Select(c => $"command:{c.Definition.Id}"),
     ];
 
     public void AddFormat(ISaveStrategy save, ILoadStrategy load)
@@ -122,6 +150,34 @@ internal sealed partial class PluginContext : IPluginContext
         Claim(_reserved.Profiles, _profiles, profile.Id, "Framework profile");
 
         Profiles.Add(profile);
+    }
+
+    public void AddActivator(string id, IPluginActivator activator)
+    {
+        ArgumentNullException.ThrowIfNull(activator);
+        RequireCapability(PluginCapabilities.Activation);
+
+        if (string.IsNullOrWhiteSpace(id))
+            throw new PluginRegistrationException("An activator needs a non-empty id.");
+        if (!_activators.Add(id))
+            throw new PluginRegistrationException($"Activator '{id}' is registered twice by this plugin.");
+
+        Activators.Add(new RegisteredActivator(_manifest.Id, id, activator));
+    }
+
+    public void AddCommand(CommandDefinition definition, ICommandHandler handler)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(handler);
+        RequireCapability(PluginCapabilities.Commands);
+
+        // The registry validates ID shape, prefix and shortcut when the host applies the plugin; here only own duplicates.
+        if (definition.Id is null || !definition.Id.StartsWith(_manifest.Id + ".", StringComparison.Ordinal))
+            throw new PluginRegistrationException($"Command '{definition.Id}' must start with its plugin ID '{_manifest.Id}.'.");
+        if (!_commandIds.Add(definition.Id))
+            throw new PluginRegistrationException($"Command '{definition.Id}' is registered twice by this plugin.");
+
+        Commands.Add((definition, handler));
     }
 
     /// <summary>Marks this plugin's IDs as taken so later plugins cannot reuse them.</summary>

@@ -20,17 +20,20 @@ internal sealed class PluginLoadContext : AssemblyLoadContext
 
     private readonly AssemblyDependencyResolver _resolver;
     private readonly ISet<string> _shared;
+    private readonly string[] _sharedPrefixes;
 
-    public PluginLoadContext(string pluginName, string entryAssemblyPath, ISet<string> extraShared)
+    public PluginLoadContext(string pluginName, string entryAssemblyPath, ISet<string> extraShared, IEnumerable<string>? sharedPrefixes = null)
         : base($"plugin:{pluginName}", isCollectible: false)
     {
         _resolver = new AssemblyDependencyResolver(entryAssemblyPath);
         _shared = new HashSet<string>(s_alwaysShared.Concat(extraShared), StringComparer.OrdinalIgnoreCase);
+        _sharedPrefixes = [.. sharedPrefixes ?? []];
     }
 
     protected override Assembly? Load(AssemblyName assemblyName)
     {
-        if (assemblyName.Name is null || _shared.Contains(assemblyName.Name))
+        if (assemblyName.Name is null || _shared.Contains(assemblyName.Name)
+            || _sharedPrefixes.Any(p => assemblyName.Name.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
             return null; // fall back to the default context
 
         var path = _resolver.ResolveAssemblyToPath(assemblyName);

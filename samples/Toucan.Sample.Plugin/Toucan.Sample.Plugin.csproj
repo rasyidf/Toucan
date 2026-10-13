@@ -31,4 +31,12 @@
     <None Include="plugin.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- The desktop part is a separate assembly (the CLI never loads it); it ships in the same plugin folder. -->
+  <ItemGroup>
+    <ProjectReference Include="..\Toucan.Sample.Plugin.Desktop\Toucan.Sample.Plugin.Desktop.csproj" ReferenceOutputAssembly="false" OutputItemType="DesktopPart" />
+  </ItemGroup>
+  <Target Name="CopyDesktopPart" AfterTargets="Build">
+    <Copy SourceFiles="@(DesktopPart)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>

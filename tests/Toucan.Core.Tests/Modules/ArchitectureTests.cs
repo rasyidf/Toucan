@@ -50,6 +50,28 @@ public class ArchitectureTests
         }
     }
 
+    [Fact]
+    public void NoUiFreeProjectReferencesTheDesktopContractOrAvalonia()
+    {
+        // The CLI, Core, the modules and the plugin abstractions must run where no UI exists, and a plugin's UI lives in its own assembly.
+        foreach (var project in new[] { "Toucan.CLI/Toucan.CLI.csproj", "Toucan.Core/Toucan.Core.csproj", "Toucan.Core.Common/Toucan.Core.Common.csproj",
+            "Toucan.Plugins.Abstractions/Toucan.Plugins.Abstractions.csproj", "Toucan.Modules.Defaults/Toucan.Modules.Defaults.csproj" })
+        {
+            var csproj = File.ReadAllText(Path.Combine(RepoRoot(), project));
+            Assert.DoesNotContain("Plugins.Avalonia", csproj, StringComparison.Ordinal);
+            Assert.DoesNotContain("Include=\"Avalonia", csproj, StringComparison.Ordinal);
+        }
+    }
+
+    [Fact]
+    public void TheDesktopContractReferencesOnlyTheAbstractions()
+    {
+        var project = System.Xml.Linq.XDocument.Load(Path.Combine(RepoRoot(), "Toucan.Plugins.Avalonia", "Toucan.Plugins.Avalonia.csproj"));
+        var references = project.Descendants("ProjectReference").Select(e => (string)e.Attribute("Include")!).ToList();
+
+        Assert.Equal(["Toucan.Plugins.Abstractions.csproj"], references.Select(r => Path.GetFileName(r.Replace('\\', '/'))));
+    }
+
     private static string RepoRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

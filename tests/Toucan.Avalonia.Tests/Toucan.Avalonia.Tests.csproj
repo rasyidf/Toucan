@@ -24,6 +24,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Toucan.Avalonia\Toucan.Avalonia.csproj" />
+    <!-- Built but not referenced: loaded from disk like a user-installed plugin, desktop part included. -->
+    <ProjectReference Include="..\..\samples\Toucan.Sample.Plugin\Toucan.Sample.Plugin.csproj" ReferenceOutputAssembly="false" OutputItemType="SamplePluginOutput" />
   </ItemGroup>
+
+  <Target Name="CopySamplePlugin" AfterTargets="Build">
+    <Copy SourceFiles="@(SamplePluginOutput);@(SamplePluginOutput->'%(RootDir)%(Directory)%(Filename).deps.json');@(SamplePluginOutput->'%(RootDir)%(Directory)plugin.json');@(SamplePluginOutput->'%(RootDir)%(Directory)Toucan.Sample.Plugin.Desktop.dll')" DestinationFolder="$(OutDir)SamplePlugin" SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>
