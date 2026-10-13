@@ -55,6 +55,17 @@ public static partial class PlaceholderService
         return results.OrderBy(r => r.Position).ToList();
     }
 
+    /// <summary>The distinct <c>{{ }}</c> named-double placeholder tokens in a value, in first-seen order.</summary>
+    public static IReadOnlyList<string> NamedDouble(string? value)
+    {
+        if (string.IsNullOrEmpty(value)) return [];
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var result = new List<string>();
+        foreach (Match m in NamedDoubleRegex().Matches(value))
+            if (seen.Add(m.Value)) result.Add(m.Value);
+        return result;
+    }
+
     /// <summary>Validates that target has same placeholders as source (including counts).</summary>
     public static PlaceholderValidation Validate(string source, string target)
     {

@@ -474,6 +474,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         ThemeService.Apply(AppOptions.Theme);
         ColorSchemeService.Apply(AppOptions);
         ThemeService.ApplyFontSize(AppOptions.FontSize);
+        PanelService.Instance.ShowPlaceholderWarnings = AppOptions.ShowPlaceholderWarnings;
+        foreach (var row in PagingController.Data.SelectMany(g => g.AllItems)) row.RefreshPlaceholderWarning();
 
         if (!string.Equals(previousLanguage, AppOptions.AppLanguage, StringComparison.OrdinalIgnoreCase))
         {

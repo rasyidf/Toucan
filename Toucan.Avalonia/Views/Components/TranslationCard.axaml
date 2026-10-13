@@ -7,7 +7,7 @@
   <UserControl.Resources>
     <!-- One language row: badge · value editor · row actions -->
     <DataTemplate x:Key="RowTemplate">
-      <Grid Classes="translationRow" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" Margin="0,4" IsVisible="{Binding IsLanguageVisible}">
+      <Grid Classes="translationRow" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" Margin="0,4" IsVisible="{Binding IsLanguageVisible}">
         <Border Classes="langBadge rowLanguage" MinWidth="36" MaxWidth="80" ToolTip.Tip="{Binding Language, Converter={StaticResource LanguageName}}">
           <TextBlock Text="{Binding Language}" TextTrimming="CharacterEllipsis"/>
         </Border>
@@ -44,6 +44,14 @@
           <TextBlock Grid.Column="1" Classes="caption" Foreground="{DynamicResource FaintTextBrush}"
                      HorizontalAlignment="Right" Margin="8,0,0,0" Text="{Binding CountSummary}"/>
         </Grid>
+
+        <!-- Inline warning: a {{ }} placeholder from the source is missing here -->
+        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="2,2,2,0"
+                    IsVisible="{Binding HasPlaceholderWarning}">
+          <ui:FASymbolIcon Symbol="Important" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource WarnBrush}"/>
+          <TextBlock Classes="caption" Foreground="{DynamicResource WarnBrush}" TextWrapping="Wrap"
+                     Text="{Binding PlaceholderWarning}" ToolTip.Tip="{loc:Loc 'This translation is missing a placeholder from the source'}"/>
+        </StackPanel>
 
         <StackPanel Classes="valueActions" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Spacing="1">
           <!-- Machine-translated marker -->

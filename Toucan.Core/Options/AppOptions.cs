@@ -42,6 +42,8 @@ public class AppOptions
 
     // --- Editor behavior ---
     public bool PlainTextKeys { get; set; }
+    /// <summary>Show an inline warning on a target value when it is missing a {{ }} placeholder its source has.</summary>
+    public bool ShowPlaceholderWarnings { get; set; } = true;
     public List<string> FilterHistory { get; set; } = [];
     public List<string> SuggestedLanguages { get; set; } = ["en-US", "id-ID", "zh-CN", "fr-FR", "es-ES"];
 

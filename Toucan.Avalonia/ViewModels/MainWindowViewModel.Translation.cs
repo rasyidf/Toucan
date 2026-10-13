@@ -448,6 +448,68 @@ public partial class MainWindowViewModel
         return true;
     }
 
+    /// <summary>
+    /// Renames a <c>{{ }}</c> placeholder token in every language's value of one key, as a single undo step. Only the
+    /// exact token is replaced (e.g. <c>{{name}}</c> → <c>{{username}}</c>); other text is untouched. Scoped to the
+    /// named-double syntax so "the same token" is unambiguous. Returns the number of values changed.
+    /// </summary>
+    internal int RenamePlaceholderAcrossLanguages(string key, string oldToken, string newToken)
+    {
+        if (IsAuditMode || string.IsNullOrEmpty(key) || string.IsNullOrEmpty(oldToken) || oldToken == newToken) return 0;
+        // Only accept well-formed {{ }} tokens, so this can never corrupt a value with arbitrary text.
+        if (Toucan.Core.Services.PlaceholderService.NamedDouble(oldToken) is not [var o] || o != oldToken) return 0;
+        if (Toucan.Core.Services.PlaceholderService.NamedDouble(newToken) is not [var n] || n != newToken) return 0;
+
+        var items = AllTranslation.Where(t => t.Namespace == key && t.Value.Contains(oldToken, StringComparison.Ordinal)).ToList();
+        if (items.Count == 0) return 0;
+
+        FlushPendingEdits();
+        var changed = RecordBulkEdit(items, () =>
+        {
+            foreach (var item in items)
+                item.Value = item.Value.Replace(oldToken, newToken, StringComparison.Ordinal);
+        });
+
+        if (changed.Count > 0)
+        {
+            NotifyBulkValueChanges([.. changed]);
+            foreach (var vm in PagingController.Data.SelectMany(g => g.AllItems)) vm.Refresh();
+            UpdateSummaryInfo();
+            StatusText = $"Renamed {oldToken} to {newToken} in {changed.Count} value(s).";
+        }
+        return changed.Count;
+    }
+
+    /// <summary>
+    /// Syncs the placeholder the user just changed in the focused field to every other language of the same key: if the
+    /// focused value has a <c>{{ }}</c> token the source does not, and the source has exactly one the focused value does
+    /// not, treat it as a rename and apply it across the key. One gesture, one undo step.
+    /// </summary>
+    [RelayCommand]
+    private void SyncPlaceholderToAllLanguages()
+    {
+        var focused = FocusedTranslationItem;
+        if (focused is null || IsAuditMode) { StatusText = "Click into a translation field first."; return; }
+
+        var source = AllTranslation.FirstOrDefault(t => t.Namespace == focused.Namespace && t.Language == PrimaryLanguage);
+        if (source is null) return;
+
+        var sourceTokens = Toucan.Core.Services.PlaceholderService.NamedDouble(source.Value);
+        var focusedTokens = Toucan.Core.Services.PlaceholderService.NamedDouble(focused.Value);
+        var added = focusedTokens.Where(t => !sourceTokens.Contains(t)).ToList();   // in the field, not in source
+        var dropped = sourceTokens.Where(t => !focusedTokens.Contains(t)).ToList(); // in source, not in the field
+
+        if (added.Count == 1 && dropped.Count == 1)
+        {
+            // The user renamed dropped -> added in this field; apply the rename to the source and every language.
+            RenamePlaceholderAcrossLanguages(focused.Namespace, dropped[0], added[0]);
+        }
+        else
+        {
+            StatusText = "Edit one placeholder in this field first, then sync it to the other languages.";
+        }
+    }
+
     public ObservableCollection<KeyLanguageStatus> SelectedKeyLanguages { get; } = [];
     public ObservableCollection<SuggestionItem> Suggestions { get; } = [];
     public ObservableCollection<SuggestionItem> MemoryMatches { get; } = [];

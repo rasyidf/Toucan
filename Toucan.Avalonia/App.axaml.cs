@@ -52,6 +52,7 @@ public partial class App : Application
             ThemeService.Apply(vm.AppOptions.Theme);
             ColorSchemeService.Apply(vm.AppOptions);
             ThemeService.ApplyFontSize(vm.AppOptions.FontSize);
+            PanelService.Instance.ShowPlaceholderWarnings = vm.AppOptions.ShowPlaceholderWarnings;
             RegisterSidePanels();
             LoadDesktopPlugins(vm);
 

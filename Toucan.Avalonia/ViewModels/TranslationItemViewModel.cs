@@ -66,6 +66,9 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
             OnPropertyChanged(nameof(CharacterCount));
             OnPropertyChanged(nameof(WordCount));
             OnPropertyChanged(nameof(CountSummary));
+            OnPropertyChanged(nameof(MissingPlaceholders));
+            OnPropertyChanged(nameof(HasPlaceholderWarning));
+            OnPropertyChanged(nameof(PlaceholderWarning));
             _debounceTimer.Stop();
             _debounceTimer.Start();
         }
@@ -87,10 +90,28 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     /// null for the primary-language row itself (it is the source).
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasSource))]
+    [NotifyPropertyChangedFor(nameof(HasSource), nameof(MissingPlaceholders), nameof(HasPlaceholderWarning), nameof(PlaceholderWarning))]
     private string? sourceText;
 
     public bool HasSource => SourceText is not null;
+
+    /// <summary>
+    /// The <c>{{ }}</c> placeholders present in the source but missing from this value. Empty for the source row,
+    /// for an empty value, or when there is no source. Independent of whether the warning is shown.
+    /// </summary>
+    public IReadOnlyList<string> MissingPlaceholders =>
+        SourceText is null || string.IsNullOrEmpty(_value)
+            ? []
+            : [.. Toucan.Core.Services.PlaceholderService.NamedDouble(SourceText)
+                .Where(p => !_value.Contains(p, StringComparison.Ordinal))];
+
+    /// <summary>True when the inline warning should show: the toggle is on and this value drops a source placeholder.</summary>
+    public bool HasPlaceholderWarning =>
+        Services.PanelService.Instance.ShowPlaceholderWarnings && MissingPlaceholders.Count > 0;
+
+    /// <summary>The warning text listing the missing placeholders, e.g. "Missing: {{name}}, {{count}}".</summary>
+    public string PlaceholderWarning =>
+        MissingPlaceholders.Count == 0 ? string.Empty : "Missing: " + string.Join(", ", MissingPlaceholders);
 
     public string Comment
     {
@@ -189,11 +210,17 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
             OnPropertyChanged(nameof(CharacterCount));
             OnPropertyChanged(nameof(WordCount));
             OnPropertyChanged(nameof(CountSummary));
+            OnPropertyChanged(nameof(MissingPlaceholders));
+            OnPropertyChanged(nameof(HasPlaceholderWarning));
+            OnPropertyChanged(nameof(PlaceholderWarning));
         }
         OnPropertyChanged(nameof(IsApproved));
         OnPropertyChanged(nameof(Comment));
         OnPropertyChanged(nameof(HasComment));
     }
+
+    /// <summary>Re-evaluates the inline placeholder warning (e.g. after the global toggle changed).</summary>
+    public void RefreshPlaceholderWarning() => OnPropertyChanged(nameof(HasPlaceholderWarning));
 
     private void Commit()
     {
