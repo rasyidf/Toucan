@@ -56,6 +56,7 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
         Translations.Clear();
         foreach (var t in OrderByPrimary(items))
             Translations.Add(_translationItemFactory(t));
+        ApplySourceText(Translations);
     }
 
     public void LoadPluralVariants(IEnumerable<IGrouping<string, TranslationItem>> variantGroups)
@@ -71,9 +72,26 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
             };
             foreach (var t in OrderByPrimary(group))
                 variant.Translations.Add(_translationItemFactory(t));
+            ApplySourceText(variant.Translations);
             PluralVariants.Add(variant);
         }
         OnPropertyChanged(nameof(IsPluralGroup));
+    }
+
+    /// <summary>
+    /// After loading a key's rows (ordered primary-first), give every non-primary row the primary row's value as its
+    /// source, for the side-by-side view. The primary row keeps a null source (it is the source).
+    /// </summary>
+    private static void ApplySourceText(IReadOnlyList<TranslationItemViewModel> rows)
+    {
+        var primary = StatusBarService.Instance.ViewModel?.DefaultLanguage;
+        if (rows.Count == 0) return;
+        // OrderByPrimary puts the primary language first when it is known; fall back to the first row.
+        var source = string.IsNullOrEmpty(primary)
+            ? rows[0]
+            : rows.FirstOrDefault(r => string.Equals(r.Language, primary, StringComparison.OrdinalIgnoreCase)) ?? rows[0];
+        foreach (var row in rows)
+            row.SourceText = ReferenceEquals(row, source) ? null : source.Value;
     }
 
     private static IEnumerable<TranslationItem> OrderByPrimary(IEnumerable<TranslationItem> items)

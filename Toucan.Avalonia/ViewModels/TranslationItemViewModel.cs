@@ -63,12 +63,34 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
             _value = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(IsEmpty));
+            OnPropertyChanged(nameof(CharacterCount));
+            OnPropertyChanged(nameof(WordCount));
+            OnPropertyChanged(nameof(CountSummary));
             _debounceTimer.Stop();
             _debounceTimer.Start();
         }
     }
 
     public bool IsEmpty => string.IsNullOrEmpty(_value);
+
+    /// <summary>Number of characters in the current value.</summary>
+    public int CharacterCount => _value.Length;
+
+    /// <summary>Number of whitespace-separated words in the current value.</summary>
+    public int WordCount => _value.Length == 0 ? 0 : _value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
+
+    /// <summary>"12 chars · 3 words", for the counter shown under the field.</summary>
+    public string CountSummary => $"{CharacterCount} {(CharacterCount == 1 ? "char" : "chars")} · {WordCount} {(WordCount == 1 ? "word" : "words")}";
+
+    /// <summary>
+    /// The primary-language value of the same key, for the side-by-side source column. Set by the owning group;
+    /// null for the primary-language row itself (it is the source).
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSource))]
+    private string? sourceText;
+
+    public bool HasSource => SourceText is not null;
 
     public string Comment
     {
@@ -154,10 +176,20 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     public void Refresh()
     {
         _debounceTimer?.Stop();
-        _value = _model.Value ?? string.Empty;
+        var incoming = _model.Value ?? string.Empty;
+        var valueChanged = _value != incoming;
+        _value = incoming;
         _valueBeforeEdit = _value;
-        OnPropertyChanged(nameof(Value));
-        OnPropertyChanged(nameof(IsEmpty));
+        // Only raise Value when it actually changed, so a refresh triggered by an unrelated edit
+        // does not reset the caret of a field the user is typing in.
+        if (valueChanged)
+        {
+            OnPropertyChanged(nameof(Value));
+            OnPropertyChanged(nameof(IsEmpty));
+            OnPropertyChanged(nameof(CharacterCount));
+            OnPropertyChanged(nameof(WordCount));
+            OnPropertyChanged(nameof(CountSummary));
+        }
         OnPropertyChanged(nameof(IsApproved));
         OnPropertyChanged(nameof(Comment));
         OnPropertyChanged(nameof(HasComment));

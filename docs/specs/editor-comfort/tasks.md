@@ -15,9 +15,9 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
   - [x] 1.3 Tests: N-item value operation undoes/redoes in one step (`BulkUndoTests`) and survives save/reopen; CHANGELOG Fixed line added
   - [ ] 1.4 Structural bulk operations (move to namespace, delete): extend the undo model with key add/rename/delete actions so they record and replay like value edits, then close APP-04 fully. The value-only `EditAction` model cannot represent them today.
 - [ ] 2. Focus-stable inline editing and side-by-side (R2, A2)
-  - [ ] 2.1 Keep focus and caret through commit, validation and suggestion refresh (stabilize edited-item identity in the virtualized list)
-  - [ ] 2.2 Side-by-side primary/target view for the selected item
-  - [ ] 2.3 Content-sized multiline target field with character and word count
+  - [x] 2.1 Keep focus and caret through commit, validation and suggestion refresh: `Refresh` only raises `Value` when the model value actually changed
+  - [x] 2.2 Side-by-side primary/target view: non-primary rows carry the primary value as `SourceText`, shown dimmed under the field
+  - [x] 2.3 Content-sized multiline target field (`AcceptsReturn`, wrap, `MaxHeight`) with a character and word count (`CountSummary`)
 - [ ] 3. Notification history (R6, A6)
   - [ ] 3.1 Flyout anchored to the status-bar badge listing `INotificationCenter.History` newest-first with time, severity, source
   - [ ] 3.2 Badge counts unseen notifications (separate from the empty-translation count); progress / cancellation / completion are distinguishable

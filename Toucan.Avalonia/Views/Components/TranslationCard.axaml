@@ -17,6 +17,8 @@
                    Text="{Binding Value}"
                    PlaceholderText="{Binding PlaceholderText}"
                    FlowDirection="{Binding FlowDirection}"
+                   AcceptsReturn="True" TextWrapping="Wrap" MaxHeight="220"
+                   AutomationProperties.Name="{Binding Language, Converter={StaticResource LanguageName}}"
                    IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}"/>
           <!-- Inline TM suggestion (ghost text): shown while the field is empty; Tab accepts -->
           <Grid ColumnDefinitions="*,Auto" IsHitTestVisible="False" Margin="11,0,10,0" VerticalAlignment="Center"
@@ -33,6 +35,15 @@
             </Border>
           </Grid>
         </Panel>
+
+        <!-- Side-by-side source (dimmed, read-only) and the character/word count, under the field -->
+        <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,Auto" Margin="2,1,2,0">
+          <SelectableTextBlock Classes="caption" Foreground="{DynamicResource FaintTextBrush}" TextWrapping="Wrap"
+                               IsVisible="{Binding HasSource}" Text="{Binding SourceText}"
+                               ToolTip.Tip="{loc:Loc 'Source text'}"/>
+          <TextBlock Grid.Column="1" Classes="caption" Foreground="{DynamicResource FaintTextBrush}"
+                     HorizontalAlignment="Right" Margin="8,0,0,0" Text="{Binding CountSummary}"/>
+        </Grid>
 
         <StackPanel Classes="valueActions" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Spacing="1">
           <!-- Machine-translated marker -->

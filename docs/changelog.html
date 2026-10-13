@@ -109,9 +109,14 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="fixed">1 fixed</span></div>
-<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Fixed</h3>
+<div class="release-counts"><span class="added">1 added</span><span class="fixed">2 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
+<li><strong>Side-by-side source and character/word counts</strong> — Each target field shows the source-language value beside it and a live character and word count underneath, and the field grows to fit multiline text instead of clipping to one line.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>Editing keeps focus</strong> — Refreshing a row after an unrelated edit (undo, redo or a bulk operation elsewhere) no longer resets the field you are typing in; the caret stays put.</li>
 <li><strong>Bulk value operations undo in one step</strong> — Copy to language, replace all, pre-translate and the text transforms (case, trim, simplify) now record their changes as a single undo step, so one undo reverts the whole operation and one redo reapplies it. Move to namespace and delete are structural and still cannot be undone (tracked).</li>
 </ul></div></details>
 <div class="release-links"><a href="#unreleased" aria-label="Permalink to Unreleased">Permalink</a></div>
