@@ -38,9 +38,20 @@ public partial class MainWindowViewModel
     {
         var vm = new PreTranslateViewModel(OrderedLanguages(), items, _pretranslationService, _dialogService, _providerSettingsService, CurrentPath, PrimaryLanguage,
             UsableProviderNames(), ResolveProvider());
+        // The dialog mutates the items in place on Apply; snapshot first so we can record the change as one undo step.
+        var before = new Dictionary<TranslationItem, string>(ReferenceEqualityComparer.Instance);
+        foreach (var item in items) before[item] = item.Value;
+
         var committed = await _dialogService.ShowPreTranslateAsync(vm);
         RememberProvider(vm.SelectedProvider);
         if (!committed || vm.AppliedCount == 0) return;
+
+        using (_undoRedoService.BeginGroup())
+        {
+            foreach (var item in vm.AppliedItems)
+                if (before.TryGetValue(item, out var old) && old != item.Value)
+                    _undoRedoService.Record(item.Namespace, item.Language, old, item.Value);
+        }
 
         NotifyBulkValueChanges(vm.AppliedItems);
         UpdateSummaryInfo();
@@ -77,14 +88,18 @@ public partial class MainWindowViewModel
             var result = await Task.Run(() => _pretranslationService.PreTranslateAsync(request));
 
             var applied = new List<TranslationItem>();
-            foreach (var r in result.Items.Where(r => r.Succeeded && !string.IsNullOrEmpty(r.TranslatedValue)))
+            using (_undoRedoService.BeginGroup())
             {
-                var item = missing.FirstOrDefault(i => i.Namespace == r.Namespace && i.Language == r.Language);
-                if (item == null) continue;
-                item.Value = r.TranslatedValue!;
-                item.ChangeType = ChangeType.Suggestion;
-                item.LastModifiedUtc = DateTime.UtcNow;
-                applied.Add(item);
+                foreach (var r in result.Items.Where(r => r.Succeeded && !string.IsNullOrEmpty(r.TranslatedValue)))
+                {
+                    var item = missing.FirstOrDefault(i => i.Namespace == r.Namespace && i.Language == r.Language);
+                    if (item == null) continue;
+                    _undoRedoService.Record(item.Namespace, item.Language, item.Value, r.TranslatedValue!);
+                    item.Value = r.TranslatedValue!;
+                    item.ChangeType = ChangeType.Suggestion;
+                    item.LastModifiedUtc = DateTime.UtcNow;
+                    applied.Add(item);
+                }
             }
 
             if (applied.Count > 0) NotifyBulkValueChanges(applied);

@@ -415,6 +415,33 @@ public partial class MainWindowViewModel
         StatusText = restored.Count == 1 ? $"{last.Namespace} [{last.Language}] restored" : $"{restored.Count} edits restored";
     }
 
+    /// <summary>
+    /// Runs a value-changing bulk operation so it undoes and redoes as one step. Snapshots the given items' values,
+    /// runs <paramref name="mutate"/>, then records every value that changed inside one undo group. Returns the items
+    /// that changed. A no-op records nothing (an empty group is no step).
+    /// </summary>
+    private IReadOnlyList<TranslationItem> RecordBulkEdit(IEnumerable<TranslationItem> items, Action mutate)
+    {
+        var tracked = items as IReadOnlyList<TranslationItem> ?? items.ToList();
+        var before = new Dictionary<TranslationItem, string>(ReferenceEqualityComparer.Instance);
+        foreach (var item in tracked) before[item] = item.Value;
+
+        using (_undoRedoService.BeginGroup())
+        {
+            mutate();
+            var changed = new List<TranslationItem>();
+            foreach (var item in tracked)
+            {
+                if (before.TryGetValue(item, out var old) && old != item.Value)
+                {
+                    _undoRedoService.Record(item.Namespace, item.Language, old, item.Value);
+                    changed.Add(item);
+                }
+            }
+            return changed;
+        }
+    }
+
     // ───────────────────────── Text transforms ─────────────────────────
 
     /// <summary>Applies a transform to the values currently shown in the editor (the active filter).</summary>
@@ -435,10 +462,13 @@ public partial class MainWindowViewModel
         if (planned.Count > 50 && !await _messageService.ConfirmAsync($"{label} will change {planned.Count} values in the current view. Continue?", label))
             return;
 
-        foreach (var (item, next) in planned)
+        using (_undoRedoService.BeginGroup())
         {
-            _undoRedoService.Record(item.Namespace, item.Language, item.Value, next);
-            item.Value = next;
+            foreach (var (item, next) in planned)
+            {
+                _undoRedoService.Record(item.Namespace, item.Language, item.Value, next);
+                item.Value = next;
+            }
         }
         var changed = planned.Select(p => p.Item).ToList();
 

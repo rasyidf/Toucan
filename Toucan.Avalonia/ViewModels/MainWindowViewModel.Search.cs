@@ -197,7 +197,10 @@ public partial class MainWindowViewModel
         var count = _searchAndReplace.ApplyReplace(AllTranslation, targets, SearchQuery, ReplaceText, CurrentSearchOptions);
 
         var changed = AllTranslation.Where(t => before.TryGetValue(t, out var old) && old != t.Value).ToList();
-        foreach (var t in changed) _undoRedoService.Record(t.Namespace, t.Language, before[t], t.Value);
+        using (_undoRedoService.BeginGroup())
+        {
+            foreach (var t in changed) _undoRedoService.Record(t.Namespace, t.Language, before[t], t.Value);
+        }
         NotifyBulkValueChanges(changed);
         foreach (var vm in PagingController.Data.SelectMany(g => g.AllItems)) vm.Refresh();
         UpdateSummaryInfo();

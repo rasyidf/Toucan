@@ -127,8 +127,9 @@ public partial class MainWindowViewModel
 
         FlushPendingEdits();
         var keys = SelectedKeys.ToList();
-        var copied = _bulkOperations.CopyToLanguage(AllTranslation, keys, primary, target);
         var keySet = keys.ToHashSet(StringComparer.Ordinal);
+        var affected = AllTranslation.Where(t => keySet.Contains(t.Namespace) && t.Language == target).ToList();
+        var copied = RecordBulkEdit(affected, () => _bulkOperations.CopyToLanguage(AllTranslation, keys, primary, target)).Count;
         NotifyBulkValueChanges(AllTranslation.Where(t => keySet.Contains(t.Namespace) && t.Language == target).ToList());
         foreach (var vm in PagingController.Data.SelectMany(g => g.AllItems)) vm.Refresh();
         UpdateSummaryInfo();

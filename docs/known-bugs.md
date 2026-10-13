@@ -22,7 +22,7 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [REL-04](#rel-04) | Low | Release | Windows ships as a portable zip; no installer or MSIX in releases | From docs |
 | [APP-01](#app-01) | Low | App | Source Control and Dictionary panels do not exist | Reproduced |
 | [APP-03](#app-03) | Low | App | No notification history; the status-bar badge only shows a count of empty translations | Reproduced |
-| [APP-04](#app-04) | Low | App | Bulk operations (copy to language, replace all, pre-translate, move, delete) cannot be undone | From code |
+| [APP-04](#app-04) | Low | App | Structural bulk operations (move to namespace, delete) cannot be undone | From code |
 | [QA-02](#qa-02) | Info | Perf | Large-project performance has never been profiled | Not checked |
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
@@ -87,10 +87,10 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 - **Fix direction:** a small service holding title, message, severity and time, a flyout anchored to the badge, and producers: save failures, validation summaries, plugin load errors, and (later) update availability.
 
 <a id="app-04"></a>
-### APP-04 — Bulk operations cannot be undone
+### APP-04 — Structural bulk operations cannot be undone
 
-- **Severity:** Low · **Checked:** `UndoRedoService` records single value edits (`Record(ns, language, old, new)`); `NotifyBulkValueChanges` and the bulk commands never record anything, so Undo after "copy to language" does nothing.
-- **Fix direction:** group the edits of one bulk operation into a single undo step. Planned in v0.24.
+- **Severity:** Low · **Checked:** The value bulk operations (copy to language, replace all, pre-translate, text transforms) now record their edits in one `IUndoRedoService.BeginGroup`, so undo reverts the whole operation in one step (v0.24). Move to namespace and delete are structural changes (renamed and removed keys) that the value-only undo model cannot represent, so they still cannot be undone.
+- **Fix direction:** extend the undo model with structural actions (key add/rename/delete) so move and delete record and replay like value edits. Tracked for a later v0.24 step.
 
 ---
 

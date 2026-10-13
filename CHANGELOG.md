@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- **Bulk value operations undo in one step** — Copy to language, replace all, pre-translate and the text transforms (case, trim, simplify) now record their changes as a single undo step, so one undo reverts the whole operation and one redo reapplies it. Move to namespace and delete are structural and still cannot be undone (tracked).
+
 ## [0.23.0] - 2026-10-13
 
 Extension platform: a connector can be built, installed, configured and used without changing Toucan.

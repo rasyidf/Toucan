@@ -10,9 +10,10 @@ summary: "v0.24 work order: bulk undo grouping, focus-stable inline + side-by-si
 Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v024-editor-comfort-and-onboarding); design is [design.md](design.md). Each step leaves `dotnet test Toucan.CrossPlatform.slnx` green and adds its own tests. Ordered lowest-risk-highest-value first: the bulk-undo step reuses v0.23 plumbing and clears a tracked bug, so it leads.
 
 - [ ] 1. Bulk operations undo as one step (R3, A3)
-  - [ ] 1.1 Route `BulkOperationService` / `BulkActionService` / pre-translate / replace-all through the editor edit primitive so each change records on the undo stack
-  - [ ] 1.2 Wrap each operation in `IUndoRedoService.BeginGroup`; a no-op operation records no step
-  - [ ] 1.3 Tests: N-item operation undoes/redoes in one step and survives save/reopen; remove APP-04 from known-bugs and add a CHANGELOG Fixed line
+  - [x] 1.1 Route the value bulk operations (copy to language, replace all, pre-translate, text transforms) through the undo stack: snapshot values, mutate, record the diffs
+  - [x] 1.2 Wrap each in `IUndoRedoService.BeginGroup`; a no-op operation records no step
+  - [x] 1.3 Tests: N-item value operation undoes/redoes in one step (`BulkUndoTests`) and survives save/reopen; CHANGELOG Fixed line added
+  - [ ] 1.4 Structural bulk operations (move to namespace, delete): extend the undo model with key add/rename/delete actions so they record and replay like value edits, then close APP-04 fully. The value-only `EditAction` model cannot represent them today.
 - [ ] 2. Focus-stable inline editing and side-by-side (R2, A2)
   - [ ] 2.1 Keep focus and caret through commit, validation and suggestion refresh (stabilize edited-item identity in the virtualized list)
   - [ ] 2.2 Side-by-side primary/target view for the selected item
@@ -38,4 +39,4 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
 
 ## Completion gate
 
-A user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved. The bulk-undo and notification-history steps also close APP-04 and APP-03 in [known-bugs.md](../../known-bugs.md).
+A user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved. The notification-history step closes APP-03; the bulk-undo step closes APP-04 for value operations, with structural move/delete tracked in task 1.4.
