@@ -117,4 +117,20 @@ public class PlaceholderEditingTests
             Assert.Contains("{{name}}", Row(vm, "en").Value); // nothing changed
         }
     }
+
+    [AvaloniaFact]
+    public async Task PromptBasedRenameFromTheContextMenuRenamesAcrossLanguages()
+    {
+        var (host, vm) = await Open("rename-prompt");
+        using (host)
+        {
+            host.Dialogs.Prompts.Enqueue("username"); // the user types the new inner name in the prompt
+
+            await vm.RenamePlaceholderCommand.ExecuteAsync("greeting\t{{name}}");
+
+            Assert.Contains("{{username}}", Row(vm, "en").Value);
+            Assert.Contains("{{username}}", Row(vm, "fr").Value);
+            Assert.DoesNotContain("{{name}}", Row(vm, "fr").Value);
+        }
+    }
 }

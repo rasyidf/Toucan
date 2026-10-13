@@ -481,6 +481,27 @@ public partial class MainWindowViewModel
     }
 
     /// <summary>
+    /// Prompts for a new name for a <c>{{ }}</c> placeholder and renames it across every language of the key, as one
+    /// undo step. Used by the editor card's right-click menu, which is portable (no modifier keys). The parameter is
+    /// "key\toldToken".
+    /// </summary>
+    [RelayCommand]
+    private async Task RenamePlaceholder(string? keyAndToken)
+    {
+        if (IsAuditMode || string.IsNullOrEmpty(keyAndToken)) return;
+        var parts = keyAndToken.Split('\t', 2);
+        if (parts.Length != 2) return;
+        var (key, oldToken) = (parts[0], parts[1]);
+
+        var inner = oldToken.Trim('{', '}');
+        var newInner = await _dialogService.ShowPromptAsync("Rename placeholder", $"Rename {oldToken} in every language of this key.", inner);
+        if (string.IsNullOrWhiteSpace(newInner) || newInner == inner) return;
+        var newToken = "{{" + newInner.Trim() + "}}";
+        if (RenamePlaceholderAcrossLanguages(key, oldToken, newToken) == 0)
+            StatusText = $"Could not rename {oldToken}: the new name must be a plain {{ }} placeholder.";
+    }
+
+    /// <summary>
     /// Syncs the placeholder the user just changed in the focused field to every other language of the same key: if the
     /// focused value has a <c>{{ }}</c> token the source does not, and the source has exactly one the focused value does
     /// not, treat it as a rename and apply it across the key. One gesture, one undo step.
