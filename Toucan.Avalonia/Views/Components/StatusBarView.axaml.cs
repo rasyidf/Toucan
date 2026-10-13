@@ -82,6 +82,29 @@ public partial class StatusBarView : UserControl
         flyout.Items.Add(issues);
         flyout.Items.Add(new Separator());
         flyout.Items.Add(new MenuItem { Header = "Run validation", Command = vm.RunValidationCommand });
+
+        // Notification history (host and plugin notifications), newest first.
+        var history = status.NotificationHistory;
+        flyout.Items.Add(new Separator());
+        if (history.IsEmpty)
+        {
+            flyout.Items.Add(new MenuItem { Header = Locales.Loc.T("No notifications yet"), IsEnabled = false });
+        }
+        else
+        {
+            flyout.Items.Add(new MenuItem { Header = Locales.Loc.T("Recent notifications"), IsEnabled = false });
+            foreach (var entry in history.Entries.Take(10))
+            {
+                var item = new MenuItem { Header = $"[{entry.Time}] {entry.SeverityLabel} · {entry.Title}", IsEnabled = false };
+                if (entry.HasMessage) ToolTip.SetTip(item, entry.Message);
+                flyout.Items.Add(item);
+            }
+            var clear = new MenuItem { Header = Locales.Loc.T("Clear notifications") };
+            clear.Click += (_, _) => history.Clear();
+            flyout.Items.Add(clear);
+        }
+
+        history.MarkSeen();
         flyout.ShowAt(NotificationsButton);
     }
 

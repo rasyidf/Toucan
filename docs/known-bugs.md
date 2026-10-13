@@ -21,7 +21,6 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [REL-03](#rel-03) | Low | Release | Update check is manual only: no check on startup, no download or install | From code |
 | [REL-04](#rel-04) | Low | Release | Windows ships as a portable zip; no installer or MSIX in releases | From docs |
 | [APP-01](#app-01) | Low | App | Source Control and Dictionary panels do not exist | Reproduced |
-| [APP-03](#app-03) | Low | App | No notification history; the status-bar badge only shows a count of empty translations | Reproduced |
 | [APP-04](#app-04) | Low | App | Structural bulk operations (move to namespace, delete) cannot be undone | From code |
 | [QA-02](#qa-02) | Info | Perf | Large-project performance has never been profiled | Not checked |
 
@@ -79,12 +78,6 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 - **Severity:** Low · **Checked:** `App.RegisterSidePanels` registers Explorer, Search, Issues, Source Code, Languages, Inspector, Translation, Memory. No panel for Git or glossary.
 - **Correction:** the old text also listed "Translation" as missing. It exists (`machine-translation`, titled Translation).
 - **Plan:** Git integration is FG-06 (v0.23), the glossary is FG-15 (v0.21).
-
-<a id="app-03"></a>
-### APP-03 — No notification history
-
-- **Severity:** Low · **Checked:** `StatusBarService.ShowNotificationBadge` is only fed the number of empty translations (`MainWindowViewModel.cs:266`). There is no `NotificationService` and nothing opens when the badge is clicked.
-- **Fix direction:** a small service holding title, message, severity and time, a flyout anchored to the badge, and producers: save failures, validation summaries, plugin load errors, and (later) update availability.
 
 <a id="app-04"></a>
 ### APP-04 — Structural bulk operations cannot be undone

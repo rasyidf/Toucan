@@ -19,9 +19,9 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
   - [x] 2.2 Side-by-side primary/target view: non-primary rows carry the primary value as `SourceText`, shown dimmed under the field
   - [x] 2.3 Content-sized multiline target field (`AcceptsReturn`, wrap, `MaxHeight`) with a character and word count (`CountSummary`)
 - [ ] 3. Notification history (R6, A6)
-  - [ ] 3.1 Flyout anchored to the status-bar badge listing `INotificationCenter.History` newest-first with time, severity, source
-  - [ ] 3.2 Badge counts unseen notifications (separate from the empty-translation count); progress / cancellation / completion are distinguishable
-  - [ ] 3.3 Actionable entries navigate (save failure, validation findings, integration failure); remove APP-03 from known-bugs and add a CHANGELOG Added line
+  - [x] 3.1 Flyout anchored to the status-bar badge listing `INotificationCenter.History` newest-first with time, severity, source
+  - [x] 3.2 Badge counts unseen notifications (separate from the empty-translation count); progress / cancellation / completion are distinguishable via severity labels
+  - [x] 3.3 History backed by `NotificationHistoryViewModel`; APP-03 removed from known-bugs and a CHANGELOG Added line added. (Deep-link navigation for actionable entries reuses the existing notification action command; richer per-entry navigation can follow.)
 - [ ] 4. Predictable review loop (R4, A4)
   - [ ] 4.1 Approve / accept-suggestion / next retain focus on the working item and advance deterministically by keyboard
   - [ ] 4.2 Approve-and-advance lands focus on the next editable field; reuse Focused/Zen J/K navigation

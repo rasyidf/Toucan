@@ -32,9 +32,13 @@ public partial class StatusBarViewModel : ObservableObject
     /// <summary>Background work, with the means to cancel it.</summary>
     public OperationsViewModel Operations { get; }
 
-    public StatusBarViewModel(Toucan.Core.Plugins.IBackgroundOperationService? operations = null)
+    /// <summary>Host and plugin notification history, with the unseen count for the badge.</summary>
+    public NotificationHistoryViewModel NotificationHistory { get; }
+
+    public StatusBarViewModel(Toucan.Core.Plugins.IBackgroundOperationService? operations = null, Toucan.Core.Plugins.INotificationCenter? notificationCenter = null)
     {
         Operations = new OperationsViewModel(operations);
+        NotificationHistory = new NotificationHistoryViewModel(notificationCenter);
         Vcs = new VcsPanel { Order = 10 };
         Stats = new TranslationStatsPanel { Order = 20 };
         Mode = new ModePanel { Order = 30 };
@@ -63,6 +67,12 @@ public partial class StatusBarViewModel : ObservableObject
         Project.Update(Locales.Loc.T("No project"));
         Notifications.Update(0);
         Loading.Update(false);
+
+        NotificationHistory.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(NotificationHistoryViewModel.UnseenCount))
+                Notifications.UpdateUnseen(NotificationHistory.UnseenCount);
+        };
     }
 
     public string StatusText
