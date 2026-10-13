@@ -453,9 +453,13 @@ public partial class MainWindowViewModel
     public ObservableCollection<SuggestionItem> MemoryMatches { get; } = [];
     public ObservableCollection<KeyUsage> SelectedKeyUsages { get; } = [];
 
+    /// <summary>Placeholders parsed from the source value of the selected key, shown so a translator knows what must survive.</summary>
+    public ObservableCollection<string> SelectedKeyPlaceholders { get; } = [];
+
     public bool HasSuggestions => Suggestions.Count > 0;
     public bool HasMemoryMatches => MemoryMatches.Count > 0;
     public bool HasSelectedKeyUsages => SelectedKeyUsages.Count > 0;
+    public bool HasSelectedKeyPlaceholders => SelectedKeyPlaceholders.Count > 0;
 
     /// <summary>Refreshes the inspector for the currently selected key.</summary>
     private void RefreshInspector()
@@ -464,6 +468,7 @@ public partial class MainWindowViewModel
         SelectedKeyLanguages.Clear();
         Suggestions.Clear();
         SelectedKeyUsages.Clear();
+        SelectedKeyPlaceholders.Clear();
 
         var items = string.IsNullOrEmpty(ns) ? [] : AllTranslation.Where(t => t.Namespace == ns).ToList();
         HasSelectedKeyDetails = items.Count > 0;
@@ -488,6 +493,10 @@ public partial class MainWindowViewModel
             var source = items.FirstOrDefault(t => t.Language == PrimaryLanguage && !string.IsNullOrWhiteSpace(t.Value));
             if (source != null)
             {
+                foreach (var p in Toucan.Core.Services.PlaceholderService.Extract(source.Value)
+                             .Select(p => p.Text).Distinct(StringComparer.Ordinal))
+                    SelectedKeyPlaceholders.Add(p);
+
                 var similar = AllTranslation
                     .Where(t => t.Language == PrimaryLanguage && t.Namespace != ns && !string.IsNullOrWhiteSpace(t.Value))
                     .Select(t => (Item: t, Score: _fuzzySearch.ComputeTrigramSimilarity(source.Value, t.Value)))
@@ -509,6 +518,7 @@ public partial class MainWindowViewModel
 
         OnPropertyChanged(nameof(HasSuggestions));
         OnPropertyChanged(nameof(HasSelectedKeyUsages));
+        OnPropertyChanged(nameof(HasSelectedKeyPlaceholders));
         RefreshMemoryMatches();
     }
 

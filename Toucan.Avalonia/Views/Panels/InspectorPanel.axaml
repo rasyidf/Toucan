@@ -33,6 +33,22 @@
           </StackPanel>
         </c:SettingsGroup>
 
+        <!-- Placeholders that must survive translation (parsed from the source value) -->
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'PLACEHOLDERS'}" IsVisible="{Binding HasSelectedKeyPlaceholders}">
+          <ItemsControl ItemsSource="{Binding SelectedKeyPlaceholders}" Margin="10,8">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Classes="badge" Margin="0,0,4,4" ToolTip.Tip="{loc:Loc 'This placeholder must appear in every translation'}">
+                  <TextBlock Classes="mono" Text="{Binding}"/>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </c:SettingsGroup>
+
         <!-- Per-language values -->
         <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'LANGUAGES'}">
           <ItemsControl Classes="rows" ItemsSource="{Binding SelectedKeyLanguages}">
