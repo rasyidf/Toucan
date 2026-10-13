@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- **First-run setup and a feature tour** — The first-run dialog now also sets the default source language and theme, and a one-time, dismissible tour points out editing, keyboard review and the command palette. The empty start screen and the "no keys match" state already offer the actions to open, create or import a project and to add a key.
 - **Placeholders in the inspector** — Selecting a key lists the placeholders parsed from its source value (`{name}`, `{{count}}`, `%s`, `:param`, `${expr}`, ICU), so a translator can see at a glance what every translation must keep. The inspector already shows the per-language values with their state (empty, machine, translated, approved), translation-memory matches, source-code references and history.
 - **Keyboard review loop** — Approve and Next (Mod+Enter) approves the current card's filled values and jumps to the next card that still needs review, so you can review a project by keyboard without losing your place. A Next Needing Review command skips cards that are already done. Both are in the command palette with reassignable shortcuts.
 - **Notification history** — The status-bar notification badge now opens a history of recent notifications (time, severity and source) from the application and plugins, and the badge counts notifications you have not seen yet. Progress, cancellation and completion read differently in the list.

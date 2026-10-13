@@ -63,6 +63,9 @@ public class AppOptions
     /// <summary>The onboarding version the user has completed; 0 means first run. Onboarding asks whether to use AI.</summary>
     public int OnboardingVersion { get; set; }
 
+    /// <summary>True once the user has seen (or dismissed) the one-time feature tour.</summary>
+    public bool FeatureTourSeen { get; set; }
+
     // --- Last session state ---
     public string? LastProjectPath { get; set; }
     public bool OpenLastProjectOnStartup { get; set; } = true;

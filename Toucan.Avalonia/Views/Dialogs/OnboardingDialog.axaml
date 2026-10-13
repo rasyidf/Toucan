@@ -26,6 +26,17 @@
 
       <c:SettingsGroup>
         <StackPanel>
+          <c:SettingsRow Title="{loc:Loc 'Default source language'}" Description="{loc:Loc 'Used for new projects. You can change it per project later.'}">
+            <ComboBox ItemsSource="{Binding LanguageChoices}" SelectedItem="{Binding DefaultLanguage}" AutomationProperties.Name="{loc:Loc 'Default source language'}"/>
+          </c:SettingsRow>
+          <c:SettingsRow Title="{loc:Loc 'Theme'}" Description="{loc:Loc 'Match the system, or always light or dark.'}">
+            <ComboBox ItemsSource="{Binding ThemeChoices}" SelectedItem="{Binding Theme}" AutomationProperties.Name="{loc:Loc 'Theme'}"/>
+          </c:SettingsRow>
+        </StackPanel>
+      </c:SettingsGroup>
+
+      <c:SettingsGroup>
+        <StackPanel>
           <c:SettingsRow Title="{loc:Loc 'Keep AI off'}" Description="{loc:Loc 'Nothing is sent to an AI service, and AI commands are turned off. Google, DeepL and Microsoft translation still work.'}">
             <RadioButton GroupName="ai" IsChecked="{Binding KeepAiOff}" AutomationProperties.Name="{loc:Loc 'Keep AI off'}"/>
           </c:SettingsRow>

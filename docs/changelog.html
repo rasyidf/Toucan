@@ -109,9 +109,10 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="added">4 added</span><span class="fixed">2 fixed</span></div>
+<div class="release-counts"><span class="added">5 added</span><span class="fixed">2 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
+<li><strong>First-run setup and a feature tour</strong> — The first-run dialog now also sets the default source language and theme, and a one-time, dismissible tour points out editing, keyboard review and the command palette. The empty start screen and the &quot;no keys match&quot; state already offer the actions to open, create or import a project and to add a key.</li>
 <li><strong>Placeholders in the inspector</strong> — Selecting a key lists the placeholders parsed from its source value (<code>{name}</code>, <code>{{count}}</code>, <code>%s</code>, <code>:param</code>, <code>${expr}</code>, ICU), so a translator can see at a glance what every translation must keep. The inspector already shows the per-language values with their state (empty, machine, translated, approved), translation-memory matches, source-code references and history.</li>
 <li><strong>Keyboard review loop</strong> — Approve and Next (Mod+Enter) approves the current card&#x27;s filled values and jumps to the next card that still needs review, so you can review a project by keyboard without losing your place. A Next Needing Review command skips cards that are already done. Both are in the command palette with reassignable shortcuts.</li>
 <li><strong>Notification history</strong> — The status-bar notification badge now opens a history of recent notifications (time, severity and source) from the application and plugins, and the badge counts notifications you have not seen yet. Progress, cancellation and completion read differently in the list.</li>

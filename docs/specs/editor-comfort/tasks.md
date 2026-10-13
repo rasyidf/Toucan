@@ -29,9 +29,9 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
   - [x] 5.1 Inspector shows the source placeholders (parsed via `PlaceholderService`), per-language source/target values with state, description (comment) and source-code references
   - [x] 5.2 Provenance is surfaced where tracked: the Translation Memory section (TM origin) and the "machine" per-language state (`ChangeType.Suggestion`). Distinguishing machine from AI per value needs provenance on the model (`ChangeType` only has Suggestion/DirectEdit today) — tracked for v0.25's suggestion work.
 - [ ] 6. First-run setup and empty states (R1, A1)
-  - [ ] 6.1 Add default-language and theme steps to onboarding; gate on a first-run flag in `AppOptions`
-  - [ ] 6.2 Actionable empty states for no-project and no-keys, bound to existing commands
-  - [ ] 6.3 Dismissible one-time feature tour
+  - [x] 6.1 Default-language and theme steps added to onboarding (persisted via `IPreferenceService`); gated on `AppOptions.OnboardingVersion` (bumped to 2 so existing users see the new steps once)
+  - [x] 6.2 Actionable empty states already present: the start screen (open/create/import/open-file + recents) and the editor "no keys match" state (clear filter / add key), both bound to existing commands — confirmed
+  - [x] 6.3 Dismissible one-time feature tour (`FeatureTourViewModel`, overlay in `MainWindow`), gated by `AppOptions.FeatureTourSeen`, shown after first-run setup
 - [ ] 7. Accessibility and layout pass (R7, A7)
   - [ ] 7.1 Keyboard focus order and `AutomationProperties.Name` coverage (headless checks where possible)
   - [ ] 7.2 Themes, narrow widths and text scaling via the screenshot harness; RTL target content
