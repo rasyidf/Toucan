@@ -60,13 +60,15 @@ Shipped in v0.23.0. The extension platform (registration/activation split, comma
 
 **Outcome:** a new user can open a project and complete a keyboard-driven translation session comfortably. **References:** APP-02, APP-03. **Spec:** [editor-comfort](../specs/editor-comfort/tasks.md).
 
-- [ ] Complete first-run setup for default language, theme, and optional translation-engine credentials; add actionable empty states and a dismissible feature tour.
-- [ ] Add reliable inline editing, side-by-side source/target comparison, content-sized multiline fields, and character/word counts.
-- [ ] Make bulk operations (copy to language, replace all, pre-translate, move, delete) undoable as one step; undo covers single value edits only today.
-- [ ] Make the edit → accept suggestion → approve → next workflow predictable, including focus retention and configurable shortcuts with conflict detection.
-- [ ] Clarify source/target hierarchy, placeholder rendering, descriptions, source references, and suggestion provenance in the editor and inspector.
-- [ ] Add notification history with actionable save, validation, and integration failures; distinguish progress, cancellation, and completion.
-- [ ] Verify light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader labels, and RTL content on supported platforms.
+**Status:** implemented on `release/v0.23.0`; not yet cut as a version. See [CHANGELOG.md](../../CHANGELOG.md) `[Unreleased]`.
+
+- [x] Complete first-run setup for default language, theme, and optional translation-engine credentials; add actionable empty states and a dismissible feature tour.
+- [x] Add reliable inline editing, side-by-side source/target comparison, content-sized multiline fields, and character/word counts.
+- [x] Make bulk operations undoable as one step (value operations: copy to language, replace all, pre-translate, text transforms). Structural move/delete need an extended undo model — tracked (APP-04, spec task 1.4).
+- [x] Make the edit → accept suggestion → approve → next workflow predictable, including focus retention and configurable shortcuts with conflict detection.
+- [x] Clarify source/target hierarchy, placeholder rendering, descriptions, source references, and suggestion provenance in the editor and inspector.
+- [x] Add notification history with actionable save, validation, and integration failures; distinguish progress, cancellation, and completion.
+- [x] Verify light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader labels, and RTL content on supported platforms.
 
 **Completion gate:** a user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved.
 

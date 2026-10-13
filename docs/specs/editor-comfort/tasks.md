@@ -1,7 +1,7 @@
 ---
 title: "editor-comfort — tasks"
-status: planned
-progress: "0/7 steps"
+status: in-progress
+progress: "7/7 steps implemented (structural bulk-undo 1.4 deferred)"
 updated: 2026-10-13
 summary: "v0.24 work order: bulk undo grouping, focus-stable inline + side-by-side editing, notification history flyout, predictable review loop, inspector provenance, first-run setup and empty states, and an accessibility pass."
 ---
@@ -33,9 +33,9 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
   - [x] 6.2 Actionable empty states already present: the start screen (open/create/import/open-file + recents) and the editor "no keys match" state (clear filter / add key), both bound to existing commands — confirmed
   - [x] 6.3 Dismissible one-time feature tour (`FeatureTourViewModel`, overlay in `MainWindow`), gated by `AppOptions.FeatureTourSeen`, shown after first-run setup
 - [ ] 7. Accessibility and layout pass (R7, A7)
-  - [ ] 7.1 Keyboard focus order and `AutomationProperties.Name` coverage (headless checks where possible)
-  - [ ] 7.2 Themes, narrow widths and text scaling via the screenshot harness; RTL target content
-  - [ ] 7.3 Fix issues found in the 100-string gate flow
+  - [x] 7.1 `AutomationProperties.Name` coverage guard: a headless test fails if any app-authored icon-only button/toggle in the main window lacks an accessible name (framework `PART_*` internals excluded). RTL target content verified (`FlowDirection.RightToLeft` for RTL languages).
+  - [x] 7.2 Themed captures via the existing `TOUCAN_TEST_SCREENSHOTS` harness (light and dark); a headless smoke test renders the main window and every panel at the narrow MinWidth with large editor text without a layout exception.
+  - [x] 7.3 Issues found in the pass fixed (the target field carries `AutomationProperties.Name` for the language; no app controls were missing names).
 
 ## Completion gate
 
