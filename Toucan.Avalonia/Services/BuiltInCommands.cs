@@ -60,6 +60,8 @@ internal static class BuiltInCommands
             B("View", "Audit Mode", "Mod+Alt+D3", vm => vm.SwitchToAuditModeCommand),
             B("Translate", "Pre-translate", "Mod+Shift+T", vm => vm.PreTranslateBulkCommand),
             B("Translate", "Run Validation", "F7", vm => vm.RunValidationCommand),
+            B("Review", "Approve and Next", "Mod+Enter", vm => vm.ApproveAndNextCommand),
+            B("Review", "Next Needing Review", null, vm => vm.FocusedNextNeedingReviewCommand),
             B("Settings", "Preferences", "Mod+OemComma", vm => vm.ShowPreferencesCommand),
         ];
     }

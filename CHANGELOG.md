@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- **Keyboard review loop** — Approve and Next (Mod+Enter) approves the current card's filled values and jumps to the next card that still needs review, so you can review a project by keyboard without losing your place. A Next Needing Review command skips cards that are already done. Both are in the command palette with reassignable shortcuts.
 - **Notification history** — The status-bar notification badge now opens a history of recent notifications (time, severity and source) from the application and plugins, and the badge counts notifications you have not seen yet. Progress, cancellation and completion read differently in the list.
 - **Side-by-side source and character/word counts** — Each target field shows the source-language value beside it and a live character and word count underneath, and the field grows to fit multiline text instead of clipping to one line.
 

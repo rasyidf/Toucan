@@ -466,6 +466,51 @@ public partial class MainWindowViewModel
         }
     }
 
+    // ───────────────────────── Review loop ─────────────────────────
+
+    /// <summary>A card still needs review when any of its non-empty target values is not approved, or any value is empty.</summary>
+    private static bool NeedsReview(LanguageGroupViewModel card) =>
+        card.AllItems.Any(i => i.IsEmpty || (!i.Model.IsApproved && !string.IsNullOrEmpty(i.Model.Value)));
+
+    private bool CanAdvanceReview() => PagingController.Data.Count > 0;
+
+    /// <summary>
+    /// Moves focus to the next card after the current one that still needs review (an empty or unapproved value),
+    /// deterministically by index without wrapping. Falls back to the plain next card when none needs review.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanAdvanceReview))]
+    private void FocusedNextNeedingReview()
+    {
+        var data = PagingController.Data;
+        if (data.Count == 0) return;
+        ZenCurrentItem?.FlushEdits();
+        for (var i = FocusedIndex + 1; i < data.Count; i++)
+        {
+            if (NeedsReview(data[i])) { FocusedIndex = i; return; }
+        }
+        // Nothing left to review ahead: advance one if we can, otherwise stay put.
+        if (FocusedIndex < data.Count - 1) FocusedIndex++;
+        else StatusText = Locales.Loc.T("No more items need review.");
+    }
+
+    /// <summary>
+    /// Approves the current card's eligible target values (non-empty, not yet approved), then advances to the next card
+    /// that needs review. The keyboard review loop: approve → next, without leaving the keyboard or losing the place.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanAdvanceReview))]
+    private void ApproveAndNext()
+    {
+        var card = ZenCurrentItem;
+        if (card is null) return;
+        card.FlushEdits();
+        var eligible = card.AllItems
+            .Select(i => i.Model)
+            .Where(t => !string.IsNullOrEmpty(t.Value) && !t.IsApproved)
+            .ToList();
+        if (eligible.Count > 0) ApproveItems(eligible);
+        FocusedNextNeedingReview();
+    }
+
     // ───────────────────────── Language visibility ─────────────────────────
 
     public ObservableCollection<LanguageVisibilityItem> LanguageVisibilityFilter { get; } = [];

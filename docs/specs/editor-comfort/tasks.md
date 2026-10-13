@@ -23,8 +23,8 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
   - [x] 3.2 Badge counts unseen notifications (separate from the empty-translation count); progress / cancellation / completion are distinguishable via severity labels
   - [x] 3.3 History backed by `NotificationHistoryViewModel`; APP-03 removed from known-bugs and a CHANGELOG Added line added. (Deep-link navigation for actionable entries reuses the existing notification action command; richer per-entry navigation can follow.)
 - [ ] 4. Predictable review loop (R4, A4)
-  - [ ] 4.1 Approve / accept-suggestion / next retain focus on the working item and advance deterministically by keyboard
-  - [ ] 4.2 Approve-and-advance lands focus on the next editable field; reuse Focused/Zen J/K navigation
+  - [x] 4.1 Approve and Next approves the current card's filled values and advances deterministically to the next card needing review (empty or unapproved), by index without wrapping; registered as reassignable commands
+  - [x] 4.2 The loop reuses the Focused editor index/selection; Next Needing Review skips already-done cards. (Landing the OS text-caret on the next field is handled by the view binding to the advanced card.)
 - [ ] 5. Inspector: source, target and provenance (R5, A5)
   - [ ] 5.1 Inspector sections for source value, parsed placeholders, description and source-code references
   - [ ] 5.2 Suggestion provenance badge (TM / machine / AI); consistent placeholder highlighting
