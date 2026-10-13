@@ -58,7 +58,7 @@ Shipped in v0.23.0. The extension platform (registration/activation split, comma
 
 ### v0.24: Editor comfort and onboarding
 
-**Outcome:** a new user can open a project and complete a keyboard-driven translation session comfortably. **References:** APP-02, APP-03.
+**Outcome:** a new user can open a project and complete a keyboard-driven translation session comfortably. **References:** APP-02, APP-03. **Spec:** [editor-comfort](../specs/editor-comfort/tasks.md).
 
 - [ ] Complete first-run setup for default language, theme, and optional translation-engine credentials; add actionable empty states and a dismissible feature tour.
 - [ ] Add reliable inline editing, side-by-side source/target comparison, content-sized multiline fields, and character/word counts.
