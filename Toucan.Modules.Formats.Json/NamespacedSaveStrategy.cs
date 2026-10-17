@@ -3,8 +3,12 @@ using Toucan.Core.Models;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class NamespacedSaveStrategy(IFileService fileService) : ISaveStrategy
+public class NamespacedSaveStrategy(IFileService fileService) : IDocumentSaveStrategy
 {
+    public string SerializeDocument(string originalContent, IReadOnlyList<DocumentTranslationEdit> edits,
+        CancellationToken cancellationToken = default) =>
+        JsonDocumentSerializer.Serialize(originalContent, edits, cancellationToken);
+
     public string FormatId => FormatIds.Namespaced;
 
     public FormatSupport Support { get; } = new(

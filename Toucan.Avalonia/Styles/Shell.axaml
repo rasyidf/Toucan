@@ -1,0 +1,204 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:c="using:Toucan.Avalonia.Views.Components"
+        xmlns:views="using:Toucan.Avalonia.Views"
+        xmlns:loc="using:Toucan.Avalonia.Locales"
+        xmlns:conv="using:Toucan.Avalonia.Converters">
+
+  <!-- ═══ Activity bar ═══ -->
+  <Style Selector="Button.activity">
+    <Setter Property="Width" Value="40"/>
+    <Setter Property="Height" Value="40"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Margin" Value="0,3"/>
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="ToolTip.Placement" Value="Right"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+  </Style>
+  <Style Selector="c|ActivityBar.rightRail Button.activity">
+    <Setter Property="ToolTip.Placement" Value="Left"/>
+  </Style>
+  <Style Selector="Button.activity ui|FASymbolIcon">
+    <Setter Property="FontSize" Value="20"/>
+  </Style>
+  <Style Selector="Button.activity:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+  </Style>
+  <Style Selector="Button.activity.active /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+  </Style>
+  <Style Selector="Button.activity.active ui|FASymbolIcon">
+    <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+  </Style>
+
+  <!-- Segmented mode selector -->
+  <Style Selector="Button.segment">
+    <Setter Property="Padding" Value="12,4"/>
+    <Setter Property="MinWidth" Value="76"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="4"/>
+  </Style>
+  <Style Selector="Button.segment.active">
+    <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+
+  <!-- Window buttons drawn by Toucan on Windows and Linux -->
+  <Style Selector="Button.caption">
+    <Setter Property="Width" Value="40"/>
+    <Setter Property="Height" Value="28"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.caption:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="Button.caption.close:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#E81123"/>
+    <Setter Property="TextElement.Foreground" Value="White"/>
+  </Style>
+  <Style Selector="Button.caption.close:pointerover Path">
+    <Setter Property="Stroke" Value="White"/>
+  </Style>
+
+  <!-- App-wide workspace modes in the title bar. -->
+  <Style Selector="Button.modeTab">
+    <Setter Property="Padding" Value="12,0"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Height" Value="28"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="FontWeight" Value="Normal"/>
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}">
+          <!-- Not named PART_ContentPresenter: the Fluent theme paints that name on hover, which drew a second, lighter box inside the tab. -->
+          <ContentPresenter x:Name="TabContent" Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Button.modeTab:pointerover, Button.modeTab:focus-visible">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="Button.modeTab.active">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+  </Style>
+
+  <!-- ═══ Surfaces ═══ -->
+  <Style Selector="Border.shellSurface">
+    <Setter Property="CornerRadius" Value="9"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
+    <Setter Property="Background" Value="{DynamicResource EditorBackgroundBrush}"/>
+  </Style>
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="Padding" Value="12"/>
+  </Style>
+  <!-- Same height as the editor's filter toolbar (3 + 28 filter box + 4 padding + 1 border) so the divider lines up across the three columns. -->
+  <Style Selector="Border.panelHeader">
+    <Setter Property="Height" Value="36"/>
+    <Setter Property="Padding" Value="10,0,4,0"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+  </Style>
+  <Style Selector="Border.toolbar">
+    <Setter Property="MinHeight" Value="36"/>
+    <Setter Property="Padding" Value="10,3,10,4"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+  </Style>
+  <Style Selector="Border.badge">
+    <Setter Property="Background" Value="{DynamicResource BadgeBackgroundBrush}"/>
+    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="Padding" Value="6,1"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Border.badge > TextBlock">
+    <Setter Property="FontSize" Value="11"/>
+  </Style>
+  <Style Selector="Border.langBadge">
+    <Setter Property="Background" Value="{DynamicResource BadgeBackgroundBrush}"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Padding" Value="6,2"/>
+    <Setter Property="VerticalAlignment" Value="Top"/>
+    <Setter Property="HorizontalAlignment" Value="Left"/>
+    <Setter Property="Margin" Value="0,6,0,0"/>
+  </Style>
+  <Style Selector="Border.langBadge > TextBlock">
+    <Setter Property="FontSize" Value="11"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+  <Style Selector="Border.langBadge.primary">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+  </Style>
+
+  <!-- ═══ Status bar ═══ -->
+  <Style Selector="Button.status">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="8,0"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Height" Value="24"/>
+    <Setter Property="CornerRadius" Value="0"/>
+    <Setter Property="Foreground" Value="{DynamicResource StatusBarForegroundBrush}"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.status:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource StatusBarForegroundBrush}"/>
+  </Style>
+  <Style Selector="Button.status ui|FASymbolIcon">
+    <Setter Property="FontSize" Value="12"/>
+  </Style>
+  <Style Selector="TextBlock.status">
+    <Setter Property="Foreground" Value="{DynamicResource StatusBarForegroundBrush}"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="Margin" Value="8,0"/>
+  </Style>
+
+  <!-- ═══ Lists ═══ -->
+  <Style Selector="ListBox.plain">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+  </Style>
+  <Style Selector="ListBox.plain ListBoxItem">
+    <Setter Property="Padding" Value="8,5"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Margin" Value="2,1"/>
+  </Style>
+</Styles>

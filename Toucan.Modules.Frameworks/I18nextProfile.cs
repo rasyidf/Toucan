@@ -13,7 +13,7 @@ namespace Toucan.Core.Services.Frameworks;
 ///   - Single-file variant: locales/{lang}.json
 ///   - Plural suffixes: _one, _other, _many, _few, _two, _zero
 /// </summary>
-public partial class I18nextProfile : IFrameworkProfile, IFrameworkFeatures
+public partial class I18nextProfile : IFrameworkProfile, IFrameworkFeatures, IFrameworkDocumentLayout
 {
     public string ScannerId => "i18next";
     public Toucan.Plugins.ConfigSchema Settings => FrameworkFeatureSettings.Schema;
@@ -28,6 +28,29 @@ public partial class I18nextProfile : IFrameworkProfile, IFrameworkFeatures
     public string Id => "i18next";
     public string DisplayName => "i18next (JSON)";
     public string DefaultFormatId => FormatIds.Namespaced;
+    public DiscoveredFile? DescribeDestination(string rootFolder, string relativePath)
+    {
+        var normalized = relativePath.Replace('\\', '/');
+        var localeRoot = new[] { "locales/", "public/locales/", "src/locales/", "assets/locales/" }
+            .FirstOrDefault(prefix => normalized.StartsWith(prefix, StringComparison.Ordinal));
+        if (localeRoot is null || !normalized.EndsWith(".json", StringComparison.Ordinal)) return null;
+        var parts = normalized[localeRoot.Length..].Split('/');
+        if (parts.Length is not (1 or 2) || parts.Any(p => string.IsNullOrWhiteSpace(p) || p is "." or "..")) return null;
+        var stem = Path.GetFileNameWithoutExtension(parts[^1]);
+        if (string.IsNullOrWhiteSpace(stem)) return null;
+        return new(Path.Combine(rootFolder, normalized.Replace('/', Path.DirectorySeparatorChar)), normalized,
+            parts.Length == 1 ? stem : parts[0], parts.Length == 1 ? null : stem);
+    }
+
+    public FrameworkDocumentLayout GetDocumentLayout(DiscoveredFile file)
+    {
+        var parts = file.RelativePath.Replace('\\', '/').Split('/');
+        // Discovery emits either <locale-root>/<language>/<package>.json or <locale-root>/<language>.json.
+        var family = file.Package is null
+            ? string.Join('/', parts[..^1]) + "/@language-file"
+            : string.Join('/', parts[..^2]) + "/@package/" + parts[^1];
+        return new(family, file.Package is null ? TranslationPath.Empty : new([file.Package]));
+    }
     public IEnumerable<string> FilePatterns => ["locales/*/*.json", "locales/*.json", "public/locales/*/*.json"];
 
     public IEnumerable<DiscoveredFile> DiscoverFiles(string rootFolder)
@@ -113,7 +136,7 @@ public partial class I18nextProfile : IFrameworkProfile, IFrameworkFeatures
         foreach (var c in candidates)
         {
             var dir = Path.Combine(root, c.Replace('/', Path.DirectorySeparatorChar));
-            if (Directory.Exists(dir) && Directory.GetDirectories(dir).Length > 0)
+            if (Directory.Exists(dir) && (Directory.GetDirectories(dir).Length > 0 || Directory.GetFiles(dir, "*.json").Length > 0))
                 yield return dir;
         }
     }

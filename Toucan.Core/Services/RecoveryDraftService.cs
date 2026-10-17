@@ -22,11 +22,17 @@ public sealed class RecoveryDraftService(string? folder = null, ILogger<Recovery
     {
         try
         {
+            var existing = PathFor(projectPath);
+            if (File.Exists(existing))
+            {
+                using var data = JsonDocument.Parse(File.ReadAllText(existing));
+                if (data.RootElement.TryGetProperty("SchemaVersion", out var version) && version.GetInt32() is not (1 or 2)) return;
+            }
             Directory.CreateDirectory(_folder);
             var stamped = draft with { ProjectPath = Path.GetFullPath(projectPath), SavedAtUtc = DateTime.UtcNow };
             AtomicFile.WriteAllText(PathFor(projectPath), JsonSerializer.Serialize(stamped, s_json));
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or ArgumentException or InvalidOperationException)
         {
             // A draft is a safety net; failing to write one must never interrupt editing.
             logger?.LogWarning(ex, "Could not write recovery draft for {Project}", projectPath);
@@ -41,9 +47,11 @@ public sealed class RecoveryDraftService(string? folder = null, ILogger<Recovery
         try
         {
             var draft = JsonSerializer.Deserialize<RecoveryDraft>(File.ReadAllText(file), s_json);
-            return draft is { Entries: not null } && draft.ChangeCount > 0 ? draft : null;
+            return draft is { Entries: not null, SchemaVersion: 1 or 2 } && draft.ProjectPath == Path.GetFullPath(projectPath)
+                && (draft.SchemaVersion == 1 && draft.Workspace is null || draft.SchemaVersion == 2 && draft.Workspace?.Root == Path.GetFullPath(projectPath))
+                && draft.ChangeCount > 0 ? draft : null;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or ArgumentException or InvalidOperationException)
         {
             logger?.LogWarning(ex, "Could not read recovery draft for {Project}", projectPath);
             return null;

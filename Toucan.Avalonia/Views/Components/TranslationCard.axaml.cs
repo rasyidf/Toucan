@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using System.ComponentModel;
 using Toucan.Avalonia.Services;
 using Toucan.Avalonia.ViewModels;
 
@@ -15,6 +16,7 @@ public partial class TranslationCard : UserControl
         AvaloniaProperty.RegisterDirect<TranslationCard, int>(nameof(ComparisonColumns), c => c.ComparisonColumns);
     private int _comparisonColumns = 1;
     public int ComparisonColumns => _comparisonColumns;
+    private readonly List<TranslationItemViewModel> _layoutItems = [];
 
     public TranslationCard()
     {
@@ -25,9 +27,14 @@ public partial class TranslationCard : UserControl
             SetAndRaise(ComparisonColumnsProperty, ref _comparisonColumns, columns);
             Classes.Set("comparison", columns == 2);
             Classes.Set("narrow", e.NewSize.Width < 480 || columns == 2);
+            UpdateColumnLayout();
         };
+        DataContextChanged += (_, _) => ObserveLayoutItems();
+        AttachedToVisualTree += (_, _) => ObserveLayoutItems();
+        DetachedFromVisualTree += (_, _) => ClearLayoutItems();
         AddHandler(GotFocusEvent, OnChildGotFocus, RoutingStrategies.Bubble);
         AddHandler(KeyDownEvent, OnChildKeyDown, RoutingStrategies.Tunnel);
+        AddHandler(PointerPressedEvent, OnRowPointerPressed, RoutingStrategies.Bubble);
         BulkCheck.IsCheckedChanged += (_, _) =>
         {
             if (DataContext is LanguageGroupViewModel group && MainViewModel is { } vm)
@@ -37,6 +44,67 @@ public partial class TranslationCard : UserControl
     }
 
     private MainWindowViewModel? MainViewModel => this.FindAncestorOfType<Window>()?.DataContext as MainWindowViewModel;
+
+    private void ObserveLayoutItems()
+    {
+        ClearLayoutItems();
+        if (DataContext is LanguageGroupViewModel group)
+        {
+            _layoutItems.AddRange(group.AllItems);
+            foreach (var item in _layoutItems) item.PropertyChanged += OnLayoutItemChanged;
+        }
+        UpdateColumnLayout();
+    }
+
+    private void ClearLayoutItems()
+    {
+        foreach (var item in _layoutItems) item.PropertyChanged -= OnLayoutItemChanged;
+        _layoutItems.Clear();
+    }
+
+    private void OnLayoutItemChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(TranslationItemViewModel.IsLanguageVisible)) UpdateColumnLayout();
+    }
+
+    private void UpdateColumnLayout()
+    {
+        var languages = _layoutItems.Where(i => i.IsLanguageVisible).Select(i => i.Language).Distinct(StringComparer.Ordinal).Count();
+        Classes.Set("columns", Bounds.Width >= Math.Max(480, 180 + languages * 190));
+    }
+
+    private void OnEditClick(object? sender, RoutedEventArgs e) => FocusEditor();
+
+    public bool FocusEditor()
+    {
+        var boxes = this.GetVisualDescendants().OfType<TextBox>()
+            .Where(b => b.Classes.Contains("translation") && b.IsEffectivelyVisible && !b.IsReadOnly).ToList();
+        var language = MainViewModel?.FocusedTranslationItem?.Language;
+        var box = boxes.FirstOrDefault(b => b.DataContext is TranslationItemViewModel item && item.Language == language)
+            ?? boxes.FirstOrDefault(b => b.DataContext is TranslationItemViewModel { HasSource: true })
+            ?? boxes.FirstOrDefault();
+        if (box is null) return false;
+        box.Focus();
+        box.CaretIndex = box.Text?.Length ?? 0;
+        box.BringIntoView();
+        return true;
+    }
+
+    private void OnRowPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed || e.Source is not Visual source) return;
+        // Text selection and action buttons retain their own pointer behavior.
+        if (source.FindAncestorOfType<TextBox>(includeSelf: true) != null ||
+            source.FindAncestorOfType<Button>(includeSelf: true) != null) return;
+        var row = source is Grid grid && grid.Classes.Contains("translationRow") ? grid
+            : source.GetVisualAncestors().OfType<Grid>().FirstOrDefault(g => g.Classes.Contains("translationRow"));
+        var box = row?.GetVisualDescendants().OfType<TextBox>().FirstOrDefault(b => b.Classes.Contains("translation"));
+        if (box is null || box.IsReadOnly) return;
+        box.Focus();
+        box.CaretIndex = box.Text?.Length ?? 0;
+        box.BringIntoView();
+        e.Handled = true;
+    }
 
     private void OnChildGotFocus(object? sender, FocusChangedEventArgs e)
     {

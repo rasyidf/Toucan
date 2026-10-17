@@ -2,7 +2,7 @@
 title: Toucan architecture
 status: active
 updated: 2026-10-25
-summary: Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.
+summary: Current project boundaries, Core workspace commands/subscriptions, desktop projections, plugin lifecycle ordering, persistence, and AI integration, with implementation links and diagrams.
 ---
 
 # Toucan architecture
@@ -61,7 +61,7 @@ These boundaries are executable rules in [ArchitectureTests](../tests/Toucan.Cor
 
 ## Composition and startup
 
-The composition sequence is shared, but the desktop and CLI do not register identical service sets. [AddToucanCore](../Toucan.Core/ToucanCoreServiceCollectionExtensions.cs) installs shared registries, factories, IO, validation, AI services, project services, and comments. It does **not** register the complete desktop editor or lifecycle graph.
+The composition sequence is shared, but the desktop and CLI do not register identical service sets. [AddToucanCore](../Toucan.Core/ToucanCoreServiceCollectionExtensions.cs) installs shared registries, factories, IO, validation, AI services, project services, comments, and a headless workspace backend with default translation-store/value-history services. Hosts supply the complete lifecycle and presentation graph. The desktop overrides the backend with an adapter that flushes pending text and refreshes projections around Core operations.
 
 ```mermaid
 flowchart LR
@@ -138,6 +138,8 @@ sequenceDiagram
     participant IO as ProjectService
     participant Store as TranslationManagementService
     participant Support as Watcher / audit / comments
+    participant Workspace as Core workspace
+    participant Plugins as Plugin activation
     User->>VM: Open project
     VM->>Life: OpenProjectAsync(folder)
     opt Current project is dirty
@@ -149,33 +151,40 @@ sequenceDiagram
     Life->>Store: Initialize items and baselines
     Life->>Support: Watch folder; load audit and comments
     Life->>Life: Set project; snapshot; start configured auto-save
+    Life->>Workspace: Open committed state and new session
+    Life->>Plugins: Open workspace activation scope
+    Plugins->>Workspace: Read snapshots / apply edits
     Life-->>VM: ProjectChanged(Opened)
     VM->>VM: Rebuild editor projections
 ```
 
 Open handles cancellation, invalid manifests, missing folders, and unavailable formats as explicit outcomes. Format scanning receives cancellation/progress through `ScanContext`.
 
-Editing flows through [TranslationItemViewModel](../Toucan.Avalonia/ViewModels/TranslationItemViewModel.cs): its commit records undo information, updates direct-edit metadata, and calls `NotifyValueChanged`. [TranslationManagementService](../Toucan.Core/Services/TranslationManagementService.cs) compares values/comments against baselines and debounces dirty-state notifications. UI actions that modify data must use the store and refresh projections consistently; writing a view model field alone is insufficient.
+Editing flows through [TranslationItemViewModel](../Toucan.Avalonia/ViewModels/TranslationItemViewModel.cs), which holds pending text and updates a compatibility projection. Its callback commits the native transaction to [WorkspaceService](../Toucan.Core/Services/WorkspaceService.cs). Core owns immutable committed state, revisions, approval policy, dirty baselines, and undo/redo for values and structural edits. [TranslationManagementService](../Toucan.Core/Services/TranslationManagementService.cs) remains the legacy store/serializer adapter. Core baselines also detect approvals and deletions. The desktop flushes pending text before snapshots, saves, or switching views; it does not maintain its own undo stack. Opt-in document save planning separates source reads, framework destinations, and document serialization; it captures only affected file targets and source versions. The opt-in document coordinator executes version-checked atomic writes with declared-target recovery and acknowledges captured state while preserving newer edits. Affected metadata and identity catalogs participate in the same transaction. Explicit document-capable framework projects use this pipeline in the desktop, including create-only Save As/export. Content-version watcher acknowledgment covers only committed targets; unrelated external edits remain visible. Core navigation projections and clean/dirty source refresh are implemented; navigator UI and connection lifecycle work remain open. Core async commands use a bounded serialized queue. Optional API 1.2 subscriptions atomically capture a snapshot and stream revisioned changes through independent bounded buffers; overflow requires resubscribing. Closing ends the session streams and cancels queued work. The desktop dispatches transactions on the UI thread through the same Core implementation.
+
+Plugins can read/edit Core state during activation before the main window loads its project view. Closing first resolves unsaved edits, stops scheduled source work, rejects new mutations, and tears down connection/workspace plugins while snapshots remain available. Core state is cleared afterward. Save As changes the plugin workspace scope and engine session generation. Remote connection initialization and source-specific lifecycle handling remain in the [sync engine tracker](todos/workspace-sync-engine.md).
 
 ```mermaid
 flowchart TD
-    Save["SaveProjectAsync"] --> Validate["Run validation pipeline"]
-    Validate --> Findings["Findings recorded to Issues panel"]
-    Findings --> Strict{"Strict policy / EnforceValidation?"}
-    Strict -->|Yes and errors| Stop["Return ValidationErrors without writing"]
-    Strict -->|No| Journal["Begin SaveTransaction journal"]
-    Journal --> Write["ProjectService.Save: atomic temporary file swap"]
-    Write --> Text["Apply configured encoding and line endings"]
-    Text --> Meta["Persist comments, audit, and manifest packages"]
-    Meta --> Baseline["MarkAllSaved, commit transaction, update snapshots"]
-    Baseline --> Timer["Reset auto-save timer and publish Saved"]
+    Save["SaveProjectAsync"] --> Mode{"Document-capable framework?"}
+    Mode -->|Yes| Capture["Capture immutable document snapshot"]
+    Capture --> Plan["Validate and plan affected documents and metadata"]
+    Plan --> Execute["Version-checked declared-target transaction"]
+    Execute --> Ack["Acknowledge captured revision on UI dispatcher"]
+    Ack --> Watch["Acknowledge only saved file versions"]
+    Mode -->|No| Lease["Capture Core state under mutation lease"]
+    Lease --> Legacy["Validate and run legacy format save"]
+    Legacy --> Meta["Apply text settings, comments, audit, manifest"]
+    Meta --> Baseline["Commit journal and acknowledge captured state"]
+    Watch --> Timer["Reset auto-save timer and publish Saved"]
+    Baseline --> Timer
 ```
 
-The save strategy owns translation serialization; exact-resource strategies preserve original document formatting, comments, and structure. Project text settings are applied afterward to language files reported by built-in strategies; Java properties retains Latin-1 encoding. The post-processing does not apply arbitrary encoding changes to plugin formats. Comment sidecars are used when `StoresCommentsInline` is false. Audit uses `.toucan-metadata.json`.
+In the legacy path, the save strategy owns translation serialization. Project text settings are applied afterward to language files reported by built-in strategies; Java properties retains Latin-1 encoding. The post-processing does not apply arbitrary encoding changes to plugin formats. Comment sidecars are used when `StoresCommentsInline` is false. Audit uses `.toucan-metadata.json`.
 
-Files are replaced atomically using a temporary file swap. Multi-file saves are coordinated by a journaled `SaveTransaction`: if an individual write fails, previously written files are rolled back and unsaved edits remain in memory. Unsaved changes are also periodically backed up as recovery drafts to protect against unexpected termination.
+SaveTransaction journals originals across the files and sidecars a legacy save may touch, restoring them on failure and retaining recovery information after interruption. Individual file replacements are atomic; readers can observe intermediate multi-file state. The lifecycle acknowledges captured Core state only after persistence completes. Document-aware saves execute immutable plans outside the mutation lease, journal only declared targets, retain source text conventions, and preserve edits made after capture.
 
-External changes are coordinated by [ProjectLifecycleService.ExternalChanges](../Toucan.Core/Services/ProjectLifecycleService.ExternalChanges.cs). A clean project reloads automatically. A dirty project offers Reload, Merge, or Ignore through the host handler. Merge uses the saved snapshot, in-memory records, and disk records; it applies non-conflicting entries before asking for conflict resolution. Cancelling that dialog therefore does not undo already-applied entries.
+External changes are coordinated by [ProjectLifecycleService.ExternalChanges](../Toucan.Core/Services/ProjectLifecycleService.ExternalChanges.cs). A clean project reloads automatically. A dirty project offers Reload, Merge, or Ignore through the host handler. Legacy merge uses the saved snapshot, in-memory records, and disk records; it applies non-conflicting entries before asking for conflict resolution. Cancelling that dialog therefore does not undo already-applied entries. Document-aware refresh replaces clean documents and preserves dirty conflicts with their original source versions. Document-level conflict presentation remains open. Watch events carry content fingerprints and watch generations; targeted-save acknowledgment retains unrelated changes, and late prompt results cannot reload a replacement session.
 
 ## Desktop shell and editor state
 

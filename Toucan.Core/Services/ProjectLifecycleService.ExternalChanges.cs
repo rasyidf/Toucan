@@ -98,12 +98,19 @@ public partial class ProjectLifecycleService
         if (!IsProjectOpen || _currentProject is null)
             return;
 
+        var settings = _currentProject;
+        var session = workspace?.SessionId;
+        if (e is FileWatcherChangeEventArgs notification &&
+            (!string.Equals(notification.Root, settings.ProjectPath, StringComparison.Ordinal) || notification.Generation != fileWatcher.WatchGeneration)) return;
+        Task DispatchForSession(Func<Task> action) => DispatchToUiAsync(() =>
+            ReferenceEquals(_currentProject, settings) && workspace?.SessionId == session ? action() : Task.CompletedTask);
+
         try
         {
-            if (!translationManagement.IsDirty)
+            if (!translationManagement.IsDirty && workspace?.IsDirty != true)
             {
                 // Not dirty: auto-reload affected files, update snapshot
-                await DispatchToUiAsync(ReloadFromDiskAsync).ConfigureAwait(false);
+                await DispatchForSession(() => ReloadFromDiskAsync(discardDirty: false)).ConfigureAwait(false);
             }
             else
             {
@@ -120,11 +127,11 @@ public partial class ProjectLifecycleService
                 switch (choice)
                 {
                     case ExternalChangeChoice.Reload:
-                        await DispatchToUiAsync(ReloadFromDiskAsync).ConfigureAwait(false);
+                        await DispatchForSession(() => ReloadFromDiskAsync(discardDirty: true)).ConfigureAwait(false);
                         break;
 
                     case ExternalChangeChoice.Merge:
-                        await DispatchToUiAsync(MergeExternalChangesAsync).ConfigureAwait(false);
+                        await DispatchForSession(MergeExternalChangesAsync).ConfigureAwait(false);
                         break;
 
                     case ExternalChangeChoice.Ignore:
@@ -152,7 +159,7 @@ public partial class ProjectLifecycleService
     /// Reloads all translations from disk, clears dirty state, and updates the snapshot.
     /// Used for both auto-reload (not dirty) and explicit Reload choice.
     /// </summary>
-    private async Task ReloadFromDiskAsync()
+    private async Task ReloadFromDiskAsync(bool discardDirty)
     {
         if (_currentProject is null)
             return;
@@ -166,13 +173,22 @@ public partial class ProjectLifecycleService
             var translations = loadResult.Translations;
             _currentProject.ResourceDocuments = loadResult.Settings.ResourceDocuments;
 
+            if (loadResult.Source is not null && workspace?.Source is not null)
+            {
+                var previous = workspace.Source;
+                workspace.ReloadSource(loadResult.Source, discardDirty);
+                AcknowledgeSourceVersions(workspace.Source!, previous);
+                UpdateLastSavedSnapshot();
+                return;
+            }
+
             // Re-initialize the translation management service (clears dirty and sets new baselines)
             translationManagement.Initialize(translations);
 
             // Reload comments
             try
             {
-                commentPersistence.LoadComments(folderPath, _currentProject.SaveFormat, translations);
+                if (loadResult.Source is null) commentPersistence.LoadComments(folderPath, _currentProject.SaveFormat, translations);
             }
             catch (Exception ex)
             {
@@ -180,6 +196,7 @@ public partial class ProjectLifecycleService
             }
 
             // Update the file watcher snapshot
+            workspace?.ReloadProjection(saved: true);
             fileWatcher.TakeSnapshot();
 
             // Update the last-saved snapshot
@@ -210,6 +227,15 @@ public partial class ProjectLifecycleService
             // Load "theirs" from disk
             var loadResult = projectService.LoadProject(folderPath);
             var theirs = loadResult.Translations;
+            if (loadResult.Source is not null && workspace?.Source is not null)
+            {
+                var previous = workspace.Source;
+                var refresh = workspace.ReloadSource(loadResult.Source);
+                AcknowledgeSourceVersions(workspace.Source!, previous);
+                if (refresh.Conflicts.Count > 0) logger.LogWarning("External changes conflict with {Count} dirty documents; local edits and their original versions were retained.", refresh.Conflicts.Count);
+                UpdateLastSavedSnapshot();
+                return;
+            }
 
             // "base" is the last-saved snapshot
             var baseSnapshot = _lastSavedSnapshot;
@@ -244,6 +270,7 @@ public partial class ProjectLifecycleService
             }
 
             // Update the file watcher snapshot (we've acknowledged disk changes)
+            workspace?.ReloadProjection(saved: false);
             fileWatcher.TakeSnapshot();
 
             // Update the last-saved snapshot to reflect the new disk state
@@ -259,6 +286,16 @@ public partial class ProjectLifecycleService
         {
             logger.LogError(ex, "Failed to merge external changes: {FolderPath}", folderPath);
         }
+    }
+
+    private void AcknowledgeSourceVersions(WorkspaceSource source, WorkspaceSource previous)
+    {
+        var versions = source.Documents.Select(d => new FileVersionChange(d.RelativePath, null, d.Version))
+            .Concat(source.Artifacts.Select(a => new FileVersionChange(a.RelativePath, null, a.Version))).ToArray();
+        var known = versions.Select(v => v.RelativePath).ToHashSet(StringComparer.Ordinal);
+        var removed = previous.Documents.Select(d => d.RelativePath).Concat(previous.Artifacts.Select(a => a.RelativePath))
+            .Where(path => !known.Contains(path)).Select(path => new FileVersionChange(path, null, null));
+        fileWatcher.AcknowledgeWrites(source.Root, versions.Concat(removed).ToArray());
     }
 
     /// <summary>

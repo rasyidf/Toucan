@@ -59,6 +59,28 @@ public sealed class WorkspaceApiTests : IDisposable
     // ─── reading ───
 
     [AvaloniaFact]
+    public async Task PluginSubscriptionIncludesPendingTextAndEndsOnProjectClose()
+    {
+        using var host = Host();
+        var (vm, _) = await Open(host);
+        var row = vm.PagingController.Data.Single(g => g.Namespace == "hello").Translations.Single(t => t.Language == "fr");
+        row.Value = "Pending text";
+        var api = Assert.IsAssignableFrom<IWorkspaceSubscriptionApi>(Api(host));
+        await using var subscription = (await api.SubscribeAsync())!;
+        Assert.Equal("Pending text", subscription.InitialSnapshot.Units.Single(u => u.Key == "hello" && u.Language == "fr").Value);
+        Assert.True((await api.ApplyAsync(new WorkspaceEdit().SetValue("hello", "fr", "Plugin text"))).Applied);
+        await using var reader = subscription.Changes.GetAsyncEnumerator();
+        Assert.True(await reader.MoveNextAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(5)));
+        Assert.Equal(WorkspaceChangeOrigin.Plugin, reader.Current.Origin);
+        Assert.Equal("sample.tsv", reader.Current.OriginId);
+        Assert.Equal("Plugin text", Assert.Single(reader.Current.Units).Unit!.Value);
+        host.Services.GetRequiredService<WorkspaceService>().Close();
+        Assert.True(await reader.MoveNextAsync());
+        Assert.Equal(WorkspaceChangeKind.Closed, reader.Current.Kind);
+        Assert.False(await reader.MoveNextAsync());
+    }
+
+    [AvaloniaFact]
     public async Task WithNoProjectTheWorkspaceIsClosedAndEditsAreRefused()
     {
         using var host = Host();
@@ -380,5 +402,46 @@ public sealed class WorkspaceApiTests : IDisposable
         Assert.True(vm.HasValidationIssues);
         Assert.Equal("Salut {nom", Value(vm, "hello", "fr")); // findings never refuse or revert
         Assert.True(vm.IsDirty);
+    }
+
+    [AvaloniaFact]
+    public async Task NativeStructuralEditsUndoWithTheSameIdentitiesAndCleanBaselines()
+    {
+        using var host = Host();
+        var (vm, _) = await Open(host);
+        var api = Assert.IsAssignableFrom<IIdentifiedWorkspaceApi>(Api(host));
+        var before = (await api.SnapshotEntriesAsync())!;
+        var identity = before.Units.Single(u => u.Key == "bye" && u.Language == "fr").EntryId;
+        vm.DeleteNamespaces(["bye"]);
+        Assert.True(vm.IsDirty);
+        vm.UndoCommand.Execute(null);
+        Assert.Equal("Au revoir", Value(vm, "bye", "fr"));
+        Assert.False(vm.IsDirty);
+        Assert.False(host.Services.GetRequiredService<ITranslationManagementService>().IsDirty);
+        Assert.Equal(identity, (await api.SnapshotEntriesAsync())!.Units.Single(u => u.Key == "bye" && u.Language == "fr").EntryId);
+        vm.RedoCommand.Execute(null);
+        Assert.DoesNotContain(vm.AllTranslation, t => t.Namespace == "bye");
+    }
+
+    [AvaloniaFact]
+    public async Task IdentifiedPluginEditsAndNativeCommentsShareHistory()
+    {
+        using var host = Host();
+        var (vm, _) = await Open(host);
+        var api = Assert.IsAssignableFrom<IIdentifiedWorkspaceApi>(Api(host));
+        var before = (await api.SnapshotEntriesAsync())!;
+        var unit = before.Units.Single(u => u.Key == "bye" && u.Language == "fr");
+        var result = await api.ApplyEntriesAsync(new(before.SessionId, before.Revision,
+            [new SetEntryValue(unit.EntryId, "fr", "À bientôt")]));
+        Assert.True(result.Applied);
+        var shown = vm.PagingController.Data.Single(g => g.Namespace == "bye").Translations.Single(t => t.Language == "fr");
+        Assert.Equal("À bientôt", shown.Value);
+        shown.Comment = "Native note";
+        vm.UndoCommand.Execute(null);
+        Assert.Equal(string.Empty, shown.Comment);
+        Assert.Equal("À bientôt", Value(vm, "bye", "fr"));
+        vm.UndoCommand.Execute(null);
+        Assert.Equal("Au revoir", Value(vm, "bye", "fr"));
+        Assert.False(vm.IsDirty);
     }
 }

@@ -1,18 +1,15 @@
+using System.Security.Cryptography;
 using Toucan.Core.Contracts.Services;
+using Toucan.Core.Models;
 
 namespace Toucan.Avalonia.Services;
 
-/// <summary>
-/// Watches the project folder for external edits. Debounces bursts of events and only raises
-/// <see cref="FilesChanged"/> when file timestamps differ from the last snapshot, so Toucan's
-/// own saves don't trigger a reload prompt.
-/// </summary>
+/// <summary>Debounces file events and compares byte fingerprints with acknowledged source versions.</summary>
 public sealed class FileWatcherService : IFileWatcherService, IDisposable
 {
     private static readonly string[] IgnoredSegments =
     [
         $"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}",
-        $"{Path.DirectorySeparatorChar}.toucan{Path.DirectorySeparatorChar}",
         $"{Path.DirectorySeparatorChar}node_modules{Path.DirectorySeparatorChar}",
         $"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}",
         $"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}",
@@ -20,96 +17,145 @@ public sealed class FileWatcherService : IFileWatcherService, IDisposable
     ];
 
     private readonly Lock _gate = new();
-    private readonly Dictionary<string, DateTime> _snapshots = [];
+    private readonly Dictionary<string, string> _snapshots = new(StringComparer.Ordinal);
     private FileSystemWatcher? _watcher;
     private System.Timers.Timer? _debounce;
     private string _folder = string.Empty;
+    private long _generation;
 
     public event EventHandler? FilesChanged;
+    public long WatchGeneration { get { lock (_gate) return _generation; } }
 
     public void Watch(string folder)
     {
         Stop();
         if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder)) return;
-
-        _folder = folder;
-        TakeSnapshot();
-
-        _watcher = new FileSystemWatcher(folder)
+        lock (_gate)
         {
-            IncludeSubdirectories = true,
-            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName,
-            EnableRaisingEvents = true
-        };
-        _watcher.Changed += OnChange;
-        _watcher.Created += OnChange;
-        _watcher.Deleted += OnChange;
-        _watcher.Renamed += OnChange;
-
-        _debounce = new System.Timers.Timer(2000) { AutoReset = false };
-        _debounce.Elapsed += (_, _) =>
-        {
-            if (HasChanges()) FilesChanged?.Invoke(this, EventArgs.Empty);
-        };
+            _folder = Path.GetFullPath(folder);
+            TakeSnapshot();
+            var generation = _generation;
+            _debounce = new System.Timers.Timer(2000) { AutoReset = false };
+            _debounce.Elapsed += (_, _) => PublishChanges(generation);
+            _watcher = new FileSystemWatcher(_folder)
+            {
+                IncludeSubdirectories = true,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size
+            };
+            _watcher.Changed += OnChange;
+            _watcher.Created += OnChange;
+            _watcher.Deleted += OnChange;
+            _watcher.Renamed += OnChange;
+            _watcher.EnableRaisingEvents = true;
+        }
     }
 
     public void TakeSnapshot()
     {
         lock (_gate)
         {
+            var current = ReadVersions();
             _snapshots.Clear();
-            foreach (var f in EnumerateFiles())
-                _snapshots[f] = File.GetLastWriteTimeUtc(f);
+            foreach (var (path, version) in current) _snapshots[path] = version;
         }
     }
 
-    private bool HasChanges()
+    public IReadOnlyList<FileVersionChange> GetChanges()
     {
-        if (string.IsNullOrEmpty(_folder) || !Directory.Exists(_folder)) return true;
         lock (_gate)
         {
-            var seen = 0;
-            foreach (var f in EnumerateFiles())
-            {
-                seen++;
-                if (!_snapshots.TryGetValue(f, out var prev) || File.GetLastWriteTimeUtc(f) != prev) return true;
-            }
-            return seen != _snapshots.Count;
+            var current = ReadVersions();
+            return _snapshots.Keys.Union(current.Keys, StringComparer.Ordinal)
+                .Order(StringComparer.Ordinal)
+                .Select(path => new FileVersionChange(path, _snapshots.GetValueOrDefault(path), current.GetValueOrDefault(path)))
+                .Where(change => change.PreviousVersion != change.CurrentVersion).ToArray();
         }
     }
 
-    private IEnumerable<string> EnumerateFiles()
+    public void AcknowledgeWrites(string root, IReadOnlyList<FileVersionChange> writes)
     {
-        if (string.IsNullOrEmpty(_folder) || !Directory.Exists(_folder)) return [];
-        try
+        lock (_gate)
         {
-            return Directory.EnumerateFiles(_folder, "*", SearchOption.AllDirectories).Where(f => !IsIgnored(f)).ToList();
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            return [];
+            if (!string.Equals(_folder, Path.GetFullPath(root), StringComparison.Ordinal)) return;
+            foreach (var write in writes)
+            {
+                if (write.CurrentVersion is null) _snapshots.Remove(write.RelativePath);
+                else _snapshots[write.RelativePath] = write.CurrentVersion;
+            }
         }
     }
 
-    private static bool IsIgnored(string path) =>
-        IgnoredSegments.Any(s => path.Contains(s, StringComparison.OrdinalIgnoreCase))
-        || Path.GetFileName(path).Equals(".DS_Store", StringComparison.Ordinal)
-        // Staging files of Toucan's own atomic saves (".name.<guid>.tmp")
-        || (Path.GetFileName(path).StartsWith('.') && path.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase));
+    private Dictionary<string, string> ReadVersions()
+    {
+        var current = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (string.IsNullOrEmpty(_folder) || !Directory.Exists(_folder)) return current;
+        foreach (var file in Directory.EnumerateFiles(_folder, "*", SearchOption.AllDirectories).Where(f => !IsIgnored(f)))
+        {
+            try
+            {
+                using var stream = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                current[Path.GetRelativePath(_folder, file).Replace('\\', '/')] = Convert.ToHexString(SHA256.HashData(stream));
+            }
+            catch (FileNotFoundException) { }
+            catch (DirectoryNotFoundException) { }
+        }
+        return current;
+    }
+
+    private static bool IsIgnored(string path)
+    {
+        var name = Path.GetFileName(path);
+        var metadata = path.Contains($"{Path.DirectorySeparatorChar}.toucan{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
+        var ownedMetadata = name == "workspace-identities.json" || path.Contains($"{Path.DirectorySeparatorChar}.toucan{Path.DirectorySeparatorChar}entries{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
+        return (metadata && !ownedMetadata)
+            || IgnoredSegments.Any(s => path.Contains(s, StringComparison.OrdinalIgnoreCase))
+            || name.Equals(".DS_Store", StringComparison.Ordinal)
+            || (name.StartsWith('.') && path.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private void PublishChanges(long generation)
+    {
+        FileWatcherChangeEventArgs notification;
+        lock (_gate)
+        {
+            if (generation != _generation || _watcher is null) return;
+            try
+            {
+                var changes = GetChanges();
+                if (changes.Count == 0) return;
+                notification = new(_folder, changes, generation);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return; }
+        }
+        FilesChanged?.Invoke(this, notification);
+    }
 
     private void OnChange(object sender, FileSystemEventArgs e)
     {
-        if (IsIgnored(e.FullPath)) return;
-        _debounce?.Stop();
-        _debounce?.Start();
+        if (IsIgnored(e.FullPath) && (e is not RenamedEventArgs renamed || IsIgnored(renamed.OldFullPath))) return;
+        lock (_gate)
+        {
+            if (!ReferenceEquals(sender, _watcher)) return;
+            _debounce?.Stop();
+            _debounce?.Start();
+        }
     }
 
     public void Stop()
     {
-        _watcher?.Dispose();
-        _watcher = null;
-        _debounce?.Dispose();
-        _debounce = null;
+        FileSystemWatcher? watcher;
+        System.Timers.Timer? debounce;
+        lock (_gate)
+        {
+            _generation++;
+            watcher = _watcher; _watcher = null;
+            debounce = _debounce; _debounce = null;
+            _folder = string.Empty;
+            _snapshots.Clear();
+        }
+        // Native watcher disposal can wait for callbacks, which also acquire the gate.
+        watcher?.Dispose();
+        debounce?.Dispose();
     }
 
     public void Dispose() => Stop();

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Toucan architecture</title>
-<meta name="description" content="Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.">
+<meta name="description" content="Current project boundaries, Core workspace commands/subscriptions, desktop projections, plugin lifecycle ordering, persistence, and AI integration, with implementation links and diagrams.">
 <link rel="canonical" href="https://toucan.rasyid.dev/architecture.html">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,19 +15,19 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Toucan architecture">
-<meta property="og:description" content="Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.">
+<meta property="og:description" content="Current project boundaries, Core workspace commands/subscriptions, desktop projections, plugin lifecycle ordering, persistence, and AI integration, with implementation links and diagrams.">
 <meta property="og:url" content="https://toucan.rasyid.dev/architecture.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Toucan architecture">
-<meta name="twitter:description" content="Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.">
+<meta name="twitter:description" content="Current project boundaries, Core workspace commands/subscriptions, desktop projections, plugin lifecycle ordering, persistence, and AI integration, with implementation links and diagrams.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Toucan \u00b7 Toucan architecture",
-  "description": "Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.",
+  "description": "Current project boundaries, Core workspace commands/subscriptions, desktop projections, plugin lifecycle ordering, persistence, and AI integration, with implementation links and diagrams.",
   "url": "https://toucan.rasyid.dev/architecture.html",
   "publisher": {
     "@type": "Organization",
@@ -101,7 +101,7 @@
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Toucan architecture</h1>
-        <p class="lead">Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.</p>
+        <p class="lead">Current project boundaries, Core workspace commands/subscriptions, desktop projections, plugin lifecycle ordering, persistence, and AI integration, with implementation links and diagrams.</p>
         <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/ARCHITECTURE.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
@@ -139,7 +139,7 @@
 <div class="table-wrap"><table><thead><tr><th>Project</th><th>Responsibility</th><th>Boundary</th></tr></thead><tbody><tr><td><code>Toucan.Plugins.Abstractions</code></td><td>Plugin entry point, format/provider/rule/profile contracts, shared DTOs</td><td>No Core or UI dependency. Some public types retain <code>Toucan.Core.*</code> namespaces for compatibility.</td></tr><tr><td><code>Toucan.Plugins.Avalonia</code></td><td>Desktop contribution contracts (panels, inspector sections, settings, dialogs, actions)</td><td>References Abstractions; Avalonia UI contracts for desktop plugins without CLI dependencies.</td></tr><tr><td><code>Toucan.Plugins.Testing</code></td><td>In-memory test harness for plugin authors</td><td>References only Abstractions; tests plugins without host or UI assemblies.</td></tr><tr><td><code>Toucan.Core.Common</code></td><td>Shared file/helpers code and built-in module registration support</td><td>References Abstractions; never Core or a module.</td></tr><tr><td><code>Toucan.Core</code></td><td>Project IO and lifecycle implementations, registries, validation pipeline, AI policy, plugin host, editing services</td><td>No Avalonia dependency and no reference to built-in modules.</td></tr><tr><td><code>Toucan.Modules.*</code></td><td>Concrete formats, providers, validation rules, framework profiles, BabelEdit compatibility</td><td>Leaf modules reference Common and Abstractions, not Core or sibling modules.</td></tr><tr><td><code>Toucan.Modules.Defaults</code></td><td>Registers the built-in modules</td><td>The aggregation point that references every module.</td></tr><tr><td><code>Toucan.Avalonia</code></td><td>Desktop startup, views, view models, platform services, application state</td><td>Composes Core and Defaults; uses Avalonia and FluentAvalonia.</td></tr><tr><td><code>Toucan.CLI</code></td><td>Console commands for checking, translation, export, key access, and plugin policy</td><td>Composes Core and Defaults without constructing the desktop lifecycle.</td></tr></tbody></table></div>
 <p>These boundaries are executable rules in <a href="https://github.com/rasyidf/Toucan/blob/main/tests/Toucan.Core.Tests/Modules/ArchitectureTests.cs">ArchitectureTests</a>. Assembly placement matters more than namespaces: built-in strategies still use <code>Toucan.Core.Services.*</code> namespaces while their code lives in module projects.</p>
 <h2 id="composition-and-startup"><a class="anchor" href="#composition-and-startup" aria-label="Link to this section">#</a>Composition and startup</h2>
-<p>The composition sequence is shared, but the desktop and CLI do not register identical service sets. <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/ToucanCoreServiceCollectionExtensions.cs">AddToucanCore</a> installs shared registries, factories, IO, validation, AI services, project services, and comments. It does <strong>not</strong> register the complete desktop editor or lifecycle graph.</p>
+<p>The composition sequence is shared, but the desktop and CLI do not register identical service sets. <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/ToucanCoreServiceCollectionExtensions.cs">AddToucanCore</a> installs shared registries, factories, IO, validation, AI services, project services, comments, and a headless workspace backend with default translation-store/value-history services. Hosts supply the complete lifecycle and presentation graph. The desktop overrides the backend with an adapter that flushes pending text and refreshes projections around Core operations.</p>
 <pre class="mermaid">flowchart LR
     Host["Host logging and adapters"] --&gt; Core["AddToucanCore"]
     Core --&gt; Defaults["AddToucanDefaults"]
@@ -184,6 +184,8 @@
     participant IO as ProjectService
     participant Store as TranslationManagementService
     participant Support as Watcher / audit / comments
+    participant Workspace as Core workspace
+    participant Plugins as Plugin activation
     User-&gt;&gt;VM: Open project
     VM-&gt;&gt;Life: OpenProjectAsync(folder)
     opt Current project is dirty
@@ -195,24 +197,30 @@
     Life-&gt;&gt;Store: Initialize items and baselines
     Life-&gt;&gt;Support: Watch folder; load audit and comments
     Life-&gt;&gt;Life: Set project; snapshot; start configured auto-save
+    Life-&gt;&gt;Workspace: Open committed state and new session
+    Life-&gt;&gt;Plugins: Open workspace activation scope
+    Plugins-&gt;&gt;Workspace: Read snapshots / apply edits
     Life--&gt;&gt;VM: ProjectChanged(Opened)
     VM-&gt;&gt;VM: Rebuild editor projections</pre>
 <p>Open handles cancellation, invalid manifests, missing folders, and unavailable formats as explicit outcomes. Format scanning receives cancellation/progress through <code>ScanContext</code>.</p>
-<p>Editing flows through <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Avalonia/ViewModels/TranslationItemViewModel.cs">TranslationItemViewModel</a>: its commit records undo information, updates direct-edit metadata, and calls <code>NotifyValueChanged</code>. <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/TranslationManagementService.cs">TranslationManagementService</a> compares values/comments against baselines and debounces dirty-state notifications. UI actions that modify data must use the store and refresh projections consistently; writing a view model field alone is insufficient.</p>
+<p>Editing flows through <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Avalonia/ViewModels/TranslationItemViewModel.cs">TranslationItemViewModel</a>, which holds pending text and updates a compatibility projection. Its callback commits the native transaction to <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/WorkspaceService.cs">WorkspaceService</a>. Core owns immutable committed state, revisions, approval policy, dirty baselines, and undo/redo for values and structural edits. <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/TranslationManagementService.cs">TranslationManagementService</a> remains the legacy store/serializer adapter. Core baselines also detect approvals and deletions. The desktop flushes pending text before snapshots, saves, or switching views; it does not maintain its own undo stack. Opt-in document save planning separates source reads, framework destinations, and document serialization; it captures only affected file targets and source versions. The opt-in document coordinator executes version-checked atomic writes with declared-target recovery and acknowledges captured state while preserving newer edits. Affected metadata and identity catalogs participate in the same transaction. Explicit document-capable framework projects use this pipeline in the desktop, including create-only Save As/export. Content-version watcher acknowledgment covers only committed targets; unrelated external edits remain visible. Core navigation projections and clean/dirty source refresh are implemented; navigator UI and connection lifecycle work remain open. Core async commands use a bounded serialized queue. Optional API 1.2 subscriptions atomically capture a snapshot and stream revisioned changes through independent bounded buffers; overflow requires resubscribing. Closing ends the session streams and cancels queued work. The desktop dispatches transactions on the UI thread through the same Core implementation.</p>
+<p>Plugins can read/edit Core state during activation before the main window loads its project view. Closing first resolves unsaved edits, stops scheduled source work, rejects new mutations, and tears down connection/workspace plugins while snapshots remain available. Core state is cleared afterward. Save As changes the plugin workspace scope and engine session generation. Remote connection initialization and source-specific lifecycle handling remain in the <a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/workspace-sync-engine.md">sync engine tracker</a>.</p>
 <pre class="mermaid">flowchart TD
-    Save["SaveProjectAsync"] --&gt; Validate["Run validation pipeline"]
-    Validate --&gt; Findings["Findings recorded to Issues panel"]
-    Findings --&gt; Strict{"Strict policy / EnforceValidation?"}
-    Strict --&gt;|Yes and errors| Stop["Return ValidationErrors without writing"]
-    Strict --&gt;|No| Journal["Begin SaveTransaction journal"]
-    Journal --&gt; Write["ProjectService.Save: atomic temporary file swap"]
-    Write --&gt; Text["Apply configured encoding and line endings"]
-    Text --&gt; Meta["Persist comments, audit, and manifest packages"]
-    Meta --&gt; Baseline["MarkAllSaved, commit transaction, update snapshots"]
-    Baseline --&gt; Timer["Reset auto-save timer and publish Saved"]</pre>
-<p>The save strategy owns translation serialization; exact-resource strategies preserve original document formatting, comments, and structure. Project text settings are applied afterward to language files reported by built-in strategies; Java properties retains Latin-1 encoding. The post-processing does not apply arbitrary encoding changes to plugin formats. Comment sidecars are used when <code>StoresCommentsInline</code> is false. Audit uses <code>.toucan-metadata.json</code>.</p>
-<p>Files are replaced atomically using a temporary file swap. Multi-file saves are coordinated by a journaled <code>SaveTransaction</code>: if an individual write fails, previously written files are rolled back and unsaved edits remain in memory. Unsaved changes are also periodically backed up as recovery drafts to protect against unexpected termination.</p>
-<p>External changes are coordinated by <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/ProjectLifecycleService.ExternalChanges.cs">ProjectLifecycleService.ExternalChanges</a>. A clean project reloads automatically. A dirty project offers Reload, Merge, or Ignore through the host handler. Merge uses the saved snapshot, in-memory records, and disk records; it applies non-conflicting entries before asking for conflict resolution. Cancelling that dialog therefore does not undo already-applied entries.</p>
+    Save["SaveProjectAsync"] --&gt; Mode{"Document-capable framework?"}
+    Mode --&gt;|Yes| Capture["Capture immutable document snapshot"]
+    Capture --&gt; Plan["Validate and plan affected documents and metadata"]
+    Plan --&gt; Execute["Version-checked declared-target transaction"]
+    Execute --&gt; Ack["Acknowledge captured revision on UI dispatcher"]
+    Ack --&gt; Watch["Acknowledge only saved file versions"]
+    Mode --&gt;|No| Lease["Capture Core state under mutation lease"]
+    Lease --&gt; Legacy["Validate and run legacy format save"]
+    Legacy --&gt; Meta["Apply text settings, comments, audit, manifest"]
+    Meta --&gt; Baseline["Commit journal and acknowledge captured state"]
+    Watch --&gt; Timer["Reset auto-save timer and publish Saved"]
+    Baseline --&gt; Timer</pre>
+<p>In the legacy path, the save strategy owns translation serialization. Project text settings are applied afterward to language files reported by built-in strategies; Java properties retains Latin-1 encoding. The post-processing does not apply arbitrary encoding changes to plugin formats. Comment sidecars are used when <code>StoresCommentsInline</code> is false. Audit uses <code>.toucan-metadata.json</code>.</p>
+<p>SaveTransaction journals originals across the files and sidecars a legacy save may touch, restoring them on failure and retaining recovery information after interruption. Individual file replacements are atomic; readers can observe intermediate multi-file state. The lifecycle acknowledges captured Core state only after persistence completes. Document-aware saves execute immutable plans outside the mutation lease, journal only declared targets, retain source text conventions, and preserve edits made after capture.</p>
+<p>External changes are coordinated by <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/ProjectLifecycleService.ExternalChanges.cs">ProjectLifecycleService.ExternalChanges</a>. A clean project reloads automatically. A dirty project offers Reload, Merge, or Ignore through the host handler. Legacy merge uses the saved snapshot, in-memory records, and disk records; it applies non-conflicting entries before asking for conflict resolution. Cancelling that dialog therefore does not undo already-applied entries. Document-aware refresh replaces clean documents and preserves dirty conflicts with their original source versions. Document-level conflict presentation remains open. Watch events carry content fingerprints and watch generations; targeted-save acknowledgment retains unrelated changes, and late prompt results cannot reload a replacement session.</p>
 <h2 id="desktop-shell-and-editor-state"><a class="anchor" href="#desktop-shell-and-editor-state" aria-label="Link to this section">#</a>Desktop shell and editor state</h2>
 <p><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Avalonia/Views/MainWindow.axaml">MainWindow</a> owns the title/navigation bar, two activity rails, a shared rounded workspace, and the status bar. Its <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Avalonia/Views/MainWindow.axaml.cs">code-behind</a> handles platform chrome, panel view creation/cache, splitter widths, adaptive panel fitting, and rounded content clipping. Business operations remain in the view models and Core services.</p>
 <pre class="mermaid">flowchart TD

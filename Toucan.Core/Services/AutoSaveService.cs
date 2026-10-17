@@ -14,6 +14,7 @@ public sealed class AutoSaveService : IAutoSaveService, IDisposable
     private readonly IFileWatcherService _fileWatcher;
     private readonly ILogger<AutoSaveService> _logger;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
+    private readonly WorkspaceService? _workspace;
 
     private Timer? _timer;
     private TimeSpan _interval;
@@ -23,12 +24,14 @@ public sealed class AutoSaveService : IAutoSaveService, IDisposable
         Lazy<IProjectLifecycleService> lifecycleService,
         ITranslationManagementService translationManagement,
         IFileWatcherService fileWatcher,
-        ILogger<AutoSaveService> logger)
+        ILogger<AutoSaveService> logger,
+        WorkspaceService? workspace = null)
     {
         _lifecycleService = lifecycleService;
         _translationManagement = translationManagement;
         _fileWatcher = fileWatcher;
         _logger = logger;
+        _workspace = workspace;
     }
 
     /// <inheritdoc />
@@ -96,7 +99,7 @@ public sealed class AutoSaveService : IAutoSaveService, IDisposable
             return;
 
         // Skip if nothing is dirty
-        if (!_translationManagement.IsDirty)
+        if (!_translationManagement.IsDirty && _workspace?.IsDirty != true)
         {
             ScheduleNextTick();
             return;

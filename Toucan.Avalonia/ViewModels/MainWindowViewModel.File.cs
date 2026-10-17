@@ -342,19 +342,20 @@ public partial class MainWindowViewModel
     {
         AllTranslation = _translationStore.Translations.ToList();
         ProjectSettings = _lifecycleService.CurrentProject ?? ProjectSettings.LoadFrom(path);
+        if (!Workspace.IsOpen && ProjectSettings is not null) Workspace.Open(ProjectSettings);
         RefreshFileFormatStatus();
         RefreshProviderChoices();
-        _undoRedoService.Clear();
 
         HiddenNamespaces = new ObservableCollection<string>(ProjectSettings?.HiddenNamespaces ?? []);
 
         // Missing (language, key) pairs are materialized as empty values so every card shows every language.
         // They start out "saved" so opening a project doesn't mark it dirty.
-        var added = AddMissingTranslationsCore();
+        var added = Workspace.Source is null ? AddMissingTranslationsCore() : [];
         if (added.Count > 0)
         {
             _translationStore.AddItems(added);
             _translationStore.MarkSaved(added);
+            Workspace.MaterializeMissing(added);
         }
 
         PrimaryLanguage = ResolvePrimaryLanguage();
@@ -367,7 +368,7 @@ public partial class MainWindowViewModel
         }
 
         ClearSessionDirtyState();
-        IsDirty = false;
+        IsDirty = Workspace.IsDirty;
         ValidationIssues.Clear();
         ValidationLastChecked = null;
         OnPropertyChanged(nameof(ValidationSummary));
@@ -489,7 +490,7 @@ public partial class MainWindowViewModel
     {
         FeedTranslationMemory(SessionDirtyKeys);
         ClearSessionDirtyState();
-        IsDirty = false;
+        IsDirty = Workspace.IsDirty;
         StatusText = $"Saved {DateTime.Now:t}";
         NotifyOutcome(Locales.Loc.T("Project saved"), ProjectName, Toucan.Plugins.NotificationSeverity.Success);
     }
@@ -569,7 +570,6 @@ public partial class MainWindowViewModel
         (_sourceCodeService as IProjectSourceCodeService)?.Reset();
         SourceScanDiagnostics.Clear();
         SourceCodeUsages.Clear();
-        _undoRedoService.Clear();
         CurrentTreeItems.Clear();
         CurrentFlatItems.Clear();
         LanguageVisibilityFilter.Clear();
@@ -708,7 +708,7 @@ public partial class MainWindowViewModel
             }
         }
 
-        var added = AddMissingTranslationsCore();
+        var added = Workspace.Source is null ? AddMissingTranslationsCore() : [];
         MarkStructureChanged(changed.Select(c => c.Namespace));
         NotifyBulkValueChanges(changed.Concat(added));
         RefreshTree();

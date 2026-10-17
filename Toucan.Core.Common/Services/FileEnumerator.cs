@@ -18,6 +18,9 @@ public enum EnumerateOptions
     /// Prevents loading duplicates from both `en/common.json` and `locales/en/common.json`.
     /// </summary>
     SkipNestedLocaleDirs = 1 << 0,
+
+    /// <summary>Exclude Toucan audit and comment sidecars when discovering translation files.</summary>
+    SkipToucanSidecars = 1 << 1,
 }
 
 /// <summary>
@@ -77,6 +80,8 @@ public static partial class FileEnumerator
             foreach (var file in Directory.GetFiles(dir, pattern))
             {
                 if ((File.GetAttributes(file) & FileAttributes.ReparsePoint) != 0) continue;
+                if (options.HasFlag(EnumerateOptions.SkipToucanSidecars) && IsToucanSidecar(file))
+                    continue;
                 if (excludedFiles != null && excludedFiles.Contains(Path.GetFileName(file)))
                     continue;
                 scan?.OnFile();
@@ -119,6 +124,8 @@ public static partial class FileEnumerator
                 foreach (var file in Directory.GetFiles(dir, p))
                 {
                     if ((File.GetAttributes(file) & FileAttributes.ReparsePoint) != 0) continue;
+                    if (options.HasFlag(EnumerateOptions.SkipToucanSidecars) && IsToucanSidecar(file))
+                        continue;
                     if (excludedFiles != null && excludedFiles.Contains(Path.GetFileName(file)))
                         continue;
                     scan?.OnFile();
@@ -130,6 +137,13 @@ public static partial class FileEnumerator
 
     /// <summary>Check if a directory name should be excluded from scanning.</summary>
     public static bool IsExcludedDirectory(string dirName) => s_excludedDirs.Contains(dirName);
+
+    private static bool IsToucanSidecar(string path)
+    {
+        var name = Path.GetFileName(path);
+        return name.Equals(".toucan-metadata.json", StringComparison.OrdinalIgnoreCase)
+            || name.EndsWith(".comments.json", StringComparison.OrdinalIgnoreCase);
+    }
 
     /// <summary>Checks if the given folder contains subdirectories that look like language codes (e.g., en, id, fr-FR).</summary>
     public static bool HasLanguageSubdirectories(string folder)

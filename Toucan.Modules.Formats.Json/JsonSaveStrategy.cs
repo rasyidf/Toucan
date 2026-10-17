@@ -5,7 +5,7 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy, IResourceOptionsProvider, IResourceDialectProvider
+public partial class JsonSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy, IResourceOptionsProvider, IResourceDialectProvider
 {
     public IReadOnlyList<ResourceDialectChoice> Dialects => [new(null, "Generic JSON"), new("formatjs-target", "FormatJS target")];
     public IReadOnlySet<string> SupportedOptions(ResourceDescriptor resource) => resource.Dialect == "formatjs-target" ? ResourceOptionFields.With("Indent") : ResourceOptionFields.With("Layout", "Delimiter", "Arrays", "Indent");

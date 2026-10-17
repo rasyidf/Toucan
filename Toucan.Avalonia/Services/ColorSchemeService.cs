@@ -19,7 +19,7 @@ public sealed record SchemeToken(string Key, string Label);
 
 /// <summary>
 /// Applies the user's color scheme: the accent color (through FluentAvalonia) and overrides for the app's own theme brushes.
-/// The original colors come from App.axaml and are captured the first time anything is applied, so "reset" always has a target.
+/// Default palettes are loaded from Styles/Resources by App.axaml and captured before the first edit, so "reset" always has a target.
 /// </summary>
 public static class ColorSchemeService
 {
@@ -114,7 +114,7 @@ public static class ColorSchemeService
 
     private static void Set(ResourceDictionary dict, string key, Color color) => dict[key] = new SolidColorBrush(color);
 
-    /// <summary>Remembers the App.axaml color of every token not seen yet. Runs before the first edit is applied, so it always reads originals.</summary>
+    /// <summary>Remembers the default palette color of every token not seen yet. Runs before the first edit is applied, so it always reads originals.</summary>
     private static void EnsureDefaults()
     {
         if (Application.Current is not { } app) return;
@@ -122,7 +122,7 @@ public static class ColorSchemeService
         {
             if (!app.Resources.ThemeDictionaries.TryGetValue(variant, out var provider) || provider is not ResourceDictionary dict) continue;
             foreach (var token in Tokens)
-                if (!s_defaults.ContainsKey((variant, token.Key)) && dict.TryGetValue(token.Key, out var value) && value is ISolidColorBrush brush)
+                if (!s_defaults.ContainsKey((variant, token.Key)) && dict.TryGetResource(token.Key, variant, out var value) && value is ISolidColorBrush brush)
                     s_defaults[(variant, token.Key)] = brush.Color;
         }
     }

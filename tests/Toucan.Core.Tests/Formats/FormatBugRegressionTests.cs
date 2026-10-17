@@ -34,6 +34,76 @@ public sealed class FormatBugRegressionTests : IDisposable
         NsTreeItems = [],
     };
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void SidecarDiscoveryExclusionIsOptionalSoSaveBackupsStillIncludeMetadata(bool multiplePatterns, bool skipSidecars)
+    {
+        Write("en.json", "{}");
+        Write(".toucan-metadata.json", "{}");
+        Write("en.json.comments.json", "{}");
+        Write("comments.json", "{}");
+        var options = skipSidecars ? EnumerateOptions.SkipToucanSidecars : EnumerateOptions.None;
+        var files = (multiplePatterns
+            ? FileEnumerator.EnumerateFiles(_folder, ["*.json"], options)
+            : FileEnumerator.EnumerateFiles(_folder, "*.json", options)).Select(Path.GetFileName).ToList();
+        Assert.Equal(skipSidecars ? 2 : 4, files.Count);
+        Assert.Contains("en.json", files);
+        Assert.Contains("comments.json", files);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("locales/en")]
+    public void Json_DiscoveryIgnoresToucanSidecarsButKeepsTranslationKeys(string subfolder)
+    {
+        var folder = Path.Combine(_folder, subfolder);
+        Directory.CreateDirectory(folder);
+        var translationName = subfolder.Length == 0 ? "en.json" : "common.json";
+        File.WriteAllText(Path.Combine(folder, translationName), """{"greeting":"Hello","schemaVersion":"Version"}""");
+        File.WriteAllText(Path.Combine(folder, ".toucan-metadata.json"), """{"schemaVersion":"1.0","entries":{"greeting":{"approved":true}}}""");
+        File.WriteAllText(Path.Combine(folder, translationName + ".comments.json"), """{"schemaVersion":"1.0","comments":{"greeting":"A greeting"}}""");
+        var internalFolder = Path.Combine(folder, ".toucan", "recovery");
+        Directory.CreateDirectory(internalFolder);
+        File.WriteAllText(Path.Combine(internalFolder, "draft.json"), """{"internal":"Recovery data"}""");
+
+        var loader = new JsonLoadStrategy(_files, NullLogger<JsonLoadStrategy>.Instance);
+        var items = loader.Load(_folder).ToList();
+
+        Assert.Equal(2, items.Count);
+        Assert.All(items, item => Assert.Equal("en", item.Language));
+        Assert.Contains(items, item => item.Value == "Hello");
+        Assert.Contains(items, item => item.Value == "Version");
+        Assert.Equal(items.Select(i => (i.Language, i.Namespace, i.Value)),
+            new NamespacedLoadStrategy(loader).Load(_folder).Select(i => (i.Language, i.Namespace, i.Value)));
+    }
+
+    [Fact]
+    public void Json_ReopenWithGeneratedSidecarsKeepsOneLanguageAndRestoresMetadata()
+    {
+        Write("en-US.json", """{"greeting":"Hello"}""");
+        var projects = new ProjectService(_files, FormatTestHost.SaveStrategies, FormatTestHost.Factory,
+            new ProjectModeResolver(), NullLogger<ProjectService>.Instance);
+        var original = Assert.Single(projects.LoadProject(_folder).Translations);
+        original.Comment = "A greeting";
+        var comments = new CommentPersistenceService(NullLogger<CommentPersistenceService>.Instance, FormatTestHost.Factory);
+        comments.SaveComments(_folder, FormatIds.Json, [original]);
+        var audit = new AuditService(NullLogger<AuditService>.Instance);
+        audit.RecordSave(original);
+        audit.SaveToSidecar(_folder);
+
+        var reopened = projects.LoadProject(_folder);
+        Assert.Equal("en-US", Assert.Single(reopened.Settings.Languages));
+        var item = Assert.Single(reopened.Translations);
+        Assert.Equal("greeting", item.Namespace);
+        comments.LoadComments(_folder, FormatIds.Json, reopened.Translations);
+        audit.LoadFromSidecar(_folder);
+        Assert.Equal("A greeting", item.Comment);
+        Assert.NotNull(audit.GetMetadata(item));
+    }
+
     // ---- FMT-05
 
     private const string ResxBody = "<root><data name=\"a\"><value>x</value></data></root>";

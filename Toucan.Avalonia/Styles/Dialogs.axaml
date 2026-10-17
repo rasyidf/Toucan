@@ -1,0 +1,40 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:c="using:Toucan.Avalonia.Views.Components"
+        xmlns:views="using:Toucan.Avalonia.Views"
+        xmlns:loc="using:Toucan.Avalonia.Locales"
+        xmlns:conv="using:Toucan.Avalonia.Converters">
+
+  <!-- Dialog footer -->
+  <Style Selector="Border.dialogFooter">
+    <Setter Property="Padding" Value="20,12"/>
+    <Setter Property="Background" Value="{DynamicResource ChromeBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="0,1,0,0"/>
+  </Style>
+  <!-- One 8px gap between footer buttons, whatever panel holds them; no stray inset on a leading button. -->
+  <Style Selector="Border.dialogFooter Button">
+    <Setter Property="MinWidth" Value="88"/>
+    <Setter Property="Margin" Value="0"/>
+  </Style>
+  <Style Selector="Border.dialogFooter StackPanel">
+    <Setter Property="Spacing" Value="8"/>
+  </Style>
+
+  <!-- Form rows -->
+  <Style Selector="TextBlock.label">
+    <Setter Property="Margin" Value="0,10,0,4"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+  </Style>
+  <Style Selector="TextBlock.hint">
+    <Setter Property="Margin" Value="0,3,0,0"/>
+    <Setter Property="FontSize" Value="11"/>
+    <Setter Property="TextWrapping" Value="Wrap"/>
+    <Setter Property="Foreground" Value="{DynamicResource FaintTextBrush}"/>
+  </Style>
+  <Style Selector="CheckBox.form">
+    <Setter Property="Margin" Value="0,6,0,0"/>
+  </Style>
+</Styles>

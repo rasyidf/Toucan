@@ -43,7 +43,9 @@ public sealed record MainWindowServices(
     IEnumerable<SpreadsheetDialect>? SpreadsheetDialects = null,
     IEnumerable<IProjectCompatibilityImporter>? CompatibilityImporters = null,
     SpellingService? Spelling = null, DictionaryRegistry? Dictionaries = null,
-    INotificationCenter? Notifications = null, NotificationHistoryViewModel? History = null);
+    INotificationCenter? Notifications = null, NotificationHistoryViewModel? History = null,
+    IProjectDefaultsService? Defaults = null,
+    WorkspaceService? Workspace = null);
 
 /// <summary>
 /// State and commands for the main editor window. Split across partial files by concern:
@@ -52,6 +54,8 @@ public sealed record MainWindowServices(
 /// </summary>
 public partial class MainWindowViewModel : ObservableObject, IDisposable
 {
+    private readonly IProjectDefaultsService? _defaultsService;
+    private Dictionary<string, ValidationRuleConfig> _inlineRuleDefaults;
     private readonly IRecentProjectService _recentFileService;
     private readonly IDialogService _dialogService;
     private readonly IReadOnlyList<SpreadsheetDialect> _spreadsheetDialects;
@@ -60,6 +64,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly IPreferenceService _preferenceService;
     private readonly IProjectService _projectService;
     private readonly IProjectLifecycleService _lifecycleService;
+    private readonly IUndoRedoService _undoRedoService;
     private readonly ITranslationManagementService _translationStore;
     private readonly ILanguageManagementService _languageManagement;
     private readonly ITranslationStrategyFactory _strategyFactory;
@@ -69,7 +74,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly IValidationPipeline _validationPipeline;
     private readonly ISourceCodeService _sourceCodeService;
     private readonly ITranslationAnalyzer _translationAnalyzer;
-    private readonly IUndoRedoService _undoRedoService;
     private readonly IFuzzySearchService _fuzzySearch;
     private readonly ISearchAndReplaceService _searchAndReplace;
     private readonly ITranslationMemory _translationMemory;
@@ -82,6 +86,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly SpellingService? _spellingService;
     private readonly DictionaryRegistry? _dictionaries;
     private SpellingSession? _spellingSession;
+    internal WorkspaceService Workspace { get; }
 
     private readonly DispatcherTimer _searchDebounce;
     /// <summary>Pause between the last keystroke in the Search panel and the search itself.</summary>
@@ -103,6 +108,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _preferenceService = services.Preferences;
         _projectService = services.ProjectService;
         _lifecycleService = services.Lifecycle;
+        _undoRedoService = services.UndoRedo;
         _translationStore = services.TranslationStore;
         _languageManagement = services.LanguageManagement;
         _strategyFactory = services.StrategyFactory;
@@ -110,9 +116,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _providerSettingsService = services.ProviderSettings;
         _providerRegistry = services.ProviderRegistry;
         _validationPipeline = services.Validation;
+        Workspace = services.Workspace ?? new WorkspaceService(_translationStore, _validationPipeline);
         _sourceCodeService = services.SourceCode;
         _translationAnalyzer = services.Analyzer;
-        _undoRedoService = services.UndoRedo;
         _fuzzySearch = services.FuzzySearch;
         _searchAndReplace = services.SearchAndReplace;
         _translationMemory = services.TranslationMemory;
@@ -122,10 +128,14 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _clarity = services.Clarity;
         _diagnostics = services.Diagnostics;
         _pluginCatalog = services.PluginCatalog;
+        _defaultsService = services.Defaults;
+        _inlineRuleDefaults = _defaultsService?.Load().ValidationRules ?? [];
 
         _translationStore.DirtyStateChanged += OnStoreDirtyStateChanged;
 
         appOptions = _preferenceService.Load();
+        editorLayout = Enum.TryParse<EditorLayout>(appOptions.EditorLayout, out var savedLayout) && Enum.IsDefined(savedLayout)
+            ? savedLayout : EditorLayout.Cards;
         InitAi();
         editorMode = PanelService.Instance.EditorMode;
 
@@ -327,7 +337,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     private void ApplyStoreDirtyState()
     {
-        if (_translationStore.IsDirty)
+        if (_translationStore.IsDirty || Workspace.IsDirty)
         {
             foreach (var item in _translationStore.GetDirtyItems())
             {
@@ -407,7 +417,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         SessionDirtyKeys.Clear();
         SessionDirtyCount = 0;
         _hasUntrackedChanges = false;
-        IsDirty = _translationStore.IsDirty;
+        IsDirty = _translationStore.IsDirty || Workspace.IsDirty;
         MarkDirtyGroups();
     }
 
@@ -437,10 +447,38 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     internal TranslationItemViewModel CreateItemViewModel(TranslationItem item)
     {
         var resource = ProjectSettings?.ResourceDocuments.FirstOrDefault(d => d.Resource.Id == item.Identity?.ResourceId)?.Resource;
-        return new(item, _undoRedoService, _translationStore, OnTranslationItemChanged, CanApprove, _spellingSession)
+        return new(item, _undoRedoService, _translationStore, OnTranslationItemChanged, CanApprove, _spellingSession, ValidateInlineItem)
             { ResourcePath = resource?.RelativePath ?? "", IsArbResource = resource?.FormatId == FormatIds.Arb,
               IsSource = string.Equals(item.Language, PrimaryLanguage, StringComparison.OrdinalIgnoreCase) };
     }
+
+    private IReadOnlyList<ValidationResult> ValidateInlineItem(TranslationItemViewModel item)
+    {
+        var live = PagingController.Data.SelectMany(g => g.AllItems).Where(t => t.Namespace == item.Namespace)
+            .GroupBy(t => t.Language).ToDictionary(g => g.Key, g => g.First().Value, StringComparer.Ordinal);
+        live[item.Language] = item.Value;
+        if (item.SourceText is not null) live[PrimaryLanguage] = item.SourceText;
+        var snapshots = AllTranslation.Where(t => t.Namespace == item.Namespace).Select(t => new TranslationItem
+        {
+            Namespace = t.Namespace, Language = t.Language, Value = live.GetValueOrDefault(t.Language, t.Value),
+            Comment = t.Comment, IsApproved = t.IsApproved, FormatData = t.FormatData,
+            ChangeType = t.ChangeType, LastModifiedUtc = t.LastModifiedUtc, ApprovedAtUtc = t.ApprovedAtUtc
+        }).ToList();
+        var enabledRules = _validationPipeline.Rules
+            .Where(r => InlineRuleConfig(r.Id)?.Enabled != false)
+            .Where(r => r.Id != "placeholder-mismatch" || PanelService.Instance.ShowPlaceholderWarnings)
+            .Select(r => r.Id).ToArray();
+        var results = _validationPipeline.Run(new ValidationContext { Items = snapshots, PrimaryLanguage = PrimaryLanguage }, enabledRules)
+            .Where(r => r.Language is null || r.Language == item.Language)
+            .Select(r => InlineRuleConfig(r.RuleId) is { } config &&
+                Enum.TryParse<ValidationSeverity>(config.Severity, true, out var severity) ? r with { Severity = severity } : r)
+            .OrderBy(r => r.Severity).ToList();
+        if (results.Any(r => r.RuleId == "missing-translation")) results.RemoveAll(r => r.RuleId == "empty-value");
+        return results;
+    }
+
+    private ValidationRuleConfig? InlineRuleConfig(string id) =>
+        ProjectSettings?.ValidationRules?.GetValueOrDefault(id) ?? _inlineRuleDefaults.GetValueOrDefault(id);
 
     internal LanguageGroupViewModel CreateGroup(string ns)
     {
@@ -493,6 +531,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         var previousLanguage = AppOptions.AppLanguage;
         var plainKeysChanged = AppOptions.PlainTextKeys != updated.PlainTextKeys;
         AppOptions = updated;
+        _inlineRuleDefaults = _defaultsService?.Load().ValidationRules ?? [];
         ThemeService.Apply(AppOptions.Theme);
         ColorSchemeService.Apply(AppOptions);
         ThemeService.ApplyFontSize(AppOptions.FontSize);

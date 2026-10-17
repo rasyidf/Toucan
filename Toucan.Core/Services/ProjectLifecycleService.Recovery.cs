@@ -57,6 +57,12 @@ public partial class ProjectLifecycleService
     {
         try
         {
+            if (workspace?.Source is { } source)
+            {
+                _diskBaseline = source.Documents.Select(d => (d.RelativePath, d.Version)).Concat(source.Artifacts.Select(a => (a.RelativePath, a.Version)))
+                    .ToDictionary(p => Path.Combine(source.Root, p.RelativePath), p => p.Version, StringComparer.Ordinal);
+                return;
+            }
             _diskBaseline = _currentProject == null
                 ? []
                 : SaveTransaction.Fingerprint(TrackedFiles(_currentProject, includeManifest: false));
@@ -114,8 +120,8 @@ public partial class ProjectLifecycleService
                 return;
             }
 
-            var signature = string.Join('\u001f',
-                new[] { draft.Configuration == null ? "" : ProjectConfiguration.Signature(draft.Configuration) }.Concat(draft.Entries.Select(e => $"e{e.Language}\u001e{e.Namespace}\u001e{e.Value}\u001e{e.Comment}\u001e{e.Identity?.Address}\u001e{e.Approved}\u001e{System.Text.Json.JsonSerializer.Serialize(e.FormatData)}"))
+            var signature = draft.Workspace is not null ? System.Text.Json.JsonSerializer.Serialize(draft.Workspace) : string.Join('',
+                new[] { draft.Configuration == null ? "" : ProjectConfiguration.Signature(draft.Configuration) }.Concat(draft.Entries.Select(e => $"e{e.Language}{e.Namespace}{e.Value}{e.Comment}{e.Identity?.Address}{e.Approved}{System.Text.Json.JsonSerializer.Serialize(e.FormatData)}"))
                     .Concat(draft.Deleted!.Select(d => $"d{d.Language}\u001e{d.Namespace}"))
                     .Concat(draft.Approvals!.Select(a => $"a{a.Language}\u001e{a.Namespace}\u001e{a.Approved}")));
             if (signature == _lastDraftSignature) return;
@@ -135,6 +141,9 @@ public partial class ProjectLifecycleService
     /// </summary>
     private RecoveryDraft BuildDraft()
     {
+        if (workspace?.Source is { } source)
+            return new RecoveryDraft(_currentProject!.ProjectPath, DateTime.UtcNow, [], [], [])
+            { SchemaVersion = 2, Workspace = workspace.CaptureRecovery(source) };
         var entries = new List<RecoveryDraftEntry>();
         foreach (var item in translationManagement.GetDirtyItems())
         {
@@ -175,6 +184,14 @@ public partial class ProjectLifecycleService
         var draft = _pendingRecovery;
         if (draft is null || _currentProject is null) return new RecoveryApplyResult(0, []);
         _pendingRecovery = null;
+        if (draft.Workspace is not null && workspace is not null)
+        {
+            var result = workspace.ApplyRecovery(draft.Workspace);
+            DeleteRecoveryDraft();
+            var documentConflicts = draft.Workspace.Units.Where(u => result.Conflicts.Contains(u.EntryId))
+                .Select(u => new RecoveryDraftEntry(u.Language, string.Join('.', u.Namespace.Segments.Concat(u.KeyPath.Segments)), null, u.Value, null, u.Metadata?.Comment)).ToArray();
+            return new(result.Applied, documentConflicts);
+        }
 
         if (draft.Configuration != null && draft.BaseConfigurationSignature != ProjectConfiguration.Signature(_currentProject))
         {
@@ -284,6 +301,7 @@ public partial class ProjectLifecycleService
         }
 
         // The edits are in memory again; the timer rewrites the draft from the dirty state.
+        workspace?.ReloadProjection(saved: false);
         recoveryDrafts?.Delete(_currentProject.ProjectPath);
         _lastDraftSignature = string.Empty;
         if (conflicts.Count > 0 && logger.IsEnabled(LogLevel.Warning))
@@ -309,7 +327,7 @@ public partial class ProjectLifecycleService
 
         var result = journal.Rollback();
         if (result.Complete) _interruptedSave = null;
-        await DispatchToUiAsync(ReloadFromDiskAsync).ConfigureAwait(false);
+        await DispatchToUiAsync(() => ReloadFromDiskAsync(discardDirty: true)).ConfigureAwait(false);
         return result;
     }
 

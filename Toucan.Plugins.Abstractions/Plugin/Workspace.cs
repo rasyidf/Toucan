@@ -27,7 +27,7 @@ public sealed class WorkspaceSnapshot
         Languages = languages;
         Units = units;
         Revision = revision;
-        _index = units.ToDictionary(u => (u.Key, u.Language));
+        _index = units.GroupBy(u => (u.Key, u.Language)).Where(g => g.Count() == 1).ToDictionary(g => g.Key, g => g.Single());
     }
 
     public string WorkspaceId { get; }
@@ -119,6 +119,8 @@ public enum EditIssueKind
     /// <summary>The project's strict-approval policy refuses to approve a translation that has validation errors.</summary>
     ApprovalRefused,
     Empty,
+    /// <summary>The legacy address matches more than one entry. Use the identified workspace API.</summary>
+    Ambiguous,
 }
 
 /// <summary>A reason an edit, or one of its steps, was refused. <c>OperationIndex</c> is the step, or -1 for the edit as a whole.</summary>

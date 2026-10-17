@@ -1,6 +1,7 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text.Json;
+using Toucan.Core.Models;
 
 namespace Toucan.Core.Services;
 
@@ -41,14 +42,14 @@ public sealed class SaveTransaction
         _entries = journal.Entries;
     }
 
-    private sealed record Entry(string Path, string? Backup);
+    private sealed record Entry(string Path, string? Backup, string? OriginalVersion = null, string? WrittenVersion = null);
 
     /// <summary>
     /// What the journal remembers. <see cref="Known"/> lists the files that existed under the project (with the
     /// extensions in <see cref="Extensions"/>) before the save, so files the save created that nobody listed
     /// (a new namespace file, say) can be removed again on rollback.
     /// </summary>
-    private sealed record Journal(List<Entry> Entries, List<string> Known, List<string> Extensions);
+    private sealed record Journal(List<Entry> Entries, List<string> Known, List<string> Extensions, bool DeclaredTargetsOnly = false, int Version = 1);
 
     /// <summary>Files this transaction protects, as absolute paths.</summary>
     public IReadOnlyList<string> Files => _entries.Select(e => Abs(e.Path)).ToList();
@@ -115,6 +116,56 @@ public sealed class SaveTransaction
         if (ReferenceEquals(s_active.Value, this)) s_active.Value = _previousActive;
     }
 
+    /// <summary>Version-2 journal protecting exactly the declared targets. Missing versions require missing files.</summary>
+    internal static SaveTransaction BeginDeclaredTargets(string folder, IReadOnlyDictionary<string, string?> expectedVersions)
+    {
+        folder = Path.GetFullPath(folder);
+        var pending = LocalWorkspaceDocumentStore.SafePath(folder, ".toucan/recovery/pending");
+        if (Directory.Exists(pending)) throw new IOException("Resolve the pending recovery journal before saving again.");
+        var snapshots = new List<(string Path, byte[]? Bytes, string Version)>();
+        foreach (var (relative, expected) in expectedVersions)
+        {
+            var path = LocalWorkspaceDocumentStore.SafePath(folder, relative);
+            byte[]? bytes;
+            try { bytes = File.ReadAllBytes(path); }
+            catch (FileNotFoundException) { bytes = null; }
+            catch (DirectoryNotFoundException) { bytes = null; }
+            var version = bytes is null ? null : Convert.ToHexString(SHA256.HashData(bytes));
+            if (version != expected) throw new WorkspaceSourceConflictException(relative, expected, version);
+            snapshots.Add((relative, bytes, version ?? string.Empty));
+        }
+        Directory.CreateDirectory(pending);
+        var entries = new List<Entry>();
+        foreach (var (path, bytes, version) in snapshots)
+        {
+            var backup = bytes is null ? null : $"{entries.Count:D4}.bak";
+            if (backup is not null) AtomicFile.WriteAllBytes(Path.Combine(pending, backup), bytes!);
+            entries.Add(new(path, backup, version));
+        }
+        var journal = new Journal(entries, [], [], DeclaredTargetsOnly: true, Version: 2);
+        AtomicFile.WriteAllText(Path.Combine(pending, JournalFile), JsonSerializer.Serialize(journal, s_json));
+        return new(folder, pending, journal);
+    }
+
+    /// <summary>Durably records the intended post-write version before a target can be mutated. Null denotes deletion.</summary>
+    internal void DeclareMutation(string relativePath, string? writtenVersion)
+    {
+        if (!_journal.DeclaredTargetsOnly) throw new InvalidOperationException("Mutation intents require a declared-target journal.");
+        var index = _entries.FindIndex(e => e.Path == relativePath);
+        if (index < 0) throw new InvalidOperationException("Mutation target was not declared.");
+        _entries[index] = _entries[index] with { WrittenVersion = writtenVersion ?? string.Empty };
+        AtomicFile.WriteAllText(Path.Combine(_pendingDir, JournalFile), JsonSerializer.Serialize(_journal, s_json));
+    }
+
+    /// <summary>The conditional store refused mutation; leave external content outside rollback ownership.</summary>
+    internal void CancelMutation(string relativePath)
+    {
+        var index = _entries.FindIndex(e => e.Path == relativePath);
+        if (!_journal.DeclaredTargetsOnly || index < 0) throw new InvalidOperationException("Mutation target was not declared.");
+        _entries[index] = _entries[index] with { WrittenVersion = null };
+        AtomicFile.WriteAllText(Path.Combine(_pendingDir, JournalFile), JsonSerializer.Serialize(_journal, s_json));
+    }
+
     /// <summary>The save succeeded: keep the originals as the "previous" generation and drop the journal.</summary>
     public void Commit()
     {
@@ -136,6 +187,14 @@ public sealed class SaveTransaction
     /// <summary>Puts every protected file back as it was before the save.</summary>
     public SaveRollbackResult Rollback()
     {
+        if (!_journal.DeclaredTargetsOnly) return RollbackOwned();
+        using var lease = AcquireDocumentLock();
+        return RollbackOwned();
+    }
+
+    // The executor already holds the document lock through failure recovery.
+    internal SaveRollbackResult RollbackOwned()
+    {
         var restored = new List<string>();
         var failed = new List<(string, string)>();
         foreach (var entry in _entries)
@@ -143,8 +202,19 @@ public sealed class SaveTransaction
             var path = Abs(entry.Path);
             try
             {
+                if (_journal.DeclaredTargetsOnly)
+                {
+                    path = LocalWorkspaceDocumentStore.SafePath(_folder, entry.Path);
+                    if (entry.WrittenVersion is null) continue;
+                    var current = LocalWorkspaceDocumentStore.Version(path) ?? string.Empty;
+                    if (current == entry.OriginalVersion) continue;
+                    if (current != entry.WrittenVersion)
+                        throw new IOException("The target changed externally after the save started; recovery preserved its current content.");
+                }
                 if (entry.Backup != null)
-                    AtomicFile.WriteAllBytes(path, File.ReadAllBytes(Path.Combine(_pendingDir, entry.Backup)));
+                    AtomicFile.WriteAllBytes(path, File.ReadAllBytes(_journal.DeclaredTargetsOnly
+                        ? LocalWorkspaceDocumentStore.SafePath(_folder, Path.GetRelativePath(_folder, Path.Combine(_pendingDir, entry.Backup)))
+                        : Path.Combine(_pendingDir, entry.Backup)));
                 else if (File.Exists(path))
                     File.Delete(path);
                 restored.Add(path);
@@ -157,7 +227,7 @@ public sealed class SaveTransaction
 
         // Files the save created that were not listed up front (same kind as the project's own files).
         var known = _journal.Known.ToHashSet(StringComparer.Ordinal);
-        foreach (var created in ListProjectFiles(_folder, _journal.Extensions))
+        foreach (var created in _journal.DeclaredTargetsOnly ? [] : ListProjectFiles(_folder, _journal.Extensions))
         {
             if (known.Contains(Rel(_folder, created))) continue;
             try { File.Delete(created); restored.Add(created); }
@@ -170,7 +240,15 @@ public sealed class SaveTransaction
     }
 
     /// <summary>Drops the journal without restoring anything (the user chose to keep what is on disk).</summary>
-    public void Discard() { TryDeleteDir(_pendingDir); ReleaseActive(); }
+    public void Discard()
+    {
+        using var lease = _journal.DeclaredTargetsOnly ? AcquireDocumentLock() : null;
+        TryDeleteDir(_pendingDir);
+        ReleaseActive();
+    }
+
+    private FileStream AcquireDocumentLock() => new(LocalWorkspaceDocumentStore.SafePath(_folder,
+        ".toucan/recovery/document-save.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
 
     /// <summary>A journal that was never committed or rolled back: the previous run died, or a restore failed, mid-save.</summary>
     public static SaveTransaction? FindInterrupted(string folder)
@@ -182,9 +260,14 @@ public sealed class SaveTransaction
         try
         {
             var parsed = JsonSerializer.Deserialize<Journal>(File.ReadAllText(journal), s_json);
-            return parsed?.Entries == null ? null : new SaveTransaction(folder, pending, parsed with { Known = parsed.Known ?? [], Extensions = parsed.Extensions ?? [] });
+            if (parsed?.Entries is null || parsed.Version is not (1 or 2) || parsed.Version == 2 && !parsed.DeclaredTargetsOnly) return null;
+            if (parsed.DeclaredTargetsOnly && (parsed.Version != 2 || parsed.Entries.Any(e =>
+                e.OriginalVersion is null || string.IsNullOrWhiteSpace(e.Path) || Path.IsPathRooted(e.Path) ||
+                Path.GetRelativePath(folder, WorkspaceDocumentRouter.WithinRoot(folder, e.Path)).Replace(Path.DirectorySeparatorChar, '/') != e.Path ||
+                e.Backup is not null && Path.GetFileName(e.Backup) != e.Backup))) return null;
+            return new SaveTransaction(folder, pending, parsed with { Known = parsed.Known ?? [], Extensions = parsed.Extensions ?? [] });
         }
-        catch (JsonException)
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException)
         {
             return null;
         }

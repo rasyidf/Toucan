@@ -178,11 +178,8 @@ public partial class MainWindowViewModel
 
     private List<TranslationItem> ApprovalBlockers(IReadOnlyCollection<TranslationItem> items)
     {
-        if (ProjectSettings?.RequireValidForApproval != true || items.Count == 0) return [];
-        var errors = _validationPipeline.RunAll(new ValidationContext { Items = AllTranslation, PrimaryLanguage = ProjectSettings.PrimaryLanguage })
-            .Where(r => r.Severity == ValidationSeverity.Error)
-            .Select(r => (r.Namespace, r.Language)).ToHashSet();
-        var blocked = items.Where(t => errors.Contains((t.Namespace, t.Language)) || errors.Contains((t.Namespace, null))).ToList();
+        if (items.Count == 0) return [];
+        var blocked = Workspace.ApprovalBlockers(items).ToList();
         if (blocked.Count > 0)
             StatusText = blocked.Count == 1
                 ? $"Not approved: {blocked[0].Namespace} [{blocked[0].Language}] has validation errors."
@@ -292,7 +289,6 @@ public partial class MainWindowViewModel
         var target = AllTranslation.FirstOrDefault(t => t.Namespace == issue.Namespace && t.Language == issue.Language);
         if (target == null) return;
 
-        _undoRedoService.Record(target.Namespace, target.Language, target.Value, issue.SuggestedFix);
         target.Value = issue.SuggestedFix;
         NotifyBulkValueChanges([target]);
         foreach (var t in PagingController.Data.SelectMany(g => g.AllItems).Where(t => ReferenceEquals(t.Model, target))) t.Refresh();

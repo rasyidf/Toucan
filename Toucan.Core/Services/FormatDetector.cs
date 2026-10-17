@@ -26,7 +26,7 @@ public class FormatDetector(IEnumerable<ISaveStrategy> saveStrategies)
         if (rules.Count == 0) return Fallback(folder);
 
         var found = new bool[rules.Count];
-        foreach (var file in FileEnumerator.EnumerateFiles(folder, "*"))
+        foreach (var file in FileEnumerator.EnumerateFiles(folder, "*", EnumerateOptions.SkipToucanSidecars))
         {
             var name = Path.GetFileName(file);
             var ext = Path.GetExtension(file);

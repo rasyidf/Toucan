@@ -41,6 +41,8 @@ public class AppOptions
     public Dictionary<string, string> CustomShortcuts { get; set; } = [];
 
     // --- Editor behavior ---
+    /// <summary>Desktop editor layout: Cards, Rows, or Focused.</summary>
+    public string EditorLayout { get; set; } = "Cards";
     public bool PlainTextKeys { get; set; }
     /// <summary>Show an inline warning on a target value when it is missing a {{ }} placeholder its source has.</summary>
     public bool ShowPlaceholderWarnings { get; set; } = true;

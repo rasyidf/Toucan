@@ -29,7 +29,10 @@ public sealed record RecoveryDraft(string ProjectPath, DateTime SavedAtUtc, IRea
     public string? BaseConfigurationSignature { get; init; }
     public IReadOnlyList<ResourceDocumentState>? Documents { get; init; }
     /// <summary>Number of individual changes the draft holds.</summary>
-    public int ChangeCount => (Configuration == null ? 0 : 1) + Entries.Count + (Deleted?.Count ?? 0) + (Approvals?.Count ?? 0);
+    public int SchemaVersion { get; init; } = 1;
+    public WorkspaceRecoveryDraft? Workspace { get; init; }
+
+    public int ChangeCount => Workspace?.ChangeCount ?? ((Configuration == null ? 0 : 1) + Entries.Count + (Deleted?.Count ?? 0) + (Approvals?.Count ?? 0));
 }
 
 /// <summary>What re-applying a draft did. Entries whose on-disk value changed since the draft are never applied.</summary>
