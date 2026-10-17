@@ -47,7 +47,15 @@ public static class AtomicFile
         }
     }
 
-    public static async Task WriteAllBytesAsync(string path, byte[] bytes)
+    public static Task WriteAllBytesAsync(string path, byte[] bytes) =>
+        WriteAllBytesAsync(path, bytes, beforeCommit: null, CancellationToken.None);
+
+    /// <summary>Stages bytes, then checks cancellation and the caller's precondition immediately before replacement.</summary>
+    public static Task WriteAllBytesAsync(string path, byte[] bytes, Action? beforeCommit, CancellationToken cancellationToken = default) =>
+        WriteAllBytesAsync(path, bytes, beforeCommit, requireExisting: null, cancellationToken);
+
+    /// <summary>True requires replacement, false requires creation, null allows either.</summary>
+    public static async Task WriteAllBytesAsync(string path, byte[] bytes, Action? beforeCommit, bool? requireExisting, CancellationToken cancellationToken = default)
     {
         var temp = StageTempPath(path);
         try
@@ -55,11 +63,13 @@ public static class AtomicFile
             var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, useAsync: true);
             await using (stream.ConfigureAwait(false))
             {
-                await stream.WriteAsync(bytes).ConfigureAwait(false);
-                await stream.FlushAsync().ConfigureAwait(false);
+                await stream.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
+                await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
                 stream.Flush(flushToDisk: true);
             }
-            Commit(temp, path, bytes.Length);
+            cancellationToken.ThrowIfCancellationRequested();
+            beforeCommit?.Invoke();
+            Commit(temp, path, bytes.Length, requireExisting);
         }
         catch
         {
@@ -76,12 +86,12 @@ public static class AtomicFile
         return Path.Combine(dir, $".{Path.GetFileName(full)}.{Guid.NewGuid():N}.tmp");
     }
 
-    private static void Commit(string temp, string path, int expectedLength)
+    private static void Commit(string temp, string path, int expectedLength, bool? requireExisting = null)
     {
         if (new FileInfo(temp).Length != expectedLength)
             throw new IOException($"Staged file for '{path}' is incomplete; the original was not changed.");
 
-        if (File.Exists(path)) File.Replace(temp, path, destinationBackupFileName: null, ignoreMetadataErrors: true);
+        if (requireExisting == true || requireExisting is null && File.Exists(path)) File.Replace(temp, path, destinationBackupFileName: null, ignoreMetadataErrors: true);
         else File.Move(temp, path);
     }
 

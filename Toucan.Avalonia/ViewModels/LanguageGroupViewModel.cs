@@ -60,6 +60,7 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
         foreach (var t in OrderByPrimary(items))
             Translations.Add(CreateRow(t));
         ApplySourceText(Translations);
+        ObserveRows(Translations);
     }
 
     public void LoadPluralVariants(IEnumerable<IGrouping<string, TranslationItem>> variantGroups)
@@ -76,6 +77,7 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
             foreach (var t in OrderByPrimary(group))
                 variant.Translations.Add(CreateRow(t));
             ApplySourceText(variant.Translations);
+            ObserveRows(variant.Translations);
             PluralVariants.Add(variant);
         }
         OnPropertyChanged(nameof(IsPluralGroup));
@@ -120,6 +122,27 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
             ? items.OrderBy(o => o.Language, StringComparer.Ordinal)
             : items.OrderBy(o => string.Equals(o.Language, primary, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
                    .ThenBy(o => o.Language, StringComparer.Ordinal);
+    }
+
+    private void ObserveRows(IEnumerable<TranslationItemViewModel> rows)
+    {
+        foreach (var row in rows)
+        {
+            row.PropertyChanged += OnRowChanged;
+            row.RefreshInlineValidation();
+        }
+    }
+
+    private void OnRowChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(TranslationItemViewModel.Value)) return;
+        if (sender is not TranslationItemViewModel { HasSource: false } source) return;
+        var rows = IsPluralGroup
+            ? PluralVariants.FirstOrDefault(v => v.Translations.Contains(source))?.Translations
+            : Translations;
+        if (rows is null) return;
+        foreach (var row in rows)
+            if (!ReferenceEquals(row, source)) row.SourceText = source.Value;
     }
 
     [RelayCommand]

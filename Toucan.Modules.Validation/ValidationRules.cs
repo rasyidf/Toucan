@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Toucan.Core.Contracts;
 using Toucan.Core.Models;
 
@@ -35,7 +34,7 @@ public class MissingTranslationRule : IValidationRule
 }
 
 /// <summary>Placeholder count differs between primary and translated value.</summary>
-public partial class PlaceholderMismatchRule : IValidationRule
+public class PlaceholderMismatchRule : IValidationRule
 {
     public string Id => "placeholder-mismatch";
     public string Name => "Placeholder mismatch";
@@ -53,15 +52,17 @@ public partial class PlaceholderMismatchRule : IValidationRule
         foreach (var item in context.Items.Where(i => i.Language != primary && !string.IsNullOrEmpty(i.Value)))
         {
             if (!sourceMap.TryGetValue(item.Namespace, out var sourceVal)) continue;
-            var srcPlaceholders = PlaceholderRegex().Count(sourceVal);
-            var tgtPlaceholders = PlaceholderRegex().Count(item.Value);
-            if (srcPlaceholders != tgtPlaceholders)
-                yield return new(Id, DefaultSeverity, $"Placeholder count: source={srcPlaceholders}, target={tgtPlaceholders}", item.Namespace, item.Language);
+            var result = PlaceholderService.Validate(sourceVal, item.Value);
+            if (!result.IsValid)
+            {
+                var details = new List<string>();
+                if (result.Missing.Count > 0) details.Add("Missing: " + string.Join(", ", result.Missing));
+                if (result.Extra.Count > 0) details.Add("Unexpected: " + string.Join(", ", result.Extra));
+                yield return new(Id, DefaultSeverity, string.Join(" · ", details), item.Namespace, item.Language);
+            }
         }
     }
 
-    [GeneratedRegex(@"\{\{[\w.]+\}\}|\{[\w.]+\}|%[sd\d$]*|:[\w]+|\$\{[\w.]+\}")]
-    private static partial Regex PlaceholderRegex();
 }
 
 /// <summary>Same namespace appears twice for the same language.</summary>

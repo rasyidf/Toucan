@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Toucan.Core interop architecture</title>
-<meta name="description" content="Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.">
+<meta name="description" content="Core workspace state, identity, history, async commands/subscriptions, document loading, format contracts, and save integration. Includes compatibility projections and source migration work.">
 <link rel="canonical" href="https://toucan.rasyid.dev/core-architecture.html">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,19 +15,19 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Toucan.Core interop architecture">
-<meta property="og:description" content="Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.">
+<meta property="og:description" content="Core workspace state, identity, history, async commands/subscriptions, document loading, format contracts, and save integration. Includes compatibility projections and source migration work.">
 <meta property="og:url" content="https://toucan.rasyid.dev/core-architecture.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Toucan.Core interop architecture">
-<meta name="twitter:description" content="Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.">
+<meta name="twitter:description" content="Core workspace state, identity, history, async commands/subscriptions, document loading, format contracts, and save integration. Includes compatibility projections and source migration work.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Toucan \u00b7 Toucan.Core interop architecture",
-  "description": "Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.",
+  "description": "Core workspace state, identity, history, async commands/subscriptions, document loading, format contracts, and save integration. Includes compatibility projections and source migration work.",
   "url": "https://toucan.rasyid.dev/core-architecture.html",
   "publisher": {
     "@type": "Organization",
@@ -101,13 +101,15 @@
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Toucan.Core interop architecture</h1>
-        <p class="lead">Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.</p>
+        <p class="lead">Core workspace state, identity, history, async commands/subscriptions, document loading, format contracts, and save integration. Includes compatibility projections and source migration work.</p>
         <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/ARCHITECTURE.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <p>Toucan normalizes translation resources into a shared model and resolves format implementations through DI. Core coordinates project IO and shared services; concrete parsers and writers live in built-in modules or external plugins. See the <a href="architecture.html">application architecture</a> for host composition, desktop state, lifecycle, AI, and trust integration.</p>
 <h2 id="model-and-boundaries"><a class="anchor" href="#model-and-boundaries" aria-label="Link to this section">#</a>Model and boundaries</h2>
-<p><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Plugins.Abstractions/Models/TranslationItem.cs">TranslationItem</a> represents a language, namespace/key, value, and translation metadata. The editor store identifies records by <code>(Language, Namespace)</code>. Hierarchical resources flatten into namespace paths; settings and individual format implementations govern escaping, structure, plural representation, and round-trip behavior. Normalization does not guarantee lossless conversion between every pair of formats.</p>
+<p><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/WorkspaceService.cs">WorkspaceService</a> owns immutable committed units addressed by entry ID and language, workspace revisions, dirty baselines, approval policy, and transaction history. It exposes legacy and identified plugin APIs without UI dependencies. Rename/delete, comments, approvals, and values share undo/redo. Session GUIDs change on open and Save As, while the plugin workspace/configuration identifier remains the project path. Opt-in document save planning separates source reads, framework destinations, and document serialization; it captures only affected file targets and source versions. The opt-in document coordinator executes version-checked atomic writes with declared-target recovery and acknowledges captured state while preserving newer edits. Affected metadata and identity catalogs participate in the same transaction. Explicit document-capable framework projects use this pipeline in the desktop, including create-only Save As/export. Content-version watcher acknowledgment covers only committed targets; unrelated external edits remain visible. Core navigation projections and clean/dirty source refresh are implemented; navigator UI and connection lifecycle work remain open. Core async commands use a bounded serialized queue. Optional API 1.2 subscriptions atomically capture a snapshot and stream revisioned changes through independent bounded buffers; overflow requires resubscribing. Closing ends the session streams and cancels queued work. The desktop dispatches transactions on the UI thread through the same Core implementation.</p>
+<p><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Plugins.Abstractions/Models/TranslationItem.cs">TranslationItem</a> remains a mutable compatibility projection used by the legacy editor store and serializers, which address records by <code>(Language, Namespace)</code>. Native editor changes commit a projection transaction into Core; plugin commands plan/apply there directly. Authoritative snapshots retain no mutable projection objects. Legacy dotted-key aliases that identify multiple entries are refused for edits; identified APIs use the entry GUID instead.</p>
+<p><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/WorkspaceSourceLoader.cs">WorkspaceSourceLoader</a> supports opt-in document-aware JSON loading with structured paths, source versions, explicit framework resource families, and identity checkpoints. Explicit document-capable framework projects use the source loader and targeted persistence; other projects retain legacy loading/serialization. Settings and individual format implementations govern escaping, plurals, and round-trip behavior; normalization does not guarantee lossless conversion between formats.</p>
 <p>Public plugin contracts and DTOs reside in <code>Toucan.Plugins.Abstractions</code>, even when their namespaces begin with <code>Toucan.Core</code>. Shared parsing/file helpers and the built-in module registration seam reside in <code>Toucan.Core.Common</code>. Core references these projects but no built-in module. Modules reference Common and Abstractions without referencing Core or sibling modules. <a href="https://github.com/rasyidf/Toucan/blob/main/tests/Toucan.Core.Tests/Modules/ArchitectureTests.cs">ArchitectureTests</a> enforces these rules.</p>
 <pre class="mermaid">flowchart LR
     Host["Desktop or CLI"] --&gt; Core["Core project services and registries"]

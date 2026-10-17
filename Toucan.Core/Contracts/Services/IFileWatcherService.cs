@@ -1,3 +1,5 @@
+using Toucan.Core.Models;
+
 namespace Toucan.Core.Contracts.Services;
 
 /// <summary>
@@ -14,8 +16,17 @@ public interface IFileWatcherService
     void Stop();
 #pragma warning restore CA1716
 
-    /// <summary>Records current file timestamps as the baseline snapshot.</summary>
+    /// <summary>Records the current folder contents as the baseline snapshot.</summary>
     void TakeSnapshot();
+
+    /// <summary>Changes when a watch is stopped or replaced; zero is the legacy implementation default.</summary>
+    long WatchGeneration => 0;
+
+    /// <summary>Reports paths and content versions that differ from the acknowledged baseline.</summary>
+    IReadOnlyList<FileVersionChange> GetChanges() => [];
+
+    /// <summary>Acknowledges only committed targets; implementations must not resnapshot unrelated files.</summary>
+    void AcknowledgeWrites(string root, IReadOnlyList<FileVersionChange> writes) { }
 
     /// <summary>Raised when external file changes are detected (after debounce).</summary>
     event EventHandler? FilesChanged;

@@ -26,7 +26,8 @@ public partial class ProjectLifecycleService(
     IExternalChangeHandler? externalChangeHandler,
     ILogger<ProjectLifecycleService> logger,
     IRecoveryDraftService? recoveryDrafts = null,
-    Plugins.IPluginActivationService? pluginActivation = null) : IProjectLifecycleService
+    Plugins.IPluginActivationService? pluginActivation = null,
+    WorkspaceService? workspace = null, WorkspaceDocumentSaveCoordinator? documentSaves = null, WorkspaceExportPlanner? exportPlanner = null, WorkspaceDocumentSaveExecutor? documentExecutor = null) : IProjectLifecycleService
 {
     private ProjectSettings? _currentProject;
 
@@ -91,13 +92,13 @@ public partial class ProjectLifecycleService(
         }
         var (loadResult, failure) = await StageAsync();
         if (failure is not null) return failure;
-        var reloadAfterClose = IsProjectOpen && translationManagement.IsDirty &&
+        var reloadAfterClose = IsProjectOpen && (translationManagement.IsDirty || workspace?.IsDirty == true) &&
             string.Equals(Path.GetFullPath(_currentProject!.ProjectPath), Path.GetFullPath(folderPath),
                 OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
         // Only replace the active workspace after parsing and validating the entire target.
         // Close the current project after successful target validation.
-        if (IsProjectOpen && translationManagement.IsDirty)
+        if (IsProjectOpen && (translationManagement.IsDirty || workspace?.IsDirty == true))
         {
             var closeResult = await CloseProjectAsync(ct).ConfigureAwait(false);
             if (closeResult == CloseResult.Cancelled)
@@ -142,7 +143,7 @@ public partial class ProjectLifecycleService(
         // 8. Load comments via ICommentPersistenceService
         try
         {
-            commentPersistence.LoadComments(folderPath, settings.SaveFormat, translations);
+            if (loadResult.Source is null) commentPersistence.LoadComments(folderPath, settings.SaveFormat, translations);
         }
         catch (Exception ex)
         {
@@ -152,6 +153,8 @@ public partial class ProjectLifecycleService(
         // 9. Set current project and configure language management
         _currentProject = settings;
         languageManagement.SetProjectSettings(settings);
+        // Publish Core state before workspace activators can read or edit through plugin services.
+        workspace?.Open(settings, loadResult.Source);
 
         // 10. Update last-saved snapshot for three-way merge baseline
         UpdateLastSavedSnapshot();
@@ -168,11 +171,25 @@ public partial class ProjectLifecycleService(
         StartDraftTimer();
 
         // 11c. Registered plugins activate for this project; failures are reported, never fatal
-        if (pluginActivation is not null)
+        try
         {
-            var activations = await pluginActivation.OpenWorkspaceAsync(folderPath, ct).ConfigureAwait(false);
-            foreach (var failed in activations.Where(a => a.Status == Plugins.ActivationStatus.Failed))
-                logger.LogWarning("Plugin {Plugin} could not activate for {FolderPath}: {Error}", failed.PluginId, folderPath, failed.Error);
+            if (pluginActivation is not null)
+            {
+                var activations = await pluginActivation.OpenWorkspaceAsync(folderPath, ct).ConfigureAwait(false);
+                foreach (var failed in activations.Where(a => a.Status == Plugins.ActivationStatus.Failed))
+                    logger.LogWarning("Plugin {Plugin} could not activate for {FolderPath}: {Error}", failed.PluginId, folderPath, failed.Error);
+            }
+            ct.ThrowIfCancellationRequested();
+        }
+        catch (OperationCanceledException)
+        {
+            await CleanupCurrentProjectAsync().ConfigureAwait(false);
+            return new ProjectOpenResult(ProjectOpenStatus.Cancelled);
+        }
+        catch
+        {
+            await CleanupCurrentProjectAsync().ConfigureAwait(false);
+            throw;
         }
 
         // 12. Raise ProjectChanged event with Opened
@@ -219,15 +236,22 @@ public partial class ProjectLifecycleService(
         if (!IsProjectOpen || _currentProject is null)
             return Task.FromResult(new ProjectSaveResult(ProjectSaveStatus.FileSystemError, ErrorMessage: "No project is currently open."));
 
+        if (workspace?.Source is not null) return SaveDocumentProjectAsync(options, ct);
+
         SaveTransaction? transaction = null;
+        using var persistence = workspace?.ProtectPersistence();
         try
         {
+            if (workspace is not null && !workspace.AcceptsEdits)
+                return Task.FromResult(new ProjectSaveResult(ProjectSaveStatus.FileSystemError, ErrorMessage: "The workspace is closing."));
+            workspace?.CommitProjection(translationManagement.Translations);
+            var saveItems = workspace?.SaveProjection() ?? translationManagement.Translations;
             // 1. Validate. Findings never stop a draft from being saved; only strict policy (approval, delivery) does.
             var findings = _currentProject.ValidateOnSave == false && !options.EnforceValidation
                 ? []
                 : validationPipeline.RunAll(new ValidationContext
                 {
-                    Items = translationManagement.Translations,
+                    Items = saveItems,
                     PrimaryLanguage = _currentProject.PrimaryLanguage
                 }).ToList();
 
@@ -252,15 +276,17 @@ public partial class ProjectLifecycleService(
             transaction = SaveTransaction.Begin(projectPath, files);
 
             // 4. Persist translations, comments, audit data and the manifest as one unit
-            projectService.Save(_currentProject, [], translationManagement.Translations);
-            commentPersistence.SaveComments(projectPath, _currentProject.SaveFormat, translationManagement.Translations);
+            projectService.Save(_currentProject, [], saveItems);
+            commentPersistence.SaveComments(projectPath, _currentProject.SaveFormat, saveItems);
             auditService.SaveToSidecar(projectPath);
             UpdateManifestTranslationPackages(_currentProject);
             _currentProject.Save();
             transaction.Commit();
 
             // 5. Everything is on disk: only now do the unsaved edits count as saved
-            translationManagement.MarkAllSaved();
+            if (workspace is null) translationManagement.MarkAllSaved();
+            else translationManagement.MarkSaved(saveItems);
+            workspace?.MarkSaved();
             DeleteRecoveryDraft();
             fileWatcher.TakeSnapshot();
             UpdateLastSavedSnapshot();
@@ -305,8 +331,16 @@ public partial class ProjectLifecycleService(
         if (!IsProjectOpen || _currentProject is null)
             return new ProjectSaveResult(ProjectSaveStatus.FileSystemError, ErrorMessage: "No project is currently open.");
 
+        if (workspace?.Source is not null) return await SaveDocumentProjectAsAsync(targetFolder, ct).ConfigureAwait(false);
+
+        using var persistence = workspace?.ProtectPersistence();
         try
         {
+            ct.ThrowIfCancellationRequested();
+            workspace?.CommitProjection(translationManagement.Translations);
+            var saveItems = workspace?.SaveProjection() ?? translationManagement.Translations;
+            var oldPath = _currentProject.ProjectPath;
+            var wasAutoSaveEnabled = autoSave.IsEnabled;
             // 1. Create target folder if needed
             Directory.CreateDirectory(targetFolder);
 
@@ -364,6 +398,7 @@ public partial class ProjectLifecycleService(
                 ExternalEditor = _currentProject.ExternalEditor,
                 AutoSaveEnabled = _currentProject.AutoSaveEnabled,
                 AutoSaveIntervalSeconds = _currentProject.AutoSaveIntervalSeconds,
+                RequireValidForApproval = _currentProject.RequireValidForApproval,
                 ProjectPath = targetFolder
             };
 
@@ -376,15 +411,24 @@ public partial class ProjectLifecycleService(
                     return new ProjectSaveResult(ProjectSaveStatus.FileSystemError, ErrorMessage: "The Save As folder contains a different generated catalog. Choose an empty destination.");
             foreach (var (source, target) in generated)
                 if (!File.Exists(target)) { Directory.CreateDirectory(Path.GetDirectoryName(target)!); File.Copy(source, target); }
-            projectService.Save(newSettings, [], translationManagement.Translations);
+            projectService.Save(newSettings, [], saveItems);
 
             // 3. Save comments and audit sidecar to new folder
-            commentPersistence.SaveComments(targetFolder, newSettings.SaveFormat, translationManagement.Translations);
+            commentPersistence.SaveComments(targetFolder, newSettings.SaveFormat, saveItems);
             auditService.SaveToSidecar(targetFolder);
 
             // 4. Update manifest translationPackages and save to new folder
             UpdateManifestTranslationPackages(newSettings);
             newSettings.Save();
+
+            ct.ThrowIfCancellationRequested();
+            workspace?.BeginClosing();
+            autoSave.Stop();
+            StopDraftTimer();
+            // Do not hold a thread-affine mutation lease across asynchronous plugin disposal.
+            persistence?.Dispose();
+            if (pluginActivation is not null) await pluginActivation.CloseWorkspaceAsync(oldPath).ConfigureAwait(false);
+            workspace?.Close();
 
             // 5. Stop old watcher, start new watcher on new folder
             UnsubscribeFromFileWatcher();
@@ -402,13 +446,17 @@ public partial class ProjectLifecycleService(
 
             // 8. Mark all translations as saved
             translationManagement.MarkAllSaved();
+            workspace?.Open(newSettings);
+            if (pluginActivation is not null)
+                await pluginActivation.OpenWorkspaceAsync(targetFolder, CancellationToken.None).ConfigureAwait(false);
+            StartDraftTimer();
 
             // 9. Update last-saved snapshot for merge baseline
             UpdateLastSavedSnapshot();
 
             // 10. Reset auto-save timer if enabled
-            if (autoSave.IsEnabled)
-                autoSave.ResetTimer();
+            if (wasAutoSaveEnabled)
+                autoSave.Start(TimeSpan.FromSeconds(Math.Clamp(newSettings.AutoSaveIntervalSeconds ?? 60, 10, 600)));
 
             // 11. Raise ProjectChanged with Saved
             ProjectChanged?.Invoke(this, new ProjectChangedEventArgs
@@ -466,7 +514,7 @@ public partial class ProjectLifecycleService(
             return CloseResult.Closed;
 
         // If project has unsaved changes, prompt the user
-        if (translationManagement.IsDirty)
+        if (translationManagement.IsDirty || workspace?.IsDirty == true)
         {
             // Determine the user's choice — default to Save if no handler is set
             var choice = UnsavedChangesChoice.Save;
@@ -520,17 +568,19 @@ public partial class ProjectLifecycleService(
     /// </summary>
     private async Task CleanupCurrentProjectAsync()
     {
+        workspace?.BeginClosing();
+        autoSave.Stop();
+        StopDraftTimer();
+        UnsubscribeFromFileWatcher();
+        fileWatcher.Stop();
         // Plugin sessions end first, while the project is still the one they were activated for.
         if (pluginActivation is not null && _currentProject is { } closing)
             await pluginActivation.CloseWorkspaceAsync(closing.ProjectPath).ConfigureAwait(false);
 
-        autoSave.Stop();
-        StopDraftTimer();
+        workspace?.Close();
         _pendingRecovery = null;
         _interruptedSave = null;
         _diskBaseline = [];
-        UnsubscribeFromFileWatcher();
-        fileWatcher.Stop();
         translationManagement.Clear();
         auditService.Clear();
         languageManagement.SetProjectSettings(null);

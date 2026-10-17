@@ -3,6 +3,7 @@
              xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:vm="using:Toucan.Avalonia.ViewModels"
              xmlns:c="using:Toucan.Avalonia.Views.Components">
   <DockPanel Background="{DynamicResource EditorBackgroundBrush}">
     <Border DockPanel.Dock="Top" IsVisible="{Binding WorkflowGuideVisible}" Padding="10" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SubtleBorderBrush}">
@@ -13,7 +14,7 @@
     </Border>
 
     <!-- ═══ Filter toolbar ═══ -->
-    <Border x:Name="FilterToolbar" DockPanel.Dock="Top" Classes="toolbar">
+    <Border x:Name="FilterToolbar" DockPanel.Dock="Top" Classes="toolbar filterToolbar">
       <Grid Classes="filterLayout" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
         <TextBox Classes="clearButton filterInput" x:Name="FilterBox" Text="{Binding SearchText}"
                  PlaceholderText="{loc:Loc 'Filter keys and values (end with “.” for a key path)'}">
@@ -75,10 +76,22 @@
           <ToggleButton Classes="icon" IsChecked="{Binding IsMultiSelectMode}" ToolTip.Tip="{loc:Loc 'Select multiple keys'}">
             <ui:FASymbolIcon Symbol="SelectAll"/>
           </ToggleButton>
-          <ToggleButton Classes="icon" IsChecked="{Binding FocusedEditorMode, Mode=OneWay}" Command="{Binding ToggleFocusedEditorCommand}"
-                        ToolTip.Tip="{loc:Loc 'Focused editor: one key at a time'}">
-            <ui:FASymbolIcon Symbol="Target"/>
-          </ToggleButton>
+          <Button Classes="editorLayoutPicker" ToolTip.Tip="{loc:Loc 'Editor layout'}" AutomationProperties.Name="{loc:Loc 'Editor layout'}">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <TextBlock Text="{Binding EditorLayoutLabel}"/>
+              <ui:FASymbolIcon Symbol="ChevronDown" FontSize="10" VerticalAlignment="Center"/>
+            </StackPanel>
+            <Button.Flyout>
+              <MenuFlyout>
+                <MenuItem Header="{loc:Loc 'Cards'}" ToggleType="Radio" IsChecked="{Binding IsCardLayout, Mode=OneWay}"
+                          Command="{Binding SetEditorLayoutCommand}" CommandParameter="{x:Static vm:EditorLayout.Cards}"/>
+                <MenuItem Header="{loc:Loc 'Line by line'}" ToggleType="Radio" IsChecked="{Binding IsRowLayout, Mode=OneWay}"
+                          Command="{Binding SetEditorLayoutCommand}" CommandParameter="{x:Static vm:EditorLayout.Rows}"/>
+                <MenuItem Header="{loc:Loc 'Focused'}" ToggleType="Radio" IsChecked="{Binding FocusedEditorMode, Mode=OneWay}"
+                          Command="{Binding SetEditorLayoutCommand}" CommandParameter="{x:Static vm:EditorLayout.Focused}"/>
+              </MenuFlyout>
+            </Button.Flyout>
+          </Button>
 
           <Rectangle Classes="toolbarSeparator"/>
           <Button Classes="icon" ToolTip.Tip="{loc:Loc 'More actions'}">
@@ -152,7 +165,7 @@
 
     <Panel>
       <!-- Card list -->
-      <ListBox x:Name="CardList" Classes="editor" ItemsSource="{Binding PageData}" SelectedItem="{Binding SelectedGroup}"
+      <ListBox x:Name="CardList" Classes="editor" Classes.rows="{Binding IsRowLayout}" ItemsSource="{Binding PageData}" SelectedItem="{Binding SelectedGroup}"
                IsVisible="{Binding !FocusedEditorMode}"
                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
         <ListBox.ItemTemplate>

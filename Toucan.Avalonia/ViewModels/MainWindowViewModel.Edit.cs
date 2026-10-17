@@ -115,6 +115,7 @@ public partial class MainWindowViewModel
         UpdateSummaryInfo();
         Search(SearchText, true);
         StatusText = status;
+        BumpWorkspaceRevision();
     }
 
     /// <summary>Makes <paramref name="language"/> the project's primary (source) language.</summary>
@@ -127,6 +128,7 @@ public partial class MainWindowViewModel
             ProjectSettings.Save();
         }
         PrimaryLanguage = language;
+        BumpWorkspaceRevision();
         InitLanguageVisibilityFilter(OrderedLanguages());
         UpdateSummaryInfo();
         Search(SearchText, true);
@@ -411,14 +413,26 @@ public partial class MainWindowViewModel
     {
         FlushPendingEdits();
         // A step may hold several edits (a bulk operation); undo them last to first.
-        if (_undoRedoService.Undo() is { } step) ApplyHistory(step.Reverse(), undo: true);
+        if (_undoRedoService.Undo() is { } step)
+        {
+            ApplyHistory(step.Reverse(), undo: true);
+            return;
+        }
+        var keys = AllTranslation.Select(t => (t.Namespace, t.Language)).ToHashSet();
+        if (Workspace.Undo()) RefreshWorkspaceProjection(!keys.SetEquals(_translationStore.Translations.Select(t => (t.Namespace, t.Language))), "Undo");
     }
 
     [RelayCommand]
     private void Redo()
     {
         FlushPendingEdits();
-        if (_undoRedoService.Redo() is { } step) ApplyHistory(step, undo: false);
+                if (_undoRedoService.Redo() is { } step)
+        {
+            ApplyHistory(step, undo: false);
+            return;
+        }
+        var keys = AllTranslation.Select(t => (t.Namespace, t.Language)).ToHashSet();
+        if (Workspace.Redo()) RefreshWorkspaceProjection(!keys.SetEquals(_translationStore.Translations.Select(t => (t.Namespace, t.Language))), "Redo");
     }
 
     private List<TranslationItem> CaptureStructure() => AllTranslation.Select(i => ResourceEntryOperations.Copy(i)).ToList();
@@ -519,9 +533,8 @@ public partial class MainWindowViewModel
     }
 
     /// <summary>
-    /// Runs a value-changing bulk operation so it undoes and redoes as one step. Snapshots the given items' values,
-    /// runs <paramref name="mutate"/>, then records every value that changed inside one undo group. Returns the items
-    /// that changed. A no-op records nothing (an empty group is no step).
+    /// Changes an editor projection and returns affected items. NotifyBulkValueChanges commits the result
+    /// to Core as one transaction, where history is recorded.
     /// </summary>
     private IReadOnlyList<TranslationItem> RecordBulkEdit(IEnumerable<TranslationItem> items, Action mutate)
     {
@@ -529,20 +542,8 @@ public partial class MainWindowViewModel
         var before = new Dictionary<TranslationItem, string>(ReferenceEqualityComparer.Instance);
         foreach (var item in tracked) before[item] = item.Value;
 
-        using (_undoRedoService.BeginGroup())
-        {
-            mutate();
-            var changed = new List<TranslationItem>();
-            foreach (var item in tracked)
-            {
-                if (before.TryGetValue(item, out var old) && old != item.Value)
-                {
-                    _undoRedoService.Record(item.Namespace, item.Language, old, item.Value);
-                    changed.Add(item);
-                }
-            }
-            return changed;
-        }
+        mutate();
+        return tracked.Where(item => before.TryGetValue(item, out var old) && old != item.Value).ToList();
     }
 
     // ───────────────────────── Text transforms ─────────────────────────
@@ -565,14 +566,7 @@ public partial class MainWindowViewModel
         if (planned.Count > 50 && !await _messageService.ConfirmAsync($"{label} will change {planned.Count} values in the current view. Continue?", label))
             return;
 
-        using (_undoRedoService.BeginGroup())
-        {
-            foreach (var (item, next) in planned)
-            {
-                _undoRedoService.Record(item.Namespace, item.Language, item.Value, next);
-                item.Value = next;
-            }
-        }
+        foreach (var (item, next) in planned) item.Value = next;
         var changed = planned.Select(p => p.Item).ToList();
 
         NotifyBulkValueChanges(changed);
@@ -633,7 +627,6 @@ public partial class MainWindowViewModel
             var val = line[(eq + 1)..].TrimEnd('\r');
             var existing = AllTranslation.FirstOrDefault(t => t.Namespace == ns && t.Language == lang);
             if (existing == null || existing.Value == val) continue;
-            _undoRedoService.Record(ns, lang, existing.Value, val);
             existing.Value = val;
             changed.Add(existing);
         }

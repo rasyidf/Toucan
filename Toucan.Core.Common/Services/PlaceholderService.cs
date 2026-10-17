@@ -48,7 +48,7 @@ public static partial class PlaceholderService
         // Named single last (broader pattern, avoid double-counting indexed)
         foreach (Match m in NamedSingleRegex().Matches(value))
         {
-            if (!results.Any(r => r.Position == m.Index))
+            if (!results.Any(r => m.Index < r.Position + r.Text.Length && m.Index + m.Length > r.Position))
                 results.Add(new PlaceholderInfo(m.Value, PlaceholderType.NamedSingle, m.Index));
         }
 

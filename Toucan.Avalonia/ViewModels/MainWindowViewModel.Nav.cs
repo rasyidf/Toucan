@@ -379,7 +379,45 @@ public partial class MainWindowViewModel
 
     // ───────────────────────── Zen / focused editor ─────────────────────────
 
-    [ObservableProperty] private bool focusedEditorMode;
+    private EditorLayout _lastListLayout = EditorLayout.Cards;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FocusedEditorMode), nameof(IsCardLayout), nameof(IsRowLayout), nameof(EditorLayoutLabel))]
+    private EditorLayout editorLayout;
+
+    public bool FocusedEditorMode => EditorLayout == EditorLayout.Focused;
+    public bool IsCardLayout => EditorLayout == EditorLayout.Cards;
+    public bool IsRowLayout => EditorLayout == EditorLayout.Rows;
+    public string EditorLayoutLabel => Locales.Loc.T(EditorLayout switch
+    {
+        EditorLayout.Rows => "Line by line",
+        EditorLayout.Focused => "Focused",
+        _ => "Cards"
+    });
+
+    [RelayCommand]
+    private void SetEditorLayout(EditorLayout layout) => EditorLayout = layout;
+
+    partial void OnEditorLayoutChanging(EditorLayout value) => FlushPendingEdits();
+
+    partial void OnEditorLayoutChanged(EditorLayout oldValue, EditorLayout newValue)
+    {
+        if (newValue == EditorLayout.Focused)
+        {
+            _lastListLayout = oldValue;
+            var selectedIndex = SelectedGroup == null ? -1 : PagingController.Data.IndexOf(SelectedGroup);
+            FocusedIndex = Math.Max(0, selectedIndex);
+            SelectedGroup = ZenCurrentItem;
+        }
+        else if (oldValue == EditorLayout.Focused)
+        {
+            SelectedGroup = ZenCurrentItem;
+            PagingController.GoTo(FocusedIndex / Math.Max(1, PagingController.PageSize) + 1);
+            PagedUpdates();
+        }
+        AppOptions.EditorLayout = newValue.ToString();
+        _preferenceService.Save(AppOptions);
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ZenCurrentItem), nameof(FocusedPositionText))]
@@ -423,20 +461,7 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private void ToggleFocusedEditor()
     {
-        FlushPendingEdits();
-        FocusedEditorMode = !FocusedEditorMode;
-        if (FocusedEditorMode)
-        {
-            var selectedIndex = SelectedGroup == null ? -1 : PagingController.Data.IndexOf(SelectedGroup);
-            FocusedIndex = Math.Max(0, selectedIndex);
-            SelectedGroup = ZenCurrentItem;
-        }
-        else
-        {
-            SelectedGroup = ZenCurrentItem;
-            PagingController.GoTo(FocusedIndex / Math.Max(1, PagingController.PageSize) + 1);
-            PagedUpdates();
-        }
+        EditorLayout = FocusedEditorMode ? _lastListLayout : EditorLayout.Focused;
     }
 
     private bool CanFocusedNext() => FocusedIndex < PagingController.Data.Count - 1;
@@ -556,15 +581,19 @@ public partial class MainWindowViewModel
 
     partial void OnFocusedTranslationItemChanged(TranslationItemViewModel? oldValue, TranslationItemViewModel? newValue)
     {
-        var value = newValue;
-        if (oldValue != null) oldValue.PropertyChanged -= OnFocusedItemPropertyChanged;
+        if (oldValue is not null)
+        {
+            oldValue.IsFocused = false;
+            oldValue.PropertyChanged -= OnFocusedItemPropertyChanged;
+        }
         RefreshFocusedActions();
-        if (value == null) return;
-        var group = PagingController.PageData.FirstOrDefault(g => g.AllItems.Contains(value));
+        if (newValue == null) return;
+        newValue.IsFocused = true;
+        var group = PagingController.PageData.FirstOrDefault(g => g.AllItems.Contains(newValue));
         if (group != null && !ReferenceEquals(group, SelectedGroup)) SelectedGroup = group;
-        UpdateGhostSuggestion(value);
-        value.PropertyChanged -= OnFocusedItemPropertyChanged;
-        value.PropertyChanged += OnFocusedItemPropertyChanged;
+        UpdateGhostSuggestion(newValue);
+        newValue.PropertyChanged -= OnFocusedItemPropertyChanged;
+        newValue.PropertyChanged += OnFocusedItemPropertyChanged;
     }
 
     [RelayCommand]

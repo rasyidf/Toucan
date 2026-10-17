@@ -21,7 +21,7 @@ public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoad
         var files = FileEnumerator.EnumerateFiles(
             folder,
             "*.json",
-            EnumerateOptions.SkipNestedLocaleDirs,
+            EnumerateOptions.SkipNestedLocaleDirs | EnumerateOptions.SkipToucanSidecars,
             s_excludedFiles);
 
         var items = new List<TranslationItem>();

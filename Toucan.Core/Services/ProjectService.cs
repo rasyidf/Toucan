@@ -13,7 +13,9 @@ public class ProjectService(
     IProjectModeResolver modeResolver,
     ILogger<ProjectService> logger,
     IEnumerable<IProjectCompatibilityImporter>? compatibilityImporters = null,
-    IEnumerable<Toucan.Core.Contracts.IFrameworkProfile>? frameworkProfiles = null) : IProjectService
+    IEnumerable<Toucan.Core.Contracts.IFrameworkProfile>? frameworkProfiles = null,
+    WorkspaceCapabilityResolver? capabilities = null,
+    WorkspaceSourceLoader? sourceLoader = null) : IProjectService
 {
     public ProjectService(IFileService fileService, IEnumerable<ISaveStrategy> saveStrategies)
         : this(fileService, saveStrategies,
@@ -60,10 +62,31 @@ public class ProjectService(
         settings.DefaultPathResolver = ResolveDefaultPath;
         if (settings.ResourceSchemaVersion != 1) throw new FormatException($"Resource schema {settings.ResourceSchemaVersion} is not supported.");
 
+        WorkspaceSource? source = null;
+        if (!string.IsNullOrWhiteSpace(settings.Framework))
+        {
+            var resolved = (capabilities ?? throw new InvalidOperationException("Framework capability resolution is unavailable.")).Resolve(settings.Framework, settings.SaveFormat);
+            if (resolved.UsesDocumentPersistence)
+                source = (sourceLoader ?? throw new InvalidOperationException("Document loading is unavailable.")).LoadAsync(folder, settings.Framework,
+                    settings.SaveFormat, cancellationToken: ct).GetAwaiter().GetResult();
+        }
+
         // Load translations using the detected/configured format
         var resourceAware = settings.ResourceDocuments.Count > 0 ||
             strategyFactory.GetResourceLoadStrategy(settings.SaveFormat) is IResourceDiscoveryStrategy;
-        var translations = resourceAware ? LoadResources(settings, ct) : Load(folder, settings.SaveFormat, true, settings.InputEncoding);
+        var translations = source is not null ? source.Units.Select(u => new TranslationItem
+        {
+            Namespace = string.Join('.', u.Namespace.Segments.Concat(u.KeyPath.Segments)), Language = u.Language, Value = u.Value,
+            Comment = u.Metadata?.Comment ?? string.Empty, IsApproved = u.Metadata?.Approved ?? false, LastModifiedUtc = u.Metadata?.Modified,
+            ApprovedAtUtc = u.Metadata?.ApprovedAt, ChangeType = u.Metadata?.ChangeType ?? ChangeType.DirectEdit,
+            FormatData = u.RawScalar is null ? null : new Dictionary<string, string> { [NestedJsonParser.JsonScalarKey] = u.RawScalar }
+        }).ToList() : (resourceAware ? LoadResources(settings, ct) : Load(folder, settings.SaveFormat, true, settings.InputEncoding));
+
+        if (source is not null && settings.LanguageAliases is { Count: > 0 })
+            throw new NotSupportedException("Document-aware projects require source language codes; alias migration must be explicit.");
+
+        if (source is not null) source = ImportLegacyAnnotations(source, translations);
+
         IResourceMetadataAuthority? MetadataAuthority(TranslationItem item)
         {
             var resource = settings.ResourceDocuments.FirstOrDefault(d => d.Resource.Id == item.Identity?.ResourceId)?.Resource;
@@ -94,12 +117,35 @@ public class ProjectService(
         var warnings = settings.ImportDiagnostics.Select(d => $"{d.RelativePath} [{d.Field}]: {d.Message}").Concat(settings.ResourceDocuments.Where(d => d.Data.TryGetValue("yaml.unsafe", out var unsafeInput) && unsafeInput.ValueKind == System.Text.Json.JsonValueKind.String)
             .Select(d => $"{d.Resource.RelativePath}: saving is blocked: {d.Data["yaml.unsafe"].GetString()}")).ToList();
         var strategy = strategyFactory.GetSaveStrategy(settings.SaveFormat);
-        var unsupported = settings.ResourceDocuments.Count == 0 ? strategy?.FindUnsupportedConstructs(folder) ?? [] : [];
+        var unsupported = (source is null && settings.ResourceDocuments.Count == 0) ? strategy?.FindUnsupportedConstructs(folder) ?? [] : [];
         if (unsupported.Count > 0)
             warnings.Add($"These {strategy!.DisplayName} files contain content Toucan cannot write back: {string.Join("; ", unsupported)}. "
                 + "You can edit and review, but saving is blocked to protect your files. Use Save As to write a copy.");
 
-        return new ProjectLoadResult { Settings = settings, Translations = translations, Warnings = warnings };
+        return new ProjectLoadResult { Settings = settings, Translations = translations, Warnings = warnings, Source = source };
+    }
+
+    private WorkspaceSource ImportLegacyAnnotations(WorkspaceSource source, List<TranslationItem> translations)
+    {
+        if (source.Artifacts.Any(a => a.RelativePath == WorkspaceMetadataCodec.IdentityPath)) return source;
+        var comments = new CommentPersistenceService(Microsoft.Extensions.Logging.Abstractions.NullLogger<CommentPersistenceService>.Instance, strategyFactory);
+        var legacy = translations.Select(t => new TranslationItem { Namespace = t.Namespace, Language = t.Language, Value = t.Value }).ToList();
+        comments.LoadComments(source.Root, source.FormatId, legacy);
+        var audit = new AuditService(Microsoft.Extensions.Logging.Abstractions.NullLogger<AuditService>.Instance);
+        audit.LoadFromSidecar(source.Root);
+        var lookup = legacy.GroupBy(t => (t.Namespace, t.Language)).ToDictionary(g => g.Key, g => g.ToArray());
+        var units = source.Units.Select(unit =>
+        {
+            if (unit.Metadata is not null || source.Artifacts.Any(a => a.RelativePath == WorkspaceMetadataCodec.EntryPath(unit.Binding.DocumentId))) return unit;
+            var key = string.Join('.', unit.Namespace.Segments.Concat(unit.KeyPath.Segments));
+            var matches = lookup[(key, unit.Language)]; var item = matches[0]; var history = audit.GetMetadata(item);
+            if (matches.Length > 1 && (item.Comment.Length > 0 || history is not null))
+                throw new InvalidOperationException("Legacy annotations have an ambiguous key; select their source document before migrating.");
+            var metadata = new WorkspaceEntryMetadata(unit.EntryId, unit.Language, item.Comment, history?.ApprovedAtUtc is not null,
+                history?.LastModifiedUtc, history?.ApprovedAtUtc, history?.ChangeType ?? ChangeType.DirectEdit);
+            return unit with { Metadata = metadata.IsEmpty ? null : metadata };
+        }).ToArray();
+        return new(source.Root, source.FrameworkId, source.FormatId, source.Documents, units, source.IdentityCatalog, source.Artifacts);
     }
 
     private ResourcePermissions ResourcePermissionsFor(ResourceDescriptor resource) =>

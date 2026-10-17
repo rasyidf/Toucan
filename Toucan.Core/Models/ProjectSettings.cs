@@ -186,6 +186,19 @@ public class ProjectSettings
         };
     }
 
+    internal ProjectSettings CloneForRoot(string root)
+    {
+        var clone = JsonSerializer.Deserialize<ProjectSettings>(SerializeForPersistence(), s_options)!;
+        clone.ProjectPath = root; clone.DefaultPathResolver = DefaultPathResolver; return clone;
+    }
+    internal string SerializeForPersistence() => JsonSerializer.Serialize(this, s_options);
+    internal static string NormalizeManifest(string json)
+    {
+        var settings = JsonSerializer.Deserialize<ProjectSettings>(json, s_options) ?? throw new JsonException("Invalid project settings.");
+        settings.MigrateLegacyFormat(json);
+        return settings.SerializeForPersistence();
+    }
+
     public void Save()
     {
         if (string.IsNullOrEmpty(ProjectPath)) return;

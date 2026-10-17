@@ -2,7 +2,7 @@
 title: "Writing Toucan plugins"
 status: active
 updated: 2026-10-25
-summary: "Plugin author guide: API 1.2 optional resource IO, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported."
+summary: "Plugin author guide: API 1.2 optional resource IO, document persistence, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported."
 ---
 # Writing Toucan plugins
 
@@ -144,6 +144,12 @@ M3 applies resource → typed project → legacy project → detected → defaul
 
 `IProjectCompatibilityImporter` is a separate optional migration seam. It discovers source projects and returns a neutral `CompatibilityProject` containing explicit resource descriptors, project options and versioned opaque compatibility data. The host creates its native settings; provider hooks apply/capture source-specific metadata through compatibility envelopes. Register providers with the normal service collection. A provider must validate its source schema and mappings before returning, must never write the original project format, and must not load a vendor runtime. The built-in BabelEdit migration module references only Common and Abstractions and is included by `AddToucanDefaults` in both applications.
 
+### Document persistence and layouts (API 1.2)
+
+API 1.2 adds the optional `IDocumentLoadStrategy : ILoadStrategy` capability. Its `LoadDocument(content, cancellationToken)` parses one document into `DocumentTranslation` units with literal `TranslationPath` segments and optional raw scalar metadata. It performs no discovery or writing and throws for invalid input. Register it through the same `AddFormat` call and `formats` capability. The opt-in Core `WorkspaceSourceLoader` uses this capability; the desktop still uses the legacy project pipeline while engine integration is in progress. Existing loaders remain valid, but cannot be used for document-aware loading without this extension.
+
+`IDocumentSaveStrategy : ISaveStrategy` is the optional API 1.2 serialization counterpart. Register it through the same `AddFormat` call and `formats` capability. `SerializeDocument(originalContent, edits, cancellationToken)` returns one document's content and performs no discovery or I/O. Each `DocumentTranslationEdit` supplies an original literal path and/or a replacement `DocumentTranslation`: null original inserts, null replacement deletes, and different original/replacement paths rename. Reject unsupported edits and collisions rather than falling back to legacy bulk writing. Core's opt-in document planner declares only affected files with source versions and the captured workspace session/revision. Core also offers opt-in document execution with conditional source versions and declared-target recovery. Its coordinator preserves edits newer than the captured revision and refuses pending comment/review changes until sidecar plans exist. Sidecars, checkpoint persistence, and desktop save integration remain under development; this capability does not change the desktop's legacy save pipeline.
+
 ### Validation rules: `context.AddValidationRule(rule)` (capability `validation`)
 
 Implement `IValidationRule`: `Id`, `Name`, `DefaultSeverity` and `Validate(ValidationContext)`, which yields
@@ -166,6 +172,8 @@ definition must have the same `Name` as the provider and must not set `IsBuiltIn
 Implement `IFrameworkProfile` (`Id`, `DisplayName`, `DefaultFormatId`, file patterns, `DiscoverFiles`,
 `ExtractLanguage`, `GetFilePath`, `DetectionScore`). Profiles appear in the import and new-project dialogs.
 `DefaultFormatId` should be a format you or Toucan provide.
+
+API 1.2 also adds optional `IFrameworkDocumentLayout : IFrameworkProfile`. `GetDocumentLayout(DiscoveredFile)` returns a resource family and literal namespace segments. A family explicitly relates language documents; use null to keep document identities separate. Include layout roots in family identifiers so identical filenames in unrelated roots do not collide. Register through the existing `AddFrameworkProfile` call and `frameworks` capability. Profiles provide conventions and keep per-workspace connection state out of their singleton instances. Core retains discovered paths for existing units. `GetFilePath` remains a legacy layout hint; document planning uses a unique existing destination or an explicit path described by the framework. `DescribeDestination(rootFolder, relativePath)` optionally describes a proposed new document with the same language/package metadata as discovery, without filesystem access. Its default null keeps existing implementations compatible and means new document creation cannot be planned safely. Core validates destination language, namespace, and paths before serialization.
 
 ## How plugins are loaded
 
@@ -282,6 +290,42 @@ var result = await services.Workspace.ApplyAsync(edit, ct);        // result.App
 - Calls may come from any thread; the host applies them on the UI thread. In a host with no open project (the CLI today) the
   workspace is simply never open.
 
+### Identified workspace edits (API 1.2)
+
+`Services.Workspace` also implements `IIdentifiedWorkspaceApi`. Cast to this optional interface to call `SnapshotEntriesAsync` and `ApplyEntriesAsync`. An identified snapshot includes entry GUIDs, literal namespace/key segments, language, review/dirty state, optional source binding, session GUID, and revision. `EntryEdit` takes that session and revision plus an atomic list of `SetEntryValue`, `SetEntryComment`, `SetEntryReview`, `RenameEntry`, or `DeleteEntry` operations. Renames retain identity and source ownership. Value edits can require an expected value. Approval policy checks the final transaction state.
+
+The Core workspace implements state, validation, revisions, and history without a dispatcher. The desktop adapter flushes pending text before reading/applying edits and refreshes its projection afterward. Plugins can read/edit during workspace activation before the main window has loaded its project view. During teardown, snapshots remain available and new edits are refused. Entry IDs are stable within a session; document-aware sources can restore IDs from checkpoints. Session/revision checks reject work prepared before close/reopen or Save As.
+
+Legacy key-based edits remain supported. An ambiguous key is refused with `EditIssueKind.Ambiguous`; `WorkspaceSnapshot.Find` returns null for ambiguous key/language matches. Use identified operations for those entries. Structural changes, comments, approvals, and values share one undo history. Source-file targeting remains under development; the desktop still uses legacy file loaders and serializers.
+
+### Async workspace subscriptions (API 1.2)
+
+Cast `Services.Workspace` to the optional `IWorkspaceSubscriptionApi`. Subscribe with the plugin activation token, initialize your local model from `InitialSnapshot`, then consume `Changes`. The initial snapshot and stream registration are atomic. A subscription supports one reader and should be disposed during teardown.
+
+```csharp
+if (services.Workspace is IWorkspaceSubscriptionApi workspace)
+{
+    await using var subscription = await workspace.SubscribeAsync(capacity: 128, cancellationToken: ct);
+    if (subscription is null) return;
+    // Initialize the presenter from subscription.InitialSnapshot.
+    await foreach (var change in subscription.Changes.WithCancellation(ct))
+    {
+        if (change.Kind == WorkspaceChangeKind.ResnapshotRequired)
+        {
+            // Discard the local mirror and subscribe again for a fresh snapshot.
+            break;
+        }
+        if (change.Kind == WorkspaceChangeKind.Closed) break;
+        // Verify PreviousRevision, then apply Units and workspace metadata.
+        // Dispatch to the UI here when this presenter needs a UI thread.
+    }
+}
+```
+
+Each change carries session/workspace identity, previous/current revisions, origin, optional originating plugin ID, configuration, and dirty/closing state. Unit changes replace an entry/language pair; a null unit deletes it. Save, reload, undo/redo, and configuration changes share revision ordering. Capacity is 1–4096; overflow ends only that consumer with `ResnapshotRequired`. `Closed` can replace queued updates when the buffer is full; treat it as terminal. Reopen and Save As create a new session and never send new-session events to an old subscription. During teardown, `Closing` allows reading snapshots while edits are refused.
+
+Headless Core commands queue in submission order and freeze their input. Cancellation while queued or before commit cancels without applying; cancellation after commit returns the accepted result. The desktop adapter runs transactions on its UI dispatcher and uses the same validation and session/revision checks. Legacy `Changed` remains available.
+
 ### Desktop parts (UI)
 
 The CLI has no UI, so a plugin's screens live in a second assembly that only the desktop app loads. Reference the
@@ -329,10 +373,10 @@ If the desktop part cannot load, the plugin still loads without its UI and the P
 
 ## Versioning
 
-`PluginApi.Current` is the plugin API version Toucan implements (currently **1.1**). The NuGet package version of
+`PluginApi.Current` is the plugin API version Toucan implements (currently **1.2**). The NuGet package version of
 `Toucan.Plugins.Abstractions` tracks it. A plugin loads when its `apiVersion` has the **same major** version and a
-**minor no newer** than the host's. So a plugin built for `1.0` runs on every `1.x`; one built for `1.2` is rejected
-by a Toucan that implements `1.1` ("built for plugin API 1.2, but this Toucan implements 1.1"). Minor releases only
+**minor no newer** than the host's. So a plugin built for `1.0` runs on every `1.x`; one built for `1.3` is rejected
+by a Toucan that implements `1.2` ("built for plugin API 1.3, but this Toucan implements 1.2"). Minor releases only
 add members, with defaults wherever an existing implementation would otherwise break; a major release may break.
 
 **What is checked, in order, before any of your code loads:** the manifest; the plugin API version; `minHostVersion`; `platforms`;

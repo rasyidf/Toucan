@@ -5,6 +5,8 @@ using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Services;
 using Toucan.Core.Tests.Formats;
+using Toucan.Core.Plugins;
+using Toucan.Plugins;
 using Xunit;
 
 namespace Toucan.Core.Tests;
@@ -43,9 +45,12 @@ public sealed class SaveRecoveryTests : IDisposable
         public required TranslationManagementService Store { get; init; }
         public required RecoveryDraftService Drafts { get; init; }
         public required IFileWatcherService Watcher { get; init; }
+        public required WorkspaceService Workspace { get; init; }
     }
 
-    private async Task<Session> OpenAsync(UnsavedChangesChoice onClose = UnsavedChangesChoice.Save, bool mergeExternalChanges = false, Toucan.Core.Plugins.IPluginActivationService? activation = null)
+    private async Task<Session> OpenAsync(UnsavedChangesChoice onClose = UnsavedChangesChoice.Save, bool mergeExternalChanges = false,
+        Toucan.Core.Plugins.IPluginActivationService? activation = null, Action<Session>? beforeOpen = null,
+        ProjectOpenStatus expectedStatus = ProjectOpenStatus.Success, CancellationToken ct = default)
     {
         var store = new TranslationManagementService(Substitute.For<IUndoRedoService>());
         var projects = new ProjectService(new FileService(NullLogger<FileService>.Instance), FormatTestHost.SaveStrategies, FormatTestHost.Factory,
@@ -57,14 +62,16 @@ public sealed class SaveRecoveryTests : IDisposable
         unsaved.PromptAsync().Returns(_ => Task.FromResult(onClose));
         var drafts = new RecoveryDraftService(_drafts);
         var external = Substitute.For<IExternalChangeHandler>();
+        var workspace = new WorkspaceService(store, validation);
         external.PromptAsync().Returns(Task.FromResult(ExternalChangeChoice.Merge));
         var lifecycle = new ProjectLifecycleService(projects, store, watcher, validation, Substitute.For<IAutoSaveService>(),
             mergeExternalChanges ? new DiffMergeEngine() : Substitute.For<IDiffMergeEngine>(), Substitute.For<IAuditService>(), Substitute.For<IRecentProjectService>(),
             new CommentPersistenceService(NullLogger<CommentPersistenceService>.Instance, FormatTestHost.Factory),
             new LanguageManagementService(store, projects, watcher, NullLogger<LanguageManagementService>.Instance),
-            unsaved, external, NullLogger<ProjectLifecycleService>.Instance, drafts, activation);
-        var session = new Session { Lifecycle = lifecycle, Store = store, Drafts = drafts, Watcher = watcher };
-        Assert.Equal(ProjectOpenStatus.Success, (await lifecycle.OpenProjectAsync(_project)).Status);
+            unsaved, external, NullLogger<ProjectLifecycleService>.Instance, drafts, activation, workspace);
+        var session = new Session { Lifecycle = lifecycle, Store = store, Drafts = drafts, Watcher = watcher, Workspace = workspace };
+        beforeOpen?.Invoke(session);
+        Assert.Equal(expectedStatus, (await lifecycle.OpenProjectAsync(_project, ct: ct)).Status);
         return session;
     }
 
@@ -88,6 +95,97 @@ public sealed class SaveRecoveryTests : IDisposable
         s.Store.Translations.Single(t => t.Language == language && t.Namespace == key);
 
     private string Read(string file) => File.ReadAllText(Path.Combine(_project, file));
+
+    private sealed class LifecycleProbe(Func<IPluginActivationContext, CancellationToken, Task> activate,
+        Func<IPluginActivationContext, ValueTask>? dispose = null, PluginLifetime lifetime = PluginLifetime.Workspace) : IPluginActivator
+    {
+        public PluginLifetime Lifetime => lifetime;
+        public async Task<IAsyncDisposable?> ActivateAsync(IPluginActivationContext context, CancellationToken cancellationToken)
+        {
+            await activate(context, cancellationToken);
+            return new ProbeSession(context, dispose);
+        }
+        private sealed class ProbeSession(IPluginActivationContext context, Func<IPluginActivationContext, ValueTask>? dispose) : IAsyncDisposable
+        {
+            public ValueTask DisposeAsync() => dispose?.Invoke(context) ?? ValueTask.CompletedTask;
+        }
+    }
+
+    [Fact]
+    public async Task ActivatorsReadAndEditCoreStateBeforeTheDesktopOpensAndReadItDuringTeardown()
+    {
+        Session? opening = null;
+        var disposed = false;
+        var probe = new LifecycleProbe(async (_, ct) =>
+        {
+            var workspace = opening!.Workspace;
+            var snapshot = await workspace.SnapshotAsync(ct);
+            Assert.Equal(_project, snapshot!.WorkspaceId);
+            Assert.Equal("Hello", snapshot.Find("app.title", "en")!.Value);
+            Assert.True((await workspace.ApplyAsync("probe", new WorkspaceEdit().SetValue("app.title", "en", "Activated"), ct)).Applied);
+        }, async context =>
+        {
+            Assert.True(context.Scope.IsCancellationRequested);
+            Assert.True(opening!.Workspace.IsOpen);
+            Assert.NotNull(await opening.Workspace.SnapshotAsync());
+            Assert.False((await opening.Workspace.ApplyAsync("probe", new WorkspaceEdit().SetValue("app.title", "en", "Too late"))).Applied);
+            disposed = true;
+        });
+        await using var activation = new PluginActivationService([new("probe", "workspace", probe)]);
+        var session = await OpenAsync(UnsavedChangesChoice.Discard, activation: activation, beforeOpen: s => opening = s);
+        Assert.Equal("Activated", Item(session, "en", "app.title").Value);
+        Assert.True(session.Workspace.IsDirty);
+        await session.Lifecycle.CloseProjectAsync();
+        Assert.True(disposed);
+        Assert.False(session.Workspace.IsOpen);
+        Assert.Empty(session.Store.Translations);
+    }
+
+    [Fact]
+    public async Task CancelledActivationUnwindsBothPluginScopeAndCoreState()
+    {
+        using var cancellation = new CancellationTokenSource();
+        var probe = new LifecycleProbe(async (_, _) => await cancellation.CancelAsync());
+        await using var activation = new PluginActivationService([new("probe", "workspace", probe)]);
+        var session = await OpenAsync(activation: activation, expectedStatus: ProjectOpenStatus.Cancelled, ct: cancellation.Token);
+        Assert.False(activation.IsWorkspaceOpen(_project));
+        Assert.False(session.Workspace.IsOpen);
+        Assert.False(session.Lifecycle.IsProjectOpen);
+        Assert.Empty(session.Store.Translations);
+    }
+
+    [Fact]
+    public async Task CancelledClosePreservesPluginScopeAndStructuralUndo()
+    {
+        await using var activation = new PluginActivationService([]);
+        var session = await OpenAsync(UnsavedChangesChoice.Cancel, activation: activation);
+        await session.Workspace.ApplyAsync("probe", new WorkspaceEdit().DeleteKey("app"));
+        Assert.True(session.Workspace.IsDirty);
+        Assert.False(session.Store.IsDirty);
+        Assert.Equal(CloseResult.Cancelled, await session.Lifecycle.CloseProjectAsync());
+        Assert.True(activation.IsWorkspaceOpen(_project));
+        Assert.True(session.Workspace.Undo());
+        Assert.False(session.Workspace.IsDirty);
+        Assert.False(session.Store.IsDirty);
+        await session.Lifecycle.CloseProjectAsync();
+    }
+
+    [Fact]
+    public async Task SaveAsChangesPluginWorkspaceScopeAndSessionIdentity()
+    {
+        await using var activation = new PluginActivationService([]);
+        var session = await OpenAsync(activation: activation);
+        var before = (await session.Workspace.SnapshotEntriesAsync())!;
+        await activation.OpenConnectionAsync(_project, "remote");
+        var target = Path.Combine(_root, "copy");
+        Assert.Equal(ProjectSaveStatus.Success, (await session.Lifecycle.SaveProjectAsAsync(target)).Status);
+        var after = (await session.Workspace.SnapshotEntriesAsync())!;
+        Assert.False(activation.IsWorkspaceOpen(_project));
+        Assert.True(activation.IsWorkspaceOpen(target));
+        Assert.Equal(target, after.WorkspaceId);
+        Assert.NotEqual(before.SessionId, after.SessionId);
+        await session.Lifecycle.CloseProjectAsync();
+    }
 
     [Fact]
     public async Task ValidationFindings_DoNotBlockSavingADraft()
@@ -378,6 +476,7 @@ public sealed class SaveRecoveryTests : IDisposable
         Assert.Equal("Bye from disk", Item(s, "en", "app.bye").Value);
         Assert.Equal("Mine", Item(s, "en", "app.title").Value);
         Assert.Equal(["app.title"], s.Store.GetDirtyItems().Where(t => t.Language == "en").Select(t => t.Namespace));
+        Assert.False((await s.Workspace.SnapshotAsync())!.Find("app.bye", "en")!.IsModified);
 
         // The merge acknowledged the disk change, so saving is allowed and writes both.
         Assert.Equal(ProjectSaveStatus.Success, (await s.Lifecycle.SaveProjectAsync()).Status);

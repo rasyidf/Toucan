@@ -18,8 +18,19 @@ public interface IWorkspaceBackend
     event EventHandler? Changed;
 }
 
+public interface IIdentifiedWorkspaceBackend : IWorkspaceBackend
+{
+    Task<IdentifiedWorkspaceSnapshot?> SnapshotEntriesAsync(CancellationToken cancellationToken = default);
+    Task<EditResult> ApplyEntriesAsync(string pluginId, EntryEdit edit, CancellationToken cancellationToken = default);
+}
+
+public interface IWorkspaceSubscriptionBackend : IIdentifiedWorkspaceBackend
+{
+    Task<IWorkspaceSubscription?> SubscribeAsync(int capacity = 128, CancellationToken cancellationToken = default);
+}
+
 /// <summary>A plugin's view of the host's workspace: the same backend, with the plugin's ID on its edits.</summary>
-internal sealed class PluginWorkspaceApi : IWorkspaceApi
+internal sealed class PluginWorkspaceApi : IWorkspaceSubscriptionApi
 {
     private readonly string _pluginId;
     private readonly PluginServicesBroker _broker;
@@ -73,4 +84,17 @@ internal sealed class PluginWorkspaceApi : IWorkspaceApi
             ? backend.ApplyAsync(_pluginId, edit, cancellationToken)
             : Task.FromResult(EditResult.Refused(0, new EditIssue(-1, EditIssueKind.NoProject, "No project is open.")));
     }
+
+    public Task<IdentifiedWorkspaceSnapshot?> SnapshotEntriesAsync(CancellationToken cancellationToken = default) =>
+        Backend is IIdentifiedWorkspaceBackend backend ? backend.SnapshotEntriesAsync(cancellationToken) : Task.FromResult<IdentifiedWorkspaceSnapshot?>(null);
+
+    public Task<EditResult> ApplyEntriesAsync(EntryEdit edit, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(edit);
+        return Backend is IIdentifiedWorkspaceBackend backend ? backend.ApplyEntriesAsync(_pluginId, edit, cancellationToken)
+            : Task.FromResult(EditResult.Refused(0, new EditIssue(-1, EditIssueKind.NoProject, "No identified workspace is available.")));
+    }
+
+    public Task<IWorkspaceSubscription?> SubscribeAsync(int capacity = 128, CancellationToken cancellationToken = default) =>
+        Backend is IWorkspaceSubscriptionBackend backend ? backend.SubscribeAsync(capacity, cancellationToken) : Task.FromResult<IWorkspaceSubscription?>(null);
 }
