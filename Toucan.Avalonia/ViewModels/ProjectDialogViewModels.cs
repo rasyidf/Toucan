@@ -22,7 +22,13 @@ public sealed class FrameworkTile
     /// <summary>Framework profile ID (matches IFrameworkProfile.Id). Null = use the FormatId-based fallback.</summary>
     public string? ProfileId { get; init; }
 
-    private static readonly string[] Palette = ["#007AFF", "#34C759", "#FF9500", "#AF52DE", "#FF2D55", "#5AC8FA", "#5856D6", "#FF3B30", "#30B0C7", "#A2845E"];
+    private static readonly IReadOnlyDictionary<string, string> Palette = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["i18next"] = "#D6336C", ["React"] = "#087EA4", ["Vue"] = "#27845A", ["Angular"] = "#A82DB5",
+        ["Flutter"] = "#147DA8", ["Laravel"] = "#CB4935", [".NET"] = "#6941C6", ["Android"] = "#27845A",
+        ["iOS"] = "#526579", ["Ruby/Rails"] = "#BA3434", ["Svelte"] = "#C34A20", ["Java"] = "#9B5A18",
+        ["Gettext"] = "#8C476D", ["Generic JSON"] = "#087EA4", ["Generic YAML"] = "#8B6921", ["CSV"] = "#52733E",
+    };
     private static readonly Dictionary<string, string> Badges = new(StringComparer.Ordinal)
     {
         ["i18next"] = "i18", ["React"] = "Re", ["Vue"] = "Vu", ["Angular"] = "Ng", ["Flutter"] = "Fl", ["Laravel"] = "La", [".NET"] = ".N",
@@ -34,7 +40,8 @@ public sealed class FrameworkTile
     public string Badge => Badges.TryGetValue(Name, out var b) ? b : Name.Length >= 2 ? Name[..2] : Name;
 
     public global::Avalonia.Media.IBrush TileBrush =>
-        global::Avalonia.Media.Brush.Parse(Palette[(int)((uint)Name.Aggregate(17, (h, c) => unchecked(h * 31 + c)) % (uint)Palette.Length)]);
+        new global::Avalonia.Media.Immutable.ImmutableSolidColorBrush(
+            global::Avalonia.Media.Color.Parse(Palette.GetValueOrDefault(Name, "#526579")));
 }
 
 /// <summary>Two-step New Project wizard: template and location, then languages.</summary>
@@ -64,7 +71,12 @@ public partial class NewProjectViewModel : ObservableObject
         ProjectFolder = Path.Combine(_defaultBaseFolder, ProjectName);
     }
 
-    public ObservableCollection<FrameworkTile> Frameworks { get; } =
+    public ObservableCollection<FrameworkTile> Frameworks { get; } = [.. TemplateCatalog];
+
+    public static IReadOnlyList<FrameworkTile> FeaturedFrameworks =>
+        [TemplateCatalog[0], TemplateCatalog[7], TemplateCatalog[8], TemplateCatalog[6], TemplateCatalog[4], TemplateCatalog[13]];
+
+    public static IReadOnlyList<FrameworkTile> TemplateCatalog { get; } =
     [
         new() { Name = "i18next", Description = "JSON namespaced", Icon = "⚙", FormatId = FormatIds.Namespaced, ProfileId = "i18next" },
         new() { Name = "React", Description = "Flat JSON", Icon = "⚛", FormatId = FormatIds.Json, ProfileId = "generic-json" },
@@ -229,6 +241,8 @@ public partial class ImportProjectViewModel : ObservableObject
     {
         _profiles = profiles;
         _dialogService = dialogService;
+        DiscoveredFiles.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasDiscoveredFiles));
+        DetectedLanguages.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasDetectedLanguages));
         foreach (var p in profiles) AvailableProfiles.Add(p);
     }
 
@@ -239,6 +253,8 @@ public partial class ImportProjectViewModel : ObservableObject
     public ObservableCollection<IFrameworkProfile> AvailableProfiles { get; } = [];
     public ObservableCollection<DiscoveredFile> DiscoveredFiles { get; } = [];
     public ObservableCollection<string> DetectedLanguages { get; } = [];
+    public bool HasDiscoveredFiles => DiscoveredFiles.Count > 0;
+    public bool HasDetectedLanguages => DetectedLanguages.Count > 0;
 
     public bool IsValid => !string.IsNullOrWhiteSpace(Folder) && SelectedProfile != null && DiscoveredFiles.Count > 0;
 

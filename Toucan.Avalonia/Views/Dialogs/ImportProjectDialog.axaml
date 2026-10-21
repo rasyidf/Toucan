@@ -1,56 +1,80 @@
 <d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.ImportProjectDialog"
                 xmlns="https://github.com/avaloniaui"
-             xmlns:loc="using:Toucan.Avalonia.Locales"
+                xmlns:loc="using:Toucan.Avalonia.Locales"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                xmlns:ui="using:FluentAvalonia.UI.Controls"
                 xmlns:c="using:Toucan.Avalonia.Views.Components"
-                Title="{loc:Loc 'Import Project'}" Width="640" Height="560">
-  <DockPanel>
-    <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
-      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-        <Button Content="{loc:Loc 'Cancel'}" x:Name="CancelButton"/>
-        <Button Content="{loc:Loc 'Import'}" Classes="accent" x:Name="OkButton" IsDefault="True" IsEnabled="{Binding IsValid}"/>
-      </StackPanel>
-    </Border>
-    <DockPanel Margin="20,18,20,12">
-      <StackPanel DockPanel.Dock="Top" Spacing="4">
-        <TextBlock Text="{loc:Loc 'Import existing project'}" Classes="dialogTitle"/>
-        <TextBlock Text="{loc:Loc 'Point Toucan at your app\'s repository or locale folder. It detects the i18n framework and language files.'}" Classes="caption" TextWrapping="Wrap"/>
-        <c:SettingsGroup Margin="0,12,0,8" Footer="{Binding DetectionSummary}">
-          <StackPanel>
-            <c:SettingsRow Title="{loc:Loc 'Folder'}">
-              <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBox Text="{Binding Folder}" PlaceholderText="/path/to/your/app" Width="300"/>
-                <Button Content="{loc:Loc 'Browse…'}" Command="{Binding BrowseFolderCommand}"/>
-              </StackPanel>
-            </c:SettingsRow>
-            <c:SettingsRow Title="{loc:Loc 'Framework'}">
-              <ComboBox ItemsSource="{Binding AvailableProfiles}" SelectedItem="{Binding SelectedProfile}" DisplayMemberBinding="{Binding DisplayName}"/>
-            </c:SettingsRow>
+                Title="{loc:Loc 'Import Project'}" Width="720" Height="580" MinWidth="560" MinHeight="460"
+                Background="{DynamicResource ChromeBackgroundBrush}" TransparencyLevelHint="None">
+  <Border Background="{DynamicResource ChromeBackgroundBrush}">
+    <Grid RowDefinitions="*,Auto">
+      <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="22,20,22,14" Spacing="8">
+          <TextBlock Text="{loc:Loc 'Import existing project'}" Classes="dialogTitle"/>
+          <TextBlock Text="{loc:Loc 'Point Toucan at your app\'s repository or locale folder. It detects the i18n framework and language files.'}"
+                     Classes="caption" TextWrapping="Wrap"/>
+
+          <c:SettingsGroup Margin="0,10,0,0" Footer="{Binding DetectionSummary}">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Folder'}" Stacked="True">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                  <TextBox Text="{Binding Folder}" PlaceholderText="/path/to/your/app" MinWidth="0"
+                           HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                  <Button Grid.Column="1" Content="{loc:Loc 'Browse…'}" Command="{Binding BrowseFolderCommand}"
+                          VerticalAlignment="Center"/>
+                </Grid>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Framework'}" Stacked="True">
+                <ComboBox ItemsSource="{Binding AvailableProfiles}" SelectedItem="{Binding SelectedProfile}"
+                          DisplayMemberBinding="{Binding DisplayName}" HorizontalAlignment="Stretch"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+
+          <StackPanel Spacing="6" IsVisible="{Binding HasDetectedLanguages}">
+            <TextBlock Text="Languages found" Classes="groupHeader"/>
+            <ItemsControl ItemsSource="{Binding DetectedLanguages}">
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Classes="langBadge" Margin="0,0,6,6"><TextBlock Text="{Binding}"/></Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
           </StackPanel>
-        </c:SettingsGroup>
-        <ItemsControl ItemsSource="{Binding DetectedLanguages}" Margin="0,6,0,6">
-          <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <Border Classes="langBadge" Margin="0,0,6,6"><TextBlock Text="{Binding}"/></Border>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-        <TextBlock Text="{loc:Loc 'Files'}" Classes="groupHeader" Margin="14,8,0,6"/>
-      </StackPanel>
-      <Border Classes="card" Padding="2">
-        <ListBox Classes="plain" ItemsSource="{Binding DiscoveredFiles}">
-          <ListBox.ItemTemplate>
-            <DataTemplate>
-              <DockPanel>
-                <Border DockPanel.Dock="Right" Classes="badge"><TextBlock Text="{Binding Language}"/></Border>
-                <TextBlock Text="{Binding RelativePath}" Classes="mono" FontSize="12" TextTrimming="PathSegmentEllipsis" VerticalAlignment="Center"/>
-              </DockPanel>
-            </DataTemplate>
-          </ListBox.ItemTemplate>
-        </ListBox>
+
+          <TextBlock Text="{loc:Loc 'Files'}" Classes="groupHeader" Margin="0,4,0,0"/>
+          <Border Classes="card" Padding="2" MinHeight="180">
+            <Grid>
+              <ListBox Classes="plain" ItemsSource="{Binding DiscoveredFiles}" IsVisible="{Binding HasDiscoveredFiles}">
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <DockPanel>
+                      <Border DockPanel.Dock="Right" Classes="badge"><TextBlock Text="{Binding Language}"/></Border>
+                      <TextBlock Text="{Binding RelativePath}" Classes="mono" FontSize="12"
+                                 TextTrimming="PathSegmentEllipsis" VerticalAlignment="Center"/>
+                    </DockPanel>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+              <StackPanel IsVisible="{Binding !HasDiscoveredFiles}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                          Spacing="8" Margin="20">
+                <ui:FASymbolIcon Symbol="Folder" FontSize="28" Foreground="{DynamicResource FaintTextBrush}"
+                                 HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding DetectionSummary}" Classes="caption" TextAlignment="Center" TextWrapping="Wrap"/>
+              </StackPanel>
+            </Grid>
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+
+      <Border Grid.Row="1" Classes="dialogFooter" BorderThickness="0,1,0,0">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Content="{loc:Loc 'Cancel'}" x:Name="CancelButton"/>
+          <Button Content="{loc:Loc 'Import'}" Classes="accent" x:Name="OkButton" IsDefault="True" IsEnabled="{Binding IsValid}"/>
+        </StackPanel>
       </Border>
-    </DockPanel>
-  </DockPanel>
+    </Grid>
+  </Border>
 </d:DialogWindow>

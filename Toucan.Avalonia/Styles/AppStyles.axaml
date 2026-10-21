@@ -747,11 +747,10 @@
 
   <!-- Framework tiles (New project) -->
   <Style Selector="Border.fwTile">
-    <Setter Property="Width" Value="164"/>
-    <Setter Property="Height" Value="64"/>
-    <Setter Property="Padding" Value="10,0"/>
+    <Setter Property="Height" Value="76"/>
+    <Setter Property="Padding" Value="12"/>
     <Setter Property="CornerRadius" Value="10"/>
-    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderThickness" Value="2"/>
     <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
     <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
   </Style>
@@ -760,6 +759,9 @@
     <Setter Property="BorderThickness" Value="2"/>
     <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
   </Style>
+  <Style Selector="Button.templateTile:pointerover Border.fwTile, ListBoxItem:pointerover Border.fwTile">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+  </Style>
   <Style Selector="ListBoxItem /template/ Rectangle#SelectionIndicator">
     <Setter Property="IsVisible" Value="False"/>
   </Style>
@@ -767,7 +769,6 @@
     <Setter Property="Width" Value="32"/>
     <Setter Property="Height" Value="32"/>
     <Setter Property="CornerRadius" Value="8"/>
-    <Setter Property="Margin" Value="0,0,10,0"/>
   </Style>
   <Style Selector="Border.fwBadge > TextBlock">
     <Setter Property="Foreground" Value="White"/>

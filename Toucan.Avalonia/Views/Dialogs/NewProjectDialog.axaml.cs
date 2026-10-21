@@ -11,7 +11,7 @@ public partial class NewProjectDialog : DialogWindow
         InitializeComponent();
         DataContext = vm;
         vm.CloseAction = ok => Close(ok);
-        StepText.Text = "Step 1 of 2";
+        StepText.Text = $"Step {vm.WizardStep + 1} of 2";
         vm.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(NewProjectViewModel.WizardStep)) StepText.Text = $"Step {vm.WizardStep + 1} of 2";

@@ -25,7 +25,7 @@ public interface IDialogService
     Task<string?> ShowPickAsync(string title, string message, IReadOnlyList<string> options, string? selected = null);
     Task<string?> ShowLanguagePromptAsync(string title, string message, IEnumerable<TranslationItem>? existingTranslations);
 
-    Task<NewProjectViewModel?> ShowNewProjectAsync();
+    Task<NewProjectViewModel?> ShowNewProjectAsync(string? frameworkName = null);
     Task<ImportProjectViewModel?> ShowImportProjectAsync();
     Task<AppOptions?> ShowOptionsAsync(int startPage = 0);
     Task<bool> ShowPreTranslateAsync(PreTranslateViewModel vm);

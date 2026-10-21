@@ -76,9 +76,11 @@ public sealed class DialogService(IServiceProvider services) : IDialogService
         return new LanguagePromptDialog(vm).ShowDialog<string?>(Owner);
     }
 
-    public async Task<NewProjectViewModel?> ShowNewProjectAsync()
+    public async Task<NewProjectViewModel?> ShowNewProjectAsync(string? frameworkName = null)
     {
         var vm = services.GetRequiredService<NewProjectViewModel>();
+        if (vm.Frameworks.FirstOrDefault(f => string.Equals(f.Name, frameworkName, StringComparison.Ordinal)) is { } framework)
+            vm.SelectedFramework = framework;
         return await new NewProjectDialog(vm).ShowDialog<bool>(Owner) ? vm : null;
     }
 

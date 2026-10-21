@@ -1,0 +1,15 @@
+<UserControl x:Class="Toucan.Avalonia.Views.Components.FrameworkCard"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Border Classes="fwTile">
+    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+      <Border Classes="fwBadge" Background="{Binding TileBrush}" VerticalAlignment="Center">
+        <TextBlock Text="{Binding Badge}"/>
+      </Border>
+      <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
+        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+        <TextBlock Text="{Binding Description}" Classes="caption" TextTrimming="CharacterEllipsis"/>
+      </StackPanel>
+    </Grid>
+  </Border>
+</UserControl>

@@ -11,6 +11,9 @@ using Toucan.Core.Services;
 using Toucan.Core.Services.Ai;
 
 [assembly: AvaloniaTestApplication(typeof(Toucan.Avalonia.Tests.TestAppBuilder))]
+// Windows, themes, command registries and side panels share one process-wide UI session.
+// Concurrent collections can otherwise create or replace brushes on a worker thread.
+[assembly: Xunit.CollectionBehavior(DisableTestParallelization = true)]
 
 namespace Toucan.Avalonia.Tests;
 
@@ -160,7 +163,12 @@ internal sealed class FakeDialogService : IDialogService
     public Task<string?> ShowPromptAsync(string title, string message, string defaultValue = "") => Task.FromResult(Prompts.Count > 0 ? Prompts.Dequeue() : null);
     public Task<string?> ShowPickAsync(string title, string message, IReadOnlyList<string> options, string? selected = null) => Task.FromResult(Picks.Count > 0 ? Picks.Dequeue() : null);
     public Task<string?> ShowLanguagePromptAsync(string title, string message, IEnumerable<TranslationItem>? existingTranslations) => Task.FromResult(Prompts.Count > 0 ? Prompts.Dequeue() : null);
-    public Task<NewProjectViewModel?> ShowNewProjectAsync() => Task.FromResult<NewProjectViewModel?>(null);
+    public string? RequestedFramework { get; private set; }
+    public Task<NewProjectViewModel?> ShowNewProjectAsync(string? frameworkName = null)
+    {
+        RequestedFramework = frameworkName;
+        return Task.FromResult<NewProjectViewModel?>(null);
+    }
     public Task<ImportProjectViewModel?> ShowImportProjectAsync() => Task.FromResult<ImportProjectViewModel?>(null);
     public Task<AppOptions?> ShowOptionsAsync(int startPage = 0) => Task.FromResult<AppOptions?>(null);
     /// <summary>Lets a test act as the user inside the Pre-translate dialog.</summary>

@@ -1,5 +1,9 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Media;
+using Avalonia.Styling;
+using Avalonia.Media.Imaging;
+using FluentAvalonia.UI.Controls;
 using Avalonia.VisualTree;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
@@ -24,26 +28,42 @@ public class UiScreenshotTests
 {
     private static readonly string? OutDir = Environment.GetEnvironmentVariable("TOUCAN_TEST_SCREENSHOTS");
 
-    private static void Pump() => global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+    private static void Pump()
+    {
+        // Resizing schedules another layout pass for responsive menus and side panels.
+        // Settle that pass before capturing, rather than recording an intermediate frame.
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+    }
 
     private static void Snap(Window window, string name)
     {
         if (string.IsNullOrEmpty(OutDir)) return;
-        Directory.CreateDirectory(OutDir);
+        var theme = window.ActualThemeVariant == ThemeVariant.Dark ? "dark" : "light";
+        var folder = Path.Combine(OutDir, theme);
+        Directory.CreateDirectory(folder);
         Pump();
-        window.CaptureRenderedFrame()?.Save(Path.Combine(OutDir, name + ".png"));
+        using var frame = window.CaptureRenderedFrame();
+        Assert.NotNull(frame);
+        frame.Save(Path.Combine(folder, name + ".png"));
     }
 
     private static void SnapDialog(Window dialog, string name)
     {
-        dialog.Show();
-        Pump();
-        Snap(dialog, name);
-        dialog.Close();
+        try
+        {
+            dialog.Show();
+            Pump();
+            Assert.Equal(255, Assert.IsAssignableFrom<ISolidColorBrush>(dialog.Background).Color.A);
+            Snap(dialog, name);
+        }
+        finally { dialog.Close(); }
     }
 
-    [AvaloniaFact]
-    public async Task CaptureMainWindowAndPanels()
+    private async Task CaptureMainWindowAndPanels()
     {
         if (string.IsNullOrEmpty(OutDir)) return;
         using var host = new TestHost();
@@ -57,10 +77,43 @@ public class UiScreenshotTests
         window.Show();
         Pump();
         Snap(window, "01-start-screen");
+        window.Width = window.MinWidth;
+        window.Height = window.MinHeight;
+        Snap(window, "01-start-screen-minimum");
+        window.Width = 1280;
+        window.Height = 800;
 
         await vm.OpenProjectAsync(folder);
         Pump();
         Snap(window, "02-editor");
+        foreach (var mode in new[] { EditorMode.Review, EditorMode.Audit })
+        {
+            vm.EditorMode = mode;
+            Snap(window, "02-mode-" + mode.ToString().ToLowerInvariant());
+        }
+        vm.EditorMode = EditorMode.Editor;
+        window.Width = window.MinWidth;
+        window.Height = window.MinHeight;
+        Snap(window, "02-editor-minimum");
+        window.Width = 1280;
+        window.Height = 800;
+
+        var fileMenu = window.GetVisualDescendants().OfType<MenuItem>().First(m => m.Header?.ToString()?.Replace("_", string.Empty, StringComparison.Ordinal) == "File");
+        fileMenu.IsSubMenuOpen = true;
+        Pump();
+        Snap(window, "02-file-menu-owner");
+        var popupIndex = 0;
+        foreach (var popup in window.GetVisualDescendants().OfType<Popup>().Where(p => p.IsOpen && p.Child is not null))
+        {
+            var child = popup.Child!;
+            if (child.Bounds.Width <= 0 || child.Bounds.Height <= 0) continue;
+            using var bitmap = new RenderTargetBitmap(new global::Avalonia.PixelSize((int)Math.Ceiling(child.Bounds.Width), (int)Math.Ceiling(child.Bounds.Height)));
+            bitmap.Render(child);
+            var theme = window.ActualThemeVariant == ThemeVariant.Dark ? "dark" : "light";
+            bitmap.Save(Path.Combine(OutDir!, theme, $"02-file-menu-popup-{popupIndex++}.png"));
+        }
+        Assert.True(popupIndex > 0, "The open File menu must have a captured popup.");
+        fileMenu.IsSubMenuOpen = false;
 
         foreach (var id in new[] { "search", "issues", "source-code", "explorer", "inspector", "translation-memory", "languages", "machine-translation" })
         {
@@ -151,8 +204,7 @@ public class UiScreenshotTests
         return vm;
     }
 
-    [AvaloniaFact]
-    public void CaptureDialogs()
+    private void CaptureDialogs()
     {
         if (string.IsNullOrEmpty(OutDir)) return;
         using var host = new TestHost();
@@ -217,59 +269,61 @@ public class UiScreenshotTests
         SnapDialog(new PromptDialog("Rename key", "Enter a new key name", "app.title"), "26-prompt");
         SnapDialog(new PickDialog("Pick language", "Choose one", ["en", "de", "id"], "en"), "27-pick");
         SnapDialog(new LanguagePromptDialog(new LanguagePromptViewModel()), "28-language-prompt");
+
+        var wizard = host.Services.GetRequiredService<NewProjectViewModel>();
+        wizard.WizardStep = 1;
+        SnapDialog(new NewProjectDialog(wizard), "20-new-project-languages");
+        SnapDialog(new NewProjectDialog(host.Services.GetRequiredService<NewProjectViewModel>()) { Height = 520 }, "20-new-project-short");
+        var importedFolder = host.CreateJsonProject("import-capture", ("en", """{"app.title":"My app"}"""), ("de", """{"app.title":"Meine App"}"""));
+        var importVm = new ImportProjectViewModel(host.Services.GetServices<IFrameworkProfile>(), host.Dialogs) { Folder = importedFolder };
+        SnapDialog(new ImportProjectDialog(importVm), "21-import-project-detected");
+        SnapDialog(new PreTranslateDialog(new PreTranslateViewModel(["en", "de", "id"], [], primaryLanguage: "en")), "29-pretranslate");
+        SnapDialog(new PluginDialogWindow("Plugin dialog", new TextBlock { Text = "Plugin content uses the same opaque surface as built-in dialogs." }, 520, 300), "29-plugin-dialog");
+        var compactOptions = host.Services.GetRequiredService<OptionsViewModel>();
+        SnapDialog(new OptionsDialog(compactOptions) { Width = 720, Height = 480 }, "10-options-minimum");
     }
 
-    [AvaloniaFact]
-    public async Task CaptureDarkTheme()
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CaptureTheme(bool dark)
     {
         if (string.IsNullOrEmpty(OutDir)) return;
-        using var host = new TestHost();
-        App.RegisterSidePanels();
-        global::Avalonia.Application.Current!.RequestedThemeVariant = global::Avalonia.Styling.ThemeVariant.Dark;
+        var app = global::Avalonia.Application.Current!;
+        var previous = app.RequestedThemeVariant;
+        app.RequestedThemeVariant = dark ? ThemeVariant.Dark : ThemeVariant.Light;
         try
         {
-            foreach (var i in new[] { 0, 4, 8 })
-            {
-                var vm = host.Services.GetRequiredService<OptionsViewModel>();
-                vm.SelectedPageIndex = i;
-                SnapDialog(new OptionsDialog(vm), $"30-dark-options-{i:00}");
-            }
-            var dialog = new ProjectPropertiesDialog(new ProjectPropertiesViewModel(new ProjectSettings(), host.Dialogs, ["en", "de"]));
-            dialog.Show();
-            Pump();
-            dialog.FindControl<ListBox>("Nav")!.SelectedIndex = 1;
-            Snap(dialog, "31-dark-project-properties");
-            dialog.Close();
-
-            SnapDialog(new NewProjectDialog(host.Services.GetRequiredService<NewProjectViewModel>()), "32-dark-new-project");
-            SnapDialog(new ImportProjectDialog(new ImportProjectViewModel(host.Services.GetServices<IFrameworkProfile>(), host.Dialogs)), "33-dark-import");
-            SnapDialog(new StatisticsDialog(new StatisticsViewModel([])), "34-dark-statistics");
-            var provider = host.Services.GetRequiredService<ProviderSettingsViewModel>();
-            provider.UseProject(null);
-            SnapDialog(new ProviderSettingsDialog(provider), "35-dark-provider-settings");
-
-            var folder = host.CreateJsonProject("dark",
-                ("en", "{" + string.Join(",", Enumerable.Range(1, 40).Select(i => $"\"k{i:00}.title\": \"Title {i}\"")) + ", \"app.title\": \"My App\"}"),
-                ("de", """{"app.title": "Meine App"}"""));
-            var mainVm = host.CreateViewModel();
-            var window = new MainWindow(mainVm, host.Services.GetRequiredService<StatusBarViewModel>()) { Width = 1280, Height = 800 };
-            window.Show();
-            Pump();
-            Snap(window, "36-dark-start-screen");
-            await mainVm.OpenProjectAsync(folder);
-            Pump();
-            Snap(window, "37-dark-editor");
-
-            if (window.GetVisualDescendants().OfType<Toucan.Avalonia.Views.Components.TranslationCard>().FirstOrDefault()?.DataContext is LanguageGroupViewModel group)
-                mainVm.SelectedGroup = group;
-            foreach (var id in new[] { "explorer", "search", "issues", "source-code", "languages", "inspector", "machine-translation", "translation-memory" })
-            {
-                Toucan.Core.Services.SidePanelRegistry.Instance.Activate(id);
-                Pump();
-                Snap(window, "38-dark-panel-" + id);
-            }
-            window.Close();
+            CaptureDialogs();
+            await CaptureMainWindowAndPanels();
+            await CaptureMessageDialogs();
         }
-        finally { global::Avalonia.Application.Current!.RequestedThemeVariant = global::Avalonia.Styling.ThemeVariant.Default; }
+        finally { app.RequestedThemeVariant = previous; }
+    }
+
+    private async Task CaptureMessageDialogs()
+    {
+        using var host = new TestHost();
+        App.RegisterSidePanels();
+        var window = new MainWindow(host.CreateViewModel(), host.Services.GetRequiredService<StatusBarViewModel>());
+        window.Show();
+        try
+        {
+            foreach (var (name, dialog) in new[]
+            {
+                ("info", new FAContentDialog { Title = "Project saved", Content = "Your translation files have been saved.", CloseButtonText = "OK" }),
+                ("confirm", new FAContentDialog { Title = "Remove key?", Content = "Remove this key from all languages?", PrimaryButtonText = "Remove", CloseButtonText = "Cancel" }),
+                ("unsaved", new FAContentDialog { Title = "Unsaved changes", Content = "Save your changes before closing this project?", PrimaryButtonText = "Save", SecondaryButtonText = "Don't Save", CloseButtonText = "Cancel" })
+            })
+            {
+                var shown = dialog.ShowAsync(window);
+                Pump();
+                await Task.Delay(250);
+                Snap(window, "50-message-" + name);
+                dialog.Hide();
+                await shown;
+            }
+        }
+        finally { window.Close(); }
     }
 }

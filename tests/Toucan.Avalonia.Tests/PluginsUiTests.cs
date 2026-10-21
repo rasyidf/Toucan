@@ -129,7 +129,7 @@ public sealed class PluginsUiTests : IDisposable
         Assert.Equal("About", OptionsViewModel.Pages[^1]);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void PageListsEveryPluginWithItsState()
     {
         var vm = Options(
@@ -150,7 +150,7 @@ public sealed class PluginsUiTests : IDisposable
         Assert.Equal("format:acme", vm.Plugins[0].ProvidesText);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void EmptyPageSaysNoPlugins()
     {
         var vm = Options();
@@ -158,7 +158,7 @@ public sealed class PluginsUiTests : IDisposable
         Assert.False(vm.PluginsChanged);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void TogglingEnabledIsSavedAndFlagsARestart()
     {
         var vm = Options(Result("a", PluginStatus.Loaded, PluginTrustState.Trusted));
@@ -171,7 +171,7 @@ public sealed class PluginsUiTests : IDisposable
         Assert.False(new FilePluginPolicyStore(Path.Combine(_dir, "policy.json")).IsEnabled("a"));
     }
 
-    [Fact]
+    [AvaloniaFact]
     public async Task TrustAsksForConfirmationThenStoresTheExactHash()
     {
         var vm = Options(Result("a", PluginStatus.NeedsTrust, PluginTrustState.Untrusted));
@@ -193,7 +193,7 @@ public sealed class PluginsUiTests : IDisposable
         Assert.Equal("Trusted · loads after restart", item.StatusText);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void RevokeRemovesTrust()
     {
         _policy.Trust("a", Hash);
@@ -206,7 +206,7 @@ public sealed class PluginsUiTests : IDisposable
         Assert.Equal("Not trusted · won't load after restart", vm.Plugins[0].StatusText);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void RejectedAndUnreadablePluginsCannotBeManaged()
     {
         var rejected = Result("bad", PluginStatus.Rejected, error: "Its signature is invalid.");

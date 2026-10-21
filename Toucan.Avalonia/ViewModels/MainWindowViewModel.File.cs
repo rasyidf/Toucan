@@ -33,9 +33,9 @@ public partial class MainWindowViewModel
     // ───────────────────────── New / Open ─────────────────────────
 
     [RelayCommand]
-    private async Task NewFolder()
+    private async Task NewFolder(string? frameworkName)
     {
-        var vm = await _dialogService.ShowNewProjectAsync();
+        var vm = await _dialogService.ShowNewProjectAsync(frameworkName);
         if (vm == null) return;
 
         if (vm.OpenExistingPath != null)

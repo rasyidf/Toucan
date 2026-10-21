@@ -761,7 +761,8 @@ public sealed record AppLanguageOption(string Code, string Name)
 
 public sealed record SettingsNavEntry(string Title, string Icon, string Color)
 {
-    public global::Avalonia.Media.IBrush TileBrush { get; } = global::Avalonia.Media.Brush.Parse(Color);
+    public global::Avalonia.Media.IBrush TileBrush { get; } =
+        new global::Avalonia.Media.Immutable.ImmutableSolidColorBrush(global::Avalonia.Media.Color.Parse(Color));
 }
 
 public sealed record ShortcutGroup(string Category, IReadOnlyList<KeybindingEntry> Items);
