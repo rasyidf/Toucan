@@ -4,14 +4,27 @@
 
 Extension platform: a connector can be built, installed, configured and used without changing Toucan.
 
+Windows dialogs and project setup have consistent themed surfaces, and BabelEdit projects and spreadsheets can be imported without losing the reviewed translation metadata.
+
 ### Added
+- **BabelEdit project import** — Open a folder containing one `.babel` project to load its settings, concepts, comments, approvals and JSON package/file mappings. Saving creates `toucan.tproj` and leaves the original `.babel` unchanged. Resource paths must stay within the project folder; multiple `.babel` projects need separate folders.
+- **Compatibility fixtures and reports** — Nineteen synthetic bilingual projects, the original BabelEdit Excel export, native save/reopen regressions, and reproducible CLI and converter checks. The result gallery includes the updated report, project outcomes and reference screenshots; it distinguishes verified cases from broader framework parity that remains untested.
 - **Compatibility checks** — A plugin manifest can declare `minHostVersion` and `platforms`. A plugin that needs a newer Toucan, or is not built for this operating system, is not loaded, and the Plugins page and `toucan plugins list` say what to do about it. API and desktop-contract mismatches now say whether to update Toucan or ask the author for a new build. Settings saved by a newer version of a plugin are kept and reported instead of being overwritten, and a settings migration that could never run is refused when the schema is registered.
 - **SDK test harness** — `Toucan.Plugins.Testing` runs a plugin's registration and activation without Toucan, with in-memory settings, secrets, notifications and workspace, command states, cancellation on close, and a check that the plugin references no UI assembly.
 - **Sample connector** — `samples/Toucan.Sample.Connector` (in-memory service) and, in the separate `toucan-plugins` repository, a REST connector built only from the published SDK packages: a settings form, a Server panel, Pull and Push commands that edit the project through the workspace API and never overwrite what you typed or what the server changed.
 
 ### Changed
+- **Welcome screen and project setup** — Theme-aware artwork, responsive welcome sections, shared framework cards with consistent sizing, and template shortcuts that preselect their framework. The project wizard places aligned project details above its framework selector and scrolls the body above a fixed footer. Redundant welcome navigation was removed.
 - **Toolbar buttons use the command registry** — Save, the command palette, the Editor/Review/Audit tabs, the panel toggles and Settings now run the same registered commands as the menus and shortcuts, so they follow reassigned shortcuts and command availability.
 - The `Toucan.Plugins.Abstractions` package is version 1.1.0 to match plugin API 1.1.
+
+### Fixed
+- **Windows dialog surfaces** — Dialog windows and their backplates use the active theme's opaque background, including dialogs with a Border content root, and follow theme changes while open. Shared color swatches use immutable brushes to avoid UI-thread ownership errors.
+- **Empty translations** — Format writers retain intentional empty values by default and honor the project's save-empty setting through GUI, CLI and package saves. Excluding empty values also rewrites a file when its final translation becomes empty, instead of leaving old text on disk.
+- **Java properties encoding** — UTF-8 and Latin-1 text load correctly, imported encoding declarations take precedence over detection, and saves retain original filenames. Explicit newline conversion preserves existing UTF-8 text.
+- **Rails YAML and sequences** — Locale wrappers no longer become translation key prefixes. Scalar and mapping sequences load and save, existing `.yml`/`.yaml` paths are retained, and new keys join the existing language file.
+- **BabelEdit metadata conversion** — Both converters retain concepts directly inside package folders and preserve typed settings and copy templates. Native project saves retain comments and approvals across reopening, language aliases and Save As.
+- **Excel interchange** — Import recognizes BabelEdit package, translation ID and per-language approval columns as well as older Toucan workbooks. Export preserves approval per language. Comment and approval changes apply even when translation text is unchanged, and invalid headers are rejected before merging.
 
 ## [0.22.0] - 2026-10-09
 

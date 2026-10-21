@@ -74,6 +74,7 @@
       <div class="sidebar-title">Jump to a release</div>
       <nav id="release-index" aria-label="Versions">
 <!-- RELEASE INDEX START -->
+<a href="#unreleased">Unreleased</a>
 <a href="#v0.22.0">v0.22.0</a>
 <a href="#v0.21.0">v0.21.0</a>
 <a href="#v0.20.2">v0.20.2</a>
@@ -104,6 +105,36 @@
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div id="releases">
 <!-- RELEASES START -->
+<article class="release" id="unreleased" aria-labelledby="heading-unreleased">
+<div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
+<div class="release-lead"><p>Extension platform: a connector can be built, installed, configured and used without changing Toucan.</p>
+<p>Windows dialogs and project setup have consistent themed surfaces, and BabelEdit projects and spreadsheets can be imported without losing the reviewed translation metadata.</p></div>
+<div class="release-counts"><span class="added">5 added</span><span class="changed">3 changed</span><span class="fixed">6 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>BabelEdit project import</strong> — Open a folder containing one <code>.babel</code> project to load its settings, concepts, comments, approvals and JSON package/file mappings. Saving creates <code>toucan.tproj</code> and leaves the original <code>.babel</code> unchanged. Resource paths must stay within the project folder; multiple <code>.babel</code> projects need separate folders.</li>
+<li><strong>Compatibility fixtures and reports</strong> — Nineteen synthetic bilingual projects, the original BabelEdit Excel export, native save/reopen regressions, and reproducible CLI and converter checks. The result gallery includes the updated report, project outcomes and reference screenshots; it distinguishes verified cases from broader framework parity that remains untested.</li>
+<li><strong>Compatibility checks</strong> — A plugin manifest can declare <code>minHostVersion</code> and <code>platforms</code>. A plugin that needs a newer Toucan, or is not built for this operating system, is not loaded, and the Plugins page and <code>toucan plugins list</code> say what to do about it. API and desktop-contract mismatches now say whether to update Toucan or ask the author for a new build. Settings saved by a newer version of a plugin are kept and reported instead of being overwritten, and a settings migration that could never run is refused when the schema is registered.</li>
+<li><strong>SDK test harness</strong> — <code>Toucan.Plugins.Testing</code> runs a plugin&#x27;s registration and activation without Toucan, with in-memory settings, secrets, notifications and workspace, command states, cancellation on close, and a check that the plugin references no UI assembly.</li>
+<li><strong>Sample connector</strong> — <code>samples/Toucan.Sample.Connector</code> (in-memory service) and, in the separate <code>toucan-plugins</code> repository, a REST connector built only from the published SDK packages: a settings form, a Server panel, Pull and Push commands that edit the project through the workspace API and never overwrite what you typed or what the server changed.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>Welcome screen and project setup</strong> — Theme-aware artwork, responsive welcome sections, shared framework cards with consistent sizing, and template shortcuts that preselect their framework. The project wizard places aligned project details above its framework selector and scrolls the body above a fixed footer. Redundant welcome navigation was removed.</li>
+<li><strong>Toolbar buttons use the command registry</strong> — Save, the command palette, the Editor/Review/Audit tabs, the panel toggles and Settings now run the same registered commands as the menus and shortcuts, so they follow reassigned shortcuts and command availability.</li>
+<li>The <code>Toucan.Plugins.Abstractions</code> package is version 1.1.0 to match plugin API 1.1.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>Windows dialog surfaces</strong> — Dialog windows and their backplates use the active theme&#x27;s opaque background, including dialogs with a Border content root, and follow theme changes while open. Shared color swatches use immutable brushes to avoid UI-thread ownership errors.</li>
+<li><strong>Empty translations</strong> — Format writers retain intentional empty values by default and honor the project&#x27;s save-empty setting through GUI, CLI and package saves. Excluding empty values also rewrites a file when its final translation becomes empty, instead of leaving old text on disk.</li>
+<li><strong>Java properties encoding</strong> — UTF-8 and Latin-1 text load correctly, imported encoding declarations take precedence over detection, and saves retain original filenames. Explicit newline conversion preserves existing UTF-8 text.</li>
+<li><strong>Rails YAML and sequences</strong> — Locale wrappers no longer become translation key prefixes. Scalar and mapping sequences load and save, existing <code>.yml</code>/<code>.yaml</code> paths are retained, and new keys join the existing language file.</li>
+<li><strong>BabelEdit metadata conversion</strong> — Both converters retain concepts directly inside package folders and preserve typed settings and copy templates. Native project saves retain comments and approvals across reopening, language aliases and Save As.</li>
+<li><strong>Excel interchange</strong> — Import recognizes BabelEdit package, translation ID and per-language approval columns as well as older Toucan workbooks. Export preserves approval per language. Comment and approval changes apply even when translation text is unchanged, and invalid headers are rejected before merging.</li>
+</ul></div></details>
+<div class="release-links"><a href="#unreleased" aria-label="Permalink to Unreleased">Permalink</a></div>
+</article>
 <article class="release" id="v0.22.0" aria-labelledby="heading-v0.22.0">
 <div class="release-heading"><h2 id="heading-v0.22.0"><a href="#v0.22.0">v0.22.0</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-10-09">Oct 09, 2026</time></div>
 <div class="release-lead"><p>Safer saves: files are replaced atomically, a failed or interrupted multi-file save is rolled back, drafts with validation findings can be saved, and unsaved edits survive a crash.</p></div>
