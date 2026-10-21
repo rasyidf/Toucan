@@ -9,7 +9,9 @@ public class JavaPropertiesLoadStrategy : ILoadStrategy
 {
     public string FormatId => FormatIds.JavaProperties;
 
-    public IEnumerable<TranslationItem> Load(string folder)
+    public IEnumerable<TranslationItem> Load(string folder) => Load(folder, null);
+
+    public IEnumerable<TranslationItem> Load(string folder, string? textEncoding)
     {
         var files = Directory.GetFiles(folder, "*.properties", SearchOption.AllDirectories);
         var items = new List<TranslationItem>();
@@ -22,7 +24,23 @@ public class JavaPropertiesLoadStrategy : ILoadStrategy
             if (underscoreIdx > 0)
                 lang = lang[(underscoreIdx + 1)..];
 
-            var rawLines = File.ReadAllLines(file, Encoding.Latin1);
+            var bytes = File.ReadAllBytes(file);
+            var encoding = "ISO-8859-1";
+            string text;
+            if (textEncoding is "ISO-8859-1" or "Latin1") text = Encoding.Latin1.GetString(bytes);
+            else if (textEncoding is "UTF-8" or "UTF-8 BOM")
+            {
+                text = new UTF8Encoding(false, true).GetString(bytes).TrimStart('\uFEFF');
+                encoding = "UTF-8";
+            }
+            else try
+            {
+                text = new UTF8Encoding(false, true).GetString(bytes);
+                if (bytes.Any(b => b >= 128)) encoding = "UTF-8";
+                text = text.TrimStart('\uFEFF');
+            }
+            catch (DecoderFallbackException) { text = Encoding.Latin1.GetString(bytes); }
+            var rawLines = text.ReplaceLineEndings("\n").Split('\n');
             var lines = JoinContinuationLines(rawLines);
 
             foreach (var line in lines)
@@ -36,7 +54,8 @@ public class JavaPropertiesLoadStrategy : ILoadStrategy
                 var key = Unescape(trimmed[..sepIdx].TrimEnd());
                 var value = Unescape(trimmed[(sepIdx + 1)..].TrimStart());
 
-                items.Add(new TranslationItem { Language = lang, Namespace = key, Value = value });
+                items.Add(new TranslationItem { Language = lang, Namespace = key, Value = value,
+                    FormatData = new() { ["properties.encoding"] = encoding, ["properties.file"] = Path.GetRelativePath(folder, file) } });
             }
         }
         return items;

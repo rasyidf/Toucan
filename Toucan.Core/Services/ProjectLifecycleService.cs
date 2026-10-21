@@ -295,6 +295,12 @@ public partial class ProjectLifecycleService(
                 Languages = [.. _currentProject.Languages],
                 SaveFormat = _currentProject.SaveFormat,
                 TextEncoding = _currentProject.TextEncoding,
+                InputEncoding = _currentProject.InputEncoding,
+                BabelImport = _currentProject.BabelImport is { } imported ? new BabelImportData
+                {
+                    SourceFile = imported.SourceFile, JsonLayout = imported.JsonLayout,
+                    Configuration = new(imported.Configuration), Concepts = [.. imported.Concepts]
+                } : null,
                 LineEnding = _currentProject.LineEnding,
                 DefaultPathResolver = _currentProject.DefaultPathResolver,
                 Framework = _currentProject.Framework,
@@ -375,6 +381,8 @@ public partial class ProjectLifecycleService(
     /// </summary>
     private void UpdateManifestTranslationPackages(ProjectSettings settings)
     {
+        // Imported file mappings are authoritative; rebuilding them destroys custom paths and packages.
+        if (settings.BabelImport != null) return;
         // Ensure at least one package exists
         if (settings.TranslationPackages.Count == 0)
             settings.TranslationPackages.Add(new TranslationPackage { Name = "main" });

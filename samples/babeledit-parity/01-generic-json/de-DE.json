@@ -1,0 +1,11 @@
+{
+  "app.title": "Paritätslabor",
+  "welcome": "Hallo {name}",
+  "button.save": "Speichern",
+  "button.cancel": "Abbrechen",
+  "empty": "",
+  "multiline": "Erste Zeile\nZweite Zeile",
+  "unicode": "日本語 — café 😀",
+  "items_one": "{{count}} Element",
+  "items_other": "{{count}} Elemente"
+}

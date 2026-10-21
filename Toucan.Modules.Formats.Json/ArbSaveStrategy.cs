@@ -33,8 +33,8 @@ public class ArbSaveStrategy(IFileService fileService) : ISaveStrategy
         foreach (var (language, list) in context.LanguageDictionary)
         {
             // Entries go back to the file they were loaded from; new ones go to app_<language>.arb.
-            foreach (var group in list.NoEmpty().GroupBy(i => FileFor(i, language, root)))
-                WriteFile(root, group.Key, language, group.OrderBy(i => i.Namespace, StringComparer.Ordinal).ToList());
+            foreach (var group in list.ForParse().GroupBy(i => FileFor(i, language, root)))
+                WriteFile(root, group.Key, language, group.OrderBy(i => i.Namespace, StringComparer.Ordinal).ToList(), context.SaveEmptyTranslations);
         }
     }
 
@@ -48,7 +48,7 @@ public class ArbSaveStrategy(IFileService fileService) : ISaveStrategy
         return DefaultFilePath(language);
     }
 
-    private static void WriteFile(string root, string relative, string language, List<TranslationItem> items)
+    private static void WriteFile(string root, string relative, string language, List<TranslationItem> items, bool keepEmpty)
     {
         var obj = new JsonObject { ["@@locale"] = language };
 
@@ -60,7 +60,7 @@ public class ArbSaveStrategy(IFileService fileService) : ISaveStrategy
                 obj[key] = value;
             }
 
-        foreach (var item in items)
+        foreach (var item in items.Where(i => keepEmpty || !string.IsNullOrEmpty(i.Value)))
         {
             obj[item.Namespace] = item.Value ?? "";
             var meta = item.FormatData?.GetValueOrDefault(ArbFormat.Metadata);

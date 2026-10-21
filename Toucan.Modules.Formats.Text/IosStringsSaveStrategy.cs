@@ -32,7 +32,7 @@ public class IosStringsSaveStrategy(IFileService fileService) : ISaveStrategy
 
             var sb = new StringBuilder();
             sb.AppendLine($"/* {language} */");
-            foreach (var item in list.NoEmpty().OrderBy(i => i.Namespace))
+            foreach (var item in list.ForSave(context).OrderBy(i => i.Namespace))
                 sb.AppendLine($"\"{Escape(item.Namespace)}\" = \"{Escape(item.Value ?? "")}\";");
 
             Toucan.Core.Services.AtomicFile.WriteAllText(Path.Combine(dir, "Localizable.strings"), sb.ToString(), Encoding.UTF8);

@@ -13,11 +13,18 @@ public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
     public FormatSupport Support { get; } = new(
         FormatEditing.Limited,
         "YAML 1.1 and 1.2 scalar maps; one file per language",
-        ["Nested and flat dotted keys (same style as the file)", "block scalars (| and >) read", "multiline text", "quoted scalars such as on", "off", "~ and numbers"],
-        ["Comments in the file are not kept", "Anchors, aliases, tags and sequences are not read", "Block scalars are written as quoted strings"]);
+        ["Nested and flat dotted keys (same style as the file)", "scalar and mapping sequences", "Rails locale roots and original file paths", "block scalars (| and >) read", "multiline text", "quoted scalars such as on", "off", "~ and numbers"],
+        ["Comments in the file are not kept", "Anchors, aliases and tags are not read", "Block scalars are written as quoted strings"]);
     public string DisplayName => "YAML";
     public IReadOnlyList<string> FileExtensions => [".yml", ".yaml"];
     public string DefaultFilePath(string language) => $"{language}.yaml";
+
+    public IReadOnlyList<string> LanguageFiles(string projectRoot, string language)
+    {
+        var files = Directory.Exists(projectRoot) ? Directory.EnumerateFiles(projectRoot, "*", SearchOption.AllDirectories)
+            .Where(f => Path.GetExtension(f) is ".yml" or ".yaml" && Path.GetFileNameWithoutExtension(f) == language).ToList() : [];
+        return files.Count > 0 ? files : [Path.Combine(projectRoot, DefaultFilePath(language))];
+    }
 
     public FormatDetection Detection { get; } = new(8, [".yaml", ".yml"], []);
 
@@ -28,27 +35,37 @@ public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
         foreach (var kv in context.LanguageDictionary)
         {
             var language = kv.Key;
-            var list = kv.Value;
-            var sb = new StringBuilder();
-
-            // YAML header comment
-            sb.AppendLine($"# Translation file for {language}");
-            sb.AppendLine("---");
-
-            // Build a nested structure from the namespaces
-            var dict = new Dictionary<string, string>();
-            foreach (var item in list.NoEmpty())
+            var entries = kv.Value.ToList();
+            var existingFiles = entries.Select(i => i.FormatData?.GetValueOrDefault("yaml.file")).Where(f => f != null).Distinct(StringComparer.Ordinal).ToList();
+            var defaultFile = existingFiles.Count == 1 ? existingFiles[0]! : language + ".yaml";
+            foreach (var group in entries.GroupBy(i => i.FormatData?.GetValueOrDefault("yaml.file") ?? defaultFile))
             {
-                dict[item.Namespace] = item.Value ?? string.Empty;
+                var list = group.ToList();
+                var locale = list.Select(i => i.FormatData?.GetValueOrDefault("yaml.locale")).FirstOrDefault(v => v != null);
+                var sb = new StringBuilder();
+
+                // YAML header comment
+                sb.AppendLine($"# Translation file for {language}");
+                sb.AppendLine("---");
+
+                // Build a nested structure from the namespaces
+                var dict = new Dictionary<string, string>();
+                foreach (var item in list.ForSave(context))
+                {
+                    dict[locale == null ? item.Namespace : locale + "." + item.Namespace] = item.Value ?? string.Empty;
+                }
+
+                // Keep the style the file already uses; a key that is also a parent can only be written flat.
+                if (UseFlatKeys(path, language, dict))
+                    WriteFlat(sb, dict);
+                else
+                    WriteYamlDict(sb, dict, 0);
+
+                var target = Path.GetFullPath(Path.Combine(path, group.Key));
+                if (!target.StartsWith(Path.TrimEndingDirectorySeparator(Path.GetFullPath(path)) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("YAML output must stay inside the project.");
+                fileService.SaveText(Path.GetDirectoryName(target)!, Path.GetFileName(target), sb.ToString());
             }
-
-            // Keep the style the file already uses; a key that is also a parent can only be written flat.
-            if (UseFlatKeys(path, language, dict))
-                WriteFlat(sb, dict);
-            else
-                WriteYamlDict(sb, dict, 0);
-
-            fileService.SaveText(path, language + ".yaml", sb.ToString());
         }
     }
 
@@ -94,7 +111,29 @@ public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
 
     private static void WriteYamlDict(StringBuilder sb, Dictionary<string, string> dict, int indent)
     {
+        // Numeric bracket segments are sequence members, matching JSON's internal key convention.
+        var arrayRoots = dict.Keys.Where(k => k.Contains('[') && !k[..k.IndexOf('[')].Contains('.'))
+            .Select(k => k[..k.IndexOf('[')]).Distinct(StringComparer.Ordinal).ToList();
+        foreach (var arrayRoot in arrayRoots)
+        {
+            sb.AppendLine($"{new string(' ', indent)}{EscapeYamlKey(arrayRoot)}:");
+            var members = dict.Where(p => p.Key.StartsWith(arrayRoot + "[", StringComparison.Ordinal))
+                .GroupBy(p => int.Parse(p.Key.AsSpan(arrayRoot.Length + 1, p.Key.IndexOf(']') - arrayRoot.Length - 1), System.Globalization.CultureInfo.InvariantCulture))
+                .OrderBy(g => g.Key);
+            foreach (var member in members)
+            {
+                var prefix = arrayRoot + "[" + member.Key + "]";
+                var scalar = member.FirstOrDefault(p => p.Key == prefix);
+                if (scalar.Key != null) sb.AppendLine($"{new string(' ', indent + 2)}- {EscapeYamlValue(scalar.Value)}");
+                else
+                {
+                    sb.AppendLine($"{new string(' ', indent + 2)}-");
+                    WriteYamlDict(sb, member.ToDictionary(p => p.Key[(prefix.Length + 1)..], p => p.Value), indent + 4);
+                }
+            }
+        }
         var grouped = dict
+            .Where(p => !arrayRoots.Any(a => p.Key.StartsWith(a + "[", StringComparison.Ordinal)))
             .GroupBy(kvp => GetRootKey(kvp.Key))
             .OrderBy(g => g.Key);
 
@@ -110,12 +149,12 @@ public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
             {
                 // Simple key-value pair
                 var value = EscapeYamlValue(items[0].Value);
-                sb.AppendLine($"{new string(' ', indent)}{rootKey}: {value}");
+                sb.AppendLine($"{new string(' ', indent)}{EscapeYamlKey(rootKey)}: {value}");
             }
             else
             {
                 // Nested structure; clashes between a value and a parent never reach here (see HasKeyClash)
-                sb.AppendLine($"{new string(' ', indent)}{rootKey}:");
+                sb.AppendLine($"{new string(' ', indent)}{EscapeYamlKey(rootKey)}:");
 
                 var nested = new Dictionary<string, string>();
                 foreach (var item in items)

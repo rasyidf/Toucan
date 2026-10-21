@@ -57,7 +57,7 @@ public class AndroidXmlSaveStrategy(IFileService fileService) : ISaveStrategy
             Directory.CreateDirectory(dir);
 
             var resources = new XElement("resources");
-            foreach (var item in list.NoEmpty().OrderBy(i => i.Namespace))
+            foreach (var item in list.ForSave(context).OrderBy(i => i.Namespace))
             {
                 if (item.Namespace.Contains('['))
                 {
@@ -68,7 +68,7 @@ public class AndroidXmlSaveStrategy(IFileService fileService) : ISaveStrategy
             }
 
             // Handle string-arrays
-            var arrays = list.NoEmpty()
+            var arrays = list.ForSave(context)
                 .Where(i => i.Namespace.Contains('['))
                 .GroupBy(i => i.Namespace[..i.Namespace.IndexOf('[')])
                 .OrderBy(g => g.Key);

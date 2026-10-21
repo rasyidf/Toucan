@@ -41,7 +41,7 @@ public class LaravelPhpSaveStrategy : ISaveStrategy
             Directory.CreateDirectory(langDir);
 
             // Group by first namespace segment (file prefix)
-            var byFile = list.NoEmpty()
+            var byFile = list.ForParse()
                 .GroupBy(i => i.Namespace.Split('.')[0])
                 .ToDictionary(g => g.Key, g => g.ToList());
 
@@ -53,7 +53,7 @@ public class LaravelPhpSaveStrategy : ISaveStrategy
                 sb.AppendLine("return [");
 
                 // Build nested structure
-                WriteItems(sb, items, 1);
+                WriteItems(sb, items.ForSave(context).ToList(), 1);
 
                 sb.AppendLine("];");
 

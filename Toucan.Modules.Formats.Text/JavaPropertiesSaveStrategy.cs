@@ -12,12 +12,19 @@ public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrateg
 
     public FormatSupport Support { get; } = new(
         FormatEditing.Full,
-        "Java .properties (ISO-8859-1 with \\uXXXX escapes); line continuations",
+        "Java .properties (UTF-8 or ISO-8859-1 with \\uXXXX escapes); line continuations",
         ["Escapes", "unicode", "leading spaces", "line continuations", "multiline text"],
         ["Comments in the file are not kept", "Key order is sorted on save"]);
     public string DisplayName => "Java .properties";
     public IReadOnlyList<string> FileExtensions => [".properties"];
     public string DefaultFilePath(string language) => $"{language}.properties";
+
+    public IReadOnlyList<string> LanguageFiles(string projectRoot, string language)
+    {
+        var files = Directory.Exists(projectRoot) ? Directory.EnumerateFiles(projectRoot, "*.properties", SearchOption.AllDirectories)
+            .Where(f => Path.GetFileNameWithoutExtension(f) == language || Path.GetFileNameWithoutExtension(f).EndsWith("_" + language, StringComparison.Ordinal)).ToList() : [];
+        return files.Count > 0 ? files : [Path.Combine(projectRoot, DefaultFilePath(language))];
+    }
 
     public FormatDetection Detection { get; } = new(6, [".properties"], []);
 
@@ -27,16 +34,26 @@ public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrateg
 
         foreach (var (language, list) in context.LanguageDictionary)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("# Translation file for " + language);
-            foreach (var item in list.NoEmpty().OrderBy(i => i.Namespace))
+            var entries = list.ToList();
+            var existingFiles = entries.Select(i => i.FormatData?.GetValueOrDefault("properties.file")).Where(f => f != null).Distinct(StringComparer.Ordinal).ToList();
+            var defaultFile = existingFiles.Count == 1 ? existingFiles[0]! : language + ".properties";
+            foreach (var group in entries.GroupBy(i => i.FormatData?.GetValueOrDefault("properties.file") ?? defaultFile))
             {
-                var key = EscapeKey(item.Namespace);
-                var value = EscapeValue(item.Value ?? string.Empty);
-                sb.AppendLine($"{key}={value}");
+                var utf8 = group.Any(i => i.FormatData?.GetValueOrDefault("properties.encoding") == "UTF-8");
+                var sb = new StringBuilder();
+                sb.AppendLine("# Translation file for " + language);
+                foreach (var item in group.ForSave(context).OrderBy(i => i.Namespace))
+                {
+                    var key = EscapeKey(item.Namespace);
+                    var value = EscapeValue(item.Value ?? string.Empty, utf8);
+                    sb.AppendLine($"{key}={value}");
+                }
+                var target = Path.GetFullPath(Path.Combine(path, group.Key));
+                if (!target.StartsWith(Path.TrimEndingDirectorySeparator(Path.GetFullPath(path)) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("Properties output must stay inside the project.");
+                Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                Toucan.Core.Services.AtomicFile.WriteAllText(target, sb.ToString(), utf8 ? new UTF8Encoding(false) : Encoding.Latin1);
             }
-            Directory.CreateDirectory(path);
-            Toucan.Core.Services.AtomicFile.WriteAllText(Path.Combine(path, language + ".properties"), sb.ToString(), Encoding.Latin1);
         }
     }
 
@@ -44,7 +61,7 @@ public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrateg
 
     private static string EscapeKey(string s) => s.Replace(" ", "\\ ").Replace("=", "\\=").Replace(":", "\\:");
 
-    private static string EscapeValue(string s)
+    private static string EscapeValue(string s, bool utf8)
     {
         var sb = new StringBuilder(s.Length);
         var leading = true;
@@ -53,7 +70,7 @@ public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrateg
             // Readers skip whitespace after the separator, so leading spaces must be escaped to survive.
             if (c == ' ' && leading) { sb.Append("\\ "); continue; }
             leading = false;
-            if (c > '~') sb.Append($"\\u{(int)c:X4}");
+            if (c > '~' && !utf8) sb.Append($"\\u{(int)c:X4}");
             else if (c == '\n') sb.Append("\\n");
             else if (c == '\t') sb.Append("\\t");
             else if (c == '\r') sb.Append("\\r");

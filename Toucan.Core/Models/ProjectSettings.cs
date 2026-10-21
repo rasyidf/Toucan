@@ -21,6 +21,8 @@ public class ProjectSettings
     public string? Name { get; set; }
     public string? Description { get; set; }
     public string? Version { get; set; }
+    public BabelImportData? BabelImport { get; set; }
+    public List<TranslationState> TranslationStates { get; set; } = [];
 
     // --- Language config ---
     public string PrimaryLanguage { get; set; } = "en-US";
@@ -46,6 +48,8 @@ public class ProjectSettings
     }
     /// <summary>Output encoding override: UTF-8 or UTF-8 BOM; null keeps the format default.</summary>
     public string? TextEncoding { get; set; }
+    /// <summary>Explicit resource input encoding; null lets the format detect it.</summary>
+    public string? InputEncoding { get; set; }
     /// <summary>Output newline override: LF or CRLF; null keeps the format default.</summary>
     public string? LineEnding { get; set; }
     public string? Framework { get; set; }

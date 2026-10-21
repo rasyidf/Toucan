@@ -29,7 +29,7 @@ public class TomlSaveStrategy(IFileService fileService) : ISaveStrategy
             var sb = new StringBuilder($"# Translation file for {language}\n\n");
 
             // Group by first namespace segment as TOML sections
-            var grouped = list.NoEmpty()
+            var grouped = list.ForSave(context)
                 .GroupBy(t => t.Namespace.Contains('.') ? t.Namespace[..t.Namespace.IndexOf('.')] : "")
                 .OrderBy(g => g.Key);
 

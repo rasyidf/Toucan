@@ -13,7 +13,7 @@ public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy
         FormatEditing.Full,
         "Any JSON object; nested objects and arrays",
         ["Nested keys", "arrays", "multiline text", "escapes", "numbers and booleans left unedited", "placeholders", "sorted stable output"],
-        ["Comments (JSON has none)", "null values are dropped", "Empty values are not written", "Key order is sorted on save"]);
+        ["Comments (JSON has none)", "null values are dropped", "Key order is sorted on save"]);
     public string DisplayName => "JSON (flat)";
     public IReadOnlyList<string> FileExtensions => [".json"];
     public string DefaultFilePath(string language) => $"{language}.json";
@@ -23,13 +23,22 @@ public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy
         if (context?.LanguageDictionary == null) return;
         foreach (var (language, list) in context.LanguageDictionary)
         {
-            var root = new Dictionary<string, object>();
-            // ponytail: sort by namespace so JSON keys are stable across saves (reduces VCS noise)
-            foreach (var item in list.NoEmpty().OrderBy(i => i.Namespace, StringComparer.Ordinal))
+            foreach (var group in list.GroupBy(i => i.FormatData?.GetValueOrDefault("json.file") ?? language + ".json"))
             {
-                SetNestedValue(root, item.Namespace, TypedValue(item));
+                var root = new Dictionary<string, object>();
+                // ponytail: sort by namespace so JSON keys are stable across saves (reduces VCS noise)
+                foreach (var item in group.ForSave(context).OrderBy(i => i.Namespace, StringComparer.Ordinal))
+                {
+                    var key = item.FormatData?.ContainsKey("json.file") == true
+                        ? item.FormatData.GetValueOrDefault("babel.key") ?? item.Namespace : item.Namespace;
+                    if (context.JsonLayout == "flat") root[key] = TypedValue(item);
+                    else SetNestedValue(root, key, TypedValue(item));
+                }
+                var target = Path.GetFullPath(Path.Combine(path, group.Key));
+                if (!target.StartsWith(Path.TrimEndingDirectorySeparator(Path.GetFullPath(path)) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("JSON output must stay inside the project.");
+                fileService.Save(Path.GetDirectoryName(target)!, Path.GetFileName(target), root);
             }
-            fileService.Save(path, language + ".json", root);
         }
     }
 

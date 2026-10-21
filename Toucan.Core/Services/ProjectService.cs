@@ -28,20 +28,36 @@ public class ProjectService(
         var settings = ProjectSettings.LoadFrom(folder);
         if (settings == null)
         {
-            settings = ProjectSettings.CreateDefault(folder);
-            settings.SaveFormat = new FormatDetector(strategyFactory.SaveStrategies).Detect(folder);
+            var babelFiles = Directory.GetFiles(folder, "*.babel");
+            if (babelFiles.Length > 1) throw new FormatException("This folder has multiple BabelEdit projects. Import each project in its own folder.");
+            if (babelFiles.Length == 1) settings = BabelProjectReader.Read(babelFiles[0]);
+            else
+            {
+                settings = ProjectSettings.CreateDefault(folder);
+                settings.SaveFormat = new FormatDetector(strategyFactory.SaveStrategies).Detect(folder);
+            }
         }
         settings.ProjectPath = folder;
         settings.DefaultPathResolver = ResolveDefaultPath;
 
         // Load translations using the detected/configured format
-        var translations = Load(folder, settings.SaveFormat);
-
+        var translations = settings.BabelImport != null && settings.SaveFormat == FormatIds.Json
+            ? LoadBabelJson(settings) : Load(folder, settings.SaveFormat, settings.BabelImport == null, settings.InputEncoding);
+        BabelProjectReader.ApplyMetadata(settings, translations);
         // Apply language aliases
         if (settings.LanguageAliases is { Count: > 0 })
             foreach (var t in translations)
                 if (settings.LanguageAliases.TryGetValue(t.Language, out var mapped))
                     t.Language = mapped;
+
+        var states = settings.TranslationStates.ToDictionary(s => (s.Language, s.Key));
+        foreach (var item in translations)
+            if (states.TryGetValue((item.Language, item.Namespace), out var state))
+            {
+                item.Comment = state.Comment;
+                item.IsApproved = state.Approved;
+                foreach (var entry in state.Data) (item.FormatData ??= new())[entry.Key] = entry.Value;
+            }
 
         // Backfill settings from loaded data if manifest was missing
         if (settings.Languages.Count == 0)
@@ -83,7 +99,26 @@ public class ProjectService(
 
     public void Save(ProjectSettings project, List<NsTreeItem> items, IEnumerable<TranslationItem> translations)
     {
-        var toSave = translations;
+        var toSave = translations.ToList();
+        if (project.BabelImport != null && project.SaveFormat == FormatIds.Json)
+            foreach (var item in toSave.Where(i => i.FormatData?.ContainsKey("json.file") != true))
+            {
+                var urls = project.TranslationPackages.SelectMany(p => p.TranslationUrls.Select(u => (Package: p.Name, Url: u)))
+                    .Where(p => p.Url.Language == item.Language).ToList();
+                if (urls.Count != 1) throw new InvalidOperationException("Choose a package before saving a new key in a multi-package BabelEdit import.");
+                var data = item.FormatData ??= new();
+                data["json.file"] = urls[0].Url.Path;
+                data["babel.package"] = urls[0].Package;
+                data["babel.key"] = item.Namespace;
+            }
+        if (project.BabelImport != null && project.SaveFormat == FormatIds.Json)
+            foreach (var item in toSave)
+            {
+                var data = item.FormatData!;
+                var prefix = data.GetValueOrDefault("babel.package") + ".";
+                data["babel.key"] = project.TranslationPackages.Count > 1 && item.Namespace.StartsWith(prefix, StringComparison.Ordinal)
+                    ? item.Namespace[prefix.Length..] : item.Namespace;
+            }
         // Reverse alias mapping for file output
         if (project.LanguageAliases is { Count: > 0 })
         {
@@ -92,7 +127,7 @@ public class ProjectService(
             foreach (var kv in project.LanguageAliases)
                 reverse[kv.Value] = kv.Key;
 
-            var list = translations.ToList();
+            var list = toSave;
             foreach (var t in list)
                 if (reverse.TryGetValue(t.Language, out var fileCode))
                     t.Language = fileCode;
@@ -101,14 +136,17 @@ public class ProjectService(
 
         try
         {
-            Save(project.ProjectPath, project.SaveFormat, items, toSave);
+            Save(project.ProjectPath, project.SaveFormat, items, toSave, project.SaveEmptyTranslations ?? true, project.BabelImport?.JsonLayout);
             if (FormatIds.TryGetStyle(project.SaveFormat, out _) && (project.TextEncoding != null || project.LineEnding != null))
             {
-                var strategy = strategyFactory.GetSaveStrategy(project.SaveFormat)!;
-                var files = toSave.ToLanguages().SelectMany(lang => strategy.LanguageFiles(project.ProjectPath, lang));
+                var files = toSave.ToLanguages().SelectMany(lang => GetLanguageFiles(project, lang));
                 foreach (var file in files.Distinct(StringComparer.Ordinal))
+                {
+                    var utf8Properties = toSave.Any(i => i.FormatData?.GetValueOrDefault("properties.encoding") == "UTF-8" &&
+                        Path.GetFullPath(Path.Combine(project.ProjectPath, i.FormatData.GetValueOrDefault("properties.file") ?? i.Language + ".properties")) == Path.GetFullPath(file));
                     ProjectTextFormat.Apply(file, project.TextEncoding, project.LineEnding,
-                        project.SaveFormat == FormatIds.JavaProperties ? System.Text.Encoding.Latin1 : null);
+                        project.SaveFormat == FormatIds.JavaProperties && !utf8Properties ? System.Text.Encoding.Latin1 : null);
+                }
             }
         }
         finally
@@ -120,8 +158,12 @@ public class ProjectService(
                         t.Language = mapped;
         }
 
+        BabelProjectReader.CaptureMetadata(project, toSave);
+        project.TranslationStates = toSave.GroupBy(i => (i.Language, i.Namespace)).Select(g => g.First())
+            .Select(i => new TranslationState { Language = i.Language, Key = i.Namespace, Comment = i.Comment, Approved = i.IsApproved,
+                Data = i.FormatData?.Where(p => p.Key.StartsWith("babel.", StringComparison.Ordinal)).ToDictionary(p => p.Key, p => p.Value) ?? [] }).ToList();
         // Update project manifest with current language list
-        project.Languages = translations.ToLanguages().ToList();
+        project.Languages = toSave.ToLanguages().ToList();
         project.Save();
     }
 
@@ -153,7 +195,7 @@ public class ProjectService(
         return Load(folder, FormatIds.Json);
     }
 
-    private List<TranslationItem> Load(string folder, string formatId)
+    private List<TranslationItem> Load(string folder, string formatId, bool useManifest = true, string? inputEncoding = null)
     {
         if (string.IsNullOrEmpty(folder)) return [];
 
@@ -166,7 +208,7 @@ public class ProjectService(
             throw new FormatUnavailableException(formatId);
 
         var variant = modeResolver.Resolve(folder);
-        if (variant == ProjectTypeVariant.ConfigManifest)
+        if (useManifest && formatId == FormatIds.Json && variant == ProjectTypeVariant.ConfigManifest)
         {
             var loader = strategyFactory.GetManifestLoadStrategy();
             if (loader != null)
@@ -177,13 +219,16 @@ public class ProjectService(
         }
 
         // Use the detected format's load strategy (not just Json fallback)
-        if (strategy != null) return strategy.Load(folder).ToList();
+        if (strategy != null) return strategy.Load(folder, inputEncoding).ToList();
 
         // Final fallback: try Json
         return (strategyFactory.GetLoadStrategy(FormatIds.Json)?.Load(folder) ?? []).ToList();
     }
 
     public void Save(string path, string formatId, List<NsTreeItem> items, IEnumerable<TranslationItem> translations)
+        => Save(path, formatId, items, translations, true, null);
+
+    private void Save(string path, string formatId, List<NsTreeItem> items, IEnumerable<TranslationItem> translations, bool saveEmpty, string? jsonLayout)
     {
         var strategy = strategyFactory.GetSaveStrategy(formatId)
             ?? throw new FormatUnavailableException(formatId);
@@ -194,6 +239,8 @@ public class ProjectService(
 
         var context = new SaveContext
         {
+            SaveEmptyTranslations = saveEmpty,
+            JsonLayout = jsonLayout,
             LanguageDictionary = translations.ToLanguageDictionary(),
             NsTreeItems = items ?? [],
             Languages = translations.ToLanguages().ToList()
@@ -209,6 +256,9 @@ public class ProjectService(
 
     public IReadOnlyList<string> GetLanguageFiles(ProjectSettings settings, string language)
     {
+        if (settings.BabelImport != null)
+            return settings.TranslationPackages.SelectMany(p => p.TranslationUrls).Where(u => u.Language == language)
+                .Select(u => BabelProjectReader.ResolvePath(settings.ProjectPath, u.Path)).Distinct(StringComparer.Ordinal).ToList();
         if (settings.LanguageFilePaths?.TryGetValue(language, out var custom) == true)
             return [Path.IsPathRooted(custom) ? custom : Path.Combine(settings.ProjectPath, custom.Replace('/', Path.DirectorySeparatorChar))];
 
@@ -219,4 +269,26 @@ public class ProjectService(
 
     private string ResolveDefaultPath(string formatId, string language) =>
         strategyFactory.GetSaveStrategy(formatId)?.DefaultFilePath(language) ?? $"{language}.json";
+
+    private static List<TranslationItem> LoadBabelJson(ProjectSettings settings)
+    {
+        var result = new List<TranslationItem>();
+        foreach (var package in settings.TranslationPackages)
+            foreach (var url in package.TranslationUrls)
+            {
+                var path = BabelProjectReader.ResolvePath(settings.ProjectPath, url.Path);
+                var content = File.ReadAllText(path);
+                using var valid = System.Text.Json.JsonDocument.Parse(content);
+                foreach (var item in NestedJsonParser.ParseNestedJson(url.Language, content))
+                {
+                    var data = item.FormatData ??= new();
+                    data["json.file"] = url.Path;
+                    data["babel.package"] = package.Name;
+                    data["babel.key"] = item.Namespace;
+                    if (settings.TranslationPackages.Count > 1) item.Namespace = package.Name + "." + item.Namespace;
+                    result.Add(item);
+                }
+            }
+        return result;
+    }
 }

@@ -1,0 +1,211 @@
+[
+  {
+    "id": "01-generic-json",
+    "framework": "generic-json",
+    "format": "json",
+    "kind": "json",
+    "origin": "UI-created and saved",
+    "paths": [
+      "en-US.json",
+      "de-DE.json"
+    ]
+  },
+  {
+    "id": "02-angular-ngx",
+    "framework": "ngx-translate",
+    "format": "json",
+    "kind": "json",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.json",
+      "de-DE.json"
+    ]
+  },
+  {
+    "id": "03-angular-transloco",
+    "framework": "angular-transloco",
+    "format": "namespaced-json",
+    "kind": "json",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.json",
+      "de-DE.json"
+    ]
+  },
+  {
+    "id": "04-vue",
+    "framework": "vue-json",
+    "format": "namespaced-json",
+    "kind": "json",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.json",
+      "de-DE.json"
+    ]
+  },
+  {
+    "id": "05-i18next",
+    "framework": "i18next",
+    "format": "namespaced-json",
+    "kind": "json",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.json",
+      "de-DE.json"
+    ]
+  },
+  {
+    "id": "06-react",
+    "framework": "react-json",
+    "format": "json",
+    "kind": "json",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.json",
+      "de-DE.json"
+    ]
+  },
+  {
+    "id": "07-svelte",
+    "framework": "svelte-i18n",
+    "format": "json",
+    "kind": "json",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.json",
+      "de-DE.json"
+    ]
+  },
+  {
+    "id": "08-ember-json",
+    "framework": "ember-json",
+    "format": "namespaced-json",
+    "kind": "json",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.json",
+      "de-DE.json"
+    ]
+  },
+  {
+    "id": "09-laravel-json",
+    "framework": "laravel-json",
+    "format": "plaintext-json",
+    "kind": "json",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.json",
+      "de-DE.json"
+    ]
+  },
+  {
+    "id": "10-generic-yaml",
+    "framework": "generic-yaml",
+    "format": "yaml",
+    "kind": "yaml",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.yaml",
+      "de-DE.yaml"
+    ]
+  },
+  {
+    "id": "11-ember-yaml",
+    "framework": "ember-yaml",
+    "format": "yaml",
+    "kind": "yaml",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.yaml",
+      "de-DE.yaml"
+    ]
+  },
+  {
+    "id": "12-rails-yaml",
+    "framework": "rails-yaml",
+    "format": "yaml",
+    "kind": "rails",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.yml",
+      "de-DE.yml"
+    ]
+  },
+  {
+    "id": "13-laravel-php",
+    "framework": "laravel",
+    "format": "php",
+    "kind": "php",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US/messages.php",
+      "de-DE/messages.php"
+    ]
+  },
+  {
+    "id": "14-flutter-arb",
+    "framework": "arb",
+    "format": "plaintext-json",
+    "kind": "arb",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.arb",
+      "de-DE.arb"
+    ]
+  },
+  {
+    "id": "15-java-latin1",
+    "framework": "prop-files",
+    "format": "properties-tree",
+    "kind": "latin1",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.properties",
+      "de-DE.properties"
+    ]
+  },
+  {
+    "id": "16-java-utf8",
+    "framework": "prop-files",
+    "format": "properties-tree",
+    "kind": "utf8",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.properties",
+      "de-DE.properties"
+    ]
+  },
+  {
+    "id": "17-json-arrays",
+    "framework": "generic-json",
+    "format": "namespaced-json",
+    "kind": "arrays",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.json",
+      "de-DE.json"
+    ]
+  },
+  {
+    "id": "18-yaml-arrays",
+    "framework": "generic-yaml",
+    "format": "yaml",
+    "kind": "yaml-arrays",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "en-US.yaml",
+      "de-DE.yaml"
+    ]
+  },
+  {
+    "id": "19-dotnet-resx",
+    "framework": "resx",
+    "format": "resx",
+    "kind": "resx",
+    "origin": "Generated from UI seed; verification tracked separately",
+    "paths": [
+      "Resources.en-US.resx",
+      "Resources.de-DE.resx"
+    ]
+  }
+]

@@ -10,6 +10,9 @@ public static class TranslationItemExtensions
     public static IEnumerable<TranslationItem> NoEmpty(this IEnumerable<TranslationItem> settings) =>
         settings.ForParse().Where(o => !string.IsNullOrWhiteSpace(o.Value));
 
+    public static IEnumerable<TranslationItem> ForSave(this IEnumerable<TranslationItem> items, SaveContext context) =>
+        items.ForParse().Where(i => context.SaveEmptyTranslations || !string.IsNullOrEmpty(i.Value));
+
     public static IEnumerable<TranslationItem> ExcludeLanguage(this IEnumerable<TranslationItem> settings, string language) =>
         settings.Where(o => o.Language != language);
 

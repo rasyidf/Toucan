@@ -60,6 +60,7 @@ public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy>
 
             var context = new SaveContext
             {
+                SaveEmptyTranslations = settings.SaveEmptyTranslations ?? true,
                 LanguageDictionary = new Dictionary<string, IEnumerable<TranslationItem>> { { langGroup.Key, langGroup } },
                 NsTreeItems = [],
                 Languages = [langGroup.Key]

@@ -1,4 +1,5 @@
 using Toucan.Modules;
+using Toucan.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Toucan.Core;
 using Toucan.Core.Contracts;
@@ -309,16 +310,7 @@ internal static class Program
         else
             translations.Add(new TranslationItem { Namespace = key, Language = lang, Value = value });
 
-        // Save back
-        var strategy = Get<ITranslationStrategyFactory>().GetSaveStrategy(settings.SaveFormat)
-            ?? throw new FormatUnavailableException(settings.SaveFormat);
-        var ctx = new SaveContext
-        {
-            LanguageDictionary = translations.GroupBy(t => t.Language).ToDictionary(g => g.Key, g => (IEnumerable<TranslationItem>)g.ToList()),
-            NsTreeItems = [],
-            Languages = translations.Select(t => t.Language).Distinct().ToList()
-        };
-        strategy.Save(folder, ctx);
+        Get<IProjectService>().Save(settings, translations.ToNsTree().ToList(), translations);
         Console.WriteLine($"Set {lang}/{key} = \"{value}\"");
         return 0;
     }
@@ -409,16 +401,7 @@ internal static class Program
                 translations.Add(new TranslationItem { Namespace = r.Namespace, Language = r.Language, Value = r.TranslatedValue! });
         }
 
-        // Save
-        var strategy = Get<ITranslationStrategyFactory>().GetSaveStrategy(settings.SaveFormat)
-            ?? throw new FormatUnavailableException(settings.SaveFormat);
-        var ctx = new SaveContext
-        {
-            LanguageDictionary = translations.GroupBy(t => t.Language).ToDictionary(g => g.Key, g => (IEnumerable<TranslationItem>)g.ToList()),
-            NsTreeItems = [],
-            Languages = translations.Select(t => t.Language).Distinct().ToList()
-        };
-        strategy.Save(folder, ctx);
+        Get<IProjectService>().Save(settings, translations.ToNsTree().ToList(), translations);
         Console.WriteLine($"  Saved to {folder}");
         return failed > 0 ? 1 : 0;
     }

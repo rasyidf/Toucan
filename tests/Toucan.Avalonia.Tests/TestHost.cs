@@ -156,9 +156,10 @@ internal sealed class FakeDialogService : IDialogService
     public Queue<string?> Prompts { get; } = new();
     public Queue<string?> Picks { get; } = new();
     public Queue<string?> Folders { get; } = new();
+    public Queue<string?> Files { get; } = new();
 
     public Task<string?> SelectFolderAsync(string? initialPath, string title = "Select Folder") => Task.FromResult(Folders.Count > 0 ? Folders.Dequeue() : null);
-    public Task<string?> SelectFileAsync(string? initialPath, string title = "Open File", IReadOnlyList<FileFilter>? filters = null) => Task.FromResult<string?>(null);
+    public Task<string?> SelectFileAsync(string? initialPath, string title = "Open File", IReadOnlyList<FileFilter>? filters = null) => Task.FromResult(Files.Count > 0 ? Files.Dequeue() : null);
     public Task<string?> SaveFileAsync(string? initialPath, string suggestedName, string title = "Save As", IReadOnlyList<FileFilter>? filters = null) => Task.FromResult<string?>(null);
     public Task<string?> ShowPromptAsync(string title, string message, string defaultValue = "") => Task.FromResult(Prompts.Count > 0 ? Prompts.Dequeue() : null);
     public Task<string?> ShowPickAsync(string title, string message, IReadOnlyList<string> options, string? selected = null) => Task.FromResult(Picks.Count > 0 ? Picks.Dequeue() : null);

@@ -60,7 +60,7 @@ public class ResxSaveStrategy(IFileService fileService) : ISaveStrategy
                 new XElement("resheader", new XAttribute("name", "resmimetype"), new XElement("value", "text/microsoft-resx")),
                 new XElement("resheader", new XAttribute("name", "version"), new XElement("value", "2.0")));
 
-            foreach (var item in list.NoEmpty().OrderBy(i => i.Namespace))
+            foreach (var item in list.ForSave(context).OrderBy(i => i.Namespace))
             {
                 root.Add(new XElement("data",
                     new XAttribute("name", item.Namespace),

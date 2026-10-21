@@ -65,8 +65,8 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private async Task OpenProjectFile()
     {
-        var selected = await _dialogService.SelectFileAsync(CurrentPath, "Open Toucan Project",
-            [new FileFilter("Toucan project", "*.tproj", "*.project"), new FileFilter("All files", "*")]);
+        var selected = await _dialogService.SelectFileAsync(CurrentPath, "Open Translation Project",
+            [new FileFilter("Translation project", "*.tproj", "*.project", "*.babel"), new FileFilter("All files", "*")]);
         if (selected == null) return;
 
         var directory = Path.GetDirectoryName(selected);
@@ -572,8 +572,13 @@ public partial class MainWindowViewModel
         {
             if (index.TryGetValue((item.Namespace, item.Language), out var existing))
             {
-                if (existing.Value == item.Value) continue;
+                var hasComment = item.FormatData?.GetValueOrDefault("exchange.comment") == "True";
+                var hasApproval = item.FormatData?.GetValueOrDefault("exchange.approved") == "True";
+                if (existing.Value == item.Value && (!hasComment || existing.Comment == item.Comment) &&
+                    (!hasApproval || existing.IsApproved == item.IsApproved)) continue;
                 existing.Value = item.Value;
+                if (hasComment) existing.Comment = item.Comment;
+                if (hasApproval) existing.IsApproved = item.IsApproved;
                 changed.Add(existing);
             }
             else

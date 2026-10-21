@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+r"""
 Tool: Convert a .babel XML project file into a toucan.project JSON format.
 
 Usage:
@@ -82,6 +82,10 @@ def parse_package(pkg):
         for child in children:
             if child.tag == 'file_node':
                 files.append(parse_file(child))
+        if any(child.tag in ('folder_node', 'concept_node') for child in children):
+            direct = parse_file(pkg)
+            direct['name'] = ''
+            files.append(direct)
     return { 'name': name, 'files': files }
 
 
@@ -149,7 +153,7 @@ def main(argv):
     project['embeddedSourceTexts'] = (est or 'false').lower() == 'true'
     project['primaryLanguage'] = node_text(root, 'primary_language')
 
-    # editor_configuration => mapping of child text values
+    # Preserve typed settings and nested containers instead of their whitespace text.
     editor_cfg = {}
     ed = root.find('editor_configuration')
     if ed is not None:
@@ -157,8 +161,10 @@ def main(argv):
             # For repeated tags like copy_template, aggregate into a list
             if c.tag == 'copy_template':
                 editor_cfg.setdefault('copy_templates', []).append(c.text or '')
+            elif c.tag == 'copy_templates':
+                editor_cfg[c.tag] = [t.text or '' for t in c.findall('copy_template')]
             else:
-                editor_cfg[c.tag] = c.text
+                editor_cfg[c.tag] = xml_value(c)
     project['editorConfiguration'] = editor_cfg
 
     # configuration block, copy children into a dict
@@ -166,10 +172,19 @@ def main(argv):
     conf = root.find('configuration')
     if conf is not None:
         for c in conf:
-            cfg[c.tag] = c.text
+            cfg[c.tag] = xml_value(c)
     project['configuration'] = cfg
 
     json.dump(project, sys.stdout, indent=2, ensure_ascii=False)
+
+
+def xml_value(element):
+    if len(element):
+        return {child.tag: xml_value(child) for child in element}
+    value = element.text or ''
+    if value.lower() in ('true', 'false'):
+        return value.lower() == 'true'
+    return value
 
 
 if __name__ == '__main__':
