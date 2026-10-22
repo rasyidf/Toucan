@@ -9,7 +9,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 /// Loads Laravel language files (<c>lang/&lt;locale&gt;/&lt;file&gt;.php</c> returning an array). Reads string values, including
 /// multiline and double-quoted ones; computed values (function calls, constants, numbers) are skipped.
 /// </summary>
-public class LaravelPhpLoadStrategy : ILoadStrategy
+public class LaravelPhpLoadStrategy : ILoadStrategy, IResourceLoadStrategy
 {
     public string FormatId => FormatIds.LaravelPhp;
 
@@ -26,6 +26,15 @@ public class LaravelPhpLoadStrategy : ILoadStrategy
             new Parser(File.ReadAllText(file), lang, items).Run(fileBase);
         }
         return items;
+    }
+
+    public ResourceReadResult ReadResource(ResourceReadRequest request)
+    {
+        request.CancellationToken.ThrowIfCancellationRequested();
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Resource.RelativePath);
+        var items = new List<TranslationItem>();
+        new Parser(File.ReadAllText(file), request.Resource.Language, items).Run(Path.GetFileNameWithoutExtension(file));
+        return ResourceFileAdapter.Bind(request, items, false);
     }
 
     private sealed class Parser(string text, string lang, List<TranslationItem> items)

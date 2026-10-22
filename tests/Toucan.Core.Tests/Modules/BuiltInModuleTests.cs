@@ -42,7 +42,7 @@ public sealed class BuiltInModuleTests : IDisposable
 
         // Which assembly registers a module decides the order, so only the set is pinned.
         Assert.Equal(
-            ["toucan.formats.data", "toucan.formats.json", "toucan.formats.text", "toucan.formats.xml", "toucan.frameworks", "toucan.providers", "toucan.validation"],
+            ["toucan.compatibility.babeledit", "toucan.formats.data", "toucan.formats.json", "toucan.formats.text", "toucan.formats.xml", "toucan.frameworks", "toucan.providers", "toucan.validation"],
             modules.Select(m => m.Id).Order(StringComparer.Ordinal));
         Assert.Equal(["save-formats:3", "load-formats:4"], modules.Single(m => m.Id == "toucan.formats.json").Registered);
         Assert.Equal(["save-formats:3", "load-formats:3"], modules.Single(m => m.Id == "toucan.formats.xml").Registered);
@@ -85,6 +85,7 @@ public sealed class BuiltInModuleTests : IDisposable
     {
         var assembly = moduleId switch
         {
+            "toucan.compatibility.babeledit" => typeof(Toucan.Modules.BabelEditCompatibilityModule).Assembly,
             "toucan.validation" => typeof(Toucan.Modules.ValidationModule).Assembly,
             "toucan.frameworks" => typeof(Toucan.Modules.FrameworksModule).Assembly,
             "toucan.providers" => typeof(Toucan.Modules.ProvidersModule).Assembly,

@@ -25,3 +25,9 @@ or `<Private>false</Private>` on a project reference), and set `<EnableDynamicLo
 
 The package version is the plugin API contract: a plugin built against API `1.x` loads in any Toucan that
 implements API `1.y` with `y >= x`. See `docs/plugins.md` in the Toucan repository for the full authoring guide.
+
+API 1.2 adds optional `IResourceLoadStrategy` / `IResourceSaveStrategy` capabilities, typed resource descriptors,
+serialization options, document state, diagnostics and property/index identities. Existing folder strategies remain
+supported. Opt-in plugins use `ResourceOptions.Resolve` for resource → project → detected → default precedence and
+retain opaque data once per document. A legacy selector is not a serialized resource path; use `TranslationItem.Identity`
+and `ResourceEntryOperations` when manipulating typed entries.

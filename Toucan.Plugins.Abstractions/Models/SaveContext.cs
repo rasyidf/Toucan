@@ -2,6 +2,8 @@ namespace Toucan.Core.Models;
 
 public class SaveContext
 {
+    public ResourceOptions ResourceOptions { get; set; } = new();
+    public List<ResourceDocumentState> Documents { get; set; } = [];
     /// <summary>Keep intentional empty translations unless the project explicitly opts out.</summary>
     public bool SaveEmptyTranslations { get; set; } = true;
     public string? JsonLayout { get; set; }

@@ -10,6 +10,75 @@ namespace Toucan.Avalonia.Tests;
 public sealed class BabelImportFlowTests
 {
     [AvaloniaFact]
+    public async Task ReopeningTheActiveFolderReadsEditsSavedDuringClose()
+    {
+        using var host = new TestHost();
+        var folder = host.CreateJsonProject("active-reopen", ("en", "{\"title\":\"Hello\"}"));
+        var vm = host.CreateViewModel();
+        await vm.OpenProjectAsync(folder);
+        vm.PagingController.Data.Single().Translations.Single().Value = "Saved while closing";
+        vm.FlushPendingEdits();
+        host.Messages.ConfirmAnswer = true;
+        await vm.OpenProjectAsync(folder);
+        Assert.Equal("Saved while closing", Assert.Single(vm.AllTranslation).Value);
+        Assert.False(vm.IsDirty);
+        Assert.Contains("Saved while closing", File.ReadAllText(Path.Combine(folder, "en.json")));
+    }
+
+    [AvaloniaTheory]
+    [InlineData("generic-json", "json", "{\"title\":\"Hello\"}")]
+    [InlineData("generic-yaml", "yml", "title: Hello\n")]
+    [InlineData("arb", "arb", "{\"title\":\"Hello\"}")]
+    [InlineData("prop-files", "properties", "title=Hello\n")]
+    [InlineData("resx", "resw", "<root><data name=\"title\"><value>Hello</value></data></root>")]
+    [InlineData("laravel", "php", "<?php return ['title' => 'Hello'];")]
+    public async Task ExactMigrationUsesProductionCompositionAndSurvivesGuiSaveAndNativeReopen(string framework, string extension, string content)
+    {
+        using var host = new TestHost();
+        var folder = Directory.CreateDirectory(Path.Combine(host.Root, "exact-migration")).FullName;
+        var resource = Path.Combine(folder, "catalog." + extension);
+        File.WriteAllText(resource, content);
+        var source = Path.Combine(folder, "project.babel");
+        File.WriteAllText(source, $"<babeledit_project version=\"1.3\"><framework>{framework}</framework><translation_packages><translation_package><name>main</name><translation_urls><translation_url><path>catalog.{extension}</path><language>id</language></translation_url></translation_urls></translation_package></translation_packages></babeledit_project>");
+        var before = File.ReadAllBytes(source);
+        var vm = host.CreateViewModel();
+        await vm.OpenProjectAsync(folder);
+        Assert.Equal("id", Assert.Single(vm.AllTranslation).Language);
+        vm.PagingController.Data.Single().Translations.Single().Value = "Changed";
+        vm.FlushPendingEdits();
+        await vm.SaveCommand.ExecuteAsync(null);
+        Assert.False(vm.IsDirty);
+        Assert.Equal(before, File.ReadAllBytes(source));
+        File.Delete(source);
+        await vm.OpenProjectAsync(folder);
+        Assert.Equal("Changed", Assert.Single(vm.AllTranslation).Value);
+        Assert.Equal("catalog." + extension, Assert.Single(vm.ProjectSettings!.ResourceDocuments).Resource.RelativePath);
+        Assert.NotEmpty(vm.ProjectSettings.Compatibility);
+        Assert.False(File.Exists(Path.Combine(folder, "id." + extension)));
+    }
+
+    [AvaloniaFact]
+    public async Task FailedMigrationLeavesTheActiveWorkspaceAndEditsIntact()
+    {
+        using var host = new TestHost();
+        var folder = host.CreateJsonProject("active", ("en", "{\"title\":\"Hello\"}"));
+        var vm = host.CreateViewModel();
+        await vm.OpenProjectAsync(folder);
+        vm.PagingController.Data.Single().Translations.Single().Value = "Unsaved";
+        vm.FlushPendingEdits();
+        var active = vm.ProjectSettings;
+        var invalid = Directory.CreateDirectory(Path.Combine(host.Root, "invalid")).FullName;
+        File.WriteAllText(Path.Combine(invalid, "project.babel"), "<babeledit_project version=\"99\"><framework>generic-json</framework></babeledit_project>");
+        var lifecycle = host.Services.GetRequiredService<IProjectLifecycleService>();
+        var result = await lifecycle.OpenProjectAsync(invalid);
+        Assert.Equal(ProjectOpenStatus.ManifestInvalid, result.Status);
+        Assert.Same(active, lifecycle.CurrentProject);
+        Assert.Same(active, vm.ProjectSettings);
+        Assert.Equal("Unsaved", Assert.Single(vm.AllTranslation).Value);
+        Assert.True(vm.IsDirty);
+    }
+
+    [AvaloniaFact]
     public async Task ExcelMetadataOnlyChangesAreAppliedAndSurviveReopen()
     {
         using var host = new TestHost();

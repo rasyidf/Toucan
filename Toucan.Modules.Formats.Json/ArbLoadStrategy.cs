@@ -11,7 +11,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 /// message and the other <c>@@</c> header entries go in <see cref="TranslationItem.FormatData"/> under the
 /// <see cref="ArbFormat"/> keys so the save strategy can write them back.
 /// </summary>
-public class ArbLoadStrategy : ILoadStrategy
+public class ArbLoadStrategy : ILoadStrategy, IResourceLoadStrategy
 {
     private static readonly Regex s_scriptOrRegion = new("^([A-Z][a-z]{3}|[A-Z]{2}|[0-9]{3})$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
     private static readonly Regex s_languageCode = new("^[a-z]{2,3}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -66,6 +66,27 @@ public class ArbLoadStrategy : ILoadStrategy
             catch { }
         }
         return items;
+    }
+
+    public ResourceReadResult ReadResource(ResourceReadRequest request)
+    {
+        request.CancellationToken.ThrowIfCancellationRequested();
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Resource.RelativePath);
+        using var json = JsonDocument.Parse(File.ReadAllText(file));
+        if (json.RootElement.ValueKind != JsonValueKind.Object) throw new FormatException($"{request.Resource.RelativePath} [root]: ARB must be an object.");
+        var items = new List<TranslationItem>();
+        foreach (var prop in json.RootElement.EnumerateObject())
+        {
+            if (prop.Name.StartsWith('@')) continue;
+            if (prop.Value.ValueKind != JsonValueKind.String) throw new FormatException($"{request.Resource.RelativePath} [{prop.Name}]: ARB message must be a string.");
+            var item = new TranslationItem { Language = request.Resource.Language, Namespace = prop.Name, Value = prop.Value.GetString() ?? "",
+                FormatData = new() { [ArbFormat.File] = request.Resource.RelativePath } };
+            if (json.RootElement.TryGetProperty("@" + prop.Name, out var metadata)) item.FormatData[ArbFormat.Metadata] = metadata.GetRawText();
+            items.Add(item);
+        }
+        var result = ResourceFileAdapter.Bind(request, items, true);
+        result.Document!.Data["arb"] = json.RootElement.Clone();
+        return result;
     }
 
     /// <summary>

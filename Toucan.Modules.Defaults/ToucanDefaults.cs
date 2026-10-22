@@ -12,6 +12,7 @@ public static class ToucanDefaults
     {
         ArgumentNullException.ThrowIfNull(services);
         return services
+            .AddToucanBabelEditCompatibilityModule()
             .AddToucanFormatsJsonModule()
             .AddToucanFormatsXmlModule()
             .AddToucanFormatsTextModule()

@@ -3,6 +3,8 @@ namespace Toucan.Core.Models;
 /// <summary>Imported metadata retained in the native project; translation text stays in resource files.</summary>
 public sealed class BabelImportData
 {
+    [System.Text.Json.Serialization.JsonExtensionData]
+    public Dictionary<string, System.Text.Json.JsonElement>? ExtensionData { get; set; }
     public string SourceFile { get; set; } = string.Empty;
     public string? JsonLayout { get; set; }
     public Dictionary<string, string> Configuration { get; set; } = [];
@@ -11,6 +13,8 @@ public sealed class BabelImportData
 
 public sealed class BabelConcept
 {
+    [System.Text.Json.Serialization.JsonExtensionData]
+    public Dictionary<string, System.Text.Json.JsonElement>? ExtensionData { get; set; }
     public string Package { get; set; } = "main";
     public string Key { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
@@ -21,6 +25,7 @@ public sealed class BabelConcept
 /// <summary>Review state that resource formats such as JSON cannot store inline.</summary>
 public sealed class TranslationState
 {
+    public ResourceEntryIdentity? Identity { get; set; }
     public string Language { get; set; } = string.Empty;
     public string Key { get; set; } = string.Empty;
     public string Comment { get; set; } = string.Empty;

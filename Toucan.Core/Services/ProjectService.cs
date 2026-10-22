@@ -11,7 +11,8 @@ public class ProjectService(
     IEnumerable<ISaveStrategy> saveStrategies,
     ITranslationStrategyFactory strategyFactory,
     IProjectModeResolver modeResolver,
-    ILogger<ProjectService> logger) : IProjectService
+    ILogger<ProjectService> logger,
+    IEnumerable<IProjectCompatibilityImporter>? compatibilityImporters = null) : IProjectService
 {
     public ProjectService(IFileService fileService, IEnumerable<ISaveStrategy> saveStrategies)
         : this(fileService, saveStrategies,
@@ -28,9 +29,9 @@ public class ProjectService(
         var settings = ProjectSettings.LoadFrom(folder);
         if (settings == null)
         {
-            var babelFiles = Directory.GetFiles(folder, "*.babel");
-            if (babelFiles.Length > 1) throw new FormatException("This folder has multiple BabelEdit projects. Import each project in its own folder.");
-            if (babelFiles.Length == 1) settings = BabelProjectReader.Read(babelFiles[0]);
+            var projects = (compatibilityImporters ?? []).SelectMany(importer => importer.FindProjects(folder).Select(file => (Importer: importer, File: file))).ToList();
+            if (projects.Count > 1) throw new FormatException("This folder has multiple migration projects. Import each project in its own folder.");
+            if (projects.Count == 1) settings = FromCompatibility(projects[0].Importer.Read(projects[0].File));
             else
             {
                 settings = ProjectSettings.CreateDefault(folder);
@@ -39,11 +40,13 @@ public class ProjectService(
         }
         settings.ProjectPath = folder;
         settings.DefaultPathResolver = ResolveDefaultPath;
+        if (settings.ResourceSchemaVersion != 1) throw new FormatException($"Resource schema {settings.ResourceSchemaVersion} is not supported.");
 
         // Load translations using the detected/configured format
-        var translations = settings.BabelImport != null && settings.SaveFormat == FormatIds.Json
-            ? LoadBabelJson(settings) : Load(folder, settings.SaveFormat, settings.BabelImport == null, settings.InputEncoding);
-        BabelProjectReader.ApplyMetadata(settings, translations);
+        var resourceAware = settings.ResourceDocuments.Count > 0 ||
+            settings.SaveFormat == FormatIds.Json && strategyFactory.GetResourceLoadStrategy(FormatIds.Json) != null;
+        var translations = resourceAware ? LoadResources(settings, ct) : Load(folder, settings.SaveFormat, true, settings.InputEncoding);
+        foreach (var importer in compatibilityImporters ?? []) importer.ApplyMetadata(settings.Compatibility, translations);
         // Apply language aliases
         if (settings.LanguageAliases is { Count: > 0 })
             foreach (var t in translations)
@@ -51,13 +54,23 @@ public class ProjectService(
                     t.Language = mapped;
 
         var states = settings.TranslationStates.ToDictionary(s => (s.Language, s.Key));
+        var identities = settings.TranslationStates.Where(s => s.Identity != null)
+            .GroupBy(s => (s.Language, s.Identity!.Address)).ToDictionary(g => g.Key, g => g.First());
         foreach (var item in translations)
-            if (states.TryGetValue((item.Language, item.Namespace), out var state))
+            if ((item.Identity != null && identities.TryGetValue((item.Language, item.Identity.Address), out var state)) ||
+                (states.TryGetValue((item.Language, item.Namespace), out state) && state.Identity is null))
             {
+                if (state.Identity is { } identity)
+                {
+                    item.Identity = identity;
+                    item.Namespace = identity.Selector;
+                }
                 item.Comment = state.Comment;
                 item.IsApproved = state.Approved;
-                foreach (var entry in state.Data) (item.FormatData ??= new())[entry.Key] = entry.Value;
+                foreach (var entry in state.Data.Where(p => item.Identity is null || p.Key != NestedJsonParser.JsonScalarKey))
+                    (item.FormatData ??= new())[entry.Key] = entry.Value;
             }
+        if (resourceAware) ResourceJsonCodec.ResolveSelectors(translations);
 
         // Backfill settings from loaded data if manifest was missing
         if (settings.Languages.Count == 0)
@@ -65,13 +78,23 @@ public class ProjectService(
 
         var warnings = new List<string>();
         var strategy = strategyFactory.GetSaveStrategy(settings.SaveFormat);
-        var unsupported = strategy?.FindUnsupportedConstructs(folder) ?? [];
+        var unsupported = settings.ResourceDocuments.Count == 0 ? strategy?.FindUnsupportedConstructs(folder) ?? [] : [];
         if (unsupported.Count > 0)
             warnings.Add($"These {strategy!.DisplayName} files contain content Toucan cannot write back: {string.Join("; ", unsupported)}. "
                 + "You can edit and review, but saving is blocked to protect your files. Use Save As to write a copy.");
 
         return new ProjectLoadResult { Settings = settings, Translations = translations, Warnings = warnings };
     }
+
+    private static ProjectSettings FromCompatibility(CompatibilityProject imported) => new()
+    {
+        Name = imported.Name, ProjectPath = imported.ProjectPath, Framework = imported.Framework,
+        SaveFormat = imported.SaveFormat, PrimaryLanguage = imported.PrimaryLanguage, Languages = imported.Languages,
+        TranslationPackages = imported.TranslationPackages, ResourceDocuments = imported.ResourceDocuments,
+        ResourceOptions = imported.ResourceOptions, Compatibility = imported.Compatibility,
+        SaveEmptyTranslations = imported.SaveEmptyTranslations, InputEncoding = imported.InputEncoding,
+        TranslationOrder = imported.TranslationOrder, CopyTemplates = imported.CopyTemplates
+    };
 
     public ProjectSettings CreateProject(string folder, IEnumerable<string> languages, string formatId = FormatIds.Json, bool createManifest = true, string? name = null)
     {
@@ -99,26 +122,24 @@ public class ProjectService(
 
     public void Save(ProjectSettings project, List<NsTreeItem> items, IEnumerable<TranslationItem> translations)
     {
+        var files = project.ResourceDocuments.Select(d => ResourceFilePath.Resolve(project.ProjectPath, d.Resource.RelativePath)).ToList();
+        var transaction = files.Count > 0
+            ? SaveTransaction.BeginIfNeeded(project.ProjectPath, files.Append(Path.Combine(project.ProjectPath, "toucan.tproj"))) : null;
+        var snapshots = project.ResourceDocuments.Select(d => new Dictionary<string, System.Text.Json.JsonElement>(d.Data)).ToList();
+        try { SaveProject(project, items, translations); transaction?.Commit(); }
+        catch
+        {
+            for (var i = 0; i < snapshots.Count; i++) project.ResourceDocuments[i].Data = snapshots[i];
+            transaction?.Rollback();
+            throw;
+        }
+    }
+
+    private void SaveProject(ProjectSettings project, List<NsTreeItem> items, IEnumerable<TranslationItem> translations)
+    {
+        if (project.ResourceSchemaVersion != 1) throw new FormatException("Cannot overwrite an unsupported resource schema.");
         var toSave = translations.ToList();
-        if (project.BabelImport != null && project.SaveFormat == FormatIds.Json)
-            foreach (var item in toSave.Where(i => i.FormatData?.ContainsKey("json.file") != true))
-            {
-                var urls = project.TranslationPackages.SelectMany(p => p.TranslationUrls.Select(u => (Package: p.Name, Url: u)))
-                    .Where(p => p.Url.Language == item.Language).ToList();
-                if (urls.Count != 1) throw new InvalidOperationException("Choose a package before saving a new key in a multi-package BabelEdit import.");
-                var data = item.FormatData ??= new();
-                data["json.file"] = urls[0].Url.Path;
-                data["babel.package"] = urls[0].Package;
-                data["babel.key"] = item.Namespace;
-            }
-        if (project.BabelImport != null && project.SaveFormat == FormatIds.Json)
-            foreach (var item in toSave)
-            {
-                var data = item.FormatData!;
-                var prefix = data.GetValueOrDefault("babel.package") + ".";
-                data["babel.key"] = project.TranslationPackages.Count > 1 && item.Namespace.StartsWith(prefix, StringComparison.Ordinal)
-                    ? item.Namespace[prefix.Length..] : item.Namespace;
-            }
+        if (project.ResourceDocuments.Count > 0) BindNewEntries(project, toSave);
         // Reverse alias mapping for file output
         if (project.LanguageAliases is { Count: > 0 })
         {
@@ -136,7 +157,7 @@ public class ProjectService(
 
         try
         {
-            Save(project.ProjectPath, project.SaveFormat, items, toSave, project.SaveEmptyTranslations ?? true, project.BabelImport?.JsonLayout);
+            Save(project.ProjectPath, project.SaveFormat, items, toSave, project.SaveEmptyTranslations ?? true, project.ResourceOptions.Layout == ResourceLayout.Literal ? "flat" : null, project);
             if (FormatIds.TryGetStyle(project.SaveFormat, out _) && (project.TextEncoding != null || project.LineEnding != null))
             {
                 var files = toSave.ToLanguages().SelectMany(lang => GetLanguageFiles(project, lang));
@@ -158,12 +179,15 @@ public class ProjectService(
                         t.Language = mapped;
         }
 
-        BabelProjectReader.CaptureMetadata(project, toSave);
+        foreach (var importer in compatibilityImporters ?? []) importer.CaptureMetadata(project.Compatibility, toSave);
         project.TranslationStates = toSave.GroupBy(i => (i.Language, i.Namespace)).Select(g => g.First())
-            .Select(i => new TranslationState { Language = i.Language, Key = i.Namespace, Comment = i.Comment, Approved = i.IsApproved,
-                Data = i.FormatData?.Where(p => p.Key.StartsWith("babel.", StringComparison.Ordinal)).ToDictionary(p => p.Key, p => p.Value) ?? [] }).ToList();
+            .Select(i => new TranslationState { Identity = i.Identity, Language = i.Language, Key = i.Namespace, Comment = i.Comment, Approved = i.IsApproved,
+                Data = i.FormatData?.Where(p => i.Identity is null || p.Key != NestedJsonParser.JsonScalarKey)
+                    .ToDictionary(p => p.Key, p => p.Value) ?? [] }).ToList();
         // Update project manifest with current language list
-        project.Languages = toSave.ToLanguages().ToList();
+        project.Languages = project.ResourceDocuments.Count > 0
+            ? project.ResourceDocuments.Select(d => project.LanguageAliases?.GetValueOrDefault(d.Resource.Language) ?? d.Resource.Language).Distinct().ToList()
+            : toSave.ToLanguages().ToList();
         project.Save();
     }
 
@@ -228,17 +252,19 @@ public class ProjectService(
     public void Save(string path, string formatId, List<NsTreeItem> items, IEnumerable<TranslationItem> translations)
         => Save(path, formatId, items, translations, true, null);
 
-    private void Save(string path, string formatId, List<NsTreeItem> items, IEnumerable<TranslationItem> translations, bool saveEmpty, string? jsonLayout)
+    private void Save(string path, string formatId, List<NsTreeItem> items, IEnumerable<TranslationItem> translations, bool saveEmpty, string? jsonLayout, ProjectSettings? project = null)
     {
         var strategy = strategyFactory.GetSaveStrategy(formatId)
             ?? throw new FormatUnavailableException(formatId);
 
         // Saving rewrites the files; refuse when that would silently drop content the format cannot write back.
-        if (Directory.Exists(path) && strategy.FindUnsupportedConstructs(path) is { Count: > 0 } unsafeConstructs)
+        if (project?.ResourceDocuments.Count is not > 0 && Directory.Exists(path) && strategy.FindUnsupportedConstructs(path) is { Count: > 0 } unsafeConstructs)
             throw new FormatSaveBlockedException(formatId, unsafeConstructs);
 
         var context = new SaveContext
         {
+            Documents = project?.ResourceDocuments ?? [],
+            ResourceOptions = project?.ResourceOptions ?? new(),
             SaveEmptyTranslations = saveEmpty,
             JsonLayout = jsonLayout,
             LanguageDictionary = translations.ToLanguageDictionary(),
@@ -246,7 +272,22 @@ public class ProjectService(
             Languages = translations.ToLanguages().ToList()
         };
 
-        strategy.Save(path, context);
+        if (context.Documents.Count == 0) { strategy.Save(path, context); return; }
+        // Preflight every destination/capability before the first write; use the existing journal.
+        foreach (var doc in context.Documents)
+        {
+            ResourceFilePath.Resolve(path, doc.Resource.RelativePath);
+            if (strategyFactory.GetResourceSaveStrategy(doc.Resource.FormatId) is null)
+                throw new FormatException($"{doc.Resource.RelativePath} [format]: exact writing is unsupported for '{doc.Resource.FormatId}'.");
+        }
+        var entries = context.LanguageDictionary.Values.SelectMany(v => v).ToList();
+        foreach (var doc in context.Documents)
+        {
+            var result = strategyFactory.WriteResource(new(path, doc, entries.Where(i => i.Identity?.ResourceId == doc.Resource.Id).ToList(),
+                context.ResourceOptions with { SaveEmptyTranslations = context.SaveEmptyTranslations }));
+            if (result.Diagnostics.Any(d => d.Severity == ResourceDiagnosticSeverity.Error))
+                throw new FormatException(string.Join("; ", result.Diagnostics.Select(d => $"{d.RelativePath} [{d.Field}]: {d.Message}")));
+        }
     }
 
     public string GetDefaultFilePath(ProjectSettings settings, string language) =>
@@ -256,9 +297,9 @@ public class ProjectService(
 
     public IReadOnlyList<string> GetLanguageFiles(ProjectSettings settings, string language)
     {
-        if (settings.BabelImport != null)
-            return settings.TranslationPackages.SelectMany(p => p.TranslationUrls).Where(u => u.Language == language)
-                .Select(u => BabelProjectReader.ResolvePath(settings.ProjectPath, u.Path)).Distinct(StringComparer.Ordinal).ToList();
+        if (settings.ResourceDocuments.Count > 0)
+            return settings.ResourceDocuments.Where(d => d.Resource.Language == language)
+                .Select(d => ResourceFilePath.Resolve(settings.ProjectPath, d.Resource.RelativePath)).ToList();
         if (settings.LanguageFilePaths?.TryGetValue(language, out var custom) == true)
             return [Path.IsPathRooted(custom) ? custom : Path.Combine(settings.ProjectPath, custom.Replace('/', Path.DirectorySeparatorChar))];
 
@@ -270,25 +311,73 @@ public class ProjectService(
     private string ResolveDefaultPath(string formatId, string language) =>
         strategyFactory.GetSaveStrategy(formatId)?.DefaultFilePath(language) ?? $"{language}.json";
 
-    private static List<TranslationItem> LoadBabelJson(ProjectSettings settings)
+    private List<TranslationItem> LoadResources(ProjectSettings settings, CancellationToken ct)
     {
-        var result = new List<TranslationItem>();
-        foreach (var package in settings.TranslationPackages)
-            foreach (var url in package.TranslationUrls)
+        var resources = settings.ResourceDocuments.Select(d => d.Resource).ToList();
+        if (resources.Count == 0 && settings.TranslationPackages.Count > 0)
+            resources = settings.TranslationPackages.SelectMany(p => p.TranslationUrls.Select(u => new ResourceDescriptor
             {
-                var path = BabelProjectReader.ResolvePath(settings.ProjectPath, url.Path);
-                var content = File.ReadAllText(path);
-                using var valid = System.Text.Json.JsonDocument.Parse(content);
-                foreach (var item in NestedJsonParser.ParseNestedJson(url.Language, content))
-                {
-                    var data = item.FormatData ??= new();
-                    data["json.file"] = url.Path;
-                    data["babel.package"] = package.Name;
-                    data["babel.key"] = item.Namespace;
-                    if (settings.TranslationPackages.Count > 1) item.Namespace = package.Name + "." + item.Namespace;
-                    result.Add(item);
-                }
+                Id = u.Path.Replace('\\', '/'), RelativePath = u.Path, Package = p.Name, Language = u.Language, FormatId = settings.SaveFormat,
+                SelectorPrefix = settings.TranslationPackages.Count > 1 ? ResourceEntryOperations.Escape(p.Name) + "." : "",
+                Options = settings.ResourceOptions
+            })).ToList();
+        if (resources.Count == 0 && strategyFactory.GetLoadStrategy(settings.SaveFormat) is IResourceDiscoveryStrategy discovery)
+            resources = discovery.DiscoverResources(settings.ProjectPath).ToList();
+        var previous = settings.ResourceDocuments.ToDictionary(d => d.Resource.Id);
+        var documents = new List<ResourceDocumentState>();
+        var result = new List<TranslationItem>();
+        foreach (var resource in resources)
+        {
+            ResourceReadResult loaded;
+            try { loaded = strategyFactory.ReadResource(new ResourceReadRequest(settings.ProjectPath, resource, settings.ResourceOptions, ct)); }
+            catch (Exception ex) when (ex is System.Text.Json.JsonException or System.Xml.XmlException or FormatException or FileNotFoundException && SaveTransaction.FindInterrupted(settings.ProjectPath) != null)
+            {
+                // An interrupted write must still open far enough to offer journal restoration.
+                loaded = new ResourceReadResult([], new ResourceDocumentState { Resource = resource }, []);
             }
+            catch (Exception ex) when (ex is System.Text.Json.JsonException or System.Xml.XmlException or FormatException or IOException or ArgumentException or System.Text.DecoderFallbackException)
+            {
+                throw new CompatibilityImportException([new ResourceDiagnostic("resource.content-invalid", ex.Message,
+                    ResourceDiagnosticSeverity.Error, resource.RelativePath, "content")]);
+            }
+            if (loaded.Diagnostics.Any(d => d.Severity == ResourceDiagnosticSeverity.Error) || loaded.Document is null)
+                throw new FormatException(string.Join("; ", loaded.Diagnostics.Select(d => $"{d.RelativePath} [{d.Field}]: {d.Message}")));
+            var document = loaded.Document;
+            if (previous.TryGetValue(resource.Id, out var old))
+            {
+                document.ExtensionData = old.ExtensionData;
+                foreach (var pair in old.Data.Where(p => !document.Data.ContainsKey(p.Key))) document.Data[pair.Key] = pair.Value;
+            }
+            documents.Add(document);
+            foreach (var item in loaded.Entries)
+            {
+                var data = item.FormatData ??= new();
+                if (resource.FormatId == FormatIds.Json) data["json.file"] = resource.RelativePath;
+                result.Add(item);
+            }
+        }
+        ResourceJsonCodec.ResolveSelectors(result);
+        settings.ResourceDocuments = documents;
+        if (settings.Languages.Count == 0) settings.Languages = resources.Select(r => r.Language).Distinct().ToList();
         return result;
     }
+
+    private static void BindNewEntries(ProjectSettings settings, IEnumerable<TranslationItem> entries)
+    {
+        var all = entries.ToList();
+        foreach (var item in all.Where(i => i.Identity is null || !settings.ResourceDocuments.Any(d => d.Resource.Id == i.Identity.ResourceId)))
+        {
+            if (item.Identity is { ResourceId.Length: > 0 }) throw new InvalidOperationException("The entry's resource destination is not registered in this project.");
+            var candidates = settings.ResourceDocuments.Where(d => (settings.LanguageAliases?.GetValueOrDefault(d.Resource.Language) ?? d.Resource.Language) == item.Language &&
+                (d.Resource.SelectorPrefix.Length == 0 || item.Namespace.StartsWith(d.Resource.SelectorPrefix, StringComparison.Ordinal))).ToList();
+            if (candidates.Count != 1) throw new InvalidOperationException("Choose a resource destination before saving this key.");
+            var resource = candidates[0].Resource;
+            var key = item.Namespace.StartsWith(resource.SelectorPrefix, StringComparison.Ordinal) ? item.Namespace[resource.SelectorPrefix.Length..] : item.Namespace;
+            var source = all.FirstOrDefault(i => i.Namespace == item.Namespace && i.Identity?.Package == resource.Package)?.Identity;
+            item.Identity = new ResourceEntryIdentity { ResourceId = resource.Id, Package = resource.Package, PackagePrefix = resource.SelectorPrefix,
+                Selector = item.Namespace, Path = source is not null ? [.. source.Path] : ResourceOptions.Resolve(resource.Options, settings.ResourceOptions, null, null).Layout is ResourceLayout.Literal or ResourceLayout.Dotted || resource.FormatId is FormatIds.Arb or FormatIds.JavaProperties or FormatIds.Resx
+                    ? [ResourcePathSegment.Named(key)] : ResourceEntryOperations.ParseSelector(key) };
+        }
+    }
+
 }

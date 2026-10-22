@@ -14,6 +14,8 @@ internal static class FormatTestHost
     public static IReadOnlyList<ILoadStrategy> LoadStrategies { get; } = [.. s_services.GetServices<ILoadStrategy>()];
     public static ITranslationStrategyFactory Factory { get; } = s_services.GetRequiredService<ITranslationStrategyFactory>();
 
+    public static IReadOnlyList<IProjectCompatibilityImporter> Importers { get; } = [.. s_services.GetServices<IProjectCompatibilityImporter>()];
+
     private static ServiceProvider Build()
     {
         var services = new ServiceCollection();

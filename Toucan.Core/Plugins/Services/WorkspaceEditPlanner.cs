@@ -223,6 +223,7 @@ public static class WorkspaceEditPlanner
             _items = [.. input.Items.Select(i => new TranslationItem
             {
                 Namespace = i.Namespace, Language = i.Language, Value = i.Value ?? string.Empty, Comment = i.Comment ?? string.Empty, IsApproved = i.IsApproved,
+                Identity = i.Identity is { } identity ? identity with { Path = [.. identity.Path] } : null,
             })];
             Languages = input.Languages;
             _index = BuildIndex();

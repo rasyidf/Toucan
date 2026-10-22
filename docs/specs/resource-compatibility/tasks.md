@@ -1,9 +1,9 @@
 ---
-title: "Resource compatibility — gap closure plan"
-status: planned
-progress: "0/8 milestones accepted"
-updated: 2026-10-21
-summary: "Close format, framework, migration, save-setting, spelling, spreadsheet and source-scanning gaps through independent Toucan contracts and verified upstream resources."
+title: "Resource compatibility: implementation plan"
+status: in-progress
+progress: "3/8 milestones accepted; M0–M2 complete"
+updated: 2026-10-22
+summary: "M0–M2 accepted: baseline, resource contracts/identity, migration module and exact resource IO. M3–M7 remain: format fidelity, exchange, frameworks, scanning and spelling."
 ---
 
 # Resource compatibility: implementation plan
@@ -44,39 +44,45 @@ Execution order: M0 → M1 → M2 → M3. M4 follows M2; M5 follows M1; M6 follo
 
 ## M0 — Establish the compatibility baseline
 
-- [ ] Record the current commit and relevant working-tree changes; preserve all existing work. Inventory original fixtures and separate them from vendor-owned examples/assets.
-- [ ] Run the existing import, format, encoding, exchange and recovery tests and reproduce unresolved report findings in temporary project copies. Record commands/results and classify each risk as open, fixed with evidence, unsupported with diagnostic, or not reproduced.
-- [ ] Create a versioned acceptance matrix by project-schema variant, resource dialect and workflow. Define the initial supported `.babel` subset from independently authored fixtures; unknown versions are not silently counted as supported.
-- [ ] Keep the existing behavior as the baseline for legacy native projects and published plugins. Capture their load/save and registration tests before contract changes.
+- [x] Record the current commit and relevant working-tree changes; preserve all existing work. Inventory original fixtures and separate them from vendor-owned examples/assets.
+- [x] Run the existing import, format, encoding, exchange and recovery tests and reproduce unresolved report findings in temporary project copies. Record commands/results and classify each risk as open, fixed with evidence, unsupported with diagnostic, or not reproduced.
+- [x] Create a versioned acceptance matrix by project-schema variant, resource dialect and workflow. Define the initial supported `.babel` subset from independently authored fixtures; unknown versions are not silently counted as supported.
+- [x] Keep the existing behavior as the baseline for legacy native projects and published plugins. Capture their load/save and registration tests before contract changes.
 
 **Acceptance:** each historical risk has a current disposition; passing existing fixes are retained; remaining milestones have named fixture cases. No vendor content becomes a distributable fixture. Record results in `docs/specs/resource-compatibility/acceptance.md` when implementation starts; do not invent passing evidence now.
+
+**Accepted 2026-10-22:** see [M0 acceptance matrix and evidence](acceptance.md). Baseline `ea3d255` was clean; all 1,139 tests and 19 CLI cases pass. Ten isolated probes reconcile remaining risks. Existing compiled sample-plugin artifacts were frozen for future contract checks; a separately published historical plugin binary remains an explicit M1 verification limitation. M1–M7 are not accepted by these results.
 
 ## M1 — Add neutral resource and document contracts
 
 Primary touchpoints: `Toucan.Plugins.Abstractions`, `TranslationItem`, `SaveContext`, `ProjectSettings`, `TranslationStrategyFactory`, tree/search/edit services and native project serialization.
 
-- [ ] Add an optional file-level read/write contract alongside existing folder strategies. Proposed requests carry a resource descriptor, typed options and cancellation; results carry entries, document state and structured diagnostics. Names are provisional until the API review.
-- [ ] Define stable resource/document identity, package identity, language, exact destination, format and dialect. Represent a literal key separately from a segmented object/array path. Display namespace strings must not be persistence identities.
-- [ ] Define typed serialization settings: layout, delimiter, array policy, indentation, ordering, input/output encoding, newline and empty-value policy. Set precedence to explicit resource option → project option → detected document state → format default. Import adapters translate external settings into this model; user overrides are explicit.
-- [ ] Keep opaque preserved data per document, including documents with zero editable entries. Do not copy large original payloads onto every item or treat a null value as an empty translation.
-- [ ] Introduce versioned native persistence and a compatibility envelope. Read old `BabelImportData`/`babel.*` state through migration; write new neutral state without requiring a destructive conversion. Preserve unknown compatibility fields or report them.
-- [ ] Centralize rename/move/delete/duplicate updates so identity, metadata, package/destination, undo and draft recovery move together. Update key comparisons in tree, search, review, translation memory lookup and bulk operations where needed; compatibility-only display prefixes must not leak into exported IDs.
-- [ ] Preserve old strategy/profile contracts. Resolve the optional file contract by registration/capability. If an old plugin cannot load a selected file exactly, report that limitation rather than scanning a directory and pretending it is exact-file loading. Verify an existing compiled sample plugin, not only a newly rebuilt one.
+- [x] Add an optional file-level read/write contract alongside existing folder strategies. Requests carry a resource descriptor, typed options and cancellation; results carry entries, document state and structured diagnostics.
+- [x] Define stable resource/document identity, package identity, language, exact destination, format and dialect. Represent a literal key separately from a segmented object/array path. Display namespace strings must not be persistence identities.
+- [x] Define typed serialization settings: layout, delimiter, array policy, indentation, ordering, input/output encoding, newline and empty-value policy. Set precedence to explicit resource option → project option → detected document state → format default. Import adapters translate external settings into this model; user overrides are explicit.
+- [x] Keep opaque preserved data per document, including documents with zero editable entries. Do not copy large original payloads onto every item or treat a null value as an empty translation.
+- [x] Introduce versioned native persistence and a compatibility envelope. Read old `BabelImportData`/`babel.*` state through migration; write new neutral state without requiring a destructive conversion. Preserve unknown compatibility fields or report them.
+- [x] Centralize rename/move/delete/duplicate updates so identity, metadata, package/destination, undo and draft recovery move together. Update key comparisons in tree, search, review, translation memory lookup and bulk operations where needed; compatibility-only display prefixes must not leak into exported IDs.
+- [x] Preserve old strategy/profile contracts. Resolve the optional file contract by registration/capability. If an old plugin cannot load a selected file exactly, report that limitation rather than scanning a directory and pretending it is exact-file loading. Verify an existing compiled sample plugin, not only a newly rebuilt one.
 
 **Acceptance:** literal `a.b`, nested `a` / `b`, array indices and equal IDs in different packages remain distinct through editing, undo, draft recovery and native reopen. Legacy native projects/plugins retain their established behavior. Empty documents preserve their destination and document metadata.
+
+**Accepted 2026-10-22:** [M1 implementation and evidence](m1.md). API 1.2 adds optional resource IO; JSON is the first document-aware adapter. Typed identity, document state, native migration, structural undo/recovery and the unchanged compiled M0 sample are covered by acceptance tests. Non-JSON adapters/importer separation remain M2; full format-option behavior remains M3.
 
 ## M2 — Isolate migration and use exact resource IO
 
 Primary touchpoints: `BabelProjectReader`, `ProjectService`, `PackageService`, `ProjectLifecycleService`, composition roots and format modules.
 
-- [ ] Introduce `Toucan.Modules.Compatibility.BabelEdit` through a neutral compatibility-import contract. Move schema reading and mapping into the module; register it in Avalonia and CLI. Core depends on the contract, not the concrete module, and never switches on vendor framework names.
-- [ ] Parse XML with DTD/external resolution disabled. Validate the supported schema, required values, duplicate package/language mappings and missing files before changing the active workspace. Return diagnostics containing resource path and field information.
-- [ ] Produce explicit resource descriptors for every supported format. Replace the JSON-only import path and `PackageService`'s hard-coded JSON parsing with file-level dispatch. Never infer the declared language from an arbitrary basename or load unrelated siblings.
-- [ ] Start with JSON, YAML, ARB, Java properties and RESX exact-file paths. Add other already implemented dialects only when their file-level adapter and fixture pass; otherwise return an unsupported-resource diagnostic rather than a JSON fallback.
-- [ ] Preserve the current in-project path boundary. Normalize separators, handle platform case rules and resolve symlinks/reparse points before writes. External references produce an actionable diagnostic; copying external files is an explicit migration operation, not an automatic write outside the project.
-- [ ] Save to exact resource destinations and use the existing save transaction/recovery flow, including file deletion/truncation when the last entry is removed. Keep original `.babel` unchanged. Failed import leaves the current workspace untouched; failed multi-file save follows existing recovery guarantees.
+- [x] Introduce `Toucan.Modules.Compatibility.BabelEdit` through a neutral compatibility-import contract. Move schema reading and mapping into the module; register it in Avalonia and CLI. Core depends on the contract, not the concrete module, and never switches on vendor framework names.
+- [x] Parse XML with DTD/external resolution disabled. Validate the supported schema, required values, duplicate package/language mappings and missing files before changing the active workspace. Return diagnostics containing resource path and field information.
+- [x] Produce explicit resource descriptors for every supported format. Replace the JSON-only import path and `PackageService`'s hard-coded JSON parsing with file-level dispatch. Never infer the declared language from an arbitrary basename or load unrelated siblings.
+- [x] Start with JSON, YAML, ARB, Java properties and RESX exact-file paths. Add other already implemented dialects only when their file-level adapter and fixture pass; otherwise return an unsupported-resource diagnostic rather than a JSON fallback.
+- [x] Preserve the current in-project path boundary. Normalize separators, handle platform case rules and resolve symlinks/reparse points before writes. External references produce an actionable diagnostic; copying external files is an explicit migration operation, not an automatic write outside the project.
+- [x] Save to exact resource destinations and use the existing save transaction/recovery flow, including file deletion/truncation when the last entry is removed. Keep original `.babel` unchanged. Failed import leaves the current workspace untouched; failed multi-file save follows existing recovery guarantees.
 
 **Acceptance:** each supported dialect handles an arbitrary basename, explicit locale, multiple packages, unrelated sibling files, missing files and path rejection. UI and CLI reopen the migrated native project with values, comments, descriptions and per-language approval intact. No test needs BabelEdit installed.
+
+**Accepted 2026-10-22:** [M2 implementation and evidence](m2.md). All 1,201 tests pass; 19 corpus and six exact-resource CLI scenarios pass. The six supported format families preserve declared files/locales/packages through GUI and native reopen. Invalid migrations preserve the active workspace; physical path boundaries and journal ownership are verified. The two existing documentation-header errors and the matrix generator are repaired. M3–M7 remain open.
 
 ## M3 — Close document fidelity and settings gaps
 
@@ -146,4 +152,4 @@ For each slice, run focused tests for the modified contract/workflow and require
 
 Add tests only for observable data preservation, compatibility boundaries, failure behavior and user workflows. GUI evidence must cover import diagnostics/preview, metadata-only changes, capability restrictions, correction undo and save/reopen through production composition; a direct writer unit test cannot certify that path.
 
-Do not mark a milestone accepted from source inspection or test names. Link each matrix row to its fixture, executed command/result and platform. New evidence updates the research report's historical gap dispositions and this plan's checklist. No milestone is accepted by this planning change; no delivery dates or release-version commitments are implied.
+Do not mark a milestone accepted from source inspection or test names. Link each matrix row to its fixture, executed command/result and platform. New evidence updates the research report's historical gap dispositions and this plan's checklist. M0 acceptance is recorded above; no delivery dates or release-version commitments are implied.

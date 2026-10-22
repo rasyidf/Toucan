@@ -62,7 +62,8 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
                     Language = item.Language,
                     Namespace = item.Namespace,
                     SavedValue = item.Value,
-                    SavedComment = item.Comment
+                    SavedComment = item.Comment,
+                    ResourceAddress = item.Identity?.Address
                 };
             }
 
@@ -106,7 +107,7 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
             if (_baselines.TryGetValue(key, out var baseline))
             {
                 if (!string.Equals(item.Value, baseline.SavedValue, StringComparison.Ordinal) ||
-                    !string.Equals(item.Comment, baseline.SavedComment, StringComparison.Ordinal))
+                    !string.Equals(item.Comment, baseline.SavedComment, StringComparison.Ordinal) || item.Identity?.Address != baseline.ResourceAddress)
                 {
                     dirty.Add(item);
                 }
@@ -130,7 +131,7 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
             if (_baselines.TryGetValue(key, out var baseline))
             {
                 return !string.Equals(item.Value, baseline.SavedValue, StringComparison.Ordinal) ||
-                       !string.Equals(item.Comment, baseline.SavedComment, StringComparison.Ordinal);
+                       !string.Equals(item.Comment, baseline.SavedComment, StringComparison.Ordinal) || item.Identity?.Address != baseline.ResourceAddress;
             }
 
             // No baseline means the item was added after init — it's dirty.
@@ -169,7 +170,8 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
                     Language = item.Language,
                     Namespace = item.Namespace,
                     SavedValue = item.Value,
-                    SavedComment = item.Comment
+                    SavedComment = item.Comment,
+                    ResourceAddress = item.Identity?.Address
                 };
             }
         }
@@ -190,7 +192,8 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
                     Language = item.Language,
                     Namespace = item.Namespace,
                     SavedValue = item.Value,
-                    SavedComment = item.Comment
+                    SavedComment = item.Comment,
+                    ResourceAddress = item.Identity?.Address
                 };
             }
         }

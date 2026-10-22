@@ -5,7 +5,7 @@ using Toucan.Core.Models;
 
 namespace Toucan.Core.Services.LoadStrategies;
 
-public class JavaPropertiesLoadStrategy : ILoadStrategy
+public class JavaPropertiesLoadStrategy : ILoadStrategy, IResourceLoadStrategy
 {
     public string FormatId => FormatIds.JavaProperties;
 
@@ -24,6 +24,24 @@ public class JavaPropertiesLoadStrategy : ILoadStrategy
             if (underscoreIdx > 0)
                 lang = lang[(underscoreIdx + 1)..];
 
+            items.AddRange(ReadFile(file, lang, Path.GetRelativePath(folder, file), textEncoding));
+        }
+        return items;
+    }
+
+    public ResourceReadResult ReadResource(ResourceReadRequest request)
+    {
+        request.CancellationToken.ThrowIfCancellationRequested();
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Resource.RelativePath);
+        var encoding = ResourceOptions.Resolve(request.Resource.Options, request.ProjectOptions, null, null).InputEncoding;
+        var items = ReadFile(file, request.Resource.Language, request.Resource.RelativePath, encoding);
+        return ResourceFileAdapter.Bind(request, items, true,
+            new() { ["properties.encoding"] = items.FirstOrDefault()?.FormatData?.GetValueOrDefault("properties.encoding") ?? encoding ?? "ISO-8859-1" });
+    }
+
+    private static List<TranslationItem> ReadFile(string file, string lang, string relative, string? textEncoding)
+    {
+        var items = new List<TranslationItem>();
             var bytes = File.ReadAllBytes(file);
             var encoding = "ISO-8859-1";
             string text;
@@ -55,9 +73,8 @@ public class JavaPropertiesLoadStrategy : ILoadStrategy
                 var value = Unescape(trimmed[(sepIdx + 1)..].TrimStart());
 
                 items.Add(new TranslationItem { Language = lang, Namespace = key, Value = value,
-                    FormatData = new() { ["properties.encoding"] = encoding, ["properties.file"] = Path.GetRelativePath(folder, file) } });
+                    FormatData = new() { ["properties.encoding"] = encoding, ["properties.file"] = relative } });
             }
-        }
         return items;
     }
 

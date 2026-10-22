@@ -39,7 +39,7 @@ public class ArchitectureTests
     public void ModulesReferenceNeitherCoreNorEachOther()
     {
         // Modules are leaves: Common and Abstractions below, nothing else. Defaults is the only assembly that sees them all.
-        foreach (var module in new[] { typeof(Toucan.Modules.ValidationModule).Assembly, typeof(Toucan.Modules.FrameworksModule).Assembly, typeof(Toucan.Modules.ProvidersModule).Assembly,
+        foreach (var module in new[] { typeof(Toucan.Modules.BabelEditCompatibilityModule).Assembly, typeof(Toucan.Modules.ValidationModule).Assembly, typeof(Toucan.Modules.FrameworksModule).Assembly, typeof(Toucan.Modules.ProvidersModule).Assembly,
             typeof(Toucan.Modules.FormatsJsonModule).Assembly, typeof(Toucan.Modules.FormatsXmlModule).Assembly,
             typeof(Toucan.Modules.FormatsTextModule).Assembly, typeof(Toucan.Modules.FormatsDataModule).Assembly })
         {

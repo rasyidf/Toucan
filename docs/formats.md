@@ -1,6 +1,7 @@
 ---
 title: "Format support matrix"
 status: active
+updated: 2026-10-22
 summary: "Which file formats Toucan edits safely, what survives a save, and what does not."
 ---
 # Format support matrix

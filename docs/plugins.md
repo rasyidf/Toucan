@@ -1,8 +1,8 @@
 ---
 title: "Writing Toucan plugins"
 status: active
-updated: 2026-10-07
-summary: "Plugin author guide: manifest, formats, providers, rules, framework profiles, trust model, testing. Preview since v0.18.0; Avalonia app and CLI only."
+updated: 2026-10-22
+summary: "Plugin author guide: API 1.2 optional resource IO, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported."
 ---
 # Writing Toucan plugins
 
@@ -127,6 +127,20 @@ Implement `ISaveStrategy` and `ILoadStrategy`; one class can do both. They must 
 Projects in your format work like any other: create, open, save, export, validate, translate. If the plugin is later
 missing, those projects refuse to open with "format unavailable" instead of being misread as JSON, so users never
 lose files because a plugin was disabled.
+
+### Optional exact-file IO (API 1.2)
+
+Existing `ILoadStrategy`/`ISaveStrategy` registrations still work. A registered strategy can also implement `IResourceLoadStrategy` or `IResourceSaveStrategy` to opt into explicit resource requests. The factory resolves these capabilities from the registered strategy; it never substitutes a folder scan for an unsupported exact-file request. File-only discovery can additionally implement `IResourceDiscoveryStrategy`.
+
+Read requests contain a project root, `ResourceDescriptor`, project options and cancellation token. Return entries, a `ResourceDocumentState` and structured diagnostics. Write requests contain that document state, its entries and the same context. Resolve options with `ResourceOptions.Resolve(resource, project, detected, defaults)`; null means inherit, including boolean fields. Honor cancellation and validate the relative destination before touching files. Return an error diagnostic for unsupported input rather than silently guessing.
+
+Descriptors carry stable resource IDs, package/language, exact relative path, format/dialect and typed options. Keep a descriptor's ID unchanged when moving its destination. `TranslationItem.Identity` holds the resource ID and typed property/index path; `Namespace` remains a legacy selector for existing editor/plugin APIs. Use the typed path when serializing a resource. `ResourceEntryOperations` provides typed rename, destination move and metadata-preserving copy; changing a legacy selector also updates an attached identity. Copying an entry for a new key must use `duplicate: true` to allocate a new entry ID.
+
+Preserve opaque data once in the document state, including for empty documents. The native resource schema and compatibility envelope are independently versioned; retain unknown extension fields. API 1.2 adds these contracts without requiring API 1.0/1.1 folder plugins to implement them. A hash-verified sample DLL compiled at the M0 baseline is tested unchanged against the new host; this is not certification of every historical plugin.
+
+Built-in exact-file adapters now cover JSON, YAML, ARB, Java properties, RESX/RESW and Laravel PHP. Legacy folder APIs remain available; PO/XLIFF migration requests currently receive an unsupported exact-resource diagnostic. See the [M2 acceptance record](specs/resource-compatibility/m2.md) for the tested subset and remaining format-fidelity work.
+
+`IProjectCompatibilityImporter` is a separate optional migration seam. It discovers source projects and returns a neutral `CompatibilityProject` containing explicit resource descriptors, project options and versioned opaque compatibility data. The host creates its native settings; provider hooks apply/capture source-specific metadata through compatibility envelopes. Register providers with the normal service collection. A provider must validate its source schema and mappings before returning, must never write the original project format, and must not load a vendor runtime. The built-in BabelEdit migration module references only Common and Abstractions and is included by `AddToucanDefaults` in both applications.
 
 ### Validation rules: `context.AddValidationRule(rule)` (capability `validation`)
 

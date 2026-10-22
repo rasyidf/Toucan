@@ -6,7 +6,7 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class ResxSaveStrategy(IFileService fileService) : ISaveStrategy
+public class ResxSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy
 {
     public string FormatId => FormatIds.Resx;
 
@@ -72,6 +72,28 @@ public class ResxSaveStrategy(IFileService fileService) : ISaveStrategy
             var doc = new XDocument(new XDeclaration("1.0", "utf-8", null), root);
             XmlFile.Save(doc, Path.Combine(path, $"Resources{suffix}.resx"));
         }
+    }
+
+    public ResourceWriteResult WriteResource(ResourceWriteRequest request)
+    {
+        var entries = ResourceFileAdapter.Entries(request);
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
+        var xml = request.Document.Data.TryGetValue("resx", out var original)
+            ? XDocument.Parse(original.GetString()!) : new XDocument(new XElement("root"));
+        // Preserve opaque typed resources, metadata and headers; replace only editable strings.
+        xml.Root!.Elements("data").Where(d => d.Attribute("type") == null && d.Attribute("mimetype") == null).Remove();
+        var opaqueNames = xml.Root.Elements("data").Select(d => (string?)d.Attribute("name")).ToHashSet(StringComparer.Ordinal);
+        if (entries.Any(i => opaqueNames.Contains(i.Namespace))) throw new InvalidOperationException($"{request.Document.Resource.RelativePath} [name]: a string would overwrite an opaque resource.");
+        foreach (var item in entries.Where(i => ResourceFileAdapter.KeepEmpty(request) || !string.IsNullOrEmpty(i.Value)))
+        {
+            var data = new XElement("data", new XAttribute("name", item.Namespace), new XAttribute(XNamespace.Xml + "space", "preserve"), new XElement("value", item.Value ?? ""));
+            if (!string.IsNullOrEmpty(item.Comment)) data.Add(new XElement("comment", item.Comment));
+            xml.Root.Add(data);
+        }
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        XmlFile.Save(xml, file);
+        request.Document.Data["resx"] = System.Text.Json.JsonSerializer.SerializeToElement(xml.ToString());
+        return new([]);
     }
 
     public Task SaveAsync(string path, SaveContext context) => Task.Run(() => Save(path, context));

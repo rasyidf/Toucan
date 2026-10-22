@@ -42,7 +42,49 @@ public partial class ProjectLifecycleService(
     /// <inheritdoc />
     public async Task<ProjectOpenResult> OpenProjectAsync(string folderPath, IProgress<ScanProgress>? progress = null, CancellationToken ct = default)
     {
-        // 1. If a project is already open and dirty, attempt to close it first
+        // Validate the target folder before changing the workspace.
+        if (!Directory.Exists(folderPath))
+        {
+            logger.LogWarning("Project folder not found: {FolderPath}", folderPath);
+            recentProjects.Remove(folderPath);
+            recentProjects.Save();
+            return new ProjectOpenResult(ProjectOpenStatus.FolderNotFound, $"Folder not found: {folderPath}");
+        }
+
+        async Task<(ProjectLoadResult? Loaded, ProjectOpenResult? Failure)> StageAsync()
+        {
+            try
+            {
+                // Off the UI thread: a large folder can take a long time and must stay cancellable.
+                // No ConfigureAwait(false): the steps below and ProjectChanged handlers expect the caller's (UI) context.
+                var loaded = await Task.Run(() => projectService.LoadProject(folderPath, progress, ct), ct);
+                return (loaded, null);
+            }
+            catch (OperationCanceledException)
+            {
+                if (logger.IsEnabled(LogLevel.Information))
+                    logger.LogInformation("Project open cancelled while scanning: {FolderPath}", folderPath);
+                return (null, new ProjectOpenResult(ProjectOpenStatus.Cancelled));
+            }
+            catch (FormatUnavailableException ex)
+            {
+                logger.LogWarning(ex, "Project format unavailable in: {FolderPath}", folderPath);
+                return (null, new ProjectOpenResult(ProjectOpenStatus.FormatUnavailable, ex.Message));
+            }
+            catch (Exception ex) when (ex is JsonException or System.Xml.XmlException or ArgumentException or FormatException or InvalidOperationException or IOException)
+            {
+                logger.LogError(ex, "Failed to parse project manifest in: {FolderPath}", folderPath);
+                return (null, new ProjectOpenResult(ProjectOpenStatus.ManifestInvalid, $"Invalid project manifest: {ex.Message}"));
+            }
+        }
+        var (loadResult, failure) = await StageAsync();
+        if (failure is not null) return failure;
+        var reloadAfterClose = IsProjectOpen && translationManagement.IsDirty &&
+            string.Equals(Path.GetFullPath(_currentProject!.ProjectPath), Path.GetFullPath(folderPath),
+                OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+
+        // Only replace the active workspace after parsing and validating the entire target.
+        // Close the current project after successful target validation.
         if (IsProjectOpen && translationManagement.IsDirty)
         {
             var closeResult = await CloseProjectAsync(ct).ConfigureAwait(false);
@@ -55,41 +97,12 @@ public partial class ProjectLifecycleService(
             await CleanupCurrentProjectAsync().ConfigureAwait(false);
         }
 
-        // 2. Validate folder exists
-        if (!Directory.Exists(folderPath))
+        if (reloadAfterClose)
         {
-            logger.LogWarning("Project folder not found: {FolderPath}", folderPath);
-            recentProjects.Remove(folderPath);
-            recentProjects.Save();
-            return new ProjectOpenResult(ProjectOpenStatus.FolderNotFound, $"Folder not found: {folderPath}");
+            (loadResult, failure) = await StageAsync();
+            if (failure is not null) return failure;
         }
-
-        // 3. Try to load via IProjectService
-        ProjectLoadResult loadResult;
-        try
-        {
-            // Off the UI thread: a large folder can take a long time and must stay cancellable.
-            // No ConfigureAwait(false): the steps below and ProjectChanged handlers expect the caller's (UI) context.
-            loadResult = await Task.Run(() => projectService.LoadProject(folderPath, progress, ct), ct);
-        }
-        catch (OperationCanceledException)
-        {
-            if (logger.IsEnabled(LogLevel.Information))
-                logger.LogInformation("Project open cancelled while scanning: {FolderPath}", folderPath);
-            return new ProjectOpenResult(ProjectOpenStatus.Cancelled);
-        }
-        catch (FormatUnavailableException ex)
-        {
-            logger.LogWarning(ex, "Project format unavailable in: {FolderPath}", folderPath);
-            return new ProjectOpenResult(ProjectOpenStatus.FormatUnavailable, ex.Message);
-        }
-        catch (Exception ex) when (ex is JsonException or FormatException or InvalidOperationException or IOException)
-        {
-            logger.LogError(ex, "Failed to parse project manifest in: {FolderPath}", folderPath);
-            return new ProjectOpenResult(ProjectOpenStatus.ManifestInvalid, $"Invalid project manifest: {ex.Message}");
-        }
-
-        var settings = loadResult.Settings;
+        var settings = loadResult!.Settings;
         var translations = loadResult.Translations;
 
         // 4. Initialize ITranslationManagementService with loaded translations
@@ -166,7 +179,7 @@ public partial class ProjectLifecycleService(
     /// <inheritdoc />
     public async Task<ProjectOpenResult> CreateAndOpenProjectAsync(string folder, IReadOnlyList<string> languages, string formatId, string? name = null, CancellationToken ct = default)
     {
-        // 1. If a project is already open and dirty, attempt to close it first
+        // Close the current project after successful target validation.
         if (IsProjectOpen && translationManagement.IsDirty)
         {
             var closeResult = await CloseProjectAsync(ct).ConfigureAwait(false);
@@ -296,6 +309,19 @@ public partial class ProjectLifecycleService(
                 SaveFormat = _currentProject.SaveFormat,
                 TextEncoding = _currentProject.TextEncoding,
                 InputEncoding = _currentProject.InputEncoding,
+                ResourceSchemaVersion = _currentProject.ResourceSchemaVersion,
+                ResourceOptions = _currentProject.ResourceOptions,
+                ResourceDocuments = _currentProject.ResourceDocuments.Select(d => new ResourceDocumentState
+                {
+                    Resource = d.Resource with { }, DetectedOptions = d.DetectedOptions,
+                    Data = new(d.Data), ExtensionData = d.ExtensionData is null ? null : new(d.ExtensionData)
+                }).ToList(),
+                Compatibility = _currentProject.Compatibility.ToDictionary(p => p.Key, p => new CompatibilityEnvelope
+                {
+                    Version = p.Value.Version, Source = p.Value.Source, Data = new(p.Value.Data),
+                    ExtensionData = p.Value.ExtensionData is null ? null : new(p.Value.ExtensionData)
+                }),
+                ExtensionData = _currentProject.ExtensionData is null ? null : new(_currentProject.ExtensionData),
                 BabelImport = _currentProject.BabelImport is { } imported ? new BabelImportData
                 {
                     SourceFile = imported.SourceFile, JsonLayout = imported.JsonLayout,
@@ -382,7 +408,14 @@ public partial class ProjectLifecycleService(
     private void UpdateManifestTranslationPackages(ProjectSettings settings)
     {
         // Imported file mappings are authoritative; rebuilding them destroys custom paths and packages.
-        if (settings.BabelImport != null) return;
+        if (settings.ResourceDocuments.Count > 0)
+        {
+            settings.TranslationPackages = settings.ResourceDocuments.GroupBy(d => d.Resource.Package).Select(g => new TranslationPackage
+            {
+                Name = g.Key, TranslationUrls = g.Select(d => new TranslationUrl { Language = d.Resource.Language, Path = d.Resource.RelativePath }).ToList()
+            }).ToList();
+            return;
+        }
         // Ensure at least one package exists
         if (settings.TranslationPackages.Count == 0)
             settings.TranslationPackages.Add(new TranslationPackage { Name = "main" });

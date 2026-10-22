@@ -145,7 +145,7 @@ public partial class MainWindowViewModel
         if (result != null) await CreateNewItemAsync(result.Trim());
     }
 
-    private static string ParentPrefix(string ns) => ns.Contains('.', StringComparison.Ordinal) ? ns[..(ns.LastIndexOf('.') + 1)] : string.Empty;
+    private static string ParentPrefix(string ns) => ResourceEntryOperations.ParentPrefix(ns);
 
     public async Task CreateNewItemAsync(string newNamespace)
     {
@@ -163,9 +163,11 @@ public partial class MainWindowViewModel
 
         var languages = ProjectLanguages();
         if (languages.Count == 0) languages.Add(PrimaryLanguage);
+        var before = CaptureStructure();
         foreach (var lang in languages)
             AllTranslation.Add(new TranslationItem { Namespace = newNamespace, Value = string.Empty, Language = lang, LastModifiedUtc = DateTime.UtcNow });
 
+        _undoRedoService.RecordStructure(before, AllTranslation);
         MarkStructureChanged([newNamespace]);
         RefreshTree();
         UpdateSummaryInfo();
@@ -201,6 +203,7 @@ public partial class MainWindowViewModel
 
         FlushPendingEdits();
         var renamed = new List<string>();
+        var before = CaptureStructure();
         foreach (var item in AllTranslation)
         {
             if (item.Namespace == oldNs) item.Namespace = newNs;
@@ -209,6 +212,7 @@ public partial class MainWindowViewModel
             renamed.Add(item.Namespace);
         }
 
+        _undoRedoService.RecordStructure(before, AllTranslation);
         MarkStructureChanged(renamed);
         RefreshTree();
         RevealKey(newNs);
@@ -260,11 +264,13 @@ public partial class MainWindowViewModel
     public void DeleteNamespaces(IReadOnlyCollection<string> namespaces)
     {
         if (namespaces.Count == 0) return;
+        var before = CaptureStructure();
         FlushPendingEdits();
         var removed = AllTranslation.Where(t => namespaces.Any(n => MatchesNode(t.Namespace, n))).Select(t => t.Namespace).Distinct().ToList();
         AllTranslation.RemoveAll(t => namespaces.Any(n => MatchesNode(t.Namespace, n)));
         SelectedNode = null;
         SelectedGroup = null;
+        _undoRedoService.RecordStructure(before, AllTranslation);
         MarkStructureChanged(removed);
         RefreshTree();
         UpdateSummaryInfo();
@@ -281,19 +287,17 @@ public partial class MainWindowViewModel
         var newNs = node.Namespace + "_copy";
         var n = 2;
         while (AllTranslation.Any(t => t.Namespace == newNs)) newNs = $"{node.Namespace}_copy{n++}";
+        var before = CaptureStructure();
 
         foreach (var item in AllTranslation.Where(t => t.Namespace == node.Namespace).ToList())
         {
-            AllTranslation.Add(new TranslationItem
-            {
-                Namespace = newNs,
-                Value = item.Value,
-                Language = item.Language,
-                Comment = item.Comment,
-                LastModifiedUtc = DateTime.UtcNow
-            });
+            var copy = ResourceEntryOperations.Copy(item, duplicate: true);
+            copy.Namespace = newNs;
+            copy.LastModifiedUtc = DateTime.UtcNow;
+            AllTranslation.Add(copy);
         }
 
+        _undoRedoService.RecordStructure(before, AllTranslation);
         MarkStructureChanged([newNs]);
         RefreshTree();
         UpdateSummaryInfo();
@@ -379,14 +383,31 @@ public partial class MainWindowViewModel
     {
         FlushPendingEdits();
         // A step may hold several edits (a bulk operation); undo them last to first.
-        if (_undoRedoService.Undo() is { } step) ApplyUndoRedo(step.Reverse().Select(a => (a.Namespace, a.Language, a.OldValue)).ToList());
+        if (_undoRedoService.Undo() is { } step) ApplyHistory(step.Reverse(), undo: true);
     }
 
     [RelayCommand]
     private void Redo()
     {
         FlushPendingEdits();
-        if (_undoRedoService.Redo() is { } step) ApplyUndoRedo(step.Select(a => (a.Namespace, a.Language, a.NewValue)).ToList());
+        if (_undoRedoService.Redo() is { } step) ApplyHistory(step, undo: false);
+    }
+
+    private List<TranslationItem> CaptureStructure() => AllTranslation.Select(i => ResourceEntryOperations.Copy(i)).ToList();
+
+    private void ApplyHistory(IEnumerable<EditAction> step, bool undo)
+    {
+        foreach (var action in step)
+        {
+            if ((undo ? action.BeforeStructure : action.AfterStructure) is { } structure)
+            {
+                AllTranslation = structure.Select(i => ResourceEntryOperations.Copy(i)).ToList();
+                MarkStructureChanged(AllTranslation.Select(i => i.Namespace));
+                RefreshTree();
+                UpdateSummaryInfo();
+            }
+            else ApplyUndoRedo([(action.Namespace, action.Language, undo ? action.OldValue : action.NewValue)]);
+        }
     }
 
     private void ApplyUndoRedo(IReadOnlyList<(string Namespace, string Language, string Value)> edits)

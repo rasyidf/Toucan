@@ -21,6 +21,7 @@
   <Project Path="Toucan.Modules.Providers/Toucan.Modules.Providers.csproj" />
   <Project Path="Toucan.Modules.Validation/Toucan.Modules.Validation.csproj" />
   <Project Path="Toucan.Core/Toucan.Core.csproj" />
+  <Project Path="Toucan.Modules.Compatibility.BabelEdit/Toucan.Modules.Compatibility.BabelEdit.csproj" />
   <Project Path="Toucan.Plugins.Abstractions/Toucan.Plugins.Abstractions.csproj" />
   <Project Path="Toucan.Plugins.Testing/Toucan.Plugins.Testing.csproj" />
   <Project Path="Toucan.Plugins.Avalonia/Toucan.Plugins.Avalonia.csproj" />

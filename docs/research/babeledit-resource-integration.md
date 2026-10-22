@@ -1,8 +1,8 @@
 ---
-title: "Toucan resource compatibility — research and boundaries"
+title: "Toucan compatibility layer: BabelEdit projects and shared resource standards"
 status: reference
-updated: 2026-10-21
-summary: "Resource analysis, historical gap inventory, independent compatibility architecture and component-specific upstream license policy."
+updated: 2026-10-22
+summary: "Historical resource analysis and reuse boundaries; executed M0–M2 acceptance supersede current-status interpretations of the original gap inventory."
 ---
 
 # Toucan compatibility layer: BabelEdit projects and shared resource standards
@@ -110,6 +110,12 @@ The wrapper does **not** define BabelEdit's package/key/language/approval column
 ## Current Toucan fit and remaining gaps
 
 Implementation work is tracked in the [gap closure plan](../specs/resource-compatibility/tasks.md). This section records the inspected baseline; that plan requires current verification before treating a finding as still open, including newer encoding and spreadsheet fixes.
+
+**M2 update:** [migration isolation and exact resource IO are implemented](../specs/resource-compatibility/m2.md) for JSON, YAML, ARB, Java properties, RESX/RESW and Laravel PHP. Schema/mapping/path validation precedes workspace replacement; package IO uses declared files and locales. PO/XLIFF exact migration is explicitly unsupported. M3–M7 retain format fidelity, exchange and framework work.
+
+**M1 update:** [neutral resource contracts and identity are implemented](../specs/resource-compatibility/m1.md), with JSON document-aware IO, native compatibility envelopes, structural undo/recovery and unchanged compiled sample-plugin verification. The historical observations below are not a current failure list; Subsequent milestone records describe remaining format/framework work.
+
+**M0 update, 2026-10-22:** [the executed acceptance matrix](../specs/resource-compatibility/acceptance.md) supersedes the current-status interpretation of this historical inventory. At commit `ea3d255`, 1,139 tests and 19 CLI cases pass. JSON custom-path renames, per-language spreadsheet approval and explicit Java encoding are verified for their tested subsets. Isolated probes still reproduce non-JSON path/language errors, package IO routing errors, key collisions, ignored indentation/order, ARB description edit loss and JSON null loss. Unknown schemas import without warnings, and generic YAML can be mistaken for a locale-wrapped dialect. FormatJS extraction is explicitly rejected. These findings narrow implementation work rather than reopening passing fixes.
 
 | Area | Current implementation inspected | Integration work |
 |---|---|---|

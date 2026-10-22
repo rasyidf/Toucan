@@ -5,12 +5,16 @@ namespace Toucan.Core.Services;
 
 public static class ExcelService
 {
-    private static string Package(TranslationItem item) => item.FormatData?.GetValueOrDefault("babel.package") ?? "main";
-    private static string Key(TranslationItem item) => item.FormatData?.GetValueOrDefault("babel.key") ?? item.Namespace;
+    private static string Package(TranslationItem item) => item.Identity?.Package ?? item.FormatData?.GetValueOrDefault("babel.package") ?? "main";
+    private static string Key(TranslationItem item) => item.Identity is { } identity
+        ? ResourceEntryOperations.Selector(identity.Path) : item.FormatData?.GetValueOrDefault("babel.key") ?? item.Namespace;
 
     public static void Export(string filePath, IEnumerable<TranslationItem> translations)
     {
         var items = translations.ToList();
+        if (items.GroupBy(i => (Package: Package(i), Key: Key(i)))
+            .Any(g => g.Where(i => i.Identity != null).Select(i => i.Identity!.KeyToken).Distinct().Count() > 1))
+            throw new FormatException("This workbook schema cannot distinguish literal IDs from nested paths with the same text. Export these resources separately.");
         var languages = items.Select(t => t.Language).Distinct().OrderBy(l => l, StringComparer.Ordinal).ToList();
         using var workbook = new XLWorkbook();
         var ws = workbook.Worksheets.Add("Translations");

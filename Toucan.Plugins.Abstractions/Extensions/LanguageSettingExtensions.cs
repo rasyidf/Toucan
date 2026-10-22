@@ -33,7 +33,7 @@ public static class TranslationItemExtensions
 
     public static IEnumerable<NsTreeItem> ToNsTree(this IEnumerable<TranslationItem> settings)
     {
-        var namespaces = settings.Select(o => o.Namespace.Split('.')[0]).Distinct().OrderBy(o => o).ToList();
+        var namespaces = settings.Select(o => ResourceEntryOperations.Hierarchy(o.Namespace)[0]).Distinct().OrderBy(o => o).ToList();
         var root = new NsTreeItem { Name = "root", Namespace = "" };
 
         foreach (var ns in namespaces)
@@ -52,12 +52,12 @@ public static class TranslationItemExtensions
     {
         if (customDepth == 0) customDepth = 1;
 
-        var thisNode = new NsTreeItem { Parent = node, Name = ns.Split('.').Last(), Namespace = ns, ImagePath = "Assets/Images/ns.png" };
+        var thisNode = new NsTreeItem { Parent = node, Name = ResourceEntryOperations.DisplaySegment(ResourceEntryOperations.Hierarchy(ns)[^1]), Namespace = ns, ImagePath = "Assets/Images/ns.png" };
         node.AddChild(thisNode);
 
         var namespaces = allTranslation
             .Where(o => o.Namespace.StartsWith(ns + "."))
-            .Select(o => o.Namespace[(ns.Length + 1)..].Split('.')[0])
+            .Select(o => ResourceEntryOperations.Hierarchy(o.Namespace[(ns.Length + 1)..])[0])
             .Distinct().OrderBy(o => o).ToList();
 
         if (namespaces.Count == 0)

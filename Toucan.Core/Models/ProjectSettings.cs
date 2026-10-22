@@ -21,7 +21,14 @@ public class ProjectSettings
     public string? Name { get; set; }
     public string? Description { get; set; }
     public string? Version { get; set; }
-    public BabelImportData? BabelImport { get; set; }
+    [JsonIgnore] public BabelImportData? BabelImport { get; set; }
+    [JsonPropertyName("babelImport")]
+    public BabelImportData? LegacyBabelImport { get => null; set => BabelImport = value; }
+    public int ResourceSchemaVersion { get; set; } = 1;
+    public List<ResourceDocumentState> ResourceDocuments { get; set; } = [];
+    public ResourceOptions ResourceOptions { get; set; } = new();
+    public Dictionary<string, CompatibilityEnvelope> Compatibility { get; set; } = [];
+    [JsonExtensionData] public Dictionary<string, JsonElement>? ExtensionData { get; set; }
     public List<TranslationState> TranslationStates { get; set; } = [];
 
     // --- Language config ---
@@ -132,6 +139,14 @@ public class ProjectSettings
             var settings = JsonSerializer.Deserialize<ProjectSettings>(json, s_options) ?? new ProjectSettings();
             settings.ProjectPath = folder;
             settings.MigrateLegacyFormat(json);
+            if (settings.BabelImport is null && settings.Compatibility.TryGetValue("babeledit", out var envelope) && envelope.Version == 1 && envelope.Data.TryGetValue("project", out var imported))
+                settings.BabelImport = imported.Deserialize<BabelImportData>();
+            if (settings.BabelImport is { } legacy && !settings.Compatibility.ContainsKey("babeledit"))
+            {
+                var migrated = new CompatibilityEnvelope { Source = "babeledit" };
+                migrated.Data["project"] = JsonSerializer.SerializeToElement(legacy);
+                settings.Compatibility["babeledit"] = migrated;
+            }
             return settings;
         }
         catch { return null; }
@@ -193,17 +208,4 @@ public class ProjectSettings
 
     private string ResolveDefaultPath(string language) =>
         DefaultPathResolver?.Invoke(SaveFormat, language) ?? $"{language}.json";
-}
-
-/// <summary>A named package of translation files within a project.</summary>
-public class TranslationPackage
-{
-    public string Name { get; set; } = "main";
-    public List<TranslationUrl> TranslationUrls { get; set; } = [];
-}
-
-public class TranslationUrl
-{
-    public string Language { get; set; } = string.Empty;
-    public string Path { get; set; } = string.Empty;
 }

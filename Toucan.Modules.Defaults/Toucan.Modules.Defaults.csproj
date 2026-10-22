@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../Toucan.Modules.Compatibility.BabelEdit/Toucan.Modules.Compatibility.BabelEdit.csproj" />
     <ProjectReference Include="..\Toucan.Modules.Formats.Json\Toucan.Modules.Formats.Json.csproj" />
     <ProjectReference Include="..\Toucan.Modules.Formats.Xml\Toucan.Modules.Formats.Xml.csproj" />
     <ProjectReference Include="..\Toucan.Modules.Formats.Text\Toucan.Modules.Formats.Text.csproj" />

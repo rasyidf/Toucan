@@ -5,7 +5,7 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy
+public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy
 {
     public string FormatId => FormatIds.Json;
 
@@ -21,10 +21,25 @@ public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy
     public void Save(string path, SaveContext context)
     {
         if (context?.LanguageDictionary == null) return;
+        if (context.Documents.Count > 0)
+        {
+            var entries = context.LanguageDictionary.Values.SelectMany(i => i).ToList();
+            foreach (var document in context.Documents)
+                WriteResource(new ResourceWriteRequest(path, document, entries.Where(i => i.Identity?.ResourceId == document.Resource.Id).ToList(),
+                    context.ResourceOptions with { SaveEmptyTranslations = context.SaveEmptyTranslations }));
+            return;
+        }
         foreach (var (language, list) in context.LanguageDictionary)
         {
             foreach (var group in list.GroupBy(i => i.FormatData?.GetValueOrDefault("json.file") ?? language + ".json"))
             {
+                if (context.JsonLayout != "flat" && group.All(i => i.Identity is not null))
+                {
+                    var resource = new ResourceDocumentState { Resource = new ResourceDescriptor
+                        { Id = group.First().Identity!.ResourceId, RelativePath = group.Key, Language = language, FormatId = FormatId } };
+                    WriteResource(new ResourceWriteRequest(path, resource, group.ForSave(context).ToList()));
+                    continue;
+                }
                 var root = new Dictionary<string, object>();
                 // ponytail: sort by namespace so JSON keys are stable across saves (reduces VCS noise)
                 foreach (var item in group.ForSave(context).OrderBy(i => i.Namespace, StringComparer.Ordinal))
@@ -40,6 +55,27 @@ public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy
                 fileService.Save(Path.GetDirectoryName(target)!, Path.GetFileName(target), root);
             }
         }
+    }
+
+    public ResourceWriteResult WriteResource(ResourceWriteRequest request)
+    {
+        request.CancellationToken.ThrowIfCancellationRequested();
+        if (request.Entries.Any(i => i.Identity is { } identity && identity.ResourceId != request.Document.Resource.Id))
+            return new ResourceWriteResult([new ResourceDiagnostic("resource.foreign-entry", "An entry belongs to a different resource.",
+                ResourceDiagnosticSeverity.Error, request.Document.Resource.RelativePath)]);
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
+        var content = ResourceJsonCodec.Write(request.Document, request.Entries, request.ProjectOptions);
+        request.CancellationToken.ThrowIfCancellationRequested();
+        fileService.Save(Path.GetDirectoryName(file)!, Path.GetFileName(file), content);
+        using var saved = System.Text.Json.JsonDocument.Parse(content);
+        request.Document.Data["json"] = saved.RootElement.Clone();
+        foreach (var item in request.Entries)
+            if (item.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey) is { } raw)
+            {
+                using var scalar = System.Text.Json.JsonDocument.Parse(raw);
+                if (scalar.RootElement.ToString() != item.Value) item.FormatData.Remove(NestedJsonParser.JsonScalarKey);
+            }
+        return new ResourceWriteResult([]);
     }
 
     /// <summary>An untouched number or boolean goes back as JSON of the same type; an edited one becomes a string.</summary>

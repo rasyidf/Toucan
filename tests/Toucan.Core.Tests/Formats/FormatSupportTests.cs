@@ -67,6 +67,7 @@ public sealed class FormatSupportTests : IDisposable
         sb.AppendLine("---");
         sb.AppendLine("title: \"Format support matrix\"");
         sb.AppendLine("status: active");
+        sb.AppendLine("updated: 2026-10-22");
         sb.AppendLine("summary: \"Which file formats Toucan edits safely, what survives a save, and what does not.\"");
         sb.AppendLine("---");
         sb.AppendLine("# Format support matrix");

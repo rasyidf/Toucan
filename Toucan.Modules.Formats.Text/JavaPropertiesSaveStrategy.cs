@@ -6,7 +6,7 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrategy
+public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy
 {
     public string FormatId => FormatIds.JavaProperties;
 
@@ -55,6 +55,23 @@ public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrateg
                 Toucan.Core.Services.AtomicFile.WriteAllText(target, sb.ToString(), utf8 ? new UTF8Encoding(false) : Encoding.Latin1);
             }
         }
+    }
+
+    public ResourceWriteResult WriteResource(ResourceWriteRequest request)
+    {
+        var entries = ResourceFileAdapter.Entries(request);
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
+        var encoding = ResourceOptions.Resolve(request.Document.Resource.Options, request.ProjectOptions, request.Document.DetectedOptions, null).OutputEncoding
+            ?? entries.FirstOrDefault()?.FormatData?.GetValueOrDefault("properties.encoding")
+            ?? ResourceFileAdapter.Metadata(request.Document).GetValueOrDefault("properties.encoding");
+        var utf8 = encoding is "UTF-8" or "UTF-8 BOM";
+        var sb = new StringBuilder();
+        sb.AppendLine("# Translation file for " + request.Document.Resource.Language);
+        foreach (var item in entries.Where(i => ResourceFileAdapter.KeepEmpty(request) || !string.IsNullOrEmpty(i.Value)).OrderBy(i => i.Namespace, StringComparer.Ordinal))
+            sb.AppendLine($"{EscapeKey(item.Namespace)}={EscapeValue(item.Value ?? "", utf8)}");
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        AtomicFile.WriteAllText(file, sb.ToString(), utf8 ? new UTF8Encoding(encoding == "UTF-8 BOM") : Encoding.Latin1);
+        return new([]);
     }
 
     public Task SaveAsync(string path, SaveContext context) => Task.Run(() => Save(path, context));

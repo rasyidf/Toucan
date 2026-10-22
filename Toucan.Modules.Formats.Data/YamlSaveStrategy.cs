@@ -6,7 +6,7 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
+public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy
 {
     public string FormatId => FormatIds.Yaml;
 
@@ -67,6 +67,23 @@ public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy
                 fileService.SaveText(Path.GetDirectoryName(target)!, Path.GetFileName(target), sb.ToString());
             }
         }
+    }
+
+    public ResourceWriteResult WriteResource(ResourceWriteRequest request)
+    {
+        var entries = ResourceFileAdapter.Entries(request);
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
+        var locale = entries.Select(i => i.FormatData?.GetValueOrDefault("yaml.locale")).FirstOrDefault(v => v != null)
+            ?? ResourceFileAdapter.Metadata(request.Document).GetValueOrDefault("yaml.locale");
+        var sb = new StringBuilder();
+        sb.AppendLine($"# Translation file for {request.Document.Resource.Language}");
+        sb.AppendLine("---");
+        var dict = entries.Where(i => ResourceFileAdapter.KeepEmpty(request) || !string.IsNullOrEmpty(i.Value))
+            .ToDictionary(i => locale == null ? i.Namespace : locale + "." + i.Namespace, i => i.Value ?? "");
+        if (HasKeyClash(dict) || File.Exists(file) && ExistingFileIsFlat(file)) WriteFlat(sb, dict);
+        else WriteYamlDict(sb, dict, 0);
+        fileService.SaveText(Path.GetDirectoryName(file)!, Path.GetFileName(file), sb.ToString());
+        return new([]);
     }
 
     private static bool UseFlatKeys(string path, string language, Dictionary<string, string> dict)

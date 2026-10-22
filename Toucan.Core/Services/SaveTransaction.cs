@@ -25,6 +25,8 @@ public sealed class SaveTransaction
     private const string JournalFile = "journal.toucan-journal";
 
     private static readonly JsonSerializerOptions s_json = new() { WriteIndented = true };
+    private static readonly AsyncLocal<SaveTransaction?> s_active = new();
+    private SaveTransaction? _previousActive;
 
     private readonly string _folder;
     private readonly string _pendingDir;
@@ -85,7 +87,32 @@ public sealed class SaveTransaction
         // The journal is written last: a crash while snapshotting leaves no journal, and nothing has been modified yet.
         var journal = new Journal(entries, known, extensions);
         AtomicFile.WriteAllText(Path.Combine(pending, JournalFile), JsonSerializer.Serialize(journal, s_json));
-        return new SaveTransaction(folder, pending, journal);
+        var transaction = new SaveTransaction(folder, pending, journal) { _previousActive = s_active.Value };
+        s_active.Value = transaction;
+        return transaction;
+    }
+
+    /// <summary>Joins the calling save's journal or starts one. A journal from a previous run is never ownership evidence.</summary>
+    public static SaveTransaction? BeginIfNeeded(string folder, IEnumerable<string> files)
+    {
+        var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        var paths = files.Select(Path.GetFullPath).ToList();
+        var active = s_active.Value;
+        if (active != null && string.Equals(active._folder, Path.GetFullPath(folder), comparison) &&
+            File.Exists(Path.Combine(active._pendingDir, JournalFile)))
+        {
+            if (paths.Any(p => !active.Files.Contains(p, OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal)))
+                throw new InvalidOperationException("The active save journal does not protect every requested destination.");
+            return null; // Only its owner commits or rolls back the surrounding save.
+        }
+        if (FindInterrupted(folder) != null)
+            throw new IOException("Restore or discard the interrupted save before writing these resources.");
+        return Begin(folder, paths);
+    }
+
+    private void ReleaseActive()
+    {
+        if (ReferenceEquals(s_active.Value, this)) s_active.Value = _previousActive;
     }
 
     /// <summary>The save succeeded: keep the originals as the "previous" generation and drop the journal.</summary>
@@ -103,6 +130,7 @@ public sealed class SaveTransaction
             // The save itself succeeded; failing to rotate the backup must not turn it into a failure.
             TryDeleteDir(_pendingDir);
         }
+        finally { ReleaseActive(); }
     }
 
     /// <summary>Puts every protected file back as it was before the save.</summary>
@@ -137,11 +165,12 @@ public sealed class SaveTransaction
         }
 
         if (failed.Count == 0) TryDeleteDir(_pendingDir);
+        ReleaseActive();
         return new SaveRollbackResult(restored, failed);
     }
 
     /// <summary>Drops the journal without restoring anything (the user chose to keep what is on disk).</summary>
-    public void Discard() => TryDeleteDir(_pendingDir);
+    public void Discard() { TryDeleteDir(_pendingDir); ReleaseActive(); }
 
     /// <summary>A journal that was never committed or rolled back: the previous run died, or a restore failed, mid-save.</summary>
     public static SaveTransaction? FindInterrupted(string folder)

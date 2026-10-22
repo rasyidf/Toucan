@@ -5,7 +5,7 @@ using Toucan.Core.Models;
 namespace Toucan.Core.Services.LoadStrategies;
 
 /// <summary>Loads YAML translation files (one file per language, keys use indentation for hierarchy).</summary>
-public class YamlLoadStrategy : ILoadStrategy
+public class YamlLoadStrategy : ILoadStrategy, IResourceLoadStrategy
 {
     public string FormatId => FormatIds.Yaml;
 
@@ -37,6 +37,27 @@ public class YamlLoadStrategy : ILoadStrategy
             items.AddRange(parsed);
         }
         return items;
+    }
+
+    public ResourceReadResult ReadResource(ResourceReadRequest request)
+    {
+        request.CancellationToken.ThrowIfCancellationRequested();
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Resource.RelativePath);
+        var lines = File.ReadAllLines(file);
+        var parsed = ParseYaml(request.Resource.Language, lines);
+        var roots = lines.Where(l => l.Length > 0 && !char.IsWhiteSpace(l[0]) && l[0] != '#' && l[0] != '-').ToList();
+        var locale = roots.Count == 1 ? roots[0].Trim().TrimEnd(':').Trim('"', '\'') : null;
+        var isLocale = locale == request.Resource.Language || locale == request.Resource.Language.Split('-')[0];
+        foreach (var item in parsed)
+        {
+            item.FormatData = new() { ["yaml.file"] = request.Resource.RelativePath };
+            if (isLocale && locale != null && item.Namespace.StartsWith(locale + ".", StringComparison.Ordinal))
+            {
+                item.Namespace = item.Namespace[(locale.Length + 1)..];
+                item.FormatData["yaml.locale"] = locale;
+            }
+        }
+        return ResourceFileAdapter.Bind(request, parsed, false, isLocale && locale != null ? new() { ["yaml.locale"] = locale } : []);
     }
 
     private static List<TranslationItem> ParseYaml(string language, string[] lines)

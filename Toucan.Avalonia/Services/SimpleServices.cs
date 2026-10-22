@@ -41,6 +41,17 @@ public sealed class UndoRedoService : IUndoRedoService
         return new Group(this);
     }
 
+    public void RecordStructure(IReadOnlyList<TranslationItem> before, IReadOnlyList<TranslationItem> after)
+    {
+        var action = new EditAction("", "", "", "")
+        {
+            BeforeStructure = before.Select(i => ResourceEntryOperations.Copy(i)).ToList(),
+            AfterStructure = after.Select(i => ResourceEntryOperations.Copy(i)).ToList()
+        };
+        if (_group is not null) _group.Add(action);
+        else Push([action]);
+    }
+
     private void EndGroup()
     {
         if (--_depth > 0) return;

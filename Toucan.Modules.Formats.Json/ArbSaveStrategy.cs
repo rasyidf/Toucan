@@ -8,7 +8,7 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class ArbSaveStrategy(IFileService fileService) : ISaveStrategy
+public class ArbSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy
 {
     public string FormatId => FormatIds.Arb;
 
@@ -36,6 +36,25 @@ public class ArbSaveStrategy(IFileService fileService) : ISaveStrategy
             foreach (var group in list.ForParse().GroupBy(i => FileFor(i, language, root)))
                 WriteFile(root, group.Key, language, group.OrderBy(i => i.Namespace, StringComparer.Ordinal).ToList(), context.SaveEmptyTranslations);
         }
+    }
+
+    public ResourceWriteResult WriteResource(ResourceWriteRequest request)
+    {
+        var entries = ResourceFileAdapter.Entries(request);
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
+        var obj = request.Document.Data.TryGetValue("arb", out var original) ? JsonNode.Parse(original.GetRawText())!.AsObject() : new JsonObject();
+        // Retain document headers even when the last message is deleted.
+        foreach (var key in obj.Select(p => p.Key).Where(k => !k.StartsWith("@@", StringComparison.Ordinal)).ToList()) obj.Remove(key);
+        obj["@@locale"] = request.Document.Resource.Language;
+        foreach (var item in entries.Where(i => ResourceFileAdapter.KeepEmpty(request) || !string.IsNullOrEmpty(i.Value)))
+        {
+            obj[item.Namespace] = item.Value ?? "";
+            if (item.FormatData?.GetValueOrDefault(ArbFormat.Metadata) is { } metadata) obj["@" + item.Namespace] = JsonNode.Parse(metadata);
+        }
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        AtomicFile.WriteAllText(file, obj.ToJsonString(s_options));
+        request.Document.Data["arb"] = JsonSerializer.SerializeToElement(obj);
+        return new([]);
     }
 
     private string FileFor(TranslationItem item, string language, string root)

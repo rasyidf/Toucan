@@ -5,7 +5,18 @@ namespace Toucan.Core.Models;
 public class TranslationItem
 {
     public required string Language { get; set; }
-    public string Namespace { get; set; } = string.Empty;
+    private string _namespace = string.Empty;
+    public string Namespace
+    {
+        get => _namespace;
+        set
+        {
+            if (Identity is { } identity && value != _namespace && value != identity.Selector)
+                Identity = ResourceEntryOperations.Rename(identity, value);
+            _namespace = value;
+        }
+    }
+    public ResourceEntryIdentity? Identity { get; set; }
     public string Value { get; set; } = string.Empty;
     public string Comment { get; set; } = string.Empty;
     public bool IsApproved { get; set; }

@@ -6,7 +6,7 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class LaravelPhpSaveStrategy : ISaveStrategy
+public class LaravelPhpSaveStrategy : ISaveStrategy, IResourceSaveStrategy
 {
     public string FormatId => FormatIds.LaravelPhp;
 
@@ -60,6 +60,20 @@ public class LaravelPhpSaveStrategy : ISaveStrategy
                 Toucan.Core.Services.AtomicFile.WriteAllText(Path.Combine(langDir, file + ".php"), sb.ToString(), new UTF8Encoding(false));
             }
         }
+    }
+
+    public ResourceWriteResult WriteResource(ResourceWriteRequest request)
+    {
+        var entries = ResourceFileAdapter.Entries(request);
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
+        var sb = new StringBuilder();
+        sb.AppendLine("<?php");
+        sb.AppendLine("return [");
+        WriteItems(sb, entries.Where(i => ResourceFileAdapter.KeepEmpty(request) || !string.IsNullOrEmpty(i.Value)).ToList(), 1);
+        sb.AppendLine("];");
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        AtomicFile.WriteAllText(file, sb.ToString(), new UTF8Encoding(false));
+        return new([]);
     }
 
     public Task SaveAsync(string path, SaveContext context) => Task.Run(() => Save(path, context));

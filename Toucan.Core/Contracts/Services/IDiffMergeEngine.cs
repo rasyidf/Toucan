@@ -25,7 +25,10 @@ public record DiffEntry(
     DiffCategory Category,
     string? BaseValue,
     string? MineValue,
-    string? TheirsValue);
+    string? TheirsValue)
+{
+    public TranslationItem? TheirsItem { get; init; }
+}
 
 /// <summary>Result of computing a three-way diff.</summary>
 public record DiffResult(IReadOnlyList<DiffEntry> Entries);

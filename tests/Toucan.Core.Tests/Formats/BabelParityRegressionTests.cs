@@ -14,7 +14,7 @@ public sealed class BabelParityRegressionTests : IDisposable
 {
     private readonly string _folder = Directory.CreateTempSubdirectory("toucan-babel-").FullName;
     private static ProjectService Service() => new(new FileService(NullLogger<FileService>.Instance),
-        FormatTestHost.SaveStrategies, FormatTestHost.Factory, new ProjectModeResolver(), NullLogger<ProjectService>.Instance);
+        FormatTestHost.SaveStrategies, FormatTestHost.Factory, new ProjectModeResolver(), NullLogger<ProjectService>.Instance, FormatTestHost.Importers);
     public void Dispose() => Directory.Delete(_folder, true);
 
     private static string Root
@@ -187,14 +187,14 @@ public sealed class BabelParityRegressionTests : IDisposable
     public void BabelImportRejectsEscapingResourcePath()
     {
         File.WriteAllText(Path.Combine(_folder, "project.babel"), "<babeledit_project><framework>generic-json</framework><translation_packages><translation_package><translation_urls><translation_url><path>../outside.json</path><language>en</language></translation_url></translation_urls></translation_package></translation_packages></babeledit_project>");
-        Assert.Throws<FormatException>(() => Service().LoadProject(_folder));
+        Assert.ThrowsAny<FormatException>(() => Service().LoadProject(_folder));
     }
 
     [Fact]
     public void DeclaredJavaEncodingWinsOverAmbiguousUtf8Bytes()
     {
         File.WriteAllBytes(Path.Combine(_folder, "en.properties"), [.. Encoding.ASCII.GetBytes("word="), 0xc3, 0xa9]);
-        File.WriteAllText(Path.Combine(_folder, "project.babel"), "<babeledit_project><framework>prop-files</framework><configuration><encoding>ISO-8859-1</encoding></configuration></babeledit_project>");
+        File.WriteAllText(Path.Combine(_folder, "project.babel"), "<babeledit_project><framework>prop-files</framework><translation_packages><translation_package><name>main</name><translation_urls><translation_url><path>en.properties</path><language>en</language></translation_url></translation_urls></translation_package></translation_packages><configuration><encoding>ISO-8859-1</encoding></configuration></babeledit_project>");
         var project = Service().LoadProject(_folder);
         Assert.Equal("Ã©", Assert.Single(project.Translations).Value);
         Assert.Equal("ISO-8859-1", project.Settings.InputEncoding);

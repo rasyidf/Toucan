@@ -16,59 +16,75 @@ public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy>
             ? settings.TranslationPackages
             : [new TranslationPackage { Name = "main" }];
 
+    private ITranslationStrategyFactory Factory => new TranslationStrategyFactory(saveStrategies, loadStrategies);
+
+    private static List<ResourceDescriptor> Resources(ProjectSettings settings, TranslationPackage package) =>
+        package.TranslationUrls.Select(url => settings.ResourceDocuments.FirstOrDefault(d => d.Resource.Package == package.Name && d.Resource.Language == url.Language)?.Resource
+            ?? new ResourceDescriptor { Id = url.Path.Replace('\\', '/'), RelativePath = url.Path, Language = url.Language,
+                FormatId = settings.SaveFormat, Package = package.Name, Options = settings.ResourceOptions }).ToList();
+
     public List<TranslationItem> LoadPackage(ProjectSettings settings, string packageName)
     {
-        var pkg = settings.TranslationPackages.FirstOrDefault(p =>
-            string.Equals(p.Name, packageName, StringComparison.OrdinalIgnoreCase));
-        if (pkg == null || pkg.TranslationUrls.Count == 0) return [];
-
+        var package = settings.TranslationPackages.FirstOrDefault(p => string.Equals(p.Name, packageName, StringComparison.OrdinalIgnoreCase));
+        if (package == null) return [];
         var items = new List<TranslationItem>();
-        var loader = loadStrategies.FirstOrDefault(l => FormatIds.Comparer.Equals(l.FormatId, settings.SaveFormat))
-            ?? loadStrategies.FirstOrDefault(l => l.FormatId == FormatIds.Json);
-
-        foreach (var url in pkg.TranslationUrls)
+        var documents = new List<ResourceDocumentState>();
+        foreach (var resource in Resources(settings, package))
         {
-            var filePath = Path.Combine(settings.ProjectPath, url.Path.Replace('/', Path.DirectorySeparatorChar));
-            if (!File.Exists(filePath)) continue;
-
-            var dir = Path.GetDirectoryName(filePath)!;
-            var content = fileService.ReadText(dir, Path.GetFileName(filePath));
-            if (string.IsNullOrWhiteSpace(content)) continue;
-
-            // Use the nested JSON parser for package files
-            var parsed = NestedJsonParser.ParseNestedJson(url.Language, content);
-            items.AddRange(parsed);
+            var loaded = Factory.ReadResource(new(settings.ProjectPath, resource, settings.ResourceOptions));
+            if (loaded.Document == null || loaded.Diagnostics.Any(d => d.Severity == ResourceDiagnosticSeverity.Error))
+                throw new FormatException(string.Join("; ", loaded.Diagnostics.Select(d => $"{resource.RelativePath}: {d.Message}")));
+            items.AddRange(loaded.Entries);
+            documents.Add(loaded.Document);
         }
+        settings.ResourceDocuments.RemoveAll(d => d.Resource.Package == package.Name);
+        settings.ResourceDocuments.AddRange(documents);
         return items;
     }
 
     public void SavePackage(ProjectSettings settings, string packageName, IEnumerable<TranslationItem> items)
     {
-        var pkg = settings.TranslationPackages.FirstOrDefault(p =>
-            string.Equals(p.Name, packageName, StringComparison.OrdinalIgnoreCase));
-        if (pkg == null) return;
-
-        var byLanguage = items.GroupBy(i => i.Language);
-        foreach (var langGroup in byLanguage)
+        var package = settings.TranslationPackages.FirstOrDefault(p => string.Equals(p.Name, packageName, StringComparison.OrdinalIgnoreCase));
+        if (package == null) return;
+        var resources = Resources(settings, package);
+        foreach (var resource in resources)
         {
-            var url = pkg.TranslationUrls.FirstOrDefault(u => u.Language == langGroup.Key);
-            if (url == null) continue;
-
-            var filePath = Path.Combine(settings.ProjectPath, url.Path.Replace('/', Path.DirectorySeparatorChar));
-            var dir = Path.GetDirectoryName(filePath)!;
-            Directory.CreateDirectory(dir);
-
-            var context = new SaveContext
+            ResourceFilePath.Resolve(settings.ProjectPath, resource.RelativePath);
+            if (Factory.GetResourceSaveStrategy(resource.FormatId) == null) throw new FormatException($"{resource.RelativePath}: exact writing is unsupported for '{resource.FormatId}'.");
+        }
+        var list = items.ToList();
+        if (list.Any(i => !resources.Any(r => r.Language == i.Language) || i.Identity is { } id && !resources.Any(r => r.Id == id.ResourceId)))
+            throw new InvalidOperationException("An entry belongs to a different package or language.");
+        var documents = resources.Select(r => settings.ResourceDocuments.FirstOrDefault(d => d.Resource.Id == r.Id)
+            ?? Factory.ReadResource(new(settings.ProjectPath, r, settings.ResourceOptions)).Document
+            ?? throw new FormatException($"{r.RelativePath}: resource could not be loaded.")).ToList();
+        var transaction = SaveTransaction.BeginIfNeeded(settings.ProjectPath, resources.Select(r => ResourceFilePath.Resolve(settings.ProjectPath, r.RelativePath)));
+        var snapshots = documents.Select(d => new Dictionary<string, System.Text.Json.JsonElement>(d.Data)).ToList();
+        try
+        {
+            foreach (var document in documents)
             {
-                SaveEmptyTranslations = settings.SaveEmptyTranslations ?? true,
-                LanguageDictionary = new Dictionary<string, IEnumerable<TranslationItem>> { { langGroup.Key, langGroup } },
-                NsTreeItems = [],
-                Languages = [langGroup.Key]
-            };
-
-            var strategy = saveStrategies.FirstOrDefault(s => FormatIds.Comparer.Equals(s.FormatId, settings.SaveFormat))
-                ?? saveStrategies.FirstOrDefault(s => s.FormatId == FormatIds.Json);
-            strategy?.Save(dir, context);
+                var entries = list.Where(i => i.Language == document.Resource.Language).ToList();
+                foreach (var item in entries.Where(i => i.Identity is null))
+                {
+                    var key = item.Namespace.StartsWith(document.Resource.SelectorPrefix, StringComparison.Ordinal) ? item.Namespace[document.Resource.SelectorPrefix.Length..] : item.Namespace;
+                    item.Identity = new ResourceEntryIdentity { ResourceId = document.Resource.Id, Package = document.Resource.Package,
+                        PackagePrefix = document.Resource.SelectorPrefix, Selector = item.Namespace,
+                        Path = document.Resource.FormatId is FormatIds.Arb or FormatIds.JavaProperties or FormatIds.Resx || ResourceOptions.Resolve(document.Resource.Options, settings.ResourceOptions, null, null).Layout is ResourceLayout.Literal or ResourceLayout.Dotted
+                            ? [ResourcePathSegment.Named(key)] : ResourceEntryOperations.ParseSelector(key) };
+                }
+                var result = Factory.WriteResource(new(settings.ProjectPath, document, entries, settings.ResourceOptions with { SaveEmptyTranslations = settings.SaveEmptyTranslations ?? true }));
+                if (result.Diagnostics.Any(d => d.Severity == ResourceDiagnosticSeverity.Error)) throw new FormatException(string.Join("; ", result.Diagnostics.Select(d => d.Message)));
+            }
+            transaction?.Commit();
+            settings.ResourceDocuments.RemoveAll(d => d.Resource.Package == package.Name);
+            settings.ResourceDocuments.AddRange(documents);
+        }
+        catch
+        {
+            for (var i = 0; i < documents.Count; i++) documents[i].Data = snapshots[i];
+            transaction?.Rollback();
+            throw;
         }
     }
 
@@ -76,21 +92,40 @@ public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy>
     {
         var pkg = new TranslationPackage { Name = name, TranslationUrls = [] };
 
-        // Generate URLs for each language
-        foreach (var lang in settings.Languages)
+        if (string.IsNullOrWhiteSpace(name) || name.IndexOfAny(['/', '\\', ':']) >= 0 || name is "." or "..") throw new ArgumentException("Package name must be a single path segment.", nameof(name));
+        if (settings.TranslationPackages.Any(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase))) throw new ArgumentException("Package already exists.", nameof(name));
+        var strategy = Factory.GetSaveStrategy(settings.SaveFormat) ?? throw new FormatUnavailableException(settings.SaveFormat);
+        if (Factory.GetResourceSaveStrategy(settings.SaveFormat) == null) throw new FormatException($"Exact writing is unsupported for '{settings.SaveFormat}'.");
+        var documents = settings.Languages.Select(lang => new ResourceDocumentState { Resource = new ResourceDescriptor
         {
-            var path = $"locales/{lang}/{name}.json";
-            pkg.TranslationUrls.Add(new TranslationUrl { Language = lang, Path = path });
-
-            // Create empty file
-            var fullPath = Path.Combine(settings.ProjectPath, path.Replace('/', Path.DirectorySeparatorChar));
-            Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
-            if (!File.Exists(fullPath))
-                File.WriteAllText(fullPath, "{}");
+            RelativePath = $"locales/{name}/{strategy.DefaultFilePath(lang)}", FormatId = settings.SaveFormat, Package = name, Language = lang, Options = settings.ResourceOptions
+        }}).ToList();
+        foreach (var document in documents) ResourceFilePath.Resolve(settings.ProjectPath, document.Resource.RelativePath);
+        var priorDocuments = settings.ResourceDocuments.ToList();
+        // Preserve existing packages when a formerly folder-based project first gains explicit resources.
+        foreach (var existing in settings.TranslationPackages)
+            if (!settings.ResourceDocuments.Any(d => d.Resource.Package == existing.Name)) LoadPackage(settings, existing.Name);
+        var transaction = SaveTransaction.BeginIfNeeded(settings.ProjectPath, documents.Select(d => ResourceFilePath.Resolve(settings.ProjectPath, d.Resource.RelativePath)).Append(Path.Combine(settings.ProjectPath, "toucan.tproj")));
+        try
+        {
+            foreach (var document in documents)
+            {
+                var result = Factory.WriteResource(new(settings.ProjectPath, document, [], settings.ResourceOptions));
+                if (result.Diagnostics.Any(d => d.Severity == ResourceDiagnosticSeverity.Error)) throw new FormatException(string.Join("; ", result.Diagnostics.Select(d => d.Message)));
+                pkg.TranslationUrls.Add(new() { Language = document.Resource.Language, Path = document.Resource.RelativePath });
+            }
+            settings.ResourceDocuments.AddRange(documents);
+            settings.TranslationPackages.Add(pkg);
+            settings.Save();
+            transaction?.Commit();
         }
-
-        settings.TranslationPackages.Add(pkg);
-        settings.Save();
+        catch
+        {
+            settings.ResourceDocuments = priorDocuments;
+            settings.TranslationPackages.Remove(pkg);
+            transaction?.Rollback();
+            throw;
+        }
         return pkg;
     }
 
@@ -100,15 +135,25 @@ public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy>
             string.Equals(p.Name, packageName, StringComparison.OrdinalIgnoreCase));
         if (pkg == null) return;
 
-        // Delete associated files
-        foreach (var url in pkg.TranslationUrls)
+        var files = pkg.TranslationUrls.Select(url => ResourceFilePath.Resolve(settings.ProjectPath, url.Path)).ToList();
+        var priorDocuments = settings.ResourceDocuments.ToList();
+        var priorPackages = settings.TranslationPackages.ToList();
+        var transaction = SaveTransaction.BeginIfNeeded(settings.ProjectPath, files.Append(Path.Combine(settings.ProjectPath, "toucan.tproj")));
+        try
         {
-            var filePath = Path.Combine(settings.ProjectPath, url.Path.Replace('/', Path.DirectorySeparatorChar));
-            if (File.Exists(filePath)) File.Delete(filePath);
+            foreach (var file in files) if (File.Exists(file)) File.Delete(file);
+            settings.ResourceDocuments.RemoveAll(d => d.Resource.Package == pkg.Name);
+            settings.TranslationPackages.Remove(pkg);
+            settings.Save();
+            transaction?.Commit();
         }
-
-        settings.TranslationPackages.Remove(pkg);
-        settings.Save();
+        catch
+        {
+            settings.ResourceDocuments = priorDocuments;
+            settings.TranslationPackages = priorPackages;
+            transaction?.Rollback();
+            throw;
+        }
     }
 
     public void RenamePackage(ProjectSettings settings, string oldName, string newName)
@@ -117,10 +162,12 @@ public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy>
             string.Equals(p.Name, oldName, StringComparison.OrdinalIgnoreCase));
         if (pkg == null) return;
 
+        if (string.IsNullOrWhiteSpace(newName) || settings.TranslationPackages.Any(p => p != pkg && string.Equals(p.Name, newName, StringComparison.OrdinalIgnoreCase)))
+            throw new ArgumentException("Package name must be nonempty and unique.", nameof(newName));
         pkg.Name = newName;
-        // Update file paths
-        foreach (var url in pkg.TranslationUrls)
-            url.Path = url.Path.Replace($"/{oldName}.", $"/{newName}.");
+        // A package label is independent of its resource destination; renaming must not strand files.
+        foreach (var document in settings.ResourceDocuments.Where(d => d.Resource.Package == oldName))
+            document.Resource = document.Resource with { Package = newName };
 
         settings.Save();
     }
