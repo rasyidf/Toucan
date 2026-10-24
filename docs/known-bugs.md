@@ -2,11 +2,11 @@
 title: "Known Issues & Unfinished Features"
 status: active
 updated: 2026-10-25
-summary: "Open source-build issues for the 0.24 preview: release distribution, missing panels, external connector acceptance and native/platform verification. Fixed issues live in CHANGELOG.md."
+summary: "Open v0.24 source-build issues: validation-policy enforcement, release distribution, missing panels, external connector acceptance and native workflow verification."
 ---
 # Known Issues & Unfinished Features
 
-Published release: **v0.23.0** (preview). Current source build: **0.24.0**, audited **2026-10-25** on `release/v0.23.0`; native release acceptance remains pending.
+Published release: **v0.23.0** (preview). Current source build: **0.24.0**, audited **2026-10-25** on `release/v0.24.0`; native Windows release acceptance remains pending. The readiness review treats macOS/Linux testing as passed at the user's request; that assumption is separate from this host's recorded execution evidence.
 
 This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [CHANGELOG.md](../CHANGELOG.md) (see [Where the old fixes went](#where-the-old-fixes-went)). When a bug is fixed, delete its row and section here and add a `### Fixed` line to the changelog `[Unreleased]` section. Planned work for an ID is linked from [the roadmap](todos/future-roadmap.md) (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from `main` (source: branch `legacy/wpf`), so nothing here is about WPF.
 
@@ -22,7 +22,8 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [REL-04](#rel-04) | Low | Release | Windows ships as a portable zip; no installer or MSIX in releases | From docs |
 | [APP-01](#app-01) | Low | App | Source Control and Dictionary panels do not exist | Reproduced |
 | [APP-05](#app-05) | Medium | Integration | External connector and connection lifecycle acceptance remains unverified | From code and available environment |
-| [QA-03](#qa-03) | Medium | Release acceptance | Native accessibility, desktop workflow and macOS/Linux evidence remains pending | Not executed |
+| [APP-06](#app-06) | Medium | Validation | Saved rule enable/severity preferences are not enforced by validation entry points; project custom-rule loading is not wired | From code |
+| [QA-03](#qa-03) | Medium | Release acceptance | Native Windows accessibility/workflow acceptance pending; macOS/Linux assumed passed for this readiness review | Windows native not executed |
 | [QA-02](#qa-02) | Info | Perf | Large-project performance has never been profiled | Not checked |
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
@@ -87,12 +88,19 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 
 Toolbar contributions now render and follow registry state. Core connection activation exists, but no desktop/CLI connection-management caller was found. The separate external connector repository is unavailable here, so its package-only desktop/CLI acceptance remains open. Keep the v0.23 integration gate pending; see [v0.24 acceptance](specs/editor-comfort/acceptance.md).
 
+<a id="app-06"></a>
+### APP-06 — Validation settings are not applied at runtime
+
+The Validation settings page lists registered built-in/plugin rules and persists enable/severity preferences. `ValidationPipeline.RunAll` still executes every registered rule with its default severity. Manual validation, save, approval checks and plugin workspace edits call that pipeline without applying effective project/default overrides. `CustomValidationRule` and its definition model exist, but no production project-rule loader/registration path was found. The earlier capability list overstated these foundations as complete configurable project validation. Runtime enforcement and project rule files remain roadmap work, with enforcement tracked in v0.25.
+
+This is a source audit, not a new runtime reproduction. It does not prevent draft saves, but an ignored preference can change approval eligibility. Keep the same policy across all entry points when implementing the fix.
+
 ## Quality
 
 <a id="qa-03"></a>
 ### QA-03 — Native and supported-platform acceptance
 
-Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native desktop input, screen-reader announcements, operating-system text scaling, Linux/macOS execution and compatibility M7c acceptance were not executed in this environment. They remain release gates rather than inferred passes.
+Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements, operating-system text scaling and the corresponding compatibility M7c rows remain unexecuted. The 2026-10-25 readiness review assumes macOS/Linux testing passed at the user's request; no cross-platform execution artifacts were produced on this Windows host.
 
 
 <a id="qa-02"></a>

@@ -48,3 +48,5 @@ Repository xUnit guidance: focused behavior tests, shell/screenshot checks, full
 2026-10-25: Shared dialog chrome, project-aware menus/palette and hidden start-screen rails completed. The accumulated editor and shell implementation is recorded together in Git history; native/platform acceptance remains pending.
 
 2026-10-25: Reconciled the local editor, compatibility and new guide documentation with upstream `6204332`. All cross-platform solution projects build in the isolated Review configuration; the merged regression suites pass 1,435 tests with one external connector gate skipped. See the acceptance evidence for exact scope and remaining release gates.
+
+2026-10-25: On `release/v0.24.0`, fixed stale source-placeholder warnings and seen notification badges reappearing after summary refreshes. All 33 focused checks and 340 full UI cases pass, with the external connector gate skipped. The roadmap was reconciled with production implementation; the user-requested macOS/Linux readiness assumption is recorded separately from local execution evidence. Native Windows and external connector acceptance remain open.

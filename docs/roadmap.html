@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Toucan roadmap: v0.21 to v1.0</title>
-<meta name="description" content="Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.">
+<meta name="description" content="Open milestones through v1.0, reconciled with the v0.24 source build. Delivered toolbar/native-menu work is removed; partial review, validation and source foundations remain explicit.">
 <link rel="canonical" href="https://toucan.rasyid.dev/roadmap.html">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,19 +15,19 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Toucan roadmap: v0.21 to v1.0">
-<meta property="og:description" content="Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.">
+<meta property="og:description" content="Open milestones through v1.0, reconciled with the v0.24 source build. Delivered toolbar/native-menu work is removed; partial review, validation and source foundations remain explicit.">
 <meta property="og:url" content="https://toucan.rasyid.dev/roadmap.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Toucan roadmap: v0.21 to v1.0">
-<meta name="twitter:description" content="Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.">
+<meta name="twitter:description" content="Open milestones through v1.0, reconciled with the v0.24 source build. Delivered toolbar/native-menu work is removed; partial review, validation and source foundations remain explicit.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Toucan \u00b7 Toucan roadmap: v0.21 to v1.0",
-  "description": "Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.",
+  "description": "Open milestones through v1.0, reconciled with the v0.24 source build. Delivered toolbar/native-menu work is removed; partial review, validation and source foundations remain explicit.",
   "url": "https://toucan.rasyid.dev/roadmap.html",
   "publisher": {
     "@type": "Organization",
@@ -100,7 +100,7 @@
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Toucan roadmap: v0.21 to v1.0</h1>
-        <p class="lead">Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.</p>
+        <p class="lead">Open milestones through v1.0, reconciled with the v0.24 source build. Delivered toolbar/native-menu work is removed; partial review, validation and source foundations remain explicit.</p>
         <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
@@ -112,6 +112,7 @@
 <p>This file lists open work only. Remove shipped tasks instead of ticking them. Add user-visible changes to <code>CHANGELOG.md</code> under <code>[Unreleased]</code>, regenerate the <a href="changelog.html">website changelog</a> with <code>python3 tools/generate-changelog.py</code>, lasting capabilities to <a href="completed-features.html">completed-features.md</a>, and remove resolved issues from <a href="known-bugs.html">known-bugs.md</a>. Keep the README roadmap and <a href="index.html">website summary</a> aligned, then refresh <code>docs/INDEX.md</code>.</p>
 <p>Existing bugs are linked by ID instead of duplicated here. Completion gates describe acceptance criteria; checkboxes describe implementation work. The header counts release tasks, v1.0 gates, and deferred tasks separately.</p>
 <h2 id="release-overview"><a class="anchor" href="#release-overview" aria-label="Link to this section">#</a>Release overview</h2>
+<p>The <a href="https://github.com/rasyidf/Toucan/blob/main/docs/research/v0.24-roadmap-audit.md">2026-10-25 source audit</a> distinguishes implemented UI and compatibility work from unfinished product workflows. v0.24 already implements its editor/onboarding features; its remaining task is release acceptance. The main plugin toolbar and macOS native menu are implemented. Later milestones retain the work that their existing foundations do not yet deliver.</p>
 <div class="table-wrap"><table><thead><tr><th>Release</th><th>Main outcome</th><th>Depends on</th></tr></thead><tbody><tr><td>v0.21</td><td>File fidelity and automated regression checks</td><td>v0.20</td></tr><tr><td>v0.22</td><td>Recoverable saves and durable drafts</td><td>v0.21</td></tr><tr><td>v0.23</td><td>Extension platform: lifecycle, commands, desktop contributions, host services</td><td>v0.22</td></tr><tr><td>v0.24</td><td>Comfortable editing and onboarding</td><td>v0.23</td></tr><tr><td>v0.25</td><td>Glossary and message-aware validation</td><td>v0.24</td></tr><tr><td>v0.26</td><td>Review state that follows source changes</td><td>v0.25</td></tr><tr><td>v0.27</td><td>Content-source contracts and local snapshots</td><td>v0.23, v0.26</td></tr><tr><td>v0.28</td><td>CRUD persistence and synchronization engine</td><td>v0.27</td></tr><tr><td>v0.29</td><td>One complete online-source integration</td><td>v0.28</td></tr><tr><td>v0.30</td><td>Repeatable distribution and update notifications</td><td>CI from v0.21</td></tr><tr><td>v0.31</td><td>Measured performance, migration checks, release candidate</td><td>v0.21–v0.30</td></tr><tr><td>v1.0</td><td>First stable release after all release gates pass</td><td>v0.31</td></tr></tbody></table></div>
 <h3 id="v021-file-fidelity-and-ci"><a class="anchor" href="#v021-file-fidelity-and-ci" aria-label="Link to this section">#</a>v0.21: File fidelity and CI</h3>
 <p><strong>Outcome:</strong> supported formats can be edited without losing information, with automated protection against regressions.</p>
@@ -126,7 +127,7 @@
 <h3 id="v024-editor-comfort-and-onboarding"><a class="anchor" href="#v024-editor-comfort-and-onboarding" aria-label="Link to this section">#</a>v0.24: Editor comfort and onboarding</h3>
 <p><strong>Outcome:</strong> a new user can open a project and complete a keyboard-driven translation session comfortably. <strong>References:</strong> QA-03. Implementation and Windows automated evidence are in <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/editor-comfort/acceptance.md">editor-comfort acceptance</a>.</p>
 <ul class="tasks">
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader labels, and RTL content on supported platforms.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify native Windows light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader announcements, and RTL content. The current readiness review assumes macOS/Linux have passed at the user's request; retain the distinction between that assumption and this host's automated evidence.</li>
 </ul>
 <p><strong>Completion gate:</strong> a user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved.</p>
 <h3 id="v025-terminology-and-validation"><a class="anchor" href="#v025-terminology-and-validation" aria-label="Link to this section">#</a>v0.25: Terminology and validation</h3>
@@ -136,6 +137,7 @@
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Show selected-string glossary matches in a Dictionary panel and suggest glossary terms while editing (APP-01).</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add configurable glossary validation and pass relevant terminology to machine/AI translation requests.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add debounced validation while typing, with clear severity and navigation to affected fields.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Apply configured rule enable/severity policy consistently in manual checks, save, approval and plugin workspace edits; the settings editor already stores the preferences (APP-06).</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Parse and validate supported message syntaxes, including nested ICU plural/select messages, required branches, and placeholders; document syntax/version limits.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Finish AI finding re-translation and configurable analysis strictness, retaining preview and explicit acceptance.</li>
 </ul>
@@ -191,7 +193,7 @@
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Validate and ship a Windows installer alongside the portable package; configure trusted signing for release artifacts where required.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Configure Developer ID signing and notarization for macOS; preserve a documented development-build path.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Script Linux packaging and document supported architectures, dependencies, desktop integration, and installation/removal.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add configurable startup update checks, stable/preview channels, changelog previews, and a clear download/open-release action.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Extend the existing manual update check and stable/preview channels with configurable startup checks, changelog previews, and a clear download/open-release action.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify clean install, upgrade, uninstall, and settings preservation; document signing costs or platform limitations that remain unresolved.</li>
 </ul>
 <p><strong>Completion gate:</strong> a release can be built from its tag and installed/upgraded on each supported platform, with explicit platform limitations and no manual artifact patching. Automatic in-app installation is deferred.</p>
@@ -238,7 +240,7 @@
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add verified update download/application with restart, recovery, and stable/preview channels.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add Linux AppImage/Flatpak distribution and complete XDG integration.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add macOS native menu-bar and system-accent integration.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add macOS system-accent integration; the native menu bar and native shortcut ownership already exist.</li>
 </ul>
 <h3 id="editor-glossary-and-reporting"><a class="anchor" href="#editor-glossary-and-reporting" aria-label="Link to this section">#</a>Editor, glossary, and reporting</h3>
 <ul class="tasks">
@@ -258,8 +260,6 @@
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add per-project validation rule files under <code>.toucan/rules/</code>.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Make signing mandatory for all plugins and add a plugin feed alongside the collaboration/auth milestone (commercial-channel verification ships in v0.29).</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add per-rule enable/severity settings for plugin rules.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Render <code>CommandPlacement.Toolbar</code> for plugin commands outside panels (a main toolbar surface). The placement flag and panel toolbars already work; a global toolbar for commands not attached to a panel is not yet rendered.</li>
 </ul>
 <h3 id="real-time-collaboration"><a class="anchor" href="#real-time-collaboration" aria-label="Link to this section">#</a>Real-time collaboration</h3>
 <ul class="tasks">

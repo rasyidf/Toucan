@@ -83,7 +83,7 @@ The **Issues** panel flags any segment where target placeholders do not match th
 ### ICU Plurals & Complex Messages
 For formats supporting complex plural forms (i18next, Flutter ARB, ICU MessageFormat):
 - Standard plural suffixes (`_one`, `_other`, `_few`, `_many`, `_zero`) are grouped together logically in the tree.
-- Complex ICU expressions (`{count, plural, one {# day} other {# days}}`) can be edited as whole strings with syntax validation, preventing syntax corruption.
+- Complex ICU expressions (`{count, plural, one {# day} other {# days}}`) can be edited as whole strings. Full nested ICU syntax and required-branch validation remain planned for v0.25; preserve the message syntax when editing.
 
 ### Integrated Spell Checking
 - Built-in spell checking runs completely offline using the trusted **Hunspell** engine.

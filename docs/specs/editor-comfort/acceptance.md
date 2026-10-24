@@ -2,7 +2,7 @@
 title: "v0.24 acceptance evidence"
 status: active
 updated: 2026-10-25
-summary: "Windows automated evidence for the 0.24 source build, completed editor workflows, reproducible commands and the remaining native/platform and external connector release gates."
+summary: "v0.24 Windows automated evidence, two editor regression fixes and remaining native Windows/external connector gates. macOS/Linux are assumed passed for the user's readiness review."
 ---
 # v0.24 acceptance evidence
 
@@ -53,7 +53,7 @@ The Core boundary test and framework scanner check create temporary Windows junc
 | Gate | State and required evidence |
 |---|---|
 | Native Windows workflow/accessibility | Not executed: native desktop control is unavailable through the enabled tools. Run packaged-app editing, screen-reader announcements, OS text scaling, focus/caret/selection, dialogs and mixed RTL/LTR acceptance. Headless results are not native input evidence. |
-| Linux/macOS | Not executed on this Windows host. Run supported-platform keyboard, layout, source/spelling and packaged-resource flows, and record exact OS/build/artifact hashes. |
+| Linux/macOS | Assumed passed for the 2026-10-25 readiness decision at the user's request. Not independently executed on this Windows host; preserve external OS/build/artifact evidence separately. |
 | Compatibility M7c | Remains open until its native/platform rows are executed. Do not convert committed M3–M7 implementation into a claim of complete framework/platform parity. |
 | External connector | The separate `toucan-plugins` repository is not present. Its package-only sample desktop/CLI gate remains open. Core connection activation exists, but no production desktop/CLI connection-management caller was found; adding that UI remains an inherited integration gap (APP-05). |
 
@@ -70,3 +70,11 @@ Shared dialog chrome and project-aware menu/palette visibility were added after 
 On 2026-10-25, the documentation commit `2c2c7f6` and local editor/compatibility changes were reconciled with upstream `6204332`, preserving both histories. The merged implementation includes placeholder rename and warnings, inspector context, the feature tour and accessibility improvements alongside the local shell and metadata-preserving undo workflows.
 
 Every project listed in `Toucan.CrossPlatform.slnx` builds individually with `--no-restore -m:1 -c Review`; the solution itself only defines its default configurations. Direct xUnit execution passed 1,087 Core tests, 337 UI tests and 11 SDK harness tests (1,435 passed total). The UI suite's external connector test was skipped because `TOUCAN_EXTERNAL_CONNECTOR_DIST` is not configured. Evidence: `build/v0.24-readiness/merged-full-core.xml`, `merged-full-ui.xml` and `merged-full-harness.xml`. Documentation status validation also passes. These checks retain all remaining native/platform and external connector release gates above.
+
+## v0.24 branch regression follow-up
+
+The active branch is now `release/v0.24.0`, created from the merged v0.23 branch. Older branch names and counts above describe historical snapshots. v0.23.0 remains a published pre-release; its superseded development branch was removed under the beta policy of one active minor-version branch.
+
+On 2026-10-25, two reproduced regressions were fixed: target placeholder context now follows source edits/rename/undo/redo (including plural variants), and refreshing project/validation totals no longer restores a seen notification badge. The retained history count and validation summary remain independent of the unseen count. All 33 focused behavior checks pass. The full UI suite passes 340 tests, with only the external connector gate skipped; evidence is `build/v0.24-readiness/v24-fixes-focused.xml` and `v24-fixes-full-ui.xml`. The build passes with the existing injected-window AVLN3001 warning. Core/SDK implementations were unchanged from the passing merged baseline.
+
+The [roadmap audit](../../research/v0.24-roadmap-audit.md) removes delivered plugin toolbar work and narrows native-menu/update tasks to their remaining scope. It also records an inherited validation policy gap (APP-06) for v0.25: saved rule preferences are not enforced at validation entry points. This follow-up does not claim glossary, persisted review revisions, content-source adapters or remote synchronization are complete.

@@ -48,7 +48,7 @@ Toucan is not signed with an Apple Developer ID. If Gatekeeper blocks the downlo
 | Translate with context | Source-first cards, side-by-side fields in wide windows, stacked fields in narrow windows, character/word counts, comments and an inspector. |
 | Review by keyboard | Approve and advance through targets, find pending translations, and accept translation-memory suggestions. Editor, Review and read-only Audit modes support different stages of the work. |
 | Work in bulk | Preview search/replace and pre-translation; copy, move, approve or delete selected keys. Grouped undo restores a batch in one step. |
-| Catch mistakes | Missing translations, placeholder mismatches, duplicates, untranslated copies, empty values and whitespace checks, plus configurable project rules. Rename named placeholders across languages. |
+| Catch mistakes | Missing translations, placeholder mismatches, duplicates, untranslated copies, empty values and whitespace checks. Rename named placeholders across languages. |
 | Reuse translations | Fuzzy translation memory, match provenance, TMX import/export and inline ghost-text suggestions. |
 | Stay focused | Zen mode, a searchable command palette, customizable shortcuts, light/dark themes, optional onboarding guidance and notification history with actions. |
 | Find code context | Source scanning for translation calls, used/unused key filters and links back to source files. |

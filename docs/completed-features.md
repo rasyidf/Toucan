@@ -35,6 +35,7 @@ summary: "Checklist of shipped and implemented capabilities through the v0.24 so
 - [x] Source-first card layout (two columns in wide windows, stacked in narrow windows)
 - [x] Focused target metrics: Unicode character count, word count, and translation-memory provenance
 - [x] Registered keyboard editing commands: Approve and Next (Ctrl/Cmd+Enter), Next Pending Translation, Accept Suggestion
+- [x] Live placeholder source context across edits, linked renames, undo/redo and independent plural variants
 - [x] Retained target field focus across card and page boundaries
 - [x] Dismissible onboarding guide and first-run setup (default language, theme, optional AI)
 - [x] Filter expression history (last 15)
@@ -125,6 +126,7 @@ summary: "Checklist of shipped and implemented capabilities through the v0.24 so
 - [x] Filter: untranslated / translated / approved
 - [x] Status bar (project, language, cursor, loading, notifications)
 - [x] Notification history flyout in the status bar (retains up to 200 items with severity, source, timestamp, retry save, issues, preferences)
+- [x] Unseen notification badge stays cleared after reading history and across validation/project summary refreshes
 - [x] Shared custom dialog chrome with caption buttons matching window theme
 - [x] Contextual start screen: collapses activity rails and reserved columns until a project is opened
 - [x] Project-aware menus and command palette: hides editing, persistence, validation, statistics, and project properties until a project opens
@@ -143,9 +145,8 @@ summary: "Checklist of shipped and implemented capabilities through the v0.24 so
 - [x] Search and replace across keys, values, and languages (match case, whole word, regex, scope, preview, history, highlighted matches)
 - [x] Bulk delete, move to namespace, pre-translate, approve, and copy source to target
 - [x] Six built-in validation rules: missing, placeholder mismatch, duplicate keys, untranslated (same as source), empty, whitespace mismatch
-- [x] Per-rule enable/disable and severity
+- [x] Settings editor lists built-in/plugin validation rules and persists enable/severity preferences (runtime enforcement remains APP-06)
 - [x] Auto-fix suggestions for common issues (trailing spaces, wrong quotes)
-- [x] Custom rules per project: max length, forbidden words, regex, required
 
 ## Translation Memory
 
@@ -167,7 +168,7 @@ summary: "Checklist of shipped and implemented capabilities through the v0.24 so
 - [x] Avalonia app for macOS (`Toucan.app`) and Linux (tarball), preview since v0.18.0
 - [x] Windows packaging scripts: portable EXE, Inno Setup installer, MSIX (`publish.ps1`)
 - [x] File association (`.tproj` → open app)
-- [x] Git branch and changed-file count in the status bar
+- [x] macOS native menu bar with registry commands, project-aware visibility and native shortcut ownership
 - [x] Translation file locations configurable per language
 - [x] Encoding (UTF-8, UTF-8 BOM) and line endings (LF, CRLF) per project, from the status bar
 

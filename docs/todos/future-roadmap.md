@@ -1,9 +1,9 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "51 release tasks; 6 stable gates; 27 deferred tasks"
+progress: "44 release tasks; 6 stable gates; 26 deferred tasks"
 updated: 2026-10-25
-summary: "Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization."
+summary: "Open milestones through v1.0, reconciled with the v0.24 source build. Delivered toolbar/native-menu work is removed; partial review, validation and source foundations remain explicit."
 ---
 # Toucan roadmap: v0.21 to v1.0
 
@@ -22,6 +22,8 @@ This file lists open work only. Remove shipped tasks instead of ticking them. Ad
 Existing bugs are linked by ID instead of duplicated here. Completion gates describe acceptance criteria; checkboxes describe implementation work. The header counts release tasks, v1.0 gates, and deferred tasks separately.
 
 ## Release overview
+
+The [2026-10-25 source audit](../research/v0.24-roadmap-audit.md) distinguishes implemented UI and compatibility work from unfinished product workflows. v0.24 already implements its editor/onboarding features; its remaining task is release acceptance. The main plugin toolbar and macOS native menu are implemented. Later milestones retain the work that their existing foundations do not yet deliver.
 
 | Release | Main outcome | Depends on |
 |---|---|---|
@@ -62,7 +64,7 @@ The upstream release records its connector acceptance as passed. Revalidation of
 
 **Outcome:** a new user can open a project and complete a keyboard-driven translation session comfortably. **References:** QA-03. Implementation and Windows automated evidence are in [editor-comfort acceptance](../specs/editor-comfort/acceptance.md).
 
-- [ ] Verify light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader labels, and RTL content on supported platforms.
+- [ ] Verify native Windows light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader announcements, and RTL content. The current readiness review assumes macOS/Linux have passed at the user's request; retain the distinction between that assumption and this host's automated evidence.
 
 **Completion gate:** a user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved.
 
@@ -75,6 +77,7 @@ The upstream release records its connector acceptance as passed. Revalidation of
 - [ ] Show selected-string glossary matches in a Dictionary panel and suggest glossary terms while editing (APP-01).
 - [ ] Add configurable glossary validation and pass relevant terminology to machine/AI translation requests.
 - [ ] Add debounced validation while typing, with clear severity and navigation to affected fields.
+- [ ] Apply configured rule enable/severity policy consistently in manual checks, save, approval and plugin workspace edits; the settings editor already stores the preferences (APP-06).
 - [ ] Parse and validate supported message syntaxes, including nested ICU plural/select messages, required branches, and placeholders; document syntax/version limits.
 - [ ] Finish AI finding re-translation and configurable analysis strictness, retaining preview and explicit acceptance.
 
@@ -140,7 +143,7 @@ The upstream release records its connector acceptance as passed. Revalidation of
 - [ ] Validate and ship a Windows installer alongside the portable package; configure trusted signing for release artifacts where required.
 - [ ] Configure Developer ID signing and notarization for macOS; preserve a documented development-build path.
 - [ ] Script Linux packaging and document supported architectures, dependencies, desktop integration, and installation/removal.
-- [ ] Add configurable startup update checks, stable/preview channels, changelog previews, and a clear download/open-release action.
+- [ ] Extend the existing manual update check and stable/preview channels with configurable startup checks, changelog previews, and a clear download/open-release action.
 - [ ] Verify clean install, upgrade, uninstall, and settings preservation; document signing costs or platform limitations that remain unresolved.
 
 **Completion gate:** a release can be built from its tag and installed/upgraded on each supported platform, with explicit platform limitations and no manual artifact patching. Automatic in-app installation is deferred.
@@ -213,7 +216,7 @@ These remain visible backlog items, not prerequisites for the first stable relea
 
 - [ ] Add verified update download/application with restart, recovery, and stable/preview channels.
 - [ ] Add Linux AppImage/Flatpak distribution and complete XDG integration.
-- [ ] Add macOS native menu-bar and system-accent integration.
+- [ ] Add macOS system-accent integration; the native menu bar and native shortcut ownership already exist.
 
 ### Editor, glossary, and reporting
 
@@ -234,8 +237,6 @@ Core plugins shipped in v0.18.0. See the [plugin guide](../plugins.md) and [orig
 
 - [ ] Add per-project validation rule files under `.toucan/rules/`.
 - [ ] Make signing mandatory for all plugins and add a plugin feed alongside the collaboration/auth milestone (commercial-channel verification ships in v0.29).
-- [ ] Add per-rule enable/severity settings for plugin rules.
-- [ ] Render `CommandPlacement.Toolbar` for plugin commands outside panels (a main toolbar surface). The placement flag and panel toolbars already work; a global toolbar for commands not attached to a panel is not yet rendered.
 
 ### Real-time collaboration
 

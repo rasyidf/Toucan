@@ -170,7 +170,7 @@
 <p>For formats supporting complex plural forms (i18next, Flutter ARB, ICU MessageFormat):</p>
 <ul>
 <li>Standard plural suffixes (<code>_one</code>, <code>_other</code>, <code>_few</code>, <code>_many</code>, <code>_zero</code>) are grouped together logically in the tree.</li>
-<li>Complex ICU expressions (<code>{count, plural, one {# day} other {# days}}</code>) can be edited as whole strings with syntax validation, preventing syntax corruption.</li>
+<li>Complex ICU expressions (<code>{count, plural, one {# day} other {# days}}</code>) can be edited as whole strings. Full nested ICU syntax and required-branch validation remain planned for v0.25; preserve the message syntax when editing.</li>
 </ul>
 <h3 id="integrated-spell-checking"><a class="anchor" href="#integrated-spell-checking" aria-label="Link to this section">#</a>Integrated Spell Checking</h3>
 <ul>
