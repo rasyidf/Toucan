@@ -12,6 +12,8 @@ public interface IProjectLifecycleService
     /// <summary>Opens a project from any entry point. Handles unsaved-changes prompt if needed. Cancelling <paramref name="ct"/> mid-scan returns <see cref="ProjectOpenStatus.Cancelled"/>.</summary>
     Task<ProjectOpenResult> OpenProjectAsync(string folderPath, IProgress<ScanProgress>? progress = null, CancellationToken ct = default);
 
+    Task<ProjectOpenResult> OpenMigrationAsync(string path, MigrationReport report, IProgress<ScanProgress>? progress = null, CancellationToken ct = default) => OpenProjectAsync(path, progress, ct);
+
     /// <summary>Creates a new project and opens it.</summary>
     Task<ProjectOpenResult> CreateAndOpenProjectAsync(string folder, IReadOnlyList<string> languages, string formatId, string? name = null, CancellationToken ct = default);
 

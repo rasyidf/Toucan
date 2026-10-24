@@ -3,6 +3,7 @@ namespace Toucan.Core.Models;
 /// <summary>Neutral migration result. The host creates its native project from this data.</summary>
 public sealed class CompatibilityProject
 {
+    public List<ResourceDiagnostic> Diagnostics { get; set; } = [];
     public string Name { get; set; } = "";
     public string ProjectPath { get; set; } = "";
     public string Framework { get; set; } = "";

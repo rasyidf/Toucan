@@ -6,15 +6,18 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy
+public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy, IResourceOptionsProvider, IResourceDialectProvider
 {
+    public IReadOnlyList<ResourceDialectChoice> Dialects => [new(null, "Generic YAML"), new("rails-yaml", "Rails locale wrapper")];
+    public IReadOnlySet<string> SupportedOptions(ResourceDescriptor resource) => ResourceOptionFields.With("Layout", "Delimiter", "Arrays", "Indent");
+
     public string FormatId => FormatIds.Yaml;
 
     public FormatSupport Support { get; } = new(
         FormatEditing.Limited,
-        "YAML 1.1 and 1.2 scalar maps; one file per language",
-        ["Nested and flat dotted keys (same style as the file)", "scalar and mapping sequences", "Rails locale roots and original file paths", "block scalars (| and >) read", "multiline text", "quoted scalars such as on", "off", "~ and numbers"],
-        ["Comments in the file are not kept", "Anchors, aliases and tags are not read", "Block scalars are written as quoted strings"]);
+        "YAML block maps/sequences and JSON-compatible scalar types; restricted dialect",
+        ["Nested and flat dotted keys (same style as the file)", "scalar and mapping sequences", "Declared Rails locale roots and original file paths", "exact-resource literal/nested keys, nulls and empty nodes", "block scalars (| and >) read", "multiline text", "quoted scalars such as on", "off", "~ and numbers"],
+        ["Comments in the file are not kept", "Anchors, aliases, tags, nonempty flow collections and unsupported syntax block saving", "Block scalars are written as quoted strings"]);
     public string DisplayName => "YAML";
     public IReadOnlyList<string> FileExtensions => [".yml", ".yaml"];
     public string DefaultFilePath(string language) => $"{language}.yaml";
@@ -69,20 +72,32 @@ public class YamlSaveStrategy(IFileService fileService) : ISaveStrategy, IResour
         }
     }
 
+    public IReadOnlyList<string> FindUnsupportedConstructs(string projectRoot)
+    {
+        var found = new List<string>();
+        foreach (var file in FileEnumerator.EnumerateFiles(projectRoot, "*.yml").Concat(FileEnumerator.EnumerateFiles(projectRoot, "*.yaml")))
+            try { YamlDocumentCodec.Read(File.ReadAllText(file)); }
+            catch (FormatException ex) { found.Add($"{Path.GetRelativePath(projectRoot, file)}: {ex.Message}"); }
+        return found;
+    }
+
     public ResourceWriteResult WriteResource(ResourceWriteRequest request)
     {
-        var entries = ResourceFileAdapter.Entries(request);
+        ResourceFileAdapter.Entries(request, allowStructuredKeys: true); // Validate identities without flattening their typed paths.
         var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
-        var locale = entries.Select(i => i.FormatData?.GetValueOrDefault("yaml.locale")).FirstOrDefault(v => v != null)
-            ?? ResourceFileAdapter.Metadata(request.Document).GetValueOrDefault("yaml.locale");
-        var sb = new StringBuilder();
-        sb.AppendLine($"# Translation file for {request.Document.Resource.Language}");
-        sb.AppendLine("---");
-        var dict = entries.Where(i => ResourceFileAdapter.KeepEmpty(request) || !string.IsNullOrEmpty(i.Value))
-            .ToDictionary(i => locale == null ? i.Namespace : locale + "." + i.Namespace, i => i.Value ?? "");
-        if (HasKeyClash(dict) || File.Exists(file) && ExistingFileIsFlat(file)) WriteFlat(sb, dict);
-        else WriteYamlDict(sb, dict, 0);
-        fileService.SaveText(Path.GetDirectoryName(file)!, Path.GetFileName(file), sb.ToString());
+        if (request.Document.Data.TryGetValue("yaml.unsafe", out var unsafeInput) && unsafeInput.ValueKind == System.Text.Json.JsonValueKind.String) throw new FormatException($"{request.Document.Resource.RelativePath}: save blocked: {unsafeInput.GetString()}");
+        if (File.Exists(file)) YamlDocumentCodec.Read(ResourceText.Read(new(request.ProjectRoot, request.Document.Resource, request.ProjectOptions, request.CancellationToken)));
+        var options = ResourceText.Options(request);
+        var json = ResourceJsonCodec.Write(request.Document, request.Entries, request.ProjectOptions);
+        var root = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var locale = ResourceFileAdapter.Metadata(request.Document).GetValueOrDefault("yaml.locale");
+        var language = request.Document.Resource.Language;
+        if (request.Document.Resource.Dialect == "rails-yaml" && (locale == null || locale != language && locale != language.Split('-')[0])) locale = language;
+        var wrapped = locale != null ? new System.Text.Json.Nodes.JsonObject { [locale] = root.DeepClone() } : root;
+        var content = YamlDocumentCodec.Write(wrapped, options);
+        ResourceText.Write(request, content);
+        ResourceJsonCodec.AcceptWrite(request.Document, request.Entries, json);
+        request.Document.Data["yaml.source"] = System.Text.Json.JsonSerializer.SerializeToElement(content);
         return new([]);
     }
 

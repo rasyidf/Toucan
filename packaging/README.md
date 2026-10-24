@@ -1,7 +1,7 @@
 ---
 title: "Toucan Packaging"
 status: active
-updated: 2026-10-07
+updated: 2026-10-23
 summary: "How to build the Windows self-contained EXE, MSIX and installer, plus macOS and Linux packages."
 ---
 # Toucan Packaging
@@ -90,3 +90,11 @@ SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" NOTARY_PROFILE=touc
 ```
 
 Release the `.dmg` the script writes next to the app. It is the drag-to-Applications installer. Install `create-dmg` (`brew install create-dmg`) for a styled window; without it the script falls back to a plain `hdiutil` image.
+
+## Spelling engine materials
+
+The selected engine is WeCantSpell.Hunspell 7.0.1 under its MPL 1.1 alternative. Published output must retain `third-party/WeCantSpell.Hunspell/7.0.1`, including the license texts, notice, provenance and corresponding source archive. These sidecars remain outside single-file bundles; distributing an EXE alone omits required component materials. No dictionary pack is bundled.
+
+Python 3.9+ runs `tools/Verify-SpellingArtifacts.py --folder <published-folder>` for a separate-assembly net10.0 build. Use `--bundled` for a source/notice sidecar audit of bundled output; it does not extract a bundled assembly or certify ReadyToRun/AOT transformations. Windows publishing/MSIX and macOS packaging invoke the guard. Keep generated artifact hashes with release evidence. CI checks folder output on its existing OS matrix.
+
+See the [M7/UI implementation and remaining release rows](../docs/specs/resource-compatibility/m7-ui.md). Windows source/material packaging probes are not evidence of native picker behavior, installation/signing or Linux/macOS execution.

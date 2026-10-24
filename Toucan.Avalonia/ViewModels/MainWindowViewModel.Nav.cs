@@ -65,7 +65,7 @@ public partial class MainWindowViewModel
             var unused = _sourceCodeService.GetUnusedKeys(matched).ToHashSet(StringComparer.Ordinal);
             matched = FilteredBySourceUsage == "unused"
                 ? matched.Where(unused.Contains).ToList()
-                : matched.Where(k => !unused.Contains(k)).ToList();
+                : matched.Where(_sourceCodeService.GetAllKeys().ToHashSet(StringComparer.Ordinal).Contains).ToList();
         }
 
         var truncated = !alwaysPaging && matched.Count > AppOptions.TruncateResultsOver;

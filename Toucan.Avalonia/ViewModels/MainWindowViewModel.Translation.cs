@@ -309,6 +309,12 @@ public partial class MainWindowViewModel
     public ObservableCollection<KeyUsage> SourceCodeUsages { get; } = [];
     public ObservableCollection<string> UndefinedKeys { get; } = [];
 
+    private CancellationTokenSource? _sourceScanCancellation;
+    public ObservableCollection<SourceScanDiagnostic> SourceScanDiagnostics { get; } = [];
+    public bool CanClassifyUnusedSourceKeys => (_sourceCodeService as IProjectSourceCodeService)?.LastScan?.CanClassifyUnused == true;
+    [RelayCommand]
+    private void CancelSourceScan() => _sourceScanCancellation?.Cancel();
+
     [RelayCommand]
     private async Task ScanSourceCode()
     {
@@ -316,14 +322,34 @@ public partial class MainWindowViewModel
         var roots = ProjectSettings?.SourceRoots is { Count: > 0 } r ? r : [];
         var scanPath = roots.Count > 0 ? Path.GetFullPath(Path.Combine(CurrentPath, roots[0])) : CurrentPath;
 
+        var activeProject = ProjectSettings;
+        using var cancellation = new CancellationTokenSource();
+        _sourceScanCancellation = cancellation;
         IsScanning = true;
         StatusText = "Scanning source code…";
         try
         {
-            var result = await Task.Run(() => _sourceCodeService.ScanAsync(scanPath));
+            SourceCodeScanResult result;
+            SourceScanDiagnostics.Clear();
+            if (_sourceCodeService is IProjectSourceCodeService projectScanner)
+            {
+                var resourceKeys = AllTranslation.GroupBy(i => (i.Identity?.Package ?? "main", Key: i.Identity == null ? i.Namespace : ResourceEntryOperations.Selector(i.Identity.Path), i.Namespace))
+                    .Select(g => new SourceScanKey(g.Key.Item1, g.Key.Key, g.Key.Namespace, g.First().Identity?.KeyToken ?? "")).ToList();
+                var scanned = await projectScanner.ScanAsync(new(CurrentPath, ProjectSettings?.Framework, ProjectSettings?.FrameworkOptions,
+                    AllTranslation.Select(i => i.Identity?.Package ?? "main").Distinct().ToList(), Includes: ProjectSettings?.ScanIncludes, Excludes: ProjectSettings?.ExcludedDirectories,
+                    Extensions: ProjectSettings?.ScanExtensions, SourceRoots: roots, ResourceKeys: resourceKeys), cancellation.Token);
+                if (!ReferenceEquals(activeProject, ProjectSettings)) return;
+                foreach (var diagnostic in scanned.Diagnostics) SourceScanDiagnostics.Add(diagnostic);
+                result = new() { FilesScanned = scanned.FilesScanned, KeysFound = scanned.References.Select(r => (r.Package, r.Key)).Distinct().Count(),
+                    TotalUsages = scanned.References.Count, Duration = scanned.Duration };
+            }
+            else result = await _sourceCodeService.ScanAsync(scanPath, cancellation.Token);
+            OnPropertyChanged(nameof(CanClassifyUnusedSourceKeys));
             SourceCodeScanned = true;
             SourceCodeStatus = string.Create(CultureInfo.CurrentCulture,
                 $"{result.KeysFound} keys in {result.FilesScanned} files ({result.Duration.TotalSeconds:F1}s) · {Path.GetFileName(scanPath)}");
+            if ((_sourceCodeService as IProjectSourceCodeService)?.LastScan is { } scan) SourceCodeStatus += scan.Cancelled ? " · cancelled" : scan.Complete ? " · complete" : " · partial";
+            if (!CanClassifyUnusedSourceKeys) SourceCodeStatus += $" · {SourceScanDiagnostics.Count} unresolved/diagnostic finding(s); unused-key classification disabled.";
             StatusText = SourceCodeStatus;
 
             SourceCodeUsages.Clear();
@@ -342,7 +368,7 @@ public partial class MainWindowViewModel
         }
         finally
         {
-            IsScanning = false;
+            if (ReferenceEquals(_sourceScanCancellation, cancellation)) { _sourceScanCancellation = null; IsScanning = false; }
         }
     }
 
@@ -368,7 +394,7 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private void FilterUnusedKeys()
     {
-        if (!_sourceCodeService.HasScanData) return;
+        if (!_sourceCodeService.HasScanData || !CanClassifyUnusedSourceKeys) return;
         FilteredBySourceUsage = "unused";
         Search(SearchText, true);
     }
@@ -395,11 +421,25 @@ public partial class MainWindowViewModel
         if (usage == null) return;
         var roots = ProjectSettings?.SourceRoots is { Count: > 0 } r ? r : [];
         var root = roots.Count > 0 ? Path.GetFullPath(Path.Combine(CurrentPath, roots[0])) : CurrentPath;
-        var fullPath = Path.IsPathRooted(usage.FilePath) ? usage.FilePath : Path.Combine(root, usage.FilePath);
+        var fullPath = ResolveSourceUsagePath(usage);
         var editor = ProjectSettings?.ExternalEditor ?? "code --goto \"{file}:{line}\"";
-        PlatformService.RunShellCommand(editor
-            .Replace("{file}", fullPath, StringComparison.Ordinal)
-            .Replace("{line}", usage.Line.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal));
+        try { System.Diagnostics.Process.Start(PlatformService.EditorStartInfo(editor, fullPath, usage.Line, usage.Column)); }
+        catch (Exception ex) when (ex is FormatException or System.ComponentModel.Win32Exception or IOException or ArgumentException)
+        { StatusText = "Could not open the source location: " + ex.Message; }
+    }
+
+    [RelayCommand]
+    private void OpenScanDiagnostic(SourceScanDiagnostic? diagnostic)
+    {
+        if (diagnostic?.File == null || !SourceScanDiagnostics.Contains(diagnostic)) return;
+        OpenUsage(new KeyUsage(diagnostic.Code, diagnostic.File, diagnostic.Line ?? 1, "") { Column = diagnostic.Column ?? 1 });
+    }
+
+    internal string ResolveSourceUsagePath(KeyUsage usage)
+    {
+        var roots = ProjectSettings?.SourceRoots;
+        var root = _sourceCodeService is IProjectSourceCodeService || roots is not { Count: > 0 } ? CurrentPath : Path.GetFullPath(Path.Combine(CurrentPath, roots[0]));
+        return Path.IsPathRooted(usage.FilePath) ? usage.FilePath : Path.GetFullPath(Path.Combine(root, usage.FilePath));
     }
 
     [RelayCommand]

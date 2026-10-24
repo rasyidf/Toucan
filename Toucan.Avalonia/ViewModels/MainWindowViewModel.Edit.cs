@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.Input;
 using Toucan.Avalonia.Services;
 using Toucan.Core.Models;
+using Toucan.Core.Services;
 using Toucan.Extensions;
 
 namespace Toucan.Avalonia.ViewModels;
@@ -12,9 +13,10 @@ public partial class MainWindowViewModel
 {
     // ───────────────────────── Languages ─────────────────────────
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanCreateKeys))]
     private async Task NewLanguage()
     {
+        if (!CanChangeKeys) { StatusText = "Configure a target resource file before adding a generated-catalog language."; return; }
         if (!HasProject) return;
         var code = await _dialogService.ShowLanguagePromptAsync("New Language", "Choose the language to add to this project.", AllTranslation);
         if (code != null) await AddLanguageAsync(code);
@@ -22,6 +24,7 @@ public partial class MainWindowViewModel
 
     public async Task AddLanguageAsync(string code)
     {
+        if (!CanChangeKeys) { StatusText = "Resource capabilities forbid changing the generated catalog language set."; return; }
         if (string.IsNullOrWhiteSpace(code)) return;
         if (AllTranslation.Any(t => string.Equals(t.Language, code, StringComparison.OrdinalIgnoreCase)))
         {
@@ -42,6 +45,7 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private async Task ManageLanguages()
     {
+        if (!CanChangeKeys) { StatusText = "Configure generated-catalog resource languages in the project descriptor."; return; }
         if (!HasProject) return;
         var result = await _dialogService.ShowManageLanguagesAsync(AllTranslation, PrimaryLanguage);
         if (result == null) return;
@@ -73,6 +77,7 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private async Task DeleteLanguage(SummaryItem? item)
     {
+        if (!CanChangeKeys) { StatusText = "Resource capabilities forbid removing generated-catalog languages."; return; }
         if (item == null || string.IsNullOrEmpty(item.Language)) return;
         if (string.Equals(item.Language, PrimaryLanguage, StringComparison.OrdinalIgnoreCase))
         {
@@ -135,7 +140,7 @@ public partial class MainWindowViewModel
 
     // ───────────────────────── Keys ─────────────────────────
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanCreateKeys))]
     private async Task NewItem()
     {
         if (!HasProject) return;
@@ -147,8 +152,11 @@ public partial class MainWindowViewModel
 
     private static string ParentPrefix(string ns) => ResourceEntryOperations.ParentPrefix(ns);
 
+    public bool CanChangeKeys => !AllTranslation.Any(t => !t.Permissions.EditKeys) && ProjectSettings?.ResourceDocuments.Any(d => d.Resource.Ownership != ResourceOwnership.User) != true;
+
     public async Task CreateNewItemAsync(string newNamespace)
     {
+        if (!CanChangeKeys) { StatusText = "Generated catalogs own the keys. Edit source and extract again."; return; }
         if (string.IsNullOrWhiteSpace(newNamespace) || newNamespace.EndsWith('.') || newNamespace.StartsWith('.')) return;
         if (AllTranslation.Any(t => t.Namespace == newNamespace))
         {
@@ -175,7 +183,8 @@ public partial class MainWindowViewModel
         StatusText = $"Added key {newNamespace}";
     }
 
-    private bool HasSelectedNode() => SelectedNode != null;
+    private bool HasSelectedNode() => SelectedNode != null && CanChangeKeys;
+    private bool CanCreateKeys() => HasProject && CanChangeKeys;
 
     [RelayCommand(CanExecute = nameof(HasSelectedNode))]
     private async Task RenameItem()
@@ -191,6 +200,7 @@ public partial class MainWindowViewModel
     /// <summary>Renames one key segment and every key below it. Returns an error message or null.</summary>
     public string? RenameItemCore(NsTreeItem node, string newName)
     {
+        if (!CanChangeKeys) return "Resource capabilities forbid renaming keys.";
         newName = newName.Trim();
         if (string.IsNullOrWhiteSpace(newName)) return "Name can't be empty.";
         if (newName.Contains('.', StringComparison.Ordinal)) return "Name can't contain '.'.";
@@ -263,6 +273,7 @@ public partial class MainWindowViewModel
     /// <summary>Deletes the given keys (and any keys nested under them).</summary>
     public void DeleteNamespaces(IReadOnlyCollection<string> namespaces)
     {
+        if (!CanChangeKeys) { StatusText = "Resource capabilities forbid deleting keys."; return; }
         if (namespaces.Count == 0) return;
         var before = CaptureStructure();
         FlushPendingEdits();
@@ -281,6 +292,7 @@ public partial class MainWindowViewModel
     [RelayCommand(CanExecute = nameof(HasSelectedNode))]
     private void DuplicateItem()
     {
+        if (!CanChangeKeys) return;
         if (SelectedNode is not { } node) return;
         FlushPendingEdits();
 
@@ -329,6 +341,22 @@ public partial class MainWindowViewModel
     /// <summary>Adds empty items so every key exists in every language. Returns the items added.</summary>
     private List<TranslationItem> AddMissingTranslationsCore()
     {
+        if (!CanChangeKeys)
+        {
+            var targets = ProjectSettings?.ResourceDocuments.Where(d => d.Resource.Ownership == ResourceOwnership.User).Select(d => d.Resource).ToList() ?? [];
+            var addedTargets = new List<TranslationItem>();
+            foreach (var source in AllTranslation.Where(i => !i.Permissions.EditKeys && i.Identity != null).ToList())
+                foreach (var target in targets.Where(d => d.Package == source.Identity!.Package))
+                {
+                    var key = ResourceEntryOperations.Selector(source.Identity!.Path);
+                    if (AllTranslation.Any(i => i.Language == target.Language && i.Identity?.Package == target.Package &&
+                        i.Identity != null && ResourceEntryOperations.Selector(i.Identity.Path) == key)) continue;
+                    var item = new TranslationItem { Language = target.Language };
+                    ResourceEntryOperations.Move(item, target, key);
+                    AllTranslation.Add(item); addedTargets.Add(item);
+                }
+            return addedTargets;
+        }
         var namespaces = AllTranslation.ToNamespaces().ToList();
         var added = new List<TranslationItem>();
         var existing = AllTranslation.Select(t => (t.Language, t.Namespace)).ToHashSet();
@@ -399,6 +427,30 @@ public partial class MainWindowViewModel
     {
         foreach (var action in step)
         {
+            if ((undo ? action.BeforeSpelling : action.AfterSpelling) is { } spelling && ProjectSettings != null)
+            {
+                ProjectSettings.Spelling = SpellingSettings.Copy(spelling); _translationStore.NotifyConfigurationChanged(true);
+                _spellingSession?.Refresh(); MarkStructureChanged(); continue;
+            }
+            if ((undo ? action.BeforeMetadata : action.AfterMetadata) is { } metadata)
+            {
+                var item = AllTranslation.FirstOrDefault(i => i.Namespace == action.Namespace && i.Language == action.Language);
+                if (item?.Permissions.EditMetadata == true)
+                {
+                    item.FormatData = new(metadata);
+                    NotifyBulkValueChanges([item]);
+                    foreach (var shown in PagingController.Data.SelectMany(g => g.AllItems)) if (ReferenceEquals(shown.Model, item)) shown.Refresh();
+                }
+                continue;
+            }
+            if ((undo ? action.BeforeConfiguration : action.AfterConfiguration) is { } configuration && ProjectSettings != null)
+            {
+                ProjectConfiguration.Apply(ProjectSettings, configuration);
+                _translationStore.NotifyConfigurationChanged(true);
+                _spellingSession?.Refresh();
+                MarkStructureChanged();
+                OnPropertyChanged(nameof(CanChangeKeys));
+            }
             if ((undo ? action.BeforeStructure : action.AfterStructure) is { } structure)
             {
                 AllTranslation = structure.Select(i => ResourceEntryOperations.Copy(i)).ToList();
@@ -406,7 +458,7 @@ public partial class MainWindowViewModel
                 RefreshTree();
                 UpdateSummaryInfo();
             }
-            else ApplyUndoRedo([(action.Namespace, action.Language, undo ? action.OldValue : action.NewValue)]);
+            else if (action.BeforeConfiguration == null) ApplyUndoRedo([(action.Namespace, action.Language, undo ? action.OldValue : action.NewValue)]);
         }
     }
 

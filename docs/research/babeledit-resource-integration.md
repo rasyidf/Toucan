@@ -1,8 +1,8 @@
 ---
 title: "Toucan compatibility layer: BabelEdit projects and shared resource standards"
 status: reference
-updated: 2026-10-22
-summary: "Historical resource analysis and reuse boundaries; executed M0–M2 acceptance supersede current-status interpretations of the original gap inventory."
+updated: 2026-10-23
+summary: "Historical resource analysis and reuse boundaries. M0–M6 and UI closure/local spelling evidence supersede the original gap snapshot; the final platform/native gate remains open."
 ---
 
 # Toucan compatibility layer: BabelEdit projects and shared resource standards
@@ -111,6 +111,12 @@ The wrapper does **not** define BabelEdit's package/key/language/approval column
 
 Implementation work is tracked in the [gap closure plan](../specs/resource-compatibility/tasks.md). This section records the inspected baseline; that plan requires current verification before treating a finding as still open, including newer encoding and spreadsheet fixes.
 
+**M5/M6 update:** [Framework integration and source scanning are implemented](../specs/resource-compatibility/m5-m6.md). Optional framework settings/capabilities protect generated FormatJS sources while preserving editable targets, and framework-selected scanners report package identity, locations, cancellation and unresolved findings. The final Windows run passes 1,342 tests and the original CLI regressions. M7 spelling/provenance and the cross-platform release gate remain open. Earlier updates below are historical milestone snapshots.
+
+**M3 update:** [document fidelity and resource settings are implemented](../specs/resource-compatibility/m3.md) with exact-resource option precedence, JSON structure/order preservation, restricted YAML dialects and save guards, editable ARB descriptions/placeholders and Java properties document preservation. Production GUI Save As, package saves and CLI mutations have executed coverage. M4 exchange is accepted below; M5–M7 remain open.
+
+**M4 update:** [Spreadsheet exchange is implemented](../specs/resource-compatibility/m4.md) with a native typed-path/presence schema, optional public-header compatibility export, strict bounded readers and package-aware previews. Accepted edits undo together and participate in validation, metadata persistence and crash recovery; legacy workbook behavior remains covered. M5–M7 remain open.
+
 **M2 update:** [migration isolation and exact resource IO are implemented](../specs/resource-compatibility/m2.md) for JSON, YAML, ARB, Java properties, RESX/RESW and Laravel PHP. Schema/mapping/path validation precedes workspace replacement; package IO uses declared files and locales. PO/XLIFF exact migration is explicitly unsupported. M3–M7 retain format fidelity, exchange and framework work.
 
 **M1 update:** [neutral resource contracts and identity are implemented](../specs/resource-compatibility/m1.md), with JSON document-aware IO, native compatibility envelopes, structural undo/recovery and unchanged compiled sample-plugin verification. The historical observations below are not a current failure list; Subsequent milestone records describe remaining format/framework work.
@@ -192,3 +198,7 @@ The installation includes a BabelEdit EULA, third-party acknowledgements and dic
 - [Official spell-check documentation](https://www.codeandweb.com/babeledit/documentation/spellchecker): confirms Hunspell compatibility and `.xcu`/`.aff`/`.dic` structure.
 - Local evidence: `resources/fileio/*.mjs`, `resources/scripts/*.mjs`, `resources/demo/demo.babel`, `resources/dict/*/dictionaries.xcu`.
 - Toucan evidence: `Toucan.Plugins.Abstractions/Contracts/{ILoadStrategy,ISaveStrategy,IFrameworkProfile}.cs`, `Toucan.Plugins.Abstractions/Models/{SaveContext,TranslationItem}.cs`, `Toucan.Core/Services/{BabelProjectReader,ProjectService,PackageService,ExcelService,SourceCodeService}.cs`, `Toucan.Core.Common/Services/NestedJsonParser.cs`, and JSON/Data/Text format modules.
+
+## UI closure and local spelling update (2026-10-23)
+
+[M7/UI implementation and verification](../specs/resource-compatibility/m7-ui.md) records resource settings/mappings, ARB placeholders, migration review, source findings and local spelling. The engine is an independently sourced, pinned upstream component with its own materials; no installed BabelEdit resources or dictionaries are bundled. The final platform/native release gate remains open. Historical observations above remain research context.

@@ -1,0 +1,22 @@
+{
+  "id": "WeCantSpell.Hunspell",
+  "version": "7.0.1",
+  "upstream": "https://github.com/aarondandy/WeCantSpell.Hunspell",
+  "commit": "ab5709d95b2d23541984d22baa0ab2d1e783582f",
+  "artifactUrl": "https://api.nuget.org/v3-flatcontainer/wecantspell.hunspell/7.0.1/wecantspell.hunspell.7.0.1.nupkg",
+  "artifactSha256": "2cdbac31adefa4bbe0048266ea32275be7f802139e8f70754ded265f0e33ed45",
+  "licenseExpression": "MPL-1.1 OR GPL-2.0-or-later OR LGPL-2.1-or-later",
+  "chosenGrant": "MPL-1.1",
+  "modified": false,
+  "copyright": "Original Hunspell/MySpell developers and WeCantSpell.Hunspell contributors; see license.txt and source.zip",
+  "runtimeTarget": "net10.0",
+  "runtimeDependencies": [],
+  "distributionMode": "managed assembly; source and notices shipped alongside",
+  "files": {
+    "license.txt": "6d69e66d4533c9b9048db18d3f340b077313dc5d33324066f1b91cfbca15be00",
+    "source.zip": "feb3486319237e1aee298518e5753019b013a9caee075c4f8ac4d5f6f1f72e71",
+    "MPL-1.1.txt": "f849fc26a7a99981611a3a370e83078deb617d12a45776d6c4cada4d338be469"
+  },
+  "assemblySha256": "0a5905f2505ebc94f0da390b6107b3d71df3c232684edb6e63024aa5d63b28ca",
+  "excluded": "No upstream icons, test dictionaries, benchmark assets or test corpora are included."
+}

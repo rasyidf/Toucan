@@ -23,6 +23,7 @@ dotnet publish "$PROJ" -c Release -r "$RID" --self-contained -o "$OUT/publish"
 
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp -R "$OUT/publish/." "$APP/Contents/MacOS/"
+python3 "$ROOT/tools/Verify-SpellingArtifacts.py" --folder "$APP/Contents/MacOS/"
 chmod +x "$APP/Contents/MacOS/Toucan"
 
 # App icon: build AppIcon.icns from the 256px logo (largest slot is 128pt@2x).

@@ -183,7 +183,7 @@ internal sealed class PluginConfiguration(string pluginId, IPluginStorage storag
         return (field, resolved);
     }
 
-    private static ConfigValidationResult Validate(ConfigField field, object value)
+    internal static ConfigValidationResult Validate(ConfigField field, object value)
     {
         switch (field.Type)
         {

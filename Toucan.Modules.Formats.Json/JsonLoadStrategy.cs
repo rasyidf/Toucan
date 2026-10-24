@@ -70,7 +70,11 @@ public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoad
         request.CancellationToken.ThrowIfCancellationRequested();
         var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Resource.RelativePath);
         var options = ResourceOptions.Resolve(request.Resource.Options, request.ProjectOptions, null, new ResourceOptions { InputEncoding = "UTF-8" });
-        return ResourceJsonCodec.Read(File.ReadAllText(file, System.Text.Encoding.GetEncoding(options.InputEncoding!)), request.Resource, request.CancellationToken);
+        var content = ResourceText.Read(request, out var encoding);
+        FormatJsTarget.Validate(content, request.Resource);
+        var loaded = ResourceJsonCodec.Read(content, request.Resource, request.ProjectOptions, request.CancellationToken);
+        loaded.Document!.DetectedOptions = ResourceText.Detect(content, encoding);
+        return loaded;
     }
 
     private static (string language, string prefix) GetLanguageAndPrefix(string rootFolder, string filePath)

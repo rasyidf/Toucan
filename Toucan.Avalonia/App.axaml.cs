@@ -242,7 +242,7 @@ public partial class App : Application
         services.AddSingleton<ISearchAndReplaceService, SearchAndReplaceService>();
         services.AddSingleton<ITranslationMemory, TranslationMemoryService>();
         services.AddSingleton<IPackageService, PackageService>();
-        services.AddSingleton<ISourceCodeService, SourceCodeService>();
+
 
         // Project model
         services.AddSingleton<ITranslationManagementService, TranslationManagementService>();
@@ -299,7 +299,10 @@ public partial class App : Application
             sp.GetRequiredService<IAiSettingsStore>(),
             sp.GetRequiredService<ISourceClarityService>(),
             sp.GetService<IDiagnosticsService>(),
-            sp.GetService<IPluginCatalog>()));
+            sp.GetService<IPluginCatalog>(),
+            sp.GetServices<SpreadsheetDialect>(),
+            sp.GetServices<IProjectCompatibilityImporter>(),
+            sp.GetRequiredService<SpellingService>(), sp.GetRequiredService<DictionaryRegistry>()));
         services.AddSingleton<MainWindowViewModel>();
         // Plugins read and edit the open project through this (see IWorkspaceApi); it resolves the view model on first use.
         services.AddSingleton<global::Toucan.Core.Plugins.IWorkspaceBackend>(sp => new WorkspaceBackend(sp.GetRequiredService<MainWindowViewModel>()));

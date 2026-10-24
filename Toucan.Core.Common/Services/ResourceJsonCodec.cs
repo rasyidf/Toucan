@@ -7,9 +7,11 @@ namespace Toucan.Core.Services;
 /// <summary>JSON document state and typed paths shared by folder and exact-file entry points.</summary>
 public static class ResourceJsonCodec
 {
-    public static ResourceReadResult Read(string content, ResourceDescriptor resource, CancellationToken cancellationToken = default)
+    public static ResourceReadResult Read(string content, ResourceDescriptor resource, ResourceOptions? projectOptions = null, CancellationToken cancellationToken = default)
     {
-        using var json = JsonDocument.Parse(content);
+        var options = ResourceOptions.Resolve(resource.Options, projectOptions, null, null);
+        var normalized = ApplyArrays(JsonNode.Parse(content), options.Arrays);
+        using var json = JsonDocument.Parse(normalized?.ToJsonString() ?? "null");
         if (json.RootElement.ValueKind is not (JsonValueKind.Object or JsonValueKind.Array))
             throw new FormatException("A translation JSON document must have an object or array root.");
         var entries = new List<TranslationItem>();
@@ -18,12 +20,7 @@ public static class ResourceJsonCodec
         return new ResourceReadResult(entries, new ResourceDocumentState
         {
             Resource = resource, Data = new() { ["json"] = json.RootElement.Clone() },
-            DetectedOptions = new ResourceOptions
-            {
-                Newline = content.Contains("\r\n", StringComparison.Ordinal) ? ResourceNewline.CrLf : ResourceNewline.Lf,
-                Indent = content.Contains("\n\t", StringComparison.Ordinal) ? ResourceIndent.Tab : content.Contains("\n    ", StringComparison.Ordinal)
-                    ? ResourceIndent.Space4 : content.Contains('\n') ? ResourceIndent.Space2 : null
-            }
+            DetectedOptions = ResourceText.Detect(content)
         }, []);
 
         void Walk(JsonElement node, ResourcePathSegment[] path)
@@ -94,16 +91,18 @@ public static class ResourceJsonCodec
     public static string Write(ResourceDocumentState document, IReadOnlyList<TranslationItem> entries, ResourceOptions? projectOptions = null)
     {
         var options = ResourceOptions.Resolve(document.Resource.Options, projectOptions, document.DetectedOptions,
-            new ResourceOptions { SaveEmptyTranslations = true, Indent = ResourceIndent.Space2, Order = ResourceOrder.Alphabetical });
+            new ResourceOptions { SaveEmptyTranslations = true, Indent = ResourceIndent.Space2, Order = ResourceOrder.Preserve });
         JsonNode root = document.Data.TryGetValue("json", out var original)
             ? JsonNode.Parse(original.GetRawText())! : new JsonObject();
-        ClearEditable(root);
+        var desired = entries.Where(i => options.SaveEmptyTranslations != false || !string.IsNullOrEmpty(i.Value))
+            .Select(i => JsonSerializer.Serialize(i.Identity?.Path ?? ResourceText.NewPath(i.Namespace, options))).ToHashSet(StringComparer.Ordinal);
+        RetainEditable(root, [], desired);
         var keys = new HashSet<string>(StringComparer.Ordinal);
         IEnumerable<TranslationItem> ordered = options.Order == ResourceOrder.Alphabetical ? entries.OrderBy(i => i.Namespace, StringComparer.Ordinal) : entries;
         foreach (var item in ordered)
         {
             if (options.SaveEmptyTranslations == false && string.IsNullOrEmpty(item.Value)) continue;
-            var path = item.Identity?.Path ?? ResourceEntryOperations.ParseSelector(item.Namespace);
+            var path = item.Identity?.Path ?? ResourceText.NewPath(item.Namespace, options);
             if (path.Count == 0 || path.Any(p => (p.Property is null) == (p.Index is null) || p.Index < 0))
                 throw new InvalidOperationException("A resource key needs property or array-index segments.");
             var token = JsonSerializer.Serialize(path);
@@ -116,32 +115,58 @@ public static class ResourceJsonCodec
             }
             Set(root, path, value);
         }
+        root = ApplyArrays(root, options.Arrays)!;
         if (options.Order == ResourceOrder.Alphabetical) root = Sort(root)!;
-        var jsonOptions = new JsonSerializerOptions
-        {
-            WriteIndented = options.Indent != ResourceIndent.None,
-            IndentCharacter = options.Indent == ResourceIndent.Tab ? '\t' : ' ',
-            IndentSize = options.Indent == ResourceIndent.Space4 ? 4 : options.Indent == ResourceIndent.Tab ? 1 : 2
-        };
+        var jsonOptions = ResourceText.JsonOptions(options);
         var text = root.ToJsonString(jsonOptions);
         return options.Newline == ResourceNewline.CrLf ? text.ReplaceLineEndings("\r\n") : text.ReplaceLineEndings("\n");
     }
 
-    private static bool ClearEditable(JsonNode node)
+    public static void AcceptWrite(ResourceDocumentState document, IEnumerable<TranslationItem> entries, string content)
+    {
+        using var saved = JsonDocument.Parse(content);
+        document.Data["json"] = saved.RootElement.Clone();
+        foreach (var item in entries)
+            if (item.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey) is { } raw)
+            {
+                using var scalar = JsonDocument.Parse(raw);
+                if (scalar.RootElement.ToString() != item.Value) item.FormatData.Remove(NestedJsonParser.JsonScalarKey);
+            }
+    }
+
+    private static void RetainEditable(JsonNode node, ResourcePathSegment[] path, HashSet<string> desired)
     {
         if (node is JsonObject obj)
-        {
-            var wasEmpty = obj.Count == 0;
             foreach (var (key, child) in obj.ToArray())
-                if (child is JsonValue) obj.Remove(key);
-                else if (child is not null && ClearEditable(child)) obj.Remove(key);
-            return !wasEmpty && obj.Count == 0;
-        }
-        if (node is JsonArray array)
+            {
+                var address = path.Append(ResourcePathSegment.Named(key)).ToArray();
+                if (child is JsonValue && !desired.Contains(JsonSerializer.Serialize(address))) obj.Remove(key);
+                else if (child is not null) RetainEditable(child, address, desired);
+            }
+        else if (node is JsonArray array)
             for (var i = 0; i < array.Count; i++)
-                if (array[i] is JsonValue) array[i] = null;
-                else if (array[i] is { } child) ClearEditable(child);
-        return false;
+            {
+                var address = path.Append(ResourcePathSegment.At(i)).ToArray();
+                if (array[i] is JsonValue && !desired.Contains(JsonSerializer.Serialize(address))) array[i] = null;
+                else if (array[i] is { } child) RetainEditable(child, address, desired);
+            }
+    }
+
+    private static JsonNode? ApplyArrays(JsonNode? node, ResourceArrayPolicy? policy)
+    {
+        if (node is JsonArray array)
+        {
+            if (policy == ResourceArrayPolicy.Disabled) throw new FormatException("[arrays]: this document contains arrays but array support is disabled.");
+            for (var i = 0; i < array.Count; i++) array[i] = ApplyArrays(array[i]?.DeepClone(), policy);
+        }
+        if (node is JsonObject obj)
+        {
+            foreach (var key in obj.Select(p => p.Key).ToArray()) obj[key] = ApplyArrays(obj[key]?.DeepClone(), policy);
+            if (policy == ResourceArrayPolicy.ContiguousIndexes && obj.Count > 0 &&
+                Enumerable.Range(0, obj.Count).All(i => obj.ContainsKey(i.ToString(System.Globalization.CultureInfo.InvariantCulture))))
+                return new JsonArray(Enumerable.Range(0, obj.Count).Select(i => obj[i.ToString(System.Globalization.CultureInfo.InvariantCulture)]?.DeepClone()).ToArray());
+        }
+        return node;
     }
 
     private static void Set(JsonNode root, IReadOnlyList<ResourcePathSegment> path, JsonNode? value)

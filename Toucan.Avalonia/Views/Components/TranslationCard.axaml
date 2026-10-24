@@ -3,7 +3,8 @@
              xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
-             xmlns:svc="using:Toucan.Avalonia.Services">
+             xmlns:svc="using:Toucan.Avalonia.Services"
+             xmlns:c="using:Toucan.Avalonia.Views.Components">
   <UserControl.Resources>
     <!-- One language row: badge · value editor · row actions -->
     <DataTemplate x:Key="RowTemplate">
@@ -12,12 +13,20 @@
           <TextBlock Text="{Binding Language}" TextTrimming="CharacterEllipsis"/>
         </Border>
 
-        <Panel Classes="valueCell">
+        <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4">
+          <Border Classes="badge" IsVisible="{Binding IsResourceReadOnly}" HorizontalAlignment="Left"><TextBlock Text="{loc:Loc 'Read-only resource'}"/></Border>
+          <TextBlock Text="{Binding ReadOnlyReason}" IsVisible="{Binding IsResourceReadOnly}" TextWrapping="Wrap" Classes="caption"/>
+          <Expander Header="{loc:Loc 'ARB placeholders'}" IsVisible="{Binding HasArbMetadata}">
+            <c:ArbPlaceholderEditor/>
+          </Expander>
+        </StackPanel>
+        <Panel Classes="valueCell" ToolTip.Tip="{Binding EditorDetails}">
           <TextBox Classes="translation" Classes.empty="{Binding IsEmpty}"
                    Text="{Binding Value}"
                    PlaceholderText="{Binding PlaceholderText}"
                    FlowDirection="{Binding FlowDirection}"
-                   IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}"/>
+                   IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}" IsEnabled="{Binding !IsResourceReadOnly}"/>
+          <c:SpellingUnderline/>
           <!-- Inline TM suggestion (ghost text): shown while the field is empty; Tab accepts -->
           <Grid ColumnDefinitions="*,Auto" IsHitTestVisible="False" Margin="11,0,10,0" VerticalAlignment="Center"
                 FlowDirection="{Binding FlowDirection}">
@@ -62,7 +71,7 @@
                 <StackPanel Width="280" Spacing="6">
                   <TextBlock Text="{loc:Loc 'Comment for translators'}" Classes="caption"/>
                   <TextBox Text="{Binding Comment}" AcceptsReturn="True" TextWrapping="Wrap" Height="90"
-                           IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}"/>
+                           IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}" IsEnabled="{Binding !IsResourceReadOnly}"/>
                 </StackPanel>
               </Flyout>
             </Button.Flyout>

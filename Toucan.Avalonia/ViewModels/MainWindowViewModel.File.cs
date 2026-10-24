@@ -22,7 +22,7 @@ public partial class MainWindowViewModel
     /// <summary>Export formats offered to the user, mapped to the save strategy they use.</summary>
     /// <summary>Export targets: every registered save strategy, so plugin formats appear automatically.</summary>
     public IReadOnlyList<(string Label, string FormatId)> ExportFormats =>
-        _strategyFactory.SaveStrategies.Select(st => (st.DisplayName, st.FormatId)).ToList();
+        _strategyFactory.SaveStrategies.Where(st => st is not IResourceCapabilities c || c.Permissions(new() { FormatId = st.FormatId }).EditKeys).Select(st => (st.DisplayName, st.FormatId)).ToList();
 
     [ObservableProperty] private ObservableCollection<Project> recentProjects = [];
 
@@ -75,14 +75,44 @@ public partial class MainWindowViewModel
             await _messageService.ShowMessageAsync($"Folder not found: {directory}", "Open Project");
             return;
         }
-        await OpenProjectAsync(directory);
+        await OpenProjectAsync(selected);
     }
 
     [RelayCommand]
     private async Task ImportProject()
     {
         var vm = await _dialogService.ShowImportProjectAsync();
-        if (vm?.IsValid == true) await OpenProjectAsync(vm.Folder);
+        if (vm?.IsValid != true) return;
+        if (ProjectSettings.LoadFrom(vm.Folder) != null) { await OpenProjectAsync(vm.Folder); return; }
+        try
+        {
+            var settings = ProjectSettings.CreateDefault(vm.Folder);
+            settings.Framework = vm.SelectedProfile!.Id;
+            settings.SaveFormat = vm.SelectedProfile.DefaultFormatId;
+            settings.Languages = vm.DetectedLanguages.ToList();
+            settings.PrimaryLanguage = settings.Languages.FirstOrDefault() ?? "en";
+            if (vm.SelectedProfile is IFrameworkFeatures features)
+            {
+                settings.ResourceDocuments = vm.DiscoveredFiles.Select(f => new ResourceDocumentState { Resource = features.Describe(f) }).ToList();
+                foreach (var document in settings.ResourceDocuments)
+                {
+                    var loaded = _strategyFactory.ReadResource(new(settings.ProjectPath, document.Resource));
+                    if (loaded.Diagnostics.Any(d => d.Severity == ResourceDiagnosticSeverity.Error))
+                        throw new FormatException(string.Join("; ", loaded.Diagnostics.Select(d => d.Message)));
+                }
+                settings.Save();
+            }
+            await OpenProjectAsync(vm.Folder);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or FormatException or CompatibilityImportException or System.Text.Json.JsonException)
+        { await _messageService.ShowMessageAsync($"Project import failed: {ex.Message}", "Import Project"); }
+    }
+
+    [RelayCommand]
+    private async Task ShowMigrationReport()
+    {
+        if (ProjectSettings?.LastMigrationReport is { } report) await _dialogService.ShowMigrationReportAsync(report, false);
+        else await _messageService.ShowMessageAsync("No retained migration report for this project.", "Migration report");
     }
 
     [RelayCommand]
@@ -152,7 +182,40 @@ public partial class MainWindowViewModel
     /// </summary>
     public async Task OpenProjectAsync(string path)
     {
-        if (File.Exists(path)) path = Path.GetDirectoryName(path) ?? path;
+        MigrationReport? migrationReport = null;
+        var folder = File.Exists(path) ? Path.GetDirectoryName(Path.GetFullPath(path))! : path;
+        if (Directory.Exists(folder))
+        {
+            var candidates = _compatibilityImporters.SelectMany(i => i.FindProjects(folder)).Select(Path.GetFullPath).ToList();
+            var native = Path.Combine(folder, "toucan.tproj");
+            if (!File.Exists(path) && !File.Exists(native) && candidates.Count > 1)
+            {
+                var selected = await _dialogService.ShowPickAsync("Choose migration project", "Select the exact project to preview. Each source project remains unchanged.", candidates);
+                if (selected == null) return;
+                path = selected;
+            }
+            else if (!File.Exists(path) && !File.Exists(native) && candidates.Count == 1) path = candidates[0];
+            if (File.Exists(path) && candidates.Contains(Path.GetFullPath(path), OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal))
+            {
+                if (File.Exists(native))
+                {
+                    var selected = await _dialogService.ShowPickAsync("Project selection", "A native project exists. Choose which project to open.", [native, Path.GetFullPath(path)], native);
+                    if (selected == null) return;
+                    path = selected;
+                }
+                if (!Path.GetFullPath(path).Equals(Path.GetFullPath(native), OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+                {
+                    try
+                    {
+                        migrationReport = await Task.Run(() => MigrationReport.Inspect(path, _projectService));
+                        if (!await _dialogService.ShowMigrationReportAsync(migrationReport, true)) return;
+                        if (!migrationReport.InputsUnchanged(folder)) { await _messageService.ShowMessageAsync("Migration inputs changed. Open a new preview.", "Migration"); return; }
+                    }
+                    catch (Exception ex) when (ex is IOException or FormatException or UnauthorizedAccessException or InvalidOperationException)
+                    { await _messageService.ShowMessageAsync(ex.Message, "Migration preview"); return; }
+                }
+            }
+        }
 
         FlushPendingEdits();
 
@@ -172,10 +235,12 @@ public partial class MainWindowViewModel
         StatusText = "Loading project…";
         try
         {
-            var result = await _lifecycleService.OpenProjectAsync(path, progress, cts.Token);
+            var result = migrationReport == null ? await _lifecycleService.OpenProjectAsync(path, progress, cts.Token) : await _lifecycleService.OpenMigrationAsync(path, migrationReport, progress, cts.Token);
             switch (result.Status)
             {
                 case ProjectOpenStatus.Success:
+                    path = _lifecycleService.CurrentProject!.ProjectPath;
+                    if (migrationReport != null) _lifecycleService.CurrentProject.LastMigrationReport = migrationReport;
                     CurrentPath = path;
                     AppOptions.LastProjectPath = path;
                     _preferenceService.Save(AppOptions);
@@ -305,6 +370,11 @@ public partial class MainWindowViewModel
         IsDirty = false;
         ValidationIssues.Clear();
         OnPropertyChanged(nameof(HasValidationIssues));
+        _sourceScanCancellation?.Cancel();
+        _sourceScanCancellation = null;
+        IsScanning = false;
+        (_sourceCodeService as IProjectSourceCodeService)?.Reset();
+        SourceScanDiagnostics.Clear();
         SourceCodeUsages.Clear();
         SourceCodeScanned = false;
         ClearSearchResults();
@@ -486,6 +556,11 @@ public partial class MainWindowViewModel
         ValidationIssues.Clear();
         OnPropertyChanged(nameof(HasValidationIssues));
         ClearSearchResults();
+        _sourceScanCancellation?.Cancel();
+        _sourceScanCancellation = null;
+        IsScanning = false;
+        (_sourceCodeService as IProjectSourceCodeService)?.Reset();
+        SourceScanDiagnostics.Clear();
         SourceCodeUsages.Clear();
         _undoRedoService.Clear();
         CurrentTreeItems.Clear();
@@ -550,7 +625,35 @@ public partial class MainWindowViewModel
 
         try
         {
-            MergeImported(ExcelService.Import(file), Path.GetFileName(file));
+            FlushPendingEdits();
+            var revision = _workspaceRevision;
+            var before = CaptureStructure();
+            var table = ExcelService.Read(file, _spreadsheetDialects);
+            var preview = SpreadsheetPlanner.Plan(table, before, ProjectSettings?.ResourceDocuments.Select(d => d.Resource));
+            if (ProjectSettings?.RequireValidForApproval == true)
+            {
+                var errors = _validationPipeline.RunAll(new ValidationContext { Items = preview.Items, PrimaryLanguage = PrimaryLanguage })
+                    .Where(r => r.Severity == ValidationSeverity.Error).ToList();
+                var changedUnits = preview.Changes.Select(c => (c.Namespace, c.Language)).ToHashSet();
+                var approvals = preview.Items.Where(i => i.IsApproved && changedUnits.Contains((i.Namespace, i.Language)));
+                var conflicts = approvals.Where(i => errors.Any(e => e.Namespace == i.Namespace && (e.Language == null || e.Language == i.Language)))
+                    .Select(i => $"Approval blocked by validation: {i.Namespace} [{i.Language}].");
+                preview = preview with { Conflicts = preview.Conflicts.Concat(conflicts).ToList() };
+            }
+            if (!await _dialogService.ShowSpreadsheetPreviewAsync(preview) || !preview.CanApply) return;
+            FlushPendingEdits();
+            if (revision != _workspaceRevision)
+                throw new InvalidOperationException("The workspace changed during preview. Import again to review the current changes.");
+            AllTranslation = preview.Items.Select(i => ResourceEntryOperations.Copy(i)).ToList();
+            _undoRedoService.RecordStructure(before, AllTranslation);
+            var touched = preview.Changes.Select(c => (c.Namespace, c.Language)).ToHashSet();
+            MarkStructureChanged(preview.Changes.Select(c => c.Namespace));
+            NotifyBulkValueChanges(AllTranslation.Where(i => touched.Contains((i.Namespace, i.Language))));
+            RefreshTree();
+            UpdateSummaryInfo();
+            Search(SearchText, true);
+            ShowValidationResults(_validationPipeline.RunAll(new ValidationContext { Items = AllTranslation, PrimaryLanguage = PrimaryLanguage }).ToList());
+            StatusText = $"Imported {preview.Changes.Count} change(s) from {Path.GetFileName(file)}. {preview.Summary}";
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or FormatException)
         {
@@ -567,6 +670,15 @@ public partial class MainWindowViewModel
         }
 
         var index = AllTranslation.GroupBy(t => (t.Namespace, t.Language)).ToDictionary(g => g.Key, g => g.First());
+        if (imported.Any(i => index.TryGetValue((i.Namespace, i.Language), out var existing)
+            ? !existing.Permissions.EditValues && existing.Value != i.Value || !existing.Permissions.EditMetadata &&
+                (i.FormatData?.GetValueOrDefault("exchange.comment") == "True" && existing.Comment != i.Comment ||
+                 i.FormatData?.GetValueOrDefault("exchange.approved") == "True" && existing.IsApproved != i.IsApproved)
+            : !CanChangeKeys))
+        {
+            _ = _messageService.ShowMessageAsync("Resource capabilities forbid this import. Generated catalogs must be extracted from source.", "Import");
+            return;
+        }
         var changed = new List<TranslationItem>();
         foreach (var item in imported.Where(i => !string.IsNullOrWhiteSpace(i.Namespace)))
         {
@@ -637,16 +749,20 @@ public partial class MainWindowViewModel
             return;
         }
 
+        var dialectLabel = await _dialogService.ShowPickAsync("Spreadsheet dialect", "Choose a workbook format.",
+            _spreadsheetDialects.Select(d => d.Label).ToList(), ExcelService.Toucan.Label);
+        if (dialectLabel == null) return;
+        var dialect = _spreadsheetDialects.Single(d => d.Label == dialectLabel);
         var file = await _dialogService.SaveFileAsync(CurrentPath, $"{ProjectName}.xlsx", "Export to Excel", [new FileFilter("Excel workbook", "*.xlsx")]);
         if (file == null) return;
 
         try
         {
             FlushPendingEdits();
-            ExcelService.Export(file, AllTranslation.ForParse().ToList());
+            ExcelService.Write(file, AllTranslation.ForParse().ToList(), dialect);
             StatusText = $"Exported to {file}";
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or FormatException)
         {
             await _messageService.ShowMessageAsync($"Excel export failed: {ex.Message}", "Export");
         }

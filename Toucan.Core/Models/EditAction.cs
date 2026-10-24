@@ -7,4 +7,10 @@ public record EditAction(string Namespace, string Language, string OldValue, str
 {
     public IReadOnlyList<TranslationItem>? BeforeStructure { get; init; }
     public IReadOnlyList<TranslationItem>? AfterStructure { get; init; }
+    public Dictionary<string, string>? BeforeMetadata { get; init; }
+    public Dictionary<string, string>? AfterMetadata { get; init; }
+    public SpellingSettings? BeforeSpelling { get; init; }
+    public SpellingSettings? AfterSpelling { get; init; }
+    public ProjectSettings? BeforeConfiguration { get; init; }
+    public ProjectSettings? AfterConfiguration { get; init; }
 }

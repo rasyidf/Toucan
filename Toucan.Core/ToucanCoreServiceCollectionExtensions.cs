@@ -36,7 +36,12 @@ public static class ToucanCoreServiceCollectionExtensions
         services.TryAddSingleton<ICommandRegistry>(sp => new CommandRegistry(sp.GetService<IPluginActivationService>(),
             sp.GetServices<PluginCommandRegistration>(), sp.GetService<ILogger<CommandRegistry>>()));
 
+        services.AddSingleton<DictionaryRegistry>();
+        services.AddSingleton<SpellingService>();
         services.AddSingleton<IProjectModeResolver, ProjectModeResolver>();
+        services.AddSingleton<SourceCodeService>();
+        services.AddSingleton<ISourceCodeService>(sp => sp.GetRequiredService<SourceCodeService>());
+        services.AddSingleton<IProjectSourceCodeService>(sp => sp.GetRequiredService<SourceCodeService>());
         services.AddSingleton<IProjectService, ProjectService>();
         services.AddSingleton<ICommentPersistenceService, CommentPersistenceService>();
         services.AddSingleton<IRecoveryDraftService>(sp => new RecoveryDraftService(null, sp.GetService<ILogger<RecoveryDraftService>>()));

@@ -27,7 +27,7 @@ public class ModuleSnapshotTests
         // The factory's list drives format pickers and `toucan list-formats`; it must not depend on which module registers first.
         using var sp = Build();
         Assert.Equal(
-            ["json", "namespaced", "po", "ini", "yaml", "toml", "android-xml", "ios-strings", "xliff", "arb", "csv", "resx", "java-properties", "laravel-php"],
+            ["json", "namespaced", "po", "ini", "yaml", "toml", "android-xml", "ios-strings", "xliff", "arb", "csv", "resx", "java-properties", "laravel-php", "formatjs"],
             sp.GetRequiredService<ITranslationStrategyFactory>().SaveStrategies.Select(s => s.FormatId));
     }
 
@@ -37,7 +37,7 @@ public class ModuleSnapshotTests
         // "json" appears twice: the folder loader and the manifest loader (told apart by IManifestLoadStrategy, not by order).
         using var sp = Build();
         Assert.Equal(
-            ["android-xml", "arb", "csv", "ios-strings", "java-properties", "json", "json", "laravel-php", "namespaced", "po", "resx", "toml", "xliff", "yaml"],
+            ["android-xml", "arb", "csv", "formatjs", "ios-strings", "java-properties", "json", "json", "laravel-php", "namespaced", "po", "resx", "toml", "xliff", "yaml"],
             sp.GetServices<ILoadStrategy>().Select(s => s.FormatId).Order(StringComparer.Ordinal));
         Assert.Single(sp.GetServices<ILoadStrategy>().OfType<IManifestLoadStrategy>());
     }
@@ -103,7 +103,7 @@ public class ModuleSnapshotTests
     {
         using var sp = Build();
         Assert.Equal(
-            ["generic-json", "i18next", "android", "flutter-arb", "dotnet-resx", "ios-strings", "gettext", "rails-yaml"],
+            ["generic-json", "i18next", "android", "flutter-arb", "dotnet-resx", "ios-strings", "gettext", "rails-yaml", "formatjs", "angular-transloco", "vue-json", "react-json"],
             sp.GetServices<IFrameworkProfile>().Select(p => p.Id));
     }
 }

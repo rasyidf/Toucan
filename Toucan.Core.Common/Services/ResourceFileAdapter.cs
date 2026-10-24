@@ -33,7 +33,7 @@ public static class ResourceFileAdapter
         return new ResourceReadResult(items, document, []);
     }
 
-    public static List<TranslationItem> Entries(ResourceWriteRequest request)
+    public static List<TranslationItem> Entries(ResourceWriteRequest request, bool allowStructuredKeys = false)
     {
         request.CancellationToken.ThrowIfCancellationRequested();
         ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
@@ -45,11 +45,12 @@ public static class ResourceFileAdapter
             var copy = ResourceEntryOperations.Copy(i);
             var key = i.Identity.Path.Count == 1 && i.Identity.Path[0].Property is { } literal
                 ? literal : ResourceEntryOperations.Selector(i.Identity.Path);
+            copy.Permissions = ResourcePermissions.Editable; // detached serialization projection
             copy.Identity = null;
             copy.Namespace = key;
             return copy;
         }).ToList();
-        if (items.Select(i => i.Namespace).Distinct(StringComparer.Ordinal).Count() != items.Count)
+        if (!allowStructuredKeys && items.Select(i => i.Namespace).Distinct(StringComparer.Ordinal).Count() != items.Count)
             throw new InvalidOperationException($"{resource.RelativePath} [key]: duplicate output keys.");
         return items;
     }

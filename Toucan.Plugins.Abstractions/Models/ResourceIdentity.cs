@@ -101,22 +101,26 @@ public static class ResourceEntryOperations
             Language = item.Language, Namespace = item.Namespace, Value = item.Value, Comment = item.Comment, IsApproved = item.IsApproved,
             Identity = item.Identity is { } identity ? identity with { Path = [.. identity.Path], EntryId = duplicate ? Guid.NewGuid().ToString("N") : identity.EntryId } : null,
             FormatData = item.FormatData is null ? null : new(item.FormatData), LastModifiedUtc = item.LastModifiedUtc,
-            ApprovedAtUtc = item.ApprovedAtUtc, ChangeType = item.ChangeType
+            ApprovedAtUtc = item.ApprovedAtUtc, ChangeType = item.ChangeType, Permissions = item.Permissions
         };
     }
 
     public static void Move(TranslationItem item, ResourceDescriptor destination, string selector)
     {
+        if (!item.Permissions.EditKeys) return;
         var identity = item.Identity ?? new ResourceEntryIdentity();
-        var prefix = destination.Package == "main" ? "" : Escape(destination.Package) + ".";
+        var prefix = destination.SelectorPrefix;
         item.Identity = identity with { ResourceId = destination.Id, Package = destination.Package, PackagePrefix = prefix,
-            Path = ParseSelector(selector), Selector = prefix + selector };
+            Path = destination.Options.Layout is ResourceLayout.Literal or ResourceLayout.Dotted || destination.FormatId is FormatIds.Arb or FormatIds.JavaProperties or FormatIds.Resx
+                ? [ResourcePathSegment.Named(selector)] : ParseSelector(selector), Selector = prefix + selector };
         item.Namespace = prefix + selector;
+        item.Language = destination.Language;
         if (destination.FormatId == FormatIds.Json) (item.FormatData ??= new())["json.file"] = destination.RelativePath;
     }
 
     public static void RenameKey(TranslationItem item, IReadOnlyList<ResourcePathSegment> path)
     {
+        if (!item.Permissions.EditKeys) return;
         var identity = item.Identity ?? throw new InvalidOperationException("This entry has no resource identity.");
         var selector = identity.PackagePrefix + Selector(path, escaped: true);
         item.Identity = identity with { Path = path.ToArray(), Selector = selector };

@@ -45,7 +45,8 @@ public class ResxLoadStrategy : ILoadStrategy, IResourceLoadStrategy
     {
         request.CancellationToken.ThrowIfCancellationRequested();
         var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Resource.RelativePath);
-        using var reader = System.Xml.XmlReader.Create(file, new() { DtdProcessing = System.Xml.DtdProcessing.Prohibit, XmlResolver = null });
+        var content = ResourceText.Read(request, out var encoding);
+        using var reader = System.Xml.XmlReader.Create(new StringReader(content), new() { DtdProcessing = System.Xml.DtdProcessing.Prohibit, XmlResolver = null });
         var xml = XDocument.Load(reader);
         if (xml.Root?.Name != "root") throw new FormatException($"{request.Resource.RelativePath} [root]: RESX needs a root element.");
         var entries = xml.Root.Elements("data").Where(d => d.Attribute("type") == null && d.Attribute("mimetype") == null)
@@ -53,7 +54,8 @@ public class ResxLoadStrategy : ILoadStrategy, IResourceLoadStrategy
                 Namespace = (string?)d.Attribute("name") ?? throw new FormatException($"{request.Resource.RelativePath} [name]: missing resource name."),
                 Value = (string?)d.Element("value") ?? "", Comment = (string?)d.Element("comment") ?? "" }).ToList();
         var result = ResourceFileAdapter.Bind(request, entries, true);
-        result.Document!.Data["resx"] = System.Text.Json.JsonSerializer.SerializeToElement(xml.ToString());
+        result.Document!.DetectedOptions = ResourceText.Detect(content, encoding);
+        result.Document.Data["resx"] = System.Text.Json.JsonSerializer.SerializeToElement(xml.ToString());
         return result;
     }
 

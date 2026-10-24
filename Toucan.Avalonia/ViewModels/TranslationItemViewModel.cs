@@ -30,8 +30,10 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         IUndoRedoService? undoRedoService = null,
         ITranslationManagementService? translationManagement = null,
         Action<TranslationItemViewModel>? onChanged = null,
-        Func<TranslationItem, bool>? canApprove = null)
+        Func<TranslationItem, bool>? canApprove = null, SpellingSession? spelling = null)
     {
+        _spelling = spelling;
+        if (_spelling != null) _spelling.Changed += OnSpellingChanged;
         _canApprove = canApprove;
         _model = model;
         _undoRedoService = undoRedoService;
@@ -44,6 +46,32 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
 
     public TranslationItem Model => _model;
 
+    public bool IsResourceReadOnly => !_model.Permissions.EditValues;
+    public string ReadOnlyReason => _model.Permissions.Reason ?? Locales.Loc.T("This resource is read-only.");
+    public string ResourcePath { get; init; } = "";
+    public string EditorDetails => IdentityDetails + (string.IsNullOrEmpty(SpellingStatus) ? "" : "\n" + SpellingStatus);
+    public string IdentityDetails => _model.Identity is { } identity ? $"{ResourcePath}\n{identity.Package} / {identity.ResourceId}\n{System.Text.Json.JsonSerializer.Serialize(identity.Path)}" : Namespace;
+    public bool IsArbResource { get; init; }
+    public bool HasArbMetadata => IsArbResource || _model.FormatData?.ContainsKey("arb.file") == true;
+    public string PlaceholderMetadata => _model.FormatData?.GetValueOrDefault("arb.placeholders") ?? "{}";
+    public string? ApplyPlaceholderMetadata(string json, string expected)
+    {
+        if (_spellingDisposed || _spelling?.IsCurrent == false || !_model.Permissions.EditMetadata || PanelService.Instance.IsAuditMode) return Locales.Loc.T("Resource metadata is read-only.");
+        if (PlaceholderMetadata != expected) return Locales.Loc.T("Metadata changed. Reopen the editor.");
+        try
+        {
+            Toucan.Core.Services.ArbPlaceholderMetadata.Validate(json);
+            var before = new Dictionary<string, string>(_model.FormatData ?? []);
+            var after = new Dictionary<string, string>(before) { ["arb.placeholders"] = json };
+            _undoRedoService?.RecordMetadata(Namespace, Language, before, after);
+            _model.FormatData = after;
+            _translationManagement?.NotifyValueChanged(_model, _model.Value);
+            _onChanged?.Invoke(this);
+            OnPropertyChanged(nameof(PlaceholderMetadata));
+            return null;
+        }
+        catch (Exception ex) when (ex is FormatException or System.Text.Json.JsonException) { return ex.Message; }
+    }
     public string Namespace => _model.Namespace;
 
     public string Language { get; }
@@ -57,10 +85,11 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         get => _value;
         set
         {
-            if (_value == value) return;
+            if (!_model.Permissions.EditValues || _value == value) return;
             _debounceTimer ??= CreateTimer();
             if (!_debounceTimer.IsEnabled) _valueBeforeEdit = _value;
             _value = value;
+            QueueSpelling();
             OnPropertyChanged();
             OnPropertyChanged(nameof(IsEmpty));
             _debounceTimer.Stop();
@@ -75,7 +104,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         get => _model.Comment ?? string.Empty;
         set
         {
-            if (_model.Comment == value) return;
+            if (!_model.Permissions.EditMetadata || _model.Comment == value) return;
             if (_translationManagement != null)
                 _translationManagement.NotifyCommentChanged(_model, value);
             else
@@ -93,7 +122,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         get => _model.IsApproved;
         set
         {
-            if (_model.IsApproved == value) return;
+            if (!_model.Permissions.EditMetadata || _model.IsApproved == value) return;
             if (value && _canApprove?.Invoke(_model) == false)
             {
                 // Policy refused: tell bound controls to show the unchanged state again.
@@ -161,6 +190,8 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(IsApproved));
         OnPropertyChanged(nameof(Comment));
         OnPropertyChanged(nameof(HasComment));
+        OnPropertyChanged(nameof(PlaceholderMetadata));
+        QueueSpelling();
     }
 
     private void Commit()
@@ -194,8 +225,13 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        if (_spellingDisposed) return;
         // Never drop an in-flight edit when the editor list is rebuilt.
         Flush();
+        _spellingDisposed = true;
+        _spellingCancellation?.Cancel();
+        _spellingCancellation = null;
+        if (_spelling != null) _spelling.Changed -= OnSpellingChanged;
         _debounceTimer = null;
         GC.SuppressFinalize(this);
     }

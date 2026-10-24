@@ -14,6 +14,8 @@ public static class FormatsJsonModule
     public static IServiceCollection AddToucanFormatsJsonModule(this IServiceCollection services) =>
         services.AddToucanModule(new BuiltInModule(Id, "Built-in formats: JSON family", "JSON, namespaced JSON (i18next), project manifest and Flutter ARB", typeof(FormatsJsonModule).Assembly), s =>
         {
+            s.AddFormatStrategy<ISaveStrategy, FormatJsStrategy>();
+            s.AddFormatStrategy<ILoadStrategy, FormatJsStrategy>();
             s.AddFormatStrategy<ISaveStrategy, JsonSaveStrategy>();
             s.AddFormatStrategy<ISaveStrategy, NamespacedSaveStrategy>();
             s.AddFormatStrategy<ISaveStrategy, ArbSaveStrategy>();

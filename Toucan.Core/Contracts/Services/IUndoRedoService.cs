@@ -12,6 +12,9 @@ public interface IUndoRedoService
     bool CanRedo { get; }
     void Record(string ns, string language, string oldValue, string newValue);
     void RecordStructure(IReadOnlyList<TranslationItem> before, IReadOnlyList<TranslationItem> after) { }
+    void RecordMetadata(string ns, string language, Dictionary<string, string> before, Dictionary<string, string> after) { }
+    void RecordSpelling(SpellingSettings before, SpellingSettings after) { }
+    void RecordConfiguration(ProjectSettings before, ProjectSettings after) { }
 
     /// <summary>
     /// Opens a group: edits recorded until the returned object is disposed become a single undo step. Groups nest; only the

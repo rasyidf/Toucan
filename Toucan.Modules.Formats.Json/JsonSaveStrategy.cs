@@ -5,15 +5,18 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy
+public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy, IResourceOptionsProvider, IResourceDialectProvider
 {
+    public IReadOnlyList<ResourceDialectChoice> Dialects => [new(null, "Generic JSON"), new("formatjs-target", "FormatJS target")];
+    public IReadOnlySet<string> SupportedOptions(ResourceDescriptor resource) => resource.Dialect == "formatjs-target" ? ResourceOptionFields.With("Indent") : ResourceOptionFields.With("Layout", "Delimiter", "Arrays", "Indent");
+
     public string FormatId => FormatIds.Json;
 
     public FormatSupport Support { get; } = new(
         FormatEditing.Full,
         "Any JSON object; nested objects and arrays",
-        ["Nested keys", "arrays", "multiline text", "escapes", "numbers and booleans left unedited", "placeholders", "sorted stable output"],
-        ["Comments (JSON has none)", "null values are dropped", "Key order is sorted on save"]);
+        ["Nested keys", "arrays", "multiline text", "escapes", "numbers and booleans left unedited", "placeholders", "typed exact-resource paths and null/empty document nodes", "selected indentation and ordering"],
+        ["Comments (JSON has none)", "Folder-only APIs do not retain opaque document state"]);
     public string DisplayName => "JSON (flat)";
     public IReadOnlyList<string> FileExtensions => [".json"];
     public string DefaultFilePath(string language) => $"{language}.json";
@@ -26,14 +29,14 @@ public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy, IResour
             var entries = context.LanguageDictionary.Values.SelectMany(i => i).ToList();
             foreach (var document in context.Documents)
                 WriteResource(new ResourceWriteRequest(path, document, entries.Where(i => i.Identity?.ResourceId == document.Resource.Id).ToList(),
-                    context.ResourceOptions with { SaveEmptyTranslations = context.SaveEmptyTranslations }));
+                    ResourceOptions.Resolve(context.ResourceOptions, new ResourceOptions { SaveEmptyTranslations = context.SaveEmptyTranslations }, null, null)));
             return;
         }
         foreach (var (language, list) in context.LanguageDictionary)
         {
             foreach (var group in list.GroupBy(i => i.FormatData?.GetValueOrDefault("json.file") ?? language + ".json"))
             {
-                if (context.JsonLayout != "flat" && group.All(i => i.Identity is not null))
+                if (group.All(i => i.Identity is not null))
                 {
                     var resource = new ResourceDocumentState { Resource = new ResourceDescriptor
                         { Id = group.First().Identity!.ResourceId, RelativePath = group.Key, Language = language, FormatId = FormatId } };
@@ -45,7 +48,7 @@ public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy, IResour
                 foreach (var item in group.ForSave(context).OrderBy(i => i.Namespace, StringComparer.Ordinal))
                 {
                     var key = item.FormatData?.ContainsKey("json.file") == true
-                        ? item.FormatData.GetValueOrDefault("babel.key") ?? item.Namespace : item.Namespace;
+                        ? item.Namespace : item.Namespace;
                     if (context.JsonLayout == "flat") root[key] = TypedValue(item);
                     else SetNestedValue(root, key, TypedValue(item));
                 }
@@ -65,16 +68,10 @@ public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy, IResour
                 ResourceDiagnosticSeverity.Error, request.Document.Resource.RelativePath)]);
         var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
         var content = ResourceJsonCodec.Write(request.Document, request.Entries, request.ProjectOptions);
+        FormatJsTarget.Validate(content, request.Document.Resource);
         request.CancellationToken.ThrowIfCancellationRequested();
-        fileService.Save(Path.GetDirectoryName(file)!, Path.GetFileName(file), content);
-        using var saved = System.Text.Json.JsonDocument.Parse(content);
-        request.Document.Data["json"] = saved.RootElement.Clone();
-        foreach (var item in request.Entries)
-            if (item.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey) is { } raw)
-            {
-                using var scalar = System.Text.Json.JsonDocument.Parse(raw);
-                if (scalar.RootElement.ToString() != item.Value) item.FormatData.Remove(NestedJsonParser.JsonScalarKey);
-            }
+        ResourceText.Write(request, content);
+        ResourceJsonCodec.AcceptWrite(request.Document, request.Entries, content);
         return new ResourceWriteResult([]);
     }
 

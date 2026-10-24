@@ -1,14 +1,20 @@
 ---
 title: "Resource compatibility: implementation plan"
 status: in-progress
-progress: "3/8 milestones accepted; M0–M2 complete"
-updated: 2026-10-22
-summary: "M0–M2 accepted: baseline, resource contracts/identity, migration module and exact resource IO. M3–M7 remain: format fidelity, exchange, frameworks, scanning and spelling."
+progress: "7/8 original milestones accepted; UI closure 5/5; M7 release gate open"
+updated: 2026-10-23
+summary: "M0–M6 and five UI closure slices accepted. M7 local spelling and artifact materials are implemented; native and cross-platform release verification remains open."
 ---
 
 # Resource compatibility: implementation plan
 
 This plan implements the gaps in [Current Toucan fit and remaining gaps](../../research/babeledit-resource-integration.md#current-toucan-fit-and-remaining-gaps). It preserves Toucan's own product direction and the report's resource/license boundaries. Milestone checkboxes record acceptance, not whether some code already exists.
+
+## Additional UI closure and M7 delivery
+
+The [UI closure and M7 delivery plan](ui-closure-m7.md) adds five required UI slices: resource/settings management, resource mapping and target configuration, ARB placeholders, migration review, and restriction/scan diagnostics. It sequences these with M7 engine/registry, spelling UI and the release gate. Seven delivery slices are implemented and accepted for the recorded Windows subset. M7c retains the platform/native release gate; see [implementation and evidence](m7-ui.md).
+
+M1–M6 acceptance below covers the recorded implementation and tested workflows, not complete UI exposure of every contract. Historical evidence remains valid; final compatibility completion also requires the added UI slices.
 
 ## Outcome and scope
 
@@ -88,61 +94,71 @@ Primary touchpoints: `BabelProjectReader`, `ProjectService`, `PackageService`, `
 
 Primary touchpoints: JSON/Data/Text format modules, ARB metadata editing, `ProjectTextFormat`, package saves and `SaveTransaction`.
 
-- [ ] Apply M1 settings consistently to file loads, project/package saves, CLI mutations and Save As. Retain existing working input-encoding support and define conflicts with output overrides explicitly.
-- [ ] Preserve JSON nulls, typed scalars, object/array distinctions and literal keys through document state. Numeric object keys become arrays only under an explicit supported policy; empty/sparse structures must not be guessed into a different shape.
-- [ ] Preserve actual Rails locale wrappers through its dialect. Do not strip a locale-looking root from generic YAML without a declared dialect or a supported, explained detection result. Keep YAML constructs unsupported by the writer behind existing save guards.
-- [ ] Map editable ARB descriptions to Toucan comments and structured placeholder metadata, merge these edits into original metadata, and retain unknown per-key and `@@` fields. Define removal behavior for deleted metadata and keys; unsupported ICU edits remain explicitly constrained.
-- [ ] Respect declared Java encoding for ambiguous bytes and ASCII-only files. Retain escape policy, custom basename, comments/order where supported and selected newline settings. Reject invalid overrides with resource-specific diagnostics.
-- [ ] Remove remaining cached imported-key authority once neutral identity is available. Verify rename/move, destination reassignment, last-entry deletion and new-entry placement across single- and multi-package projects.
+- [x] Apply M1 settings consistently to file loads, project/package saves, CLI mutations and Save As. Retain existing working input-encoding support and define conflicts with output overrides explicitly.
+- [x] Preserve JSON nulls, typed scalars, object/array distinctions and literal keys through document state. Numeric object keys become arrays only under an explicit supported policy; empty/sparse structures must not be guessed into a different shape.
+- [x] Preserve actual Rails locale wrappers through its dialect. Do not strip a locale-looking root from generic YAML without a declared dialect or a supported, explained detection result. Keep YAML constructs unsupported by the writer behind existing save guards.
+- [x] Map editable ARB descriptions to Toucan comments and structured placeholder metadata, merge these edits into original metadata, and retain unknown per-key and `@@` fields. Define removal behavior for deleted metadata and keys; unsupported ICU edits remain explicitly constrained.
+- [x] Respect declared Java encoding for ambiguous bytes and ASCII-only files. Retain escape policy, custom basename, comments/order where supported and selected newline settings. Reject invalid overrides with resource-specific diagnostics.
+- [x] Remove remaining cached imported-key authority once neutral identity is available. Verify rename/move, destination reassignment, last-entry deletion and new-entry placement across single- and multi-package projects.
 
 **Acceptance:** semantic before/after fixtures cover all settings above, including empty-value policy on/off. No-op saves preserve supported data; formatting follows declared preservation support or an explicit setting. Unsupported constructs block unsafe overwrite with actionable diagnostics. Inject a save failure and confirm original data or recovery state remains usable.
+
+**Accepted 2026-10-22:** [M3 implementation and evidence](m3.md). All 1,245 tests pass, alongside 19 corpus, six exact-resource and four fidelity CLI scenarios. Exact-resource settings, JSON structure, restricted YAML dialects/guards, ARB metadata, Java properties, package review state and GUI Save As are verified. Supported subsets and legacy folder limits are explicit; later milestones are tracked below.
 
 ## M4 — Finish spreadsheet compatibility without vendor coupling
 
 Primary touchpoints: `ExcelService`, compatibility module, import preview/application flow and `BabelExcelTests`/`BabelImportFlowTests`.
 
-- [ ] Retain verified existing mixed-approval and legacy import fixes. Separate the neutral tabular model from dialect-specific header mapping. Use M1 package/key identity instead of `babel.*` in the general Excel service.
-- [ ] Offer explicit Toucan and BabelEdit-compatible export dialects; detect known import schemas and reject ambiguous, duplicate or unknown headers. Migration must not silently change the meaning of existing Toucan workbooks.
-- [ ] Map values and approvals by language, with absent columns meaning unchanged. Distinguish an omitted cell from an explicitly cleared value through a documented preview policy. Match entries by package plus key, and diagnose duplicates/unknown packages/languages.
-- [ ] Preview additions, edits, metadata-only edits, clears and conflicts. Apply accepted changes through one normal workspace edit transaction with undo, dirty tracking, validation and recovery. Cancellation changes nothing.
-- [ ] Write translation text as spreadsheet text so strings beginning with formula characters remain text. Define workbook size limits and validate before loading the full edit set.
+- [x] Retain verified existing mixed-approval and legacy import fixes. Separate the neutral tabular model from dialect-specific header mapping. Use M1 package/key identity instead of `babel.*` in the general Excel service.
+- [x] Offer explicit Toucan and BabelEdit-compatible export dialects; detect known import schemas and reject ambiguous, duplicate or unknown headers. Migration must not silently change the meaning of existing Toucan workbooks.
+- [x] Map values and approvals by language, with absent columns meaning unchanged. Distinguish an omitted cell from an explicitly cleared value through a documented preview policy. Match entries by package plus key, and diagnose duplicates/unknown packages/languages.
+- [x] Preview additions, edits, metadata-only edits, clears and conflicts. Apply accepted changes through one normal workspace edit transaction with undo, dirty tracking, validation and recovery. Cancellation changes nothing.
+- [x] Write translation text as spreadsheet text so strings beginning with formula characters remain text. Define workbook size limits and validate before loading the full edit set.
 
 **Acceptance:** independently authored workbooks exercise reordered language columns, mixed approvals, repeated IDs in packages, Unicode, empty/absent cells, formula-like text, malformed headers and legacy import. Preview counts match committed changes; one undo restores them, and save/reopen retains metadata-only edits.
+
+**Accepted 2026-10-22:** [M4 spreadsheet exchange and evidence](m4.md). Native typed-path/presence and optional compatibility exports, strict bounded readers, package-aware previews, one-step undo/redo, approval validation and crash recovery are verified by 1,279 passing tests. Legacy workbooks and the frozen plugin remain covered. Later milestones are tracked below.
 
 ## M5 — Add framework settings and capability enforcement
 
 Primary touchpoints: `IFrameworkProfile`, framework module, command registry, project settings UI and CLI handlers.
 
-- [ ] Add optional companion contracts for typed settings, document capabilities and source-scanner selection. Reuse plugin settings/command infrastructure; do not add a second registration system. Existing profiles retain their default behavior.
-- [ ] Derive capabilities from format, dialect, document/source ownership and provider support, not just a framework label. Enforce restrictions in the workspace operation layer and CLI as well as command availability in Avalonia.
-- [ ] Support an independently implemented FormatJS extraction-catalog dialect using public framework specifications and original fixtures. Distinguish generated source catalogs from editable targets and preserve IDs/descriptions; do not flatten `defaultMessage` into an ordinary nested translation key.
-- [ ] Expose only supported settings with Toucan-owned labels, defaults and help. Keep external setting-name translation in the compatibility module and diagnose ignored/unknown settings during import.
+- [x] Add optional companion contracts for typed settings, document capabilities and source-scanner selection. Reuse plugin settings/command infrastructure; do not add a second registration system. Existing profiles retain their default behavior.
+- [x] Derive capabilities from format, dialect, document/source ownership and provider support, not just a framework label. Enforce restrictions in the workspace operation layer and CLI as well as command availability in Avalonia.
+- [x] Support an independently implemented FormatJS extraction-catalog dialect using public framework specifications and original fixtures. Distinguish generated source catalogs from editable targets and preserve IDs/descriptions; do not flatten `defaultMessage` into an ordinary nested translation key.
+- [x] Expose only supported settings with Toucan-owned labels, defaults and help. Keep external setting-name translation in the compatibility module and diagnose ignored/unknown settings during import.
 
 **Acceptance:** forbidden key/value operations cannot execute through UI, keyboard, bulk actions or CLI. Target editing remains available where allowed. Legacy plugins/profiles still discover and load resources. Generated catalogs survive import and reopen without becoming accidentally writable.
+
+**Accepted 2026-10-22:** [M5/M6 implementation and evidence](m5-m6.md). Optional framework/settings and provider-capability contracts, protected FormatJS extraction catalogs, exact profile import, target editing and save/reopen/Save As are verified. Legacy writable formats and compiled plugins retain coverage.
 
 ## M6 — Replace the fixed scanner with framework-selected extraction
 
 Primary touchpoints: `SourceCodeService`, framework profiles, source-reference UI and scanner contracts in plugin abstractions.
 
-- [ ] Define scanner requests/results with project/framework context, source globs/excludes, package/namespace context, structured key identity, file/line/column locations, diagnostics and cancellation. Keep the current generic scanner as a fallback with documented limits.
-- [ ] Implement original rules from public syntax for i18next, Transloco, Vue, Rails and React/FormatJS. Cover multiline calls, JSX/template forms, options arguments and fallback lists. Use a parser where regex cannot give reliable bounds; review any new dependency before adding it.
-- [ ] Preserve source namespace context and handle optional namespace resolution without marking a key in every package as used. Dynamic keys are unresolved findings, not evidence that other keys are unused.
-- [ ] Respect project excludes and cancellation, avoid following directory cycles, bound regex/parser execution and report unreadable files without discarding a complete scan silently. Do not offer destructive unused-key cleanup from an incomplete scan.
+- [x] Define scanner requests/results with project/framework context, source globs/excludes, package/namespace context, structured key identity, file/line/column locations, diagnostics and cancellation. Keep the current generic scanner as a fallback with documented limits.
+- [x] Implement original rules from public syntax for i18next, Transloco, Vue, Rails and React/FormatJS. Cover multiline calls, JSX/template forms, options arguments and fallback lists. Use a parser where regex cannot give reliable bounds; review any new dependency before adding it.
+- [x] Preserve source namespace context and handle optional namespace resolution without marking a key in every package as used. Dynamic keys are unresolved findings, not evidence that other keys are unused.
+- [x] Respect project excludes and cancellation, avoid following directory cycles, bound regex/parser execution and report unreadable files without discarding a complete scan silently. Do not offer destructive unused-key cleanup from an incomplete scan.
 
 **Acceptance:** original positive/negative fixtures for each framework assert keys and locations, including quoted text in comments, dynamic expressions and multiline input. Cancellation/incomplete scans are explicit; results for equal keys in separate namespaces do not merge. Record runtime on a representative source corpus before setting a performance budget.
+
+**Accepted 2026-10-22:** [M5/M6 implementation and evidence](m5-m6.md). Registered framework scanners, package-aware locations, bounded IO/parsing, cancellation, incomplete-scan safeguards and original positive/negative fixtures pass. A 200-file/10,000-reference CLI corpus was measured before defining any performance budget. The full run passes 1,342 tests plus the CLI acceptance/regression scenarios. M7 remains open.
 
 ## M7 — Add spelling and complete the release gate
 
 Primary touchpoints: new dictionary registry/spelling service, Avalonia editor correction UI, validation integration, packaging and component provenance inventory.
 
-- [ ] Select a spelling engine only after evaluating .NET/platform compatibility and the exact upstream license. Start with user-imported or individually approved packs; automatic language downloads are a separate completion item, not a prerequisite for local spelling.
-- [ ] Import `.aff`/`.dic` and optional `.xcu` with locale aliases and explicit fallback rules. Select `DICT_SPELL` records only, resolve paths within the selected pack, disable XML external entities, bound file/archive sizes and reject archive traversal where archive import is offered.
-- [ ] Provide cancellation-aware checking and suggestions, placeholder/ICU/markup exclusion, user/project word lists and ignored terms. Debounce editor checks and discard stale results after text or language changes. No dictionary or suggestion request leaves the device.
-- [ ] Add Toucan-owned underlines/correction menus through normal undo/dirty tracking. Dictionary loading failures are actionable and do not block editing/saving. An absent dictionary is not a spelling error.
+- [x] Select a spelling engine only after evaluating .NET/platform compatibility and the exact upstream license. Start with user-imported or individually approved packs; automatic language downloads are a separate completion item, not a prerequisite for local spelling.
+- [x] Import `.aff`/`.dic` and optional `.xcu` with locale aliases and explicit fallback rules. Select `DICT_SPELL` records only, resolve paths within the selected pack, disable XML external entities, bound file/archive sizes and reject archive traversal where archive import is offered.
+- [x] Provide cancellation-aware checking and suggestions, placeholder/ICU/markup exclusion, user/project word lists and ignored terms. Debounce editor checks and discard stale results after text or language changes. No dictionary or suggestion request leaves the device.
+- [x] Add Toucan-owned underlines/correction menus through normal undo/dirty tracking. Dictionary loading failures are actionable and do not block editing/saving. An absent dictionary is not a spelling error.
 - [ ] Add provenance records, hashes, notices and required source/compliance materials for exact shipped/offered artifacts under the policy in the research report. Keep components replaceable as required by their actual grants; verify each packaging mode. Do not read BabelEdit's install directory automatically.
 - [ ] Run the integrated acceptance matrix on supported platforms, verify plugin backward compatibility, packaged open/edit/save/recovery and notices, and update format/compatibility documentation to match evidence. Retain unsupported cases explicitly.
 
 **Acceptance:** approved/user-imported packs work without BabelEdit, locale selection and placeholder exclusion are deterministic, corrections undo normally, and no proprietary vendor resources enter release packages. Missing provenance blocks the affected pack from distribution, not unrelated format work. Release claims identify the tested subset rather than a parity percentage.
+
+**Implementation 2026-10-23:** [M7 and resource UI implementation](m7-ui.md) records U1–U5, local spelling, exact engine materials, Windows tests and publishing checks. The final M7 release gate remains unchecked: configured CI is not execution evidence, and native/cross-platform rows are still open.
 
 ## Delivery slices and verification
 

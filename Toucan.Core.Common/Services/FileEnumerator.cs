@@ -62,11 +62,12 @@ public static partial class FileEnumerator
         while (stack.Count > 0)
         {
             var dir = stack.Pop();
+            if ((File.GetAttributes(dir) & FileAttributes.ReparsePoint) != 0) continue;
             scan?.OnDirectory(dir);
             foreach (var sub in Directory.GetDirectories(dir))
             {
                 var name = Path.GetFileName(sub);
-                if (s_excludedDirs.Contains(name))
+                if ((File.GetAttributes(sub) & FileAttributes.ReparsePoint) != 0 || s_excludedDirs.Contains(name))
                     continue;
                 // Skip nested locale dirs at root level when root already has lang dirs
                 if (hasLangDirsAtRoot && dir == root && s_localeDirNames.Contains(name))
@@ -75,6 +76,7 @@ public static partial class FileEnumerator
             }
             foreach (var file in Directory.GetFiles(dir, pattern))
             {
+                if ((File.GetAttributes(file) & FileAttributes.ReparsePoint) != 0) continue;
                 if (excludedFiles != null && excludedFiles.Contains(Path.GetFileName(file)))
                     continue;
                 scan?.OnFile();
@@ -101,11 +103,12 @@ public static partial class FileEnumerator
         while (stack.Count > 0)
         {
             var dir = stack.Pop();
+            if ((File.GetAttributes(dir) & FileAttributes.ReparsePoint) != 0) continue;
             scan?.OnDirectory(dir);
             foreach (var sub in Directory.GetDirectories(dir))
             {
                 var name = Path.GetFileName(sub);
-                if (s_excludedDirs.Contains(name))
+                if ((File.GetAttributes(sub) & FileAttributes.ReparsePoint) != 0 || s_excludedDirs.Contains(name))
                     continue;
                 if (hasLangDirsAtRoot && dir == root && s_localeDirNames.Contains(name))
                     continue;
@@ -115,6 +118,7 @@ public static partial class FileEnumerator
             {
                 foreach (var file in Directory.GetFiles(dir, p))
                 {
+                    if ((File.GetAttributes(file) & FileAttributes.ReparsePoint) != 0) continue;
                     if (excludedFiles != null && excludedFiles.Contains(Path.GetFileName(file)))
                         continue;
                     scan?.OnFile();
@@ -133,6 +137,6 @@ public static partial class FileEnumerator
         if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder))
             return false;
         return Directory.GetDirectories(folder)
-            .Any(d => LanguageCodePattern().IsMatch(Path.GetFileName(d)));
+            .Any(d => (File.GetAttributes(d) & FileAttributes.ReparsePoint) == 0 && LanguageCodePattern().IsMatch(Path.GetFileName(d)));
     }
 }

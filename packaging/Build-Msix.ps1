@@ -45,6 +45,10 @@ if (-not $SkipBuild) {
 }
 
 # Step 2: Prepare MSIX layout
+# Source and notice sidecars must survive publishing and --SkipBuild alike.
+& python "$PSScriptRoot\..\tools\Verify-SpellingArtifacts.py" --folder $PublishDir --bundled
+if ($LASTEXITCODE -ne 0) { throw "Spelling source/notices verification failed" }
+
 Write-Host "[2/4] Preparing MSIX layout..." -ForegroundColor Yellow
 $LayoutDir = "$OutputDir\layout"
 if (Test-Path $LayoutDir) { Remove-Item -Recurse -Force $LayoutDir }

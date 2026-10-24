@@ -77,7 +77,7 @@ internal static class Program
             WarnAboutPendingPlugins();
             return code;
         }
-        catch (FormatUnavailableException ex)
+        catch (Exception ex) when (ex is FormatUnavailableException or InvalidOperationException or FormatException or CompatibilityImportException or IOException or UnauthorizedAccessException)
         {
             Console.Error.WriteLine(ex.Message);
             WarnAboutPendingPlugins();
@@ -97,6 +97,7 @@ internal static class Program
             "list-keys" => RunListKeys(folder),
             "get" => RunGet(folder, args),
             "set" => RunSet(folder, args),
+            "scan" => RunScan(folder),
             "--help" or "-h" or "help" => PrintUsage(),
             _ => Error($"Unknown command: {command}")
         };
@@ -296,6 +297,18 @@ internal static class Program
         return 0;
     }
 
+    private static int RunScan(string folder)
+    {
+        var (settings, items) = LoadProject(folder);
+        var keys = items.GroupBy(i => (Package: i.Identity?.Package ?? "main", Key: i.Identity == null ? i.Namespace : ResourceEntryOperations.Selector(i.Identity.Path), i.Namespace))
+            .Select(g => new SourceScanKey(g.Key.Package, g.Key.Key, g.Key.Namespace, g.First().Identity?.KeyToken ?? "")).ToList();
+        var result = Get<IProjectSourceCodeService>().ScanAsync(new(Path.GetFullPath(folder), settings.Framework, settings.FrameworkOptions,
+            keys.Select(k => k.Package).Distinct().ToList(), Includes: settings.ScanIncludes, Excludes: settings.ExcludedDirectories, Extensions: settings.ScanExtensions,
+            SourceRoots: settings.SourceRoots, ResourceKeys: keys)).GetAwaiter().GetResult();
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(result));
+        return result.CanClassifyUnused ? 0 : 2;
+    }
+
     private static int RunSet(string folder, string[] args)
     {
         if (args.Length < 5) { Console.Error.WriteLine("Usage: toucan set [folder] [key] [lang] [value]"); return 1; }
@@ -305,6 +318,8 @@ internal static class Program
 
         var (settings, translations) = LoadProject(folder);
         var item = translations.FirstOrDefault(t => t.Namespace == key && t.Language == lang);
+        if (item != null && !item.Permissions.EditValues || item == null && (translations.Any(i => !i.Permissions.EditKeys) || settings.ResourceDocuments.Any(d => d.Resource.Ownership == ResourceOwnership.GeneratedSource)))
+            return Error("Resource capabilities forbid this edit; generated catalogs must be extracted from source.");
         if (item != null)
             item.Value = value;
         else
@@ -340,6 +355,7 @@ internal static class Program
             foreach (var src in sourceItems)
             {
                 var existing = translations.FirstOrDefault(t => t.Language == lang && t.Namespace == src.Namespace);
+                if (existing?.Permissions.EditValues == false || existing == null && (translations.Any(i => !i.Permissions.EditKeys) || settings.ResourceDocuments.Any(d => d.Resource.Ownership == ResourceOwnership.GeneratedSource))) continue;
                 if (!overwrite && existing != null && !string.IsNullOrEmpty(existing.Value)) continue;
                 jobs.Add(new PretranslationJob(src.Namespace, src.Value, primary, lang));
             }
@@ -395,6 +411,8 @@ internal static class Program
         foreach (var r in results.Where(r => r.Succeeded && r.TranslatedValue != null))
         {
             var item = translations.FirstOrDefault(t => t.Language == r.Language && t.Namespace == r.Namespace);
+            if (item != null && !item.Permissions.EditValues) continue;
+            if (item == null && (translations.Any(i => !i.Permissions.EditKeys) || settings.ResourceDocuments.Any(d => d.Resource.Ownership == ResourceOwnership.GeneratedSource))) continue;
             if (item != null)
                 item.Value = r.TranslatedValue!;
             else
@@ -447,6 +465,7 @@ internal static class Program
               list-formats                List all supported file formats
               list-keys [folder]          List all translation keys (one per line)
               get [folder] <key>          Get translations for a key (JSON)
+              scan [folder]               Scan framework source usages (JSON); exit 2 when incomplete/unresolved
               set [folder] <key> <lang> <value>  Set a single translation
               plugins [list]              Show installed plugins and whether they are trusted
               plugins trust <id>          Trust a plugin's current files (it then loads)

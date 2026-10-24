@@ -66,24 +66,29 @@ public class LaravelPhpSaveStrategy : ISaveStrategy, IResourceSaveStrategy
     {
         var entries = ResourceFileAdapter.Entries(request);
         var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
+        var options = ResourceText.Options(request);
+        var filePrefix = Path.GetFileNameWithoutExtension(file) + ".";
+        if (entries.Any(i => !i.Namespace.StartsWith(filePrefix, StringComparison.Ordinal)))
+            throw new FormatException($"{request.Document.Resource.RelativePath} [key]: Laravel IDs must start with '{filePrefix}'.");
         var sb = new StringBuilder();
-        sb.AppendLine("<?php");
-        sb.AppendLine("return [");
-        WriteItems(sb, entries.Where(i => ResourceFileAdapter.KeepEmpty(request) || !string.IsNullOrEmpty(i.Value)).ToList(), 1);
-        sb.AppendLine("];");
-        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
-        AtomicFile.WriteAllText(file, sb.ToString(), new UTF8Encoding(false));
+        if (options.Indent == ResourceIndent.None) sb.Append("<?php return [");
+        else { sb.AppendLine("<?php"); sb.AppendLine("return ["); }
+        WriteItems(sb, entries.Where(i => ResourceFileAdapter.KeepEmpty(request) || !string.IsNullOrEmpty(i.Value)).ToList(), 1, options);
+        sb.Append("];");
+        if (options.Indent != ResourceIndent.None) sb.AppendLine();
+        ResourceText.Write(request, sb.ToString());
         return new([]);
     }
 
     public Task SaveAsync(string path, SaveContext context) => Task.Run(() => Save(path, context));
 
-    private static void WriteItems(StringBuilder sb, List<TranslationItem> items, int rootDepth)
+    private static void WriteItems(StringBuilder sb, List<TranslationItem> items, int rootDepth, ResourceOptions? options = null)
     {
         // ponytail: flat write with nested grouping by dot-separated segments after the file prefix
-        var tree = new SortedDictionary<string, object>(); // string value or nested dict
+        options ??= new() { Order = ResourceOrder.Alphabetical, Indent = ResourceIndent.Space4 };
+        var tree = new Dictionary<string, object>(); // string value or nested dict
 
-        foreach (var item in items.OrderBy(i => i.Namespace))
+        foreach (var item in options.Order == ResourceOrder.Alphabetical ? items.OrderBy(i => i.Namespace, StringComparer.Ordinal) : items.AsEnumerable())
         {
             var parts = item.Namespace.Split('.');
             // Skip the first segment (file prefix)
@@ -93,41 +98,46 @@ public class LaravelPhpSaveStrategy : ISaveStrategy, IResourceSaveStrategy
             SetNested(tree, keys, item.Value ?? "");
         }
 
-        WriteDict(sb, tree, rootDepth);
+        WriteDict(sb, tree, rootDepth, options);
     }
 
-    private static void SetNested(SortedDictionary<string, object> dict, string[] keys, string value)
+    private static void SetNested(Dictionary<string, object> dict, string[] keys, string value)
     {
         var current = dict;
         for (int i = 0; i < keys.Length - 1; i++)
         {
-            if (!current.TryGetValue(keys[i], out var child) || child is not SortedDictionary<string, object> childDict)
+            if (!current.TryGetValue(keys[i], out var child) || child is not Dictionary<string, object> childDict)
             {
-                childDict = new SortedDictionary<string, object>();
+                childDict = new Dictionary<string, object>();
                 current[keys[i]] = childDict;
             }
-            current = (SortedDictionary<string, object>)current[keys[i]];
+            current = (Dictionary<string, object>)current[keys[i]];
         }
         current[keys[^1]] = value;
     }
 
-    private static void WriteDict(StringBuilder sb, SortedDictionary<string, object> dict, int indent)
+    private static void WriteDict(StringBuilder sb, Dictionary<string, object> dict, int indent, ResourceOptions options)
     {
-        var pad = new string(' ', indent * 4);
+        var pad = options.Indent == ResourceIndent.None ? "" : options.Indent == ResourceIndent.Tab ? new string('\t', indent) : new string(' ', indent * (options.Indent == ResourceIndent.Space2 ? 2 : 4));
+        var newline = options.Indent == ResourceIndent.None ? "" : Environment.NewLine;
         foreach (var (key, val) in dict)
         {
-            if (val is SortedDictionary<string, object> nested)
+            if (val is Dictionary<string, object> nested)
             {
-                sb.AppendLine($"{pad}'{Escape(key)}' => [");
-                WriteDict(sb, nested, indent + 1);
-                sb.AppendLine($"{pad}],");
+                sb.Append($"{pad}{Quote(key)} => [").Append(newline);
+                WriteDict(sb, nested, indent + 1, options);
+                sb.Append($"{pad}],").Append(newline);
             }
             else
             {
-                sb.AppendLine($"{pad}'{Escape(key)}' => '{Escape((string)val)}',");
+                sb.Append($"{pad}{Quote(key)} => {Quote((string)val)},").Append(newline);
             }
         }
     }
+
+    private static string Quote(string value) => value.IndexOfAny(['\n', '\r', '\t']) >= 0
+        ? "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("$", "\\$").Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t") + "\""
+        : "'" + Escape(value) + "'";
 
     private static string Escape(string s) => s.Replace("\\", "\\\\").Replace("'", "\\'");
 }

@@ -1,7 +1,7 @@
 ---
 title: "Writing Toucan plugins"
 status: active
-updated: 2026-10-22
+updated: 2026-10-23
 summary: "Plugin author guide: API 1.2 optional resource IO, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported."
 ---
 # Writing Toucan plugins
@@ -138,7 +138,9 @@ Descriptors carry stable resource IDs, package/language, exact relative path, fo
 
 Preserve opaque data once in the document state, including for empty documents. The native resource schema and compatibility envelope are independently versioned; retain unknown extension fields. API 1.2 adds these contracts without requiring API 1.0/1.1 folder plugins to implement them. A hash-verified sample DLL compiled at the M0 baseline is tested unchanged against the new host; this is not certification of every historical plugin.
 
-Built-in exact-file adapters now cover JSON, YAML, ARB, Java properties, RESX/RESW and Laravel PHP. Legacy folder APIs remain available; PO/XLIFF migration requests currently receive an unsupported exact-resource diagnostic. See the [M2 acceptance record](specs/resource-compatibility/m2.md) for the tested subset and remaining format-fidelity work.
+Built-in exact-file adapters now cover JSON, YAML, ARB, Java properties, RESX/RESW and Laravel PHP. Legacy folder APIs remain available; PO/XLIFF migration requests currently receive an unsupported exact-resource diagnostic. See the [M2 acceptance record](specs/resource-compatibility/m2.md) for the migration subset; [M3](specs/resource-compatibility/m3.md) records current format fidelity and settings.
+
+M3 applies resource → typed project → legacy project → detected → default settings consistently to exact project/package/CLI/Save As paths. `ResourceOptions.UnicodeEscapes` adds Preserve/Always/Minimal policies for Java properties. Input and output encodings have separate roles; an explicit transcode updates the native resource's decoder for reopen. Literal/nested typed paths remain authoritative, and layout/delimiter preferences control new key binding. Return actionable diagnostics for unsupported overrides rather than silently changing existing key shapes. Legacy folder-only plugins retain their prior behavior.
 
 `IProjectCompatibilityImporter` is a separate optional migration seam. It discovers source projects and returns a neutral `CompatibilityProject` containing explicit resource descriptors, project options and versioned opaque compatibility data. The host creates its native settings; provider hooks apply/capture source-specific metadata through compatibility envelopes. Register providers with the normal service collection. A provider must validate its source schema and mappings before returning, must never write the original project format, and must not load a vendor runtime. The built-in BabelEdit migration module references only Common and Abstractions and is included by `AddToucanDefaults` in both applications.
 
@@ -419,3 +421,9 @@ schema `Version` is refused when you register the schema, because it could never
   compiled in, always on, listed read-only by `toucan plugins list`, and their `toucan.*` IDs are reserved. They register
   through the same kinds of calls a plugin makes, so a plugin author can read them as examples. See
   [ARCHITECTURE.md](ARCHITECTURE.md) and [specs/plugin-modularization](specs/plugin-modularization/design.md).
+
+## Optional framework and resource companions
+
+`IFrameworkFeatures` supplies a scanner ID, an existing `ConfigSchema` and exact descriptors without changing `IFrameworkProfile`. `IResourceCapabilities` supplies resource editing permissions; `ResourceDescriptor.Ownership` protects generated source documents. Hosts retain default behavior for older profiles/providers. `ISourceScanner` receives bounded text and returns package-aware references and diagnostics; registered scanners are selected by the framework companion, with the generic fallback retained. These additions remain in the unreleased 1.2 contract set and do not change existing profile methods. See [M5/M6 contracts, supported syntax and verification](specs/resource-compatibility/m5-m6.md).
+
+`IResourceOptionsProvider` declares the `ResourceOptions` fields a writer actually consumes; undeclared schemas retain IO without an invented settings editor. `IResourceDialectProvider` supplies choices for new/converted resources. `IResourceMetadataAuthority` lets readers identify file-owned metadata (including removal) and inline comments so stale native caches cannot replace newer resource contents. These are additive unreleased companions; old strategy/profile contracts remain unchanged. See [resource UI and M7 verification](specs/resource-compatibility/m7-ui.md).

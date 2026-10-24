@@ -10,6 +10,7 @@
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <DockPanel>
+        <TextBlock DockPanel.Dock="Top" Text="{Binding ConfigurationError}" TextWrapping="Wrap"/>
         <Button Content="{loc:Loc 'Reset to defaults'}" Command="{Binding ResetToDefaultsCommand}"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
           <Button Content="{loc:Loc 'Cancel'}" Command="{Binding CancelCommand}"/>
@@ -41,6 +42,12 @@
 
     <ScrollViewer Background="{DynamicResource ChromeBackgroundBrush}">
       <Panel Margin="32,24" MaxWidth="600">
+
+        <StackPanel IsVisible="{Binding #Nav.SelectedIndex, Converter={StaticResource Equals}, ConverterParameter=5}">
+          <ContentControl x:Name="ResourcesHost"/>
+        </StackPanel>
+
+        <ContentControl x:Name="SpellingHost" IsVisible="{Binding #Nav.SelectedIndex, Converter={StaticResource Equals}, ConverterParameter=6}"/>
 
         <!-- General -->
         <StackPanel IsVisible="{Binding #Nav.SelectedIndex, Converter={StaticResource Equals}, ConverterParameter=0}">
@@ -129,9 +136,9 @@
           <TextBlock Text="{loc:Loc 'Editor'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
             <StackPanel>
-              <c:SettingsRow Title="{loc:Loc 'Write empty translations to files'}"><ToggleSwitch IsChecked="{Binding SaveEmptyTranslations}"/></c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Write empty translations to files'}" IsVisible="{Binding !HasResourceSettings}"><ToggleSwitch IsChecked="{Binding SaveEmptyTranslations}"/></c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Enable comments'}"><ToggleSwitch IsChecked="{Binding CommentsEnabled}"/></c:SettingsRow>
-              <c:SettingsRow Title="{loc:Loc 'Key order in files'}">
+              <c:SettingsRow Title="{loc:Loc 'Key order in files'}" IsVisible="{Binding !HasResourceSettings}">
                 <ComboBox ItemsSource="{x:Static vm:ProjectPropertiesViewModel.TranslationOrderOptions}" SelectedItem="{Binding TranslationOrder}"/>
               </c:SettingsRow>
             </StackPanel>
@@ -143,6 +150,7 @@
 
         <!-- Source code -->
         <StackPanel IsVisible="{Binding #Nav.SelectedIndex, Converter={StaticResource Equals}, ConverterParameter=3}">
+          <ContentControl x:Name="FrameworkSettingsHost"/>
           <TextBlock Text="{loc:Loc 'Source code'}" Classes="dialogTitle" Margin="0,0,0,16"/>
           <c:SettingsGroup>
             <c:SettingsRow Title="{loc:Loc 'Scan when the project opens'}"><ToggleSwitch IsChecked="{Binding AutoScanOnOpen}"/></c:SettingsRow>
@@ -155,13 +163,16 @@
                   <TextBox Text="{Binding SourceRoots}" Classes="mono"/>
                 </DockPanel>
               </c:SettingsRow>
+              <c:SettingsRow Title="Source path patterns" Stacked="True">
+                <TextBox Text="{Binding ScanIncludes}" Classes="mono" PlaceholderText="**/*.ts, **/*.vue (empty includes all source files)"/>
+              </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'File extensions'}" Stacked="True">
                 <TextBox Text="{Binding ScanExtensions}" Classes="mono" PlaceholderText="{loc:Loc 'Uses the defaults from Settings when empty'}"/>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Excluded folders'}" Stacked="True">
                 <TextBox Text="{Binding ExcludedDirectories}" Classes="mono" PlaceholderText="{loc:Loc 'Uses the defaults from Settings when empty'}"/>
               </c:SettingsRow>
-              <c:SettingsRow Title="{loc:Loc 'External editor command'}" Stacked="True">
+              <c:SettingsRow Title="{loc:Loc 'External editor command'}" Description="{loc:Loc 'Use an executable and arguments; shell expressions are not expanded.'}" Stacked="True">
                 <TextBox Text="{Binding ExternalEditor}" Classes="mono" PlaceholderText="code --goto &quot;{file}:{line}&quot;"/>
               </c:SettingsRow>
             </StackPanel>

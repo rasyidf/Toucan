@@ -61,3 +61,6 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+# Preserve exact bytes of hash-pinned third-party source and notice materials.
+/third-party/WeCantSpell.Hunspell/7.0.1/** -text -whitespace

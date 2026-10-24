@@ -6,6 +6,7 @@ namespace Toucan.Core.Models;
 public enum ResourceLayout { Literal, Dotted, Nested }
 public enum ResourceArrayPolicy { Preserve, Disabled, ContiguousIndexes }
 public enum ResourceIndent { None, Space2, Space4, Tab }
+public enum ResourceUnicodeEscapes { Preserve, Always, Minimal }
 public enum ResourceOrder { Preserve, Alphabetical }
 public enum ResourceNewline { Lf, CrLf }
 
@@ -18,6 +19,7 @@ public sealed record ResourceOptions
     public ResourceArrayPolicy? Arrays { get; init; }
     public ResourceIndent? Indent { get; init; }
     public ResourceOrder? Order { get; init; }
+    public ResourceUnicodeEscapes? UnicodeEscapes { get; init; }
     public string? InputEncoding { get; init; }
     public string? OutputEncoding { get; init; }
     public ResourceNewline? Newline { get; init; }
@@ -33,6 +35,7 @@ public sealed record ResourceOptions
             Delimiter = resource.Delimiter ?? project.Delimiter ?? detected.Delimiter ?? defaults.Delimiter,
             Arrays = resource.Arrays ?? project.Arrays ?? detected.Arrays ?? defaults.Arrays,
             Indent = resource.Indent ?? project.Indent ?? detected.Indent ?? defaults.Indent,
+            UnicodeEscapes = resource.UnicodeEscapes ?? project.UnicodeEscapes ?? detected.UnicodeEscapes ?? defaults.UnicodeEscapes,
             Order = resource.Order ?? project.Order ?? detected.Order ?? defaults.Order,
             InputEncoding = resource.InputEncoding ?? project.InputEncoding ?? detected.InputEncoding ?? defaults.InputEncoding,
             OutputEncoding = resource.OutputEncoding ?? project.OutputEncoding ?? detected.OutputEncoding ?? defaults.OutputEncoding,
@@ -61,6 +64,7 @@ public sealed record ResourceDescriptor
     public string RelativePath { get; init; } = string.Empty;
     public string FormatId { get; init; } = string.Empty;
     public string? Dialect { get; init; }
+    public ResourceOwnership Ownership { get; init; }
     public string SelectorPrefix { get; init; } = string.Empty;
     public ResourceOptions Options { get; init; } = new();
 }

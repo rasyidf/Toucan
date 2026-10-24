@@ -6,15 +6,17 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy
+public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy, IResourceOptionsProvider
 {
+    public IReadOnlySet<string> SupportedOptions(ResourceDescriptor resource) => ResourceOptionFields.With("UnicodeEscapes");
+
     public string FormatId => FormatIds.JavaProperties;
 
     public FormatSupport Support { get; } = new(
         FormatEditing.Full,
         "Java .properties (UTF-8 or ISO-8859-1 with \\uXXXX escapes); line continuations",
-        ["Escapes", "unicode", "leading spaces", "line continuations", "multiline text"],
-        ["Comments in the file are not kept", "Key order is sorted on save"]);
+        ["Escapes", "unicode", "leading spaces", "line continuations", "multiline text", "exact-resource comments/order/original escapes", "selected output encoding and Unicode escape policy"],
+        ["Folder-only saves sort keys and omit source comments; exact resources preserve document presentation"]);
     public string DisplayName => "Java .properties";
     public IReadOnlyList<string> FileExtensions => [".properties"];
     public string DefaultFilePath(string language) => $"{language}.properties";
@@ -61,22 +63,17 @@ public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrateg
     {
         var entries = ResourceFileAdapter.Entries(request);
         var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
-        var encoding = ResourceOptions.Resolve(request.Document.Resource.Options, request.ProjectOptions, request.Document.DetectedOptions, null).OutputEncoding
-            ?? entries.FirstOrDefault()?.FormatData?.GetValueOrDefault("properties.encoding")
-            ?? ResourceFileAdapter.Metadata(request.Document).GetValueOrDefault("properties.encoding");
-        var utf8 = encoding is "UTF-8" or "UTF-8 BOM";
-        var sb = new StringBuilder();
-        sb.AppendLine("# Translation file for " + request.Document.Resource.Language);
-        foreach (var item in entries.Where(i => ResourceFileAdapter.KeepEmpty(request) || !string.IsNullOrEmpty(i.Value)).OrderBy(i => i.Namespace, StringComparer.Ordinal))
-            sb.AppendLine($"{EscapeKey(item.Namespace)}={EscapeValue(item.Value ?? "", utf8)}");
-        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
-        AtomicFile.WriteAllText(file, sb.ToString(), utf8 ? new UTF8Encoding(encoding == "UTF-8 BOM") : Encoding.Latin1);
+        var options = ResourceText.Options(request);
+        var original = request.Document.Data.TryGetValue("properties", out var saved) ? saved.GetString() ?? "" : "";
+        var content = PropertiesDocumentCodec.Write(original, entries, options);
+        ResourceText.Write(request, content, latin: true);
+        request.Document.Data["properties"] = System.Text.Json.JsonSerializer.SerializeToElement(content);
         return new([]);
     }
 
     public Task SaveAsync(string path, SaveContext context) => Task.Run(() => Save(path, context));
 
-    private static string EscapeKey(string s) => s.Replace(" ", "\\ ").Replace("=", "\\=").Replace(":", "\\:");
+    private static string EscapeKey(string s) => s.Replace("\\", "\\\\").Replace(" ", "\\ ").Replace("=", "\\=").Replace(":", "\\:").Replace("#", "\\#").Replace("!", "\\!").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
 
     private static string EscapeValue(string s, bool utf8)
     {

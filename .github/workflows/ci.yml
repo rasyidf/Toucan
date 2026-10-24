@@ -21,7 +21,23 @@ jobs:
       - name: Build
         run: dotnet build Toucan.CrossPlatform.slnx --configuration Release
       - name: Test
-        run: dotnet test Toucan.CrossPlatform.slnx --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults
+        run: dotnet test Toucan.CrossPlatform.slnx --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults --logger trx
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Publish and verify spelling source and notices
+        run: |
+          dotnet publish Toucan.Avalonia/Toucan.Avalonia.csproj --configuration Release --no-restore -p:UseAppHost=false -o build/release-gate -m:1
+          python tools/Verify-SpellingArtifacts.py --folder build/release-gate --output build/spelling-artifacts.json
+      - name: Upload compatibility gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compatibility-gate-${{ matrix.os }}
+          path: |
+            build/spelling-artifacts.json
+            TestResults/**/*.trx
+          if-no-files-found: ignore
       - name: Upload coverage
         if: always()
         uses: actions/upload-artifact@v4

@@ -40,8 +40,14 @@ public partial class ProjectLifecycleService(
     public event EventHandler<ProjectChangedEventArgs>? ProjectChanged;
 
     /// <inheritdoc />
-    public async Task<ProjectOpenResult> OpenProjectAsync(string folderPath, IProgress<ScanProgress>? progress = null, CancellationToken ct = default)
+    public Task<ProjectOpenResult> OpenProjectAsync(string folderPath, IProgress<ScanProgress>? progress = null, CancellationToken ct = default) => OpenProjectCoreAsync(folderPath, null, progress, ct);
+
+    public Task<ProjectOpenResult> OpenMigrationAsync(string path, MigrationReport report, IProgress<ScanProgress>? progress = null, CancellationToken ct = default) => OpenProjectCoreAsync(path, report, progress, ct);
+
+    private async Task<ProjectOpenResult> OpenProjectCoreAsync(string folderPath, MigrationReport? migration, IProgress<ScanProgress>? progress, CancellationToken ct)
     {
+        var requestedPath = folderPath;
+        if (File.Exists(folderPath)) folderPath = Path.GetDirectoryName(Path.GetFullPath(folderPath))!;
         // Validate the target folder before changing the workspace.
         if (!Directory.Exists(folderPath))
         {
@@ -51,13 +57,19 @@ public partial class ProjectLifecycleService(
             return new ProjectOpenResult(ProjectOpenStatus.FolderNotFound, $"Folder not found: {folderPath}");
         }
 
+        if (migration != null && IsProjectOpen && translationManagement.IsDirty &&
+            Path.GetFullPath(_currentProject!.ProjectPath).Equals(Path.GetFullPath(folderPath), OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+            return new ProjectOpenResult(ProjectOpenStatus.ManifestInvalid, "Save the active project's edits before migrating another project in the same folder.");
+
         async Task<(ProjectLoadResult? Loaded, ProjectOpenResult? Failure)> StageAsync()
         {
             try
             {
                 // Off the UI thread: a large folder can take a long time and must stay cancellable.
                 // No ConfigureAwait(false): the steps below and ProjectChanged handlers expect the caller's (UI) context.
-                var loaded = await Task.Run(() => projectService.LoadProject(folderPath, progress, ct), ct);
+                var loaded = await Task.Run(() => projectService.LoadProject(requestedPath, progress, ct), ct);
+                if (migration != null && !migration.InputsUnchanged(folderPath)) throw new IOException("Migration inputs changed after preview. Review a new preview.");
+                if (migration != null) loaded.Settings.LastMigrationReport = migration;
                 return (loaded, null);
             }
             catch (OperationCanceledException)
@@ -329,7 +341,14 @@ public partial class ProjectLifecycleService(
                 } : null,
                 LineEnding = _currentProject.LineEnding,
                 DefaultPathResolver = _currentProject.DefaultPathResolver,
+                Spelling = ProjectConfiguration.Copy(_currentProject).Spelling,
+                LastMigrationReport = _currentProject.LastMigrationReport,
                 Framework = _currentProject.Framework,
+                FrameworkOptions = _currentProject.FrameworkOptions with { },
+                ScanIncludes = _currentProject.ScanIncludes is null ? null : [.. _currentProject.ScanIncludes],
+                ScanExtensions = _currentProject.ScanExtensions is null ? null : [.. _currentProject.ScanExtensions],
+                ExcludedDirectories = _currentProject.ExcludedDirectories is null ? null : [.. _currentProject.ExcludedDirectories],
+                AutoScanOnOpen = _currentProject.AutoScanOnOpen,
                 TranslationPackages = [.. _currentProject.TranslationPackages],
                 SaveEmptyTranslations = _currentProject.SaveEmptyTranslations,
                 TranslationOrder = _currentProject.TranslationOrder,
@@ -348,6 +367,15 @@ public partial class ProjectLifecycleService(
                 ProjectPath = targetFolder
             };
 
+            // Generated resources are copied byte-for-byte by Save As; they are never serialized as edited values.
+            var generated = newSettings.ResourceDocuments.Where(d => d.Resource.Ownership == ResourceOwnership.GeneratedSource)
+                .Select(d => (Source: ResourceFilePath.Resolve(_currentProject.ProjectPath, d.Resource.RelativePath),
+                    Target: ResourceFilePath.Resolve(targetFolder, d.Resource.RelativePath))).ToList();
+            foreach (var (source, target) in generated)
+                if (File.Exists(target) && !File.ReadAllBytes(source).AsSpan().SequenceEqual(File.ReadAllBytes(target)))
+                    return new ProjectSaveResult(ProjectSaveStatus.FileSystemError, ErrorMessage: "The Save As folder contains a different generated catalog. Choose an empty destination.");
+            foreach (var (source, target) in generated)
+                if (!File.Exists(target)) { Directory.CreateDirectory(Path.GetDirectoryName(target)!); File.Copy(source, target); }
             projectService.Save(newSettings, [], translationManagement.Translations);
 
             // 3. Save comments and audit sidecar to new folder

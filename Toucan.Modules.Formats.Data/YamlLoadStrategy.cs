@@ -43,21 +43,33 @@ public class YamlLoadStrategy : ILoadStrategy, IResourceLoadStrategy
     {
         request.CancellationToken.ThrowIfCancellationRequested();
         var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Resource.RelativePath);
-        var lines = File.ReadAllLines(file);
-        var parsed = ParseYaml(request.Resource.Language, lines);
-        var roots = lines.Where(l => l.Length > 0 && !char.IsWhiteSpace(l[0]) && l[0] != '#' && l[0] != '-').ToList();
-        var locale = roots.Count == 1 ? roots[0].Trim().TrimEnd(':').Trim('"', '\'') : null;
-        var isLocale = locale == request.Resource.Language || locale == request.Resource.Language.Split('-')[0];
-        foreach (var item in parsed)
+        var content = ResourceText.Read(request, out var encoding);
+        try
         {
-            item.FormatData = new() { ["yaml.file"] = request.Resource.RelativePath };
-            if (isLocale && locale != null && item.Namespace.StartsWith(locale + ".", StringComparison.Ordinal))
+            var root = YamlDocumentCodec.Read(content);
+            string? locale = null;
+            if (request.Resource.Dialect == "rails-yaml")
             {
-                item.Namespace = item.Namespace[(locale.Length + 1)..];
-                item.FormatData["yaml.locale"] = locale;
+                if (root is not System.Text.Json.Nodes.JsonObject obj || obj.Count != 1) throw new FormatException("[locale]: Rails YAML needs one declared locale root.");
+                locale = obj.First().Key;
+                if (locale != request.Resource.Language && locale != request.Resource.Language.Split('-')[0]) throw new FormatException("[locale]: Rails root does not match the declared locale.");
+                root = obj.First().Value?.DeepClone() ?? new System.Text.Json.Nodes.JsonObject();
             }
+            var loaded = ResourceJsonCodec.Read(root.ToJsonString(), request.Resource, request.ProjectOptions, request.CancellationToken);
+            loaded.Document!.DetectedOptions = ResourceText.Detect(content, encoding);
+            loaded.Document.Data["yaml.source"] = System.Text.Json.JsonSerializer.SerializeToElement(content);
+            loaded.Document.Data["yaml.unsafe"] = System.Text.Json.JsonSerializer.SerializeToElement<string?>(null);
+            loaded.Document.Data["format"] = System.Text.Json.JsonSerializer.SerializeToElement(locale != null
+                ? new Dictionary<string, string> { ["yaml.locale"] = locale } : new Dictionary<string, string>());
+            foreach (var item in loaded.Entries) (item.FormatData ??= new())["yaml.file"] = request.Resource.RelativePath;
+            return loaded;
         }
-        return ResourceFileAdapter.Bind(request, parsed, false, isLocale && locale != null ? new() { ["yaml.locale"] = locale } : []);
+        catch (FormatException ex) when (!ex.Message.StartsWith("[locale]", StringComparison.Ordinal))
+        {
+            var loaded = ResourceFileAdapter.Bind(request, ParseYaml(request.Resource.Language, content.ReplaceLineEndings("\n").Split('\n')).GroupBy(i => i.Namespace).Select(g => g.First()).ToList(), false);
+            loaded.Document!.Data["yaml.unsafe"] = System.Text.Json.JsonSerializer.SerializeToElement(ex.Message);
+            return loaded with { Diagnostics = [new ResourceDiagnostic("yaml.save-blocked", ex.Message + "; review preview may be incomplete; source rewriting is blocked.", ResourceDiagnosticSeverity.Warning, request.Resource.RelativePath, "content")] };
+        }
     }
 
     private static List<TranslationItem> ParseYaml(string language, string[] lines)

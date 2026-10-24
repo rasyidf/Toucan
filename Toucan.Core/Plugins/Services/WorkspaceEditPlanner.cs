@@ -7,7 +7,7 @@ namespace Toucan.Core.Plugins;
 /// <summary>The project as the planner sees it.</summary>
 /// <param name="Items">Every translation. The planner works on copies and never changes these.</param>
 public sealed record PlanInput(IReadOnlyList<TranslationItem> Items, IReadOnlyList<string> Languages, string PrimaryLanguage, long Revision,
-    bool RequireValidForApproval, IValidationPipeline? Validation);
+    bool RequireValidForApproval, IValidationPipeline? Validation, bool AllowKeyChanges = true);
 
 /// <summary>What an edit will do, decided before anything is touched.</summary>
 public sealed class EditPlan
@@ -53,6 +53,15 @@ public static class WorkspaceEditPlanner
         {
             var op = edit.Operations[i];
             var before = issues.Count;
+            var blocked = op switch
+            {
+                SetValue v => input.Items.Any(t => t.Namespace == v.Key && t.Language == v.Language && !t.Permissions.EditValues),
+                SetComment c => input.Items.Any(t => t.Namespace == c.Key && t.Language == c.Language && !t.Permissions.EditMetadata),
+                SetReview r => input.Items.Any(t => t.Namespace == r.Key && t.Language == r.Language && !t.Permissions.EditMetadata),
+                AddKey or RenameKey or DeleteKey => !input.AllowKeyChanges || input.Items.Any(t => !t.Permissions.EditKeys),
+                _ => false
+            };
+            if (blocked) { issues.Add(new(i, EditIssueKind.Conflict, "Resource ownership/capabilities forbid this edit.")); continue; }
             var changed = Step(sim, i, op, issues);
             if (issues.Count > before) continue; // refused: not part of the plan
             if (changed == 0) continue;           // nothing to do

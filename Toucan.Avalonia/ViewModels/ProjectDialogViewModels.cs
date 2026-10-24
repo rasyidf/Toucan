@@ -341,6 +341,8 @@ public partial class ProjectPropertiesViewModel : ObservableObject
         new("Editor", "Edit", "#007AFF"),
         new("Source code", "CodeHTML", "#5AC8FA"),
         new("Hidden", "View", "#636366"),
+        new("Resources", "Document", "#AF52DE"),
+        new("Spelling", "Character", "#34C759"),
     ];
 
     public static IReadOnlyList<string> TranslationOrderOptions { get; } = ["Alphabetically sorted", "Primary language"];
@@ -361,12 +363,19 @@ public partial class ProjectPropertiesViewModel : ObservableObject
     [ObservableProperty] private decimal autoSaveInterval = 60;
     [ObservableProperty] private string sourceRoots = string.Empty;
     [ObservableProperty] private string externalEditor = string.Empty;
+    [ObservableProperty] private string scanIncludes = string.Empty;
     [ObservableProperty] private string scanExtensions = string.Empty;
     [ObservableProperty] private string excludedDirectories = string.Empty;
     [ObservableProperty] private bool autoScanOnOpen;
     [ObservableProperty] private bool validateOnSave = true;
     [ObservableProperty] private bool requireValidForApproval;
 
+    public Toucan.Core.Plugins.FrameworkConfiguration? FrameworkConfiguration { get; set; }
+    public ProjectSettings ConfigurationDraft => _settings;
+    public ResourceSettingsViewModel? ResourceSettings { get; set; }
+    public bool HasResourceSettings => ResourceSettings != null;
+    [ObservableProperty] private string configurationError = string.Empty;
+    public bool PersistOnSave { get; set; } = true;
     public string ProjectPath => _settings.ProjectPath;
     public string SaveStyleName => _format?.DisplayName ?? _settings.SaveFormat;
 
@@ -410,6 +419,7 @@ public partial class ProjectPropertiesViewModel : ObservableObject
         AutoSaveInterval = _settings.AutoSaveIntervalSeconds ?? 60;
         ExternalEditor = _settings.ExternalEditor ?? string.Empty;
         SourceRoots = string.Join(";", _settings.SourceRoots ?? []);
+        ScanIncludes = string.Join(", ", _settings.ScanIncludes ?? []);
         ScanExtensions = string.Join(", ", _settings.ScanExtensions ?? []);
         ExcludedDirectories = string.Join(", ", _settings.ExcludedDirectories ?? []);
         AutoScanOnOpen = _settings.AutoScanOnOpen ?? false;
@@ -500,6 +510,13 @@ public partial class ProjectPropertiesViewModel : ObservableObject
     [RelayCommand]
     private void Save()
     {
+        try
+        {
+            foreach (var fallback in _settings.Spelling.Fallbacks) { Toucan.Core.Services.DictionaryRegistry.NormalizeLocale(fallback.Key); Toucan.Core.Services.DictionaryRegistry.NormalizeLocale(fallback.Value); }
+            foreach (var words in _settings.Spelling.Words) { Toucan.Core.Services.DictionaryRegistry.NormalizeLocale(words.Key); if (words.Value == null || words.Value.Count > 10000 || words.Value.Any(w => w.Length > 128 || w.Any(char.IsWhiteSpace))) throw new FormatException("Project word lists support at most 10,000 individual words of at most 128 characters."); }
+            ResourceSettings?.ApplyDraft(); ConfigurationError = "";
+        }
+        catch (Exception ex) when (ex is FormatException or IOException or InvalidOperationException) { ConfigurationError = ex.Message; return; }
         _settings.Name = ProjectName;
         _settings.Description = Description;
         _settings.PrimaryLanguage = PrimaryLanguage;
@@ -515,6 +532,8 @@ public partial class ProjectPropertiesViewModel : ObservableObject
         _settings.AutoSaveIntervalSeconds = (int)Math.Clamp(AutoSaveInterval, 10, 600);
         _settings.ExternalEditor = string.IsNullOrWhiteSpace(ExternalEditor) ? null : ExternalEditor;
         _settings.SourceRoots = SplitList(SourceRoots, ';') ?? [];
+        if (FrameworkConfiguration != null) _settings.FrameworkOptions = FrameworkConfiguration.Options;
+        _settings.ScanIncludes = SplitList(ScanIncludes, ',');
         _settings.ScanExtensions = SplitList(ScanExtensions, ',');
         _settings.ExcludedDirectories = SplitList(ExcludedDirectories, ',');
         _settings.AutoScanOnOpen = AutoScanOnOpen;
@@ -522,7 +541,7 @@ public partial class ProjectPropertiesViewModel : ObservableObject
         _settings.RequireValidForApproval = RequireValidForApproval ? true : null;
         _settings.CopyTemplates = [.. CopyTemplates.Select(t => t.Value)];
         _settings.HiddenNamespaces = [.. HiddenNamespaces];
-        _settings.Save();
+        if (PersistOnSave) _settings.Save();
         CloseAction?.Invoke(true);
     }
 

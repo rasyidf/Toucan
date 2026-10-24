@@ -338,6 +338,7 @@ internal static class MainMenu
             new("Documentation", vm.HelpHomepageCommand),
             new("Report an Issue", vm.ReportIssueCommand),
             new("Copy Diagnostics", vm.CopyDiagnosticsCommand),
+            new("Migration report…", vm.ShowMigrationReportCommand),
         };
         if (!mac) help.Add(new Item("About Toucan", vm.HelpAboutCommand));
 

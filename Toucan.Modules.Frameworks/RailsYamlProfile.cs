@@ -9,8 +9,11 @@ namespace Toucan.Core.Services.Frameworks;
 /// Convention: config/locales/{lang}.yml or locales/{lang}.yml
 /// YAML root key is the language code.
 /// </summary>
-public class RailsYamlProfile : IFrameworkProfile
+public class RailsYamlProfile : IFrameworkProfile, IFrameworkFeatures
 {
+    public string ScannerId => "rails";
+    public Toucan.Plugins.ConfigSchema Settings => FrameworkFeatureSettings.Schema;
+
     public string Id => "rails-yaml";
     public string DisplayName => "Rails (YAML)";
     public string DefaultFormatId => FormatIds.Yaml;

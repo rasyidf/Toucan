@@ -77,6 +77,9 @@ public partial class ProjectLifecycleService
     /// </summary>
     private void UpdateLastSavedSnapshot()
     {
+        if (_currentProject != null) _configurationBaseline = ProjectConfiguration.Signature(_currentProject);
+        _currentProject?.ExpectedResourceFiles.Clear();
+        if (_currentProject != null) _currentProject.IsDirty = false;
         CaptureDiskBaseline();
         _lastSavedSnapshot = translationManagement.Translations
             .Select(t => ResourceEntryOperations.Copy(t))

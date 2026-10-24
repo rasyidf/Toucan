@@ -44,6 +44,9 @@ function Publish-App {
     & dotnet @args
     if ($LASTEXITCODE -ne 0) { throw "Publish failed" }
 
+    & python "$PSScriptRoot\tools\Verify-SpellingArtifacts.py" --folder $OutputDir $(if ($SingleFile) { "--bundled" })
+    if ($LASTEXITCODE -ne 0) { throw "Spelling source/notices verification failed" }
+
     # Avalonia's native packages ship ~100 MB of .pdb files that DebugType=none does not remove.
     Get-ChildItem $OutputDir -Recurse -Include *.pdb, *.xml | Remove-Item -Force
 }

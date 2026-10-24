@@ -47,6 +47,7 @@ internal sealed class TestHost : IDisposable
             s.AddSingleton<ITranslationMemory>(new InMemoryTranslationMemory());
             s.AddSingleton<IProjectDefaultsService>(new ProjectDefaultsService(Path.Combine(Root, "settings")));
             // Recovery drafts must never land in the developer's Documents folder.
+            s.AddSingleton(new DictionaryRegistry(Path.Combine(Root, "dictionaries")));
             s.AddSingleton<IRecoveryDraftService>(new RecoveryDraftService(Path.Combine(Root, "recovery")));
             s.AddSingleton<IDialogService>(Dialogs);
             s.AddSingleton<IAsyncMessageService>(Messages);
@@ -157,10 +158,11 @@ internal sealed class FakeDialogService : IDialogService
     public Queue<string?> Picks { get; } = new();
     public Queue<string?> Folders { get; } = new();
     public Queue<string?> Files { get; } = new();
+    public Queue<string?> SaveFiles { get; } = new();
 
     public Task<string?> SelectFolderAsync(string? initialPath, string title = "Select Folder") => Task.FromResult(Folders.Count > 0 ? Folders.Dequeue() : null);
     public Task<string?> SelectFileAsync(string? initialPath, string title = "Open File", IReadOnlyList<FileFilter>? filters = null) => Task.FromResult(Files.Count > 0 ? Files.Dequeue() : null);
-    public Task<string?> SaveFileAsync(string? initialPath, string suggestedName, string title = "Save As", IReadOnlyList<FileFilter>? filters = null) => Task.FromResult<string?>(null);
+    public Task<string?> SaveFileAsync(string? initialPath, string suggestedName, string title = "Save As", IReadOnlyList<FileFilter>? filters = null) => Task.FromResult(SaveFiles.Count > 0 ? SaveFiles.Dequeue() : null);
     public Task<string?> ShowPromptAsync(string title, string message, string defaultValue = "") => Task.FromResult(Prompts.Count > 0 ? Prompts.Dequeue() : null);
     public Task<string?> ShowPickAsync(string title, string message, IReadOnlyList<string> options, string? selected = null) => Task.FromResult(Picks.Count > 0 ? Picks.Dequeue() : null);
     public Task<string?> ShowLanguagePromptAsync(string title, string message, IEnumerable<TranslationItem>? existingTranslations) => Task.FromResult(Prompts.Count > 0 ? Prompts.Dequeue() : null);
@@ -170,9 +172,17 @@ internal sealed class FakeDialogService : IDialogService
         RequestedFramework = frameworkName;
         return Task.FromResult<NewProjectViewModel?>(null);
     }
-    public Task<ImportProjectViewModel?> ShowImportProjectAsync() => Task.FromResult<ImportProjectViewModel?>(null);
+    public ImportProjectViewModel? ImportProjectResult { get; set; }
+    public Task<ImportProjectViewModel?> ShowImportProjectAsync() => Task.FromResult(ImportProjectResult);
     public Task<AppOptions?> ShowOptionsAsync(int startPage = 0) => Task.FromResult<AppOptions?>(null);
     /// <summary>Lets a test act as the user inside the Pre-translate dialog.</summary>
+    public Func<Toucan.Core.Services.SpreadsheetPreview, bool>? OnSpreadsheetPreview { get; set; }
+    public Toucan.Core.Services.SpreadsheetPreview? LastSpreadsheetPreview { get; private set; }
+    public Task<bool> ShowSpreadsheetPreviewAsync(Toucan.Core.Services.SpreadsheetPreview preview)
+    {
+        LastSpreadsheetPreview = preview;
+        return Task.FromResult(OnSpreadsheetPreview?.Invoke(preview) ?? true);
+    }
     public Action<PreTranslateViewModel>? OnPreTranslate { get; set; }
     public Task<bool> ShowPreTranslateAsync(PreTranslateViewModel vm)
     {
@@ -193,7 +203,11 @@ internal sealed class FakeDialogService : IDialogService
         OnboardingShown++;
         return Task.CompletedTask;
     }
-    public Task<ProjectPropertiesViewModel?> ShowProjectPropertiesAsync(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null) => Task.FromResult<ProjectPropertiesViewModel?>(null);
+    public bool AcceptMigration { get; set; } = true;
+    public Func<MigrationReport, bool>? OnMigrationReport { get; set; }
+    public Task<bool> ShowMigrationReportAsync(MigrationReport report, bool canApply) => Task.FromResult(OnMigrationReport?.Invoke(report) ?? AcceptMigration);
+    public Func<ProjectSettings, ProjectPropertiesViewModel?>? PropertiesHandler { get; set; }
+    public Task<ProjectPropertiesViewModel?> ShowProjectPropertiesAsync(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null) => Task.FromResult(PropertiesHandler?.Invoke(settings));
     public Task<LanguageManagerViewModel?> ShowManageLanguagesAsync(IEnumerable<TranslationItem> allTranslations, string? primaryLanguage = null) => Task.FromResult<LanguageManagerViewModel?>(null);
     public Task ShowStatisticsAsync(IEnumerable<TranslationItem> translations) => Task.CompletedTask;
     public void Shutdown() { }

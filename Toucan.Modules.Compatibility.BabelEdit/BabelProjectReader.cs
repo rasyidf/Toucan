@@ -34,6 +34,7 @@ public static class BabelProjectReader
             "resx" => FormatIds.Resx,
             "xliff" => FormatIds.Xliff,
             "gettext" or "po" => FormatIds.Po,
+            "react-intl" or "formatjs" => "formatjs",
             "generic-json" or "ngx-translate" or "angular-transloco" or "vue-json" or "i18next" or
                 "react-json" or "svelte-i18n" or "ember-json" or "laravel-json" => FormatIds.Json,
             _ => throw Error(file, "framework", $"Framework '{framework}' is not supported for import.")
@@ -46,13 +47,18 @@ public static class BabelProjectReader
         var settings = new CompatibilityProject
         {
             ProjectPath = Path.GetDirectoryName(Path.GetFullPath(file))!,
-            Name = Path.GetFileNameWithoutExtension(file), Framework = framework, SaveFormat = format,
+            Name = Path.GetFileNameWithoutExtension(file), Framework = format == "formatjs" ? "formatjs" : framework, SaveFormat = format,
             PrimaryLanguage = Text(root, "primary_language"),
             Languages = root.Element("languages")?.Elements("language").Select(l => Text(l, "code")).Where(c => c.Length > 0).ToList() ?? [],
             SaveEmptyTranslations = !bool.TryParse(Text(root.Element("editor_configuration"), "save_empty_translations"), out var keep) || keep,
             TranslationOrder = Text(root.Element("editor_configuration"), "translation_order"),
             CopyTemplates = root.Element("editor_configuration")?.Element("copy_templates")?.Elements("copy_template").Select(c => c.Value).ToList() ?? []
         };
+        foreach (var unknown in data.Configuration.Keys.Except(new[] { "format", "encoding", "indent", "support_arrays" }, StringComparer.Ordinal))
+            settings.Diagnostics.Add(new("compatibility.setting-preserved", $"Setting '{unknown}' is preserved for reference but is not applied by Toucan.", ResourceDiagnosticSeverity.Warning, file, unknown));
+        foreach (var field in new[] { "indent", "support_arrays" })
+            if (data.Configuration.TryGetValue(field, out var value) && (field == "indent" ? value is not ("none" or "space2" or "space4" or "tab") : !bool.TryParse(value, out _)))
+                settings.Diagnostics.Add(new("compatibility.setting-value", $"Unsupported '{field}' value '{value}' is preserved but not applied.", ResourceDiagnosticSeverity.Warning, file, field));
         if (settings.PrimaryLanguage.Length == 0) settings.PrimaryLanguage = settings.Languages.FirstOrDefault() ?? "en-US";
         if (format == FormatIds.JavaProperties) settings.InputEncoding = data.Configuration.GetValueOrDefault("encoding");
         settings.ResourceOptions = new ResourceOptions
@@ -64,6 +70,12 @@ public static class BabelProjectReader
             Order = settings.TranslationOrder switch { "alphabetically" or "alphabetical" => ResourceOrder.Alphabetical, "file" => ResourceOrder.Preserve, _ => null },
             Arrays = bool.TryParse(data.Configuration.GetValueOrDefault("support_arrays"), out var arrays) ? arrays ? ResourceArrayPolicy.ContiguousIndexes : ResourceArrayPolicy.Disabled : null
         };
+        if (format == FormatIds.Yaml && settings.ResourceOptions.Indent == ResourceIndent.Tab)
+        {
+            settings.ResourceOptions = settings.ResourceOptions with { Indent = ResourceIndent.Space2 };
+            settings.Diagnostics.Add(new("compatibility.yaml-indent", "Block YAML cannot use tabs; the imported indentation was adapted to two spaces.",
+                ResourceDiagnosticSeverity.Warning, file, "indent"));
+        }
         foreach (var p in root.Element("translation_packages")?.Elements("translation_package") ?? [])
         {
             var package = new TranslationPackage { Name = Text(p, "name") };
@@ -99,8 +111,9 @@ public static class BabelProjectReader
                 settings.ResourceDocuments.Add(new ResourceDocumentState { Resource = new ResourceDescriptor
                 {
                     Id = url.Path.Replace('\\', '/'), RelativePath = url.Path.Replace('\\', '/'), Language = url.Language,
-                    Package = package.Name, FormatId = format, Dialect = framework,
+                    Package = package.Name, FormatId = format == "formatjs" && url.Language != settings.PrimaryLanguage ? FormatIds.Json : format, Dialect = format == "formatjs" && url.Language != settings.PrimaryLanguage ? "formatjs-target" : framework,
                     SelectorPrefix = settings.TranslationPackages.Count > 1 ? ResourceEntryOperations.Escape(package.Name) + "." : "",
+                    Ownership = format == "formatjs" && url.Language == settings.PrimaryLanguage ? ResourceOwnership.GeneratedSource : ResourceOwnership.User,
                     Options = new ResourceOptions()
                 }});
             }
@@ -108,6 +121,7 @@ public static class BabelProjectReader
         if (settings.Languages.Count == 0) settings.Languages = settings.ResourceDocuments.Select(d => d.Resource.Language).Distinct().ToList();
         if (!settings.Languages.Contains(settings.PrimaryLanguage)) settings.PrimaryLanguage = settings.Languages[0];
         var envelope = new CompatibilityEnvelope { Source = "babeledit" };
+        envelope.Data["framework"] = JsonSerializer.SerializeToElement(framework);
         envelope.Data["project"] = JsonSerializer.SerializeToElement(data);
         settings.Compatibility["babeledit"] = envelope;
         return settings;

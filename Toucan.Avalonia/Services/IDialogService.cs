@@ -28,6 +28,8 @@ public interface IDialogService
     Task<NewProjectViewModel?> ShowNewProjectAsync(string? frameworkName = null);
     Task<ImportProjectViewModel?> ShowImportProjectAsync();
     Task<AppOptions?> ShowOptionsAsync(int startPage = 0);
+    Task<bool> ShowMigrationReportAsync(Toucan.Core.Models.MigrationReport report, bool canApply) => Task.FromResult(false);
+    Task<bool> ShowSpreadsheetPreviewAsync(Toucan.Core.Services.SpreadsheetPreview preview);
     Task<bool> ShowPreTranslateAsync(PreTranslateViewModel vm);
     Task ShowProviderSettingsAsync(string? projectPath = null);
     /// <summary>Edits one AI feature's prompt; true when it was saved or reset.</summary>

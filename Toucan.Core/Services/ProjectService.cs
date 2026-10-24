@@ -12,7 +12,8 @@ public class ProjectService(
     ITranslationStrategyFactory strategyFactory,
     IProjectModeResolver modeResolver,
     ILogger<ProjectService> logger,
-    IEnumerable<IProjectCompatibilityImporter>? compatibilityImporters = null) : IProjectService
+    IEnumerable<IProjectCompatibilityImporter>? compatibilityImporters = null,
+    IEnumerable<Toucan.Core.Contracts.IFrameworkProfile>? frameworkProfiles = null) : IProjectService
 {
     public ProjectService(IFileService fileService, IEnumerable<ISaveStrategy> saveStrategies)
         : this(fileService, saveStrategies,
@@ -25,8 +26,12 @@ public class ProjectService(
     {
         using var _ = ScanContext.Begin(ct, progress);
         ct.ThrowIfCancellationRequested();
-        // Try loading project settings from toucan.project manifest
-        var settings = ProjectSettings.LoadFrom(folder);
+        var selectedFile = File.Exists(folder) ? Path.GetFullPath(folder) : null;
+        if (selectedFile != null) folder = Path.GetDirectoryName(selectedFile)!;
+        // An explicit file selection must never be replaced by another manifest in the same folder.
+        var selectedImporter = selectedFile == null ? null : (compatibilityImporters ?? []).FirstOrDefault(i => i.FindProjects(folder).Any(f => Path.GetFullPath(f).Equals(selectedFile, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)));
+        var settings = selectedImporter != null ? FromCompatibility(selectedImporter.Read(selectedFile!)) :
+            selectedFile != null ? ProjectSettings.LoadFile(selectedFile) ?? throw new FormatException("The selected native project is invalid.") : ProjectSettings.LoadFrom(folder);
         if (settings == null)
         {
             var projects = (compatibilityImporters ?? []).SelectMany(importer => importer.FindProjects(folder).Select(file => (Importer: importer, File: file))).ToList();
@@ -36,23 +41,74 @@ public class ProjectService(
             {
                 settings = ProjectSettings.CreateDefault(folder);
                 settings.SaveFormat = new FormatDetector(strategyFactory.SaveStrategies).Detect(folder);
+                var profile = (frameworkProfiles ?? []).Where(p => p is Toucan.Core.Contracts.IFrameworkFeatures && strategyFactory.GetLoadStrategy(p.DefaultFormatId) is IResourceDiscoveryStrategy).OrderByDescending(p => p.DetectionScore(folder)).FirstOrDefault(p => p.DetectionScore(folder) > 0);
+                if (profile is Toucan.Core.Contracts.IFrameworkFeatures features)
+                {
+                    var resources = profile.DiscoverFiles(folder).Select(features.Describe).ToList();
+                    if (resources.Count > 0 && resources.All(r => strategyFactory.GetResourceLoadStrategy(r.FormatId) != null))
+                    {
+                        settings.Framework = profile.Id; settings.SaveFormat = profile.DefaultFormatId;
+                        settings.ResourceDocuments = resources.Select(r => new ResourceDocumentState { Resource = r }).ToList();
+                        settings.PrimaryLanguage = resources.First(r => r.Ownership == ResourceOwnership.GeneratedSource || resources.All(d => d.Ownership != ResourceOwnership.GeneratedSource)).Language;
+                        settings.Languages = resources.Select(r => r.Language).Distinct().ToList();
+                    }
+                }
             }
         }
         settings.ProjectPath = folder;
+        settings.FrameworkOptions ??= new();
         settings.DefaultPathResolver = ResolveDefaultPath;
         if (settings.ResourceSchemaVersion != 1) throw new FormatException($"Resource schema {settings.ResourceSchemaVersion} is not supported.");
 
         // Load translations using the detected/configured format
         var resourceAware = settings.ResourceDocuments.Count > 0 ||
-            settings.SaveFormat == FormatIds.Json && strategyFactory.GetResourceLoadStrategy(FormatIds.Json) != null;
+            strategyFactory.GetResourceLoadStrategy(settings.SaveFormat) is IResourceDiscoveryStrategy;
         var translations = resourceAware ? LoadResources(settings, ct) : Load(folder, settings.SaveFormat, true, settings.InputEncoding);
+        IResourceMetadataAuthority? MetadataAuthority(TranslationItem item)
+        {
+            var resource = settings.ResourceDocuments.FirstOrDefault(d => d.Resource.Id == item.Identity?.ResourceId)?.Resource;
+            return resource == null ? null : strategyFactory.GetResourceLoadStrategy(resource.FormatId) as IResourceMetadataAuthority;
+        }
+        var inlineComments = settings.TranslationStates.Count > 0
+            ? translations.Where(i => MetadataAuthority(i)?.CommentsInResource == true).ToDictionary(i => i, i => i.Comment) : [];
         foreach (var importer in compatibilityImporters ?? []) importer.ApplyMetadata(settings.Compatibility, translations);
+        foreach (var comment in inlineComments) comment.Key.Comment = comment.Value;
         // Apply language aliases
         if (settings.LanguageAliases is { Count: > 0 })
             foreach (var t in translations)
                 if (settings.LanguageAliases.TryGetValue(t.Language, out var mapped))
                     t.Language = mapped;
 
+        RestoreStates(settings, translations, MetadataAuthority);
+        foreach (var item in translations)
+        {
+            var document = settings.ResourceDocuments.FirstOrDefault(d => d.Resource.Id == item.Identity?.ResourceId);
+            if (document != null) item.Permissions = ResourcePermissionsFor(document.Resource);
+        }
+        if (resourceAware) ResourceJsonCodec.ResolveSelectors(translations);
+
+        // Backfill settings from loaded data if manifest was missing
+        if (settings.Languages.Count == 0)
+            settings.Languages = translations.ToLanguages().ToList();
+
+        var warnings = settings.ImportDiagnostics.Select(d => $"{d.RelativePath} [{d.Field}]: {d.Message}").Concat(settings.ResourceDocuments.Where(d => d.Data.TryGetValue("yaml.unsafe", out var unsafeInput) && unsafeInput.ValueKind == System.Text.Json.JsonValueKind.String)
+            .Select(d => $"{d.Resource.RelativePath}: saving is blocked: {d.Data["yaml.unsafe"].GetString()}")).ToList();
+        var strategy = strategyFactory.GetSaveStrategy(settings.SaveFormat);
+        var unsupported = settings.ResourceDocuments.Count == 0 ? strategy?.FindUnsupportedConstructs(folder) ?? [] : [];
+        if (unsupported.Count > 0)
+            warnings.Add($"These {strategy!.DisplayName} files contain content Toucan cannot write back: {string.Join("; ", unsupported)}. "
+                + "You can edit and review, but saving is blocked to protect your files. Use Save As to write a copy.");
+
+        return new ProjectLoadResult { Settings = settings, Translations = translations, Warnings = warnings };
+    }
+
+    private ResourcePermissions ResourcePermissionsFor(ResourceDescriptor resource) =>
+        resource.Ownership != ResourceOwnership.User ? ResourcePermissions.Generated
+        : strategyFactory.GetResourceLoadStrategy(resource.FormatId) is Toucan.Core.Contracts.IResourceCapabilities provider
+            ? provider.Permissions(resource) : ResourcePermissions.Editable;
+
+    internal static void RestoreStates(ProjectSettings settings, IEnumerable<TranslationItem> translations, Func<TranslationItem, IResourceMetadataAuthority?>? metadataAuthority = null)
+    {
         var states = settings.TranslationStates.ToDictionary(s => (s.Language, s.Key));
         var identities = settings.TranslationStates.Where(s => s.Identity != null)
             .GroupBy(s => (s.Language, s.Identity!.Address)).ToDictionary(g => g.Key, g => g.First());
@@ -65,30 +121,25 @@ public class ProjectService(
                     item.Identity = identity;
                     item.Namespace = identity.Selector;
                 }
-                item.Comment = state.Comment;
+                var authority = metadataAuthority?.Invoke(item);
+                if (authority?.CommentsInResource != true) item.Comment = state.Comment;
                 item.IsApproved = state.Approved;
-                foreach (var entry in state.Data.Where(p => item.Identity is null || p.Key != NestedJsonParser.JsonScalarKey))
+                foreach (var entry in state.Data.Where(p => (item.Identity is null || p.Key != NestedJsonParser.JsonScalarKey) && authority?.OwnsMetadata(p.Key) != true))
                     (item.FormatData ??= new())[entry.Key] = entry.Value;
             }
-        if (resourceAware) ResourceJsonCodec.ResolveSelectors(translations);
-
-        // Backfill settings from loaded data if manifest was missing
-        if (settings.Languages.Count == 0)
-            settings.Languages = translations.ToLanguages().ToList();
-
-        var warnings = new List<string>();
-        var strategy = strategyFactory.GetSaveStrategy(settings.SaveFormat);
-        var unsupported = settings.ResourceDocuments.Count == 0 ? strategy?.FindUnsupportedConstructs(folder) ?? [] : [];
-        if (unsupported.Count > 0)
-            warnings.Add($"These {strategy!.DisplayName} files contain content Toucan cannot write back: {string.Join("; ", unsupported)}. "
-                + "You can edit and review, but saving is blocked to protect your files. Use Save As to write a copy.");
-
-        return new ProjectLoadResult { Settings = settings, Translations = translations, Warnings = warnings };
     }
+
+    public static ResourceOptions EffectiveOptions(ProjectSettings settings) => ResourceOptions.Resolve(settings.ResourceOptions,
+        new ResourceOptions
+        {
+            InputEncoding = settings.InputEncoding, OutputEncoding = settings.TextEncoding, SaveEmptyTranslations = settings.SaveEmptyTranslations,
+            Newline = settings.LineEnding switch { null => null, "LF" => ResourceNewline.Lf, "CRLF" => ResourceNewline.CrLf,
+                _ => throw new FormatException("[lineEnding]: unsupported project newline override.") }
+        }, null, null);
 
     private static ProjectSettings FromCompatibility(CompatibilityProject imported) => new()
     {
-        Name = imported.Name, ProjectPath = imported.ProjectPath, Framework = imported.Framework,
+        ImportDiagnostics = imported.Diagnostics, Name = imported.Name, ProjectPath = imported.ProjectPath, Framework = imported.Framework,
         SaveFormat = imported.SaveFormat, PrimaryLanguage = imported.PrimaryLanguage, Languages = imported.Languages,
         TranslationPackages = imported.TranslationPackages, ResourceDocuments = imported.ResourceDocuments,
         ResourceOptions = imported.ResourceOptions, Compatibility = imported.Compatibility,
@@ -125,11 +176,14 @@ public class ProjectService(
         var files = project.ResourceDocuments.Select(d => ResourceFilePath.Resolve(project.ProjectPath, d.Resource.RelativePath)).ToList();
         var transaction = files.Count > 0
             ? SaveTransaction.BeginIfNeeded(project.ProjectPath, files.Append(Path.Combine(project.ProjectPath, "toucan.tproj"))) : null;
+        var descriptors = project.ResourceDocuments.Select(d => d.Resource).ToList();
+        var detected = project.ResourceDocuments.Select(d => d.DetectedOptions).ToList();
         var snapshots = project.ResourceDocuments.Select(d => new Dictionary<string, System.Text.Json.JsonElement>(d.Data)).ToList();
         try { SaveProject(project, items, translations); transaction?.Commit(); }
         catch
         {
-            for (var i = 0; i < snapshots.Count; i++) project.ResourceDocuments[i].Data = snapshots[i];
+            for (var i = 0; i < snapshots.Count; i++)
+            { project.ResourceDocuments[i].Data = snapshots[i]; project.ResourceDocuments[i].Resource = descriptors[i]; project.ResourceDocuments[i].DetectedOptions = detected[i]; }
             transaction?.Rollback();
             throw;
         }
@@ -158,7 +212,7 @@ public class ProjectService(
         try
         {
             Save(project.ProjectPath, project.SaveFormat, items, toSave, project.SaveEmptyTranslations ?? true, project.ResourceOptions.Layout == ResourceLayout.Literal ? "flat" : null, project);
-            if (FormatIds.TryGetStyle(project.SaveFormat, out _) && (project.TextEncoding != null || project.LineEnding != null))
+            if (project.ResourceDocuments.Count == 0 && FormatIds.TryGetStyle(project.SaveFormat, out _) && (project.TextEncoding != null || project.LineEnding != null))
             {
                 var files = toSave.ToLanguages().SelectMany(lang => GetLanguageFiles(project, lang));
                 foreach (var file in files.Distinct(StringComparer.Ordinal))
@@ -264,7 +318,7 @@ public class ProjectService(
         var context = new SaveContext
         {
             Documents = project?.ResourceDocuments ?? [],
-            ResourceOptions = project?.ResourceOptions ?? new(),
+            ResourceOptions = project is not null ? EffectiveOptions(project) : new(),
             SaveEmptyTranslations = saveEmpty,
             JsonLayout = jsonLayout,
             LanguageDictionary = translations.ToLanguageDictionary(),
@@ -277,6 +331,8 @@ public class ProjectService(
         foreach (var doc in context.Documents)
         {
             ResourceFilePath.Resolve(path, doc.Resource.RelativePath);
+            var resolvedOptions = ResourceOptions.Resolve(doc.Resource.Options, context.ResourceOptions, doc.DetectedOptions, null);
+            ResourceText.Validate(resolvedOptions, doc.Resource.RelativePath);
             if (strategyFactory.GetResourceSaveStrategy(doc.Resource.FormatId) is null)
                 throw new FormatException($"{doc.Resource.RelativePath} [format]: exact writing is unsupported for '{doc.Resource.FormatId}'.");
         }
@@ -284,7 +340,7 @@ public class ProjectService(
         foreach (var doc in context.Documents)
         {
             var result = strategyFactory.WriteResource(new(path, doc, entries.Where(i => i.Identity?.ResourceId == doc.Resource.Id).ToList(),
-                context.ResourceOptions with { SaveEmptyTranslations = context.SaveEmptyTranslations }));
+                ResourceOptions.Resolve(context.ResourceOptions, new ResourceOptions { SaveEmptyTranslations = context.SaveEmptyTranslations }, null, null)));
             if (result.Diagnostics.Any(d => d.Severity == ResourceDiagnosticSeverity.Error))
                 throw new FormatException(string.Join("; ", result.Diagnostics.Select(d => $"{d.RelativePath} [{d.Field}]: {d.Message}")));
         }
@@ -329,7 +385,7 @@ public class ProjectService(
         foreach (var resource in resources)
         {
             ResourceReadResult loaded;
-            try { loaded = strategyFactory.ReadResource(new ResourceReadRequest(settings.ProjectPath, resource, settings.ResourceOptions, ct)); }
+            try { loaded = strategyFactory.ReadResource(new ResourceReadRequest(settings.ProjectPath, resource, EffectiveOptions(settings), ct)); }
             catch (Exception ex) when (ex is System.Text.Json.JsonException or System.Xml.XmlException or FormatException or FileNotFoundException && SaveTransaction.FindInterrupted(settings.ProjectPath) != null)
             {
                 // An interrupted write must still open far enough to offer journal restoration.
@@ -375,8 +431,7 @@ public class ProjectService(
             var key = item.Namespace.StartsWith(resource.SelectorPrefix, StringComparison.Ordinal) ? item.Namespace[resource.SelectorPrefix.Length..] : item.Namespace;
             var source = all.FirstOrDefault(i => i.Namespace == item.Namespace && i.Identity?.Package == resource.Package)?.Identity;
             item.Identity = new ResourceEntryIdentity { ResourceId = resource.Id, Package = resource.Package, PackagePrefix = resource.SelectorPrefix,
-                Selector = item.Namespace, Path = source is not null ? [.. source.Path] : ResourceOptions.Resolve(resource.Options, settings.ResourceOptions, null, null).Layout is ResourceLayout.Literal or ResourceLayout.Dotted || resource.FormatId is FormatIds.Arb or FormatIds.JavaProperties or FormatIds.Resx
-                    ? [ResourcePathSegment.Named(key)] : ResourceEntryOperations.ParseSelector(key) };
+                Selector = item.Namespace, Path = source is not null ? [.. source.Path] : ResourceText.NewPath(key, ResourceOptions.Resolve(resource.Options, EffectiveOptions(settings), null, null), resource.FormatId is FormatIds.Arb or FormatIds.JavaProperties or FormatIds.Resx) };
         }
     }
 

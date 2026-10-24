@@ -33,8 +33,11 @@ public class LaravelPhpLoadStrategy : ILoadStrategy, IResourceLoadStrategy
         request.CancellationToken.ThrowIfCancellationRequested();
         var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Resource.RelativePath);
         var items = new List<TranslationItem>();
-        new Parser(File.ReadAllText(file), request.Resource.Language, items).Run(Path.GetFileNameWithoutExtension(file));
-        return ResourceFileAdapter.Bind(request, items, false);
+        var content = ResourceText.Read(request, out var encoding);
+        new Parser(content, request.Resource.Language, items).Run(Path.GetFileNameWithoutExtension(file));
+        var result = ResourceFileAdapter.Bind(request, items, false);
+        result.Document!.DetectedOptions = ResourceText.Detect(content, encoding);
+        return result;
     }
 
     private sealed class Parser(string text, string lang, List<TranslationItem> items)

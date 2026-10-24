@@ -52,6 +52,28 @@ public sealed class UndoRedoService : IUndoRedoService
         else Push([action]);
     }
 
+    public void RecordMetadata(string ns, string language, Dictionary<string, string> before, Dictionary<string, string> after)
+    {
+        var action = new EditAction(ns, language, "", "") { BeforeMetadata = new(before), AfterMetadata = new(after) };
+        if (_group != null) _group.Add(action); else Push([action]);
+    }
+
+    public void RecordSpelling(SpellingSettings before, SpellingSettings after)
+    {
+        var action = new EditAction("", "", "", "") { BeforeSpelling = SpellingSettings.Copy(before), AfterSpelling = SpellingSettings.Copy(after) };
+        if (_group != null) _group.Add(action); else Push([action]);
+    }
+
+    public void RecordConfiguration(ProjectSettings before, ProjectSettings after)
+    {
+        var action = new EditAction("", "", "", "")
+        {
+            BeforeConfiguration = Toucan.Core.Services.ProjectConfiguration.Copy(before),
+            AfterConfiguration = Toucan.Core.Services.ProjectConfiguration.Copy(after)
+        };
+        if (_group is not null) _group.Add(action); else Push([action]);
+    }
+
     private void EndGroup()
     {
         if (--_depth > 0) return;

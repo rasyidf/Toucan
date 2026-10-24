@@ -6,8 +6,10 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class ResxSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy
+public class ResxSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy, IResourceOptionsProvider
 {
+    public IReadOnlySet<string> SupportedOptions(ResourceDescriptor resource) => ResourceOptionFields.With("Indent");
+
     public string FormatId => FormatIds.Resx;
 
     public FormatSupport Support { get; } = new(
@@ -84,15 +86,26 @@ public class ResxSaveStrategy(IFileService fileService) : ISaveStrategy, IResour
         xml.Root!.Elements("data").Where(d => d.Attribute("type") == null && d.Attribute("mimetype") == null).Remove();
         var opaqueNames = xml.Root.Elements("data").Select(d => (string?)d.Attribute("name")).ToHashSet(StringComparer.Ordinal);
         if (entries.Any(i => opaqueNames.Contains(i.Namespace))) throw new InvalidOperationException($"{request.Document.Resource.RelativePath} [name]: a string would overwrite an opaque resource.");
-        foreach (var item in entries.Where(i => ResourceFileAdapter.KeepEmpty(request) || !string.IsNullOrEmpty(i.Value)))
+        var orderedEntries = ResourceText.Options(request).Order == ResourceOrder.Alphabetical ? entries.OrderBy(i => i.Namespace, StringComparer.Ordinal) : entries.AsEnumerable();
+        foreach (var item in orderedEntries.Where(i => ResourceFileAdapter.KeepEmpty(request) || !string.IsNullOrEmpty(i.Value)))
         {
             var data = new XElement("data", new XAttribute("name", item.Namespace), new XAttribute(XNamespace.Xml + "space", "preserve"), new XElement("value", item.Value ?? ""));
             if (!string.IsNullOrEmpty(item.Comment)) data.Add(new XElement("comment", item.Comment));
             xml.Root.Add(data);
         }
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
-        XmlFile.Save(xml, file);
-        request.Document.Data["resx"] = System.Text.Json.JsonSerializer.SerializeToElement(xml.ToString());
+        xml.Declaration = null;
+        var options = ResourceText.Options(request);
+        var text = new System.Text.StringBuilder();
+        using (var writer = System.Xml.XmlWriter.Create(text, new System.Xml.XmlWriterSettings
+        {
+            OmitXmlDeclaration = true, Indent = options.Indent != ResourceIndent.None,
+            IndentChars = options.Indent == ResourceIndent.Tab ? "\t" : options.Indent == ResourceIndent.Space4 ? "    " : "  ",
+            NewLineHandling = System.Xml.NewLineHandling.Entitize, NewLineChars = "\n"
+        })) xml.WriteTo(writer);
+        var content = "<?xml version=\"1.0\" encoding=\"" + (options.OutputEncoding is "Latin1" or "ISO-8859-1" ? "iso-8859-1" : "utf-8") + "\"?>\n" + text;
+        ResourceText.Write(request, content);
+        request.Document.Data["resx"] = System.Text.Json.JsonSerializer.SerializeToElement(content);
         return new([]);
     }
 

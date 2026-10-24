@@ -12,7 +12,7 @@ public static class BabelEditCompatibilityModule
     public const string Id = "toucan.compatibility.babeledit";
     public static IServiceCollection AddToucanBabelEditCompatibilityModule(this IServiceCollection services) =>
         services.AddToucanModule(new BuiltInModule(Id, "BabelEdit project compatibility", "Migration of user-owned project files", typeof(BabelEditCompatibilityModule).Assembly),
-            s => s.AddSingleton<IProjectCompatibilityImporter, BabelEditImporter>());
+            s => { s.AddSingleton<IProjectCompatibilityImporter, BabelEditImporter>(); s.AddSingleton(BabelSpreadsheetDialect.Instance); });
 }
 
 public sealed class BabelEditImporter : IProjectCompatibilityImporter

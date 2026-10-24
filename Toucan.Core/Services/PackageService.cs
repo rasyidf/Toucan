@@ -9,7 +9,7 @@ namespace Toucan.Core.Services;
 /// Manages translation packages within a project.
 /// Each package maps to a set of per-language files defined in translationUrls.
 /// </summary>
-public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy> loadStrategies, IEnumerable<ISaveStrategy> saveStrategies) : IPackageService
+public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy> loadStrategies, IEnumerable<ISaveStrategy> saveStrategies, IEnumerable<IProjectCompatibilityImporter>? compatibilityImporters = null) : IPackageService
 {
     public IEnumerable<TranslationPackage> GetPackages(ProjectSettings settings)
         => settings.TranslationPackages.Count > 0
@@ -31,12 +31,16 @@ public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy>
         var documents = new List<ResourceDocumentState>();
         foreach (var resource in Resources(settings, package))
         {
-            var loaded = Factory.ReadResource(new(settings.ProjectPath, resource, settings.ResourceOptions));
+            var loaded = Factory.ReadResource(new(settings.ProjectPath, resource, ProjectService.EffectiveOptions(settings)));
             if (loaded.Document == null || loaded.Diagnostics.Any(d => d.Severity == ResourceDiagnosticSeverity.Error))
                 throw new FormatException(string.Join("; ", loaded.Diagnostics.Select(d => $"{resource.RelativePath}: {d.Message}")));
             items.AddRange(loaded.Entries);
             documents.Add(loaded.Document);
         }
+        foreach (var importer in compatibilityImporters ?? []) importer.ApplyMetadata(settings.Compatibility, items);
+        foreach (var item in items) item.Language = settings.LanguageAliases?.GetValueOrDefault(item.Language) ?? item.Language;
+        ProjectService.RestoreStates(settings, items);
+        ResourceJsonCodec.ResolveSelectors(items);
         settings.ResourceDocuments.RemoveAll(d => d.Resource.Package == package.Name);
         settings.ResourceDocuments.AddRange(documents);
         return items;
@@ -53,36 +57,50 @@ public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy>
             if (Factory.GetResourceSaveStrategy(resource.FormatId) == null) throw new FormatException($"{resource.RelativePath}: exact writing is unsupported for '{resource.FormatId}'.");
         }
         var list = items.ToList();
-        if (list.Any(i => !resources.Any(r => r.Language == i.Language) || i.Identity is { } id && !resources.Any(r => r.Id == id.ResourceId)))
+        if (list.Any(i => !resources.Any(r => (settings.LanguageAliases?.GetValueOrDefault(r.Language) ?? r.Language) == i.Language) || i.Identity is { } id && !resources.Any(r => r.Id == id.ResourceId)))
             throw new InvalidOperationException("An entry belongs to a different package or language.");
         var documents = resources.Select(r => settings.ResourceDocuments.FirstOrDefault(d => d.Resource.Id == r.Id)
-            ?? Factory.ReadResource(new(settings.ProjectPath, r, settings.ResourceOptions)).Document
+            ?? Factory.ReadResource(new(settings.ProjectPath, r, ProjectService.EffectiveOptions(settings))).Document
             ?? throw new FormatException($"{r.RelativePath}: resource could not be loaded.")).ToList();
-        var transaction = SaveTransaction.BeginIfNeeded(settings.ProjectPath, resources.Select(r => ResourceFilePath.Resolve(settings.ProjectPath, r.RelativePath)));
+        var transaction = SaveTransaction.BeginIfNeeded(settings.ProjectPath, resources.Select(r => ResourceFilePath.Resolve(settings.ProjectPath, r.RelativePath)).Append(Path.Combine(settings.ProjectPath, "toucan.tproj")));
+        var priorStates = settings.TranslationStates;
+        var descriptors = documents.Select(d => d.Resource).ToList();
+        var detected = documents.Select(d => d.DetectedOptions).ToList();
         var snapshots = documents.Select(d => new Dictionary<string, System.Text.Json.JsonElement>(d.Data)).ToList();
         try
         {
             foreach (var document in documents)
             {
-                var entries = list.Where(i => i.Language == document.Resource.Language).ToList();
+                var originals = list.Where(i => i.Language == (settings.LanguageAliases?.GetValueOrDefault(document.Resource.Language) ?? document.Resource.Language)).ToList();
+                var entries = originals.Select(i => { var copy = ResourceEntryOperations.Copy(i); copy.Language = document.Resource.Language; return copy; }).ToList();
                 foreach (var item in entries.Where(i => i.Identity is null))
                 {
                     var key = item.Namespace.StartsWith(document.Resource.SelectorPrefix, StringComparison.Ordinal) ? item.Namespace[document.Resource.SelectorPrefix.Length..] : item.Namespace;
                     item.Identity = new ResourceEntryIdentity { ResourceId = document.Resource.Id, Package = document.Resource.Package,
                         PackagePrefix = document.Resource.SelectorPrefix, Selector = item.Namespace,
-                        Path = document.Resource.FormatId is FormatIds.Arb or FormatIds.JavaProperties or FormatIds.Resx || ResourceOptions.Resolve(document.Resource.Options, settings.ResourceOptions, null, null).Layout is ResourceLayout.Literal or ResourceLayout.Dotted
-                            ? [ResourcePathSegment.Named(key)] : ResourceEntryOperations.ParseSelector(key) };
+                        Path = ResourceText.NewPath(key, ResourceOptions.Resolve(document.Resource.Options, ProjectService.EffectiveOptions(settings), null, null), document.Resource.FormatId is FormatIds.Arb or FormatIds.JavaProperties or FormatIds.Resx) };
                 }
-                var result = Factory.WriteResource(new(settings.ProjectPath, document, entries, settings.ResourceOptions with { SaveEmptyTranslations = settings.SaveEmptyTranslations ?? true }));
+                for (var index = 0; index < entries.Count; index++) originals[index].Identity = entries[index].Identity;
+                var result = Factory.WriteResource(new(settings.ProjectPath, document, entries, ResourceOptions.Resolve(ProjectService.EffectiveOptions(settings), new ResourceOptions { SaveEmptyTranslations = true }, null, null)));
                 if (result.Diagnostics.Any(d => d.Severity == ResourceDiagnosticSeverity.Error)) throw new FormatException(string.Join("; ", result.Diagnostics.Select(d => d.Message)));
+                for (var index = 0; index < entries.Count; index++) originals[index].FormatData = entries[index].FormatData is null ? null : new(entries[index].FormatData!);
             }
-            transaction?.Commit();
             settings.ResourceDocuments.RemoveAll(d => d.Resource.Package == package.Name);
             settings.ResourceDocuments.AddRange(documents);
+            var ids = resources.Select(r => r.Id).ToHashSet(StringComparer.Ordinal);
+            settings.TranslationStates = priorStates.Where(s => s.Identity == null || !ids.Contains(s.Identity.ResourceId)).Concat(list.Select(i => new TranslationState
+            {
+                Identity = i.Identity, Language = i.Language, Key = i.Namespace, Comment = i.Comment, Approved = i.IsApproved,
+                Data = i.FormatData?.Where(p => p.Key != NestedJsonParser.JsonScalarKey).ToDictionary(p => p.Key, p => p.Value) ?? []
+            })).ToList();
+            settings.Save();
+            transaction?.Commit();
         }
         catch
         {
-            for (var i = 0; i < documents.Count; i++) documents[i].Data = snapshots[i];
+            settings.TranslationStates = priorStates;
+            for (var i = 0; i < documents.Count; i++)
+            { documents[i].Data = snapshots[i]; documents[i].Resource = descriptors[i]; documents[i].DetectedOptions = detected[i]; }
             transaction?.Rollback();
             throw;
         }
@@ -110,7 +128,7 @@ public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy>
         {
             foreach (var document in documents)
             {
-                var result = Factory.WriteResource(new(settings.ProjectPath, document, [], settings.ResourceOptions));
+                var result = Factory.WriteResource(new(settings.ProjectPath, document, [], ProjectService.EffectiveOptions(settings)));
                 if (result.Diagnostics.Any(d => d.Severity == ResourceDiagnosticSeverity.Error)) throw new FormatException(string.Join("; ", result.Diagnostics.Select(d => d.Message)));
                 pkg.TranslationUrls.Add(new() { Language = document.Resource.Language, Path = document.Resource.RelativePath });
             }

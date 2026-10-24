@@ -1,0 +1,622 @@
+{
+  "evidenceSchemaVersion": 1,
+  "milestone": "M3",
+  "generatedUtc": "2026-10-22T07:09:19.733196+00:00",
+  "baseCommit": "7dc5d8ce2ff967612e2b238f803ad9e9d7c2c891",
+  "workingTree": "M0–M2 committed in 7dc5d8c; M3 source changes remain uncommitted",
+  "platform": "Windows x64",
+  "sdk": "10.0.401",
+  "pluginApi": "1.2",
+  "resourceSchema": 1,
+  "suites": [
+    {
+      "trx": "build/resource-compatibility/m3/test-results/m3-verification_net10.0_20261022140409.trx",
+      "sha256": "733dfbc6530058b59049d6c27f4935609a5817caf38b14aacf172de00205b57b",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 260,
+        "executed": 260,
+        "passed": 260,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "classes": {
+        "Toucan.Avalonia.Tests.AiIntegrationUiTests": {
+          "Passed": 15
+        },
+        "Toucan.Avalonia.Tests.AppSmokeTests": {
+          "Passed": 9
+        },
+        "Toucan.Avalonia.Tests.AppearanceAndUpdateTests": {
+          "Passed": 9
+        },
+        "Toucan.Avalonia.Tests.BabelImportFlowTests": {
+          "Passed": 10
+        },
+        "Toucan.Avalonia.Tests.BuiltInModulesPageTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ColorInputTests": {
+          "Passed": 7
+        },
+        "Toucan.Avalonia.Tests.CommandPaletteTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.DesktopPluginTests": {
+          "Passed": 11
+        },
+        "Toucan.Avalonia.Tests.DesktopServicesTests": {
+          "Passed": 12
+        },
+        "Toucan.Avalonia.Tests.DialogSurfaceTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.EditableTableTests": {
+          "Passed": 6
+        },
+        "Toucan.Avalonia.Tests.EditorPolishTests": {
+          "Passed": 7
+        },
+        "Toucan.Avalonia.Tests.ExplorerContextMenuTests": {
+          "Passed": 1
+        },
+        "Toucan.Avalonia.Tests.GhostTextTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.IntegrationAndTranslationPanelTests": {
+          "Passed": 18
+        },
+        "Toucan.Avalonia.Tests.KeybindingServiceTests": {
+          "Passed": 1
+        },
+        "Toucan.Avalonia.Tests.LanguageManagerViewModelTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.LocalizationTests": {
+          "Passed": 5
+        },
+        "Toucan.Avalonia.Tests.MainWindowSmokeTests": {
+          "Passed": 5
+        },
+        "Toucan.Avalonia.Tests.MainWindowViewModelTests": {
+          "Passed": 15
+        },
+        "Toucan.Avalonia.Tests.PaginationViewModelTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.PanelAlignmentTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.PluginsUiTests": {
+          "Passed": 16
+        },
+        "Toucan.Avalonia.Tests.ProjectCreationUiTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.RecentProjectServiceTests": {
+          "Passed": 8
+        },
+        "Toucan.Avalonia.Tests.RecentProjectsViewModelTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ResourceFidelityFlowTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ResourceIdentityFlowTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.ScanCancellationTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.SecureStorageServiceTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.SettingsListTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.ShortcutEditingTests": {
+          "Passed": 16
+        },
+        "Toucan.Avalonia.Tests.ShortcutSheetTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.StatisticsViewModelTests": {
+          "Passed": 1
+        },
+        "Toucan.Avalonia.Tests.StatusBarActionTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.TitleBarTests": {
+          "Passed": 9
+        },
+        "Toucan.Avalonia.Tests.UiScreenshotTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.UndoRedoGroupTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ValidationPageTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.WorkspaceApiTests": {
+          "Passed": 17
+        },
+        "Toucan.Avalonia.Tests.WpfParityTests": {
+          "Passed": 4
+        }
+      }
+    },
+    {
+      "trx": "build/resource-compatibility/m3/test-results/m3-verification_net10.0_20261022140416.trx",
+      "sha256": "6d080034777a9f4bfbb3ff29a9f7343145f58eea7b20eaef1e44b5a491fa41ca",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 974,
+        "executed": 974,
+        "passed": 974,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "classes": {
+        "Toucan.Core.Tests.AiIntegrationTests": {
+          "Passed": 25
+        },
+        "Toucan.Core.Tests.AtomicFileServiceTests": {
+          "Passed": 3
+        },
+        "Toucan.Core.Tests.BabelExcelTests": {
+          "Passed": 5
+        },
+        "Toucan.Core.Tests.BulkActionServiceTests": {
+          "Passed": 2
+        },
+        "Toucan.Core.Tests.Commands.CommandRegistryTests": {
+          "Passed": 28
+        },
+        "Toucan.Core.Tests.CommentPersistenceServiceTests": {
+          "Passed": 30
+        },
+        "Toucan.Core.Tests.CompositionRootTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.DeepLProviderTests": {
+          "Passed": 24
+        },
+        "Toucan.Core.Tests.Formats.BabelParityRegressionTests": {
+          "Passed": 48
+        },
+        "Toucan.Core.Tests.Formats.ExactResourceIntegrationTests": {
+          "Passed": 37
+        },
+        "Toucan.Core.Tests.Formats.FormatBugRegressionTests": {
+          "Passed": 18
+        },
+        "Toucan.Core.Tests.Formats.FormatConventionsTests": {
+          "Passed": 20
+        },
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests": {
+          "Passed": 208
+        },
+        "Toucan.Core.Tests.Formats.FormatIdsTests": {
+          "Passed": 17
+        },
+        "Toucan.Core.Tests.Formats.FormatRoundTripTests": {
+          "Passed": 29
+        },
+        "Toucan.Core.Tests.Formats.FormatStabilityTests": {
+          "Passed": 39
+        },
+        "Toucan.Core.Tests.Formats.FormatSupportTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Formats.FormatUnavailableTests": {
+          "Passed": 5
+        },
+        "Toucan.Core.Tests.Formats.PoCsvBugTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.Formats.PoRoundTripTests": {
+          "Passed": 4
+        },
+        "Toucan.Core.Tests.Formats.ProjectSettingsFormatTests": {
+          "Passed": 49
+        },
+        "Toucan.Core.Tests.Formats.ResourceContractTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Formats.ResourceFidelitySettingsTests": {
+          "Passed": 40
+        },
+        "Toucan.Core.Tests.Formats.YamlFidelityTests": {
+          "Passed": 9
+        },
+        "Toucan.Core.Tests.MockTranslationProviderTests": {
+          "Passed": 5
+        },
+        "Toucan.Core.Tests.Modules.ArchitectureTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.Modules.BuiltInModuleTests": {
+          "Passed": 10
+        },
+        "Toucan.Core.Tests.Modules.ModuleSnapshotTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.Plugins.PluginActivationTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Plugins.PluginCompatibilityTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.Plugins.PluginContractTests": {
+          "Passed": 29
+        },
+        "Toucan.Core.Tests.Plugins.PluginHostTests": {
+          "Passed": 35
+        },
+        "Toucan.Core.Tests.Plugins.PluginServicesTests": {
+          "Passed": 43
+        },
+        "Toucan.Core.Tests.Plugins.PluginTrustTests": {
+          "Passed": 24
+        },
+        "Toucan.Core.Tests.Plugins.SamplePluginTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Plugins.WorkspaceEditPlannerTests": {
+          "Passed": 25
+        },
+        "Toucan.Core.Tests.PreferredLanguageDetectorTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.PretranslationServiceTests": {
+          "Passed": 7
+        },
+        "Toucan.Core.Tests.ProjectTextFormatTests": {
+          "Passed": 21
+        },
+        "Toucan.Core.Tests.ProviderSelectionTests": {
+          "Passed": 3
+        },
+        "Toucan.Core.Tests.Qa01RegressionTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.SaveRecoveryTests": {
+          "Passed": 17
+        },
+        "Toucan.Core.Tests.SearchAndReplaceServiceTests": {
+          "Passed": 12
+        },
+        "Toucan.Core.Tests.TranslationPostProcessorTests": {
+          "Passed": 11
+        }
+      }
+    },
+    {
+      "trx": "build/resource-compatibility/m3/test-results/m3-verification_net10.0_20261022140418.trx",
+      "sha256": "a52b6693dc5908da24c681cd5dd4200dc8ec4f5d8b68ec435183711ff5675cd7",
+      "assemblies": [
+        "Toucan.Plugins.Testing.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "classes": {
+        "Toucan.Plugins.Testing.Tests.ConnectorHarnessTests": {
+          "Passed": 11
+        }
+      }
+    }
+  ],
+  "totalPassed": 1245,
+  "sourceSha256": {
+    "Toucan.Core.Common/Services/ResourceFileAdapter.cs": "9e623eebe4dfd13c8c1a698c80b6083c8710ddfb4968f089ea6477a41fdbe766",
+    "Toucan.Core.Common/Services/ResourceJsonCodec.cs": "ca83796a198cdc58509bae6f1b5c3cd8b6cd51ea92661b5fee9959874ea43927",
+    "Toucan.Core.Common/Services/ResourceText.cs": "05513d13e92a194f54b49c0c936428be46e1be5d633bff8a12612c7fb3940171",
+    "Toucan.Core/Models/ProjectSettings.cs": "4126c66dba80fc3d86befd5b9dd2604bc820375679bb37c01f40b5df03765666",
+    "Toucan.Core/Services/PackageService.cs": "9521ec90a2669468fc4c741930a92b35c694844f7a4fece5b2294c9feda85d71",
+    "Toucan.Core/Services/ProjectService.cs": "b87e23a778d84eac6c48e17923e0897656d6ae523bb935558650bbf5875fba51",
+    "Toucan.Core/Services/ResourceStrategyExtensions.cs": "12105b6923b419a1add92eba51ef935a7a781fabc8ad15459cbb137a02530b26",
+    "Toucan.Modules.Compatibility.BabelEdit/BabelProjectReader.cs": "1cdbc6d6da33b1519d0b2ed2e2cd8cf831543436eb7217509c12b126a4383e84",
+    "Toucan.Modules.Formats.Data/YamlDocumentCodec.cs": "e4df6e4177b55be0cc33a55a679d3380572d7a411edfc4f1c9d73b2437c49504",
+    "Toucan.Modules.Formats.Data/YamlLoadStrategy.cs": "2ffac3682c5403d17d8598b07a47fd6a3fb64994730058fcea1e7a8763d9a62a",
+    "Toucan.Modules.Formats.Data/YamlSaveStrategy.cs": "6898a70c08f36798b1c6ae99f1eeae9462534011c2189254f751635e2126b7cb",
+    "Toucan.Modules.Formats.Json/ArbLoadStrategy.cs": "8c22f1735494e30e7cbf41cda81a2d16c57af99e7c151104128ce1538c06405d",
+    "Toucan.Modules.Formats.Json/ArbSaveStrategy.cs": "5ceb93a1e2de8217ef21fc58e3f233544e856563b77457cc7e0a72bf6d9515ae",
+    "Toucan.Modules.Formats.Json/JsonLoadStrategy.cs": "f6adbfa4fa9c5ee5b4f7822c19527ff6274e686a3f20c97b92099c02b5403414",
+    "Toucan.Modules.Formats.Json/JsonSaveStrategy.cs": "c752665291704862bbce122b37a84607d45ad7c05d1dd760ec58221606f44f46",
+    "Toucan.Modules.Formats.Text/JavaPropertiesLoadStrategy.cs": "f7e4cf446cac12fb57415fc7f4f984e5bc1cfc46e18894caecce78850753c740",
+    "Toucan.Modules.Formats.Text/JavaPropertiesSaveStrategy.cs": "04dd66ea20d56ab8b7cfd21b8dd67ec308ed88240efdf8e234bec61095f4bbcb",
+    "Toucan.Modules.Formats.Text/LaravelPhpLoadStrategy.cs": "76f7f6d95c24f26826859094ef44275025cce35fb9288cc20eaacd1f8fe85780",
+    "Toucan.Modules.Formats.Text/LaravelPhpSaveStrategy.cs": "fddac5cb80bbc462d4d1049cf0c7ff5f4bdfb100441f52da24456de5dadb2245",
+    "Toucan.Modules.Formats.Text/PropertiesDocumentCodec.cs": "4a9d752cd86a708a96db0e30f88d180da40c98a91451f878314b7835fcf9eeb9",
+    "Toucan.Modules.Formats.Xml/ResxLoadStrategy.cs": "f6e1fe0cb18595af54f2a13a83de5f8b65d4eeff418d6d1a1fdf06012f9f780f",
+    "Toucan.Modules.Formats.Xml/ResxSaveStrategy.cs": "7f8598395de194f000c6edad906e73b5fccda7df4761951c55b767ffbfdedb19",
+    "Toucan.Plugins.Abstractions/Models/CompatibilityProject.cs": "aed6dc4467fea6d2c138b568dae6115e4527022b60003f8c51e9d6400292f9f3",
+    "Toucan.Plugins.Abstractions/Models/ResourceDocument.cs": "fdad47537c53b2560637aaa026d3e30257b97aba414a8acd9dfee38993033187",
+    "Toucan.Plugins.Abstractions/Models/ResourceIdentity.cs": "e8ee9708579216538fddbe6d9aad8ec0b587410f6220cf30b8dd5f470acc3608",
+    "tests/Toucan.Avalonia.Tests/ResourceFidelityFlowTests.cs": "d45427266335d417607cc49526435c3ff60d66bc4fdcf18f1fab29a2e9e9522a",
+    "tests/Toucan.Core.Tests/Formats/ResourceFidelitySettingsTests.cs": "3cace4051bc8769877d96f9c16b2f193902b14b91bb00af174b7f56ecfdd3b3b",
+    "tools/CompatibilityBaseline/collect_m3_evidence.py": "5f595c0967c1d535207b89c5337c46f0aaf804f47eadfbd8a9118e13c15430b0",
+    "tools/Test-ResourceFidelity.py": "fd9fcae0a575f45cb2ec3b77cf346e965d0a1876f186ac43054e52185de76ee8"
+  },
+  "cli": {
+    "source": "build/babeledit-parity/toucan-read-results.json",
+    "sha256": "29ed9277c033f177b08143e2ecde378dfd70caff9a816b33d8d8e049362e96cf",
+    "cases": [
+      {
+        "id": "01-generic-json",
+        "passed": true
+      },
+      {
+        "id": "02-angular-ngx",
+        "passed": true
+      },
+      {
+        "id": "03-angular-transloco",
+        "passed": true
+      },
+      {
+        "id": "04-vue",
+        "passed": true
+      },
+      {
+        "id": "05-i18next",
+        "passed": true
+      },
+      {
+        "id": "06-react",
+        "passed": true
+      },
+      {
+        "id": "07-svelte",
+        "passed": true
+      },
+      {
+        "id": "08-ember-json",
+        "passed": true
+      },
+      {
+        "id": "09-laravel-json",
+        "passed": true
+      },
+      {
+        "id": "10-generic-yaml",
+        "passed": true
+      },
+      {
+        "id": "11-ember-yaml",
+        "passed": true
+      },
+      {
+        "id": "12-rails-yaml",
+        "passed": true
+      },
+      {
+        "id": "13-laravel-php",
+        "passed": true
+      },
+      {
+        "id": "14-flutter-arb",
+        "passed": true
+      },
+      {
+        "id": "15-java-latin1",
+        "passed": true
+      },
+      {
+        "id": "16-java-utf8",
+        "passed": true
+      },
+      {
+        "id": "17-json-arrays",
+        "passed": true
+      },
+      {
+        "id": "18-yaml-arrays",
+        "passed": true
+      },
+      {
+        "id": "19-dotnet-resx",
+        "passed": true
+      }
+    ]
+  },
+  "corpusUnchangedFromHead": true,
+  "frozenPlugin": {
+    "archive": "tests/fixtures/resource-compatibility/m0-sample-plugin.zip",
+    "sha256": "4c8703ca846a85db0c94d9d5ef0016c3a26e2b428695974a30b9aa8b7c5528bf",
+    "baselineEvidence": "docs/specs/resource-compatibility/evidence/m0-baseline.json",
+    "membersMatchM0Hashes": true,
+    "provenance": "Toucan MIT sample binaries, compiled at M0; no vendor or third-party runtime resources"
+  },
+  "limits": [
+    "Windows x64 and Avalonia headless only; other platforms not executed",
+    "Exact migration supports JSON, YAML, ARB, Java properties, RESX/RESW and Laravel PHP",
+    "PO/XLIFF exact migration is explicitly unsupported; legacy folder APIs remain available",
+    "Restricted YAML block dialect; unsupported input is review-only",
+    "Legacy folder-only APIs retain their documented formatting limits",
+    "M4–M7 remain unaccepted",
+    "Known pre-existing Avalonia AVLN3001 constructor warning remains"
+  ],
+  "fidelityCli": {
+    "source": "build/resource-compatibility/m3/cli-fidelity.json",
+    "sha256": "ceb1e6addb50afc51be764ed2f5fbe158a4a75ab9faee3499c680882772fdf34",
+    "cases": [
+      {
+        "format": "json",
+        "typedSettings": true,
+        "nativeReopen": true,
+        "literalNewKey": true,
+        "emptyPolicy": true,
+        "supportedOpaqueData": true
+      },
+      {
+        "format": "yaml",
+        "typedSettings": true,
+        "nativeReopen": true,
+        "literalNewKey": true,
+        "emptyPolicy": true,
+        "supportedOpaqueData": true
+      },
+      {
+        "format": "arb",
+        "typedSettings": true,
+        "nativeReopen": true,
+        "literalNewKey": true,
+        "emptyPolicy": true,
+        "supportedOpaqueData": true
+      },
+      {
+        "format": "java-properties",
+        "typedSettings": true,
+        "nativeReopen": true,
+        "literalNewKey": true,
+        "emptyPolicy": true,
+        "supportedOpaqueData": true
+      }
+    ]
+  },
+  "exactCli": {
+    "source": "build/resource-compatibility/m2/cli-exact-resources.json",
+    "sha256": "3f6ba1223659e64813adf15c5116f644f7e744d640377dee4906be7429ab4ef2",
+    "cases": [
+      {
+        "framework": "generic-json",
+        "extension": "json",
+        "resources": 4,
+        "explicitLocales": [
+          "en-US",
+          "id"
+        ],
+        "packages": 2,
+        "valuesAndMetadataPreserved": true,
+        "sourceUnchanged": true,
+        "nativeReopenWithoutSource": true,
+        "unrelatedSiblingUnchanged": true
+      },
+      {
+        "framework": "generic-yaml",
+        "extension": "yml",
+        "resources": 4,
+        "explicitLocales": [
+          "en-US",
+          "id"
+        ],
+        "packages": 2,
+        "valuesAndMetadataPreserved": true,
+        "sourceUnchanged": true,
+        "nativeReopenWithoutSource": true,
+        "unrelatedSiblingUnchanged": true
+      },
+      {
+        "framework": "arb",
+        "extension": "arb",
+        "resources": 4,
+        "explicitLocales": [
+          "en-US",
+          "id"
+        ],
+        "packages": 2,
+        "valuesAndMetadataPreserved": true,
+        "sourceUnchanged": true,
+        "nativeReopenWithoutSource": true,
+        "unrelatedSiblingUnchanged": true
+      },
+      {
+        "framework": "prop-files",
+        "extension": "properties",
+        "resources": 4,
+        "explicitLocales": [
+          "en-US",
+          "id"
+        ],
+        "packages": 2,
+        "valuesAndMetadataPreserved": true,
+        "sourceUnchanged": true,
+        "nativeReopenWithoutSource": true,
+        "unrelatedSiblingUnchanged": true
+      },
+      {
+        "framework": "resx",
+        "extension": "resw",
+        "resources": 4,
+        "explicitLocales": [
+          "en-US",
+          "id"
+        ],
+        "packages": 2,
+        "valuesAndMetadataPreserved": true,
+        "sourceUnchanged": true,
+        "nativeReopenWithoutSource": true,
+        "unrelatedSiblingUnchanged": true
+      },
+      {
+        "framework": "laravel",
+        "extension": "php",
+        "resources": 4,
+        "explicitLocales": [
+          "en-US",
+          "id"
+        ],
+        "packages": 2,
+        "valuesAndMetadataPreserved": true,
+        "sourceUnchanged": true,
+        "nativeReopenWithoutSource": true,
+        "unrelatedSiblingUnchanged": true
+      }
+    ]
+  },
+  "docs": {
+    "globalHeaders": "passed",
+    "generatedFormatMatrix": "verified by FormatSupportTests.MatrixDocumentIsUpToDate",
+    "repairs": [
+      "Historical review YAML header",
+      "Generated format matrix updated field and its generator"
+    ]
+  }
+}

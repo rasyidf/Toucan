@@ -26,7 +26,7 @@ public sealed class FormatSupportTests : IDisposable
         new ProjectModeResolver(),
         NullLogger<ProjectService>.Instance);
 
-    private static IEnumerable<ISaveStrategy> BuiltIns => FormatTestHost.SaveStrategies.Where(s => FormatIds.TryGetStyle(s.FormatId, out _));
+    private static IEnumerable<ISaveStrategy> BuiltIns => FormatTestHost.SaveStrategies.Where(s => s.Support != null);
 
     [Fact]
     public void EveryBuiltInFormatDeclaresSupport()

@@ -26,7 +26,11 @@ public interface ISourceCodeService
 }
 
 /// <summary>A single usage of a translation key in source code.</summary>
-public record KeyUsage(string Key, string FilePath, int Line, string LineContent);
+public record KeyUsage(string Key, string FilePath, int Line, string LineContent)
+{
+    public string? Package { get; init; }
+    public int Column { get; init; } = 1;
+}
 
 /// <summary>Result of scanning source files.</summary>
 public class SourceCodeScanResult
