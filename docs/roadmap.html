@@ -81,7 +81,7 @@
         <div class="kicker">Documentation</div>
         <h1>Toucan roadmap: v0.21 to v1.0</h1>
         <p class="lead">Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization.</p>
-        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-10-11</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
+        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <blockquote><p>Current release: <strong>v0.22.0</strong> on Windows, macOS and Linux. Every build before v1.0 is a preview.</p></blockquote>
@@ -116,14 +116,8 @@
 </ul>
 <p><strong>Completion gate:</strong> the sample connector, built outside this repository, works on desktop and in the CLI; its command appears in the palette and a menu, supports shortcut reassignment, and becomes unavailable when its workspace closes; and a plugin batch edit behaves like a native edit through undo, save failure, recovery, and reopen.</p>
 <h3 id="v024-editor-comfort-and-onboarding"><a class="anchor" href="#v024-editor-comfort-and-onboarding" aria-label="Link to this section">#</a>v0.24: Editor comfort and onboarding</h3>
-<p><strong>Outcome:</strong> a new user can open a project and complete a keyboard-driven translation session comfortably. <strong>References:</strong> APP-02, APP-03.</p>
+<p><strong>Outcome:</strong> a new user can open a project and complete a keyboard-driven translation session comfortably. <strong>References:</strong> QA-03. Implementation and Windows automated evidence are in <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/editor-comfort/acceptance.md">editor-comfort acceptance</a>.</p>
 <ul class="tasks">
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Complete first-run setup for default language, theme, and optional translation-engine credentials; add actionable empty states and a dismissible feature tour.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add reliable inline editing, side-by-side source/target comparison, content-sized multiline fields, and character/word counts.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Make bulk operations (copy to language, replace all, pre-translate, move, delete) undoable as one step; undo covers single value edits only today.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Make the edit → accept suggestion → approve → next workflow predictable, including focus retention and configurable shortcuts with conflict detection.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Clarify source/target hierarchy, placeholder rendering, descriptions, source references, and suggestion provenance in the editor and inspector.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add notification history with actionable save, validation, and integration failures; distinguish progress, cancellation, and completion.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader labels, and RTL content on supported platforms.</li>
 </ul>
 <p><strong>Completion gate:</strong> a user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved.</p>

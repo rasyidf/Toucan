@@ -93,6 +93,7 @@ internal sealed class TestHost : IDisposable
         var panels = PanelService.Instance;
         if (panels.ZenMode) panels.ToggleZenMode();
         panels.EditorMode = EditorMode.Editor;
+        panels.StatusBarVisible = true;
     }
 
     public void Dispose()
@@ -187,7 +188,7 @@ internal sealed class FakeDialogService : IDialogService
     public Task<bool> ShowPreTranslateAsync(PreTranslateViewModel vm)
     {
         OnPreTranslate?.Invoke(vm);
-        return Task.FromResult(false);
+        return Task.FromResult(vm.AppliedCount > 0);
     }
     public Task ShowProviderSettingsAsync(string? projectPath = null) => Task.CompletedTask;
     /// <summary>Lets a test act as the user inside the prompt editor.</summary>

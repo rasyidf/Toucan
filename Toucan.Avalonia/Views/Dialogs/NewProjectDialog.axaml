@@ -95,7 +95,7 @@
     <Border Grid.Row="2" Classes="dialogFooter">
       <Grid ColumnDefinitions="*,Auto">
         <TextBlock VerticalAlignment="Center" Classes="caption" x:Name="StepText"/>
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <StackPanel Grid.Column="1" Orientation="Horizontal">
           <Button Content="{loc:Loc 'Cancel'}" Command="{Binding CancelCommand}"/>
           <Button Content="{loc:Loc 'Back'}" Command="{Binding PreviousStepCommand}" IsVisible="{Binding IsStep1}"/>
           <Button Content="{loc:Loc 'Next'}" Classes="accent" Command="{Binding NextStepCommand}" IsVisible="{Binding IsStep0}" IsDefault="{Binding IsStep0}" IsEnabled="{Binding IsValid}"/>

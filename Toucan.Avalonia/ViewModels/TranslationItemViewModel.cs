@@ -1,3 +1,4 @@
+using System.Text;
 using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -47,6 +48,9 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     public TranslationItem Model => _model;
 
     public bool IsResourceReadOnly => !_model.Permissions.EditValues;
+    public bool IsSource { get; init; }
+    public int CharacterCount => _value.EnumerateRunes().Count();
+    public int WordCount => _value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
     public string ReadOnlyReason => _model.Permissions.Reason ?? Locales.Loc.T("This resource is read-only.");
     public string ResourcePath { get; init; } = "";
     public string EditorDetails => IdentityDetails + (string.IsNullOrEmpty(SpellingStatus) ? "" : "\n" + SpellingStatus);
@@ -92,6 +96,8 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
             QueueSpelling();
             OnPropertyChanged();
             OnPropertyChanged(nameof(IsEmpty));
+            OnPropertyChanged(nameof(CharacterCount));
+            OnPropertyChanged(nameof(WordCount));
             _debounceTimer.Stop();
             _debounceTimer.Start();
         }
@@ -187,6 +193,8 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         _valueBeforeEdit = _value;
         OnPropertyChanged(nameof(Value));
         OnPropertyChanged(nameof(IsEmpty));
+        OnPropertyChanged(nameof(CharacterCount));
+        OnPropertyChanged(nameof(WordCount));
         OnPropertyChanged(nameof(IsApproved));
         OnPropertyChanged(nameof(Comment));
         OnPropertyChanged(nameof(HasComment));

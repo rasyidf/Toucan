@@ -14,10 +14,12 @@ namespace Toucan.Avalonia.ViewModels;
 public partial class LanguageGroupViewModel : ObservableObject, IDisposable
 {
     private readonly Func<TranslationItem, TranslationItemViewModel> _translationItemFactory;
+    private readonly string? _primaryLanguage;
 
-    public LanguageGroupViewModel(string ns, Func<TranslationItem, TranslationItemViewModel>? translationItemFactory = null)
+    public LanguageGroupViewModel(string ns, Func<TranslationItem, TranslationItemViewModel>? translationItemFactory = null, string? primaryLanguage = null)
     {
         Namespace = ns;
+        _primaryLanguage = primaryLanguage;
         _translationItemFactory = translationItemFactory ?? (ti => new TranslationItemViewModel(ti));
     }
 
@@ -76,9 +78,9 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(IsPluralGroup));
     }
 
-    private static IEnumerable<TranslationItem> OrderByPrimary(IEnumerable<TranslationItem> items)
+    private IEnumerable<TranslationItem> OrderByPrimary(IEnumerable<TranslationItem> items)
     {
-        var primary = StatusBarService.Instance.ViewModel?.DefaultLanguage;
+        var primary = _primaryLanguage ?? StatusBarService.Instance.ViewModel?.DefaultLanguage;
         return string.IsNullOrEmpty(primary)
             ? items.OrderBy(o => o.Language, StringComparer.Ordinal)
             : items.OrderBy(o => string.Equals(o.Language, primary, StringComparison.OrdinalIgnoreCase) ? 0 : 1)

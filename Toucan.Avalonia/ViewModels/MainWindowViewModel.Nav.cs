@@ -340,6 +340,7 @@ public partial class MainWindowViewModel
     {
         PanelService.Instance.EditorMode = newValue;
         StatusBarService.Instance.UpdateEditorMode(newValue.ToString());
+        RefreshFocusedActions();
 
         if (newValue == EditorMode.Review)
         {
@@ -509,12 +510,17 @@ public partial class MainWindowViewModel
 
     [ObservableProperty] private TranslationItemViewModel? focusedTranslationItem;
 
-    partial void OnFocusedTranslationItemChanged(TranslationItemViewModel? value)
+    partial void OnFocusedTranslationItemChanged(TranslationItemViewModel? oldValue, TranslationItemViewModel? newValue)
     {
+        var value = newValue;
+        if (oldValue != null) oldValue.PropertyChanged -= OnFocusedItemPropertyChanged;
+        RefreshFocusedActions();
         if (value == null) return;
         var group = PagingController.PageData.FirstOrDefault(g => g.AllItems.Contains(value));
         if (group != null && !ReferenceEquals(group, SelectedGroup)) SelectedGroup = group;
         UpdateGhostSuggestion(value);
+        value.PropertyChanged -= OnFocusedItemPropertyChanged;
+        value.PropertyChanged += OnFocusedItemPropertyChanged;
     }
 
     [RelayCommand]

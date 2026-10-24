@@ -74,15 +74,12 @@ public partial class StatusBarView : UserControl
     private void OnNotificationsClick(object? sender, RoutedEventArgs e)
     {
         if (MainViewModel is not { } vm || DataContext is not StatusBarViewModel status) return;
-        var notifications = status.Notifications;
-        var flyout = new MenuFlyout { Placement = PlacementMode.TopEdgeAlignedRight };
-        flyout.Items.Add(new MenuItem { Header = $"Untranslated entries ({notifications.Untranslated})", Command = vm.ShowUntranslatedCommand });
-        var issues = new MenuItem { Header = $"Validation: {notifications.Errors} errors, {notifications.Warnings} warnings, {notifications.Info} info" };
-        issues.Click += (_, _) => Toucan.Core.Services.SidePanelRegistry.Instance.Activate("issues");
-        flyout.Items.Add(issues);
-        flyout.Items.Add(new Separator());
-        flyout.Items.Add(new MenuItem { Header = "Run validation", Command = vm.RunValidationCommand });
-        flyout.ShowAt(NotificationsButton);
+        var history = new Flyout
+        {
+            Placement = PlacementMode.TopEdgeAlignedRight,
+            Content = new Toucan.Avalonia.Views.Panels.NotificationHistoryView { DataContext = vm }
+        };
+        history.ShowAt(NotificationsButton);
     }
 
     private void OnLanguageClick(object? sender, RoutedEventArgs e)

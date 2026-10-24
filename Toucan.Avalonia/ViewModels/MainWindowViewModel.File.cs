@@ -369,6 +369,8 @@ public partial class MainWindowViewModel
         ClearSessionDirtyState();
         IsDirty = false;
         ValidationIssues.Clear();
+        ValidationLastChecked = null;
+        OnPropertyChanged(nameof(ValidationSummary));
         OnPropertyChanged(nameof(HasValidationIssues));
         _sourceScanCancellation?.Cancel();
         _sourceScanCancellation = null;
@@ -473,6 +475,8 @@ public partial class MainWindowViewModel
                 return false;
 
             case ProjectSaveStatus.FileSystemError:
+                NotifyOutcome(Locales.Loc.T("Save failed"), result.ErrorMessage ?? Locales.Loc.T("The files could not be saved. Your edits remain in the workspace."),
+                    Toucan.Plugins.NotificationSeverity.Error, "toucan.file.save", Locales.Loc.T("Retry save"));
                 await _messageService.ShowMessageAsync($"Save failed: {result.ErrorMessage}", "Save");
                 return false;
 
@@ -487,6 +491,7 @@ public partial class MainWindowViewModel
         ClearSessionDirtyState();
         IsDirty = false;
         StatusText = $"Saved {DateTime.Now:t}";
+        NotifyOutcome(Locales.Loc.T("Project saved"), ProjectName, Toucan.Plugins.NotificationSeverity.Success);
     }
 
     [RelayCommand]
@@ -554,6 +559,8 @@ public partial class MainWindowViewModel
         ShowStartScreen = true;
         HiddenNamespaces.Clear();
         ValidationIssues.Clear();
+        ValidationLastChecked = null;
+        OnPropertyChanged(nameof(ValidationSummary));
         OnPropertyChanged(nameof(HasValidationIssues));
         ClearSearchResults();
         _sourceScanCancellation?.Cancel();

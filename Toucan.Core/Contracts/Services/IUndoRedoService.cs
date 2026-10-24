@@ -11,6 +11,7 @@ public interface IUndoRedoService
     bool CanUndo { get; }
     bool CanRedo { get; }
     void Record(string ns, string language, string oldValue, string newValue);
+    void RecordEntry(TranslationItem before, TranslationItem after) => Record(before.Namespace, before.Language, before.Value, after.Value);
     void RecordStructure(IReadOnlyList<TranslationItem> before, IReadOnlyList<TranslationItem> after) { }
     void RecordMetadata(string ns, string language, Dictionary<string, string> before, Dictionary<string, string> after) { }
     void RecordSpelling(SpellingSettings before, SpellingSettings after) { }

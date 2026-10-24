@@ -21,9 +21,25 @@ internal sealed class NotificationPresenter : IDisposable
         _commands = commands;
         _manager = new WindowNotificationManager(window) { Position = NotificationPosition.BottomRight, MaxItems = 4 };
         _center.Notified += OnNotified;
+        _commands.RunChanged += OnRunChanged;
     }
 
-    public void Dispose() => _center.Notified -= OnNotified;
+    public void Dispose()
+    {
+        _center.Notified -= OnNotified;
+        _commands.RunChanged -= OnRunChanged;
+    }
+
+    private void OnRunChanged(object? sender, CommandRunEventArgs e)
+    {
+        if (e.Run.Status != CommandRunStatus.Failed) return;
+        _center.Publish(_commands.Find(e.Run.CommandId)?.PluginId ?? "toucan", new PluginNotification
+        {
+            Title = _commands.GetTitle(e.Run.CommandId), Message = e.Run.Error,
+            Severity = NotificationSeverity.Error,
+            ActionCommandId = BuiltInCommands.IdFor("Settings", "Preferences"), ActionLabel = Loc.T("Preferences")
+        });
+    }
 
     private void OnNotified(object? sender, HostNotificationEventArgs e)
     {

@@ -45,7 +45,8 @@ public class UiScreenshotTests
         var theme = window.ActualThemeVariant == ThemeVariant.Dark ? "dark" : "light";
         var folder = Path.Combine(OutDir, theme);
         Directory.CreateDirectory(folder);
-        Pump();
+        // The title bar fits itself in LayoutUpdated and the menu folds in a queued job, so a resize needs a few layout rounds to settle.
+        for (var i = 0; i < 3; i++) { window.UpdateLayout(); Pump(); }
         using var frame = window.CaptureRenderedFrame();
         Assert.NotNull(frame);
         frame.Save(Path.Combine(folder, name + ".png"));
@@ -86,6 +87,15 @@ public class UiScreenshotTests
         await vm.OpenProjectAsync(folder);
         Pump();
         Snap(window, "02-editor");
+        vm.FocusedTranslationItem = vm.PagingController.Data.SelectMany(g => g.AllItems).First(i => !i.IsSource);
+        Pump();
+        Snap(window, "02-editor-focused-target");
+        host.Services.GetRequiredService<INotificationCenter>().Publish("toucan", new PluginNotification
+        {
+            Title = "Save failed", Message = "The file is locked. Your edits remain in the workspace.", Severity = NotificationSeverity.Error,
+            ActionCommandId = "toucan.file.save", ActionLabel = "Retry save"
+        });
+        SnapDialog(new Window { Content = new Toucan.Avalonia.Views.Panels.NotificationHistoryView { DataContext = vm }, Width = 440, Height = 520 }, "02-notification-history");
         foreach (var mode in new[] { EditorMode.Review, EditorMode.Audit })
         {
             vm.EditorMode = mode;
@@ -98,6 +108,7 @@ public class UiScreenshotTests
         window.Width = 1280;
         window.Height = 800;
 
+        for (var i = 0; i < 3; i++) { window.UpdateLayout(); Pump(); } // let the menu unfold after the resize before opening a submenu
         var fileMenu = window.GetVisualDescendants().OfType<MenuItem>().First(m => m.Header?.ToString()?.Replace("_", string.Empty, StringComparison.Ordinal) == "File");
         fileMenu.IsSubMenuOpen = true;
         Pump();

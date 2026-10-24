@@ -62,6 +62,7 @@ public class AppOptions
     // --- Onboarding ---
     /// <summary>The onboarding version the user has completed; 0 means first run. Onboarding asks whether to use AI.</summary>
     public int OnboardingVersion { get; set; }
+    public bool WorkflowGuideDismissed { get; set; }
 
     // --- Last session state ---
     public string? LastProjectPath { get; set; }

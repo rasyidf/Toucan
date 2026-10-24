@@ -1,12 +1,12 @@
 ---
 title: "Known Issues & Unfinished Features"
 status: active
-updated: 2026-10-11
-summary: "Open issues for v0.22.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md."
+updated: 2026-10-25
+summary: "Open source-build issues for the 0.24 preview: release distribution, missing panels, external connector acceptance and native/platform verification. Fixed issues live in CHANGELOG.md."
 ---
 # Known Issues & Unfinished Features
 
-Current release: **v0.22.0** (preview). Last audited **2026-10-09** against the code on `release/v0.22.0`.
+Published release: **v0.22.0** (preview). Current source build: **0.24.0**, audited **2026-10-25** on `release/v0.23.0`; native release acceptance remains pending.
 
 This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [CHANGELOG.md](../CHANGELOG.md) (see [Where the old fixes went](#where-the-old-fixes-went)). When a bug is fixed, delete its row and section here and add a `### Fixed` line to the changelog `[Unreleased]` section. Planned work for an ID is linked from [the roadmap](todos/future-roadmap.md) (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from `main` (source: branch `legacy/wpf`), so nothing here is about WPF.
 
@@ -21,9 +21,8 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [REL-03](#rel-03) | Low | Release | Update check is manual only: no check on startup, no download or install | From code |
 | [REL-04](#rel-04) | Low | Release | Windows ships as a portable zip; no installer or MSIX in releases | From docs |
 | [APP-01](#app-01) | Low | App | Source Control and Dictionary panels do not exist | Reproduced |
-| [APP-02](#app-02) | Low | App | Keyboard shortcuts cannot be changed | Reproduced |
-| [APP-03](#app-03) | Low | App | No notification history; the status-bar badge only shows a count of empty translations | Reproduced |
-| [APP-04](#app-04) | Low | App | Bulk operations (copy to language, replace all, pre-translate, move, delete) cannot be undone | From code |
+| [APP-05](#app-05) | Medium | Integration | External connector and connection lifecycle acceptance remains unverified | From code and available environment |
+| [QA-03](#qa-03) | Medium | Release acceptance | Native accessibility, desktop workflow and macOS/Linux evidence remains pending | Not executed |
 | [QA-02](#qa-02) | Info | Perf | Large-project performance has never been profiled | Not checked |
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
@@ -61,7 +60,7 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 
 - **Severity:** Low · **Checked:** since v0.20.0, Settings → About has a release channel (Stable or Preview) and a Check for updates button (`UpdateService`, GitHub Releases API). Nothing checks on startup, and nothing downloads or installs.
 - **Impact:** users who never open About stay on old builds, which matters while the formats above lose data.
-- **Fix direction:** FG-02, planned for v0.24: check on startup (off / notify / auto-install), then download and apply. Depends on REL-01 and signing (REL-02).
+- **Fix direction:** FG-02, planned for v0.30: check on startup (off / notify / auto-install), then download and apply. Depends on REL-01 and signing (REL-02).
 
 <a id="rel-04"></a>
 ### REL-04 — Windows has no installer
@@ -81,27 +80,20 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 - **Correction:** the old text also listed "Translation" as missing. It exists (`machine-translation`, titled Translation).
 - **Plan:** Git integration is FG-06 (v0.23), the glossary is FG-15 (v0.21).
 
-<a id="app-02"></a>
-### APP-02 — Shortcuts cannot be changed
-
-- **Severity:** Low · **Checked:** Settings → Shortcuts lists `KeybindingService.GetDefinitions()` with no edit control and nothing is stored.
-- **Fix direction:** per-user overrides in `settings.json`, a conflict check, a reset button, and the command palette showing the active shortcut (it already reads the definitions).
-
-<a id="app-03"></a>
-### APP-03 — No notification history
-
-- **Severity:** Low · **Checked:** `StatusBarService.ShowNotificationBadge` is only fed the number of empty translations (`MainWindowViewModel.cs:266`). There is no `NotificationService` and nothing opens when the badge is clicked.
-- **Fix direction:** a small service holding title, message, severity and time, a flyout anchored to the badge, and producers: save failures, validation summaries, plugin load errors, and (later) update availability.
-
-<a id="app-04"></a>
-### APP-04 — Bulk operations cannot be undone
-
-- **Severity:** Low · **Checked:** `UndoRedoService` records single value edits (`Record(ns, language, old, new)`); `NotifyBulkValueChanges` and the bulk commands never record anything, so Undo after "copy to language" does nothing.
-- **Fix direction:** group the edits of one bulk operation into a single undo step. Planned in v0.24.
-
 ---
 
+<a id="app-05"></a>
+### APP-05 — External connector acceptance
+
+Toolbar contributions now render and follow registry state. Core connection activation exists, but no desktop/CLI connection-management caller was found. The separate external connector repository is unavailable here, so its package-only desktop/CLI acceptance remains open. Keep the v0.23 integration gate pending; see [v0.24 acceptance](specs/editor-comfort/acceptance.md).
+
 ## Quality
+
+<a id="qa-03"></a>
+### QA-03 — Native and supported-platform acceptance
+
+Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native desktop input, screen-reader announcements, operating-system text scaling, Linux/macOS execution and compatibility M7c acceptance were not executed in this environment. They remain release gates rather than inferred passes.
+
 
 <a id="qa-02"></a>
 ### QA-02 — Performance not profiled

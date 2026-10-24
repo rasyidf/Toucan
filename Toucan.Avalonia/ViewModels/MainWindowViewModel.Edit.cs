@@ -423,10 +423,39 @@ public partial class MainWindowViewModel
 
     private List<TranslationItem> CaptureStructure() => AllTranslation.Select(i => ResourceEntryOperations.Copy(i)).ToList();
 
+    private static Dictionary<TranslationItem, TranslationItem> CaptureEntries(IEnumerable<TranslationItem> items) =>
+        items.Distinct().ToDictionary(i => i, i => ResourceEntryOperations.Copy(i));
+
+    private int RecordEntryChanges(Dictionary<TranslationItem, TranslationItem> before)
+    {
+        var changed = before.Where(p => System.Text.Json.JsonSerializer.Serialize(p.Value) != System.Text.Json.JsonSerializer.Serialize(p.Key)).ToList();
+        using (_undoRedoService.BeginGroup())
+            foreach (var pair in changed) _undoRedoService.RecordEntry(pair.Value, pair.Key);
+        return changed.Count;
+    }
+
     private void ApplyHistory(IEnumerable<EditAction> step, bool undo)
     {
         foreach (var action in step)
         {
+            if ((undo ? action.BeforeEntry : action.AfterEntry) is { } entry)
+            {
+                var item = AllTranslation.FirstOrDefault(i => entry.Identity != null
+                    ? i.Identity?.Address == entry.Identity.Address
+                    : i.Namespace == entry.Namespace && i.Language == entry.Language);
+                if (item == null) continue;
+                item.Value = entry.Value;
+                item.Comment = entry.Comment;
+                item.IsApproved = entry.IsApproved;
+                item.ApprovedAtUtc = entry.ApprovedAtUtc;
+                item.LastModifiedUtc = entry.LastModifiedUtc;
+                item.ChangeType = entry.ChangeType;
+                item.FormatData = entry.FormatData == null ? null : new(entry.FormatData);
+                NotifyBulkValueChanges([item]);
+                foreach (var shown in PagingController.Data.SelectMany(g => g.AllItems).Where(v => ReferenceEquals(v.Model, item))) shown.Refresh();
+                UpdateSummaryInfo();
+                continue;
+            }
             if ((undo ? action.BeforeSpelling : action.AfterSpelling) is { } spelling && ProjectSettings != null)
             {
                 ProjectSettings.Spelling = SpellingSettings.Copy(spelling); _translationStore.NotifyConfigurationChanged(true);
@@ -456,6 +485,7 @@ public partial class MainWindowViewModel
                 AllTranslation = structure.Select(i => ResourceEntryOperations.Copy(i)).ToList();
                 MarkStructureChanged(AllTranslation.Select(i => i.Namespace));
                 RefreshTree();
+                Search(SearchText, true);
                 UpdateSummaryInfo();
             }
             else if (action.BeforeConfiguration == null) ApplyUndoRedo([(action.Namespace, action.Language, undo ? action.OldValue : action.NewValue)]);

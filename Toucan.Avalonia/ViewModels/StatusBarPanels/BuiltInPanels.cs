@@ -107,7 +107,7 @@ public partial class TranslationStatsPanel : StatusBarPanelBase
         Warnings = warningCount;
 
         Icon = "Translate24";
-        Content = total == 0 ? "No keys" : $"{translated}/{total}";
+        Content = total == 0 ? Locales.Loc.T("No keys") : $"{translated}/{total} " + Locales.Loc.T("translated");
 
         // Show worst badge
         if (errorCount > 0) { Badge = errorCount.ToString(); BadgeSeverity = "error"; }

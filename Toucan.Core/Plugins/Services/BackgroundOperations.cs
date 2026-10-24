@@ -71,7 +71,7 @@ public interface IBackgroundOperationService
     void CancelForWorkspaceClose();
 }
 
-public sealed class BackgroundOperationService(IDiagnosticsService? diagnostics = null) : IBackgroundOperationService
+public sealed class BackgroundOperationService(IDiagnosticsService? diagnostics = null, INotificationCenter? notifications = null) : IBackgroundOperationService
 {
     private readonly object _gate = new();
     private readonly List<BackgroundOperation> _active = [];
@@ -111,6 +111,17 @@ public sealed class BackgroundOperationService(IDiagnosticsService? diagnostics 
                 diagnostics?.Write(source, DiagnosticLevel.Error, $"Operation '{options.Title}' failed: {ex}");
             }
 
+            notifications?.Publish(source, new PluginNotification
+            {
+                Title = options.Title,
+                Message = status switch
+                {
+                    OperationStatus.Cancelled => "Cancelled",
+                    OperationStatus.Failed => failure ?? "Failed",
+                    _ => "Completed"
+                },
+                Severity = status == OperationStatus.Failed ? NotificationSeverity.Error : NotificationSeverity.Info
+            });
             operation.Finish(status, failure);
             lock (_gate) _active.Remove(operation);
             Changed?.Invoke(this, EventArgs.Empty);

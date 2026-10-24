@@ -192,6 +192,9 @@ public partial class MainWindowViewModel
     {
         if (AppOptions.OnboardingVersion >= OnboardingViewModel.CurrentVersion) return;
         await _dialogService.ShowOnboardingAsync();
+        var setup = _preferenceService.Load();
+        AppOptions.DefaultLanguage = setup.DefaultLanguage;
+        AppOptions.Theme = setup.Theme;
         AppOptions.OnboardingVersion = OnboardingViewModel.CurrentVersion;
         _preferenceService.Save(AppOptions);
         RefreshAiState();

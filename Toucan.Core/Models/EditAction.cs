@@ -5,6 +5,8 @@ namespace Toucan.Core.Models;
 /// </summary>
 public record EditAction(string Namespace, string Language, string OldValue, string NewValue)
 {
+    public TranslationItem? BeforeEntry { get; init; }
+    public TranslationItem? AfterEntry { get; init; }
     public IReadOnlyList<TranslationItem>? BeforeStructure { get; init; }
     public IReadOnlyList<TranslationItem>? AfterStructure { get; init; }
     public Dictionary<string, string>? BeforeMetadata { get; init; }

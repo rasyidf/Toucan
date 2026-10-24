@@ -69,7 +69,7 @@
         </StackPanel>
       </ScrollViewer>
 
-      <Border Grid.Row="1" Classes="dialogFooter" BorderThickness="0,1,0,0">
+      <Border Grid.Row="1" Classes="dialogFooter">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
           <Button Content="{loc:Loc 'Cancel'}" x:Name="CancelButton"/>
           <Button Content="{loc:Loc 'Import'}" Classes="accent" x:Name="OkButton" IsDefault="True" IsEnabled="{Binding IsValid}"/>

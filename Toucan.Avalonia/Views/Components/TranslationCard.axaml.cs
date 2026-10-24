@@ -11,10 +11,21 @@ namespace Toucan.Avalonia.Views.Components;
 /// <summary>Editor card for one key. Reports focus and bulk selection to the main view model.</summary>
 public partial class TranslationCard : UserControl
 {
+    public static readonly DirectProperty<TranslationCard, int> ComparisonColumnsProperty =
+        AvaloniaProperty.RegisterDirect<TranslationCard, int>(nameof(ComparisonColumns), c => c.ComparisonColumns);
+    private int _comparisonColumns = 1;
+    public int ComparisonColumns => _comparisonColumns;
+
     public TranslationCard()
     {
         InitializeComponent();
-        SizeChanged += (_, e) => Classes.Set("narrow", e.NewSize.Width < 480);
+        SizeChanged += (_, e) =>
+        {
+            var columns = e.NewSize.Width >= 680 ? 2 : 1;
+            SetAndRaise(ComparisonColumnsProperty, ref _comparisonColumns, columns);
+            Classes.Set("comparison", columns == 2);
+            Classes.Set("narrow", e.NewSize.Width < 480 || columns == 2);
+        };
         AddHandler(GotFocusEvent, OnChildGotFocus, RoutingStrategies.Bubble);
         AddHandler(KeyDownEvent, OnChildKeyDown, RoutingStrategies.Tunnel);
         BulkCheck.IsCheckedChanged += (_, _) =>

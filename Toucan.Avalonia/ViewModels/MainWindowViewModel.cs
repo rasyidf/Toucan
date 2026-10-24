@@ -42,7 +42,8 @@ public sealed record MainWindowServices(
     IPluginCatalog? PluginCatalog = null,
     IEnumerable<SpreadsheetDialect>? SpreadsheetDialects = null,
     IEnumerable<IProjectCompatibilityImporter>? CompatibilityImporters = null,
-    SpellingService? Spelling = null, DictionaryRegistry? Dictionaries = null);
+    SpellingService? Spelling = null, DictionaryRegistry? Dictionaries = null,
+    INotificationCenter? Notifications = null);
 
 /// <summary>
 /// State and commands for the main editor window. Split across partial files by concern:
@@ -89,6 +90,10 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     public MainWindowViewModel(MainWindowServices services)
     {
         ArgumentNullException.ThrowIfNull(services);
+        _notifications = services.Notifications ?? new NotificationCenter();
+        NotificationHistory = new NotificationHistoryViewModel(_notifications,
+            id => KeybindingService.Registry.ExecuteAsync(id));
+        NotificationHistory.PropertyChanged += OnNotificationHistoryChanged;
         _spellingService = services.Spelling; _dictionaries = services.Dictionaries;
         _recentFileService = services.RecentProjects;
         _dialogService = services.Dialogs;
@@ -308,6 +313,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             ValidationIssues.Count(i => i.Severity == ValidationSeverity.Error),
             ValidationIssues.Count(i => i.Severity == ValidationSeverity.Warning),
             ValidationIssues.Count(i => i.Severity == ValidationSeverity.Info));
+        StatusBarService.Instance.ViewModel?.Notifications.Update(NotificationHistory.Count);
     }
 
     // ───────────────────────── Dirty tracking ─────────────────────────
@@ -432,12 +438,13 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     {
         var resource = ProjectSettings?.ResourceDocuments.FirstOrDefault(d => d.Resource.Id == item.Identity?.ResourceId)?.Resource;
         return new(item, _undoRedoService, _translationStore, OnTranslationItemChanged, CanApprove, _spellingSession)
-            { ResourcePath = resource?.RelativePath ?? "", IsArbResource = resource?.FormatId == FormatIds.Arb };
+            { ResourcePath = resource?.RelativePath ?? "", IsArbResource = resource?.FormatId == FormatIds.Arb,
+              IsSource = string.Equals(item.Language, PrimaryLanguage, StringComparison.OrdinalIgnoreCase) };
     }
 
     internal LanguageGroupViewModel CreateGroup(string ns)
     {
-        var group = new LanguageGroupViewModel(ns, CreateItemViewModel);
+        var group = new LanguageGroupViewModel(ns, CreateItemViewModel, PrimaryLanguage);
         group.TranslateRequested += (s, e) =>
         {
             if (s is LanguageGroupViewModel g) _ = TranslateKeyAsync(g.Namespace);
@@ -563,6 +570,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        NotificationHistory.PropertyChanged -= OnNotificationHistoryChanged;
+        NotificationHistory.Dispose();
+        if (FocusedTranslationItem != null) FocusedTranslationItem.PropertyChanged -= OnFocusedItemPropertyChanged;
         _spellingValidation?.Cancel();
         _spellingSession?.Dispose();
         _translationStore.DirtyStateChanged -= OnStoreDirtyStateChanged;

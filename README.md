@@ -75,7 +75,7 @@ The planned order to 1.0:
 | v0.21 | File fidelity fixes, format support boundaries, regression fixtures, and cross-platform CI. |
 | v0.22 | Recoverable saves, durable drafts, crash recovery, and failure handling. |
 | v0.23 | Extension platform: plugin lifecycle, command registry, desktop contributions, host services, and a sample connector built outside the repo. |
-| v0.24 | Onboarding, comfortable multiline and side-by-side editing, keyboard workflow, and accessibility. |
+| v0.24 | Editor workflow, source/target comparison, bulk undo, onboarding and notification history implemented; native/platform acceptance pending. |
 | v0.25 | Project glossary, message-aware validation, and AI finding follow-ups. |
 | v0.26 | Draft → Needs review → Approved per language, source-change tracking, and separate delivery state. |
 | v0.27 | Content-source contracts, connection profiles, and local snapshot loading/persistence. |

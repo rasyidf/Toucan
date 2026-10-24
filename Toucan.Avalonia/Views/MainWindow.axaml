@@ -16,7 +16,7 @@
 
     <!-- ═══ Top bar: in-window menu (Windows/Linux) + view controls ═══ -->
     <Border Grid.Row="0" x:Name="TopBar" MinHeight="40">
-      <Grid x:Name="TitleBarLayout" ColumnDefinitions="*,Auto,*" Margin="8,0">
+      <Grid x:Name="TitleBarLayout" ColumnDefinitions="Auto,*,Auto" Margin="8,0">
         <!-- Left: (menu on Windows/Linux) · logo and name · save state -->
         <StackPanel x:Name="TitleBarLeading" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
           <StackPanel x:Name="TitleBarBrand" Orientation="Horizontal" Spacing="7" Margin="6,0,2,0" VerticalAlignment="Center">
@@ -35,7 +35,7 @@
         </StackPanel>
 
         <!-- Center: command palette pill (project and selected key shown while a project is open) -->
-        <Button x:Name="PalettePill" Grid.Column="1" Classes="palettePill" Width="420" MinWidth="180" VerticalAlignment="Center"
+        <Button x:Name="PalettePill" Grid.Column="1" Classes="palettePill" Width="420" HorizontalAlignment="Left" VerticalAlignment="Center"
                 ToolTip.Tip="{loc:Loc 'Command palette'}" AutomationProperties.Name="{loc:Loc 'Command palette'}">
           <Grid ColumnDefinitions="Auto,*,Auto">
             <ui:FASymbolIcon Symbol="Find" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center"/>
@@ -62,7 +62,7 @@
           </Grid>
         </Button>
 
-        <StackPanel x:Name="TitleBarTrailing" Grid.Column="2" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right" VerticalAlignment="Center">
+        <StackPanel x:Name="TitleBarTrailing" Grid.Column="2" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="0">
           <StackPanel x:Name="WorkspaceModes" Orientation="Horizontal" Spacing="2" Margin="0,0,10,0"
                       IsVisible="{Binding !ShowStartScreen}">
             <Button x:Name="ModeEditor" Classes="modeTab" Classes.active="{Binding IsEditorMode}" Content="{loc:Loc 'Editor'}"
@@ -102,8 +102,9 @@
 
     <!-- ═══ Workspace ═══ -->
     <Panel Grid.Row="1" Margin="8,0,8,0">
-      <Grid ColumnDefinitions="54,*,Auto">
-        <Border Classes="shellSurface" Background="{DynamicResource ChromeBackgroundBrush}" Margin="0,0,6,0">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Border x:Name="LeftRail" Classes="shellSurface" Background="{DynamicResource ChromeBackgroundBrush}" Width="48" Margin="0,0,6,0"
+                IsVisible="{Binding !ShowStartScreen}">
           <DockPanel>
             <Button x:Name="RailSettings" DockPanel.Dock="Bottom" Classes="activity" Margin="0,3"
                     HorizontalAlignment="Center" ToolTip.Tip="{loc:Loc 'Settings'}">

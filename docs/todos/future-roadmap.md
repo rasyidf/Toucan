@@ -1,8 +1,8 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "57 release tasks; 6 stable gates; 27 deferred tasks"
-updated: 2026-10-11
+progress: "51 release tasks; 6 stable gates; 27 deferred tasks"
+updated: 2026-10-25
 summary: "Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization."
 ---
 # Toucan roadmap: v0.21 to v1.0
@@ -73,17 +73,12 @@ This is intentionally a major platform milestone. The full scope below belongs t
 
 ### v0.24: Editor comfort and onboarding
 
-**Outcome:** a new user can open a project and complete a keyboard-driven translation session comfortably. **References:** APP-02, APP-03.
+**Outcome:** a new user can open a project and complete a keyboard-driven translation session comfortably. **References:** QA-03. Implementation and Windows automated evidence are in [editor-comfort acceptance](../specs/editor-comfort/acceptance.md).
 
-- [ ] Complete first-run setup for default language, theme, and optional translation-engine credentials; add actionable empty states and a dismissible feature tour.
-- [ ] Add reliable inline editing, side-by-side source/target comparison, content-sized multiline fields, and character/word counts.
-- [ ] Make bulk operations (copy to language, replace all, pre-translate, move, delete) undoable as one step; undo covers single value edits only today.
-- [ ] Make the edit → accept suggestion → approve → next workflow predictable, including focus retention and configurable shortcuts with conflict detection.
-- [ ] Clarify source/target hierarchy, placeholder rendering, descriptions, source references, and suggestion provenance in the editor and inspector.
-- [ ] Add notification history with actionable save, validation, and integration failures; distinguish progress, cancellation, and completion.
 - [ ] Verify light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader labels, and RTL content on supported platforms.
 
 **Completion gate:** a user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved.
+
 
 ### v0.25: Terminology and validation
 

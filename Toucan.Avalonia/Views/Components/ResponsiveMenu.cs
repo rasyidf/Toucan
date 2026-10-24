@@ -31,6 +31,7 @@ public sealed class ResponsiveMenu : Menu
         _all.Clear();
         _all.AddRange(items);
         _widths = null;
+        _shown = -1; // new item instances: repopulate even when the count is unchanged
         Apply(_all.Count);
     }
 
@@ -41,12 +42,8 @@ public sealed class ResponsiveMenu : Menu
             // Everything is in the bar: measure each item at its natural width once.
             base.MeasureOverride(new Size(double.PositiveInfinity, availableSize.Height));
             var widths = new double[_all.Count];
-            for (var i = 0; i < _all.Count; i++)
-            {
-                widths[i] = _all[i].DesiredSize.Width;
-                if (widths[i] <= 0) { widths = null!; break; }
-            }
-            _widths = widths;
+            for (var i = 0; i < _all.Count; i++) widths[i] = _all[i].DesiredSize.Width; // a hidden item measures 0 and takes no room
+            _widths = widths.Any(w => w > 0) ? widths : null;
         }
 
         if (_widths != null)

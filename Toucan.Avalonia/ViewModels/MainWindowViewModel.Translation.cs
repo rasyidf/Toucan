@@ -36,13 +36,30 @@ public partial class MainWindowViewModel
 
     private async Task RunPreTranslateDialog(List<TranslationItem> items)
     {
-        var vm = new PreTranslateViewModel(OrderedLanguages(), items, _pretranslationService, _dialogService, _providerSettingsService, CurrentPath, PrimaryLanguage,
+        if (IsAuditMode) return;
+        var revision = _workspaceRevision;
+        var settings = ProjectSettings;
+        var stagedItems = items.Select(i => ResourceEntryOperations.Copy(i)).ToList();
+        var vm = new PreTranslateViewModel(OrderedLanguages(), stagedItems, _pretranslationService, _dialogService, _providerSettingsService, CurrentPath, PrimaryLanguage,
             UsableProviderNames(), ResolveProvider());
         var committed = await _dialogService.ShowPreTranslateAsync(vm);
         RememberProvider(vm.SelectedProvider);
         if (!committed || vm.AppliedCount == 0) return;
 
-        NotifyBulkValueChanges(vm.AppliedItems);
+        if (IsAuditMode || revision != _workspaceRevision || !ReferenceEquals(settings, ProjectSettings))
+        { StatusText = "The workspace changed. Run a new translation preview."; return; }
+        var before = CaptureEntries(items);
+        var applied = new List<TranslationItem>();
+        foreach (var staged in vm.AppliedItems)
+        {
+            var index = stagedItems.IndexOf(staged);
+            if (index < 0 || !items[index].Permissions.EditValues) continue;
+            var item = items[index];
+            item.Value = staged.Value; item.ChangeType = staged.ChangeType; item.LastModifiedUtc = staged.LastModifiedUtc;
+            item.IsApproved = false; item.ApprovedAtUtc = null; applied.Add(item);
+        }
+        if (RecordEntryChanges(before) == 0) return;
+        NotifyBulkValueChanges(applied);
         UpdateSummaryInfo();
         foreach (var t in PagingController.Data.SelectMany(g => g.AllItems)) t.Refresh();
         StatusText = $"Pre-translation applied to {vm.AppliedCount} value(s).";
@@ -51,7 +68,11 @@ public partial class MainWindowViewModel
     /// <summary>Fills empty values of the given items with the last-used provider, without a preview.</summary>
     private async Task QuickTranslateAsync(List<TranslationItem> targets, string description)
     {
-        var missing = targets.Where(t => string.IsNullOrEmpty(t.Value) && !string.IsNullOrWhiteSpace(t.Namespace)).ToList();
+        if (IsAuditMode) return;
+        FlushPendingEdits();
+        var revision = _workspaceRevision;
+        var settings = ProjectSettings;
+        var missing = targets.Where(t => t.Permissions.EditValues && string.IsNullOrEmpty(t.Value) && !string.IsNullOrWhiteSpace(t.Namespace)).ToList();
         if (missing.Count == 0)
         {
             StatusText = $"{description}: nothing to translate.";
@@ -76,6 +97,10 @@ public partial class MainWindowViewModel
             };
             var result = await Task.Run(() => _pretranslationService.PreTranslateAsync(request));
 
+            if (IsAuditMode || revision != _workspaceRevision || !ReferenceEquals(settings, ProjectSettings))
+            { StatusText = "The workspace changed. Translation results were not applied."; return; }
+            var before = CaptureEntries(missing);
+
             var applied = new List<TranslationItem>();
             foreach (var r in result.Items.Where(r => r.Succeeded && !string.IsNullOrEmpty(r.TranslatedValue)))
             {
@@ -84,10 +109,12 @@ public partial class MainWindowViewModel
                 item.Value = r.TranslatedValue!;
                 item.ChangeType = ChangeType.Suggestion;
                 item.LastModifiedUtc = DateTime.UtcNow;
+                item.IsApproved = false;
+                item.ApprovedAtUtc = null;
                 applied.Add(item);
             }
 
-            if (applied.Count > 0) NotifyBulkValueChanges(applied);
+            if (RecordEntryChanges(before) > 0) NotifyBulkValueChanges(applied);
             foreach (var t in PagingController.Data.SelectMany(g => g.AllItems)) t.Refresh();
             UpdateSummaryInfo();
 
@@ -165,6 +192,7 @@ public partial class MainWindowViewModel
 
     private void ApproveItems(List<TranslationItem> items)
     {
+        if (IsAuditMode) return;
         if (items.Count == 0) return;
         var blocked = ApprovalBlockers(items);
         if (blocked.Count > 0)
@@ -172,11 +200,14 @@ public partial class MainWindowViewModel
             items = items.Except(blocked).ToList();
             if (items.Count == 0) return;
         }
+        FlushPendingEdits();
+        var before = CaptureEntries(items);
         foreach (var t in items)
         {
             t.IsApproved = true;
             t.ApprovedAtUtc = DateTime.UtcNow;
         }
+        if (RecordEntryChanges(before) == 0) return;
         NotifyBulkValueChanges(items);
         foreach (var t in PagingController.Data.SelectMany(g => g.AllItems)) t.Refresh();
         UpdateSummaryInfo();
@@ -191,8 +222,10 @@ public partial class MainWindowViewModel
 
     public ObservableCollection<ValidationIssueItem> ValidationIssues { get; } = [];
     public bool HasValidationIssues => ValidationIssues.Count > 0;
-    public string ValidationSummary => ValidationIssues.Count == 0
-        ? "No issues. Run validation to check placeholders, missing values, and more."
+    public DateTimeOffset? ValidationLastChecked { get; private set; }
+    public string ValidationSummary => ValidationLastChecked == null
+        ? Locales.Loc.T("Not checked yet. Run validation to check this project.")
+        : ValidationIssues.Count == 0 ? Locales.Loc.T("No issues found.")
         : $"{ValidationIssues.Count(i => i.Severity == ValidationSeverity.Error)} error(s), {ValidationIssues.Count(i => i.Severity == ValidationSeverity.Warning)} warning(s), {ValidationIssues.Count(i => i.Severity == ValidationSeverity.Info)} info";
 
     [RelayCommand]
@@ -214,10 +247,15 @@ public partial class MainWindowViewModel
         }
         SidePanelRegistry.Instance.Activate("issues");
         StatusText = ValidationIssues.Count == 0 ? "All validations passed." : ValidationSummary;
+        NotifyOutcome(Locales.Loc.T("Validation complete"), ValidationSummary,
+            ValidationIssues.Count == 0 ? Toucan.Plugins.NotificationSeverity.Success : Toucan.Plugins.NotificationSeverity.Warning,
+            "toucan.view.show-issues", Locales.Loc.T("Show issues"));
     }
 
     private void ShowValidationResults(IEnumerable<ValidationResult> results)
     {
+        ValidationLastChecked = DateTimeOffset.Now;
+        OnPropertyChanged(nameof(ValidationLastChecked));
         ValidationIssues.Clear();
         foreach (var r in results.OrderBy(r => r.Severity).ThenBy(r => r.Namespace, StringComparer.Ordinal))
         {
@@ -347,9 +385,9 @@ public partial class MainWindowViewModel
             OnPropertyChanged(nameof(CanClassifyUnusedSourceKeys));
             SourceCodeScanned = true;
             SourceCodeStatus = string.Create(CultureInfo.CurrentCulture,
-                $"{result.KeysFound} keys in {result.FilesScanned} files ({result.Duration.TotalSeconds:F1}s) · {Path.GetFileName(scanPath)}");
-            if ((_sourceCodeService as IProjectSourceCodeService)?.LastScan is { } scan) SourceCodeStatus += scan.Cancelled ? " · cancelled" : scan.Complete ? " · complete" : " · partial";
-            if (!CanClassifyUnusedSourceKeys) SourceCodeStatus += $" · {SourceScanDiagnostics.Count} unresolved/diagnostic finding(s); unused-key classification disabled.";
+                $"{result.KeysFound} keys in {result.FilesScanned} files ({result.Duration.TotalSeconds:F1}s) Â· {Path.GetFileName(scanPath)}");
+            if ((_sourceCodeService as IProjectSourceCodeService)?.LastScan is { } scan) SourceCodeStatus += scan.Cancelled ? " Â· cancelled" : scan.Complete ? " Â· complete" : " Â· partial";
+            if (!CanClassifyUnusedSourceKeys) SourceCodeStatus += $" Â· {SourceScanDiagnostics.Count} unresolved/diagnostic finding(s); unused-key classification disabled.";
             StatusText = SourceCodeStatus;
 
             SourceCodeUsages.Clear();
@@ -550,7 +588,7 @@ public partial class MainWindowViewModel
             foreach (var lang in OrderedLanguages().Where(l => l != PrimaryLanguage))
             {
                 foreach (var m in _translationMemory.Search(source.Value, PrimaryLanguage, lang, threshold, max))
-                    MemoryMatches.Add(new SuggestionItem(lang, m.TargetText, $"{m.Similarity:P0} · {m.SourceText}"));
+                    MemoryMatches.Add(new SuggestionItem(lang, m.TargetText, $"{m.Similarity:P0} Â· {m.SourceText}"));
             }
         }
         OnPropertyChanged(nameof(HasMemoryMatches));

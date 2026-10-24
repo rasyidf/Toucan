@@ -228,12 +228,13 @@ public partial class PreTranslateViewModel : ObservableObject
         foreach (var pr in PreviewResults.Where(p => p.Succeeded && !string.IsNullOrEmpty(p.TranslatedValue)))
         {
             var item = _sourceItems.FirstOrDefault(i => i.Namespace == pr.Namespace && i.Language == pr.Language);
-            if (item == null || (!OverwriteExisting && !string.IsNullOrEmpty(item.Value))) continue;
+            if (item == null || !item.Permissions.EditValues || (!OverwriteExisting && !string.IsNullOrEmpty(item.Value))) continue;
 
             item.Value = pr.TranslatedValue!;
             item.ChangeType = ChangeType.Suggestion;
             item.LastModifiedUtc = DateTime.UtcNow;
             item.IsApproved = false;
+            item.ApprovedAtUtc = null;
             AppliedItems.Add(item);
         }
         AppliedCount = AppliedItems.Count;

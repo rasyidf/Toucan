@@ -319,7 +319,7 @@ _meta = {}
 
 def meta_of(path):
     if path not in _meta:
-        meta, _ = front_matter((ROOT / path).read_text())
+        meta, _ = front_matter((ROOT / path).read_text(encoding='utf-8'))
         meta.setdefault('title', Path(path).stem)
         _meta[path] = meta
     return _meta[path]
@@ -327,7 +327,7 @@ def meta_of(path):
 
 def build_page(path):
     page = PAGES[path]
-    meta, text = front_matter((ROOT / path).read_text())
+    meta, text = front_matter((ROOT / path).read_text(encoding='utf-8'))
     doc = Doc(path)
     lines = text.splitlines()
     title = meta.get('title', Path(path).stem)
@@ -364,7 +364,7 @@ def build_page(path):
   </div>
 </main>
 ''' + FOOT + (MERMAID if 'class="mermaid"' in body else '') + '</body>\n</html>\n'
-    (ROOT / 'docs' / page).write_text(html)
+    (ROOT / 'docs' / page).write_text(html, encoding='utf-8')
 
 
 def build_index():
@@ -389,7 +389,7 @@ def build_index():
   {extras}
 </main>
 ''' + FOOT + '</body>\n</html>\n'
-    (ROOT / 'docs' / 'docs.html').write_text(html)
+    (ROOT / 'docs' / 'docs.html').write_text(html, encoding='utf-8')
 
 
 def main():

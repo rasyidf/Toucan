@@ -9,7 +9,7 @@
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <DockPanel>
-        <StackPanel Orientation="Horizontal" Spacing="8">
+        <StackPanel Orientation="Horizontal">
           <Button Content="{loc:Loc 'Reset to default'}" Command="{Binding ResetToDefaultCommand}" IsEnabled="{Binding !IsDefault}"/>
           <Button Content="{loc:Loc 'Remove saved version'}" Command="{Binding RemoveOverrideCommand}" IsEnabled="{Binding HasOverride}"/>
         </StackPanel>
