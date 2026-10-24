@@ -6,6 +6,7 @@
 <title>Toucan · Toucan architecture</title>
 <meta name="description" content="Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.">
 <link rel="canonical" href="https://toucan.rasyid.dev/architecture.html">
+<meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -17,6 +18,25 @@
 <meta property="og:description" content="Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.">
 <meta property="og:url" content="https://toucan.rasyid.dev/architecture.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Toucan · Toucan architecture">
+<meta name="twitter:description" content="Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.">
+<meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Toucan \u00b7 Toucan architecture",
+  "description": "Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.",
+  "url": "https://toucan.rasyid.dev/architecture.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Toucan",
+    "url": "https://toucan.rasyid.dev",
+    "logo": "https://toucan.rasyid.dev/assets/icons/icon-512.png"
+  }
+}
+</script>
 <script>
 (function () {
   try {
@@ -61,18 +81,18 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="ai-integration.html">AI Integration</a>
+<a href="user-guide.html">Toucan User Guide</a>
+<a href="translator-guide.html">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
+<a href="ai-integration.html">AI Integration</a>
 <a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
 <a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
 <a href="architecture.html" aria-current="page">Toucan architecture</a>
 <a href="core-architecture.html">Toucan.Core interop architecture</a>
 <a href="roadmap.html">Toucan roadmap: v0.21 to v1.0</a>
-<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
 <a href="completed-features.html">Shipped Features</a>
-<a href="branding.html">Toucan: Brand Guidelines</a>
-<a href="visual-review.html">Visual review: screenshots of every screen</a>
+<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
       </nav>
       <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#project-boundaries">Project boundaries</a><a class="l2" href="#composition-and-startup">Composition and startup</a><a class="l2" href="#dialog-and-message-integration">Dialog and message integration</a><a class="l2" href="#translation-model-and-format-integration">Translation model and format integration</a><a class="l2" href="#project-lifecycle-and-persistence">Project lifecycle and persistence</a><a class="l2" href="#desktop-shell-and-editor-state">Desktop shell and editor state</a><a class="l2" href="#providers-ai-and-source-integration">Providers, AI, and source integration</a><a class="l2" href="#plugin-loading-and-trust">Plugin loading and trust</a><a class="l2" href="#configuration-ownership">Configuration ownership</a><a class="l2" href="#change-integration-and-verification">Change integration and verification</a></nav>
     </aside>
@@ -81,7 +101,7 @@
         <div class="kicker">Documentation</div>
         <h1>Toucan architecture</h1>
         <p class="lead">Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-07</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/ARCHITECTURE.md">Edit on GitHub ↗</a></div>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/ARCHITECTURE.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <p>Toucan is a .NET 10 translation resource editor with an Avalonia desktop host and a console host. Both compose the same format engine, provider registry, validation pipeline, and plugin system. The desktop adds project lifecycle orchestration, editor state, platform dialogs, and visual composition.</p>
@@ -90,6 +110,7 @@
 <p>Arrows below mean project references. Runtime registration does not create a Core-to-module dependency.</p>
 <pre class="mermaid">flowchart TD
     Desktop["Toucan.Avalonia"] --&gt; Core["Toucan.Core"]
+    Desktop --&gt; DesktopContracts["Toucan.Plugins.Avalonia"]
     CLI["Toucan.CLI"] --&gt; Core
     Desktop --&gt; Defaults["Toucan.Modules.Defaults"]
     CLI --&gt; Defaults
@@ -97,19 +118,24 @@
     Defaults --&gt; Providers["Modules.Providers"]
     Defaults --&gt; Validation["Modules.Validation"]
     Defaults --&gt; Frameworks["Modules.Frameworks"]
+    Defaults --&gt; Compatibility["Modules.Compatibility.BabelEdit"]
     Core --&gt; Common["Toucan.Core.Common"]
     Core --&gt; Contracts["Toucan.Plugins.Abstractions"]
+    DesktopContracts --&gt; Contracts
     Formats --&gt; Common
     Providers --&gt; Common
     Validation --&gt; Common
     Frameworks --&gt; Common
+    Compatibility --&gt; Common
     Formats --&gt; Contracts
     Providers --&gt; Contracts
     Validation --&gt; Contracts
     Frameworks --&gt; Contracts
+    Compatibility --&gt; Contracts
     Common --&gt; Contracts
-    Plugin["External plugin"] --&gt; Contracts</pre>
-<div class="table-wrap"><table><thead><tr><th>Project</th><th>Responsibility</th><th>Boundary</th></tr></thead><tbody><tr><td><code>Toucan.Plugins.Abstractions</code></td><td>Plugin entry point, format/provider/rule/profile contracts, shared DTOs</td><td>No Core or UI dependency. Some public types retain <code>Toucan.Core.*</code> namespaces for compatibility.</td></tr><tr><td><code>Toucan.Core.Common</code></td><td>Shared file/helpers code and built-in module registration support</td><td>References Abstractions; never Core or a module.</td></tr><tr><td><code>Toucan.Core</code></td><td>Project IO and lifecycle implementations, registries, validation pipeline, AI policy, plugin host, editing services</td><td>No Avalonia dependency and no reference to built-in modules.</td></tr><tr><td><code>Toucan.Modules.*</code></td><td>Concrete formats, providers, validation rules, framework profiles</td><td>Leaf modules reference Common and Abstractions, not Core or sibling modules.</td></tr><tr><td><code>Toucan.Modules.Defaults</code></td><td>Registers the seven built-in modules</td><td>The aggregation point that references every module.</td></tr><tr><td><code>Toucan.Avalonia</code></td><td>Desktop startup, views, view models, platform services, application state</td><td>Composes Core and Defaults; uses Avalonia and FluentAvalonia.</td></tr><tr><td><code>Toucan.CLI</code></td><td>Console commands for checking, translation, export, key access, and plugin policy</td><td>Composes Core and Defaults without constructing the desktop lifecycle.</td></tr></tbody></table></div>
+    Plugin["External plugin"] --&gt; Contracts
+    DesktopPlugin["Desktop plugin"] --&gt; DesktopContracts</pre>
+<div class="table-wrap"><table><thead><tr><th>Project</th><th>Responsibility</th><th>Boundary</th></tr></thead><tbody><tr><td><code>Toucan.Plugins.Abstractions</code></td><td>Plugin entry point, format/provider/rule/profile contracts, shared DTOs</td><td>No Core or UI dependency. Some public types retain <code>Toucan.Core.*</code> namespaces for compatibility.</td></tr><tr><td><code>Toucan.Plugins.Avalonia</code></td><td>Desktop contribution contracts (panels, inspector sections, settings, dialogs, actions)</td><td>References Abstractions; Avalonia UI contracts for desktop plugins without CLI dependencies.</td></tr><tr><td><code>Toucan.Plugins.Testing</code></td><td>In-memory test harness for plugin authors</td><td>References only Abstractions; tests plugins without host or UI assemblies.</td></tr><tr><td><code>Toucan.Core.Common</code></td><td>Shared file/helpers code and built-in module registration support</td><td>References Abstractions; never Core or a module.</td></tr><tr><td><code>Toucan.Core</code></td><td>Project IO and lifecycle implementations, registries, validation pipeline, AI policy, plugin host, editing services</td><td>No Avalonia dependency and no reference to built-in modules.</td></tr><tr><td><code>Toucan.Modules.*</code></td><td>Concrete formats, providers, validation rules, framework profiles, BabelEdit compatibility</td><td>Leaf modules reference Common and Abstractions, not Core or sibling modules.</td></tr><tr><td><code>Toucan.Modules.Defaults</code></td><td>Registers the built-in modules</td><td>The aggregation point that references every module.</td></tr><tr><td><code>Toucan.Avalonia</code></td><td>Desktop startup, views, view models, platform services, application state</td><td>Composes Core and Defaults; uses Avalonia and FluentAvalonia.</td></tr><tr><td><code>Toucan.CLI</code></td><td>Console commands for checking, translation, export, key access, and plugin policy</td><td>Composes Core and Defaults without constructing the desktop lifecycle.</td></tr></tbody></table></div>
 <p>These boundaries are executable rules in <a href="https://github.com/rasyidf/Toucan/blob/main/tests/Toucan.Core.Tests/Modules/ArchitectureTests.cs">ArchitectureTests</a>. Assembly placement matters more than namespaces: built-in strategies still use <code>Toucan.Core.Services.*</code> namespaces while their code lives in module projects.</p>
 <h2 id="composition-and-startup"><a class="anchor" href="#composition-and-startup" aria-label="Link to this section">#</a>Composition and startup</h2>
 <p>The composition sequence is shared, but the desktop and CLI do not register identical service sets. <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/ToucanCoreServiceCollectionExtensions.cs">AddToucanCore</a> installs shared registries, factories, IO, validation, AI services, project services, and comments. It does <strong>not</strong> register the complete desktop editor or lifecycle graph.</p>
@@ -174,15 +200,17 @@
 <p>Editing flows through <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Avalonia/ViewModels/TranslationItemViewModel.cs">TranslationItemViewModel</a>: its commit records undo information, updates direct-edit metadata, and calls <code>NotifyValueChanged</code>. <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/TranslationManagementService.cs">TranslationManagementService</a> compares values/comments against baselines and debounces dirty-state notifications. UI actions that modify data must use the store and refresh projections consistently; writing a view model field alone is insufficient.</p>
 <pre class="mermaid">flowchart TD
     Save["SaveProjectAsync"] --&gt; Validate["Run validation pipeline"]
-    Validate --&gt; Errors{"Error severity results?"}
-    Errors --&gt;|Yes| Stop["Return ValidationErrors without writing"]
-    Errors --&gt;|No| Write["ProjectService.Save through format strategy"]
+    Validate --&gt; Findings["Findings recorded to Issues panel"]
+    Findings --&gt; Strict{"Strict policy / EnforceValidation?"}
+    Strict --&gt;|Yes and errors| Stop["Return ValidationErrors without writing"]
+    Strict --&gt;|No| Journal["Begin SaveTransaction journal"]
+    Journal --&gt; Write["ProjectService.Save: atomic temporary file swap"]
     Write --&gt; Text["Apply configured encoding and line endings"]
     Text --&gt; Meta["Persist comments, audit, and manifest packages"]
-    Meta --&gt; Baseline["MarkAllSaved and update snapshots"]
+    Meta --&gt; Baseline["MarkAllSaved, commit transaction, update snapshots"]
     Baseline --&gt; Timer["Reset auto-save timer and publish Saved"]</pre>
-<p>The save strategy owns translation serialization. Project text settings are applied afterward to language files reported by built-in strategies; Java properties retains Latin-1 encoding. The post-processing does not apply arbitrary encoding changes to plugin formats. Comment sidecars are used when <code>StoresCommentsInline</code> is false. Audit uses <code>.toucan-metadata.json</code>.</p>
-<p>Save spans multiple files and sidecars; it is not a transaction across the project. Do not describe successful individual file writes as an atomic project commit. The lifecycle marks baselines saved only after its persistence steps complete.</p>
+<p>The save strategy owns translation serialization; exact-resource strategies preserve original document formatting, comments, and structure. Project text settings are applied afterward to language files reported by built-in strategies; Java properties retains Latin-1 encoding. The post-processing does not apply arbitrary encoding changes to plugin formats. Comment sidecars are used when <code>StoresCommentsInline</code> is false. Audit uses <code>.toucan-metadata.json</code>.</p>
+<p>Files are replaced atomically using a temporary file swap. Multi-file saves are coordinated by a journaled <code>SaveTransaction</code>: if an individual write fails, previously written files are rolled back and unsaved edits remain in memory. Unsaved changes are also periodically backed up as recovery drafts to protect against unexpected termination.</p>
 <p>External changes are coordinated by <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/ProjectLifecycleService.ExternalChanges.cs">ProjectLifecycleService.ExternalChanges</a>. A clean project reloads automatically. A dirty project offers Reload, Merge, or Ignore through the host handler. Merge uses the saved snapshot, in-memory records, and disk records; it applies non-conflicting entries before asking for conflict resolution. Cancelling that dialog therefore does not undo already-applied entries.</p>
 <h2 id="desktop-shell-and-editor-state"><a class="anchor" href="#desktop-shell-and-editor-state" aria-label="Link to this section">#</a>Desktop shell and editor state</h2>
 <p><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Avalonia/Views/MainWindow.axaml">MainWindow</a> owns the title/navigation bar, two activity rails, a shared rounded workspace, and the status bar. Its <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Avalonia/Views/MainWindow.axaml.cs">code-behind</a> handles platform chrome, panel view creation/cache, splitter widths, adaptive panel fitting, and rounded content clipping. Business operations remain in the view models and Core services.</p>

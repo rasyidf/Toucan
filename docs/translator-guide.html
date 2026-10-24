@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toucan · Toucan for Professional Translators</title>
+<meta name="description" content="Dedicated guide for professional translators and localization specialists: CAT-style workflows, translation memory, metrics, quality checks, and client exchange.">
+<link rel="canonical" href="https://toucan.rasyid.dev/translator-guide.html">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Toucan · Toucan for Professional Translators">
+<meta property="og:description" content="Dedicated guide for professional translators and localization specialists: CAT-style workflows, translation memory, metrics, quality checks, and client exchange.">
+<meta property="og:url" content="https://toucan.rasyid.dev/translator-guide.html">
+<meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Toucan · Toucan for Professional Translators">
+<meta name="twitter:description" content="Dedicated guide for professional translators and localization specialists: CAT-style workflows, translation memory, metrics, quality checks, and client exchange.">
+<meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Toucan \u00b7 Toucan for Professional Translators",
+  "description": "Dedicated guide for professional translators and localization specialists: CAT-style workflows, translation memory, metrics, quality checks, and client exchange.",
+  "url": "https://toucan.rasyid.dev/translator-guide.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Toucan",
+    "url": "https://toucan.rasyid.dev",
+    "logo": "https://toucan.rasyid.dev/assets/icons/icon-512.png"
+  }
+}
+</script>
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('toucan-theme');
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+  } catch (e) {}
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/doc.css">
+<script src="assets/site.js" defer></script>
+</head>
+<body>
+<a class="sr-only skip" href="#main">Skip to content</a>
+<header class="site-header" id="site-header">
+  <div class="spectrum" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="Toucan home">
+      <img src="assets/logo.png" alt="" width="30" height="30">
+      Toucan
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html">Overview</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle color theme"><svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <a class="icon-btn" href="https://github.com/rasyidf/Toucan" aria-label="Toucan on GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2.02c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg></a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/rasyidf/Toucan/releases">Download</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap doc-main">
+  <div class="doc-layout">
+    <aside class="doc-side" aria-label="Documentation">
+      <div class="side-title"><a href="docs.html">All docs</a></div>
+      <nav class="guides" aria-label="Guides">
+<a href="user-guide.html">Toucan User Guide</a>
+<a href="translator-guide.html" aria-current="page">Toucan for Professional Translators</a>
+<a href="formats.html">Format support matrix</a>
+<a href="ai-integration.html">AI Integration</a>
+<a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
+<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="plugins.html">Writing Toucan plugins</a>
+<a href="architecture.html">Toucan architecture</a>
+<a href="core-architecture.html">Toucan.Core interop architecture</a>
+<a href="roadmap.html">Toucan roadmap: v0.21 to v1.0</a>
+<a href="completed-features.html">Shipped Features</a>
+<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
+      </nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#1-source-first-workspace--productivity-metrics">1. Source-First Workspace &amp; Productivity Metrics</a><a class="l2" href="#2-translation-memory-tm--segment-reuse">2. Translation Memory (TM) &amp; Segment Reuse</a><a class="l2" href="#3-keyboard-driven-review--approval">3. Keyboard-Driven Review &amp; Approval</a><a class="l2" href="#4-linguistic-qa--syntax-protection">4. Linguistic QA &amp; Syntax Protection</a><a class="l2" href="#5-client--team-review-via-excel-spreadsheets">5. Client &amp; Team Review via Excel Spreadsheets</a><a class="l2" href="#6-complete-data-privacy--security">6. Complete Data Privacy &amp; Security</a><a class="l2" href="#7-universal-format-support">7. Universal Format Support</a></nav>
+    </aside>
+    <article class="doc">
+      <header class="doc-head">
+        <div class="kicker">Documentation</div>
+        <h1>Toucan for Professional Translators</h1>
+        <p class="lead">Dedicated guide for professional translators and localization specialists: CAT-style workflows, translation memory, metrics, quality checks, and client exchange.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/translator-guide.md">Edit on GitHub ↗</a></div>
+      </header>
+      <div class="prose">
+<p>Software localization often forces linguists to juggle unfamiliar developer formats (JSON, YAML, PO, RESX, ARB, XLIFF), where accidental syntax errors or broken placeholders can cause application crashes.</p>
+<p><strong>Toucan</strong> bridges the gap between software engineering and professional Computer-Assisted Translation (CAT). It provides a familiar, distraction-free environment with Translation Memory, quality assurance, live metrics, and keyboard-driven efficiency—while handling file formatting, encodings, and persistence under the hood.</p>
+<hr>
+<h2 id="1-source-first-workspace--productivity-metrics"><a class="anchor" href="#1-source-first-workspace--productivity-metrics" aria-label="Link to this section">#</a>1. Source-First Workspace &amp; Productivity Metrics</h2>
+<h3 id="two-column-segment-layout"><a class="anchor" href="#two-column-segment-layout" aria-label="Link to this section">#</a>Two-Column Segment Layout</h3>
+<p>In wide windows, Toucan formats translation cards with a dedicated <strong>source-first two-column layout</strong>:</p>
+<ul>
+<li><strong>Left Column:</strong> Source language text, locked against accidental overwrites.</li>
+<li><strong>Right Column:</strong> Active target language input field.</li>
+<li><strong>Above:</strong> Clean key path, developer comments, and context notes.</li>
+</ul>
+<p>In compact or split-screen windows, cards smoothly stack vertically while maintaining clear visual distinction between source and target text.</p>
+<h3 id="live-character-and-word-counts"><a class="anchor" href="#live-character-and-word-counts" aria-label="Link to this section">#</a>Live Character and Word Counts</h3>
+<p>Accurate metrics are critical for software UI constraints (e.g. character limits on buttons, banners, or mobile screens) as well as translation billing:</p>
+<ul>
+<li>When a target field is focused, Toucan displays live <strong>Unicode scalar character counts</strong> and <strong>whitespace-delimited word counts</strong> directly in the card header.</li>
+<li>Counters update in real time as you type, helping you avoid UI text truncation before the code is built.</li>
+</ul>
+<hr>
+<h2 id="2-translation-memory-tm--segment-reuse"><a class="anchor" href="#2-translation-memory-tm--segment-reuse" aria-label="Link to this section">#</a>2. Translation Memory (TM) &amp; Segment Reuse</h2>
+<p>Toucan incorporates a local, high-performance Translation Memory powered by a trigram fuzzy-matching engine.</p>
+<h3 id="inline-ghost-suggestions"><a class="anchor" href="#inline-ghost-suggestions" aria-label="Link to this section">#</a>Inline Ghost Suggestions</h3>
+<p>When you navigate to an empty target segment:</p>
+<ol>
+<li>Toucan searches your Translation Memory in the background.</li>
+<li>If a match meets your configured threshold (e.g., 75% similarity), the suggested translation appears directly inside the input box as <strong>faint ghost text</strong>.</li>
+<li>Press &lt;kbd&gt;Tab&lt;/kbd&gt; to accept the suggestion instantly.</li>
+<li>Continue typing to dismiss or adapt the suggestion.</li>
+</ol>
+<h3 id="suggestion-provenance"><a class="anchor" href="#suggestion-provenance" aria-label="Link to this section">#</a>Suggestion Provenance</h3>
+<p>Suggestions in the Inspector panel clearly identify their origin:</p>
+<ul>
+<li><strong>100% Exact Match:</strong> Identical source text from a previous verified project.</li>
+<li><strong>Fuzzy Match (%):</strong> Close match with similarity percentage and highlighted diff.</li>
+<li><strong>MT / AI:</strong> Clearly labeled when sourced from an optional machine translation provider.</li>
+</ul>
+<h3 id="tmx-import--export"><a class="anchor" href="#tmx-import--export" aria-label="Link to this section">#</a>TMX Import &amp; Export</h3>
+<p>You are never locked into Toucan. You can import existing industry-standard <strong>Translation Memory eXchange (<code>.tmx</code>)</strong> files or export your project's memory to share with other CAT tools (SDL Trados, memoQ, Phrase, Lokalise, etc.). Go to <strong>Tools → Translation Memory</strong> to manage stored units, set matching thresholds, or clear segments.</p>
+<hr>
+<h2 id="3-keyboard-driven-review--approval"><a class="anchor" href="#3-keyboard-driven-review--approval" aria-label="Link to this section">#</a>3. Keyboard-Driven Review &amp; Approval</h2>
+<p>Linguists translate fastest when their hands never leave the home row. Toucan’s review workflow is built around continuous typing:</p>
+<h3 id="rapid-review-cycle"><a class="anchor" href="#rapid-review-cycle" aria-label="Link to this section">#</a>Rapid Review Cycle</h3>
+<ul>
+<li>Press &lt;kbd&gt;Ctrl/Cmd+Enter&lt;/kbd&gt; (<strong>Approve and Next</strong>): Marks the current segment as <strong>Approved</strong>, saves the translation, and immediately advances focus to the next target field.</li>
+<li><strong>Retained Target Focus:</strong> Focus does not jump to checkboxes, toolbars, or scrollbars; your cursor stays inside the text box across card boundaries and pagination pages, allowing you to review dozens of strings per minute without touching the mouse.</li>
+<li>Press &lt;kbd&gt;Ctrl/Cmd+Shift+Enter&lt;/kbd&gt; (<strong>Next Pending</strong>): Skips already-approved segments and jumps directly to the next segment needing your attention.</li>
+</ul>
+<h3 id="review-mode"><a class="anchor" href="#review-mode" aria-label="Link to this section">#</a>Review Mode</h3>
+<p>Click <strong>Review</strong> in the top navigation to filter your entire workspace down to unapproved, draft, or flagged items. This strips away completed work and allows you to focus exclusively on quality verification.</p>
+<h3 id="grouped-bulk-undo"><a class="anchor" href="#grouped-bulk-undo" aria-label="Link to this section">#</a>Grouped Bulk Undo</h3>
+<p>If you perform a bulk operation (such as accepting pre-translation for a namespace, running Replace All on a terminology change, or approving a batch of strings), Toucan records the entire operation as a <strong>single grouped undo step</strong>. Pressing &lt;kbd&gt;Ctrl/Cmd+Z&lt;/kbd&gt; restores all previous values, comments, and review timestamps in one action.</p>
+<hr>
+<h2 id="4-linguistic-qa--syntax-protection"><a class="anchor" href="#4-linguistic-qa--syntax-protection" aria-label="Link to this section">#</a>4. Linguistic QA &amp; Syntax Protection</h2>
+<p>Software strings contain code variables, markup, and plurals. Breaking these causes runtime bugs. Toucan protects strings automatically:</p>
+<h3 id="placeholder--variable-shields"><a class="anchor" href="#placeholder--variable-shields" aria-label="Link to this section">#</a>Placeholder &amp; Variable Shields</h3>
+<p>Toucan detects and safeguards common software interpolation patterns:</p>
+<ul>
+<li>Named variables: <code>{{username}}</code>, <code>{count}</code>, <code>:user_id</code>, <code>${name}</code></li>
+<li>Printf formats: <code>%s</code>, <code>%d</code>, <code>%1$s</code>, <code>%.2f</code></li>
+<li>XML / HTML tags: <code>&lt;a href="..."&gt;</code>, <code>&lt;b&gt;</code>, <code>&lt;br/&gt;</code></li>
+</ul>
+<p>The <strong>Issues</strong> panel flags any segment where target placeholders do not match the source string.</p>
+<h3 id="icu-plurals--complex-messages"><a class="anchor" href="#icu-plurals--complex-messages" aria-label="Link to this section">#</a>ICU Plurals &amp; Complex Messages</h3>
+<p>For formats supporting complex plural forms (i18next, Flutter ARB, ICU MessageFormat):</p>
+<ul>
+<li>Standard plural suffixes (<code>_one</code>, <code>_other</code>, <code>_few</code>, <code>_many</code>, <code>_zero</code>) are grouped together logically in the tree.</li>
+<li>Complex ICU expressions (<code>{count, plural, one {# day} other {# days}}</code>) can be edited as whole strings with syntax validation, preventing syntax corruption.</li>
+</ul>
+<h3 id="integrated-spell-checking"><a class="anchor" href="#integrated-spell-checking" aria-label="Link to this section">#</a>Integrated Spell Checking</h3>
+<ul>
+<li>Built-in spell checking runs completely offline using the trusted <strong>Hunspell</strong> engine.</li>
+<li>Misspelled words are indicated with squiggly red underlines.</li>
+<li>Right-click or press the context menu key to choose suggestions, ignore the term, or add it to your project-specific or personal dictionary.</li>
+<li>Placeholders, code markup, and technical tokens are automatically excluded from spell checking.</li>
+</ul>
+<hr>
+<h2 id="5-client--team-review-via-excel-spreadsheets"><a class="anchor" href="#5-client--team-review-via-excel-spreadsheets" aria-label="Link to this section">#</a>5. Client &amp; Team Review via Excel Spreadsheets</h2>
+<p>Not every client or subject matter expert has Toucan installed. Toucan makes offline review seamless through round-trip spreadsheet interchange:</p>
+<h3 id="exporting-for-external-review"><a class="anchor" href="#exporting-for-external-review" aria-label="Link to this section">#</a>Exporting for External Review</h3>
+<ol>
+<li>Choose <strong>File → Export → Excel (.xlsx)…</strong></li>
+<li>Select your dialect:
+<ul>
+<li><strong>Toucan Dialect:</strong> Clean layout with Key, Source, Target languages, Comments, and Per-Language Approval columns.</li>
+<li><strong>BabelEdit Dialect:</strong> Compatible column layout for teams migrating from or collaborating with BabelEdit users.</li>
+</ul></li>
+<li>Send the <code>.xlsx</code> file to clients or proofreaders. They can edit translations, update comments, or check approval checkboxes in Microsoft Excel, Apple Numbers, or Google Sheets.</li>
+</ol>
+<h3 id="importing--reconciling-spreadsheets"><a class="anchor" href="#importing--reconciling-spreadsheets" aria-label="Link to this section">#</a>Importing &amp; Reconciling Spreadsheets</h3>
+<ol>
+<li>Choose <strong>File → Import → Excel (.xlsx)…</strong></li>
+<li>Toucan inspects the workbook and displays an <strong>interactive diff preview</strong>:
+<ul>
+<li>Lists new strings, modified translations, comment changes, and approval toggles.</li>
+<li>Diagnoses any header mismatches or unrecognized columns before changing your project.</li>
+</ul></li>
+<li>Review the preview and click <strong>Apply Changes</strong>. All spreadsheet edits merge into your native project with one-step undo support.</li>
+</ol>
+<hr>
+<h2 id="6-complete-data-privacy--security"><a class="anchor" href="#6-complete-data-privacy--security" aria-label="Link to this section">#</a>6. Complete Data Privacy &amp; Security</h2>
+<p>Confidentiality is a legal requirement for professional translators working under NDAs:</p>
+<ul>
+<li><strong>Offline-First:</strong> Toucan does not require an internet connection or cloud account to edit, validate, search, or save translation files.</li>
+<li><strong>Zero Telemetry on Strings:</strong> Your translation content is never uploaded, tracked, or used for model training.</li>
+<li><strong>Opt-In Machine Translation &amp; AI:</strong> All machine translation (Google, DeepL, Microsoft, Claude, OpenAI, Gemini) is <strong>strictly off by default</strong>. It only runs when you explicitly configure an API key and trigger a translation request.</li>
+<li><strong>Local Private LLM Support:</strong> For sensitive projects under strict NDAs, you can connect Toucan to a local, air-gapped AI server (such as Ollama or LM Studio) running models entirely on your own computer.</li>
+<li><strong>Operating-System Key Encryption:</strong> All provider and AI API keys are stored in your operating system's native encrypted credential store (Windows DPAPI, macOS/Linux AES-GCM with protected user key), never in plaintext or in your project folder.</li>
+</ul>
+<hr>
+<h2 id="7-universal-format-support"><a class="anchor" href="#7-universal-format-support" aria-label="Link to this section">#</a>7. Universal Format Support</h2>
+<p>Toucan eliminates the need to maintain different editors for different programming languages:</p>
+<div class="table-wrap"><table><thead><tr><th>Ecosystem</th><th>Supported File Formats</th></tr></thead><tbody><tr><td><strong>Web &amp; JavaScript</strong></td><td>JSON (flat &amp; namespaced/i18next), FormatJS catalogs, YAML</td></tr><tr><td><strong>Mobile (iOS &amp; Android)</strong></td><td>iOS <code>.strings</code> (UTF-16 &amp; UTF-8), Android <code>strings.xml</code></td></tr><tr><td><strong>Flutter / Dart</strong></td><td>Flutter ARB (<code>intl_*.arb</code>, <code>app_*.arb</code>, <code>@key</code> metadata)</td></tr><tr><td><strong>.NET / Windows</strong></td><td>RESX (<code>Resources.*.resx</code>)</td></tr><tr><td><strong>GNU / Linux / PHP</strong></td><td>GNU Gettext PO (<code>.po</code>), Laravel PHP arrays (<code>lang/*.php</code>)</td></tr><tr><td><strong>Cross-Platform / Localization</strong></td><td>XLIFF 1.2 &amp; 2.0 (<code>.xlf</code>), CSV, TSV, Java <code>.properties</code></td></tr><tr><td><strong>Migration</strong></td><td>BabelEdit (<code>.babel</code>) project folders</td></tr></tbody></table></div>
+<p>Each format loader and saver preserves original file encodings (UTF-8 with or without BOM, ISO-8859-1 Latin-1) and line endings (LF, CRLF), ensuring that commits pass continuous integration and code review without unwanted formatting churn.</p>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="" width="24" height="24">Toucan</a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/rasyidf/Toucan">Source</a>
+      <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
+      <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
+      <a href="docs.html">Docs</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+    <span class="copy">© 2023–2026 <a href="https://rasyid.dev">rasyid.dev</a> · MIT License</span>
+  </div>
+</footer>
+</body>
+</html>

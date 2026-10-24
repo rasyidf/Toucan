@@ -6,6 +6,7 @@
 <title>Toucan · Writing Toucan plugins</title>
 <meta name="description" content="Plugin author guide: API 1.2 optional resource IO, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported.">
 <link rel="canonical" href="https://toucan.rasyid.dev/plugins.html">
+<meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -17,6 +18,25 @@
 <meta property="og:description" content="Plugin author guide: API 1.2 optional resource IO, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported.">
 <meta property="og:url" content="https://toucan.rasyid.dev/plugins.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Toucan · Writing Toucan plugins">
+<meta name="twitter:description" content="Plugin author guide: API 1.2 optional resource IO, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported.">
+<meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Toucan \u00b7 Writing Toucan plugins",
+  "description": "Plugin author guide: API 1.2 optional resource IO, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported.",
+  "url": "https://toucan.rasyid.dev/plugins.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Toucan",
+    "url": "https://toucan.rasyid.dev",
+    "logo": "https://toucan.rasyid.dev/assets/icons/icon-512.png"
+  }
+}
+</script>
 <script>
 (function () {
   try {
@@ -61,31 +81,31 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="ai-integration.html">AI Integration</a>
+<a href="user-guide.html">Toucan User Guide</a>
+<a href="translator-guide.html">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
+<a href="ai-integration.html">AI Integration</a>
 <a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
 <a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
 <a href="plugins.html" aria-current="page">Writing Toucan plugins</a>
 <a href="architecture.html">Toucan architecture</a>
 <a href="core-architecture.html">Toucan.Core interop architecture</a>
 <a href="roadmap.html">Toucan roadmap: v0.21 to v1.0</a>
-<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
 <a href="completed-features.html">Shipped Features</a>
-<a href="branding.html">Toucan: Brand Guidelines</a>
-<a href="visual-review.html">Visual review: screenshots of every screen</a>
+<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
       </nav>
-      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#quick-start">Quick start</a><a class="l2" href="#the-manifest-pluginjson">The manifest (plugin.json)</a><a class="l2" href="#what-you-can-add">What you can add</a><a class="l2" href="#how-plugins-are-loaded">How plugins are loaded</a><a class="l2" href="#trust-and-signing">Trust and signing</a><a class="l2" href="#versioning">Versioning</a><a class="l2" href="#testing-your-plugin">Testing your plugin</a><a class="l2" href="#troubleshooting">Troubleshooting</a><a class="l2" href="#limits">Limits</a><a class="l2" href="#for-maintainers">For maintainers</a><a class="l2" href="#optional-framework-and-resource-companions">Optional framework and resource companions</a></nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#quick-start">Quick start</a><a class="l2" href="#the-manifest-pluginjson">The manifest (plugin.json)</a><a class="l2" href="#what-you-can-add">What you can add</a><a class="l2" href="#how-plugins-are-loaded">How plugins are loaded</a><a class="l2" href="#trust-and-signing">Trust and signing</a><a class="l2" href="#versioning">Versioning</a><a class="l2" href="#testing-your-plugin">Testing your plugin</a><a class="l2" href="#troubleshooting">Troubleshooting</a><a class="l2" href="#limits">Limits</a><a class="l2" href="#built-in-modules-as-reference">Built-in modules as reference</a><a class="l2" href="#advanced-framework-and-resource-contracts">Advanced framework and resource contracts</a></nav>
     </aside>
     <article class="doc">
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Writing Toucan plugins</h1>
         <p class="lead">Plugin author guide: API 1.2 optional resource IO, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-23</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/plugins.md">Edit on GitHub ↗</a></div>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/plugins.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <p>A plugin is a .NET assembly in its own folder that adds things to Toucan: <strong>file formats</strong>, <strong>machine-translation providers</strong>, <strong>validation rules</strong> and <strong>framework profiles</strong>. The working example is <a href="https://github.com/rasyidf/Toucan/blob/main/samples/Toucan.Sample.Plugin"><code>samples/Toucan.Sample.Plugin</code></a> (a tab-separated-values format plus a rule); its build output is exercised by the test suite, so what it does is what this guide describes.</p>
-<blockquote><p>Status: preview, since v0.18.0. Plugins run in the Avalonia app (macOS, Linux) and the <code>toucan</code> CLI; the Windows WPF app does not load plugins.</p></blockquote>
+<blockquote><p>Status: preview, since v0.18.0. Plugins run in the Avalonia app across all platforms (Windows, macOS, Linux) and the <code>toucan</code> CLI.</p></blockquote>
 <ul>
 <li><a href="#quick-start">Quick start</a></li>
 <li><a href="#the-manifest-pluginjson">The manifest</a></li>
@@ -96,7 +116,8 @@
 <li><a href="#testing-your-plugin">Testing your plugin</a></li>
 <li><a href="#troubleshooting">Troubleshooting</a></li>
 <li><a href="#limits">Limits</a></li>
-<li><a href="#for-maintainers">For maintainers</a></li>
+<li><a href="#built-in-modules-as-reference">Built-in modules as reference</a></li>
+<li><a href="#advanced-framework-and-resource-contracts">Advanced framework and resource contracts</a></li>
 </ul>
 <h2 id="quick-start"><a class="anchor" href="#quick-start" aria-label="Link to this section">#</a>Quick start</h2>
 <ol>
@@ -268,18 +289,20 @@ await host.RunAsync("acme.sync.pull");</code></pre>
 <li>No dependency injection into plugin classes and no access to Toucan's internal services (use <code>System.IO</code>, your own HTTP client, and so on). Logging goes through <code>context.Logger</code>.</li>
 <li>UI contributions go in a second, desktop-only assembly (see <em>Desktop parts</em>). A plugin cannot yet open a <em>connection</em> scope itself (the host drives workspace scopes); a connector uses a workspace activator and keeps its own sessions.</li>
 <li>Per-project rule plugins (<code>.toucan/rules</code>) and a plugin feed are not implemented.</li>
-<li>The WPF app has no plugin support; plugins work in the Avalonia app and the CLI.</li>
+<li>Plugins run in the Avalonia app (desktop) and the CLI; headless/command-line execution does not load desktop UI assemblies.</li>
 </ul>
-<h2 id="for-maintainers"><a class="anchor" href="#for-maintainers" aria-label="Link to this section">#</a>For maintainers</h2>
+<h2 id="built-in-modules-as-reference"><a class="anchor" href="#built-in-modules-as-reference" aria-label="Link to this section">#</a>Built-in modules as reference</h2>
+<p>Formats, providers, rules and profiles that ship with Toucan are <strong>built-in modules</strong> (Toucan.Modules.<em>): compiled in, always on, listed read-only by 	oucan plugins list, and their 	oucan.</em> IDs are reserved. They register through the exact same kinds of calls a plugin makes, so a plugin author can read them as reference implementations. See <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Modules.Formats.Json">Toucan.Modules.Formats.Json</a> and <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Modules.Formats.Text">Toucan.Modules.Formats.Text</a>.</p>
+<h2 id="advanced-framework-and-resource-contracts"><a class="anchor" href="#advanced-framework-and-resource-contracts" aria-label="Link to this section">#</a>Advanced framework and resource contracts</h2>
+<p>Plugin API 1.2 adds companion interfaces for advanced framework integration and document-aware resource IO:</p>
 <ul>
-<li>Build and test everything that is cross-platform with <code>dotnet test Toucan.CrossPlatform.slnx</code> (it leaves out the two Windows-only WPF projects, so it runs on macOS and Linux CI as well as Windows).</li>
-<li>The packages: <code>dotnet pack Toucan.Plugins.Abstractions</code>, <code>Toucan.Plugins.Avalonia</code> and <code>Toucan.Plugins.Testing</code> with <code>-c Release -o &lt;dir&gt;</code> (the <code>toucan-plugins</code> repository reads them from its <code>feed</code> folder until they are published). The contract package: Bump <code>&lt;Version&gt;</code> only with <code>PluginApi.Current</code>, and never remove or change a public member within a major version.</li>
-<li><code>Toucan.Plugins.Abstractions</code> must not reference <code>Toucan.Core</code> or UI packages; a test fails the build if it does.</li>
-<li>Formats, providers, rules and profiles that ship with Toucan are <strong>built-in modules</strong> (<code>Toucan.Modules.*</code>), not plugins: compiled in, always on, listed read-only by <code>toucan plugins list</code>, and their <code>toucan.*</code> IDs are reserved. They register through the same kinds of calls a plugin makes, so a plugin author can read them as examples. See <a href="architecture.html">ARCHITECTURE.md</a> and <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/plugin-modularization/design.md">specs/plugin-modularization</a>.</li>
+<li>IFrameworkFeatures: supplies scanner association, configuration schemas, and exact resource descriptors without altering the core IFrameworkProfile interface.</li>
+<li>IResourceCapabilities: declares resource editing permissions and protections (e.g. marking generated source catalogs as read-only while keeping target translations editable).</li>
+<li>ISourceScanner: receives source file content and extracts key references with file, line, and column coordinates, with full cancellation support.</li>
+<li>IResourceOptionsProvider: declares typed serialization options (indentation, sorting, key delimiters) that a format writer consumes.</li>
+<li>IResourceDialectProvider: supplies dialect choices when creating or converting resources.</li>
+<li>IResourceMetadataAuthority: allows readers to declare authority over file-owned metadata and comments, ensuring accurate round-trip synchronization.</li>
 </ul>
-<h2 id="optional-framework-and-resource-companions"><a class="anchor" href="#optional-framework-and-resource-companions" aria-label="Link to this section">#</a>Optional framework and resource companions</h2>
-<p><code>IFrameworkFeatures</code> supplies a scanner ID, an existing <code>ConfigSchema</code> and exact descriptors without changing <code>IFrameworkProfile</code>. <code>IResourceCapabilities</code> supplies resource editing permissions; <code>ResourceDescriptor.Ownership</code> protects generated source documents. Hosts retain default behavior for older profiles/providers. <code>ISourceScanner</code> receives bounded text and returns package-aware references and diagnostics; registered scanners are selected by the framework companion, with the generic fallback retained. These additions remain in the unreleased 1.2 contract set and do not change existing profile methods. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/resource-compatibility/m5-m6.md">M5/M6 contracts, supported syntax and verification</a>.</p>
-<p><code>IResourceOptionsProvider</code> declares the <code>ResourceOptions</code> fields a writer actually consumes; undeclared schemas retain IO without an invented settings editor. <code>IResourceDialectProvider</code> supplies choices for new/converted resources. <code>IResourceMetadataAuthority</code> lets readers identify file-owned metadata (including removal) and inline comments so stale native caches cannot replace newer resource contents. These are additive unreleased companions; old strategy/profile contracts remain unchanged. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/resource-compatibility/m7-ui.md">resource UI and M7 verification</a>.</p>
       </div>
     </article>
   </div>

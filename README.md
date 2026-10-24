@@ -30,7 +30,7 @@ Toucan detects the framework when you drop a folder (i18next, Android, Flutter, 
 
 ## Supported formats
 
-JSON, YAML, PO, RESX, Android XML, iOS `.strings`, XLIFF, ARB, CSV, TOML, INI, Java `.properties`, Laravel PHP, and Excel. Projects from `.babel` files can be imported. Some formats lose detail on save (PO plurals, ARB `@key` metadata, XLIFF source text); see [docs/known-bugs.md](docs/known-bugs.md).
+JSON, YAML, PO, RESX, Android XML, iOS `.strings`, XLIFF, ARB, CSV, TOML, INI, Java `.properties`, Laravel PHP, and Excel. Projects from `.babel` files can be imported. Some formats have limits on what they retain (such as PO plurals or FormatJS generated catalogs); see [docs/formats.md](docs/formats.md) for the complete format support matrix.
 
 ## Features
 

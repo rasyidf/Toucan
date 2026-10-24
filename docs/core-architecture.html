@@ -6,6 +6,7 @@
 <title>Toucan · Toucan.Core interop architecture</title>
 <meta name="description" content="Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.">
 <link rel="canonical" href="https://toucan.rasyid.dev/core-architecture.html">
+<meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -17,6 +18,25 @@
 <meta property="og:description" content="Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.">
 <meta property="og:url" content="https://toucan.rasyid.dev/core-architecture.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Toucan · Toucan.Core interop architecture">
+<meta name="twitter:description" content="Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.">
+<meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Toucan \u00b7 Toucan.Core interop architecture",
+  "description": "Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.",
+  "url": "https://toucan.rasyid.dev/core-architecture.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Toucan",
+    "url": "https://toucan.rasyid.dev",
+    "logo": "https://toucan.rasyid.dev/assets/icons/icon-512.png"
+  }
+}
+</script>
 <script>
 (function () {
   try {
@@ -61,18 +81,18 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="ai-integration.html">AI Integration</a>
+<a href="user-guide.html">Toucan User Guide</a>
+<a href="translator-guide.html">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
+<a href="ai-integration.html">AI Integration</a>
 <a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
 <a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
 <a href="architecture.html">Toucan architecture</a>
 <a href="core-architecture.html" aria-current="page">Toucan.Core interop architecture</a>
 <a href="roadmap.html">Toucan roadmap: v0.21 to v1.0</a>
-<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
 <a href="completed-features.html">Shipped Features</a>
-<a href="branding.html">Toucan: Brand Guidelines</a>
-<a href="visual-review.html">Visual review: screenshots of every screen</a>
+<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
       </nav>
       <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#model-and-boundaries">Model and boundaries</a><a class="l2" href="#format-contract">Format contract</a><a class="l2" href="#project-loading">Project loading</a><a class="l2" href="#save-and-metadata-integration">Save and metadata integration</a><a class="l2" href="#adding-a-format">Adding a format</a></nav>
     </aside>
@@ -81,7 +101,7 @@
         <div class="kicker">Documentation</div>
         <h1>Toucan.Core interop architecture</h1>
         <p class="lead">Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-07</span><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/ARCHITECTURE.md">Edit on GitHub ↗</a></div>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/ARCHITECTURE.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <p>Toucan normalizes translation resources into a shared model and resolves format implementations through DI. Core coordinates project IO and shared services; concrete parsers and writers live in built-in modules or external plugins. See the <a href="architecture.html">application architecture</a> for host composition, desktop state, lifecycle, AI, and trust integration.</p>
@@ -123,7 +143,7 @@
 <p>The desktop lifecycle wraps loading with cancellation/progress, unsaved-change handling, baseline initialization, file watching, metadata/comments, and auto-save. Direct <code>ProjectService</code> callers do not automatically receive those steps.</p>
 <h2 id="save-and-metadata-integration"><a class="anchor" href="#save-and-metadata-integration" aria-label="Link to this section">#</a>Save and metadata integration</h2>
 <p><code>ProjectService.Save</code> builds a <code>SaveContext</code> containing language groups, language IDs, and namespace tree items, then calls the selected writer. Language aliases are reversed for output and restored for in-memory display. The project-aware overload updates manifest languages and applies configured encoding/line endings to known built-in language files; Java properties keeps Latin-1 encoding.</p>
-<p>The desktop <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/ProjectLifecycleService.cs">ProjectLifecycleService</a> validates before saving. Error-severity results block writes. It then persists resources, comments, audit metadata, and package settings before marking baselines saved and updating watcher/merge snapshots. This is a multi-file sequence, not an atomic project transaction.</p>
+<p>The desktop <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/ProjectLifecycleService.cs">ProjectLifecycleService</a> validates before saving. Findings are reported in the Issues panel and do not block draft saves; only strict policies (such as <code>requireValidForApproval</code>) or explicit enforcement stop a save. Saves write to temporary files and swap them atomically, backed by a journaled rollback transaction (<code>SaveTransaction</code>) that restores previous files if an error occurs. When exact-resource strategies are configured, document presentation and file-level metadata are preserved.</p>
 <p><a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/CommentPersistenceService.cs">CommentPersistenceService</a> delegates inline-comment support and sidecar placement to strategy metadata. <a href="https://github.com/rasyidf/Toucan/blob/main/Toucan.Core/Services/AuditService.cs">AuditService</a> persists <code>.toucan-metadata.json</code>. Neither arbitrary format conversion nor a direct writer call guarantees preservation of every source format's metadata.</p>
 <h2 id="adding-a-format"><a class="anchor" href="#adding-a-format" aria-label="Link to this section">#</a>Adding a format</h2>
 <ol>

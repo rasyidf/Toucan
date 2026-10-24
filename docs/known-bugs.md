@@ -78,7 +78,7 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 
 - **Severity:** Low · **Checked:** `App.RegisterSidePanels` registers Explorer, Search, Issues, Source Code, Languages, Inspector, Translation, Memory. No panel for Git or glossary.
 - **Correction:** the old text also listed "Translation" as missing. It exists (`machine-translation`, titled Translation).
-- **Plan:** Git integration is FG-06 (v0.23), the glossary is FG-15 (v0.21).
+- **Plan:** Git integration is planned after v1.0, and the glossary is planned for v0.25.
 
 ---
 

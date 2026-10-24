@@ -7,7 +7,9 @@ source files go to GitHub. Markdown subset: headings, paragraphs, nested lists a
 fenced code (Mermaid runs in the browser), tables, block quotes, rules, inline code, bold,
 italic and links. No third-party dependency.
 """
+from datetime import date
 from html import escape
+import json
 from pathlib import Path
 import re
 import sys
@@ -20,13 +22,12 @@ SITE = 'https://toucan.rasyid.dev'
 
 # docs.html sections: (heading, blurb, [repo paths]).
 GROUPS = [
-    ('Using Toucan', 'Settings and features you meet in the app.', [
-        'docs/ai-integration.md', 'docs/formats.md', 'docs/provider-settings.md', 'docs/pretranslation-preview.md']),
-    ('Extending Toucan', 'How it is built, and how to add formats, providers and rules.', [
-        'docs/plugins.md', 'docs/ARCHITECTURE.md', 'Toucan.Core/ARCHITECTURE.md']),
-    ('Project status', 'What works, what is broken and what comes next.', [
-        'docs/todos/future-roadmap.md', 'docs/known-bugs.md', 'docs/completed-features.md']),
-    ('Design', 'Brand rules and how the UI is reviewed.', ['docs/branding.md', 'docs/visual-review.md']),
+    ('Using Toucan', 'Guides for translators, editors, and localization managers.', [
+        'docs/user-guide.md', 'docs/translator-guide.md', 'docs/formats.md', 'docs/ai-integration.md', 'docs/provider-settings.md', 'docs/pretranslation-preview.md']),
+    ('Plugin Development & Extensibility', 'Extend Toucan with custom formats, translation providers, validation rules, and desktop UI contributions.', [
+        'docs/plugins.md', 'docs/ARCHITECTURE.md']),
+    ('Specifications & Reference', 'Architecture reference, release roadmaps, and technical tracking.', [
+        'Toucan.Core/ARCHITECTURE.md', 'docs/todos/future-roadmap.md', 'docs/completed-features.md', 'docs/known-bugs.md']),
 ]
 
 THEME_SVG = (
@@ -217,6 +218,21 @@ def front_matter(text):
 
 def head(title, description, page, extra_head=''):
     url = f'{SITE}/{page}'
+    schema_type = 'CollectionPage' if page == 'docs.html' else 'TechArticle'
+    schema = {
+        '@context': 'https://schema.org',
+        '@type': schema_type,
+        ('name' if schema_type == 'CollectionPage' else 'headline'): title,
+        'description': description,
+        'url': url,
+        'publisher': {
+            '@type': 'Organization',
+            'name': 'Toucan',
+            'url': SITE,
+            'logo': f'{SITE}/assets/icons/icon-512.png',
+        },
+    }
+    schema_json = json.dumps(schema, indent=2)
     return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -225,6 +241,7 @@ def head(title, description, page, extra_head=''):
 <title>{escape(title)}</title>
 <meta name="description" content="{attr(description)}">
 <link rel="canonical" href="{url}">
+<meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -236,6 +253,13 @@ def head(title, description, page, extra_head=''):
 <meta property="og:description" content="{attr(description)}">
 <meta property="og:url" content="{url}">
 <meta property="og:image" content="{SITE}/assets/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{attr(title)}">
+<meta name="twitter:description" content="{attr(description)}">
+<meta name="twitter:image" content="{SITE}/assets/icons/icon-512.png">
+<script type="application/ld+json">
+{schema_json}
+</script>
 <script>
 (function () {{
   try {{
@@ -392,10 +416,49 @@ def build_index():
     (ROOT / 'docs' / 'docs.html').write_text(html, encoding='utf-8')
 
 
+def build_sitemap():
+    today = date.today().isoformat()
+    changelog_date = today
+    changelog_path = ROOT / 'CHANGELOG.md'
+    if changelog_path.exists():
+        if m := re.search(r'^## \[([^\]]+)\] - (\d{4}-\d{2}-\d{2})', changelog_path.read_text(encoding='utf-8'), re.M):
+            changelog_date = m.group(2)
+
+    urls = [
+        (f'{SITE}/', today, 'weekly', '1.0'),
+        (f'{SITE}/docs.html', today, 'weekly', '0.9'),
+    ]
+
+    for path, page in PAGES.items():
+        meta = meta_of(path)
+        lastmod = meta.get('updated', today)
+        priority = '0.8' if page in ('user-guide.html', 'translator-guide.html', 'plugins.html') else '0.7'
+        urls.append((f'{SITE}/{page}', lastmod, 'weekly', priority))
+
+    urls.append((f'{SITE}/changelog.html', changelog_date, 'weekly', '0.7'))
+
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    for loc, lastmod, changefreq, priority in urls:
+        lines.append('  <url>')
+        lines.append(f'    <loc>{loc}</loc>')
+        lines.append(f'    <lastmod>{lastmod}</lastmod>')
+        lines.append(f'    <changefreq>{changefreq}</changefreq>')
+        lines.append(f'    <priority>{priority}</priority>')
+        lines.append('  </url>')
+    lines.append('</urlset>\n')
+
+    (ROOT / 'docs' / 'sitemap.xml').write_text('\n'.join(lines), encoding='utf-8')
+    print(f'Generated sitemap.xml with {len(urls)} entries.')
+
+
 def main():
     for path in PAGES:
         build_page(path)
     build_index()
+    build_sitemap()
     print(f'Built {len(PAGES)} doc pages and docs.html.')
 
 

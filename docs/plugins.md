@@ -1,7 +1,7 @@
 ---
 title: "Writing Toucan plugins"
 status: active
-updated: 2026-10-23
+updated: 2026-10-25
 summary: "Plugin author guide: API 1.2 optional resource IO, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported."
 ---
 # Writing Toucan plugins
@@ -11,8 +11,7 @@ providers**, **validation rules** and **framework profiles**. The working exampl
 [`samples/Toucan.Sample.Plugin`](../samples/Toucan.Sample.Plugin) (a tab-separated-values format plus a rule); its
 build output is exercised by the test suite, so what it does is what this guide describes.
 
-> Status: preview, since v0.18.0. Plugins run in the Avalonia app (macOS, Linux) and the `toucan` CLI; the Windows
-> WPF app does not load plugins.
+> Status: preview, since v0.18.0. Plugins run in the Avalonia app across all platforms (Windows, macOS, Linux) and the `toucan` CLI.
 
 - [Quick start](#quick-start)
 - [The manifest](#the-manifest-pluginjson)
@@ -23,7 +22,8 @@ build output is exercised by the test suite, so what it does is what this guide 
 - [Testing your plugin](#testing-your-plugin)
 - [Troubleshooting](#troubleshooting)
 - [Limits](#limits)
-- [For maintainers](#for-maintainers)
+- [Built-in modules as reference](#built-in-modules-as-reference)
+- [Advanced framework and resource contracts](#advanced-framework-and-resource-contracts)
 
 ## Quick start
 
@@ -406,24 +406,22 @@ schema `Version` is refused when you register the schema, because it could never
 - UI contributions go in a second, desktop-only assembly (see *Desktop parts*). A plugin cannot yet open a *connection* scope
   itself (the host drives workspace scopes); a connector uses a workspace activator and keeps its own sessions.
 - Per-project rule plugins (`.toucan/rules`) and a plugin feed are not implemented.
-- The WPF app has no plugin support; plugins work in the Avalonia app and the CLI.
+- Plugins run in the Avalonia app (desktop) and the CLI; headless/command-line execution does not load desktop UI assemblies.
 
-## For maintainers
+## Built-in modules as reference
 
-- Build and test everything that is cross-platform with `dotnet test Toucan.CrossPlatform.slnx` (it leaves out the two
-  Windows-only WPF projects, so it runs on macOS and Linux CI as well as Windows).
-- The packages: `dotnet pack Toucan.Plugins.Abstractions`, `Toucan.Plugins.Avalonia` and `Toucan.Plugins.Testing` with `-c Release -o <dir>`
-  (the `toucan-plugins` repository reads them from its `feed` folder until they are published).
-  The contract package: Bump `<Version>` only with
-  `PluginApi.Current`, and never remove or change a public member within a major version.
-- `Toucan.Plugins.Abstractions` must not reference `Toucan.Core` or UI packages; a test fails the build if it does.
-- Formats, providers, rules and profiles that ship with Toucan are **built-in modules** (`Toucan.Modules.*`), not plugins:
-  compiled in, always on, listed read-only by `toucan plugins list`, and their `toucan.*` IDs are reserved. They register
-  through the same kinds of calls a plugin makes, so a plugin author can read them as examples. See
-  [ARCHITECTURE.md](ARCHITECTURE.md) and [specs/plugin-modularization](specs/plugin-modularization/design.md).
+Formats, providers, rules and profiles that ship with Toucan are **built-in modules** (Toucan.Modules.*):
+compiled in, always on, listed read-only by 	oucan plugins list, and their 	oucan.* IDs are reserved. They register
+through the exact same kinds of calls a plugin makes, so a plugin author can read them as reference implementations. See
+[Toucan.Modules.Formats.Json](../Toucan.Modules.Formats.Json) and [Toucan.Modules.Formats.Text](../Toucan.Modules.Formats.Text).
 
-## Optional framework and resource companions
+## Advanced framework and resource contracts
 
-`IFrameworkFeatures` supplies a scanner ID, an existing `ConfigSchema` and exact descriptors without changing `IFrameworkProfile`. `IResourceCapabilities` supplies resource editing permissions; `ResourceDescriptor.Ownership` protects generated source documents. Hosts retain default behavior for older profiles/providers. `ISourceScanner` receives bounded text and returns package-aware references and diagnostics; registered scanners are selected by the framework companion, with the generic fallback retained. These additions remain in the unreleased 1.2 contract set and do not change existing profile methods. See [M5/M6 contracts, supported syntax and verification](specs/resource-compatibility/m5-m6.md).
+Plugin API 1.2 adds companion interfaces for advanced framework integration and document-aware resource IO:
 
-`IResourceOptionsProvider` declares the `ResourceOptions` fields a writer actually consumes; undeclared schemas retain IO without an invented settings editor. `IResourceDialectProvider` supplies choices for new/converted resources. `IResourceMetadataAuthority` lets readers identify file-owned metadata (including removal) and inline comments so stale native caches cannot replace newer resource contents. These are additive unreleased companions; old strategy/profile contracts remain unchanged. See [resource UI and M7 verification](specs/resource-compatibility/m7-ui.md).
+- IFrameworkFeatures: supplies scanner association, configuration schemas, and exact resource descriptors without altering the core IFrameworkProfile interface.
+- IResourceCapabilities: declares resource editing permissions and protections (e.g. marking generated source catalogs as read-only while keeping target translations editable).
+- ISourceScanner: receives source file content and extracts key references with file, line, and column coordinates, with full cancellation support.
+- IResourceOptionsProvider: declares typed serialization options (indentation, sorting, key delimiters) that a format writer consumes.
+- IResourceDialectProvider: supplies dialect choices when creating or converting resources.
+- IResourceMetadataAuthority: allows readers to declare authority over file-owned metadata and comments, ensuring accurate round-trip synchronization.

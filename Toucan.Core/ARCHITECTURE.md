@@ -1,7 +1,7 @@
 ---
 title: Toucan.Core interop architecture
 status: active
-updated: 2026-10-07
+updated: 2026-10-25
 summary: Current translation model, format strategy contracts, manifest loading, save integration, and Core/module boundaries. Links to the application architecture and extension guides.
 ---
 
@@ -72,7 +72,7 @@ The desktop lifecycle wraps loading with cancellation/progress, unsaved-change h
 
 `ProjectService.Save` builds a `SaveContext` containing language groups, language IDs, and namespace tree items, then calls the selected writer. Language aliases are reversed for output and restored for in-memory display. The project-aware overload updates manifest languages and applies configured encoding/line endings to known built-in language files; Java properties keeps Latin-1 encoding.
 
-The desktop [ProjectLifecycleService](Services/ProjectLifecycleService.cs) validates before saving. Error-severity results block writes. It then persists resources, comments, audit metadata, and package settings before marking baselines saved and updating watcher/merge snapshots. This is a multi-file sequence, not an atomic project transaction.
+The desktop [ProjectLifecycleService](Services/ProjectLifecycleService.cs) validates before saving. Findings are reported in the Issues panel and do not block draft saves; only strict policies (such as `requireValidForApproval`) or explicit enforcement stop a save. Saves write to temporary files and swap them atomically, backed by a journaled rollback transaction (`SaveTransaction`) that restores previous files if an error occurs. When exact-resource strategies are configured, document presentation and file-level metadata are preserved.
 
 [CommentPersistenceService](Services/CommentPersistenceService.cs) delegates inline-comment support and sidecar placement to strategy metadata. [AuditService](Services/AuditService.cs) persists `.toucan-metadata.json`. Neither arbitrary format conversion nor a direct writer call guarantees preservation of every source format's metadata.
 
