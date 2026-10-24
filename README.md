@@ -7,12 +7,12 @@
 
 Translate, review and validate your project's languages in one place. Toucan runs on **Windows, macOS and Linux**, works with local resource files, and brings source text, target translations, context and quality checks into the same editor.
 
-**Preview:** the published release is **v0.23.0**; this branch contains the **v0.24.0 source build**. Settings and project files may change before 1.0. Native accessibility and packaged platform acceptance for v0.24 remain pending; see the [acceptance record](docs/specs/editor-comfort/acceptance.md).
+**v0.24 preview:** this is the [`release/v0.24.0`](https://github.com/rasyidf/Toucan/tree/release/v0.24.0) branch, based on the merged v0.23 development branch. The latest published release is **v0.23.0**. Settings and project files may change before 1.0. Native accessibility and packaged platform acceptance for v0.24 remain pending; see the [acceptance record](docs/specs/editor-comfort/acceptance.md).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshots/editor-dark.png"/>
   <source media="(prefers-color-scheme: light)" srcset="docs/assets/screenshots/editor-light.png"/>
-  <img src="docs/assets/screenshots/editor-light.png" width="1440" height="920" alt="Toucan v0.24 editor with English source strings and Indonesian translations side by side, the project explorer, placeholder context and inspector"/>
+  <img src="docs/assets/screenshots/editor-light.png" width="1440" alt="Toucan v0.24 editor with English source strings and Indonesian translations side by side, the project explorer, placeholder context and inspector"/>
 </picture>
 
 *Current source build, rendered with a local sample project. The screenshot follows your light or dark theme.*
@@ -25,6 +25,14 @@ Translate, review and validate your project's languages in one place. Toucan run
 4. Select a target field, translate or accept a suggestion, then approve and save. The explorer and project commands appear when a project is open.
 
 Toucan detects frameworks including i18next, Flutter, Android, iOS, .NET, Rails and Gettext. Existing BabelEdit `.babel` projects can be imported into a native Toucan project.
+
+### What's new in v0.24
+
+- Source-first, responsive translation cards with character and word counts, placeholder context and translation-memory provenance.
+- Keyboard approval and next-pending navigation, plus grouped undo for bulk editing workflows.
+- First-run language/theme setup, a dismissible feature tour and actionable notification history.
+- Shared dialog title bars and a start screen that hides project-only menus and navigation until a project opens.
+- Expanded resource compatibility, exact-resource handling and BabelEdit project migration. See the [changelog](CHANGELOG.md) for details and the [acceptance record](docs/specs/editor-comfort/acceptance.md) for outstanding release checks.
 
 <details>
 <summary>Opening the unsigned macOS app</summary>
@@ -92,7 +100,7 @@ Plugins can add formats, providers, validation rules, framework profiles and des
 Install the **.NET 10 SDK** (SDK selection is in [global.json](global.json)), then run:
 
 ```bash
-git clone https://github.com/rasyidf/Toucan.git
+git clone --branch release/v0.24.0 https://github.com/rasyidf/Toucan.git
 cd Toucan
 dotnet restore Toucan.CrossPlatform.slnx
 dotnet build Toucan.CrossPlatform.slnx --no-restore
