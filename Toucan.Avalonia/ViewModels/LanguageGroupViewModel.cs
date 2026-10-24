@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Toucan.Avalonia.Services;
@@ -57,7 +58,7 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
         DisposeItems();
         Translations.Clear();
         foreach (var t in OrderByPrimary(items))
-            Translations.Add(_translationItemFactory(t));
+            Translations.Add(CreateRow(t));
         ApplySourceText(Translations);
     }
 
@@ -73,7 +74,7 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
                 FullNamespace = group.Key
             };
             foreach (var t in OrderByPrimary(group))
-                variant.Translations.Add(_translationItemFactory(t));
+                variant.Translations.Add(CreateRow(t));
             ApplySourceText(variant.Translations);
             PluralVariants.Add(variant);
         }
@@ -81,8 +82,8 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-    /// After loading a key's rows (ordered primary-first), give every non-primary row the primary row's value as its
-    /// source, for the side-by-side view. The primary row keeps a null source (it is the source).
+    /// Give each target the current primary value. Source edits and model refreshes reuse this path,
+    /// keeping placeholder warnings current without refreshing target editor values or caret positions.
     /// </summary>
     private void ApplySourceText(IReadOnlyList<TranslationItemViewModel> rows)
     {
@@ -94,6 +95,22 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
             : rows.FirstOrDefault(r => string.Equals(r.Language, primary, StringComparison.OrdinalIgnoreCase)) ?? rows[0];
         foreach (var row in rows)
             row.SourceText = ReferenceEquals(row, source) ? null : source.Value;
+    }
+
+    private TranslationItemViewModel CreateRow(TranslationItem item)
+    {
+        var row = _translationItemFactory(item);
+        row.PropertyChanged += OnRowPropertyChanged;
+        return row;
+    }
+
+    private void OnRowPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(TranslationItemViewModel.Value) || sender is not TranslationItemViewModel row) return;
+        if (Translations.Contains(row)) ApplySourceText(Translations);
+        else
+            foreach (var variant in PluralVariants)
+                if (variant.Translations.Contains(row)) ApplySourceText(variant.Translations);
     }
 
     private IEnumerable<TranslationItem> OrderByPrimary(IEnumerable<TranslationItem> items)
@@ -118,7 +135,11 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
 
     private void DisposeItems()
     {
-        foreach (var item in AllItems) item.Dispose();
+        foreach (var item in AllItems)
+        {
+            item.PropertyChanged -= OnRowPropertyChanged;
+            item.Dispose();
+        }
     }
 
     public void Dispose()

@@ -23,6 +23,8 @@ Editor comfort, resource compatibility and a contextual desktop shell for the 0.
 - The `Toucan.Plugins.Abstractions` package is version 1.2.0 to match plugin API 1.2, including additive resource compatibility contracts.
 
 ### Fixed
+- **Live placeholder context** — Source edits, linked placeholder renames and undo/redo update target warnings immediately, including independent plural variants. A successful rename no longer warns that the old source token is missing.
+- **Unread notification badge** — Reading notification history clears its badge across project/validation refreshes. Retained history and validation counts remain available, while only new notifications increase the badge.
 - **Start-screen sidebar** — The project activity rail and its reserved column disappear on the start screen, return after opening a project and hide again when it closes. Preferences remains available from Settings.
 - **Menus without a project** — Project editing, save/export, validation, statistics and project properties are hidden until a project opens. Native menus, overflow menus and the command palette use the same rule, including workspace-only plugin commands; global tools remain available.
 - **Dialog title bars** — App-owned settings, provider, message and plugin dialogs share themed custom chrome with the main window's caption-button styling. Translation Providers uses its scope switch without a duplicate "Editing:" label.

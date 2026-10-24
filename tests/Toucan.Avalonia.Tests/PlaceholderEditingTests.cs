@@ -85,6 +85,64 @@ public class PlaceholderEditingTests
     // ── linked rename ──
 
     [AvaloniaFact]
+    public async Task RenameUndoAndRedoKeepWarningsInSyncWithTheSource()
+    {
+        var (host, vm) = await Open("rename-context");
+        using (host)
+        {
+            var target = Row(vm, "fr");
+            vm.RenamePlaceholderAcrossLanguages("greeting", "{{name}}", "{{username}}");
+            Assert.Contains("{{username}}", target.SourceText);
+            Assert.DoesNotContain("{{name}}", target.MissingPlaceholders);
+            Assert.Contains("{{count}}", target.MissingPlaceholders);
+
+            vm.UndoCommand.Execute(null);
+            Assert.Contains("{{name}}", target.SourceText);
+            Assert.DoesNotContain("{{name}}", target.MissingPlaceholders);
+
+            vm.RedoCommand.Execute(null);
+            Assert.Contains("{{username}}", target.SourceText);
+            Assert.DoesNotContain("{{name}}", target.MissingPlaceholders);
+        }
+    }
+
+    [AvaloniaFact]
+    public async Task EditingTheSourceUpdatesTargetWarningsBeforeSave()
+    {
+        var (host, vm) = await Open("edit-source-context");
+        using (host)
+        {
+            var target = Row(vm, "fr");
+            Row(vm, "en").Value = "Hello {{city}}";
+            Assert.Equal("Hello {{city}}", target.SourceText);
+            Assert.Equal(["{{city}}"], target.MissingPlaceholders);
+            vm.FlushPendingEdits();
+            vm.UndoCommand.Execute(null);
+            Assert.Equal("Hi {{name}}, you have {{count}} items", target.SourceText);
+            Assert.Equal(["{{count}}"], target.MissingPlaceholders);
+        }
+    }
+
+    [AvaloniaFact]
+    public void PluralVariantsKeepIndependentLiveSourceContext()
+    {
+        using var group = new LanguageGroupViewModel("items", primaryLanguage: "en");
+        group.LoadPluralVariants(new[]
+        {
+            new Toucan.Core.Models.TranslationItem { Namespace = "items_one", Language = "en", Value = "One {{name}}" },
+            new Toucan.Core.Models.TranslationItem { Namespace = "items_one", Language = "fr", Value = "Un {{name}}" },
+            new Toucan.Core.Models.TranslationItem { Namespace = "items_other", Language = "en", Value = "Many {{count}}" },
+            new Toucan.Core.Models.TranslationItem { Namespace = "items_other", Language = "fr", Value = "Plusieurs {{count}}" }
+        }.GroupBy(i => i.Namespace));
+        var one = group.PluralVariants.Single(v => v.Category == "one");
+        var other = group.PluralVariants.Single(v => v.Category == "other");
+        one.Translations.Single(i => i.Language == "en").Value = "One {{person}}";
+        Assert.Equal(["{{person}}"], one.Translations.Single(i => i.Language == "fr").MissingPlaceholders);
+        Assert.Empty(other.Translations.Single(i => i.Language == "fr").MissingPlaceholders);
+        Assert.Equal("Many {{count}}", other.Translations.Single(i => i.Language == "fr").SourceText);
+    }
+
+    [AvaloniaFact]
     public async Task RenamingAPlaceholderUpdatesEveryLanguageInOneUndoStep()
     {
         var (host, vm) = await Open("rename");

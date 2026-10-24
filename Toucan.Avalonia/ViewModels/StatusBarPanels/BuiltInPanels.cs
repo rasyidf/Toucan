@@ -358,12 +358,8 @@ public partial class NotificationsPanel : StatusBarPanelBase
     public void Update(int notificationCount)
     {
         Count = notificationCount;
-        IsVisible = true;
         Content = "";
-        Icon = "Alert24";
-        Badge = notificationCount > 0 ? notificationCount.ToString() : null;
-        BadgeSeverity = null; // accent color
-        ToolTip = $"{notificationCount} notification(s)";
+        UpdateUnseen(Unseen);
     }
 }
 
