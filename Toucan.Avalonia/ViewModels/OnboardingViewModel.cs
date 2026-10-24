@@ -22,6 +22,8 @@ public partial class OnboardingViewModel : ObservableObject
         useAi = ai.Enabled;
     }
 
+    public IReadOnlyList<string> LanguageChoices { get; } = ["en-US", "en-GB", "fr-FR", "de-DE", "es-ES", "it-IT", "pt-BR", "id-ID", "ja-JP", "zh-CN"];
+    public IReadOnlyList<string> ThemeChoices => Themes;
     public static IReadOnlyList<string> Themes { get; } = ["System", "Light", "Dark"];
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(FinishCommand))] private string defaultLanguage;
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(FinishCommand))] private string theme;

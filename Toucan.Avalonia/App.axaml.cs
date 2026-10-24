@@ -52,6 +52,7 @@ public partial class App : Application
             ThemeService.Apply(vm.AppOptions.Theme);
             ColorSchemeService.Apply(vm.AppOptions);
             ThemeService.ApplyFontSize(vm.AppOptions.FontSize);
+            PanelService.Instance.ShowPlaceholderWarnings = vm.AppOptions.ShowPlaceholderWarnings;
             RegisterSidePanels();
             LoadDesktopPlugins(vm);
 
@@ -274,6 +275,8 @@ public partial class App : Application
 
         // View models
         services.AddSingleton<StatusBarViewModel>();
+        services.AddSingleton(sp => new NotificationHistoryViewModel(sp.GetRequiredService<INotificationCenter>(),
+            id => sp.GetRequiredService<global::Toucan.Core.Commands.ICommandRegistry>().ExecuteAsync(id)));
         services.AddSingleton(sp => new MainWindowServices(
             sp.GetRequiredService<IRecentProjectService>(),
             sp.GetRequiredService<IDialogService>(),
@@ -302,7 +305,7 @@ public partial class App : Application
             sp.GetService<IPluginCatalog>(),
             sp.GetServices<SpreadsheetDialect>(),
             sp.GetServices<IProjectCompatibilityImporter>(),
-            sp.GetRequiredService<SpellingService>(), sp.GetRequiredService<DictionaryRegistry>(), sp.GetRequiredService<INotificationCenter>()));
+            sp.GetRequiredService<SpellingService>(), sp.GetRequiredService<DictionaryRegistry>(), sp.GetRequiredService<INotificationCenter>(), sp.GetRequiredService<NotificationHistoryViewModel>()));
         services.AddSingleton<MainWindowViewModel>();
         // Plugins read and edit the open project through this (see IWorkspaceApi); it resolves the view model on first use.
         services.AddSingleton<global::Toucan.Core.Plugins.IWorkspaceBackend>(sp => new WorkspaceBackend(sp.GetRequiredService<MainWindowViewModel>()));

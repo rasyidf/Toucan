@@ -2,9 +2,7 @@
 
 ## [Unreleased]
 
-Extension platform: a connector can be built, installed, configured and used without changing Toucan.
-
-Windows dialogs and project setup have consistent themed surfaces, and BabelEdit projects and spreadsheets can be imported without losing the reviewed translation metadata.
+Editor comfort, resource compatibility and a contextual desktop shell for the 0.24 source build.
 
 ### Added
 - **Editor workflow** — Source-first language cards switch to two columns in wide editors and stack in narrow windows. Focused fields show Unicode character and word counts and translation-memory provenance. Approve and Next (`Ctrl/Cmd+Enter`), Next Pending Translation and Accept Suggestion are registered, reassignable commands that retain target focus across pages.
@@ -13,15 +11,15 @@ Windows dialogs and project setup have consistent themed surfaces, and BabelEdit
 - **Resource compatibility workflows** — Exact-resource fidelity options, generated-source protection, framework extraction diagnostics, local spelling imports and hash-verified engine source/notices accompany the committed M3–M7 implementation. Native and cross-platform compatibility acceptance remains a release gate.
 - **BabelEdit project import** — Open a folder containing one `.babel` project to load its settings, concepts, comments, approvals and JSON package/file mappings. Saving creates `toucan.tproj` and leaves the original `.babel` unchanged. Resource paths must stay within the project folder; multiple `.babel` projects need separate folders.
 - **Compatibility fixtures and reports** — Nineteen synthetic bilingual projects, the original BabelEdit Excel export, native save/reopen regressions, and reproducible CLI and converter checks. The result gallery includes the updated report, project outcomes and reference screenshots; it distinguishes verified cases from broader framework parity that remains untested.
-- **Compatibility checks** — A plugin manifest can declare `minHostVersion` and `platforms`. A plugin that needs a newer Toucan, or is not built for this operating system, is not loaded, and the Plugins page and `toucan plugins list` say what to do about it. API and desktop-contract mismatches now say whether to update Toucan or ask the author for a new build. Settings saved by a newer version of a plugin are kept and reported instead of being overwritten, and a settings migration that could never run is refused when the schema is registered.
-- **SDK test harness** — `Toucan.Plugins.Testing` runs a plugin's registration and activation without Toucan, with in-memory settings, secrets, notifications and workspace, command states, cancellation on close, and a check that the plugin references no UI assembly.
-- **Sample connector** — `samples/Toucan.Sample.Connector` (in-memory service) and, in the separate `toucan-plugins` repository, a REST connector built only from the published SDK packages: a settings form, a Server panel, Pull and Push commands that edit the project through the workspace API and never overwrite what you typed or what the server changed.
+- **Placeholder help in the editor** — A translation value that drops a `{{ }}` placeholder its source has now shows an inline warning naming the missing placeholder (toggle it under Settings → Editor). Right-click a key → Placeholders → "Rename … in all languages" renames a `{{token}}` across every language of that key as a single undo step; the same is available as a command, and a "Sync Placeholder to All Languages" command applies a rename you typed in one field to the rest. No modifier keys, so it works the same on macOS, Windows and Linux.
+- **Accessibility pass** — Right-to-left target languages lay out right-to-left in the editor, interactive icon-only controls carry accessible names for screen readers (guarded by a test), and the window and panels lay out at a narrow width with large text without clipping.
+- **First-run setup and a feature tour** — The first-run dialog now also sets the default source language and theme, and a one-time, dismissible tour points out editing, keyboard review and the command palette. The empty start screen and the "no keys match" state already offer the actions to open, create or import a project and to add a key.
+- **Placeholders in the inspector** — Selecting a key lists the placeholders parsed from its source value (`{name}`, `{{count}}`, `%s`, `:param`, `${expr}`, ICU), so a translator can see at a glance what every translation must keep. The inspector already shows the per-language values with their state (empty, machine, translated, approved), translation-memory matches, source-code references and history.
 
 ### Changed
 - **Plugin toolbar contributions** — Commands with toolbar placement now render in the editor and follow registry availability and registration changes.
 - **Preview version** — Source builds identify themselves as 0.24.0; publishing the release still requires the native/platform acceptance recorded in the editor-comfort spec.
 - **Welcome screen and project setup** — Theme-aware artwork, responsive welcome sections, shared framework cards with consistent sizing, and template shortcuts that preselect their framework. The project wizard places aligned project details above its framework selector and scrolls the body above a fixed footer. Redundant welcome navigation was removed.
-- **Toolbar buttons use the command registry** — Save, the command palette, the Editor/Review/Audit tabs, the panel toggles and Settings now run the same registered commands as the menus and shortcuts, so they follow reassigned shortcuts and command availability.
 - The `Toucan.Plugins.Abstractions` package is version 1.2.0 to match plugin API 1.2, including additive resource compatibility contracts.
 
 ### Fixed
@@ -38,6 +36,23 @@ Windows dialogs and project setup have consistent themed surfaces, and BabelEdit
 - **Rails YAML and sequences** — Locale wrappers no longer become translation key prefixes. Scalar and mapping sequences load and save, existing `.yml`/`.yaml` paths are retained, and new keys join the existing language file.
 - **BabelEdit metadata conversion** — Both converters retain concepts directly inside package folders and preserve typed settings and copy templates. Native project saves retain comments and approvals across reopening, language aliases and Save As.
 - **Excel interchange** — Import recognizes BabelEdit package, translation ID and per-language approval columns as well as older Toucan workbooks. Export preserves approval per language. Comment and approval changes apply even when translation text is unchanged, and invalid headers are rejected before merging.
+- **Editing keeps focus** — Refreshing a row after an unrelated edit (undo, redo or a bulk operation elsewhere) no longer resets the field you are typing in; the caret stays put.
+
+## [0.23.0] - 2026-10-13
+
+Extension platform: a connector can be built, installed, configured and used without changing Toucan.
+
+### Added
+- **Compatibility checks** — A plugin manifest can declare `minHostVersion` and `platforms`. A plugin that needs a newer Toucan, or is not built for this operating system, is not loaded, and the Plugins page and `toucan plugins list` say what to do about it. API and desktop-contract mismatches now say whether to update Toucan or ask the author for a new build. Settings saved by a newer version of a plugin are kept and reported instead of being overwritten, and a settings migration that could never run is refused when the schema is registered.
+- **SDK test harness** — `Toucan.Plugins.Testing` runs a plugin's registration and activation without Toucan, with in-memory settings, secrets, notifications and workspace, command states, cancellation on close, and a check that the plugin references no UI assembly.
+- **Sample connector** — `samples/Toucan.Sample.Connector` (in-memory service) and, in the separate `toucan-plugins` repository, a REST connector built only from the published SDK packages: a settings form, a Server panel, Pull and Push commands that edit the project through the workspace API and never overwrite what you typed or what the server changed.
+
+### Changed
+- **Toolbar buttons use the command registry** — Save, the command palette, the Editor/Review/Audit tabs, the panel toggles and Settings now run the same registered commands as the menus and shortcuts, so they follow reassigned shortcuts and command availability.
+- The `Toucan.Plugins.Abstractions` package is version 1.1.0 to match plugin API 1.1.
+
+### Fixed
+- **Keyboard shortcuts can be reassigned** — Settings → Shortcuts now edits shortcuts with conflict detection and a reset to default, and the overrides are stored per user. Previously the page only listed the fixed shortcuts.
 
 ## [0.22.0] - 2026-10-09
 

@@ -42,6 +42,8 @@ public class AppOptions
 
     // --- Editor behavior ---
     public bool PlainTextKeys { get; set; }
+    /// <summary>Show an inline warning on a target value when it is missing a {{ }} placeholder its source has.</summary>
+    public bool ShowPlaceholderWarnings { get; set; } = true;
     public List<string> FilterHistory { get; set; } = [];
     public List<string> SuggestedLanguages { get; set; } = ["en-US", "id-ID", "zh-CN", "fr-FR", "es-ES"];
 
@@ -63,6 +65,9 @@ public class AppOptions
     /// <summary>The onboarding version the user has completed; 0 means first run. Onboarding asks whether to use AI.</summary>
     public int OnboardingVersion { get; set; }
     public bool WorkflowGuideDismissed { get; set; }
+
+    /// <summary>True once the user has seen (or dismissed) the one-time feature tour.</summary>
+    public bool FeatureTourSeen { get; set; }
 
     // --- Last session state ---
     public string? LastProjectPath { get; set; }

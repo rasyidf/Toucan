@@ -43,7 +43,7 @@ public sealed record MainWindowServices(
     IEnumerable<SpreadsheetDialect>? SpreadsheetDialects = null,
     IEnumerable<IProjectCompatibilityImporter>? CompatibilityImporters = null,
     SpellingService? Spelling = null, DictionaryRegistry? Dictionaries = null,
-    INotificationCenter? Notifications = null);
+    INotificationCenter? Notifications = null, NotificationHistoryViewModel? History = null);
 
 /// <summary>
 /// State and commands for the main editor window. Split across partial files by concern:
@@ -91,7 +91,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     {
         ArgumentNullException.ThrowIfNull(services);
         _notifications = services.Notifications ?? new NotificationCenter();
-        NotificationHistory = new NotificationHistoryViewModel(_notifications,
+        NotificationHistory = services.History ?? new NotificationHistoryViewModel(_notifications,
             id => KeybindingService.Registry.ExecuteAsync(id));
         NotificationHistory.PropertyChanged += OnNotificationHistoryChanged;
         _spellingService = services.Spelling; _dictionaries = services.Dictionaries;
@@ -496,6 +496,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         ThemeService.Apply(AppOptions.Theme);
         ColorSchemeService.Apply(AppOptions);
         ThemeService.ApplyFontSize(AppOptions.FontSize);
+        PanelService.Instance.ShowPlaceholderWarnings = AppOptions.ShowPlaceholderWarnings;
+        foreach (var row in PagingController.Data.SelectMany(g => g.AllItems)) row.RefreshPlaceholderWarning();
 
         if (!string.Equals(previousLanguage, AppOptions.AppLanguage, StringComparison.OrdinalIgnoreCase))
         {

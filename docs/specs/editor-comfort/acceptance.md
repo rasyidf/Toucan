@@ -6,7 +6,7 @@ summary: "Windows automated evidence for the 0.24 source build, completed editor
 ---
 # v0.24 acceptance evidence
 
-The 0.24.0 source build implements the editor comfort work. It is not a published or fully accepted cross-platform release. Work was performed on `release/v0.23.0`, starting from compatibility commit `bf7d51e` and preserving the 18 pending UI/test edits. No branch switch, tag, push or release publication was performed.
+The 0.24.0 source build implements the editor comfort work. It is not a published or fully accepted cross-platform release. Work was performed on `release/v0.23.0`, starting from compatibility commit `bf7d51e` and preserving the 18 pending UI/test edits. The initial verification preceded the commits and push requested afterward; no branch switch or release publication was performed.
 
 ## Implemented and verified behavior
 
@@ -64,3 +64,9 @@ The final test and package hashes, application hash, base commit and SHA-256 of 
 ## Contextual shell follow-up
 
 Shared dialog chrome and project-aware menu/palette visibility were added after the initial editor snapshot. The start-screen activity rails now collapse with their columns and return when a project opens. Shell tests cover opening and closing projects in light/dark themes at normal and minimum window sizes. These follow-ups retain the native/platform gates above.
+
+## Upstream merge verification
+
+On 2026-10-25, the documentation commit `2c2c7f6` and local editor/compatibility changes were reconciled with upstream `6204332`, preserving both histories. The merged implementation includes placeholder rename and warnings, inspector context, the feature tour and accessibility improvements alongside the local shell and metadata-preserving undo workflows.
+
+Every project listed in `Toucan.CrossPlatform.slnx` builds individually with `--no-restore -m:1 -c Review`; the solution itself only defines its default configurations. Direct xUnit execution passed 1,087 Core tests, 337 UI tests and 11 SDK harness tests (1,435 passed total). The UI suite's external connector test was skipped because `TOUCAN_EXTERNAL_CONNECTOR_DIST` is not configured. Evidence: `build/v0.24-readiness/merged-full-core.xml`, `merged-full-ui.xml` and `merged-full-harness.xml`. Documentation status validation also passes. These checks retain all remaining native/platform and external connector release gates above.

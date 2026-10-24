@@ -98,12 +98,47 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
             OnPropertyChanged(nameof(IsEmpty));
             OnPropertyChanged(nameof(CharacterCount));
             OnPropertyChanged(nameof(WordCount));
+            OnPropertyChanged(nameof(CountSummary));
+            OnPropertyChanged(nameof(MissingPlaceholders));
+            OnPropertyChanged(nameof(HasPlaceholderWarning));
+            OnPropertyChanged(nameof(PlaceholderWarning));
             _debounceTimer.Stop();
             _debounceTimer.Start();
         }
     }
 
     public bool IsEmpty => string.IsNullOrEmpty(_value);
+
+    /// <summary>"12 chars · 3 words", for the counter shown under the field.</summary>
+    public string CountSummary => $"{CharacterCount} {(CharacterCount == 1 ? "char" : "chars")} · {WordCount} {(WordCount == 1 ? "word" : "words")}";
+
+    /// <summary>
+    /// The primary-language value of the same key, for the side-by-side source column. Set by the owning group;
+    /// null for the primary-language row itself (it is the source).
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSource), nameof(MissingPlaceholders), nameof(HasPlaceholderWarning), nameof(PlaceholderWarning))]
+    private string? sourceText;
+
+    public bool HasSource => SourceText is not null;
+
+    /// <summary>
+    /// The <c>{{ }}</c> placeholders present in the source but missing from this value. Empty for the source row,
+    /// for an empty value, or when there is no source. Independent of whether the warning is shown.
+    /// </summary>
+    public IReadOnlyList<string> MissingPlaceholders =>
+        SourceText is null || string.IsNullOrEmpty(_value)
+            ? []
+            : [.. Toucan.Core.Services.PlaceholderService.NamedDouble(SourceText)
+                .Where(p => !_value.Contains(p, StringComparison.Ordinal))];
+
+    /// <summary>True when the inline warning should show: the toggle is on and this value drops a source placeholder.</summary>
+    public bool HasPlaceholderWarning =>
+        Services.PanelService.Instance.ShowPlaceholderWarnings && MissingPlaceholders.Count > 0;
+
+    /// <summary>The warning text listing the missing placeholders, e.g. "Missing: {{name}}, {{count}}".</summary>
+    public string PlaceholderWarning =>
+        MissingPlaceholders.Count == 0 ? string.Empty : "Missing: " + string.Join(", ", MissingPlaceholders);
 
     public string Comment
     {
@@ -189,18 +224,32 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     public void Refresh()
     {
         _debounceTimer?.Stop();
-        _value = _model.Value ?? string.Empty;
+        var incoming = _model.Value ?? string.Empty;
+        var valueChanged = _value != incoming;
+        _value = incoming;
         _valueBeforeEdit = _value;
-        OnPropertyChanged(nameof(Value));
-        OnPropertyChanged(nameof(IsEmpty));
-        OnPropertyChanged(nameof(CharacterCount));
-        OnPropertyChanged(nameof(WordCount));
+        // Only raise Value when it actually changed, so a refresh triggered by an unrelated edit
+        // does not reset the caret of a field the user is typing in.
+        if (valueChanged)
+        {
+            OnPropertyChanged(nameof(Value));
+            OnPropertyChanged(nameof(IsEmpty));
+            OnPropertyChanged(nameof(CharacterCount));
+            OnPropertyChanged(nameof(WordCount));
+            OnPropertyChanged(nameof(CountSummary));
+            OnPropertyChanged(nameof(MissingPlaceholders));
+            OnPropertyChanged(nameof(HasPlaceholderWarning));
+            OnPropertyChanged(nameof(PlaceholderWarning));
+        }
         OnPropertyChanged(nameof(IsApproved));
         OnPropertyChanged(nameof(Comment));
         OnPropertyChanged(nameof(HasComment));
         OnPropertyChanged(nameof(PlaceholderMetadata));
         QueueSpelling();
     }
+
+    /// <summary>Re-evaluates the inline placeholder warning (e.g. after the global toggle changed).</summary>
+    public void RefreshPlaceholderWarning() => OnPropertyChanged(nameof(HasPlaceholderWarning));
 
     private void Commit()
     {

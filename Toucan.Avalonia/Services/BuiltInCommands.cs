@@ -67,6 +67,9 @@ internal static class BuiltInCommands
             B("Help", "Show Editing Guide", null, vm => vm.ShowWorkflowGuideCommand),
             B("Translate", "Check Spelling Locally", null, vm => vm.CheckProjectSpellingCommand),
             B("Translate", "Run Validation", "F7", vm => vm.RunValidationCommand),
+            B("Review", "Approve and Next", null, vm => vm.ApproveAndNextCommand),
+            B("Review", "Next Needing Review", null, vm => vm.FocusedNextNeedingReviewCommand),
+            B("Edit", "Sync Placeholder to All Languages", null, vm => vm.SyncPlaceholderToAllLanguagesCommand),
             B("Settings", "Preferences", "Mod+OemComma", vm => vm.ShowPreferencesCommand),
         ];
     }

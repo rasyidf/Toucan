@@ -67,14 +67,15 @@ public partial class MainWindowViewModel
 
     private void OnFocusedItemPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshFocusedActions();
 
-    private bool CanApproveFocused() => !IsAuditMode && FocusedTranslationItem is { IsEmpty: false, IsSource: false } item
-        && item.Model.Permissions.EditMetadata && AllTranslation.Contains(item.Model);
+    private bool CanApproveFocused() => !IsAuditMode && ((FocusedEditorMode && FocusedTranslationItem == null && ZenCurrentItem != null) || FocusedTranslationItem is { IsEmpty: false, IsSource: false } item
+        && item.Model.Permissions.EditMetadata && AllTranslation.Contains(item.Model));
 
     [RelayCommand(CanExecute = nameof(CanApproveFocused))]
     private void ApproveAndNext()
     {
         FlushPendingEdits();
         if (!CanApproveFocused()) return;
+        if (FocusedTranslationItem == null) { ApproveCurrentCardAndNext(); return; }
         var item = FocusedTranslationItem!;
         ApproveItems([item.Model]);
         if (item.Model.IsApproved) NextPendingTranslation();

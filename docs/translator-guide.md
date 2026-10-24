@@ -58,7 +58,7 @@ Linguists translate fastest when their hands never leave the home row. Toucan’
 ### Rapid Review Cycle
 - Press <kbd>Ctrl/Cmd+Enter</kbd> (**Approve and Next**): Marks the current segment as **Approved**, saves the translation, and immediately advances focus to the next target field.
 - **Retained Target Focus:** Focus does not jump to checkboxes, toolbars, or scrollbars; your cursor stays inside the text box across card boundaries and pagination pages, allowing you to review dozens of strings per minute without touching the mouse.
-- Press <kbd>Ctrl/Cmd+Shift+Enter</kbd> (**Next Pending**): Skips already-approved segments and jumps directly to the next segment needing your attention.
+- Press <kbd>Ctrl/Cmd+Alt+→</kbd> (**Next Pending**): Skips already-approved segments and jumps directly to the next segment needing your attention.
 
 ### Review Mode
 Click **Review** in the top navigation to filter your entire workspace down to unapproved, draft, or flagged items. This strips away completed work and allows you to focus exclusively on quality verification.

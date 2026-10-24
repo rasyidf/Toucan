@@ -46,3 +46,5 @@ Repository xUnit guidance: focused behavior tests, shell/screenshot checks, full
 2026-10-25: Local S6 verification completed: 1,396 tests passed (1,087 Core, 298 UI, 11 SDK), CLI compatibility/scanner checks passed, SDK packages and isolated NuGet-only consumer verified, 193 screenshots captured, and published source/notice hashes checked. These results do not accept the three release gates above. This was the pre-commit verification snapshot on release/v0.23.0.
 
 2026-10-25: Shared dialog chrome, project-aware menus/palette and hidden start-screen rails completed. The accumulated editor and shell implementation is recorded together in Git history; native/platform acceptance remains pending.
+
+2026-10-25: Reconciled the local editor, compatibility and new guide documentation with upstream `6204332`. All cross-platform solution projects build in the isolated Review configuration; the merged regression suites pass 1,435 tests with one external connector gate skipped. See the acceptance evidence for exact scope and remaining release gates.

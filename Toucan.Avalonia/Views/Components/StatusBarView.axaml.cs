@@ -79,6 +79,7 @@ public partial class StatusBarView : UserControl
             Placement = PlacementMode.TopEdgeAlignedRight,
             Content = new Toucan.Avalonia.Views.Panels.NotificationHistoryView { DataContext = vm }
         };
+        vm.NotificationHistory.MarkSeen();
         history.ShowAt(NotificationsButton);
     }
 

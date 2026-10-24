@@ -36,6 +36,7 @@
       <TextBlock TextWrapping="Wrap"
                  Text="{loc:Loc 'Toucan can use an AI service to translate, to check translations for wrong terms and tone, and to find source strings translators could misread. When AI is on, the text you run these on is sent to the service you choose. Every prompt Toucan sends is open and editable.'}"/>
 
+
       <c:SettingsGroup>
         <StackPanel>
           <c:SettingsRow Title="{loc:Loc 'Keep AI off'}" Description="{loc:Loc 'Nothing is sent to an AI service, and AI commands are turned off. Google, DeepL and Microsoft translation still work.'}">

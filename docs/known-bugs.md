@@ -6,7 +6,7 @@ summary: "Open source-build issues for the 0.24 preview: release distribution, m
 ---
 # Known Issues & Unfinished Features
 
-Published release: **v0.22.0** (preview). Current source build: **0.24.0**, audited **2026-10-25** on `release/v0.23.0`; native release acceptance remains pending.
+Published release: **v0.23.0** (preview). Current source build: **0.24.0**, audited **2026-10-25** on `release/v0.23.0`; native release acceptance remains pending.
 
 This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [CHANGELOG.md](../CHANGELOG.md) (see [Where the old fixes went](#where-the-old-fixes-went)). When a bug is fixed, delete its row and section here and add a `### Fixed` line to the changelog `[Unreleased]` section. Planned work for an ID is linked from [the roadmap](todos/future-roadmap.md) (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from `main` (source: branch `legacy/wpf`), so nothing here is about WPF.
 

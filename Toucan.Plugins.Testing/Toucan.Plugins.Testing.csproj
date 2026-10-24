@@ -19,6 +19,8 @@
     <PackageTags>toucan;i18n;localization;plugin;testing</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/rasyidf/Toucan</RepositoryUrl>
+    <PackageProjectUrl>https://toucan.rasyid.dev</PackageProjectUrl>
+    <Copyright>Copyright © Rasyidf 2023-2026</Copyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>

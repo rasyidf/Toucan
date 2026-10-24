@@ -197,5 +197,20 @@
     <!-- ═══ Command palette overlay (above everything, Zen mode included) ═══ -->
     <c:CommandPalette x:Name="Palette" Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsCommandPaletteOpen}"/>
     <c:ShortcutSheet Grid.Row="0" Grid.RowSpan="3" IsVisible="{Binding IsShortcutSheetOpen}"/>
+
+    <!-- One-time feature tour overlay -->
+    <Border Grid.Row="0" Grid.RowSpan="3" Background="#80000000" IsVisible="{Binding FeatureTour.IsVisible, FallbackValue=False}">
+      <Border Classes="card" Width="420" Padding="22" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <StackPanel Spacing="12">
+          <TextBlock Text="{Binding FeatureTour.CurrentStep.Title}" Classes="dialogTitle"/>
+          <TextBlock Text="{Binding FeatureTour.CurrentStep.Body}" TextWrapping="Wrap"/>
+          <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,6,0,0">
+            <TextBlock Grid.Column="0" Text="{Binding FeatureTour.PositionText}" Classes="caption" VerticalAlignment="Center"/>
+            <Button Grid.Column="2" Content="{loc:Loc 'Skip'}" Command="{Binding FeatureTour.SkipCommand}" Margin="0,0,8,0"/>
+            <Button Grid.Column="3" Content="{loc:Loc 'Next'}" Classes="accent" Command="{Binding FeatureTour.NextCommand}"/>
+          </Grid>
+        </StackPanel>
+      </Border>
+    </Border>
   </Grid>
 </Window>

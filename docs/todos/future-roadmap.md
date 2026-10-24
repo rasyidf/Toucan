@@ -7,7 +7,7 @@ summary: "Eleven focused releases from v0.21 to v0.31: file safety, extension pl
 ---
 # Toucan roadmap: v0.21 to v1.0
 
-> Current release: **v0.22.0** on Windows, macOS and Linux. Every build before v1.0 is a preview.
+> Current release: **v0.23.0** on Windows, macOS and Linux. Every build before v1.0 is a preview.
 
 ## Product goal
 
@@ -54,22 +54,9 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 ### v0.23: Extension platform
 
-This is intentionally a major platform milestone. The full scope below belongs to v0.23; implementation can proceed in stages within the milestone, with the completion gate covering the integrated result.
+Shipped in v0.23.0. The extension platform (registration/activation split, command registry, desktop contribution package, host services, workspace API, compatibility checks, SDK harness and sample connector) is in [CHANGELOG.md](../../CHANGELOG.md) and [completed-features.md](../completed-features.md). The sample connector built outside this repository loads on desktop and in the CLI, its command is in the palette and a menu with a reassignable shortcut and becomes unavailable when its workspace closes, and a plugin batch edit behaves like a native edit through undo, save failure, recovery and reopen.
 
-**Progress:** all eight implementation steps are recorded on `release/v0.23.0`; integrated release acceptance remains pending. See [v0.23 progress and remaining verification](v0.23-progress.md) and the [implementation task record](../specs/extension-platform/tasks.md).
-
-**Outcome:** a connector can be built, installed, configured, and used without modifying Toucan's application code, so an optional commercial edition can ship as separate packages on the public SDK. Plugins today extend formats, translation providers, validation rules, and framework detection; this release extends the user workflow. Restart stays required for installing and updating plugins.
-
-- [ ] Separate registration from activation: register capabilities without network access, activate per project or connection, give each connection its own session, cancel and dispose on project close, and report activation failures separately from registration failures. Keep application, workspace, connection, and panel lifetimes explicit.
-- [ ] Add a command registry with stable IDs, localizable titles and categories, availability conditions, asynchronous execution with cancellation and progress, default shortcuts with user overrides, and menu, toolbar, context-menu, and command-palette contributions. Replace the static table in `KeybindingService` and distinguish hidden, unavailable, disconnected, and unlicensed states.
-- [ ] Add a separate desktop contribution package (`Toucan.Plugins.Avalonia`) so the CLI never loads UI assemblies. Replace the hard-coded panel and toolbar switches in `MainWindow` with registered side panels, panel toolbars, settings pages, dialogs, inspector sections, and editor actions; give each plugin view model a narrow workspace context instead of `MainWindowViewModel`. Define supported theme resources, icons, localization, and accessibility conventions, and handle shared Avalonia assemblies in the loader.
-- [ ] Provide supported host services: plugin-scoped settings and writable storage kept outside the trusted plugin directory, connection-scoped secret references, background operations with progress, notifications, redacted diagnostics, and typed configuration fields with validation, defaults, scopes, and schema migrations. Document that in-process plugins are not sandboxed.
-- [ ] Add a controlled workspace API: readable snapshots and edit transactions for values, comments, review state, and keys, routed through normal undo, dirty tracking, validation, and persistence. Do not expose mutable store internals or view models.
-- [ ] Extend compatibility checks to host requirements, desktop-contract version, platform support, and configuration migrations, with actionable failure messages.
-- [ ] Ship an SDK test harness (registration and activation, workspace edits, cancellation, CLI operation without desktop dependencies) and a sample connector in a separate project that references only published SDK packages: a connection form, a panel, pull/push commands, and safe workspace changes.
-- [ ] Move existing built-in commands and panels onto the new registration paths as each is introduced, so plugins do not get a weaker parallel system.
-
-**Completion gate:** the sample connector, built outside this repository, works on desktop and in the CLI; its command appears in the palette and a menu, supports shortcut reassignment, and becomes unavailable when its workspace closes; and a plugin batch edit behaves like a native edit through undo, save failure, recovery, and reopen.
+The upstream release records its connector acceptance as passed. Revalidation of the merged source build and the production connection-management gap remain tracked in APP-05 and QA-03.
 
 ### v0.24: Editor comfort and onboarding
 
@@ -248,6 +235,7 @@ Core plugins shipped in v0.18.0. See the [plugin guide](../plugins.md) and [orig
 - [ ] Add per-project validation rule files under `.toucan/rules/`.
 - [ ] Make signing mandatory for all plugins and add a plugin feed alongside the collaboration/auth milestone (commercial-channel verification ships in v0.29).
 - [ ] Add per-rule enable/severity settings for plugin rules.
+- [ ] Render `CommandPlacement.Toolbar` for plugin commands outside panels (a main toolbar surface). The placement flag and panel toolbars already work; a global toolbar for commands not attached to a panel is not yet rendered.
 
 ### Real-time collaboration
 

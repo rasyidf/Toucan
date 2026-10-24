@@ -70,6 +70,26 @@ internal static class KeyMenus
             flyout.Items.Add(Item("Duplicate", FASymbol.Copy, vm.DuplicateKeyCommand, ns));
         }
         flyout.Items.Add(Item("Delete…", FASymbol.Delete, vm.DeleteKeyCommand, ns));
+
+        // Placeholders in the key's source value: rename one across every language (portable, no modifier keys).
+        var sourceValue = vm.AllTranslation.FirstOrDefault(t => t.Namespace == ns && t.Language == vm.PrimaryLanguage)?.Value;
+        var tokens = Toucan.Core.Services.PlaceholderService.NamedDouble(sourceValue);
+        if (tokens.Count > 0)
+        {
+            flyout.Items.Add(new Separator());
+            var placeholders = new MenuItem { Header = Loc.T("Placeholders"), Icon = new FASymbolIcon { Symbol = FASymbol.Code } };
+            foreach (var token in tokens)
+            {
+                placeholders.Items.Add(new MenuItem
+                {
+                    Header = Loc.T("Rename {0} in all languages…").Replace("{0}", token, StringComparison.Ordinal),
+                    Command = vm.RenamePlaceholderCommand,
+                    CommandParameter = ns + "\t" + token,
+                });
+            }
+            flyout.Items.Add(placeholders);
+        }
+
         AddPluginActions(flyout, ns);
         return flyout;
     }

@@ -77,7 +77,7 @@ Toucan is engineered for touch-typists. Routine editing and review require no mo
 | Shortcut | Action | Description |
 |---|---|---|
 | <kbd>Ctrl/Cmd+Enter</kbd> | **Approve and Next** | Marks current translation approved and moves focus to the next target field. |
-| <kbd>Ctrl/Cmd+Shift+Enter</kbd> | **Next Pending** | Jumps focus to the next untranslated or unapproved field. |
+| <kbd>Ctrl/Cmd+Alt+→</kbd> | **Next Pending** | Jumps focus to the next untranslated or unapproved field. |
 | <kbd>Tab</kbd> | **Accept Suggestion** | Accepts the ghost-text translation memory suggestion into an empty field. |
 | <kbd>Ctrl/Cmd+Shift+P</kbd> | **Command Palette** | Search and run any menu item, command, or plugin action. |
 | <kbd>Ctrl/Cmd+/</kbd> | **Shortcut Sheet** | Displays a searchable reference of all keyboard shortcuts. |
