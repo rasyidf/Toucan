@@ -2,11 +2,19 @@
 (function () {
   'use strict';
   var root = document.documentElement;
+  function syncThemePictures() {
+    var selected = root.getAttribute('data-theme');
+    document.querySelectorAll('[data-theme-picture] source').forEach(function (source) {
+      source.media = selected === 'dark' ? 'all' : selected === 'light' ? 'not all' : '(prefers-color-scheme: dark)';
+    });
+  }
+  syncThemePictures();
   var theme = document.getElementById('theme-toggle');
   if (theme) theme.addEventListener('click', function () {
     var current = root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     var next = current === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-theme', next);
+    syncThemePictures();
     try { localStorage.setItem('toucan-theme', next); } catch (e) {}
   });
   var header = document.getElementById('site-header');

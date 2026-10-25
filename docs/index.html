@@ -161,7 +161,7 @@
     <div class="sec-head reveal">
       <div class="kicker">three modes</div>
       <h2>Translate, review, and audit in the same window.</h2>
-      <p>The layout follows VS Code: a key tree on the left, the translation pane in the middle, an inspector on the right. Switch modes without opening another tool.</p>
+      <p>Real captures of Toucan v0.24.0 with the same sample project in each mode. Switch tabs to see the editing controls, review queue and read-only audit view. Screenshots follow your light or dark theme.</p>
     </div>
 
     <div class="tabs reveal" role="tablist" aria-label="Editor modes">
@@ -182,47 +182,51 @@
           <li>Zen mode hides everything but the card</li>
         </ul>
       </div>
-      <div class="shot">
-        <img src="https://github.com/user-attachments/assets/6c60208e-640a-4fbc-b280-63f5fc856ece" width="878" height="668" loading="lazy" alt="Toucan editor with the tree sidebar, translation grid, and inspector panel">
-      </div>
+      <figure class="shot">
+        <picture data-theme-picture>
+          <source media="(prefers-color-scheme: dark)" srcset="assets/screenshots/mode-editor-dark.png">
+          <img src="assets/screenshots/mode-editor-light.png" width="1280" height="800" loading="lazy" decoding="async" alt="Toucan v0.24.0 Editor mode showing source and target translation fields, the key explorer and inspector">
+        </picture>
+        <figcaption>v0.24.0 · Editor mode · Sample project <span>Full size: <a href="assets/screenshots/mode-editor-light.png">Light</a> · <a href="assets/screenshots/mode-editor-dark.png">Dark</a></span></figcaption>
+      </figure>
     </div>
 
     <div class="mode-panel" role="tabpanel" id="panel-review" aria-labelledby="tab-review" hidden>
       <div class="mode-copy">
         <h3>Review</h3>
-        <p>Filters to unapproved items. Approve or reject each one while validation warnings sit next to the text.</p>
+        <p>Focus on unapproved or untranslated items, inspect each language and approve translations as you work through the queue.</p>
         <ul>
           <li>Only what still needs a decision</li>
-          <li>Approve or reject one item at a time</li>
+          <li>Approve translations as you review</li>
           <li>Warnings shown inline, per language</li>
         </ul>
       </div>
-      <div class="shot">
-        <img src="https://github.com/user-attachments/assets/bbd9b2ba-99e6-4500-a4e4-d92d602f33ff" width="904" height="696" loading="lazy" alt="Toucan review mode with validation warnings">
-      </div>
+      <figure class="shot">
+        <picture data-theme-picture>
+          <source media="(prefers-color-scheme: dark)" srcset="assets/screenshots/mode-review-dark.png">
+          <img src="assets/screenshots/mode-review-light.png" width="1280" height="800" loading="lazy" decoding="async" alt="Toucan v0.24.0 Review mode showing unapproved translations and approval controls">
+        </picture>
+        <figcaption>v0.24.0 · Review mode · Sample project <span>Full size: <a href="assets/screenshots/mode-review-light.png">Light</a> · <a href="assets/screenshots/mode-review-dark.png">Dark</a></span></figcaption>
+      </figure>
     </div>
 
     <div class="mode-panel" role="tabpanel" id="panel-audit" aria-labelledby="tab-audit" hidden>
       <div class="mode-copy">
         <h3>Audit</h3>
-        <p>A read-only view of each key's approval state and change history.</p>
+        <p>Inspect translations without changing them. The inspector shows language states and the recorded modification and approval timestamps.</p>
         <ul>
           <li>No accidental edits</li>
           <li>Approval state per language</li>
-          <li>Who changed what, and when</li>
+          <li>Recorded modification and approval times</li>
         </ul>
       </div>
-      <div class="shot audit-log" role="img" aria-label="Example change history for checkout.items_count">
-        <table aria-hidden="true">
-          <thead><tr><th>Key</th><th>Lang</th><th>Change</th><th class="hide-sm">State</th></tr></thead>
-          <tbody>
-            <tr><td><code>checkout.items_count</code></td><td class="who">fr-FR</td><td><span class="del">Vous avez {count} articles</span><br>Vous avez {{count}} articles</td><td class="hide-sm"><span class="chip ok">Approved</span></td></tr>
-            <tr><td><code>checkout.items_count</code></td><td class="who">id-ID</td><td>Ada {{count}} barang</td><td class="hide-sm"><span class="chip warn">In review</span></td></tr>
-            <tr><td><code>checkout.pay_now</code></td><td class="who">de-DE</td><td><span class="del">Jetzt zahlen</span><br>Jetzt bezahlen</td><td class="hide-sm"><span class="chip ok">Approved</span></td></tr>
-            <tr><td><code>errors.network</code></td><td class="who">ja-JP</td><td>ネットワークに接続できません</td><td class="hide-sm"><span class="chip ai">Machine</span></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <figure class="shot">
+        <picture data-theme-picture>
+          <source media="(prefers-color-scheme: dark)" srcset="assets/screenshots/mode-audit-dark.png">
+          <img src="assets/screenshots/mode-audit-light.png" width="1280" height="800" loading="lazy" decoding="async" alt="Toucan v0.24.0 Audit mode showing read-only translations, approval states and the inspector history">
+        </picture>
+        <figcaption>v0.24.0 · Audit mode · Sample project <span>Full size: <a href="assets/screenshots/mode-audit-light.png">Light</a> · <a href="assets/screenshots/mode-audit-dark.png">Dark</a></span></figcaption>
+      </figure>
     </div>
   </div>
 </section>
