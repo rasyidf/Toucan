@@ -4,7 +4,7 @@
 #define AppName "Toucan"
 ; publish.ps1 passes /DAppVersion from Directory.Build.props; this is the fallback.
 #ifndef AppVersion
-  #define AppVersion "0.22.0"
+  #error Pass /DAppVersion from Directory.Build.props (use publish.ps1 installer)
 #endif
 #define AppPublisher "rasyid.dev"
 #define AppURL "https://github.com/rasyidf/Toucan"
@@ -23,7 +23,7 @@ DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
 LicenseFile=LICENSE.txt
-OutputDir=publish\installer
+OutputDir=dist
 OutputBaseFilename=ToucanSetup-{#AppVersion}
 Compression=lzma2/ultra64
 SolidCompression=yes
@@ -44,7 +44,7 @@ Name: "fileassoc"; Description: "Associate .tproj files with Toucan"; GroupDescr
 Name: "contextmenu"; Description: "Add 'Open with Toucan' to folder context menu"; GroupDescription: "Shell integration:"
 
 [Files]
-Source: "publish\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "build\publish\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExeName}"

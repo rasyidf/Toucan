@@ -21,6 +21,16 @@ Write-Host "=== Toucan Publish Script v$Version ===" -ForegroundColor Cyan
 Write-Host ""
 
 # --- Helper: Publish to folder ---
+function Clear-PublishDirectory {
+    param([string]$Path)
+    $resolved = [IO.Path]::GetFullPath($Path)
+    $stageRoot = [IO.Path]::GetFullPath("$PSScriptRoot\build\publish") + [IO.Path]::DirectorySeparatorChar
+    if (-not $resolved.StartsWith($stageRoot, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Refusing to clear a directory outside build/publish: $resolved"
+    }
+    if (Test-Path -LiteralPath $resolved) { Remove-Item -LiteralPath $resolved -Recurse -Force }
+}
+
 function Publish-App {
     param([string]$OutputDir, [switch]$SingleFile)
 
@@ -56,13 +66,13 @@ function Publish-App {
 # =============================================================
 function Build-Portable {
     Write-Host "[1/3] Building portable single-file..." -ForegroundColor Green
-    $outDir = "publish\portable"
-    if (Test-Path $outDir) { Remove-Item $outDir -Recurse -Force }
+    $outDir = "$PSScriptRoot\build\publish\portable"
+    Clear-PublishDirectory $outDir
 
     Publish-App -OutputDir $outDir -SingleFile
 
     # Create ZIP
-    $zipPath = "publish\Toucan-$Version-portable-x64.zip"
+    $zipPath = "$PSScriptRoot\dist\Toucan-$Version-portable-x64.zip"
     if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
     Compress-Archive -Path "$outDir\*" -DestinationPath $zipPath -CompressionLevel Optimal
 
@@ -77,31 +87,29 @@ function Build-Portable {
 function Build-Installer {
     Write-Host "[2/3] Building Inno Setup installer..." -ForegroundColor Green
 
-    # First publish to win-x64 folder (framework-dependent for smaller size)
-    $outDir = "publish\win-x64"
-    if (Test-Path $outDir) { Remove-Item $outDir -Recurse -Force }
+    # Publish the self-contained application and required sidecars.
+    $outDir = "$PSScriptRoot\build\publish\win-x64"
+    Clear-PublishDirectory $outDir
 
     Publish-App -OutputDir $outDir
 
     # Check for Inno Setup compiler
-    $iscc = Get-Command "iscc" -ErrorAction SilentlyContinue
-    if (-not $iscc) {
-        $isccPath = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
-        if (Test-Path $isccPath) { $iscc = Get-Item $isccPath }
-        else {
-            Write-Host "  [SKIP] Inno Setup not found. Install from https://jrsoftware.org/isinfo.php" -ForegroundColor Red
-            Write-Host "  Published files at: $outDir" -ForegroundColor DarkGray
-            return
+    $isccPath = (Get-Command "iscc" -ErrorAction SilentlyContinue).Source
+    if (-not $isccPath) {
+        foreach ($major in @(7, 6)) {
+            $candidate = "${env:ProgramFiles(x86)}\Inno Setup $major\ISCC.exe"
+            if (Test-Path -LiteralPath $candidate) { $isccPath = $candidate; break }
         }
     }
+    if (-not $isccPath) { throw "Inno Setup 6/7 not found. Published files are at $outDir" }
 
     # Build installer
     $issFile = "installer.iss"
     Write-Host "  Running ISCC..." -ForegroundColor DarkGray
-    & $iscc.FullName "/DAppVersion=$Version" $issFile
+    & $isccPath "/DAppVersion=$Version" $issFile
     if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed" }
 
-    $installerPath = "publish\installer\ToucanSetup-$Version.exe"
+    $installerPath = "$PSScriptRoot\dist\ToucanSetup-$Version.exe"
     $size = [math]::Round((Get-Item $installerPath).Length / 1MB, 1)
     Write-Host "  -> $installerPath ($size MB)" -ForegroundColor Yellow
     Write-Host ""
@@ -111,75 +119,7 @@ function Build-Installer {
 # Option 3: MSIX package
 # =============================================================
 function Build-Msix {
-    Write-Host "[3/3] Building MSIX package..." -ForegroundColor Green
-
-    # Publish app content
-    $outDir = "publish\msix-content"
-    if (Test-Path $outDir) { Remove-Item $outDir -Recurse -Force }
-
-    Publish-App -OutputDir $outDir
-
-    # Copy MSIX assets
-    $assetsDir = "$outDir\Assets"
-    if (-not (Test-Path $assetsDir)) { New-Item -ItemType Directory -Path $assetsDir | Out-Null }
-
-    # Generate placeholder PNGs if assets don't exist
-    $manifest = "packaging\msix\AppxManifest.xml"
-    (Get-Content $manifest -Raw) -replace '(<Identity[^>]*?Version=")[^"]*', "`${1}$Version.0" |
-        Set-Content "$outDir\AppxManifest.xml" -Encoding UTF8
-
-    # Copy packaging assets if they exist
-    if (Test-Path "packaging\msix\Assets") {
-        Copy-Item "packaging\msix\Assets\*" $assetsDir -Force -Recurse
-    }
-    else {
-        Write-Host "  [WARN] No MSIX assets in packaging\msix\Assets\. Using placeholders." -ForegroundColor DarkYellow
-        # Create minimal placeholder assets from the app icon
-        if (Test-Path "Toucan.Avalonia\Assets\logo.png") {
-            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\Square44x44Logo.png" -Force
-            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\Square150x150Logo.png" -Force
-            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\Wide310x150Logo.png" -Force
-            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\SmallTile.png" -Force
-            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\LargeTile.png" -Force
-            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\StoreLogo.png" -Force
-            Copy-Item "Toucan.Avalonia\Assets\logo.png" "$assetsDir\document.png" -Force
-        }
-    }
-
-    # Find makeappx.exe
-    $makeappx = Get-Command "makeappx" -ErrorAction SilentlyContinue
-    if (-not $makeappx) {
-        $sdkPaths = @(
-            "${env:ProgramFiles(x86)}\Windows Kits\10\bin\10.0.22621.0\x64\makeappx.exe",
-            "${env:ProgramFiles(x86)}\Windows Kits\10\bin\10.0.19041.0\x64\makeappx.exe",
-            "${env:ProgramFiles(x86)}\Windows Kits\10\bin\10.0.26100.0\x64\makeappx.exe"
-        )
-        foreach ($p in $sdkPaths) {
-            if (Test-Path $p) { $makeappx = Get-Item $p; break }
-        }
-    }
-
-    if (-not $makeappx) {
-        Write-Host "  [SKIP] makeappx.exe not found. Install Windows SDK." -ForegroundColor Red
-        Write-Host "  Published files at: $outDir (ready for manual packaging)" -ForegroundColor DarkGray
-        return
-    }
-
-    # Pack MSIX
-    $msixPath = "publish\Toucan-$Version-x64.msix"
-    if (Test-Path $msixPath) { Remove-Item $msixPath -Force }
-
-    & $makeappx.FullName pack /d $outDir /p $msixPath /nv
-    if ($LASTEXITCODE -ne 0) { throw "makeappx pack failed" }
-
-    $size = [math]::Round((Get-Item $msixPath).Length / 1MB, 1)
-    Write-Host "  -> $msixPath ($size MB)" -ForegroundColor Yellow
-    Write-Host ""
-
-    Write-Host "  NOTE: MSIX is unsigned. To install, either:" -ForegroundColor DarkGray
-    Write-Host "    1. Sign with: signtool sign /fd SHA256 /a $msixPath" -ForegroundColor DarkGray
-    Write-Host "    2. Enable Developer Mode in Windows Settings" -ForegroundColor DarkGray
-    Write-Host ""
+    & "$PSScriptRoot\packaging\Build-Msix.ps1" -Configuration $Config
 }
 
 # =============================================================
@@ -187,11 +127,17 @@ function Build-Msix {
 # =============================================================
 $startTime = Get-Date
 
-switch ($Target) {
-    "portable"  { Build-Portable }
-    "installer" { Build-Installer }
-    "msix"      { Build-Msix }
-    "all"       { Build-Portable; Build-Installer; Build-Msix }
+Push-Location $PSScriptRoot
+try {
+    New-Item -ItemType Directory -Path "$PSScriptRoot\dist" -Force | Out-Null
+    switch ($Target) {
+        "portable"  { Build-Portable }
+        "installer" { Build-Installer }
+        "msix"      { Build-Msix }
+        "all"       { Build-Portable; Build-Installer; Build-Msix }
+    }
+} finally {
+    Pop-Location
 }
 
 $elapsed = (Get-Date) - $startTime

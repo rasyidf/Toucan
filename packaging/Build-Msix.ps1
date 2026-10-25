@@ -4,6 +4,7 @@
 
 param(
     [switch]$SkipBuild,
+    [switch]$LayoutOnly,
     [switch]$Sign,
     [string]$CertPath,
     [string]$CertPassword,
@@ -18,6 +19,11 @@ if (-not $Version) {
     $Version = "$AppVersion.0"
 }
 $PublishDir = "$Root\build\publish\msix"
+$PublishDir = [IO.Path]::GetFullPath($PublishDir)
+$StageRoot = [IO.Path]::GetFullPath("$Root\build\publish") + [IO.Path]::DirectorySeparatorChar
+if (-not $PublishDir.StartsWith($StageRoot, [StringComparison]::OrdinalIgnoreCase)) {
+    throw "MSIX publish output must stay within build/publish"
+}
 $PackagingDir = "$Root\packaging"
 $OutputDir = "$Root\dist"
 $MsixPath = "$OutputDir\Toucan-$Version-x64.msix"
@@ -28,15 +34,14 @@ Write-Host ""
 
 # Step 1: Publish self-contained
 if (-not $SkipBuild) {
+    if (Test-Path -LiteralPath $PublishDir) { Remove-Item -LiteralPath $PublishDir -Recurse -Force }
     Write-Host "[1/4] Publishing self-contained build..." -ForegroundColor Yellow
-    Push-Location $Root
-    dotnet publish Toucan.Avalonia/Toucan.Avalonia.csproj -c $Configuration -r win-x64 --self-contained `
+    dotnet publish "$Root\Toucan.Avalonia\Toucan.Avalonia.csproj" -c $Configuration -r win-x64 --self-contained `
         -p:PublishSingleFile=false `
         -p:PublishReadyToRun=true `
         -p:DebugType=none `
         -o $PublishDir
     if ($LASTEXITCODE -ne 0) { throw "Publish failed" }
-    Pop-Location
     # Native packages ship ~100 MB of .pdb files that DebugType=none does not remove.
     Get-ChildItem $PublishDir -Recurse -Include *.pdb, *.xml | Remove-Item -Force
     Write-Host "  Published to: $PublishDir" -ForegroundColor Green
@@ -50,8 +55,11 @@ if (-not $SkipBuild) {
 if ($LASTEXITCODE -ne 0) { throw "Spelling source/notices verification failed" }
 
 Write-Host "[2/4] Preparing MSIX layout..." -ForegroundColor Yellow
-$LayoutDir = "$OutputDir\layout"
-if (Test-Path $LayoutDir) { Remove-Item -Recurse -Force $LayoutDir }
+$LayoutDir = [IO.Path]::GetFullPath("$Root\build\publish\msix-layout")
+if (-not $LayoutDir.StartsWith($StageRoot, [StringComparison]::OrdinalIgnoreCase)) {
+    throw "MSIX layout must stay within build/publish"
+}
+if (Test-Path -LiteralPath $LayoutDir) { Remove-Item -LiteralPath $LayoutDir -Recurse -Force }
 New-Item -ItemType Directory -Path $LayoutDir -Force | Out-Null
 New-Item -ItemType Directory -Path "$LayoutDir\Assets" -Force | Out-Null
 
@@ -59,33 +67,27 @@ New-Item -ItemType Directory -Path "$LayoutDir\Assets" -Force | Out-Null
 Copy-Item -Path "$PublishDir\*" -Destination $LayoutDir -Recurse -Force
 
 # Copy manifest (update version)
-$manifest = Get-Content "$PackagingDir\Package.appxmanifest" -Raw
-$manifest = $manifest -replace 'Version="[^"]*"', "Version=`"$Version`""
+$manifest = Get-Content "$PackagingDir\msix\AppxManifest.xml" -Raw
+$manifest = $manifest -replace '(<Identity\s[^>]*?Version=")[^"]*', "`${1}$Version"
 Set-Content -Path "$LayoutDir\AppxManifest.xml" -Value $manifest
 
-# Copy/create placeholder assets (if not provided, create minimal PNGs)
-$assetSizes = @{ "StoreLogo.png" = 50; "Square44x44Logo.png" = 44; "Square150x150Logo.png" = 150; "Wide310x150Logo.png" = 310 }
-foreach ($asset in $assetSizes.Keys) {
-    $src = "$PackagingDir\Assets\$asset"
+# Generate correctly sized assets from the app logo; optional authored assets override them.
+& "$PackagingDir\New-MsixAssets.ps1" -OutputDirectory "$LayoutDir\Assets"
+$assetSizes = @("StoreLogo.png", "Square44x44Logo.png", "Square150x150Logo.png", "Wide310x150Logo.png", "SmallTile.png", "LargeTile.png", "document.png")
+foreach ($asset in $assetSizes) {
+    $src = "$PackagingDir\msix\Assets\$asset"
     if (Test-Path $src) {
         Copy-Item $src "$LayoutDir\Assets\$asset"
-    } else {
-        # Create a minimal 1x1 PNG placeholder (replace with real assets for store submission)
-        Write-Host "  Warning: Missing $asset — using placeholder" -ForegroundColor DarkYellow
-        [byte[]]$png = 0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A,0x00,0x00,0x00,0x0D,0x49,0x48,0x44,0x52,
-                       0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x01,0x08,0x06,0x00,0x00,0x00,0x1F,0x15,0xC4,
-                       0x89,0x00,0x00,0x00,0x0A,0x49,0x44,0x41,0x54,0x78,0x9C,0x62,0x00,0x00,0x00,0x02,
-                       0x00,0x01,0xE5,0x27,0xDE,0xFC,0x00,0x00,0x00,0x00,0x49,0x45,0x4E,0x44,0xAE,0x42,
-                       0x60,0x82
-        [IO.File]::WriteAllBytes("$LayoutDir\Assets\$asset", $png)
     }
 }
 
 Write-Host "  Layout ready at: $LayoutDir" -ForegroundColor Green
+if ($LayoutOnly) { return }
 
 # Step 3: Create MSIX
 Write-Host "[3/4] Creating MSIX package..." -ForegroundColor Yellow
 $makeappx = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter "makeappx.exe" -ErrorAction SilentlyContinue |
+            Where-Object { $_.Directory.Name -eq 'x64' } |
             Sort-Object { [version]($_.Directory.Parent.Name) } -Descending | Select-Object -First 1
 
 if (-not $makeappx) {
@@ -111,6 +113,7 @@ if ($Sign) {
     if (-not $CertPath) { throw "Provide -CertPath for signing" }
 
     $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter "signtool.exe" -ErrorAction SilentlyContinue |
+                Where-Object { $_.Directory.Name -eq 'x64' } |
                 Sort-Object { [version]($_.Directory.Parent.Name) } -Descending | Select-Object -First 1
     if (-not $signtool) { throw "signtool.exe not found" }
 

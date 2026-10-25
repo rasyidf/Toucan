@@ -129,7 +129,7 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Editor comfort, resource compatibility and a contextual desktop shell for the 0.24 source build.</p></div>
-<div class="release-counts"><span class="added">10 added</span><span class="changed">4 changed</span><span class="fixed">16 fixed</span></div>
+<div class="release-counts"><span class="added">10 added</span><span class="changed">5 changed</span><span class="fixed">16 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
 <li><strong>Editor workflow</strong> — Source-first language cards switch to two columns in wide editors and stack in narrow windows. Focused fields show Unicode character and word counts and translation-memory provenance. Approve and Next (<code>Ctrl/Cmd+Enter</code>), Next Pending Translation and Accept Suggestion are registered, reassignable commands that retain target focus across pages.</li>
@@ -145,6 +145,7 @@
 </ul>
 <h3>Changed</h3>
 <ul>
+<li><strong>Repository and packaging cleanup</strong> — One maintained solution and one MSIX implementation/manifest; Windows packages go to <code>dist/</code> with staging under <code>build/publish/</code>. MSIX assets are generated at their declared sizes, and local build probes and retired WPF agent configuration are removed.</li>
 <li><strong>Plugin toolbar contributions</strong> — Commands with toolbar placement now render in the editor and follow registry availability and registration changes.</li>
 <li><strong>Preview version</strong> — Source builds identify themselves as 0.24.0; publishing the release still requires the native/platform acceptance recorded in the editor-comfort spec.</li>
 <li><strong>Welcome screen and project setup</strong> — Theme-aware artwork, responsive welcome sections, shared framework cards with consistent sizing, and template shortcuts that preselect their framework. The project wizard places aligned project details above its framework selector and scrolls the body above a fixed footer. Redundant welcome navigation was removed.</li>

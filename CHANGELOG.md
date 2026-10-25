@@ -17,6 +17,7 @@ Editor comfort, resource compatibility and a contextual desktop shell for the 0.
 - **Placeholders in the inspector** — Selecting a key lists the placeholders parsed from its source value (`{name}`, `{{count}}`, `%s`, `:param`, `${expr}`, ICU), so a translator can see at a glance what every translation must keep. The inspector already shows the per-language values with their state (empty, machine, translated, approved), translation-memory matches, source-code references and history.
 
 ### Changed
+- **Repository and packaging cleanup** — One maintained solution and one MSIX implementation/manifest; Windows packages go to `dist/` with staging under `build/publish/`. MSIX assets are generated at their declared sizes, and local build probes and retired WPF agent configuration are removed.
 - **Plugin toolbar contributions** — Commands with toolbar placement now render in the editor and follow registry availability and registration changes.
 - **Preview version** — Source builds identify themselves as 0.24.0; publishing the release still requires the native/platform acceptance recorded in the editor-comfort spec.
 - **Welcome screen and project setup** — Theme-aware artwork, responsive welcome sections, shared framework cards with consistent sizing, and template shortcuts that preselect their framework. The project wizard places aligned project details above its framework selector and scrolls the body above a fixed footer. Redundant welcome navigation was removed.
