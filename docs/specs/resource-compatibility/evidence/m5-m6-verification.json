@@ -1,0 +1,1525 @@
+{
+  "evidenceSchemaVersion": 1,
+  "milestones": [
+    "M5",
+    "M6"
+  ],
+  "generatedUtc": "2026-10-22T09:19:39.702886+00:00",
+  "baseCommit": "7dc5d8ce2ff967612e2b238f803ad9e9d7c2c891",
+  "workingTree": "M0–M2 committed in 7dc5d8c; preserved M3/M4 and new M5/M6 work remain uncommitted",
+  "platform": "Windows x64 / Avalonia headless",
+  "sdk": "10.0.401",
+  "pluginApi": "1.2 (unreleased additive contract set)",
+  "suites": [
+    {
+      "trx": "build/resource-compatibility/m5-m6/test-results/m5-m6-verification_net10.0_20261022161531.trx",
+      "sha256": "55844cb3a19fa02742ba7b53668117a5345ba11134b6e8cbe67003367013d6d8",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 271,
+        "executed": 271,
+        "passed": 271,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "classes": {
+        "Toucan.Avalonia.Tests.AiIntegrationUiTests": {
+          "Passed": 15
+        },
+        "Toucan.Avalonia.Tests.AppSmokeTests": {
+          "Passed": 9
+        },
+        "Toucan.Avalonia.Tests.AppearanceAndUpdateTests": {
+          "Passed": 9
+        },
+        "Toucan.Avalonia.Tests.BabelImportFlowTests": {
+          "Passed": 10
+        },
+        "Toucan.Avalonia.Tests.BuiltInModulesPageTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ColorInputTests": {
+          "Passed": 7
+        },
+        "Toucan.Avalonia.Tests.CommandPaletteTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.DesktopPluginTests": {
+          "Passed": 11
+        },
+        "Toucan.Avalonia.Tests.DesktopServicesTests": {
+          "Passed": 12
+        },
+        "Toucan.Avalonia.Tests.DialogSurfaceTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.EditableTableTests": {
+          "Passed": 6
+        },
+        "Toucan.Avalonia.Tests.EditorPolishTests": {
+          "Passed": 7
+        },
+        "Toucan.Avalonia.Tests.ExplorerContextMenuTests": {
+          "Passed": 1
+        },
+        "Toucan.Avalonia.Tests.FrameworkIntegrationFlowTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.GhostTextTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.IntegrationAndTranslationPanelTests": {
+          "Passed": 18
+        },
+        "Toucan.Avalonia.Tests.KeybindingServiceTests": {
+          "Passed": 1
+        },
+        "Toucan.Avalonia.Tests.LanguageManagerViewModelTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.LocalizationTests": {
+          "Passed": 5
+        },
+        "Toucan.Avalonia.Tests.MainWindowSmokeTests": {
+          "Passed": 5
+        },
+        "Toucan.Avalonia.Tests.MainWindowViewModelTests": {
+          "Passed": 15
+        },
+        "Toucan.Avalonia.Tests.PaginationViewModelTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.PanelAlignmentTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.PluginsUiTests": {
+          "Passed": 16
+        },
+        "Toucan.Avalonia.Tests.ProjectCreationUiTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.RecentProjectServiceTests": {
+          "Passed": 8
+        },
+        "Toucan.Avalonia.Tests.RecentProjectsViewModelTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ResourceFidelityFlowTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ResourceIdentityFlowTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.ScanCancellationTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.SecureStorageServiceTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.SettingsListTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.ShortcutEditingTests": {
+          "Passed": 16
+        },
+        "Toucan.Avalonia.Tests.ShortcutSheetTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.SpreadsheetImportFlowTests": {
+          "Passed": 7
+        },
+        "Toucan.Avalonia.Tests.StatisticsViewModelTests": {
+          "Passed": 1
+        },
+        "Toucan.Avalonia.Tests.StatusBarActionTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.TitleBarTests": {
+          "Passed": 9
+        },
+        "Toucan.Avalonia.Tests.UiScreenshotTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.UndoRedoGroupTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ValidationPageTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.WorkspaceApiTests": {
+          "Passed": 17
+        },
+        "Toucan.Avalonia.Tests.WpfParityTests": {
+          "Passed": 4
+        }
+      }
+    },
+    {
+      "trx": "build/resource-compatibility/m5-m6/test-results/m5-m6-verification_net10.0_20261022161538.trx",
+      "sha256": "66f8743c95df8d98f06498946b111fd51f73f387469038d4a08b9f2a03a24a31",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 1060,
+        "executed": 1060,
+        "passed": 1060,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "classes": {
+        "Toucan.Core.Tests.AiIntegrationTests": {
+          "Passed": 25
+        },
+        "Toucan.Core.Tests.AtomicFileServiceTests": {
+          "Passed": 3
+        },
+        "Toucan.Core.Tests.BabelExcelTests": {
+          "Passed": 5
+        },
+        "Toucan.Core.Tests.BulkActionServiceTests": {
+          "Passed": 2
+        },
+        "Toucan.Core.Tests.Commands.CommandRegistryTests": {
+          "Passed": 28
+        },
+        "Toucan.Core.Tests.CommentPersistenceServiceTests": {
+          "Passed": 30
+        },
+        "Toucan.Core.Tests.CompositionRootTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.DeepLProviderTests": {
+          "Passed": 24
+        },
+        "Toucan.Core.Tests.Formats.BabelParityRegressionTests": {
+          "Passed": 48
+        },
+        "Toucan.Core.Tests.Formats.ExactResourceIntegrationTests": {
+          "Passed": 37
+        },
+        "Toucan.Core.Tests.Formats.FormatBugRegressionTests": {
+          "Passed": 18
+        },
+        "Toucan.Core.Tests.Formats.FormatConventionsTests": {
+          "Passed": 20
+        },
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests": {
+          "Passed": 208
+        },
+        "Toucan.Core.Tests.Formats.FormatIdsTests": {
+          "Passed": 17
+        },
+        "Toucan.Core.Tests.Formats.FormatRoundTripTests": {
+          "Passed": 29
+        },
+        "Toucan.Core.Tests.Formats.FormatStabilityTests": {
+          "Passed": 39
+        },
+        "Toucan.Core.Tests.Formats.FormatSupportTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Formats.FormatUnavailableTests": {
+          "Passed": 5
+        },
+        "Toucan.Core.Tests.Formats.PoCsvBugTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.Formats.PoRoundTripTests": {
+          "Passed": 4
+        },
+        "Toucan.Core.Tests.Formats.ProjectSettingsFormatTests": {
+          "Passed": 49
+        },
+        "Toucan.Core.Tests.Formats.ResourceContractTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Formats.ResourceFidelitySettingsTests": {
+          "Passed": 40
+        },
+        "Toucan.Core.Tests.Formats.YamlFidelityTests": {
+          "Passed": 9
+        },
+        "Toucan.Core.Tests.FrameworkCapabilitiesTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.FrameworkSourceScannerTests": {
+          "Passed": 51
+        },
+        "Toucan.Core.Tests.MockTranslationProviderTests": {
+          "Passed": 5
+        },
+        "Toucan.Core.Tests.Modules.ArchitectureTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.Modules.BuiltInModuleTests": {
+          "Passed": 10
+        },
+        "Toucan.Core.Tests.Modules.ModuleSnapshotTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.Plugins.PluginActivationTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Plugins.PluginCompatibilityTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.Plugins.PluginContractTests": {
+          "Passed": 29
+        },
+        "Toucan.Core.Tests.Plugins.PluginHostTests": {
+          "Passed": 35
+        },
+        "Toucan.Core.Tests.Plugins.PluginServicesTests": {
+          "Passed": 43
+        },
+        "Toucan.Core.Tests.Plugins.PluginTrustTests": {
+          "Passed": 24
+        },
+        "Toucan.Core.Tests.Plugins.SamplePluginTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Plugins.WorkspaceEditPlannerTests": {
+          "Passed": 25
+        },
+        "Toucan.Core.Tests.PreferredLanguageDetectorTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.PretranslationServiceTests": {
+          "Passed": 7
+        },
+        "Toucan.Core.Tests.ProjectTextFormatTests": {
+          "Passed": 21
+        },
+        "Toucan.Core.Tests.ProviderSelectionTests": {
+          "Passed": 3
+        },
+        "Toucan.Core.Tests.Qa01RegressionTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.SaveRecoveryTests": {
+          "Passed": 17
+        },
+        "Toucan.Core.Tests.SearchAndReplaceServiceTests": {
+          "Passed": 12
+        },
+        "Toucan.Core.Tests.SpreadsheetExchangeTests": {
+          "Passed": 27
+        },
+        "Toucan.Core.Tests.TranslationPostProcessorTests": {
+          "Passed": 11
+        }
+      }
+    },
+    {
+      "trx": "build/resource-compatibility/m5-m6/test-results/m5-m6-verification_net10.0_20261022161539.trx",
+      "sha256": "2121464adb7941adae506fcab133cfc169dc6c8592e0172ec873d967892ab53c",
+      "assemblies": [
+        "Toucan.Plugins.Testing.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "classes": {
+        "Toucan.Plugins.Testing.Tests.ConnectorHarnessTests": {
+          "Passed": 11
+        }
+      }
+    }
+  ],
+  "totalPassed": 1342,
+  "priorFailedAttempts": [
+    {
+      "trx": "build/resource-compatibility/m5-m6/test-results/m5-m6-verification_net10.0_20261022152223.trx",
+      "sha256": "b402e9065aa4dc50fbf2f94710b1b46c2d00a2c7b0c861a7b8a606e91a852265",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Failed",
+      "counters": {
+        "total": 1056,
+        "executed": 1056,
+        "passed": 1031,
+        "failed": 25,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": [
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"tab\")",
+        "Toucan.Core.Tests.Modules.ModuleSnapshotTests.FrameworkProfilesKeepTheirIdsAndOrder",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"unicode\")",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"separators\")",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"yamlwords\")",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"backslash\")",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"percent\")",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"trailing-backslash\")",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"markup\")",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"quotes\")",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"number\")",
+        "Toucan.Core.Tests.Formats.FormatStabilityTests.SaveLoadSave_ChangesNothing_AndCreatesNoNewFiles(formatId: \"formatjs\")",
+        "Toucan.Core.Tests.Modules.ModuleSnapshotTests.LoadStrategiesKeepTheirIds",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"leadingspace\")",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"placeholders\")",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"multiline\")",
+        "Toucan.Core.Tests.Modules.BuiltInModuleTests.CatalogListsTheBuiltInModulesWithWhatEachRegistered",
+        "Toucan.Core.Tests.Formats.FormatStabilityTests.SavingTheSameDataTwice_GivesIdenticalFiles(formatId: \"formatjs\")",
+        "Toucan.Core.Tests.CompositionRootTests.EveryBuiltInFormatHasASaveStrategyAndNoDuplicates",
+        "Toucan.Core.Tests.Modules.ModuleSnapshotTests.SaveStrategiesKeepTheirIdsAndTheOrderUsersSee",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"dollar\")",
+        "Toucan.Core.Tests.Formats.FormatStabilityTests.LocaleVariants_KeepTheirIdentity(formatId: \"formatjs\")",
+        "Toucan.Core.Tests.ProjectTextFormatTests.ProjectSave_AppliesPreferencesToFormatOutput(format: \"formatjs\")",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"literal-escape\")",
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests.ValueSurvivesSaveAndLoad(formatId: \"formatjs\", construct: \"crlf\")"
+      ]
+    },
+    {
+      "trx": "build/resource-compatibility/m5-m6/test-results/m5-m6-verification_net10.0_20261022155017.trx",
+      "sha256": "d28ca738257bd1593b023351dba4d92a812ea7cc9b56cff806290588bf36b580",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Failed",
+      "counters": {
+        "total": 271,
+        "executed": 271,
+        "passed": 269,
+        "failed": 2,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": [
+        "Toucan.Avalonia.Tests.DesktopServicesTests.TheSettingsFormIsGeneratedFromTheSchemaAndStoresWhatIsValid",
+        "Toucan.Avalonia.Tests.DesktopServicesTests.TheSettingsFormIsGeneratedFromTheSchemaAndStoresWhatIsValid"
+      ]
+    }
+  ],
+  "sourceSha256": {
+    "Toucan.Avalonia/App.axaml.cs": "9f4bd0d00b5939e4ebcd1d57b476620e8ae2f5db3698bac9d5a77e4cc0d4fb48",
+    "Toucan.Avalonia/Services/BuiltInCommands.cs": "4c9e610781f03888814ead76e558076b75de4c2cb06161175e62e7dea570b1c3",
+    "Toucan.Avalonia/Services/DialogService.cs": "2b7b9edcfc94d71b3976ba589b588ad2a1de00273f1f7cb33621808c6c87e4c8",
+    "Toucan.Avalonia/Services/IDialogService.cs": "edebf822ff7982e0ae5215783a42f5327af331d490dc1edc0a6aeb94c5622355",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Edit.cs": "9a16d54fafde4ff2c330d4b02becf6f5feac0cba9d267de7d3c54a2bac5d9e1f",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.File.cs": "fed9daaf63a77d69477f6239baec441a6d6af4e57d725fc017b97b8bb48d1383",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Nav.cs": "de453fd238b454f61554e92593480c608b5f42acbcc86c846826a75e7da3ea80",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Translation.cs": "e6ed47dbebd3fbf41bfb4afa70f0941ce7377427bea106f4f4f5d893fde73957",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Workspace.cs": "c4f1eaec9a4a041104dae60a4c75d55e6198b735ecb2d3861ba7c5662fd42be4",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.cs": "1d70acd91c7e6fe3554d81f28548ae3041018a0146b3a5b26e6bc404281ae023",
+    "Toucan.Avalonia/ViewModels/ProjectDialogViewModels.cs": "5747f953af6cde94d58760ea8157f4ce993c3f4eaf7832f5800691a9ce4401c4",
+    "Toucan.Avalonia/ViewModels/TranslationItemViewModel.cs": "2da72d1a189d82cf526b46c41335202906c71e3ac8443c60d23c522cf6f9e5f5",
+    "Toucan.Avalonia/Views/Components/ConfigForm.cs": "a8fe045efc2628ea3c94e67de6d09b6ba4e3d8020698b3f092502c2a136ac2a0",
+    "Toucan.Avalonia/Views/Components/TranslationCard.axaml": "63172a9c7c4d6e02761015cb8d7af051688031223b6c48d99730373aa4079408",
+    "Toucan.Avalonia/Views/Dialogs/ProjectPropertiesDialog.axaml": "47dc0f805d1242ffcc22364f45d6088f276e96df9914685e6817938cc2292d1b",
+    "Toucan.Avalonia/Views/Dialogs/ProjectPropertiesDialog.axaml.cs": "596373b368c70932f5c5eacf1deb75a0c08e46f7a89baf044123722331c2cc14",
+    "Toucan.Avalonia/Views/Dialogs/SpreadsheetPreviewDialog.cs": "7750e2b358b9eac3da1eb6990983e9310d11cb9017905c644e234aff5bbc30b7",
+    "Toucan.Avalonia/Views/Panels/SourceCodePanel.axaml": "d48f211660b96ca65b59254031bbfa5f6a5f3b218a9b47fb417b7e3396080ca3",
+    "Toucan.CLI/Program.cs": "3d5bbabd72de9f345f0ff667937abaa9f36972b259a937630662180062918539",
+    "Toucan.Core.Common/Services/FileEnumerator.cs": "b046ac895dba306ef44552b7786775e059d746da60fc924439137b5b6c9610f9",
+    "Toucan.Core.Common/Services/ResourceFileAdapter.cs": "c6054674bddc4a28c5826aba5f1a25bbca8eee81019ad2b8ecf08cc96cebc14c",
+    "Toucan.Core.Common/Services/ResourceJsonCodec.cs": "ca83796a198cdc58509bae6f1b5c3cd8b6cd51ea92661b5fee9959874ea43927",
+    "Toucan.Core.Common/Services/ResourceText.cs": "05513d13e92a194f54b49c0c936428be46e1be5d633bff8a12612c7fb3940171",
+    "Toucan.Core.Common/Services/SourceSyntax.cs": "c3411d0d11f0b95b0ccb05c2ad1edb7fca21c6cee5f33fc0b667f435c3764b53",
+    "Toucan.Core/Contracts/ISourceCodeService.cs": "34a356ee4e73e1d6988a3e85ea3dac2ae34da17551b861c6e3a53e079180205d",
+    "Toucan.Core/Models/ProjectSettings.cs": "68e0cbce692b88f3f38b754ce1e643bfb2e06c15bc0638492c2b704a4ddbc6c1",
+    "Toucan.Core/Plugins/Services/FrameworkConfiguration.cs": "61fb0a46f72b00425f5ef57e055c790d121d95c50544f9df06bb46aa52c8df1e",
+    "Toucan.Core/Plugins/Services/PluginConfiguration.cs": "a93c815e17c9302790a85318122f66c5895bfc8e9ecdf4ef40ea41c9eae64b55",
+    "Toucan.Core/Plugins/Services/WorkspaceEditPlanner.cs": "0bc2f496bb8ee7f55d74d2b47cb968dc8bf0edfea685d26bc56febdd4ac356a1",
+    "Toucan.Core/Services/ExcelService.cs": "454bc180bd916a2a8a5f252668901ddcd2cd639e3acc864e47884d08141e9ea4",
+    "Toucan.Core/Services/GenericSourceScanner.cs": "31b63d4366e9084f8ca4bed1895c8d86d11ae47a0cfd494c977a942dd11449c3",
+    "Toucan.Core/Services/LegacySpreadsheetBridge.cs": "aa6bbbf95ba623526b1a0ede5b683e034eac739be6e3ad8709cf7cfa94e7d1b6",
+    "Toucan.Core/Services/PackageService.cs": "9521ec90a2669468fc4c741930a92b35c694844f7a4fece5b2294c9feda85d71",
+    "Toucan.Core/Services/ProjectLifecycleService.cs": "89aedcfa1cdf38c108b8f0e63c640afb880e1589d7f51647010327a86a70cb9a",
+    "Toucan.Core/Services/ProjectService.cs": "98d4bdf1c5e9d0d3cf5d9552b9dfab55ee4a5c75fcda855b2037143c29c58960",
+    "Toucan.Core/Services/ResourceStrategyExtensions.cs": "9431e1556d357e596a8aa04e5442de4f50d392ebe03e5d01225f6ecdbf359726",
+    "Toucan.Core/Services/SourceCodeService.cs": "e0ce3e88bb304004f9e8c28f8e66e1de72a1e4bafe363bdaed09b757c8f5bd2d",
+    "Toucan.Core/Services/SpreadsheetPlanner.cs": "79b25b34de5cc27cdb916ae7784f43f3450682afc144a519828871e89a2c7b8b",
+    "Toucan.Core/Services/TranslationManagementService.cs": "82d37bd5c65566d0611953e61f0619eb6635d61a602d463f824855c8763770b9",
+    "Toucan.Core/ToucanCoreServiceCollectionExtensions.cs": "a1f63a6bd110f780d697d6c760338ff794fc68dd14760b31331eff6f17a56472",
+    "Toucan.Modules.Compatibility.BabelEdit/BabelEditCompatibilityModule.cs": "646b00670d6283de865e986b2d7bd07cc9b6c08ff2a6d1059ee2d20009caedca",
+    "Toucan.Modules.Compatibility.BabelEdit/BabelProjectReader.cs": "a614e976d21a90e32de1b3ffe98df235eb58f95549249189af3f1e6645aac799",
+    "Toucan.Modules.Compatibility.BabelEdit/BabelSpreadsheetDialect.cs": "714dc0fc99bf9b357fdd880cf8a2fb49fe12db32e0080329bae301e07e8f44b3",
+    "Toucan.Modules.Formats.Data/YamlDocumentCodec.cs": "e4df6e4177b55be0cc33a55a679d3380572d7a411edfc4f1c9d73b2437c49504",
+    "Toucan.Modules.Formats.Data/YamlLoadStrategy.cs": "2ffac3682c5403d17d8598b07a47fd6a3fb64994730058fcea1e7a8763d9a62a",
+    "Toucan.Modules.Formats.Data/YamlSaveStrategy.cs": "6898a70c08f36798b1c6ae99f1eeae9462534011c2189254f751635e2126b7cb",
+    "Toucan.Modules.Formats.Json/ArbLoadStrategy.cs": "8c22f1735494e30e7cbf41cda81a2d16c57af99e7c151104128ce1538c06405d",
+    "Toucan.Modules.Formats.Json/ArbSaveStrategy.cs": "5ceb93a1e2de8217ef21fc58e3f233544e856563b77457cc7e0a72bf6d9515ae",
+    "Toucan.Modules.Formats.Json/FormatJsStrategy.cs": "ba887c97659106a2934fbb7219bb96eeffa3ea6073acd8ce5f0e65e53563816a",
+    "Toucan.Modules.Formats.Json/FormatsJsonModule.cs": "fd1833e6beeb2ea12ea31c9f26bbbebdf25aaf6c45371f6343ab401c3d428bb5",
+    "Toucan.Modules.Formats.Json/JsonLoadStrategy.cs": "3f57639ae09e7325d4dd0f633341bf75eb6ff5c91135b7b14f11a59fa036d30b",
+    "Toucan.Modules.Formats.Json/JsonSaveStrategy.cs": "c752665291704862bbce122b37a84607d45ad7c05d1dd760ec58221606f44f46",
+    "Toucan.Modules.Formats.Text/JavaPropertiesLoadStrategy.cs": "f7e4cf446cac12fb57415fc7f4f984e5bc1cfc46e18894caecce78850753c740",
+    "Toucan.Modules.Formats.Text/JavaPropertiesSaveStrategy.cs": "04dd66ea20d56ab8b7cfd21b8dd67ec308ed88240efdf8e234bec61095f4bbcb",
+    "Toucan.Modules.Formats.Text/LaravelPhpLoadStrategy.cs": "76f7f6d95c24f26826859094ef44275025cce35fb9288cc20eaacd1f8fe85780",
+    "Toucan.Modules.Formats.Text/LaravelPhpSaveStrategy.cs": "fddac5cb80bbc462d4d1049cf0c7ff5f4bdfb100441f52da24456de5dadb2245",
+    "Toucan.Modules.Formats.Text/PropertiesDocumentCodec.cs": "4a9d752cd86a708a96db0e30f88d180da40c98a91451f878314b7835fcf9eeb9",
+    "Toucan.Modules.Formats.Xml/ResxLoadStrategy.cs": "f6e1fe0cb18595af54f2a13a83de5f8b65d4eeff418d6d1a1fdf06012f9f780f",
+    "Toucan.Modules.Formats.Xml/ResxSaveStrategy.cs": "7f8598395de194f000c6edad906e73b5fccda7df4761951c55b767ffbfdedb19",
+    "Toucan.Modules.Frameworks/FrameworkSourceScanner.cs": "e62b06c7f8e94b9386171cb52cf2e2b093ffc7d8fc7ae04ab19e812078006858",
+    "Toucan.Modules.Frameworks/FrameworksModule.cs": "e2d72cda5b8c9cc6b35b8cd0e3b4cf87a2682c56337af8848ec3e1db62c621de",
+    "Toucan.Modules.Frameworks/I18nextProfile.cs": "ee42f396d7034cde6831fa5fe4e1af08d92e99cd0ca7c1fb59e63ea1c3455bff",
+    "Toucan.Modules.Frameworks/RailsYamlProfile.cs": "8cf7c9ad02005248afa4b56137a963e062df985feadf7aacf1551b5b1af291cc",
+    "Toucan.Modules.Frameworks/ScriptFrameworkProfile.cs": "a1b66683e7749541ae85ff615cd3b8d38cce7124f2553467ca3d7de91b1d92d0",
+    "Toucan.Plugins.Abstractions/Contracts/IFrameworkFeatures.cs": "fba21871d670b24f12696765ae22bf91d022560f4e11f95c74c53df09392773c",
+    "Toucan.Plugins.Abstractions/Contracts/ISourceScanner.cs": "5666edae05d0ca41cd7cc2dd0f6f8ae73a929d152f569ffebb217017f8777144",
+    "Toucan.Plugins.Abstractions/Models/CompatibilityProject.cs": "aed6dc4467fea6d2c138b568dae6115e4527022b60003f8c51e9d6400292f9f3",
+    "Toucan.Plugins.Abstractions/Models/FrameworkOptions.cs": "2100d5d1d980eb185a916d03c563bbe14fd26eb78c262edc3f451e07e191c615",
+    "Toucan.Plugins.Abstractions/Models/ResourceDocument.cs": "32d6025349dec78fda0fcf5a1e4be3265120ecae6afabbd4e718e8feeaa7198c",
+    "Toucan.Plugins.Abstractions/Models/ResourceIdentity.cs": "5bdc3cd839e78b38ad53b3ac8a0375f2176936fe436e9b3bf7cb3f07da573471",
+    "Toucan.Plugins.Abstractions/Models/SpreadsheetDialect.cs": "2a35190d34038244486d09af6d24387982678df1f1e5762b3e2b287930e1db76",
+    "Toucan.Plugins.Abstractions/Models/TranslationItem.cs": "1bbd16b84ba9a6630da2a2b525d53293032733bbbcc43f181a17b1778b4807d3",
+    "tests/Toucan.Avalonia.Tests/DesktopServicesTests.cs": "63207868a03d57ba389516eef03f72b088d760ff2bd0cc45372b21e14c9fc5f0",
+    "tests/Toucan.Avalonia.Tests/FrameworkIntegrationFlowTests.cs": "9b976d7e6cc41abe59458ca207c9d2edae51fddcc50daad5faba9281e229c546",
+    "tests/Toucan.Avalonia.Tests/ResourceFidelityFlowTests.cs": "d45427266335d417607cc49526435c3ff60d66bc4fdcf18f1fab29a2e9e9522a",
+    "tests/Toucan.Avalonia.Tests/SpreadsheetImportFlowTests.cs": "9d88df9cbb5695b194781b4f331484a312258142f7b5995ebd999e40e5e3147e",
+    "tests/Toucan.Avalonia.Tests/TestHost.cs": "abcf16630fa1288fc818346983bbe7bf47b3f62223e033e66243637981f05876",
+    "tests/Toucan.Core.Tests/CompositionRootTests.cs": "bd12b186b3bf0fbdc5c98a801cda42d607e8f534ea2ba360de9d62cc0932e6f8",
+    "tests/Toucan.Core.Tests/Formats/FormatFidelityFixtureTests.cs": "273c763f3155e2baf79bb466e053c96a5fb6f4763b0389d82ce18da5a490a7a2",
+    "tests/Toucan.Core.Tests/Formats/FormatStabilityTests.cs": "afc160f451d60cbc5f0f43796be3e27cc64d28fd90d0c7d828a5993505e5ff5a",
+    "tests/Toucan.Core.Tests/Formats/FormatSupportTests.cs": "172ae81e73372a79a21bc040856560f830edb0569005dfe48df673dc202f8184",
+    "tests/Toucan.Core.Tests/Formats/FormatTestHost.cs": "a5829c851a725c549305c2b6dc881ac8a62ae5a64dfa3744b66648da05c0c7e3",
+    "tests/Toucan.Core.Tests/Formats/ResourceFidelitySettingsTests.cs": "3cace4051bc8769877d96f9c16b2f193902b14b91bb00af174b7f56ecfdd3b3b",
+    "tests/Toucan.Core.Tests/FrameworkCapabilitiesTests.cs": "74eb2f2f80dc661d4526af79e984157b5828f8a9de0955674dc76bb3861def42",
+    "tests/Toucan.Core.Tests/FrameworkSourceScannerTests.cs": "f89829960bd76a5ba25d8f319f604ba8cd8ab89c450c47c5f44148676fe57ebc",
+    "tests/Toucan.Core.Tests/Modules/BuiltInModuleTests.cs": "726a589682abac39252e9195c440edd15eae43c32054a4b909e40f86ec587b92",
+    "tests/Toucan.Core.Tests/Modules/ModuleSnapshotTests.cs": "97c9717ca8555bed7fc4322c58e10fd4f1fdb93920a95838c5e47d2930b1e0fe",
+    "tests/Toucan.Core.Tests/ProjectTextFormatTests.cs": "542d14ecd948cb1c53ff7ea4eb3a2b4b5e2a262999b52fedda7bd3e79ab7a5ce",
+    "tests/Toucan.Core.Tests/SpreadsheetExchangeTests.cs": "b0e212decfa60246154b29e859c8dd7bb3fe764ec26445fc43fc260711131002",
+    "tools/CompatibilityBaseline/collect_m3_evidence.py": "5f595c0967c1d535207b89c5337c46f0aaf804f47eadfbd8a9118e13c15430b0",
+    "tools/CompatibilityBaseline/collect_m4_evidence.py": "faf6bd02f3a824a97fe8c5458ec26e7f37ddaf9f7a1e3c6df21239140ac14503",
+    "tools/CompatibilityBaseline/collect_m5_m6_evidence.py": "777f36e6c133bcb6cfc55343521feed12ca2237fde06f0de68c5de2ded6fad25",
+    "tools/Test-FrameworkIntegration.py": "c0982906ff8056836db151ebc798834006b599e24cbfe2e34d8d42a76ff5dcf4",
+    "tools/Test-ResourceFidelity.py": "fd9fcae0a575f45cb2ec3b77cf346e965d0a1876f186ac43054e52185de76ee8"
+  },
+  "corpusUnchangedFromHead": true,
+  "frozenPlugin": {
+    "archive": "tests/fixtures/resource-compatibility/m0-sample-plugin.zip",
+    "sha256": "4c8703ca846a85db0c94d9d5ef0016c3a26e2b428695974a30b9aa8b7c5528bf",
+    "membersMatchM0Hashes": true
+  },
+  "cli": {
+    "framework": {
+      "source": "build/resource-compatibility/m5-m6/cli-framework-integration.json",
+      "sha256": "ce95b256632c39eaef91bb5731d3abb09b402311132d72d9444e44efa6ee9a1b",
+      "results": {
+        "platform": "Windows-11-10.0.26300-SP0",
+        "configuration": "Debug",
+        "files": 200,
+        "references": 10000,
+        "sourceBytes": 324490,
+        "scannerDuration": "00:00:01.0087467",
+        "processWallMs": 1430.78,
+        "generatedSourceProtected": true,
+        "targetSaveNativeReopen": true,
+        "originalMigrationUnchanged": true,
+        "commentsExcluded": true,
+        "projectExcludes": true,
+        "locations": true,
+        "dynamicIncomplete": true,
+        "cycleSkipped": true,
+        "budget": "Measurement only; no cross-platform performance budget declared"
+      }
+    },
+    "corpus": {
+      "source": "build/babeledit-parity/toucan-read-results.json",
+      "sha256": "29ed9277c033f177b08143e2ecde378dfd70caff9a816b33d8d8e049362e96cf",
+      "results": [
+        {
+          "id": "01-generic-json",
+          "keys": {
+            "exit": 0,
+            "stdout": "app.title\nbutton.cancel\nbutton.save\nempty\nitems_one\nitems_other\nmultiline\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"Hallo {name}\",\n  \"en-US\": \"Hello {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "app.title\nbutton.cancel\nbutton.save\nempty\nitems_one\nitems_other\nmultiline\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "02-angular-ngx",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "03-angular-transloco",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "04-vue",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "05-i18next",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "06-react",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "07-svelte",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "08-ember-json",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "09-laravel-json",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "10-generic-yaml",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "11-ember-yaml",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "12-rails-yaml",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"Hallo {name}\",\n  \"en-US\": \"Hello {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "13-laravel-php",
+          "keys": {
+            "exit": 0,
+            "stdout": "messages.empty\nmessages.items_one\nmessages.items_other\nmessages.multiline\nmessages.path\nmessages.quoted\nmessages.title\nmessages.unicode\nmessages.welcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/messages.unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "messages.empty\nmessages.items_one\nmessages.items_other\nmessages.multiline\nmessages.path\nmessages.quoted\nmessages.title\nmessages.unicode\nmessages.welcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "14-flutter-arb",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nplural\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"Hallo {name}\",\n  \"en-US\": \"Hello {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 10,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nplural\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "15-java-latin1",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "16-java-utf8",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"Hallo {name}\",\n  \"en-US\": \"Hello {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "17-json-arrays",
+          "keys": {
+            "exit": 0,
+            "stdout": "choices[0]\nchoices[1]\nempty\nenabled\nitems_one\nitems_other\nlimit\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 13,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "choices[0]\nchoices[1]\nempty\nenabled\nitems_one\nitems_other\nlimit\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "18-yaml-arrays",
+          "keys": {
+            "exit": 0,
+            "stdout": "choices[0]\nchoices[1]\nempty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"Hallo {name}\",\n  \"en-US\": \"Hello {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 11,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "choices[0]\nchoices[1]\nempty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "19-dotnet-resx",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"Hallo {name}\",\n  \"en-US\": \"Hello {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        }
+      ]
+    },
+    "exact": {
+      "source": "build/resource-compatibility/m2/cli-exact-resources.json",
+      "sha256": "3f6ba1223659e64813adf15c5116f644f7e744d640377dee4906be7429ab4ef2",
+      "results": [
+        {
+          "framework": "generic-json",
+          "extension": "json",
+          "resources": 4,
+          "explicitLocales": [
+            "en-US",
+            "id"
+          ],
+          "packages": 2,
+          "valuesAndMetadataPreserved": true,
+          "sourceUnchanged": true,
+          "nativeReopenWithoutSource": true,
+          "unrelatedSiblingUnchanged": true
+        },
+        {
+          "framework": "generic-yaml",
+          "extension": "yml",
+          "resources": 4,
+          "explicitLocales": [
+            "en-US",
+            "id"
+          ],
+          "packages": 2,
+          "valuesAndMetadataPreserved": true,
+          "sourceUnchanged": true,
+          "nativeReopenWithoutSource": true,
+          "unrelatedSiblingUnchanged": true
+        },
+        {
+          "framework": "arb",
+          "extension": "arb",
+          "resources": 4,
+          "explicitLocales": [
+            "en-US",
+            "id"
+          ],
+          "packages": 2,
+          "valuesAndMetadataPreserved": true,
+          "sourceUnchanged": true,
+          "nativeReopenWithoutSource": true,
+          "unrelatedSiblingUnchanged": true
+        },
+        {
+          "framework": "prop-files",
+          "extension": "properties",
+          "resources": 4,
+          "explicitLocales": [
+            "en-US",
+            "id"
+          ],
+          "packages": 2,
+          "valuesAndMetadataPreserved": true,
+          "sourceUnchanged": true,
+          "nativeReopenWithoutSource": true,
+          "unrelatedSiblingUnchanged": true
+        },
+        {
+          "framework": "resx",
+          "extension": "resw",
+          "resources": 4,
+          "explicitLocales": [
+            "en-US",
+            "id"
+          ],
+          "packages": 2,
+          "valuesAndMetadataPreserved": true,
+          "sourceUnchanged": true,
+          "nativeReopenWithoutSource": true,
+          "unrelatedSiblingUnchanged": true
+        },
+        {
+          "framework": "laravel",
+          "extension": "php",
+          "resources": 4,
+          "explicitLocales": [
+            "en-US",
+            "id"
+          ],
+          "packages": 2,
+          "valuesAndMetadataPreserved": true,
+          "sourceUnchanged": true,
+          "nativeReopenWithoutSource": true,
+          "unrelatedSiblingUnchanged": true
+        }
+      ]
+    },
+    "fidelity": {
+      "source": "build/resource-compatibility/m3/cli-fidelity.json",
+      "sha256": "ceb1e6addb50afc51be764ed2f5fbe158a4a75ab9faee3499c680882772fdf34",
+      "results": [
+        {
+          "format": "json",
+          "typedSettings": true,
+          "nativeReopen": true,
+          "literalNewKey": true,
+          "emptyPolicy": true,
+          "supportedOpaqueData": true
+        },
+        {
+          "format": "yaml",
+          "typedSettings": true,
+          "nativeReopen": true,
+          "literalNewKey": true,
+          "emptyPolicy": true,
+          "supportedOpaqueData": true
+        },
+        {
+          "format": "arb",
+          "typedSettings": true,
+          "nativeReopen": true,
+          "literalNewKey": true,
+          "emptyPolicy": true,
+          "supportedOpaqueData": true
+        },
+        {
+          "format": "java-properties",
+          "typedSettings": true,
+          "nativeReopen": true,
+          "literalNewKey": true,
+          "emptyPolicy": true,
+          "supportedOpaqueData": true
+        }
+      ]
+    }
+  },
+  "coverage": {
+    "capabilityCoreCases": 8,
+    "scannerCoreCases": 51,
+    "headlessFrameworkCases": 4,
+    "legacyEditableFormats": 14,
+    "additionalGeneratedFormat": "formatjs",
+    "newDependencies": [],
+    "protectedSourceEditableTargets": true,
+    "profileImportPreflightAndNativeSettingsPriority": true,
+    "nativeReopenAndSaveAs": true,
+    "namespaceIsolationAndLocations": true,
+    "incompleteUnusedGuard": true,
+    "boundedParserAndIo": true,
+    "cancelAndCycleDiagnostics": true,
+    "configFormDraftPreservation": true
+  },
+  "limits": [
+    "Windows x64 and Avalonia headless only; native OS pickers and other platforms not executed",
+    "FormatJS string-defaultMessage extraction catalogs and uncompiled string targets only; compiled ASTs unsupported",
+    "Static lexical parser, not full language compilation or cross-file data-flow analysis",
+    "Complex scope aliases, dynamic keys/bindings/templates, generated IDs and recognized unsupported constructs are findings",
+    "Generic fallback shows usages but cannot certify unused keys; no automatic source-unused deletion was added",
+    "Measured Debug runtime is one corpus/run, not a cross-platform performance budget",
+    "Initial writable-format assumptions and registration snapshots corrected to account for generated capabilities",
+    "Existing settings-form file-lock race fixed by awaiting completion in tests; form saves preserve other drafts",
+    "Pre-existing AVLN3001 MainWindow warning remains",
+    "M7 spelling/provenance and final release verification remain open"
+  ]
+}

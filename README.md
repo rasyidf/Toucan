@@ -1,126 +1,136 @@
 <div align="center">
   <img width="64" height="64" src="docs/assets/logo.png" alt="Toucan icon"/>
   <h1>Toucan</h1>
+  <p>A desktop workspace for software translation files.</p>
+  <p><a href="https://github.com/rasyidf/Toucan/releases">Download</a> · <a href="docs/user-guide.md">User guide</a> · <a href="docs/translator-guide.md">Translator guide</a> · <a href="https://toucan.rasyid.dev">Website</a></p>
 </div>
 
-Toucan is a desktop editor for translation files on Windows, macOS, and Linux. It opens 14 formats in one workspace, so you can translate, review, and validate every language file in a project without switching tools.
+Translate, review and validate your project's languages in one place. Toucan runs on **Windows, macOS and Linux**, works with local resource files, and brings source text, target translations, context and quality checks into the same editor.
 
-Toucan is in preview: settings and project files can change between releases until 1.0. Current release: **v0.23.0** on Windows, macOS and Linux (v0.18.0 was the first release on macOS and Linux). The old WPF app was retired after v0.17.3 and lives on the [`legacy/wpf`](https://github.com/rasyidf/Toucan/tree/legacy/wpf) branch. Website: [toucan.rasyid.dev](https://toucan.rasyid.dev).
+**v0.24 preview:** this is the [`release/v0.24.0`](https://github.com/rasyidf/Toucan/tree/release/v0.24.0) branch, based on the merged v0.23 development branch. The latest published release is **v0.23.0**. Settings and project files may change before 1.0. Native accessibility and packaged platform acceptance for v0.24 remain pending; see the [acceptance record](docs/specs/editor-comfort/acceptance.md).
 
-<img width="878" height="668" alt="Toucan editor with the tree sidebar, translation grid, and inspector panel" src="https://github.com/user-attachments/assets/6c60208e-640a-4fbc-b280-63f5fc856ece" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshots/editor-dark.png"/>
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/screenshots/editor-light.png"/>
+  <img src="docs/assets/screenshots/editor-light.png" width="1440" alt="Toucan v0.24 editor with English source strings and Indonesian translations side by side, the project explorer, placeholder context and inspector"/>
+</picture>
 
-<img width="1314" height="848" alt="image" src="https://github.com/user-attachments/assets/e4e27e02-c0b5-4bf8-bfac-9ac59a3c69e5" />
+*Current source build, rendered with a local sample project. The screenshot follows your light or dark theme.*
 
+## Get started
 
-## Quick start
+1. [Download a release](https://github.com/rasyidf/Toucan/releases) for your platform: a portable Windows x64 zip, a macOS app in a DMG or zip, or a Linux tarball.
+2. On first launch, choose your default language and theme. AI assistance is optional and off by default.
+3. Drop a folder of translation files onto Toucan, choose **File → Open Folder**, or create a project from a framework template.
+4. Select a target field, translate or accept a suggestion, then approve and save. The explorer and project commands appear when a project is open.
 
-1. Download the build for your platform from [GitHub Releases](https://github.com/rasyidf/Toucan/releases): v0.23.0 for Windows (portable x64 zip; no installer yet), macOS (`Toucan.app` in a DMG or zip) and Linux (tarball).
-   macOS: Toucan is free and not signed with a paid Apple Developer ID, so Gatekeeper says it "could not verify" the app on first launch. Open it once, then go to System Settings > Privacy & Security and click **Open Anyway** (on macOS 14 and earlier, right-click `Toucan.app` > Open works too). Or clear the download flag: `xattr -dr com.apple.quarantine Toucan.app`.
-2. Open a folder that contains translation files, or create a new project.
-3. Translate, review, and save.
+Toucan detects frameworks including i18next, Flutter, Android, iOS, .NET, Rails and Gettext. Existing BabelEdit `.babel` projects can be imported into a native Toucan project.
 
-Toucan detects the framework when you drop a folder (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, and others) and groups files to match.
+### What's new in v0.24
 
-## Platforms
+- Source-first, responsive translation cards with character and word counts, placeholder context and translation-memory provenance.
+- Keyboard approval and next-pending navigation, plus grouped undo for bulk editing workflows.
+- First-run language/theme setup, a dismissible feature tour and actionable notification history.
+- Shared dialog title bars and a start screen that hides project-only menus and navigation until a project opens.
+- Expanded resource compatibility, exact-resource handling and BabelEdit project migration. See the [changelog](CHANGELOG.md) for details and the [acceptance record](docs/specs/editor-comfort/acceptance.md) for outstanding release checks.
 
-| App | Platforms | Status |
-|-----|-----------|--------|
-| Toucan (Avalonia) | Windows, macOS, Linux | Preview, v0.23.0. The supported app on every platform: Editor/Review/Audit modes, Zen mode, command palette, AI Integration (off by default), search and bulk edits, side panels, plugins, file association and Indonesian localization. The Windows builds are this app. |
-| `toucan` CLI | Any OS with .NET 10 | Preview. `check`, `stats`, `translate`, `export`, `list-formats`, `list-keys`, `get`, `set`. |
+<details>
+<summary>Opening the unsigned macOS app</summary>
 
-## Supported formats
+Toucan is not signed with an Apple Developer ID. If Gatekeeper blocks the downloaded app, open it once, then use **System Settings → Privacy & Security → Open Anyway**. On macOS 14 and earlier, right-clicking the app and choosing **Open** also works.
 
-JSON, YAML, PO, RESX, Android XML, iOS `.strings`, XLIFF, ARB, CSV, TOML, INI, Java `.properties`, Laravel PHP, and Excel. Projects from `.babel` files can be imported. Some formats lose detail on save (PO plurals, ARB `@key` metadata, XLIFF source text); see [docs/known-bugs.md](docs/known-bugs.md).
+</details>
 
-## Features
+## Editing and review
 
-**Editing.** The editor has three modes. Editor mode shows inline suggestions from translation memory: focus an empty field and the best match appears as faint ghost text; press Tab to accept it. Review mode filters to unapproved items and lets you approve or reject each one, with validation warnings shown alongside. Audit mode is read-only and shows approval state and change history.
+| Workflow | What Toucan provides |
+|---|---|
+| Translate with context | Source-first cards, side-by-side fields in wide windows, stacked fields in narrow windows, character/word counts, comments and an inspector. |
+| Review by keyboard | Approve and advance through targets, find pending translations, and accept translation-memory suggestions. Editor, Review and read-only Audit modes support different stages of the work. |
+| Work in bulk | Preview search/replace and pre-translation; copy, move, approve or delete selected keys. Grouped undo restores a batch in one step. |
+| Catch mistakes | Missing translations, placeholder mismatches, duplicates, untranslated copies, empty values and whitespace checks. Rename named placeholders across languages. |
+| Reuse translations | Fuzzy translation memory, match provenance, TMX import/export and inline ghost-text suggestions. |
+| Stay focused | Zen mode, a searchable command palette, customizable shortcuts, light/dark themes, optional onboarding guidance and notification history with actions. |
+| Find code context | Source scanning for translation calls, used/unused key filters and links back to source files. |
 
-The layout follows VS Code: a tree or list sidebar, a translation pane (paginated or infinite scroll), and an inspector for stats, suggestions, key details, and validation results. Zen mode hides everything except the editor. Press Cmd/Ctrl+Shift+P for the command palette, which finds any menu command and shows its shortcut, and Cmd/Ctrl+/ opens a sheet of every keyboard shortcut.
+### Useful shortcuts
 
-**Machine translation.** Pre-translate with Google Translate, DeepL, Microsoft Translator, or AI. Results appear in a preview and are only written when you commit them. Placeholders (`{{var}}`, `{0}`, `%s`, `:param`) are preserved, formality settings are respected, and you can target a single key, a namespace, or a language.
+Use **Ctrl** on Windows/Linux and **Cmd** on macOS.
 
-**AI, off until you turn it on.** One switch for the whole app, chosen on first run. Connect Claude, OpenAI (or a compatible local server such as Ollama), or Gemini, then translate with AI, analyze translations for wrong terms and tone, or check source strings for wording translators could misread. Every prompt Toucan sends is [open and editable](Toucan.Core/Ai/Prompts), app-wide or per project. API keys live in one encrypted secret store, never in a project folder. See [docs/ai-integration.md](docs/ai-integration.md).
+| Shortcut | Action |
+|---|---|
+| Ctrl/Cmd+O | Open a project folder |
+| Ctrl/Cmd+S | Save |
+| Ctrl/Cmd+Enter | Approve and move to the next target |
+| Ctrl/Cmd+Alt+→ | Find the next pending target |
+| Tab | Accept an inline translation-memory suggestion |
+| Ctrl/Cmd+Shift+P | Open the command palette |
+| Ctrl/Cmd+/ | Show the shortcut sheet |
 
-**Translation memory.** Fuzzy matching runs on a trigram engine and reuses translations across projects, with a configurable threshold and scope. Matches show in the inspector as you type. TMX import and export are supported.
+See the [user guide](docs/user-guide.md) for the workspace and settings, or the [translator guide](docs/translator-guide.md) for the translation and review workflow.
 
-**Validation.** Six rules run on save and on demand: missing translations, placeholder mismatches, duplicate keys, untranslated copies, empty values, and whitespace mismatches. Each rule can be turned off or given a severity, and projects can add their own rules (max length, forbidden words, regex).
+## Formats and project compatibility
 
-**Search and bulk edits.** Search and replace across keys, values, and languages with regex and a preview. Select many keys to delete, move, pre-translate, approve, or copy source to target in one step.
+Toucan supports JSON, YAML, Gettext PO, RESX, Android XML, iOS `.strings`, XLIFF, Flutter ARB, CSV, TOML, Java `.properties` and Laravel PHP, alongside framework-specific layouts. INI is export-only; generated FormatJS catalogs are read-only sources. Plural and array handling depends on the format.
 
-**Source scanning.** Toucan scans your code for `t('key')` calls in `.tsx`, `.vue`, `.svelte`, `.py`, and other files. You can filter keys by used or unused, and double-clicking a key opens the source file in your editor.
+Read the [format support matrix](docs/formats.md) before round-tripping an existing project. It lists retained metadata, supported syntax and save restrictions. The [compatibility specification](docs/specs/resource-compatibility) documents exact-resource identity, BabelEdit import and remaining platform acceptance work.
 
-**Plurals and arrays.** Supports i18next `_one`/`_other` suffixes, ICU plural forms, JSON array values, and gender form generation.
+## Translation providers and AI
 
-**Packages.** A project can hold several translation sets, such as `ui.json`, `errors.json`, and `emails.json`.
+Pre-translate with **Google Translate, DeepL, Microsoft Translator, a custom webhook or AI**. Review the preview before applying results. Provider configuration can be app-wide or specific to one project.
 
-<img width="904" height="696" alt="Toucan review mode with validation warnings" src="https://github.com/user-attachments/assets/bbd9b2ba-99e6-4500-a4e4-d92d602f33ff" />
+AI is off until enabled. Connect Claude, OpenAI-compatible services (including local servers), or Gemini for translation, analysis and source-clarity checks. [Prompts](Toucan.Core/Ai/Prompts) are editable globally or per project. API keys are kept outside project folders in the user's encrypted secret store.
 
-## Configuration
+Read [provider settings](docs/provider-settings.md), [AI integration](docs/ai-integration.md) and [pre-translation previews](docs/pretranslation-preview.md) for configuration and behavior.
 
-- Provider settings can be set app-wide or per project. Every API key, for providers and AI services, is kept in one secret store in your user profile, never in a project folder: encrypted with DPAPI on Windows, and with AES-GCM and a per-user key file on macOS and Linux. See [docs/provider-settings.md](docs/provider-settings.md) and [docs/ai-integration.md](docs/ai-integration.md).
-- AI is off until you turn it on (first-run onboarding or Settings > AI). Prompts are plain files you can edit for all projects or commit with one project in `.toucan/prompts`.
-- Pre-translation runs as a dry run first and needs an explicit commit. See [docs/pretranslation-preview.md](docs/pretranslation-preview.md).
-- The default language is set per user under Settings > Options (default: en-US).
+## CLI and plugins
 
-## Roadmap
+The `toucan` CLI supports validation, progress statistics, translation, export and key-level operations. From a source checkout:
 
-The planned order to 1.0:
+```bash
+dotnet run --project Toucan.CLI -- check ./locales
+dotnet run --project Toucan.CLI -- stats ./locales
+dotnet run --project Toucan.CLI -- list-formats
+```
 
-| Version | Planned |
-|---------|---------|
-| v0.18 | First macOS and Linux release, plugins (preview). |
-| v0.19 | Command palette, a new title bar, Claude and Gemini providers, a UI polish pass, and the Avalonia app on Windows, which replaces the deprecated WPF app. Shipped. |
-| v0.20 | AI Integration: one switch, off by default, for Claude, OpenAI-compatible servers and Gemini; editable prompts; Analyze and Clarity checks; an encrypted secret store. Also color schemes, an update check, search options, ghost-text suggestions and a keyboard shortcut sheet. Shipped. |
-| v0.21 | File fidelity fixes, format support boundaries, regression fixtures, and cross-platform CI. Shipped. |
-| v0.22 | Recoverable saves, durable drafts, crash recovery, and failure handling. Shipped. |
-| v0.23 | Extension platform: plugin lifecycle, command registry, desktop contributions, host services, and a sample connector built outside the repo. Shipped. |
-| v0.24 | Onboarding, comfortable multiline and side-by-side editing, keyboard workflow, and accessibility. |
-| v0.25 | Project glossary, message-aware validation, and AI finding follow-ups. |
-| v0.26 | Draft → Needs review → Approved per language, source-change tracking, and separate delivery state. |
-| v0.27 | Content-source contracts, connection profiles, and local snapshot loading/persistence. |
-| v0.28 | CRUD operations, durable pending changes, three-way synchronization, and conflict resolution. |
-| v0.29 | One online-source connector with explicit pull/push, offline editing, and recovery. |
-| v0.30 | Repeatable release packages, signing/notarization, installers, and startup update notifications. |
-| v0.31 | Measured performance, migration checks, packaged workflow verification, and a release candidate. |
-| v1.0 | First stable release after fidelity, recovery, review, integration, migration, and performance gates pass. |
-| After 1.0 | Additional online connectors, Git integration, automatic update installation, advanced reports, Toucan Hub, and CI integrations. |
-
-This is the planned order, not a promise. Details are in [docs/todos/future-roadmap.md](docs/todos/future-roadmap.md); shipped features are listed in [docs/completed-features.md](docs/completed-features.md). Every doc's status and summary is in [docs/INDEX.md](docs/INDEX.md).
-
-## Tech stack
-
-| Layer | Technology |
-|-------|-----------|
-| UI | [Avalonia](https://avaloniaui.net) 12 with FluentAvaloniaUI (Windows, macOS, Linux) |
-| Architecture | MVVM with CommunityToolkit.Mvvm |
-| Runtime | .NET 10, System.Text.Json |
-| Providers | Google, DeepL, Microsoft, AI, custom webhook |
-| AI services | Claude, OpenAI / compatible (Ollama, LM Studio, Azure), Gemini |
-| Format engine | Strategy pattern (`ILoadStrategy` / `ISaveStrategy`), string format IDs |
-| Extensibility | Plugins loaded from `.dll` assemblies ([guide](docs/plugins.md)), contract package `Toucan.Plugins.Abstractions` |
-
-## Plugins
-
-Plugins add file formats, translation providers, validation rules, and framework profiles from `.dll` assemblies, without changing Toucan. They arrived in v0.18.0, work in the Avalonia app and the CLI, and load only when you have enabled and trusted them: Settings > Plugins in the app, or `toucan plugins list` and `toucan plugins trust <id>` on the command line. To write one, start from [`samples/Toucan.Sample.Plugin`](samples/Toucan.Sample.Plugin) and the [plugin guide](docs/plugins.md); the contracts ship as the `Toucan.Plugins.Abstractions` package.
+Plugins can add formats, providers, validation rules, framework profiles and desktop contributions. Enable and trust plugins through **Settings → Plugins** or the CLI's `plugins` commands. Start with the [plugin guide and SDK reference](docs/plugins.md) and [sample projects](samples).
 
 ## Build from source
 
-The cross-platform projects (core library, CLI, Avalonia app, plugin contracts, tests) build and test on macOS, Linux, and Windows:
+Install the **.NET 10 SDK** (SDK selection is in [global.json](global.json)), then run:
+
+```bash
+git clone --branch release/v0.24.0 https://github.com/rasyidf/Toucan.git
+cd Toucan
+dotnet restore Toucan.CrossPlatform.slnx
+dotnet build Toucan.CrossPlatform.slnx --no-restore
+dotnet run --project Toucan.Avalonia
+```
+
+Run the regression suites with:
 
 ```bash
 dotnet test Toucan.CrossPlatform.slnx
-dotnet run --project Toucan.Avalonia
-dotnet run --project Toucan.CLI -- check ./locales
 ```
 
-The old WPF app is on the `legacy/wpf` branch. Architecture notes are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+If the test bridge stalls, the [acceptance record](docs/specs/editor-comfort/acceptance.md) includes direct xUnit runner commands and Windows junction-test requirements. See [architecture](docs/ARCHITECTURE.md) for the Avalonia/MVVM app, core services, format modules and plugin contracts. The version is defined in [Directory.Build.props](Directory.Build.props).
 
-The app version is set once, in `Directory.Build.props`. `publish.ps1` (Windows packages), `packaging/Build-Msix.ps1`, and `packaging/build-macos-app.sh` read it from there.
+The WPF app was retired after v0.17.3 and remains on the [`legacy/wpf`](https://github.com/rasyidf/Toucan/tree/legacy/wpf) branch.
+
+## Documentation and roadmap
+
+- [User guide](docs/user-guide.md) and [translator guide](docs/translator-guide.md)
+- [Format support](docs/formats.md), [known issues](docs/known-bugs.md) and [changelog](CHANGELOG.md)
+- [Documentation index](docs/INDEX.md), including each document's status
+- [Roadmap](docs/todos/future-roadmap.md) and [completed features](docs/completed-features.md)
+
+The v0.24 source build focuses on editor workflows, compatibility and the contextual desktop shell. Upcoming milestones cover glossary and review state, content-source synchronization, release packaging and performance. The roadmap records acceptance gates and planned order; it is not a delivery-date promise.
 
 ## Contributing
 
-Report bugs and request features in [GitHub Issues](https://github.com/rasyidf/Toucan/issues). Pull requests are welcome.
+Report bugs and request features in [GitHub Issues](https://github.com/rasyidf/Toucan/issues). Include your OS, Toucan version, resource format and steps to reproduce. Pull requests are welcome; check the format support matrix and existing regression fixtures when changing file handling.
+
+See [Contributing](CONTRIBUTING.md) for the workflow and [Security](SECURITY.md) for private vulnerability reports.
 
 ## License
 

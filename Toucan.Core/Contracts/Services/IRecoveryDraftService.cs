@@ -3,7 +3,13 @@ using Toucan.Core.Models;
 namespace Toucan.Core.Contracts.Services;
 
 /// <summary>One unsaved edit. <see cref="BaseValue"/> is the value on disk when the edit started; null means a new entry.</summary>
-public sealed record RecoveryDraftEntry(string Language, string Namespace, string? BaseValue, string Value, string? BaseComment, string? Comment);
+public sealed record RecoveryDraftEntry(string Language, string Namespace, string? BaseValue, string Value, string? BaseComment, string? Comment)
+{
+    public ResourceEntryIdentity? Identity { get; init; }
+    public Dictionary<string, string>? BaseFormatData { get; init; }
+    public Dictionary<string, string>? FormatData { get; init; }
+    public bool? Approved { get; init; }
+}
 
 /// <summary>A key removed since the last save. <see cref="BaseValue"/> is what it held, so a change made on disk meanwhile is noticed.</summary>
 public sealed record RecoveryDraftDeletion(string Language, string Namespace, string BaseValue);
@@ -18,8 +24,12 @@ public sealed record RecoveryDraftApproval(string Language, string Namespace, bo
 public sealed record RecoveryDraft(string ProjectPath, DateTime SavedAtUtc, IReadOnlyList<RecoveryDraftEntry> Entries,
     IReadOnlyList<RecoveryDraftDeletion>? Deleted = null, IReadOnlyList<RecoveryDraftApproval>? Approvals = null)
 {
+    public ProjectSettings? Configuration { get; init; }
+    public IReadOnlyDictionary<string, string>? ConfigurationFileHashes { get; init; }
+    public string? BaseConfigurationSignature { get; init; }
+    public IReadOnlyList<ResourceDocumentState>? Documents { get; init; }
     /// <summary>Number of individual changes the draft holds.</summary>
-    public int ChangeCount => Entries.Count + (Deleted?.Count ?? 0) + (Approvals?.Count ?? 0);
+    public int ChangeCount => (Configuration == null ? 0 : 1) + Entries.Count + (Deleted?.Count ?? 0) + (Approvals?.Count ?? 0);
 }
 
 /// <summary>What re-applying a draft did. Entries whose on-disk value changed since the draft are never applied.</summary>

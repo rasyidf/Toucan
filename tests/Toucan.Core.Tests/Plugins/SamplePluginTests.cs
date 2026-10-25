@@ -31,6 +31,37 @@ public sealed class SamplePluginTests : IDisposable
         return dir;
     }
 
+    [Fact]
+    public void FrozenM0PluginLoadsAndSavesWithoutRecompilation()
+    {
+        var root = AppContext.BaseDirectory;
+        while (!File.Exists(Path.Combine(root, "Toucan.CrossPlatform.slnx"))) root = Path.GetDirectoryName(root)!;
+        var evidence = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "docs/specs/resource-compatibility/evidence/m0-baseline.json")));
+        using (evidence)
+        {
+            using var archive = System.IO.Compression.ZipFile.OpenRead(Path.Combine(root, "tests/fixtures/resource-compatibility/m0-sample-plugin.zip"));
+            var destination = Directory.CreateDirectory(Path.Combine(_root, "plugins", "sample.tsv")).FullName;
+            foreach (var artifact in evidence.RootElement.GetProperty("frozenPluginArtifacts").EnumerateArray())
+            {
+                var source = Path.Combine(root, artifact.GetProperty("path").GetString()!);
+                using var stream = archive.GetEntry(Path.GetFileName(source))!.Open();
+                using var bytes = new MemoryStream();
+                stream.CopyTo(bytes);
+                var content = bytes.ToArray();
+                Assert.Equal(artifact.GetProperty("sha256").GetString(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(content)).ToLowerInvariant());
+                File.WriteAllBytes(Path.Combine(destination, Path.GetFileName(source)), content);
+            }
+        }
+        using var sp = Build();
+        Assert.Equal(PluginStatus.Loaded, Assert.Single(sp.GetRequiredService<IPluginCatalog>().Plugins).Status);
+        var projects = sp.GetRequiredService<IProjectService>();
+        var folder = Path.Combine(_root, "frozen-project");
+        var settings = projects.CreateProject(folder, ["en"], "sample-tsv");
+        projects.Save(settings, [], [new TranslationItem { Language = "en", Namespace = "app.title", Value = "Frozen plugin" }]);
+        Assert.Equal("Frozen plugin", Assert.Single(projects.LoadProject(folder).Translations).Value);
+        Assert.Null(sp.GetRequiredService<ITranslationStrategyFactory>().GetResourceLoadStrategy("sample-tsv"));
+    }
+
     private ServiceProvider Build(IPluginPolicy? policy = null)
     {
         var services = new ServiceCollection();

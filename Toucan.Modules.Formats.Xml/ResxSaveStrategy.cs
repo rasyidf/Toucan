@@ -6,8 +6,10 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class ResxSaveStrategy(IFileService fileService) : ISaveStrategy
+public class ResxSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy, IResourceOptionsProvider
 {
+    public IReadOnlySet<string> SupportedOptions(ResourceDescriptor resource) => ResourceOptionFields.With("Indent");
+
     public string FormatId => FormatIds.Resx;
 
     public FormatSupport Support { get; } = new(
@@ -60,7 +62,7 @@ public class ResxSaveStrategy(IFileService fileService) : ISaveStrategy
                 new XElement("resheader", new XAttribute("name", "resmimetype"), new XElement("value", "text/microsoft-resx")),
                 new XElement("resheader", new XAttribute("name", "version"), new XElement("value", "2.0")));
 
-            foreach (var item in list.NoEmpty().OrderBy(i => i.Namespace))
+            foreach (var item in list.ForSave(context).OrderBy(i => i.Namespace))
             {
                 root.Add(new XElement("data",
                     new XAttribute("name", item.Namespace),
@@ -72,6 +74,39 @@ public class ResxSaveStrategy(IFileService fileService) : ISaveStrategy
             var doc = new XDocument(new XDeclaration("1.0", "utf-8", null), root);
             XmlFile.Save(doc, Path.Combine(path, $"Resources{suffix}.resx"));
         }
+    }
+
+    public ResourceWriteResult WriteResource(ResourceWriteRequest request)
+    {
+        var entries = ResourceFileAdapter.Entries(request);
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
+        var xml = request.Document.Data.TryGetValue("resx", out var original)
+            ? XDocument.Parse(original.GetString()!) : new XDocument(new XElement("root"));
+        // Preserve opaque typed resources, metadata and headers; replace only editable strings.
+        xml.Root!.Elements("data").Where(d => d.Attribute("type") == null && d.Attribute("mimetype") == null).Remove();
+        var opaqueNames = xml.Root.Elements("data").Select(d => (string?)d.Attribute("name")).ToHashSet(StringComparer.Ordinal);
+        if (entries.Any(i => opaqueNames.Contains(i.Namespace))) throw new InvalidOperationException($"{request.Document.Resource.RelativePath} [name]: a string would overwrite an opaque resource.");
+        var orderedEntries = ResourceText.Options(request).Order == ResourceOrder.Alphabetical ? entries.OrderBy(i => i.Namespace, StringComparer.Ordinal) : entries.AsEnumerable();
+        foreach (var item in orderedEntries.Where(i => ResourceFileAdapter.KeepEmpty(request) || !string.IsNullOrEmpty(i.Value)))
+        {
+            var data = new XElement("data", new XAttribute("name", item.Namespace), new XAttribute(XNamespace.Xml + "space", "preserve"), new XElement("value", item.Value ?? ""));
+            if (!string.IsNullOrEmpty(item.Comment)) data.Add(new XElement("comment", item.Comment));
+            xml.Root.Add(data);
+        }
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        xml.Declaration = null;
+        var options = ResourceText.Options(request);
+        var text = new System.Text.StringBuilder();
+        using (var writer = System.Xml.XmlWriter.Create(text, new System.Xml.XmlWriterSettings
+        {
+            OmitXmlDeclaration = true, Indent = options.Indent != ResourceIndent.None,
+            IndentChars = options.Indent == ResourceIndent.Tab ? "\t" : options.Indent == ResourceIndent.Space4 ? "    " : "  ",
+            NewLineHandling = System.Xml.NewLineHandling.Entitize, NewLineChars = "\n"
+        })) xml.WriteTo(writer);
+        var content = "<?xml version=\"1.0\" encoding=\"" + (options.OutputEncoding is "Latin1" or "ISO-8859-1" ? "iso-8859-1" : "utf-8") + "\"?>\n" + text;
+        ResourceText.Write(request, content);
+        request.Document.Data["resx"] = System.Text.Json.JsonSerializer.SerializeToElement(content);
+        return new([]);
     }
 
     public Task SaveAsync(string path, SaveContext context) => Task.Run(() => Save(path, context));

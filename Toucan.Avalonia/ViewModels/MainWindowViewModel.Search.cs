@@ -192,12 +192,21 @@ public partial class MainWindowViewModel
         if (targets.Count > 20 && !await _messageService.ConfirmAsync($"Replace in {targets.Count} values?", "Replace All", "Replace", "Cancel"))
             return;
 
+        FlushPendingEdits();
+        var entryBefore = CaptureEntries(AllTranslation);
         var before = new Dictionary<TranslationItem, string>(ReferenceEqualityComparer.Instance);
         foreach (var t in AllTranslation) before[t] = t.Value;
         var count = _searchAndReplace.ApplyReplace(AllTranslation, targets, SearchQuery, ReplaceText, CurrentSearchOptions);
 
         var changed = AllTranslation.Where(t => before.TryGetValue(t, out var old) && old != t.Value).ToList();
-        foreach (var t in changed) _undoRedoService.Record(t.Namespace, t.Language, before[t], t.Value);
+        foreach (var item in changed)
+        {
+            item.IsApproved = false;
+            item.ApprovedAtUtc = null;
+            item.LastModifiedUtc = DateTime.UtcNow;
+            item.ChangeType = Toucan.Core.Contracts.Services.ChangeType.DirectEdit;
+        }
+        RecordEntryChanges(entryBefore);
         NotifyBulkValueChanges(changed);
         foreach (var vm in PagingController.Data.SelectMany(g => g.AllItems)) vm.Refresh();
         UpdateSummaryInfo();

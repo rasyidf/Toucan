@@ -1,8 +1,8 @@
 ---
 title: "Writing Toucan plugins"
 status: active
-updated: 2026-10-07
-summary: "Plugin author guide: manifest, formats, providers, rules, framework profiles, trust model, testing. Preview since v0.18.0; Avalonia app and CLI only."
+updated: 2026-10-25
+summary: "Plugin author guide: API 1.2 optional resource IO, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported."
 ---
 # Writing Toucan plugins
 
@@ -11,8 +11,7 @@ providers**, **validation rules** and **framework profiles**. The working exampl
 [`samples/Toucan.Sample.Plugin`](../samples/Toucan.Sample.Plugin) (a tab-separated-values format plus a rule); its
 build output is exercised by the test suite, so what it does is what this guide describes.
 
-> Status: preview, since v0.18.0. Plugins run in the Avalonia app (macOS, Linux) and the `toucan` CLI; the Windows
-> WPF app does not load plugins.
+> Status: preview, since v0.18.0. Plugins run in the Avalonia app across all platforms (Windows, macOS, Linux) and the `toucan` CLI.
 
 - [Quick start](#quick-start)
 - [The manifest](#the-manifest-pluginjson)
@@ -23,7 +22,8 @@ build output is exercised by the test suite, so what it does is what this guide 
 - [Testing your plugin](#testing-your-plugin)
 - [Troubleshooting](#troubleshooting)
 - [Limits](#limits)
-- [For maintainers](#for-maintainers)
+- [Built-in modules as reference](#built-in-modules-as-reference)
+- [Advanced framework and resource contracts](#advanced-framework-and-resource-contracts)
 
 ## Quick start
 
@@ -127,6 +127,22 @@ Implement `ISaveStrategy` and `ILoadStrategy`; one class can do both. They must 
 Projects in your format work like any other: create, open, save, export, validate, translate. If the plugin is later
 missing, those projects refuse to open with "format unavailable" instead of being misread as JSON, so users never
 lose files because a plugin was disabled.
+
+### Optional exact-file IO (API 1.2)
+
+Existing `ILoadStrategy`/`ISaveStrategy` registrations still work. A registered strategy can also implement `IResourceLoadStrategy` or `IResourceSaveStrategy` to opt into explicit resource requests. The factory resolves these capabilities from the registered strategy; it never substitutes a folder scan for an unsupported exact-file request. File-only discovery can additionally implement `IResourceDiscoveryStrategy`.
+
+Read requests contain a project root, `ResourceDescriptor`, project options and cancellation token. Return entries, a `ResourceDocumentState` and structured diagnostics. Write requests contain that document state, its entries and the same context. Resolve options with `ResourceOptions.Resolve(resource, project, detected, defaults)`; null means inherit, including boolean fields. Honor cancellation and validate the relative destination before touching files. Return an error diagnostic for unsupported input rather than silently guessing.
+
+Descriptors carry stable resource IDs, package/language, exact relative path, format/dialect and typed options. Keep a descriptor's ID unchanged when moving its destination. `TranslationItem.Identity` holds the resource ID and typed property/index path; `Namespace` remains a legacy selector for existing editor/plugin APIs. Use the typed path when serializing a resource. `ResourceEntryOperations` provides typed rename, destination move and metadata-preserving copy; changing a legacy selector also updates an attached identity. Copying an entry for a new key must use `duplicate: true` to allocate a new entry ID.
+
+Preserve opaque data once in the document state, including for empty documents. The native resource schema and compatibility envelope are independently versioned; retain unknown extension fields. API 1.2 adds these contracts without requiring API 1.0/1.1 folder plugins to implement them. A hash-verified sample DLL compiled at the M0 baseline is tested unchanged against the new host; this is not certification of every historical plugin.
+
+Built-in exact-file adapters now cover JSON, YAML, ARB, Java properties, RESX/RESW and Laravel PHP. Legacy folder APIs remain available; PO/XLIFF migration requests currently receive an unsupported exact-resource diagnostic. See the [M2 acceptance record](specs/resource-compatibility/m2.md) for the migration subset; [M3](specs/resource-compatibility/m3.md) records current format fidelity and settings.
+
+M3 applies resource → typed project → legacy project → detected → default settings consistently to exact project/package/CLI/Save As paths. `ResourceOptions.UnicodeEscapes` adds Preserve/Always/Minimal policies for Java properties. Input and output encodings have separate roles; an explicit transcode updates the native resource's decoder for reopen. Literal/nested typed paths remain authoritative, and layout/delimiter preferences control new key binding. Return actionable diagnostics for unsupported overrides rather than silently changing existing key shapes. Legacy folder-only plugins retain their prior behavior.
+
+`IProjectCompatibilityImporter` is a separate optional migration seam. It discovers source projects and returns a neutral `CompatibilityProject` containing explicit resource descriptors, project options and versioned opaque compatibility data. The host creates its native settings; provider hooks apply/capture source-specific metadata through compatibility envelopes. Register providers with the normal service collection. A provider must validate its source schema and mappings before returning, must never write the original project format, and must not load a vendor runtime. The built-in BabelEdit migration module references only Common and Abstractions and is included by `AddToucanDefaults` in both applications.
 
 ### Validation rules: `context.AddValidationRule(rule)` (capability `validation`)
 
@@ -390,18 +406,22 @@ schema `Version` is refused when you register the schema, because it could never
 - UI contributions go in a second, desktop-only assembly (see *Desktop parts*). A plugin cannot yet open a *connection* scope
   itself (the host drives workspace scopes); a connector uses a workspace activator and keeps its own sessions.
 - Per-project rule plugins (`.toucan/rules`) and a plugin feed are not implemented.
-- The WPF app has no plugin support; plugins work in the Avalonia app and the CLI.
+- Plugins run in the Avalonia app (desktop) and the CLI; headless/command-line execution does not load desktop UI assemblies.
 
-## For maintainers
+## Built-in modules as reference
 
-- Build and test everything that is cross-platform with `dotnet test Toucan.CrossPlatform.slnx` (it leaves out the two
-  Windows-only WPF projects, so it runs on macOS and Linux CI as well as Windows).
-- The packages: `dotnet pack Toucan.Plugins.Abstractions`, `Toucan.Plugins.Avalonia` and `Toucan.Plugins.Testing` with `-c Release -o <dir>`
-  (the `toucan-plugins` repository reads them from its `feed` folder until they are published).
-  The contract package: Bump `<Version>` only with
-  `PluginApi.Current`, and never remove or change a public member within a major version.
-- `Toucan.Plugins.Abstractions` must not reference `Toucan.Core` or UI packages; a test fails the build if it does.
-- Formats, providers, rules and profiles that ship with Toucan are **built-in modules** (`Toucan.Modules.*`), not plugins:
-  compiled in, always on, listed read-only by `toucan plugins list`, and their `toucan.*` IDs are reserved. They register
-  through the same kinds of calls a plugin makes, so a plugin author can read them as examples. See
-  [ARCHITECTURE.md](ARCHITECTURE.md) and [specs/plugin-modularization](specs/plugin-modularization/design.md).
+Formats, providers, rules and profiles that ship with Toucan are **built-in modules** (Toucan.Modules.*):
+compiled in, always on, listed read-only by 	oucan plugins list, and their 	oucan.* IDs are reserved. They register
+through the exact same kinds of calls a plugin makes, so a plugin author can read them as reference implementations. See
+[Toucan.Modules.Formats.Json](../Toucan.Modules.Formats.Json) and [Toucan.Modules.Formats.Text](../Toucan.Modules.Formats.Text).
+
+## Advanced framework and resource contracts
+
+Plugin API 1.2 adds companion interfaces for advanced framework integration and document-aware resource IO:
+
+- IFrameworkFeatures: supplies scanner association, configuration schemas, and exact resource descriptors without altering the core IFrameworkProfile interface.
+- IResourceCapabilities: declares resource editing permissions and protections (e.g. marking generated source catalogs as read-only while keeping target translations editable).
+- ISourceScanner: receives source file content and extracts key references with file, line, and column coordinates, with full cancellation support.
+- IResourceOptionsProvider: declares typed serialization options (indentation, sorting, key delimiters) that a format writer consumes.
+- IResourceDialectProvider: supplies dialect choices when creating or converting resources.
+- IResourceMetadataAuthority: allows readers to declare authority over file-owned metadata and comments, ensuring accurate round-trip synchronization.

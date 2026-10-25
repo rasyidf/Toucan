@@ -1,0 +1,1150 @@
+{
+  "evidenceSchemaVersion": 1,
+  "baselineCommit": "ea3d255b6acea0e202c2c2455bdb3317b06e25ce",
+  "generatedUtc": "2026-10-21T17:28:25.887052+00:00",
+  "platform": "Windows x64",
+  "sdk": "10.0.401",
+  "suites": [
+    {
+      "trx": "build/resource-compatibility/m0/test-results/m0-complete_net10.0_20261022002344.trx",
+      "sha256": "b7497adaee090b3f51c8e4aa3216b49ea4d5c8dcfa6de3c916ea82df577eb095",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 245,
+        "executed": 245,
+        "passed": 245,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "classes": {
+        "Toucan.Avalonia.Tests.AiIntegrationUiTests": {
+          "Passed": 15
+        },
+        "Toucan.Avalonia.Tests.AppSmokeTests": {
+          "Passed": 9
+        },
+        "Toucan.Avalonia.Tests.AppearanceAndUpdateTests": {
+          "Passed": 9
+        },
+        "Toucan.Avalonia.Tests.BabelImportFlowTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.BuiltInModulesPageTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ColorInputTests": {
+          "Passed": 7
+        },
+        "Toucan.Avalonia.Tests.CommandPaletteTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.DesktopPluginTests": {
+          "Passed": 11
+        },
+        "Toucan.Avalonia.Tests.DesktopServicesTests": {
+          "Passed": 12
+        },
+        "Toucan.Avalonia.Tests.DialogSurfaceTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.EditableTableTests": {
+          "Passed": 6
+        },
+        "Toucan.Avalonia.Tests.EditorPolishTests": {
+          "Passed": 7
+        },
+        "Toucan.Avalonia.Tests.ExplorerContextMenuTests": {
+          "Passed": 1
+        },
+        "Toucan.Avalonia.Tests.GhostTextTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.IntegrationAndTranslationPanelTests": {
+          "Passed": 18
+        },
+        "Toucan.Avalonia.Tests.KeybindingServiceTests": {
+          "Passed": 1
+        },
+        "Toucan.Avalonia.Tests.LanguageManagerViewModelTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.LocalizationTests": {
+          "Passed": 5
+        },
+        "Toucan.Avalonia.Tests.MainWindowSmokeTests": {
+          "Passed": 5
+        },
+        "Toucan.Avalonia.Tests.MainWindowViewModelTests": {
+          "Passed": 15
+        },
+        "Toucan.Avalonia.Tests.PaginationViewModelTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.PanelAlignmentTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.PluginsUiTests": {
+          "Passed": 16
+        },
+        "Toucan.Avalonia.Tests.ProjectCreationUiTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.RecentProjectServiceTests": {
+          "Passed": 8
+        },
+        "Toucan.Avalonia.Tests.RecentProjectsViewModelTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ScanCancellationTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.SecureStorageServiceTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.SettingsListTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.ShortcutEditingTests": {
+          "Passed": 16
+        },
+        "Toucan.Avalonia.Tests.ShortcutSheetTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.StatisticsViewModelTests": {
+          "Passed": 1
+        },
+        "Toucan.Avalonia.Tests.StatusBarActionTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.TitleBarTests": {
+          "Passed": 9
+        },
+        "Toucan.Avalonia.Tests.UiScreenshotTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.UndoRedoGroupTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ValidationPageTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.WorkspaceApiTests": {
+          "Passed": 17
+        },
+        "Toucan.Avalonia.Tests.WpfParityTests": {
+          "Passed": 4
+        }
+      }
+    },
+    {
+      "trx": "build/resource-compatibility/m0/test-results/m0-complete_net10.0_20261022002352.trx",
+      "sha256": "89ae2083bd3da163035c49d7b8792addb769af515f8a685b3535dc25d901ea58",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 883,
+        "executed": 883,
+        "passed": 883,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "classes": {
+        "Toucan.Core.Tests.AiIntegrationTests": {
+          "Passed": 25
+        },
+        "Toucan.Core.Tests.AtomicFileServiceTests": {
+          "Passed": 3
+        },
+        "Toucan.Core.Tests.BabelExcelTests": {
+          "Passed": 5
+        },
+        "Toucan.Core.Tests.BulkActionServiceTests": {
+          "Passed": 2
+        },
+        "Toucan.Core.Tests.Commands.CommandRegistryTests": {
+          "Passed": 28
+        },
+        "Toucan.Core.Tests.CommentPersistenceServiceTests": {
+          "Passed": 30
+        },
+        "Toucan.Core.Tests.CompositionRootTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.DeepLProviderTests": {
+          "Passed": 24
+        },
+        "Toucan.Core.Tests.Formats.BabelParityRegressionTests": {
+          "Passed": 48
+        },
+        "Toucan.Core.Tests.Formats.FormatBugRegressionTests": {
+          "Passed": 18
+        },
+        "Toucan.Core.Tests.Formats.FormatConventionsTests": {
+          "Passed": 20
+        },
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests": {
+          "Passed": 208
+        },
+        "Toucan.Core.Tests.Formats.FormatIdsTests": {
+          "Passed": 17
+        },
+        "Toucan.Core.Tests.Formats.FormatRoundTripTests": {
+          "Passed": 29
+        },
+        "Toucan.Core.Tests.Formats.FormatStabilityTests": {
+          "Passed": 39
+        },
+        "Toucan.Core.Tests.Formats.FormatSupportTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Formats.FormatUnavailableTests": {
+          "Passed": 5
+        },
+        "Toucan.Core.Tests.Formats.PoCsvBugTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.Formats.PoRoundTripTests": {
+          "Passed": 4
+        },
+        "Toucan.Core.Tests.Formats.ProjectSettingsFormatTests": {
+          "Passed": 49
+        },
+        "Toucan.Core.Tests.Formats.YamlFidelityTests": {
+          "Passed": 9
+        },
+        "Toucan.Core.Tests.MockTranslationProviderTests": {
+          "Passed": 5
+        },
+        "Toucan.Core.Tests.Modules.ArchitectureTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.Modules.BuiltInModuleTests": {
+          "Passed": 10
+        },
+        "Toucan.Core.Tests.Modules.ModuleSnapshotTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.Plugins.PluginActivationTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Plugins.PluginCompatibilityTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.Plugins.PluginContractTests": {
+          "Passed": 28
+        },
+        "Toucan.Core.Tests.Plugins.PluginHostTests": {
+          "Passed": 35
+        },
+        "Toucan.Core.Tests.Plugins.PluginServicesTests": {
+          "Passed": 43
+        },
+        "Toucan.Core.Tests.Plugins.PluginTrustTests": {
+          "Passed": 24
+        },
+        "Toucan.Core.Tests.Plugins.SamplePluginTests": {
+          "Passed": 10
+        },
+        "Toucan.Core.Tests.Plugins.WorkspaceEditPlannerTests": {
+          "Passed": 25
+        },
+        "Toucan.Core.Tests.PreferredLanguageDetectorTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.PretranslationServiceTests": {
+          "Passed": 7
+        },
+        "Toucan.Core.Tests.ProjectTextFormatTests": {
+          "Passed": 21
+        },
+        "Toucan.Core.Tests.ProviderSelectionTests": {
+          "Passed": 3
+        },
+        "Toucan.Core.Tests.Qa01RegressionTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.SaveRecoveryTests": {
+          "Passed": 16
+        },
+        "Toucan.Core.Tests.SearchAndReplaceServiceTests": {
+          "Passed": 12
+        },
+        "Toucan.Core.Tests.TranslationPostProcessorTests": {
+          "Passed": 11
+        }
+      }
+    },
+    {
+      "trx": "build/resource-compatibility/m0/test-results/m0-complete_net10.0_20261022002355.trx",
+      "sha256": "01ca75cce6774183ae9c762f67a926aaa4034ddf19010df414aaad360dae696e",
+      "assemblies": [
+        "Toucan.Plugins.Testing.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "classes": {
+        "Toucan.Plugins.Testing.Tests.ConnectorHarnessTests": {
+          "Passed": 11
+        }
+      }
+    }
+  ],
+  "totalPassed": 1139,
+  "probeSource": "build/resource-compatibility/m0/probes/20261021T172456415Z/observations.json",
+  "probeSourceSha256": "636f854a7f03afc6ce1ac73a0e192ad79197746dfee23e86dc9fab50330f6941",
+  "probes": {
+    "schemaVersion": 1,
+    "generatedUtc": "2026-10-21T17:24:56.6709205Z",
+    "results": [
+      {
+        "id": "G1-nonjson-explicit-path",
+        "execution": "completed",
+        "observed": {
+          "entries": [
+            {
+              "Language": "de",
+              "Namespace": "unrelated",
+              "Value": "Sibling"
+            },
+            {
+              "Language": "english",
+              "Namespace": "title",
+              "Value": "Intended"
+            }
+          ],
+          "Warnings": []
+        }
+      },
+      {
+        "id": "G2-package-yaml-load",
+        "execution": "completed",
+        "observed": {
+          "entries": []
+        }
+      },
+      {
+        "id": "G2-package-json-save",
+        "execution": "completed",
+        "observed": {
+          "intended": "{\"title\":\"Before\"}",
+          "files": [
+            "custom\\en.json",
+            "custom\\english.json"
+          ]
+        }
+      },
+      {
+        "id": "G3-literal-nested-collision",
+        "execution": "completed",
+        "observed": {
+          "before": [
+            {
+              "Namespace": "a.b",
+              "Value": "Literal"
+            },
+            {
+              "Namespace": "a.b",
+              "Value": "Nested"
+            }
+          ],
+          "saved": "{\r\n  \"a\": {\r\n    \"b\": \"Nested\"\r\n  }\r\n}"
+        }
+      },
+      {
+        "id": "G5-imported-settings",
+        "execution": "completed",
+        "observed": {
+          "TranslationOrder": "file",
+          "retained": {
+            "format": "json",
+            "indent": "none",
+            "support_arrays": "false"
+          },
+          "saved": "{\r\n  \"a\": \"First\",\r\n  \"z\": \"Last\"\r\n}"
+        }
+      },
+      {
+        "id": "G6-arb-description-edit",
+        "execution": "completed",
+        "observed": {
+          "initialComment": "",
+          "saved": "{\r\n  \"@@locale\": \"en\",\r\n  \"title\": \"Hello\",\r\n  \"@title\": {\r\n    \"description\": \"Old description\",\r\n    \"custom\": \"Keep me\"\r\n  }\r\n}"
+        }
+      },
+      {
+        "id": "G8-json-null",
+        "execution": "completed",
+        "observed": {
+          "editableKeys": [
+            "title"
+          ],
+          "saved": "{\r\n  \"title\": \"Hello\"\r\n}"
+        }
+      },
+      {
+        "id": "S1-unknown-project-version",
+        "execution": "completed",
+        "observed": {
+          "count": 1,
+          "Warnings": []
+        }
+      },
+      {
+        "id": "S2-unsupported-formatjs",
+        "execution": "completed",
+        "observed": {
+          "rejected": true,
+          "diagnostic": "BabelEdit framework 'react-formatjs-extract' is not supported for import."
+        }
+      },
+      {
+        "id": "S3-generic-yaml-locale-root",
+        "execution": "completed",
+        "observed": {
+          "entries": [
+            {
+              "Namespace": "title",
+              "Value": "Literal locale-named group",
+              "FormatData": {
+                "yaml.file": "en.yml",
+                "yaml.locale": "en"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "fixtureProvenance": "Original synthetic translations; user-generated BabelEdit XML seed and workbook; generated variants. See corpus README. No installed vendor demo/assets added.",
+  "fixtures": [
+    {
+      "id": "01-generic-json",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "generic-json",
+      "configuration": {
+        "indent": "tab",
+        "format": "json",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/01-generic-json/de-DE.json",
+          "sha256": "8b9f5f6269ec7863858517c50ede648881b78ed11fa5a6ce0728cddfdf36acc2"
+        },
+        {
+          "path": "samples/babeledit-parity/01-generic-json/en-US.json",
+          "sha256": "a63b967470d2630b9e4e8aea011562de0b0d6c41a15bfe54223ea43299d9ce0d"
+        },
+        {
+          "path": "samples/babeledit-parity/01-generic-json/project.babel",
+          "sha256": "bf76ca1365cac6f928cd376cdf7a350a682049bae7b699d80ed4c9d5f8d34be2"
+        }
+      ]
+    },
+    {
+      "id": "02-angular-ngx",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "ngx-translate",
+      "configuration": {
+        "indent": "tab",
+        "format": "json",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/02-angular-ngx/de-DE.json",
+          "sha256": "bc0d6419ec38b0ba0193df84c45ef5b50ddef5d58fcae3142fad81357bbd0936"
+        },
+        {
+          "path": "samples/babeledit-parity/02-angular-ngx/en-US.json",
+          "sha256": "1e29c30c86bed08d752ae8d835b21649b47a0824124ab523ba458ebd61bc8009"
+        },
+        {
+          "path": "samples/babeledit-parity/02-angular-ngx/project.babel",
+          "sha256": "0474ef1d162dc602b816a21a467fab04e042067cb97ddb07168e7e49d1430988"
+        }
+      ]
+    },
+    {
+      "id": "03-angular-transloco",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "angular-transloco",
+      "configuration": {
+        "indent": "tab",
+        "format": "namespaced-json",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/03-angular-transloco/de-DE.json",
+          "sha256": "bc0d6419ec38b0ba0193df84c45ef5b50ddef5d58fcae3142fad81357bbd0936"
+        },
+        {
+          "path": "samples/babeledit-parity/03-angular-transloco/en-US.json",
+          "sha256": "1e29c30c86bed08d752ae8d835b21649b47a0824124ab523ba458ebd61bc8009"
+        },
+        {
+          "path": "samples/babeledit-parity/03-angular-transloco/project.babel",
+          "sha256": "185e7a22f7419ebb949865b7857b5db22cf35bde25d62aaaf31af2be37a92a5c"
+        }
+      ]
+    },
+    {
+      "id": "04-vue",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "vue-json",
+      "configuration": {
+        "indent": "tab",
+        "format": "namespaced-json",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/04-vue/de-DE.json",
+          "sha256": "bc0d6419ec38b0ba0193df84c45ef5b50ddef5d58fcae3142fad81357bbd0936"
+        },
+        {
+          "path": "samples/babeledit-parity/04-vue/en-US.json",
+          "sha256": "1e29c30c86bed08d752ae8d835b21649b47a0824124ab523ba458ebd61bc8009"
+        },
+        {
+          "path": "samples/babeledit-parity/04-vue/project.babel",
+          "sha256": "bfe08f221110c6b060d7b9df11afeb82a53e505cefdea2f6bdd21224ebcf9f44"
+        }
+      ]
+    },
+    {
+      "id": "05-i18next",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "i18next",
+      "configuration": {
+        "indent": "tab",
+        "format": "namespaced-json",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/05-i18next/de-DE.json",
+          "sha256": "bc0d6419ec38b0ba0193df84c45ef5b50ddef5d58fcae3142fad81357bbd0936"
+        },
+        {
+          "path": "samples/babeledit-parity/05-i18next/en-US.json",
+          "sha256": "1e29c30c86bed08d752ae8d835b21649b47a0824124ab523ba458ebd61bc8009"
+        },
+        {
+          "path": "samples/babeledit-parity/05-i18next/project.babel",
+          "sha256": "5fa77f411c4a4229e6e4166d0dd837ea4ff1ac9ed1fdb077d3ef889144acaf92"
+        }
+      ]
+    },
+    {
+      "id": "06-react",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "react-json",
+      "configuration": {
+        "indent": "tab",
+        "format": "json",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/06-react/de-DE.json",
+          "sha256": "bc0d6419ec38b0ba0193df84c45ef5b50ddef5d58fcae3142fad81357bbd0936"
+        },
+        {
+          "path": "samples/babeledit-parity/06-react/en-US.json",
+          "sha256": "1e29c30c86bed08d752ae8d835b21649b47a0824124ab523ba458ebd61bc8009"
+        },
+        {
+          "path": "samples/babeledit-parity/06-react/project.babel",
+          "sha256": "f0cb8937b2944fdb81787af717b9f6e5421750b0e6bdd813aa4c5904fd8168b7"
+        }
+      ]
+    },
+    {
+      "id": "07-svelte",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "svelte-i18n",
+      "configuration": {
+        "indent": "tab",
+        "format": "json",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/07-svelte/de-DE.json",
+          "sha256": "bc0d6419ec38b0ba0193df84c45ef5b50ddef5d58fcae3142fad81357bbd0936"
+        },
+        {
+          "path": "samples/babeledit-parity/07-svelte/en-US.json",
+          "sha256": "1e29c30c86bed08d752ae8d835b21649b47a0824124ab523ba458ebd61bc8009"
+        },
+        {
+          "path": "samples/babeledit-parity/07-svelte/project.babel",
+          "sha256": "10f20fd637e0a3636135134ef28b56bb252c674d202aa8c01f4a605fbb50728b"
+        }
+      ]
+    },
+    {
+      "id": "08-ember-json",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "ember-json",
+      "configuration": {
+        "indent": "tab",
+        "format": "namespaced-json",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/08-ember-json/de-DE.json",
+          "sha256": "bc0d6419ec38b0ba0193df84c45ef5b50ddef5d58fcae3142fad81357bbd0936"
+        },
+        {
+          "path": "samples/babeledit-parity/08-ember-json/en-US.json",
+          "sha256": "1e29c30c86bed08d752ae8d835b21649b47a0824124ab523ba458ebd61bc8009"
+        },
+        {
+          "path": "samples/babeledit-parity/08-ember-json/project.babel",
+          "sha256": "72b6de22fcca7be8ff70b554f965769b15d2e61fcbe3101404a01eaa1256f2ae"
+        }
+      ]
+    },
+    {
+      "id": "09-laravel-json",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "laravel-json",
+      "configuration": {
+        "indent": "tab",
+        "format": "plaintext-json",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/09-laravel-json/de-DE.json",
+          "sha256": "bc0d6419ec38b0ba0193df84c45ef5b50ddef5d58fcae3142fad81357bbd0936"
+        },
+        {
+          "path": "samples/babeledit-parity/09-laravel-json/en-US.json",
+          "sha256": "1e29c30c86bed08d752ae8d835b21649b47a0824124ab523ba458ebd61bc8009"
+        },
+        {
+          "path": "samples/babeledit-parity/09-laravel-json/project.babel",
+          "sha256": "52e4ed21899abf282c8560ce66fab4e6915ee220f8a6245f847a2960d201248a"
+        }
+      ]
+    },
+    {
+      "id": "10-generic-yaml",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "generic-yaml",
+      "configuration": {
+        "indent": "tab",
+        "format": "yaml",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/10-generic-yaml/de-DE.yaml",
+          "sha256": "5764fee5b8a3ae7ec3c386e64e8bceeb47b0684106e973d59805a12512ea2007"
+        },
+        {
+          "path": "samples/babeledit-parity/10-generic-yaml/en-US.yaml",
+          "sha256": "b3de8b78d0b5948ee2e2043d883b5b82d901dce0b466c5f9f51fa48c0c8e878d"
+        },
+        {
+          "path": "samples/babeledit-parity/10-generic-yaml/project.babel",
+          "sha256": "46d1402ebd9f0f1ed50fdb6791cc1012036575ab59a02b811135328f106cdbe8"
+        }
+      ]
+    },
+    {
+      "id": "11-ember-yaml",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "ember-yaml",
+      "configuration": {
+        "indent": "tab",
+        "format": "yaml",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/11-ember-yaml/de-DE.yaml",
+          "sha256": "5764fee5b8a3ae7ec3c386e64e8bceeb47b0684106e973d59805a12512ea2007"
+        },
+        {
+          "path": "samples/babeledit-parity/11-ember-yaml/en-US.yaml",
+          "sha256": "b3de8b78d0b5948ee2e2043d883b5b82d901dce0b466c5f9f51fa48c0c8e878d"
+        },
+        {
+          "path": "samples/babeledit-parity/11-ember-yaml/project.babel",
+          "sha256": "89c800f7668b0e9c3124d07ca539ec5252e2210616885b89aed9d0cf925f2688"
+        }
+      ]
+    },
+    {
+      "id": "12-rails-yaml",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "rails-yaml",
+      "configuration": {
+        "format": "yaml"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/12-rails-yaml/de-DE.yml",
+          "sha256": "abb752bc9bdd4f2a1f70a1dbc6e68a9a2daa7817a01f643c7b5ed4e8ccf68069"
+        },
+        {
+          "path": "samples/babeledit-parity/12-rails-yaml/en-US.yml",
+          "sha256": "3f5ecc5a0c4194cf6a366306ee94f0d3fcba282f8c43758866332920d780f9a1"
+        },
+        {
+          "path": "samples/babeledit-parity/12-rails-yaml/project.babel",
+          "sha256": "225190b7441ce20e4e03973991b32e2bc8df3ab0e340d8df93ac14f9e8ba9399"
+        }
+      ]
+    },
+    {
+      "id": "13-laravel-php",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "laravel",
+      "configuration": {
+        "indent": "tab",
+        "format": "php",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/13-laravel-php/de-DE/messages.php",
+          "sha256": "596db5bcebd7eeef0e41a2463511c3917b9d96d0e919287fa09144c6da9403e7"
+        },
+        {
+          "path": "samples/babeledit-parity/13-laravel-php/en-US/messages.php",
+          "sha256": "623ef013dcd3a94fef2bccefac04fbd88b09ccc35569c0ad7c6af027fad05509"
+        },
+        {
+          "path": "samples/babeledit-parity/13-laravel-php/project.babel",
+          "sha256": "51cd01f2789d3d4305bd361ef5c1804cb858fe500005c5346232b6359ef0071b"
+        }
+      ]
+    },
+    {
+      "id": "14-flutter-arb",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "arb",
+      "configuration": {
+        "indent": "tab",
+        "format": "plaintext-json"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/14-flutter-arb/de-DE.arb",
+          "sha256": "2db3d75aba911590cb2955521f9cf0ee259902e98eead2565b7cb8328a07aaea"
+        },
+        {
+          "path": "samples/babeledit-parity/14-flutter-arb/en-US.arb",
+          "sha256": "13f7a2a4a43db483287926c25e0adb2cfaab6fd265eac280a485b2411e53466c"
+        },
+        {
+          "path": "samples/babeledit-parity/14-flutter-arb/project.babel",
+          "sha256": "766531d87e52d62d420849cff948f3ccb51e9180a1faf953d1b91246f61c2411"
+        }
+      ]
+    },
+    {
+      "id": "15-java-latin1",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "prop-files",
+      "configuration": {
+        "indent": "tab",
+        "format": "properties-tree",
+        "support_arrays": "true",
+        "encoding": "ISO-8859-1"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/15-java-latin1/de-DE.properties",
+          "sha256": "9c546e83d222897d3af28f20e7c45b821f1d89dd285c83fff4b2d68bac7342fd"
+        },
+        {
+          "path": "samples/babeledit-parity/15-java-latin1/en-US.properties",
+          "sha256": "aae4cb98b2cb23bb6c600a1ebea73376db2f36621a0e271f16dd72c2bb2b3fca"
+        },
+        {
+          "path": "samples/babeledit-parity/15-java-latin1/project.babel",
+          "sha256": "310db128232c79f1037f3c309ea2500ddef7ae606ce8358e8d88e04c4d233c31"
+        }
+      ]
+    },
+    {
+      "id": "16-java-utf8",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "prop-files",
+      "configuration": {
+        "format": "properties-tree",
+        "encoding": "UTF-8"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/16-java-utf8/de-DE.properties",
+          "sha256": "5ce22c25f50a31933c6d4a9f426ae5df4e33ff16884bdf783d6dd737becf3c17"
+        },
+        {
+          "path": "samples/babeledit-parity/16-java-utf8/en-US.properties",
+          "sha256": "8ab1660e34c0659c06b8dd2b57a53d7dc0f5eb63e9b720288a34eede5d4394cf"
+        },
+        {
+          "path": "samples/babeledit-parity/16-java-utf8/project.babel",
+          "sha256": "ca90d160a7981ff942aed530a242415be85e2da9af90dbb9947d729bc1bd5ade"
+        }
+      ]
+    },
+    {
+      "id": "17-json-arrays",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "generic-json",
+      "configuration": {
+        "indent": "tab",
+        "format": "namespaced-json",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/17-json-arrays/de-DE.json",
+          "sha256": "c9bda181c7e1c5153c07bbe2e40037c2b08d1e8686d13b5fc3ee78808c2985ab"
+        },
+        {
+          "path": "samples/babeledit-parity/17-json-arrays/en-US.json",
+          "sha256": "18f59b94f2f15c093fac95928a29e4c58d6f5ce86db61d170e97894f4d5bc3e7"
+        },
+        {
+          "path": "samples/babeledit-parity/17-json-arrays/project.babel",
+          "sha256": "9ae3db86c3baa6b6ff2ddc75dbca7e6b1796eb47e83137e1e73e25dffdceac3f"
+        }
+      ]
+    },
+    {
+      "id": "18-yaml-arrays",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "generic-yaml",
+      "configuration": {
+        "format": "yaml",
+        "support_arrays": "true"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/18-yaml-arrays/de-DE.yaml",
+          "sha256": "b5e1098a947830fe13c63a5f9c70b6131bbdaf7f7bb980941b2e63af8188574e"
+        },
+        {
+          "path": "samples/babeledit-parity/18-yaml-arrays/en-US.yaml",
+          "sha256": "ab8626748000606dd7920b27350c32a6570eda12a98cfa5cad8765097821296a"
+        },
+        {
+          "path": "samples/babeledit-parity/18-yaml-arrays/project.babel",
+          "sha256": "73452fecea0c31321fdd1647b1bb617e4ab1c750fa83b7436a8c4212d32e6e51"
+        }
+      ]
+    },
+    {
+      "id": "19-dotnet-resx",
+      "schema": "1.3",
+      "authoringApplicationVersion": "5.5.1",
+      "framework": "resx",
+      "configuration": {
+        "format": "resx"
+      },
+      "files": [
+        {
+          "path": "samples/babeledit-parity/19-dotnet-resx/project.babel",
+          "sha256": "991e271dddc7116abfc926014afa30d26d0efb3c6601370b23702f12aafc6bf6"
+        },
+        {
+          "path": "samples/babeledit-parity/19-dotnet-resx/Resources.de-DE.resx",
+          "sha256": "0922f91158fe9cb4abacf02fc418f4a83544598f8c7dd88324bee57334bc0222"
+        },
+        {
+          "path": "samples/babeledit-parity/19-dotnet-resx/Resources.en-US.resx",
+          "sha256": "de0d65243affe2afde4f230ce15794bdf3623b90e99d0889675cca0b9d61e2e3"
+        }
+      ]
+    }
+  ],
+  "corpusUnchangedFromHead": true,
+  "exchangeWorkbook": {
+    "path": "samples/babeledit-parity/babeledit-export.xlsx",
+    "sha256": "8faf3b311610ae98432ba2117d252ac899416fd93149eea721df92c5cb83504f"
+  },
+  "cli": {
+    "source": "build/babeledit-parity/toucan-read-results.json",
+    "sha256": "f7d43125b850a660e7a49e60982829676adc3f99987eadaf5e5f1e4edc911a87",
+    "cases": [
+      {
+        "id": "01-generic-json",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "02-angular-ngx",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "03-angular-transloco",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "04-vue",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "05-i18next",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "06-react",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "07-svelte",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "08-ember-json",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "09-laravel-json",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "10-generic-yaml",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "11-ember-yaml",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "12-rails-yaml",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "13-laravel-php",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "14-flutter-arb",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "15-java-latin1",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "16-java-utf8",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "17-json-arrays",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "18-yaml-arrays",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      },
+      {
+        "id": "19-dotnet-resx",
+        "unicode_exact_two_languages": true,
+        "key_count_matches": true,
+        "greeting_exact_two_languages": true,
+        "unicode_unchanged_on_save": true,
+        "keys_lost_on_save": [],
+        "keys_added_on_save": [],
+        "save_exit": 0
+      }
+    ]
+  },
+  "frozenPluginArtifacts": [
+    {
+      "path": "build/resource-compatibility/m0/frozen-plugin/Toucan.Sample.Plugin.dll",
+      "sha256": "d59e53c6aa3d9c530354642561196d294c36cb07f18fd300b8b0c60588279ad2"
+    },
+    {
+      "path": "build/resource-compatibility/m0/frozen-plugin/Toucan.Sample.Plugin.Desktop.dll",
+      "sha256": "0443149ed7d40abac17d038aa06e33ba0b3271100e99de1aa5eaa305e87f7c85"
+    },
+    {
+      "path": "build/resource-compatibility/m0/frozen-plugin/plugin.json",
+      "sha256": "6f63c75b79843f273e9785cfbda6df0bb373cc606d34657f9962a66189598e0c"
+    }
+  ],
+  "pluginLimit": "Sample built at the baseline before contract changes; not certification of an independently published historical plugin binary."
+}

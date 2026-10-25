@@ -43,7 +43,7 @@ public class CompositionRootTests
         var factory = sp.GetRequiredService<ITranslationStrategyFactory>();
 
         var ids = factory.SaveStrategies.Select(s => s.FormatId).ToList();
-        Assert.Equal(Enum.GetValues<SaveStyles>().Select(FormatIds.FromStyle).Order(), ids.Order());
+        Assert.Equal(Enum.GetValues<SaveStyles>().Select(FormatIds.FromStyle).Append("formatjs").Order(), ids.Order());
         Assert.Equal(ids.Count, ids.Distinct(FormatIds.Comparer).Count());
     }
 

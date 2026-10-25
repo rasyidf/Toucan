@@ -5,7 +5,7 @@ using Toucan.Core.Models;
 namespace Toucan.Core.Services.LoadStrategies;
 
 /// <summary>Loads YAML translation files (one file per language, keys use indentation for hierarchy).</summary>
-public class YamlLoadStrategy : ILoadStrategy
+public class YamlLoadStrategy : ILoadStrategy, IResourceLoadStrategy
 {
     public string FormatId => FormatIds.Yaml;
 
@@ -19,15 +19,67 @@ public class YamlLoadStrategy : ILoadStrategy
         {
             var lang = Path.GetFileNameWithoutExtension(file);
             var lines = File.ReadAllLines(file);
-            items.AddRange(ParseYaml(lang, lines));
+            var parsed = ParseYaml(lang, lines);
+            // Rails wraps all messages in the locale; it is not part of a translation ID.
+            var roots = lines.Where(l => l.Length > 0 && !char.IsWhiteSpace(l[0]) && l[0] != '#' && l[0] != '-').ToList();
+            var locale = roots.Count == 1 ? roots[0].Trim().TrimEnd(':').Trim('"', '\'') : null;
+            var isLocale = locale == lang || locale == lang.Split('-')[0];
+            foreach (var item in parsed)
+            {
+                item.FormatData ??= new();
+                item.FormatData["yaml.file"] = Path.GetRelativePath(folder, file);
+                if (isLocale && locale != null && item.Namespace.StartsWith(locale + ".", StringComparison.Ordinal))
+                {
+                    item.Namespace = item.Namespace[(locale.Length + 1)..];
+                    item.FormatData["yaml.locale"] = locale;
+                }
+            }
+            items.AddRange(parsed);
         }
         return items;
+    }
+
+    public ResourceReadResult ReadResource(ResourceReadRequest request)
+    {
+        request.CancellationToken.ThrowIfCancellationRequested();
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Resource.RelativePath);
+        var content = ResourceText.Read(request, out var encoding);
+        try
+        {
+            var root = YamlDocumentCodec.Read(content);
+            string? locale = null;
+            if (request.Resource.Dialect == "rails-yaml")
+            {
+                if (root is not System.Text.Json.Nodes.JsonObject obj || obj.Count != 1) throw new FormatException("[locale]: Rails YAML needs one declared locale root.");
+                locale = obj.First().Key;
+                if (locale != request.Resource.Language && locale != request.Resource.Language.Split('-')[0]) throw new FormatException("[locale]: Rails root does not match the declared locale.");
+                root = obj.First().Value?.DeepClone() ?? new System.Text.Json.Nodes.JsonObject();
+            }
+            var loaded = ResourceJsonCodec.Read(root.ToJsonString(), request.Resource, request.ProjectOptions, request.CancellationToken);
+            loaded.Document!.DetectedOptions = ResourceText.Detect(content, encoding);
+            loaded.Document.Data["yaml.source"] = System.Text.Json.JsonSerializer.SerializeToElement(content);
+            loaded.Document.Data["yaml.unsafe"] = System.Text.Json.JsonSerializer.SerializeToElement<string?>(null);
+            loaded.Document.Data["format"] = System.Text.Json.JsonSerializer.SerializeToElement(locale != null
+                ? new Dictionary<string, string> { ["yaml.locale"] = locale } : new Dictionary<string, string>());
+            foreach (var item in loaded.Entries) (item.FormatData ??= new())["yaml.file"] = request.Resource.RelativePath;
+            return loaded;
+        }
+        catch (FormatException ex) when (!ex.Message.StartsWith("[locale]", StringComparison.Ordinal))
+        {
+            var loaded = ResourceFileAdapter.Bind(request, ParseYaml(request.Resource.Language, content.ReplaceLineEndings("\n").Split('\n')).GroupBy(i => i.Namespace).Select(g => g.First()).ToList(), false);
+            loaded.Document!.Data["yaml.unsafe"] = System.Text.Json.JsonSerializer.SerializeToElement(ex.Message);
+            return loaded with { Diagnostics = [new ResourceDiagnostic("yaml.save-blocked", ex.Message + "; review preview may be incomplete; source rewriting is blocked.", ResourceDiagnosticSeverity.Warning, request.Resource.RelativePath, "content")] };
+        }
     }
 
     private static List<TranslationItem> ParseYaml(string language, string[] lines)
     {
         var result = new List<TranslationItem>(lines.Length / 2);
         var pathStack = new List<(int Indent, string Key)>();
+        var indexes = new Dictionary<string, int>(StringComparer.Ordinal);
+
+        string KeyPath(string? key = null) => string.Join('.', pathStack.Select(p => p.Key)
+            .Concat(key == null ? [] : new[] { key })).Replace(".[", "[", StringComparison.Ordinal);
 
         int i = 0;
         while (i < lines.Length)
@@ -40,6 +92,30 @@ public class YamlLoadStrategy : ILoadStrategy
             if (trimmed.IsEmpty || trimmed[0] == '#' || trimmed.StartsWith("---")) { i++; continue; }
 
             int indent = span.Length - trimmed.Length;
+
+            while (pathStack.Count > 0 && pathStack[^1].Indent >= indent)
+                pathStack.RemoveAt(pathStack.Count - 1);
+
+            if (trimmed.SequenceEqual("-") || trimmed.StartsWith("- "))
+            {
+                var parent = KeyPath();
+                var index = indexes.GetValueOrDefault(parent);
+                indexes[parent] = index + 1;
+                pathStack.Add((indent, $"[{index}]"));
+                trimmed = trimmed[1..].TrimStart();
+                if (trimmed.IsEmpty) { i++; continue; }
+                // A sequence member may be a mapping. Scalar members include quoted URLs.
+                var separator = trimmed.IndexOf(':');
+                if (trimmed[0] is not ('\'' or '"') && separator > 0 &&
+                    (separator == trimmed.Length - 1 || char.IsWhiteSpace(trimmed[separator + 1])))
+                    indent += 2;
+                else
+                {
+                    result.Add(new TranslationItem { Language = language, Namespace = KeyPath(), Value = StripQuotes(trimmed.ToString()) });
+                    i++;
+                    continue;
+                }
+            }
 
             var colonIdx = trimmed.IndexOf(':');
             if (colonIdx <= 0) { i++; continue; }
@@ -77,7 +153,7 @@ public class YamlLoadStrategy : ILoadStrategy
                 while (blockLines.Count > 0 && string.IsNullOrEmpty(blockLines[^1]))
                     blockLines.RemoveAt(blockLines.Count - 1);
                 var value = literal ? string.Join("\n", blockLines) : string.Join(" ", blockLines.Select(l => l.Length == 0 ? "\n" : l));
-                var ns = string.Join('.', pathStack.Select(p => p.Key).Append(key));
+                var ns = KeyPath(key);
                 result.Add(new TranslationItem { Language = language, Namespace = ns, Value = value });
             }
             else
@@ -85,8 +161,8 @@ public class YamlLoadStrategy : ILoadStrategy
                 var value = StripQuotes(valueSpan.ToString());
                 // Handle __self convention for keys that are both parents and values
                 var resolvedKey = key == "__self"
-                    ? string.Join('.', pathStack.Select(p => p.Key))
-                    : string.Join('.', pathStack.Select(p => p.Key).Append(key));
+                    ? KeyPath()
+                    : KeyPath(key);
                 if (!string.IsNullOrEmpty(resolvedKey))
                     result.Add(new TranslationItem { Language = language, Namespace = resolvedKey, Value = value });
                 i++;

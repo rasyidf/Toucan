@@ -3,7 +3,7 @@
              xmlns:loc="using:Toucan.Avalonia.Locales"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
-                Width="420" Height="460">
+                Width="420" Height="460" MinWidth="360" MinHeight="360">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

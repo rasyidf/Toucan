@@ -1,0 +1,40 @@
+<UserControl x:Class="Toucan.Avalonia.Views.Panels.NotificationHistoryView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
+             Width="400" MaxWidth="600">
+  <DockPanel Margin="8">
+    <StackPanel DockPanel.Dock="Top" Spacing="8">
+      <DockPanel>
+        <Button DockPanel.Dock="Right" Content="{loc:Loc 'Clear history'}" Command="{Binding NotificationHistory.ClearCommand}"/>
+        <TextBlock Text="{loc:Loc 'Notification history'}" FontSize="17" VerticalAlignment="Center"/>
+      </DockPanel>
+      <WrapPanel>
+        <Button Content="{loc:Loc 'Untranslated'}" Command="{Binding ShowUntranslatedCommand}"/>
+        <Button Content="{loc:Loc 'Run validation'}" Command="{Binding RunValidationCommand}"/>
+      </WrapPanel>
+      <TextBlock Text="{loc:Loc 'No notifications yet.'}" IsVisible="{Binding NotificationHistory.IsEmpty}" Margin="0,12"/>
+    </StackPanel>
+    <ScrollViewer MaxHeight="420" HorizontalScrollBarVisibility="Disabled">
+      <ItemsControl ItemsSource="{Binding NotificationHistory.Items}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border Padding="8" Margin="0,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource CardBorderBrush}">
+              <StackPanel Spacing="5">
+                <TextBlock Text="{Binding Content.Title}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding Content.Message}" TextWrapping="Wrap"/>
+                <WrapPanel>
+                  <TextBlock Text="{Binding Content.Severity}" Classes="caption" Margin="0,0,8,0"/>
+                  <TextBlock Text="{Binding Source}" Classes="caption" Margin="0,0,8,0"/>
+                  <TextBlock Text="{Binding Time, StringFormat='{}{0:g}'}" Classes="caption"/>
+                </WrapPanel>
+                <Button Content="{Binding Content.ActionLabel}" IsVisible="{Binding Content.ActionCommandId, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                        Command="{Binding $parent[UserControl].DataContext.NotificationHistory.RunActionCommand}" CommandParameter="{Binding}"/>
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

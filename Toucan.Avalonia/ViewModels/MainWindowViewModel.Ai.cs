@@ -192,8 +192,28 @@ public partial class MainWindowViewModel
     {
         if (AppOptions.OnboardingVersion >= OnboardingViewModel.CurrentVersion) return;
         await _dialogService.ShowOnboardingAsync();
+        var setup = _preferenceService.Load();
+        AppOptions.DefaultLanguage = setup.DefaultLanguage;
+        AppOptions.Theme = setup.Theme;
         AppOptions.OnboardingVersion = OnboardingViewModel.CurrentVersion;
         _preferenceService.Save(AppOptions);
         RefreshAiState();
+        ShowFeatureTourIfNeeded();
+    }
+
+    /// <summary>The one-time feature tour, shown after first-run setup. Null until first needed.</summary>
+    public FeatureTourViewModel? FeatureTour { get; private set; }
+
+    /// <summary>Shows the dismissible feature tour once; <see cref="AppOptions.FeatureTourSeen"/> records it.</summary>
+    public void ShowFeatureTourIfNeeded()
+    {
+        if (AppOptions.FeatureTourSeen) return;
+        FeatureTour ??= new FeatureTourViewModel(() =>
+        {
+            AppOptions.FeatureTourSeen = true;
+            _preferenceService.Save(AppOptions);
+        });
+        OnPropertyChanged(nameof(FeatureTour));
+        FeatureTour.Show();
     }
 }

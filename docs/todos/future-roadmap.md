@@ -1,9 +1,9 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "49 release tasks; 6 stable gates; 27 deferred tasks"
-updated: 2026-10-13
-summary: "Eleven focused releases from v0.21 to v0.31: file safety, extension platform, editing, terminology, review, snapshot and CRUD sources, one online connector, distribution, and measured stabilization."
+progress: "44 release tasks; 6 stable gates; 26 deferred tasks"
+updated: 2026-10-25
+summary: "Open milestones through v1.0, reconciled with the v0.24 source build. Delivered toolbar/native-menu work is removed; partial review, validation and source foundations remain explicit."
 ---
 # Toucan roadmap: v0.21 to v1.0
 
@@ -22,6 +22,8 @@ This file lists open work only. Remove shipped tasks instead of ticking them. Ad
 Existing bugs are linked by ID instead of duplicated here. Completion gates describe acceptance criteria; checkboxes describe implementation work. The header counts release tasks, v1.0 gates, and deferred tasks separately.
 
 ## Release overview
+
+The [2026-10-25 source audit](../research/v0.24-roadmap-audit.md) distinguishes implemented UI and compatibility work from unfinished product workflows. v0.24 already implements its editor/onboarding features; its remaining task is release acceptance. The main plugin toolbar and macOS native menu are implemented. Later milestones retain the work that their existing foundations do not yet deliver.
 
 | Release | Main outcome | Depends on |
 |---|---|---|
@@ -56,19 +58,16 @@ Existing bugs are linked by ID instead of duplicated here. Completion gates desc
 
 Shipped in v0.23.0. The extension platform (registration/activation split, command registry, desktop contribution package, host services, workspace API, compatibility checks, SDK harness and sample connector) is in [CHANGELOG.md](../../CHANGELOG.md) and [completed-features.md](../completed-features.md). The sample connector built outside this repository loads on desktop and in the CLI, its command is in the palette and a menu with a reassignable shortcut and becomes unavailable when its workspace closes, and a plugin batch edit behaves like a native edit through undo, save failure, recovery and reopen.
 
+The upstream release records its connector acceptance as passed. Revalidation of the merged source build and the production connection-management gap remain tracked in APP-05 and QA-03.
+
 ### v0.24: Editor comfort and onboarding
 
-**Outcome:** a new user can open a project and complete a keyboard-driven translation session comfortably. **References:** APP-02, APP-03.
+**Outcome:** a new user can open a project and complete a keyboard-driven translation session comfortably. **References:** QA-03. Implementation and Windows automated evidence are in [editor-comfort acceptance](../specs/editor-comfort/acceptance.md).
 
-- [ ] Complete first-run setup for default language, theme, and optional translation-engine credentials; add actionable empty states and a dismissible feature tour.
-- [ ] Add reliable inline editing, side-by-side source/target comparison, content-sized multiline fields, and character/word counts.
-- [ ] Make bulk operations (copy to language, replace all, pre-translate, move, delete) undoable as one step; undo covers single value edits only today.
-- [ ] Make the edit → accept suggestion → approve → next workflow predictable, including focus retention and configurable shortcuts with conflict detection.
-- [ ] Clarify source/target hierarchy, placeholder rendering, descriptions, source references, and suggestion provenance in the editor and inspector.
-- [ ] Add notification history with actionable save, validation, and integration failures; distinguish progress, cancellation, and completion.
-- [ ] Verify light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader labels, and RTL content on supported platforms.
+- [ ] Verify native Windows light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader announcements, and RTL content. The current readiness review assumes macOS/Linux have passed at the user's request; retain the distinction between that assumption and this host's automated evidence.
 
 **Completion gate:** a user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved.
+
 
 ### v0.25: Terminology and validation
 
@@ -78,6 +77,7 @@ Shipped in v0.23.0. The extension platform (registration/activation split, comma
 - [ ] Show selected-string glossary matches in a Dictionary panel and suggest glossary terms while editing (APP-01).
 - [ ] Add configurable glossary validation and pass relevant terminology to machine/AI translation requests.
 - [ ] Add debounced validation while typing, with clear severity and navigation to affected fields.
+- [ ] Apply configured rule enable/severity policy consistently in manual checks, save, approval and plugin workspace edits; the settings editor already stores the preferences (APP-06).
 - [ ] Parse and validate supported message syntaxes, including nested ICU plural/select messages, required branches, and placeholders; document syntax/version limits.
 - [ ] Finish AI finding re-translation and configurable analysis strictness, retaining preview and explicit acceptance.
 
@@ -143,7 +143,7 @@ Shipped in v0.23.0. The extension platform (registration/activation split, comma
 - [ ] Validate and ship a Windows installer alongside the portable package; configure trusted signing for release artifacts where required.
 - [ ] Configure Developer ID signing and notarization for macOS; preserve a documented development-build path.
 - [ ] Script Linux packaging and document supported architectures, dependencies, desktop integration, and installation/removal.
-- [ ] Add configurable startup update checks, stable/preview channels, changelog previews, and a clear download/open-release action.
+- [ ] Extend the existing manual update check and stable/preview channels with configurable startup checks, changelog previews, and a clear download/open-release action.
 - [ ] Verify clean install, upgrade, uninstall, and settings preservation; document signing costs or platform limitations that remain unresolved.
 
 **Completion gate:** a release can be built from its tag and installed/upgraded on each supported platform, with explicit platform limitations and no manual artifact patching. Automatic in-app installation is deferred.
@@ -216,7 +216,7 @@ These remain visible backlog items, not prerequisites for the first stable relea
 
 - [ ] Add verified update download/application with restart, recovery, and stable/preview channels.
 - [ ] Add Linux AppImage/Flatpak distribution and complete XDG integration.
-- [ ] Add macOS native menu-bar and system-accent integration.
+- [ ] Add macOS system-accent integration; the native menu bar and native shortcut ownership already exist.
 
 ### Editor, glossary, and reporting
 
@@ -237,8 +237,6 @@ Core plugins shipped in v0.18.0. See the [plugin guide](../plugins.md) and [orig
 
 - [ ] Add per-project validation rule files under `.toucan/rules/`.
 - [ ] Make signing mandatory for all plugins and add a plugin feed alongside the collaboration/auth milestone (commercial-channel verification ships in v0.29).
-- [ ] Add per-rule enable/severity settings for plugin rules.
-- [ ] Render `CommandPlacement.Toolbar` for plugin commands outside panels (a main toolbar surface). The placement flag and panel toolbars already work; a global toolbar for commands not attached to a panel is not yet rendered.
 
 ### Real-time collaboration
 

@@ -25,9 +25,11 @@ public interface IDialogService
     Task<string?> ShowPickAsync(string title, string message, IReadOnlyList<string> options, string? selected = null);
     Task<string?> ShowLanguagePromptAsync(string title, string message, IEnumerable<TranslationItem>? existingTranslations);
 
-    Task<NewProjectViewModel?> ShowNewProjectAsync();
+    Task<NewProjectViewModel?> ShowNewProjectAsync(string? frameworkName = null);
     Task<ImportProjectViewModel?> ShowImportProjectAsync();
     Task<AppOptions?> ShowOptionsAsync(int startPage = 0);
+    Task<bool> ShowMigrationReportAsync(Toucan.Core.Models.MigrationReport report, bool canApply) => Task.FromResult(false);
+    Task<bool> ShowSpreadsheetPreviewAsync(Toucan.Core.Services.SpreadsheetPreview preview);
     Task<bool> ShowPreTranslateAsync(PreTranslateViewModel vm);
     Task ShowProviderSettingsAsync(string? projectPath = null);
     /// <summary>Edits one AI feature's prompt; true when it was saved or reset.</summary>

@@ -45,11 +45,13 @@ public partial class MainWindowViewModel
 
         FlushPendingEdits();
         var plan = WorkspaceEditPlanner.Plan(new PlanInput(AllTranslation, ProjectLanguages(), PrimaryLanguage, _workspaceRevision,
-            ProjectSettings?.RequireValidForApproval == true, _validationPipeline), edit);
+            ProjectSettings?.RequireValidForApproval == true, _validationPipeline, CanChangeKeys), edit);
         if (!plan.CanApply) return new Plugins.EditResult(false, 0, _workspaceRevision, plan.Issues, []);
         if (plan.Steps.Count == 0) return new Plugins.EditResult(true, 0, _workspaceRevision, plan.Issues, []);
+        using var historyGroup = _undoRedoService.BeginGroup();
 
         var changed = new List<TranslationItem>();
+        var beforeStructure = CaptureStructure();
         var structure = new List<string>();
         var touched = new HashSet<(string, string)>();
         var touchedKeys = new HashSet<string>();
@@ -130,6 +132,7 @@ public partial class MainWindowViewModel
         if (changed.Count > 0) NotifyBulkValueChanges(changed);
         if (structure.Count > 0)
         {
+            _undoRedoService.RecordStructure(beforeStructure, AllTranslation);
             MarkStructureChanged(structure);
             RefreshTree();
         }

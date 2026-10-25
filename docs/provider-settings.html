@@ -6,6 +6,7 @@
 <title>Toucan · Provider Settings (App-level and Project-level)</title>
 <meta name="description" content="Where provider settings and keys live (keys in the secret store), built-in provider defaults (Google, DeepL, Microsoft, AI, Custom), encryption model and the settings dialog.">
 <link rel="canonical" href="https://toucan.rasyid.dev/provider-settings.html">
+<meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -17,6 +18,25 @@
 <meta property="og:description" content="Where provider settings and keys live (keys in the secret store), built-in provider defaults (Google, DeepL, Microsoft, AI, Custom), encryption model and the settings dialog.">
 <meta property="og:url" content="https://toucan.rasyid.dev/provider-settings.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Toucan · Provider Settings (App-level and Project-level)">
+<meta name="twitter:description" content="Where provider settings and keys live (keys in the secret store), built-in provider defaults (Google, DeepL, Microsoft, AI, Custom), encryption model and the settings dialog.">
+<meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Toucan \u00b7 Provider Settings (App-level and Project-level)",
+  "description": "Where provider settings and keys live (keys in the secret store), built-in provider defaults (Google, DeepL, Microsoft, AI, Custom), encryption model and the settings dialog.",
+  "url": "https://toucan.rasyid.dev/provider-settings.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Toucan",
+    "url": "https://toucan.rasyid.dev",
+    "logo": "https://toucan.rasyid.dev/assets/icons/icon-512.png"
+  }
+}
+</script>
 <script>
 (function () {
   try {
@@ -61,18 +81,18 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="ai-integration.html">AI Integration</a>
+<a href="user-guide.html">Toucan User Guide</a>
+<a href="translator-guide.html">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
+<a href="ai-integration.html">AI Integration</a>
 <a href="provider-settings.html" aria-current="page">Provider Settings (App-level and Project-level)</a>
 <a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
 <a href="architecture.html">Toucan architecture</a>
 <a href="core-architecture.html">Toucan.Core interop architecture</a>
 <a href="roadmap.html">Toucan roadmap: v0.21 to v1.0</a>
-<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
 <a href="completed-features.html">Shipped Features</a>
-<a href="branding.html">Toucan: Brand Guidelines</a>
-<a href="visual-review.html">Visual review: screenshots of every screen</a>
+<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
       </nav>
       <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#where-settings-are-stored">Where settings are stored</a><a class="l2" href="#built-in-providers">Built-in providers</a><a class="l2" href="#security-model">Security model</a><a class="l2" href="#ui-provider-settings-dialog">UI: Provider Settings dialog</a></nav>
     </aside>
@@ -104,7 +124,7 @@
 <h2 id="security-model"><a class="anchor" href="#security-model" aria-label="Link to this section">#</a>Security model</h2>
 <ul>
 <li>All secrets (provider keys and AI service keys) are in one file, <code>secrets.json</code>, in the user's application-data folder (<code>%APPDATA%\Toucan</code>, <code>~/Library/Application Support/Toucan</code>, <code>~/.config/Toucan</code>), written with owner-only (0600) permissions on macOS and Linux. Key names are in clear, values encrypted. Settings → Data &amp; privacy lists the names and removes secrets.</li>
-<li>Windows: values are encrypted with the current user's DPAPI key, so they can only be read by that account on that machine (the same format the WPF app used).</li>
+<li>Windows: values are encrypted with the current user's DPAPI key, so they can only be read by that account on that machine.</li>
 <li>macOS and Linux: values are encrypted with AES-GCM using a random per-user key stored as <code>secret.key</code> next to <code>secrets.json</code>, with owner-only (0600) permissions. Encrypted values start with <code>aesgcm1:</code>. Anyone who can read both that key file and <code>secrets.json</code> can decrypt the secrets.</li>
 <li>If DPAPI was unavailable, old builds stored secrets base64-encoded inline in <code>providers.json</code>. Toucan still reads those values and moves them, encrypted, to the secret store the next time the provider settings are saved.</li>
 <li>For automated / CI scenarios you can still opt to use application-level settings or supply provider credentials in environment-specific locations; consider using OS-level secret stores for advanced scenarios.</li>

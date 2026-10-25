@@ -13,7 +13,7 @@
         <SelectableTextBlock Text="{Binding StatusMessage}" Classes="caption" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="520"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
           <Button Content="{loc:Loc 'Cancel'}" Command="{Binding CancelCommand}"/>
-          <Button Content="{loc:Loc 'Apply translations'}" Classes="accent" Command="{Binding CommitCommand}" IsEnabled="{Binding HasPreview}"/>
+          <Button Content="{loc:Loc 'Apply translations'}" Classes="accent" Command="{Binding CommitCommand}" IsDefault="True" IsEnabled="{Binding HasPreview}"/>
         </StackPanel>
       </DockPanel>
     </Border>

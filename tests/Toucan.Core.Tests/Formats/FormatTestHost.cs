@@ -11,8 +11,12 @@ internal static class FormatTestHost
     private static readonly ServiceProvider s_services = Build();
 
     public static IReadOnlyList<ISaveStrategy> SaveStrategies { get; } = [.. s_services.GetServices<ISaveStrategy>()];
+    public static IEnumerable<ISaveStrategy> EditableStrategies => SaveStrategies.Where(s => s is not Toucan.Core.Contracts.IResourceCapabilities capabilities ||
+        capabilities.Permissions(new() { FormatId = s.FormatId }).EditKeys);
     public static IReadOnlyList<ILoadStrategy> LoadStrategies { get; } = [.. s_services.GetServices<ILoadStrategy>()];
     public static ITranslationStrategyFactory Factory { get; } = s_services.GetRequiredService<ITranslationStrategyFactory>();
+
+    public static IReadOnlyList<IProjectCompatibilityImporter> Importers { get; } = [.. s_services.GetServices<IProjectCompatibilityImporter>()];
 
     private static ServiceProvider Build()
     {

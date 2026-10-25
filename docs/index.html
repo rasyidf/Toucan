@@ -7,6 +7,7 @@
 <meta name="description" content="Toucan is an open-source desktop editor for translation files on Windows, macOS, and Linux. Edit 14 formats side by side, pre-translate with DeepL, Google, Microsoft or AI (Claude, OpenAI-compatible, Gemini; off until you turn it on), and validate before you ship. Preview release.">
 <meta name="author" content="Muhammad Fahmi Rasyid">
 <link rel="canonical" href="https://toucan.rasyid.dev/">
+<meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -80,6 +81,8 @@
       <a href="#platforms">Platforms</a>
       <a href="#roadmap">Roadmap</a>
       <a href="docs.html">Docs</a>
+      <a href="user-guide.html">User Guide</a>
+      <a href="translator-guide.html">Translators</a>
       <a href="changelog.html">Changelog</a>
     </nav>
     <div class="nav-actions">
@@ -101,7 +104,7 @@
 <section class="hero" id="top">
   <div class="wrap hero-grid">
     <div class="intro">
-      <a class="eyebrow" href="https://github.com/rasyidf/Toucan/releases/tag/v0.22.0"><span class="ver">v0.22.0</span><span class="pre">preview</span> · open source · MIT</a>
+      <a class="eyebrow" href="https://github.com/rasyidf/Toucan/releases/tag/v0.23.0"><span class="ver">v0.23.0</span><span class="pre">preview</span> · open source · MIT</a>
       <h1>Every language, <span class="hl">side by side.</span></h1>
       <div class="tagline-i18n" aria-hidden="true">
         <span class="lang" id="tl-lang">id-ID</span>
@@ -115,7 +118,7 @@
         </a>
         <a class="btn btn-ghost" href="https://github.com/rasyidf/Toucan">View source</a>
       </div>
-      <p class="hero-note">v0.22.0 on Windows 10+, macOS and Linux. Expect rough edges before 1.0.</p>
+      <p class="hero-note">v0.23.0 on Windows 10+, macOS and Linux. Expect rough edges before 1.0.</p>
     </div>
 
     <!-- Interactive demo: a small model of the editor, driven by the data in the script below. -->
@@ -365,7 +368,7 @@
         <div class="fx-foot" id="fx-foot">i18next interpolation, nested keys.</div>
       </div>
     </div>
-    <p class="formats-note">Coming from BabelEdit? Toucan imports <code>.babel</code> projects. A few formats lose detail on save today (PO plurals, ARB metadata, XLIFF source text); see the <a href="known-bugs.html">known issues</a>.</p>
+    <p class="formats-note">Coming from BabelEdit? Toucan imports <code>.babel</code> projects with full review metadata preservation. Read the <a href="user-guide.html">User Guide</a>, explore the <a href="translator-guide.html">Translator Guide</a>, or check the <a href="formats.html">format support matrix</a>.</p>
   </div>
 </section>
 
@@ -425,14 +428,14 @@ Languages: 4
       <p>No account, no upload, no server. Text leaves your machine only when you run a translation provider or turn AI on. API keys live in one secret store in your user profile, encrypted at rest: DPAPI on Windows, AES-GCM with a per-user key on macOS and Linux.</p>
     </div>
     <div class="preview-note reveal" role="note">
-      <strong>Preview software.</strong> Toucan is at v0.22.0 on Windows, macOS and Linux, and every build is a preview until 1.0. Settings and project files can change between releases, so keep your locales in version control and <a href="https://github.com/rasyidf/Toucan/issues">report what breaks</a>.
+      <strong>Preview software.</strong> Toucan is at v0.23.0 on Windows, macOS and Linux, and every build is a preview until 1.0. Settings and project files can change between releases, so keep your locales in version control and <a href="https://github.com/rasyidf/Toucan/issues">report what breaks</a>.
     </div>
     <div class="platforms">
       <div class="platform reveal">
         <span class="chip warn">preview</span>
         <h3>Windows, macOS and Linux</h3>
         <p>One app on the same core everywhere, so formats, validation, and providers behave the same, with the modes, Zen, command palette, AI Integration, side panels, and plugins. Windows 10 and later as a portable zip for now, macOS as a DMG, Linux as a tarball.</p>
-        <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.22.0">Download v0.22.0 →</a>
+        <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.23.0">Download v0.23.0 →</a>
       </div>
       <div class="platform reveal" style="--d:80ms">
         <span class="chip warn">preview</span>
@@ -455,7 +458,7 @@ Languages: 4
     <ol class="timeline reveal">
       <li>
         <div class="ver">v0.20</div>
-        <span class="when">now · v0.22.0 on Windows, macOS and Linux</span>
+        <span class="when">now · v0.23.0 on Windows, macOS and Linux</span>
         <h3>AI Integration</h3>
         <ul>
           <li>One AI switch, off by default: Claude, OpenAI-compatible, Gemini</li>
@@ -470,7 +473,7 @@ Languages: 4
         <h3>Ten focused preview releases</h3>
         <ul>
           <li>v0.21–0.23: file fidelity, CI, safe saves and recovery, extension platform</li>
-          <li>v0.24–0.26: editor comfort, glossary, validation and review</li>
+          <li>v0.24: editor workflow implemented; native/platform acceptance pending. v0.25–0.26: glossary, validation and review</li>
           <li>v0.27–0.29: snapshot sources, CRUD sync and one online connector</li>
           <li>v0.30–0.31: release packages, update notifications and a measured release candidate</li>
         </ul>
@@ -530,6 +533,8 @@ Languages: 4
       <a href="https://github.com/rasyidf/Toucan/releases">Releases</a>
       <a href="https://github.com/rasyidf/Toucan/issues">Issues</a>
       <a href="docs.html">Docs</a>
+      <a href="user-guide.html">User Guide</a>
+      <a href="translator-guide.html">Translators</a>
       <a href="plugins.html">Plugins</a>
       <a href="changelog.html">Changelog</a>
     </nav>
@@ -1139,9 +1144,9 @@ Languages: 4
         '<resources>\n  <string name="checkout_items_count">You have %1$d items</string>\n</resources>'],
       ios: ['en.lproj/Localizable.strings', '%d', 'Key-value pairs with optional comments.',
         '/* Cart badge */\n"checkout.items_count" = "You have %d items";'],
-      xliff: ['messages.id.xlf', '{count}', 'Source and target side by side. Known issue: on save, Toucan writes the key into <source>.',
+      xliff: ['messages.id.xlf', '{count}', 'Source and target side by side with original state and notes preserved.',
         '<trans-unit id="checkout.items_count">\n  <source>You have {count} items</source>\n  <target>Anda punya {count} barang</target>\n</trans-unit>'],
-      arb: ['lib/l10n/app_en.arb', '{count}', 'ICU message. Known issue: @key metadata is dropped on save.',
+      arb: ['lib/l10n/app_en.arb', '{count}', 'Flutter ICU message with editable descriptions and structured @key placeholders.',
         '{\n  "checkoutItemsCount": "You have {count} items",\n  "@checkoutItemsCount": {\n    "placeholders": { "count": { "type": "int" } }\n  }\n}'],
       csv: ['translations.csv', '{{count}}', 'One row per key, one column per language.',
         'key,en-US,id-ID\ncheckout.items_count,"You have {{count}} items","Anda punya {{count}} barang"'],

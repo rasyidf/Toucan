@@ -42,16 +42,16 @@ public sealed class BuiltInModuleTests : IDisposable
 
         // Which assembly registers a module decides the order, so only the set is pinned.
         Assert.Equal(
-            ["toucan.formats.data", "toucan.formats.json", "toucan.formats.text", "toucan.formats.xml", "toucan.frameworks", "toucan.providers", "toucan.validation"],
+            ["toucan.compatibility.babeledit", "toucan.formats.data", "toucan.formats.json", "toucan.formats.text", "toucan.formats.xml", "toucan.frameworks", "toucan.providers", "toucan.validation"],
             modules.Select(m => m.Id).Order(StringComparer.Ordinal));
-        Assert.Equal(["save-formats:3", "load-formats:4"], modules.Single(m => m.Id == "toucan.formats.json").Registered);
+        Assert.Equal(["save-formats:4", "load-formats:5"], modules.Single(m => m.Id == "toucan.formats.json").Registered);
         Assert.Equal(["save-formats:3", "load-formats:3"], modules.Single(m => m.Id == "toucan.formats.xml").Registered);
         Assert.Equal(["save-formats:6", "load-formats:5"], modules.Single(m => m.Id == "toucan.formats.text").Registered);
         Assert.Equal(["save-formats:2", "load-formats:2"], modules.Single(m => m.Id == "toucan.formats.data").Registered);
         Assert.Equal(["formats"], modules.Single(m => m.Id == "toucan.formats.json").Capabilities);
         // Together the families are the 14 formats Toucan ships (INI saves but has no loader).
-        Assert.Equal(14, modules.Where(m => m.Id.StartsWith("toucan.formats.", StringComparison.Ordinal)).Sum(m => int.Parse(m.Registered[0].Split(':')[1], System.Globalization.CultureInfo.InvariantCulture)));
-        Assert.Equal(["profiles:8"], modules.Single(m => m.Id == "toucan.frameworks").Registered);
+        Assert.Equal(15, modules.Where(m => m.Id.StartsWith("toucan.formats.", StringComparison.Ordinal)).Sum(m => int.Parse(m.Registered[0].Split(':')[1], System.Globalization.CultureInfo.InvariantCulture)));
+        Assert.Equal(["profiles:12"], modules.Single(m => m.Id == "toucan.frameworks").Registered);
         Assert.Equal(["providers:6", "ai-services:3"], modules.Single(m => m.Id == "toucan.providers").Registered);
         Assert.Equal(["rules:6"], modules.Single(m => m.Id == "toucan.validation").Registered);
     }
@@ -85,6 +85,7 @@ public sealed class BuiltInModuleTests : IDisposable
     {
         var assembly = moduleId switch
         {
+            "toucan.compatibility.babeledit" => typeof(Toucan.Modules.BabelEditCompatibilityModule).Assembly,
             "toucan.validation" => typeof(Toucan.Modules.ValidationModule).Assembly,
             "toucan.frameworks" => typeof(Toucan.Modules.FrameworksModule).Assembly,
             "toucan.providers" => typeof(Toucan.Modules.ProvidersModule).Assembly,

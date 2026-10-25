@@ -36,13 +36,30 @@ public partial class MainWindowViewModel
 
     private async Task RunPreTranslateDialog(List<TranslationItem> items)
     {
-        var vm = new PreTranslateViewModel(OrderedLanguages(), items, _pretranslationService, _dialogService, _providerSettingsService, CurrentPath, PrimaryLanguage,
+        if (IsAuditMode) return;
+        var revision = _workspaceRevision;
+        var settings = ProjectSettings;
+        var stagedItems = items.Select(i => ResourceEntryOperations.Copy(i)).ToList();
+        var vm = new PreTranslateViewModel(OrderedLanguages(), stagedItems, _pretranslationService, _dialogService, _providerSettingsService, CurrentPath, PrimaryLanguage,
             UsableProviderNames(), ResolveProvider());
         var committed = await _dialogService.ShowPreTranslateAsync(vm);
         RememberProvider(vm.SelectedProvider);
         if (!committed || vm.AppliedCount == 0) return;
 
-        NotifyBulkValueChanges(vm.AppliedItems);
+        if (IsAuditMode || revision != _workspaceRevision || !ReferenceEquals(settings, ProjectSettings))
+        { StatusText = "The workspace changed. Run a new translation preview."; return; }
+        var before = CaptureEntries(items);
+        var applied = new List<TranslationItem>();
+        foreach (var staged in vm.AppliedItems)
+        {
+            var index = stagedItems.IndexOf(staged);
+            if (index < 0 || !items[index].Permissions.EditValues) continue;
+            var item = items[index];
+            item.Value = staged.Value; item.ChangeType = staged.ChangeType; item.LastModifiedUtc = staged.LastModifiedUtc;
+            item.IsApproved = false; item.ApprovedAtUtc = null; applied.Add(item);
+        }
+        if (RecordEntryChanges(before) == 0) return;
+        NotifyBulkValueChanges(applied);
         UpdateSummaryInfo();
         foreach (var t in PagingController.Data.SelectMany(g => g.AllItems)) t.Refresh();
         StatusText = $"Pre-translation applied to {vm.AppliedCount} value(s).";
@@ -51,7 +68,11 @@ public partial class MainWindowViewModel
     /// <summary>Fills empty values of the given items with the last-used provider, without a preview.</summary>
     private async Task QuickTranslateAsync(List<TranslationItem> targets, string description)
     {
-        var missing = targets.Where(t => string.IsNullOrEmpty(t.Value) && !string.IsNullOrWhiteSpace(t.Namespace)).ToList();
+        if (IsAuditMode) return;
+        FlushPendingEdits();
+        var revision = _workspaceRevision;
+        var settings = ProjectSettings;
+        var missing = targets.Where(t => t.Permissions.EditValues && string.IsNullOrEmpty(t.Value) && !string.IsNullOrWhiteSpace(t.Namespace)).ToList();
         if (missing.Count == 0)
         {
             StatusText = $"{description}: nothing to translate.";
@@ -76,6 +97,10 @@ public partial class MainWindowViewModel
             };
             var result = await Task.Run(() => _pretranslationService.PreTranslateAsync(request));
 
+            if (IsAuditMode || revision != _workspaceRevision || !ReferenceEquals(settings, ProjectSettings))
+            { StatusText = "The workspace changed. Translation results were not applied."; return; }
+            var before = CaptureEntries(missing);
+
             var applied = new List<TranslationItem>();
             foreach (var r in result.Items.Where(r => r.Succeeded && !string.IsNullOrEmpty(r.TranslatedValue)))
             {
@@ -84,10 +109,12 @@ public partial class MainWindowViewModel
                 item.Value = r.TranslatedValue!;
                 item.ChangeType = ChangeType.Suggestion;
                 item.LastModifiedUtc = DateTime.UtcNow;
+                item.IsApproved = false;
+                item.ApprovedAtUtc = null;
                 applied.Add(item);
             }
 
-            if (applied.Count > 0) NotifyBulkValueChanges(applied);
+            if (RecordEntryChanges(before) > 0) NotifyBulkValueChanges(applied);
             foreach (var t in PagingController.Data.SelectMany(g => g.AllItems)) t.Refresh();
             UpdateSummaryInfo();
 
@@ -165,6 +192,7 @@ public partial class MainWindowViewModel
 
     private void ApproveItems(List<TranslationItem> items)
     {
+        if (IsAuditMode) return;
         if (items.Count == 0) return;
         var blocked = ApprovalBlockers(items);
         if (blocked.Count > 0)
@@ -172,11 +200,14 @@ public partial class MainWindowViewModel
             items = items.Except(blocked).ToList();
             if (items.Count == 0) return;
         }
+        FlushPendingEdits();
+        var before = CaptureEntries(items);
         foreach (var t in items)
         {
             t.IsApproved = true;
             t.ApprovedAtUtc = DateTime.UtcNow;
         }
+        if (RecordEntryChanges(before) == 0) return;
         NotifyBulkValueChanges(items);
         foreach (var t in PagingController.Data.SelectMany(g => g.AllItems)) t.Refresh();
         UpdateSummaryInfo();
@@ -191,8 +222,10 @@ public partial class MainWindowViewModel
 
     public ObservableCollection<ValidationIssueItem> ValidationIssues { get; } = [];
     public bool HasValidationIssues => ValidationIssues.Count > 0;
-    public string ValidationSummary => ValidationIssues.Count == 0
-        ? "No issues. Run validation to check placeholders, missing values, and more."
+    public DateTimeOffset? ValidationLastChecked { get; private set; }
+    public string ValidationSummary => ValidationLastChecked == null
+        ? Locales.Loc.T("Not checked yet. Run validation to check this project.")
+        : ValidationIssues.Count == 0 ? Locales.Loc.T("No issues found.")
         : $"{ValidationIssues.Count(i => i.Severity == ValidationSeverity.Error)} error(s), {ValidationIssues.Count(i => i.Severity == ValidationSeverity.Warning)} warning(s), {ValidationIssues.Count(i => i.Severity == ValidationSeverity.Info)} info";
 
     [RelayCommand]
@@ -214,10 +247,15 @@ public partial class MainWindowViewModel
         }
         SidePanelRegistry.Instance.Activate("issues");
         StatusText = ValidationIssues.Count == 0 ? "All validations passed." : ValidationSummary;
+        NotifyOutcome(Locales.Loc.T("Validation complete"), ValidationSummary,
+            ValidationIssues.Count == 0 ? Toucan.Plugins.NotificationSeverity.Success : Toucan.Plugins.NotificationSeverity.Warning,
+            "toucan.view.show-issues", Locales.Loc.T("Show issues"));
     }
 
     private void ShowValidationResults(IEnumerable<ValidationResult> results)
     {
+        ValidationLastChecked = DateTimeOffset.Now;
+        OnPropertyChanged(nameof(ValidationLastChecked));
         ValidationIssues.Clear();
         foreach (var r in results.OrderBy(r => r.Severity).ThenBy(r => r.Namespace, StringComparer.Ordinal))
         {
@@ -309,6 +347,12 @@ public partial class MainWindowViewModel
     public ObservableCollection<KeyUsage> SourceCodeUsages { get; } = [];
     public ObservableCollection<string> UndefinedKeys { get; } = [];
 
+    private CancellationTokenSource? _sourceScanCancellation;
+    public ObservableCollection<SourceScanDiagnostic> SourceScanDiagnostics { get; } = [];
+    public bool CanClassifyUnusedSourceKeys => (_sourceCodeService as IProjectSourceCodeService)?.LastScan?.CanClassifyUnused == true;
+    [RelayCommand]
+    private void CancelSourceScan() => _sourceScanCancellation?.Cancel();
+
     [RelayCommand]
     private async Task ScanSourceCode()
     {
@@ -316,14 +360,34 @@ public partial class MainWindowViewModel
         var roots = ProjectSettings?.SourceRoots is { Count: > 0 } r ? r : [];
         var scanPath = roots.Count > 0 ? Path.GetFullPath(Path.Combine(CurrentPath, roots[0])) : CurrentPath;
 
+        var activeProject = ProjectSettings;
+        using var cancellation = new CancellationTokenSource();
+        _sourceScanCancellation = cancellation;
         IsScanning = true;
         StatusText = "Scanning source code…";
         try
         {
-            var result = await Task.Run(() => _sourceCodeService.ScanAsync(scanPath));
+            SourceCodeScanResult result;
+            SourceScanDiagnostics.Clear();
+            if (_sourceCodeService is IProjectSourceCodeService projectScanner)
+            {
+                var resourceKeys = AllTranslation.GroupBy(i => (i.Identity?.Package ?? "main", Key: i.Identity == null ? i.Namespace : ResourceEntryOperations.Selector(i.Identity.Path), i.Namespace))
+                    .Select(g => new SourceScanKey(g.Key.Item1, g.Key.Key, g.Key.Namespace, g.First().Identity?.KeyToken ?? "")).ToList();
+                var scanned = await projectScanner.ScanAsync(new(CurrentPath, ProjectSettings?.Framework, ProjectSettings?.FrameworkOptions,
+                    AllTranslation.Select(i => i.Identity?.Package ?? "main").Distinct().ToList(), Includes: ProjectSettings?.ScanIncludes, Excludes: ProjectSettings?.ExcludedDirectories,
+                    Extensions: ProjectSettings?.ScanExtensions, SourceRoots: roots, ResourceKeys: resourceKeys), cancellation.Token);
+                if (!ReferenceEquals(activeProject, ProjectSettings)) return;
+                foreach (var diagnostic in scanned.Diagnostics) SourceScanDiagnostics.Add(diagnostic);
+                result = new() { FilesScanned = scanned.FilesScanned, KeysFound = scanned.References.Select(r => (r.Package, r.Key)).Distinct().Count(),
+                    TotalUsages = scanned.References.Count, Duration = scanned.Duration };
+            }
+            else result = await _sourceCodeService.ScanAsync(scanPath, cancellation.Token);
+            OnPropertyChanged(nameof(CanClassifyUnusedSourceKeys));
             SourceCodeScanned = true;
             SourceCodeStatus = string.Create(CultureInfo.CurrentCulture,
-                $"{result.KeysFound} keys in {result.FilesScanned} files ({result.Duration.TotalSeconds:F1}s) · {Path.GetFileName(scanPath)}");
+                $"{result.KeysFound} keys in {result.FilesScanned} files ({result.Duration.TotalSeconds:F1}s) Â· {Path.GetFileName(scanPath)}");
+            if ((_sourceCodeService as IProjectSourceCodeService)?.LastScan is { } scan) SourceCodeStatus += scan.Cancelled ? " Â· cancelled" : scan.Complete ? " Â· complete" : " Â· partial";
+            if (!CanClassifyUnusedSourceKeys) SourceCodeStatus += $" Â· {SourceScanDiagnostics.Count} unresolved/diagnostic finding(s); unused-key classification disabled.";
             StatusText = SourceCodeStatus;
 
             SourceCodeUsages.Clear();
@@ -342,7 +406,7 @@ public partial class MainWindowViewModel
         }
         finally
         {
-            IsScanning = false;
+            if (ReferenceEquals(_sourceScanCancellation, cancellation)) { _sourceScanCancellation = null; IsScanning = false; }
         }
     }
 
@@ -368,7 +432,7 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private void FilterUnusedKeys()
     {
-        if (!_sourceCodeService.HasScanData) return;
+        if (!_sourceCodeService.HasScanData || !CanClassifyUnusedSourceKeys) return;
         FilteredBySourceUsage = "unused";
         Search(SearchText, true);
     }
@@ -395,11 +459,25 @@ public partial class MainWindowViewModel
         if (usage == null) return;
         var roots = ProjectSettings?.SourceRoots is { Count: > 0 } r ? r : [];
         var root = roots.Count > 0 ? Path.GetFullPath(Path.Combine(CurrentPath, roots[0])) : CurrentPath;
-        var fullPath = Path.IsPathRooted(usage.FilePath) ? usage.FilePath : Path.Combine(root, usage.FilePath);
+        var fullPath = ResolveSourceUsagePath(usage);
         var editor = ProjectSettings?.ExternalEditor ?? "code --goto \"{file}:{line}\"";
-        PlatformService.RunShellCommand(editor
-            .Replace("{file}", fullPath, StringComparison.Ordinal)
-            .Replace("{line}", usage.Line.ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal));
+        try { System.Diagnostics.Process.Start(PlatformService.EditorStartInfo(editor, fullPath, usage.Line, usage.Column)); }
+        catch (Exception ex) when (ex is FormatException or System.ComponentModel.Win32Exception or IOException or ArgumentException)
+        { StatusText = "Could not open the source location: " + ex.Message; }
+    }
+
+    [RelayCommand]
+    private void OpenScanDiagnostic(SourceScanDiagnostic? diagnostic)
+    {
+        if (diagnostic?.File == null || !SourceScanDiagnostics.Contains(diagnostic)) return;
+        OpenUsage(new KeyUsage(diagnostic.Code, diagnostic.File, diagnostic.Line ?? 1, "") { Column = diagnostic.Column ?? 1 });
+    }
+
+    internal string ResolveSourceUsagePath(KeyUsage usage)
+    {
+        var roots = ProjectSettings?.SourceRoots;
+        var root = _sourceCodeService is IProjectSourceCodeService || roots is not { Count: > 0 } ? CurrentPath : Path.GetFullPath(Path.Combine(CurrentPath, roots[0]));
+        return Path.IsPathRooted(usage.FilePath) ? usage.FilePath : Path.GetFullPath(Path.Combine(root, usage.FilePath));
     }
 
     [RelayCommand]
@@ -433,14 +511,101 @@ public partial class MainWindowViewModel
         return true;
     }
 
+    /// <summary>
+    /// Renames a <c>{{ }}</c> placeholder token in every language's value of one key, as a single undo step. Only the
+    /// exact token is replaced (e.g. <c>{{name}}</c> → <c>{{username}}</c>); other text is untouched. Scoped to the
+    /// named-double syntax so "the same token" is unambiguous. Returns the number of values changed.
+    /// </summary>
+    internal int RenamePlaceholderAcrossLanguages(string key, string oldToken, string newToken)
+    {
+        if (IsAuditMode || string.IsNullOrEmpty(key) || string.IsNullOrEmpty(oldToken) || oldToken == newToken) return 0;
+        // Only accept well-formed {{ }} tokens, so this can never corrupt a value with arbitrary text.
+        if (Toucan.Core.Services.PlaceholderService.NamedDouble(oldToken) is not [var o] || o != oldToken) return 0;
+        if (Toucan.Core.Services.PlaceholderService.NamedDouble(newToken) is not [var n] || n != newToken) return 0;
+
+        var items = AllTranslation.Where(t => t.Namespace == key && t.Value.Contains(oldToken, StringComparison.Ordinal)).ToList();
+        if (items.Count == 0) return 0;
+
+        FlushPendingEdits();
+        var changed = RecordBulkEdit(items, () =>
+        {
+            foreach (var item in items)
+                item.Value = item.Value.Replace(oldToken, newToken, StringComparison.Ordinal);
+        });
+
+        if (changed.Count > 0)
+        {
+            NotifyBulkValueChanges([.. changed]);
+            foreach (var vm in PagingController.Data.SelectMany(g => g.AllItems)) vm.Refresh();
+            UpdateSummaryInfo();
+            StatusText = $"Renamed {oldToken} to {newToken} in {changed.Count} value(s).";
+        }
+        return changed.Count;
+    }
+
+    /// <summary>
+    /// Prompts for a new name for a <c>{{ }}</c> placeholder and renames it across every language of the key, as one
+    /// undo step. Used by the editor card's right-click menu, which is portable (no modifier keys). The parameter is
+    /// "key\toldToken".
+    /// </summary>
+    [RelayCommand]
+    private async Task RenamePlaceholder(string? keyAndToken)
+    {
+        if (IsAuditMode || string.IsNullOrEmpty(keyAndToken)) return;
+        var parts = keyAndToken.Split('\t', 2);
+        if (parts.Length != 2) return;
+        var (key, oldToken) = (parts[0], parts[1]);
+
+        var inner = oldToken.Trim('{', '}');
+        var newInner = await _dialogService.ShowPromptAsync("Rename placeholder", $"Rename {oldToken} in every language of this key.", inner);
+        if (string.IsNullOrWhiteSpace(newInner) || newInner == inner) return;
+        var newToken = "{{" + newInner.Trim() + "}}";
+        if (RenamePlaceholderAcrossLanguages(key, oldToken, newToken) == 0)
+            StatusText = $"Could not rename {oldToken}: the new name must be a plain {{ }} placeholder.";
+    }
+
+    /// <summary>
+    /// Syncs the placeholder the user just changed in the focused field to every other language of the same key: if the
+    /// focused value has a <c>{{ }}</c> token the source does not, and the source has exactly one the focused value does
+    /// not, treat it as a rename and apply it across the key. One gesture, one undo step.
+    /// </summary>
+    [RelayCommand]
+    private void SyncPlaceholderToAllLanguages()
+    {
+        var focused = FocusedTranslationItem;
+        if (focused is null || IsAuditMode) { StatusText = "Click into a translation field first."; return; }
+
+        var source = AllTranslation.FirstOrDefault(t => t.Namespace == focused.Namespace && t.Language == PrimaryLanguage);
+        if (source is null) return;
+
+        var sourceTokens = Toucan.Core.Services.PlaceholderService.NamedDouble(source.Value);
+        var focusedTokens = Toucan.Core.Services.PlaceholderService.NamedDouble(focused.Value);
+        var added = focusedTokens.Where(t => !sourceTokens.Contains(t)).ToList();   // in the field, not in source
+        var dropped = sourceTokens.Where(t => !focusedTokens.Contains(t)).ToList(); // in source, not in the field
+
+        if (added.Count == 1 && dropped.Count == 1)
+        {
+            // The user renamed dropped -> added in this field; apply the rename to the source and every language.
+            RenamePlaceholderAcrossLanguages(focused.Namespace, dropped[0], added[0]);
+        }
+        else
+        {
+            StatusText = "Edit one placeholder in this field first, then sync it to the other languages.";
+        }
+    }
+
     public ObservableCollection<KeyLanguageStatus> SelectedKeyLanguages { get; } = [];
     public ObservableCollection<SuggestionItem> Suggestions { get; } = [];
     public ObservableCollection<SuggestionItem> MemoryMatches { get; } = [];
     public ObservableCollection<KeyUsage> SelectedKeyUsages { get; } = [];
 
+    /// <summary>Placeholders parsed from the source value of the selected key, shown so a translator knows what must survive.</summary>
+    public ObservableCollection<string> SelectedKeyPlaceholders { get; } = [];
+
     public bool HasSuggestions => Suggestions.Count > 0;
     public bool HasMemoryMatches => MemoryMatches.Count > 0;
     public bool HasSelectedKeyUsages => SelectedKeyUsages.Count > 0;
+    public bool HasSelectedKeyPlaceholders => SelectedKeyPlaceholders.Count > 0;
 
     /// <summary>Refreshes the inspector for the currently selected key.</summary>
     private void RefreshInspector()
@@ -449,6 +614,7 @@ public partial class MainWindowViewModel
         SelectedKeyLanguages.Clear();
         Suggestions.Clear();
         SelectedKeyUsages.Clear();
+        SelectedKeyPlaceholders.Clear();
 
         var items = string.IsNullOrEmpty(ns) ? [] : AllTranslation.Where(t => t.Namespace == ns).ToList();
         HasSelectedKeyDetails = items.Count > 0;
@@ -473,6 +639,10 @@ public partial class MainWindowViewModel
             var source = items.FirstOrDefault(t => t.Language == PrimaryLanguage && !string.IsNullOrWhiteSpace(t.Value));
             if (source != null)
             {
+                foreach (var p in Toucan.Core.Services.PlaceholderService.Extract(source.Value)
+                             .Select(p => p.Text).Distinct(StringComparer.Ordinal))
+                    SelectedKeyPlaceholders.Add(p);
+
                 var similar = AllTranslation
                     .Where(t => t.Language == PrimaryLanguage && t.Namespace != ns && !string.IsNullOrWhiteSpace(t.Value))
                     .Select(t => (Item: t, Score: _fuzzySearch.ComputeTrigramSimilarity(source.Value, t.Value)))
@@ -494,6 +664,7 @@ public partial class MainWindowViewModel
 
         OnPropertyChanged(nameof(HasSuggestions));
         OnPropertyChanged(nameof(HasSelectedKeyUsages));
+        OnPropertyChanged(nameof(HasSelectedKeyPlaceholders));
         RefreshMemoryMatches();
     }
 
@@ -510,7 +681,7 @@ public partial class MainWindowViewModel
             foreach (var lang in OrderedLanguages().Where(l => l != PrimaryLanguage))
             {
                 foreach (var m in _translationMemory.Search(source.Value, PrimaryLanguage, lang, threshold, max))
-                    MemoryMatches.Add(new SuggestionItem(lang, m.TargetText, $"{m.Similarity:P0} · {m.SourceText}"));
+                    MemoryMatches.Add(new SuggestionItem(lang, m.TargetText, $"{m.Similarity:P0} Â· {m.SourceText}"));
             }
         }
         OnPropertyChanged(nameof(HasMemoryMatches));

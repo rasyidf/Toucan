@@ -13,7 +13,7 @@ public class ProjectTextFormatTests
     public static TheoryData<string> TextFormats()
     {
         var data = new TheoryData<string>();
-        foreach (var strategy in FormatTestHost.SaveStrategies.Where(s => s.FormatId != FormatIds.JavaProperties))
+        foreach (var strategy in FormatTestHost.EditableStrategies.Where(s => s.FormatId != FormatIds.JavaProperties))
             data.Add(strategy.FormatId);
         return data;
     }

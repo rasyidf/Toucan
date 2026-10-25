@@ -1,0 +1,3107 @@
+{
+  "createdUtc": "2026-10-23T10:06:08.259503+00:00",
+  "clientDate": "2026-10-23",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "machine": "AMD64",
+  "sdk": "10.0.401",
+  "baseCommit": "7dc5d8ce2ff967612e2b238f803ad9e9d7c2c891",
+  "acceptedSlices": [
+    "U1",
+    "U2",
+    "U3",
+    "U4",
+    "U5",
+    "M7a",
+    "M7b"
+  ],
+  "M7c": "partial; native and platform gate open",
+  "passingTests": 1384,
+  "finalSuites": [
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023164951.trx",
+      "sha256": "f88e5f03a1839c1f85c88516cbfbceddcb0003493c9da6074ca43afcb4813e63",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 286,
+        "executed": 286,
+        "passed": 286,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "classes": {
+        "Toucan.Avalonia.Tests.AiIntegrationUiTests": {
+          "Passed": 15
+        },
+        "Toucan.Avalonia.Tests.AppSmokeTests": {
+          "Passed": 9
+        },
+        "Toucan.Avalonia.Tests.AppearanceAndUpdateTests": {
+          "Passed": 9
+        },
+        "Toucan.Avalonia.Tests.BabelImportFlowTests": {
+          "Passed": 10
+        },
+        "Toucan.Avalonia.Tests.BuiltInModulesPageTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ColorInputTests": {
+          "Passed": 7
+        },
+        "Toucan.Avalonia.Tests.CommandPaletteTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.DesktopPluginTests": {
+          "Passed": 11
+        },
+        "Toucan.Avalonia.Tests.DesktopServicesTests": {
+          "Passed": 12
+        },
+        "Toucan.Avalonia.Tests.DialogSurfaceTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.EditableTableTests": {
+          "Passed": 6
+        },
+        "Toucan.Avalonia.Tests.EditorPolishTests": {
+          "Passed": 7
+        },
+        "Toucan.Avalonia.Tests.ExplorerContextMenuTests": {
+          "Passed": 1
+        },
+        "Toucan.Avalonia.Tests.FrameworkIntegrationFlowTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.GhostTextTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.IntegrationAndTranslationPanelTests": {
+          "Passed": 18
+        },
+        "Toucan.Avalonia.Tests.KeybindingServiceTests": {
+          "Passed": 1
+        },
+        "Toucan.Avalonia.Tests.LanguageManagerViewModelTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.LocalizationTests": {
+          "Passed": 5
+        },
+        "Toucan.Avalonia.Tests.MainWindowSmokeTests": {
+          "Passed": 5
+        },
+        "Toucan.Avalonia.Tests.MainWindowViewModelTests": {
+          "Passed": 15
+        },
+        "Toucan.Avalonia.Tests.PaginationViewModelTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.PanelAlignmentTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.PluginsUiTests": {
+          "Passed": 16
+        },
+        "Toucan.Avalonia.Tests.ProjectCreationUiTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.RecentProjectServiceTests": {
+          "Passed": 8
+        },
+        "Toucan.Avalonia.Tests.RecentProjectsViewModelTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ResourceFidelityFlowTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ResourceIdentityFlowTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.ScanCancellationTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.SecureStorageServiceTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.SettingsListTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.ShortcutEditingTests": {
+          "Passed": 16
+        },
+        "Toucan.Avalonia.Tests.ShortcutSheetTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.SpreadsheetImportFlowTests": {
+          "Passed": 7
+        },
+        "Toucan.Avalonia.Tests.StatisticsViewModelTests": {
+          "Passed": 1
+        },
+        "Toucan.Avalonia.Tests.StatusBarActionTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.TitleBarTests": {
+          "Passed": 9
+        },
+        "Toucan.Avalonia.Tests.UiClosureFlowTests": {
+          "Passed": 5
+        },
+        "Toucan.Avalonia.Tests.UiClosureRecoveryTests": {
+          "Passed": 10
+        },
+        "Toucan.Avalonia.Tests.UiScreenshotTests": {
+          "Passed": 2
+        },
+        "Toucan.Avalonia.Tests.UndoRedoGroupTests": {
+          "Passed": 4
+        },
+        "Toucan.Avalonia.Tests.ValidationPageTests": {
+          "Passed": 3
+        },
+        "Toucan.Avalonia.Tests.WorkspaceApiTests": {
+          "Passed": 17
+        },
+        "Toucan.Avalonia.Tests.WpfParityTests": {
+          "Passed": 4
+        }
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023165000.trx",
+      "sha256": "47727146d570fafca313d9d56d7ba10ac1cfdc41f003f36612d9b1356396a98d",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 1087,
+        "executed": 1087,
+        "passed": 1087,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "classes": {
+        "Toucan.Core.Tests.AiIntegrationTests": {
+          "Passed": 25
+        },
+        "Toucan.Core.Tests.AtomicFileServiceTests": {
+          "Passed": 3
+        },
+        "Toucan.Core.Tests.BabelExcelTests": {
+          "Passed": 5
+        },
+        "Toucan.Core.Tests.BulkActionServiceTests": {
+          "Passed": 2
+        },
+        "Toucan.Core.Tests.Commands.CommandRegistryTests": {
+          "Passed": 28
+        },
+        "Toucan.Core.Tests.CommentPersistenceServiceTests": {
+          "Passed": 30
+        },
+        "Toucan.Core.Tests.CompositionRootTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.DeepLProviderTests": {
+          "Passed": 24
+        },
+        "Toucan.Core.Tests.Formats.BabelParityRegressionTests": {
+          "Passed": 48
+        },
+        "Toucan.Core.Tests.Formats.ExactResourceIntegrationTests": {
+          "Passed": 37
+        },
+        "Toucan.Core.Tests.Formats.FormatBugRegressionTests": {
+          "Passed": 18
+        },
+        "Toucan.Core.Tests.Formats.FormatConventionsTests": {
+          "Passed": 20
+        },
+        "Toucan.Core.Tests.Formats.FormatFidelityFixtureTests": {
+          "Passed": 208
+        },
+        "Toucan.Core.Tests.Formats.FormatIdsTests": {
+          "Passed": 17
+        },
+        "Toucan.Core.Tests.Formats.FormatRoundTripTests": {
+          "Passed": 29
+        },
+        "Toucan.Core.Tests.Formats.FormatStabilityTests": {
+          "Passed": 39
+        },
+        "Toucan.Core.Tests.Formats.FormatSupportTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Formats.FormatUnavailableTests": {
+          "Passed": 5
+        },
+        "Toucan.Core.Tests.Formats.PoCsvBugTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.Formats.PoRoundTripTests": {
+          "Passed": 4
+        },
+        "Toucan.Core.Tests.Formats.ProjectSettingsFormatTests": {
+          "Passed": 49
+        },
+        "Toucan.Core.Tests.Formats.ResourceContractTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Formats.ResourceFidelitySettingsTests": {
+          "Passed": 40
+        },
+        "Toucan.Core.Tests.Formats.YamlFidelityTests": {
+          "Passed": 9
+        },
+        "Toucan.Core.Tests.FrameworkCapabilitiesTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.FrameworkSourceScannerTests": {
+          "Passed": 51
+        },
+        "Toucan.Core.Tests.LocalSpellingTests": {
+          "Passed": 17
+        },
+        "Toucan.Core.Tests.MockTranslationProviderTests": {
+          "Passed": 5
+        },
+        "Toucan.Core.Tests.Modules.ArchitectureTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.Modules.BuiltInModuleTests": {
+          "Passed": 10
+        },
+        "Toucan.Core.Tests.Modules.ModuleSnapshotTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.Plugins.PluginActivationTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Plugins.PluginCompatibilityTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.Plugins.PluginContractTests": {
+          "Passed": 29
+        },
+        "Toucan.Core.Tests.Plugins.PluginHostTests": {
+          "Passed": 35
+        },
+        "Toucan.Core.Tests.Plugins.PluginServicesTests": {
+          "Passed": 43
+        },
+        "Toucan.Core.Tests.Plugins.PluginTrustTests": {
+          "Passed": 24
+        },
+        "Toucan.Core.Tests.Plugins.SamplePluginTests": {
+          "Passed": 11
+        },
+        "Toucan.Core.Tests.Plugins.WorkspaceEditPlannerTests": {
+          "Passed": 25
+        },
+        "Toucan.Core.Tests.PreferredLanguageDetectorTests": {
+          "Passed": 6
+        },
+        "Toucan.Core.Tests.PretranslationServiceTests": {
+          "Passed": 7
+        },
+        "Toucan.Core.Tests.ProjectTextFormatTests": {
+          "Passed": 21
+        },
+        "Toucan.Core.Tests.ProviderSelectionTests": {
+          "Passed": 3
+        },
+        "Toucan.Core.Tests.Qa01RegressionTests": {
+          "Passed": 8
+        },
+        "Toucan.Core.Tests.ResourceConfigurationTests": {
+          "Passed": 10
+        },
+        "Toucan.Core.Tests.SaveRecoveryTests": {
+          "Passed": 17
+        },
+        "Toucan.Core.Tests.SearchAndReplaceServiceTests": {
+          "Passed": 12
+        },
+        "Toucan.Core.Tests.SpreadsheetExchangeTests": {
+          "Passed": 27
+        },
+        "Toucan.Core.Tests.TranslationPostProcessorTests": {
+          "Passed": 11
+        }
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023165001.trx",
+      "sha256": "018c05b2787c0a58e256e89ef6598baae7c22c6eadfe3167eb35e91971152c05",
+      "assemblies": [
+        "Toucan.Plugins.Testing.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "classes": {
+        "Toucan.Plugins.Testing.Tests.ConnectorHarnessTests": {
+          "Passed": 11
+        }
+      },
+      "failures": []
+    }
+  ],
+  "additionalRuns": [
+    {
+      "trx": "build/resource-compatibility/m7/test-results/closure-expanded_net10.0_20261023152923.trx",
+      "sha256": "c309c4f32124d934512214eba5bb4252a66a437a2455f83f981f0332160dd79e",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Failed",
+      "counters": {
+        "total": 19,
+        "executed": 19,
+        "passed": 18,
+        "failed": 1,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": [
+        "Toucan.Avalonia.Tests.UiClosureRecoveryTests.SettingsOnlyRecoveryAfterRestartRestoresConfigurationWithoutChangingValues"
+      ]
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/closure-expanded_net10.0_20261023152927.trx",
+      "sha256": "7369e6dc347803df320c82ae3c31d6cce780f53ee10872f15930eeeb11628a48",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 19,
+        "executed": 19,
+        "passed": 19,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/closure-expanded_net10.0_20261023152928.trx",
+      "sha256": "982e211fc8b2266e569744980f04dc0f72016fb340db6a784bfd7fa1af1aa1fd",
+      "assemblies": [],
+      "outcome": "Completed",
+      "counters": {
+        "total": 0,
+        "executed": 0,
+        "passed": 0,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/closure-focused-fixed_net10.0_20261023151512.trx",
+      "sha256": "6d945384adf1add4142606626b7daa0c8f6a075f7234343f77fa2f7a67b5dff3",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 5,
+        "executed": 5,
+        "passed": 5,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/closure-focused-fixed_net10.0_20261023151514.trx",
+      "sha256": "8b8308deedba0ec294aefa6b6c53d2a985cf21e6061b6baa6c68c00358c6d2ee",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 13,
+        "executed": 13,
+        "passed": 13,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/closure-focused-fixed_net10.0_20261023151515.trx",
+      "sha256": "78f5e2a136de8784e221ff081d47cc56d87503dc5942a15c9395fc707cf7aeb7",
+      "assemblies": [],
+      "outcome": "Completed",
+      "counters": {
+        "total": 0,
+        "executed": 0,
+        "passed": 0,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/closure-focused_net10.0_20261023151328.trx",
+      "sha256": "939d51a362af4c969bf8b06842fb7c16a013b47e3955c119939782b302aa75db",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Failed",
+      "counters": {
+        "total": 5,
+        "executed": 5,
+        "passed": 4,
+        "failed": 1,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": [
+        "Toucan.Avalonia.Tests.UiClosureFlowTests.GeneratedCatalogCanGainAnEditableTargetWithoutUnlockingTheSource"
+      ]
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/closure-focused_net10.0_20261023151330.trx",
+      "sha256": "4b47f0c8c167b9b35477e5e23941fe8ce74fcb00ebd1c7a2c5b69fbff84da7ce",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Failed",
+      "counters": {
+        "total": 13,
+        "executed": 13,
+        "passed": 11,
+        "failed": 2,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": [
+        "Toucan.Core.Tests.LocalSpellingTests.NaturalTextExcludesSyntaxButChecksIcuBranchProse(text: \"{kind, select, cat {hello} other {{n, plural, one \"···, expected: \"hello cat cats\")",
+        "Toucan.Core.Tests.LocalSpellingTests.NaturalTextExcludesSyntaxButChecksIcuBranchProse(text: \"{count, plural, one {hello friend} other {hello {n\"···, expected: \"hello friend hello things\")"
+      ]
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/closure-focused_net10.0_20261023151336.trx",
+      "sha256": "924980dadf51adbd642b00c5ef95b41d6b76501e1dbb62c70750530259822614",
+      "assemblies": [],
+      "outcome": "Completed",
+      "counters": {
+        "total": 0,
+        "executed": 0,
+        "passed": 0,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-controls_net10.0_20261023160604.trx",
+      "sha256": "b7ed87d69d9210a3b05969531310fa96fabc7570f77e29daa1c627d4659907f8",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 13,
+        "executed": 13,
+        "passed": 13,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-controls_net10.0_20261023160610.trx",
+      "sha256": "8acef6b9df974de9b7473b48cad79e659e4126bd8ab5e64f4c496f30fd7345ae",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Failed",
+      "counters": {
+        "total": 32,
+        "executed": 32,
+        "passed": 31,
+        "failed": 1,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": [
+        "Toucan.Core.Tests.ResourceConfigurationTests.NewRailsDialectWritesTheDeclaredLocaleWrapper"
+      ]
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-controls_net10.0_20261023160612.trx",
+      "sha256": "4aa6b8efae805351343a03a84b14d8ceb34e32baa3d7e1ebbe19812bdfc63851",
+      "assemblies": [],
+      "outcome": "Completed",
+      "counters": {
+        "total": 0,
+        "executed": 0,
+        "passed": 0,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-focused_net10.0_20261023155503.trx",
+      "sha256": "73cf0cf532b2c96735d61b7e5c233dfc675b1c4b9ca00bb6058c387074ade07a",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 17,
+        "executed": 17,
+        "passed": 17,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-focused_net10.0_20261023155510.trx",
+      "sha256": "c962362dcafba5f98b0ce5f756432c6330b09834cb0c7479924b7b2497a091ac",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 23,
+        "executed": 23,
+        "passed": 23,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-focused_net10.0_20261023155511.trx",
+      "sha256": "8a36e09e2fb4d43e3cca4dcf58c29d1dbf8362e7ccbfc0b87c496435e74f5406",
+      "assemblies": [],
+      "outcome": "Completed",
+      "counters": {
+        "total": 0,
+        "executed": 0,
+        "passed": 0,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023161006.trx",
+      "sha256": "bea0bb4d2ce2b184edc17cc9aae05fb5c39f22a930a02a63d2474898d1d0caa2",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 285,
+        "executed": 285,
+        "passed": 285,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023161014.trx",
+      "sha256": "39642fd00dfc9b1e2d3a415e9f8e40b9bc5a1b1cf4a812d15ffa1a45eafe94f3",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Failed",
+      "counters": {
+        "total": 1084,
+        "executed": 1084,
+        "passed": 1083,
+        "failed": 1,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": [
+        "Toucan.Core.Tests.ResourceConfigurationTests.NewRailsDialectWritesTheDeclaredLocaleWrapper"
+      ]
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023161015.trx",
+      "sha256": "ea445de8ba362ca913e1c6746a97d18d279d542933172cad3167de8035ddd58d",
+      "assemblies": [
+        "Toucan.Plugins.Testing.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023161324.trx",
+      "sha256": "bef37136bf5d47f5e4b9bc0938655e3b7465765d092184ac2eee82bf4db22dca",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 285,
+        "executed": 285,
+        "passed": 285,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023161333.trx",
+      "sha256": "4f956822a9837f26ffa9d37acf38672640c902dd0f0c4bd7eabfa3cc196094b2",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 1084,
+        "executed": 1084,
+        "passed": 1084,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023161334.trx",
+      "sha256": "79a2f35669527c8f7ec463c2d6d5abcbc75521dde7779fa403d6a9e8d6dcab90",
+      "assemblies": [
+        "Toucan.Plugins.Testing.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023161926.trx",
+      "sha256": "87a5d48e20bdaff5bb561d4d040c5c612b6dd61e96aa2a29b4d8799559b0ae51",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 285,
+        "executed": 285,
+        "passed": 285,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023161938.trx",
+      "sha256": "3989fc397f91df17edbe905305fff01f6689ae80859702264cd776679743a093",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 1085,
+        "executed": 1085,
+        "passed": 1085,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023161941.trx",
+      "sha256": "fb9f7369faeba51e436c6ab484bc32a376834d3e706dc5404beb6e04d2a426f6",
+      "assemblies": [
+        "Toucan.Plugins.Testing.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023162413.trx",
+      "sha256": "74c82651704d52366419c4456e1adf4a7e8eea9e27099f124430c540e2825982",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 286,
+        "executed": 286,
+        "passed": 286,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023162420.trx",
+      "sha256": "12034ca11a58393ce30dbe931e845e351c86aebb9feab927eb57c2c122e99c05",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 1085,
+        "executed": 1085,
+        "passed": 1085,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023162421.trx",
+      "sha256": "45e2d1d475ec11baffa0fc1032a2a32163b6c70d49a09dc8c287d93577b6e3fc",
+      "assemblies": [
+        "Toucan.Plugins.Testing.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023164239.trx",
+      "sha256": "dca15eccd7f30872a18ca975ec92916719ef99378cf69d835edcfc709202fd58",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 286,
+        "executed": 286,
+        "passed": 286,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023164249.trx",
+      "sha256": "b6a34e9d7bf5d9ebf9f3e2b9c79d0758bfa9cfc56e8994d6c435758bc3e9d2ca",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 1086,
+        "executed": 1086,
+        "passed": 1086,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-final-verification_net10.0_20261023164250.trx",
+      "sha256": "f91077c2376f99b7bfee7c5657ca869fd1f16f3d14a3838cc43cf1cd9097dc54",
+      "assemblies": [
+        "Toucan.Plugins.Testing.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-integration_net10.0_20261023152116.trx",
+      "sha256": "25c0af4fd564b856b94b7eb3319636cb325412845896649635ee5c1f3f969413",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Failed",
+      "counters": {
+        "total": 276,
+        "executed": 276,
+        "passed": 271,
+        "failed": 5,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": [
+        "Toucan.Avalonia.Tests.IntegrationAndTranslationPanelTests.MachineTranslationPanel_ShowsInTheMainWindowsRightSlot",
+        "Toucan.Avalonia.Tests.CommandPaletteTests.SaveChip_FollowsTheDirtyState_AndTheShortcutIsBound",
+        "Toucan.Avalonia.Tests.CommandPaletteTests.Palette_OpensWithEveryMenuCommand_FiltersAsYouType_AndClosesOnEscape",
+        "Toucan.Avalonia.Tests.ExplorerContextMenuTests.RightClickOnAKey_OpensTheKeyMenu",
+        "Toucan.Avalonia.Tests.LocalizationTests.EveryUiStringHasAnIndonesianTranslation"
+      ]
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-integration_net10.0_20261023152124.trx",
+      "sha256": "6e6df85c25e8f363565690a03eeb2e28c50b0a4264577d1ad6688d77697d0ed8",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 1073,
+        "executed": 1073,
+        "passed": 1073,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-integration_net10.0_20261023152126.trx",
+      "sha256": "e526a461b8c8f1de598f67cdf97bd6605dccbf2d03ad0393cce332f81d3625a9",
+      "assemblies": [
+        "Toucan.Plugins.Testing.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-ui-final_net10.0_20261023163828.trx",
+      "sha256": "ee3d15db737ef9b9055c65acff8d45d72de7d24bc02a496e6a870e3f934e05f1",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 20,
+        "executed": 20,
+        "passed": 20,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-verification_net10.0_20261023153652.trx",
+      "sha256": "0cf1a1c79e1ef1927bb83a5e5503e08db0003c970cdd9d9b32c2e6c6bd630cb0",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 281,
+        "executed": 281,
+        "passed": 281,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-verification_net10.0_20261023153701.trx",
+      "sha256": "53bc00d756aba641a604efacf01bef54e0d3603385c30d312cf612723f2bf3b7",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 1079,
+        "executed": 1079,
+        "passed": 1079,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/m7-verification_net10.0_20261023153702.trx",
+      "sha256": "8a4beef7c1e25d8451c2f2b6f75f76791f5de522954a1d8d5240cc90a9efec81",
+      "assemblies": [
+        "Toucan.Plugins.Testing.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 11,
+        "executed": 11,
+        "passed": 11,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/spelling-initial_net10.0_20261023151122.trx",
+      "sha256": "f46745dbe8a5b1357683204735f638bf2ff5f7856229f373f93895f4aa1d151a",
+      "assemblies": [
+        "Toucan.Core.Tests.dll"
+      ],
+      "outcome": "Failed",
+      "counters": {
+        "total": 13,
+        "executed": 13,
+        "passed": 5,
+        "failed": 8,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": [
+        "Toucan.Core.Tests.LocalSpellingTests.NaturalTextExcludesSyntaxButChecksIcuBranchProse(text: \"{this is prose} hello\", expected: \"this is prose hello\")",
+        "Toucan.Core.Tests.LocalSpellingTests.NaturalTextExcludesSyntaxButChecksIcuBranchProse(text: \"Hello {name} <b>world</b> &amp; {{dynamic}} ${valu\"···, expected: \"Hello world\")",
+        "Toucan.Core.Tests.LocalSpellingTests.AffixesSuggestionsAndLocalProvenanceSurviveRestart",
+        "Toucan.Core.Tests.LocalSpellingTests.MissingAmbiguousAndExplicitFallbackAreDifferentAvailabilityStates",
+        "Toucan.Core.Tests.LocalSpellingTests.NaturalTextExcludesSyntaxButChecksIcuBranchProse(text: \"{count, plural, one {hello friend} other {hello {n\"···, expected: \"hello friend hello things\")",
+        "Toucan.Core.Tests.LocalSpellingTests.PersonalProjectAndIgnoredWordsStayScoped",
+        "Toucan.Core.Tests.LocalSpellingTests.NaturalTextExcludesSyntaxButChecksIcuBranchProse(text: \"hello {when, date, long} world\", expected: \"hello world\")",
+        "Toucan.Core.Tests.LocalSpellingTests.NaturalTextExcludesSyntaxButChecksIcuBranchProse(text: \"{kind, select, cat {hello} other {{n, plural, one \"···, expected: \"hello cat cats\")"
+      ]
+    },
+    {
+      "trx": "build/resource-compatibility/m7/test-results/ui-initial_net10.0_20261023145602.trx",
+      "sha256": "6b1c1952a2bbe2501c140456a0f5f8ddfcb62272ffe78b9ae91e3af66b24d9e3",
+      "assemblies": [
+        "Toucan.Avalonia.Tests.dll"
+      ],
+      "outcome": "Completed",
+      "counters": {
+        "total": 25,
+        "executed": 25,
+        "passed": 25,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "failures": []
+    }
+  ],
+  "cli": {
+    "corpus": {
+      "path": "build/babeledit-parity/toucan-read-results.json",
+      "sha256": "29ed9277c033f177b08143e2ecde378dfd70caff9a816b33d8d8e049362e96cf",
+      "results": [
+        {
+          "id": "01-generic-json",
+          "keys": {
+            "exit": 0,
+            "stdout": "app.title\nbutton.cancel\nbutton.save\nempty\nitems_one\nitems_other\nmultiline\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"Hallo {name}\",\n  \"en-US\": \"Hello {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "app.title\nbutton.cancel\nbutton.save\nempty\nitems_one\nitems_other\nmultiline\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "02-angular-ngx",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "03-angular-transloco",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "04-vue",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "05-i18next",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "06-react",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "07-svelte",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "08-ember-json",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "09-laravel-json",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "10-generic-yaml",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "11-ember-yaml",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "12-rails-yaml",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"Hallo {name}\",\n  \"en-US\": \"Hello {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "13-laravel-php",
+          "keys": {
+            "exit": 0,
+            "stdout": "messages.empty\nmessages.items_one\nmessages.items_other\nmessages.multiline\nmessages.path\nmessages.quoted\nmessages.title\nmessages.unicode\nmessages.welcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/messages.unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "messages.empty\nmessages.items_one\nmessages.items_other\nmessages.multiline\nmessages.path\nmessages.quoted\nmessages.title\nmessages.unicode\nmessages.welcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "14-flutter-arb",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nplural\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"Hallo {name}\",\n  \"en-US\": \"Hello {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 10,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nplural\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "15-java-latin1",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "16-java-utf8",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"Hallo {name}\",\n  \"en-US\": \"Hello {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "17-json-arrays",
+          "keys": {
+            "exit": 0,
+            "stdout": "choices[0]\nchoices[1]\nempty\nenabled\nitems_one\nitems_other\nlimit\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"Hello {name}\",\n  \"de-DE\": \"Hallo {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 13,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "choices[0]\nchoices[1]\nempty\nenabled\nitems_one\nitems_other\nlimit\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"en-US\": \"日本語 — café 😀\",\n  \"de-DE\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "18-yaml-arrays",
+          "keys": {
+            "exit": 0,
+            "stdout": "choices[0]\nchoices[1]\nempty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"Hallo {name}\",\n  \"en-US\": \"Hello {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 11,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "choices[0]\nchoices[1]\nempty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        },
+        {
+          "id": "19-dotnet-resx",
+          "keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "welcome": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"Hallo {name}\",\n  \"en-US\": \"Hello {name}\"\n}",
+            "stderr": ""
+          },
+          "unicode_exact_two_languages": true,
+          "scope": "Native project loading (including .babel when present), followed by an isolated CLI save/reload",
+          "expected_key_count": 9,
+          "key_count_matches": true,
+          "greeting_exact_two_languages": true,
+          "roundtrip_set": {
+            "exit": 0,
+            "stdout": "Set en-US/unicode = \"日本語 — café 😀\"",
+            "stderr": ""
+          },
+          "roundtrip_keys": {
+            "exit": 0,
+            "stdout": "empty\nitems_one\nitems_other\nmultiline\npath\nquoted\ntitle\nunicode\nwelcome",
+            "stderr": ""
+          },
+          "keys_lost_on_save": [],
+          "keys_added_on_save": [],
+          "roundtrip_unicode": {
+            "exit": 0,
+            "stdout": "{\n  \"de-DE\": \"日本語 — café 😀\",\n  \"en-US\": \"日本語 — café 😀\"\n}",
+            "stderr": ""
+          },
+          "unicode_unchanged_on_save": true
+        }
+      ]
+    },
+    "exact": {
+      "path": "build/resource-compatibility/m2/cli-exact-resources.json",
+      "sha256": "3f6ba1223659e64813adf15c5116f644f7e744d640377dee4906be7429ab4ef2",
+      "results": [
+        {
+          "framework": "generic-json",
+          "extension": "json",
+          "resources": 4,
+          "explicitLocales": [
+            "en-US",
+            "id"
+          ],
+          "packages": 2,
+          "valuesAndMetadataPreserved": true,
+          "sourceUnchanged": true,
+          "nativeReopenWithoutSource": true,
+          "unrelatedSiblingUnchanged": true
+        },
+        {
+          "framework": "generic-yaml",
+          "extension": "yml",
+          "resources": 4,
+          "explicitLocales": [
+            "en-US",
+            "id"
+          ],
+          "packages": 2,
+          "valuesAndMetadataPreserved": true,
+          "sourceUnchanged": true,
+          "nativeReopenWithoutSource": true,
+          "unrelatedSiblingUnchanged": true
+        },
+        {
+          "framework": "arb",
+          "extension": "arb",
+          "resources": 4,
+          "explicitLocales": [
+            "en-US",
+            "id"
+          ],
+          "packages": 2,
+          "valuesAndMetadataPreserved": true,
+          "sourceUnchanged": true,
+          "nativeReopenWithoutSource": true,
+          "unrelatedSiblingUnchanged": true
+        },
+        {
+          "framework": "prop-files",
+          "extension": "properties",
+          "resources": 4,
+          "explicitLocales": [
+            "en-US",
+            "id"
+          ],
+          "packages": 2,
+          "valuesAndMetadataPreserved": true,
+          "sourceUnchanged": true,
+          "nativeReopenWithoutSource": true,
+          "unrelatedSiblingUnchanged": true
+        },
+        {
+          "framework": "resx",
+          "extension": "resw",
+          "resources": 4,
+          "explicitLocales": [
+            "en-US",
+            "id"
+          ],
+          "packages": 2,
+          "valuesAndMetadataPreserved": true,
+          "sourceUnchanged": true,
+          "nativeReopenWithoutSource": true,
+          "unrelatedSiblingUnchanged": true
+        },
+        {
+          "framework": "laravel",
+          "extension": "php",
+          "resources": 4,
+          "explicitLocales": [
+            "en-US",
+            "id"
+          ],
+          "packages": 2,
+          "valuesAndMetadataPreserved": true,
+          "sourceUnchanged": true,
+          "nativeReopenWithoutSource": true,
+          "unrelatedSiblingUnchanged": true
+        }
+      ]
+    },
+    "fidelity": {
+      "path": "build/resource-compatibility/m3/cli-fidelity.json",
+      "sha256": "ceb1e6addb50afc51be764ed2f5fbe158a4a75ab9faee3499c680882772fdf34",
+      "results": [
+        {
+          "format": "json",
+          "typedSettings": true,
+          "nativeReopen": true,
+          "literalNewKey": true,
+          "emptyPolicy": true,
+          "supportedOpaqueData": true
+        },
+        {
+          "format": "yaml",
+          "typedSettings": true,
+          "nativeReopen": true,
+          "literalNewKey": true,
+          "emptyPolicy": true,
+          "supportedOpaqueData": true
+        },
+        {
+          "format": "arb",
+          "typedSettings": true,
+          "nativeReopen": true,
+          "literalNewKey": true,
+          "emptyPolicy": true,
+          "supportedOpaqueData": true
+        },
+        {
+          "format": "java-properties",
+          "typedSettings": true,
+          "nativeReopen": true,
+          "literalNewKey": true,
+          "emptyPolicy": true,
+          "supportedOpaqueData": true
+        }
+      ]
+    },
+    "framework": {
+      "path": "build/resource-compatibility/m5-m6/cli-framework-integration.json",
+      "sha256": "a8dc8510e2d57b425a758de6a8a30668885562ba96b0a6e2b8cf6a06020b1b3b",
+      "results": {
+        "platform": "Windows-11-10.0.26300-SP0",
+        "configuration": "Debug",
+        "files": 200,
+        "references": 10000,
+        "sourceBytes": 324490,
+        "scannerDuration": "00:00:03.6839299",
+        "processWallMs": 4073.81,
+        "generatedSourceProtected": true,
+        "targetSaveNativeReopen": true,
+        "originalMigrationUnchanged": true,
+        "commentsExcluded": true,
+        "projectExcludes": true,
+        "locations": true,
+        "dynamicIncomplete": true,
+        "cycleSkipped": true,
+        "budget": "Measurement only; no cross-platform performance budget declared"
+      }
+    }
+  },
+  "frozenPlugin": {
+    "path": "tests/fixtures/resource-compatibility/m0-sample-plugin.zip",
+    "sha256": "4c8703ca846a85db0c94d9d5ef0016c3a26e2b428695974a30b9aa8b7c5528bf",
+    "membersMatchM0": true
+  },
+  "originalCorpusUnchanged": true,
+  "packaging": [
+    {
+      "path": "build/resource-compatibility/m7/publish-folder-verification.json",
+      "sha256": "596a89a80605f57b1ae2c9c00aa238dd848e9c69f9aaacf9da906081e9c14aa7",
+      "results": {
+        "folder": "D:\\dev\\side-projects\\Toucan\\build\\resource-compatibility\\m7\\publish-folder",
+        "engine": "WeCantSpell.Hunspell",
+        "version": "7.0.1",
+        "license": "MPL-1.1",
+        "sourceSha256": "feb3486319237e1aee298518e5753019b013a9caee075c4f8ac4d5f6f1f72e71",
+        "noticeSha256": "43d030d1ad8b4eb2c4e143a683e10fc43fdf2745037c5cd64c22fd867bcb638b",
+        "assemblyMode": "separate assembly",
+        "applicationHashes": {
+          "Toucan.dll": "a38f33b983ef9ee8745448363f211dea0e95e63fffcb49fdaa662e2dcbab6159"
+        },
+        "verified": true
+      }
+    },
+    {
+      "path": "build/resource-compatibility/m7/publish-single-verification.json",
+      "sha256": "5c855f49ce28f7f9bbaa705cc28251b8112b0eb013ab23226b4d2339ba6932c3",
+      "results": {
+        "folder": "D:\\dev\\side-projects\\Toucan\\build\\resource-compatibility\\m7\\publish-single",
+        "engine": "WeCantSpell.Hunspell",
+        "version": "7.0.1",
+        "license": "MPL-1.1",
+        "sourceSha256": "feb3486319237e1aee298518e5753019b013a9caee075c4f8ac4d5f6f1f72e71",
+        "noticeSha256": "43d030d1ad8b4eb2c4e143a683e10fc43fdf2745037c5cd64c22fd867bcb638b",
+        "assemblyMode": "bundled; assembly verified from build separately",
+        "applicationHashes": {
+          "Toucan.exe": "35844cf6d64b081d300ca4aa0abc557ca19526df0d67e3563459a94c4d3c0d77"
+        },
+        "verified": true
+      }
+    },
+    {
+      "path": "build/resource-compatibility/m7/publish-portable-verification.json",
+      "sha256": "660710388187b84e06b464ab307fbffe61c2fbc12b62b0efde4aaed0f076482e",
+      "results": {
+        "folder": "D:\\dev\\side-projects\\Toucan\\build\\resource-compatibility\\m7\\publish-portable",
+        "engine": "WeCantSpell.Hunspell",
+        "version": "7.0.1",
+        "license": "MPL-1.1",
+        "sourceSha256": "feb3486319237e1aee298518e5753019b013a9caee075c4f8ac4d5f6f1f72e71",
+        "noticeSha256": "43d030d1ad8b4eb2c4e143a683e10fc43fdf2745037c5cd64c22fd867bcb638b",
+        "assemblyMode": "bundled; assembly verified from build separately",
+        "applicationHashes": {
+          "Toucan.exe": "587e3e6cdd74268ac8740a22afc2f8912940c181b85e97bdc02229f5d12c3c26"
+        },
+        "verified": true
+      }
+    },
+    {
+      "path": "build/resource-compatibility/m7/msix-probe-verification.json",
+      "sha256": "1d58be88a31cc329fea9b676ecf535854215d27e1954b15ed3ba46b4be510910",
+      "results": {
+        "verified": true,
+        "package": "build/resource-compatibility/m7/Toucan-m7-probe.msix",
+        "sha256": "30a496e401fb3c412c6c378b587092a84f8337f6975f96030d1af86f631bf5ef",
+        "sdkTool": "Windows SDK 10.0.26100.0 x64 makeappx",
+        "componentMaterials": {
+          "provenance.json": "75000000296237ea620a95edd201477497046a8039ed2cc9c9874f1ef213a1f4",
+          "license.txt": "6d69e66d4533c9b9048db18d3f340b077313dc5d33324066f1b91cfbca15be00",
+          "MPL-1.1.txt": "f849fc26a7a99981611a3a370e83078deb617d12a45776d6c4cada4d338be469",
+          "NOTICE.txt": "43d030d1ad8b4eb2c4e143a683e10fc43fdf2745037c5cd64c22fd867bcb638b",
+          "source.zip": "feb3486319237e1aee298518e5753019b013a9caee075c4f8ac4d5f6f1f72e71"
+        },
+        "executableSha256": "587e3e6cdd74268ac8740a22afc2f8912940c181b85e97bdc02229f5d12c3c26",
+        "signed": false,
+        "installed": false,
+        "scope": "Unsigned source/notice packaging probe with a test identity and existing Toucan logo; production assets and interactive workflows are not certified."
+      }
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "build/resource-compatibility/m7/ui/dark/resource-settings.png",
+      "sha256": "1b61d214063491c179999f2a29395449c3f74ca9daadf825ee29b62a57351260",
+      "width": 820,
+      "height": 600
+    },
+    {
+      "path": "build/resource-compatibility/m7/ui/dark/spelling-settings.png",
+      "sha256": "482bce9e3eeddb448478ef6ec203ace90754944f86ce3d21c901bf655064840a",
+      "width": 820,
+      "height": 600
+    },
+    {
+      "path": "build/resource-compatibility/m7/ui/editor-spelling.png",
+      "sha256": "28ae1915f21f94e2a3c86eb2fbba8a209aee90bf9d14d936dbd895ce95df9422",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "path": "build/resource-compatibility/m7/ui/light/resource-settings.png",
+      "sha256": "f0c344d0ba5edecec80a7b4e0f7a86947e8c67cebdc7d3650d59f799b7a5a2d5",
+      "width": 820,
+      "height": 600
+    },
+    {
+      "path": "build/resource-compatibility/m7/ui/light/spelling-settings.png",
+      "sha256": "13c3805fb9dc40ba5c65103da1f0c1f19e03115619c80efdd1d235147b30d883",
+      "width": 820,
+      "height": 600
+    }
+  ],
+  "sourceFingerprints": {
+    ".github/workflows/ci.yml": "e443f9b5d3962bdb2d15e2f640369f1f8301352845a24661c94d9dc77c618f1b",
+    "Toucan.Avalonia/App.axaml": "a5442451fd6506b26949c5a5b252f5be59f4f25d8b19c448eb9b78070ee44f5f",
+    "Toucan.Avalonia/App.axaml.cs": "9cd4e1a1f0eec2e0cefe45621de32866c753c0f844f1508b7490ed5890266af3",
+    "Toucan.Avalonia/Converters/Converters.cs": "494e7b242cd5bc03b3c7a8618ae8450945ed296ab6799340493d54f632e2883c",
+    "Toucan.Avalonia/Locales/Loc.cs": "090690b367346421a3b83f587ce8cd12954a18be1ee9b9a3c8dcda248f43fbdd",
+    "Toucan.Avalonia/Program.cs": "184fdaeff3844ab41f9a2a934c7c80ebe746818a19047b5265b74cff5121c46f",
+    "Toucan.Avalonia/Services/AppWindows.cs": "77c9e8a00d544f2b28d6dd60a1e960edb76452f5a1941416849b581083f01493",
+    "Toucan.Avalonia/Services/BuiltInCommands.cs": "0644cd781c8a4093e9be93a1dc317e52704b7a0e40ad198cb31960eec2283e64",
+    "Toucan.Avalonia/Services/ColorSchemeService.cs": "233b36b85a0ebd299a62f0c52f1cad712572d6dc278ff6b65e0731fb92bb7aa2",
+    "Toucan.Avalonia/Services/DesktopContributions.cs": "81a5350bf8f4269c1abe516286550db0908652787145c9ff4a75c57e18f96442",
+    "Toucan.Avalonia/Services/DesktopHost.cs": "4376e485988254ac48ee2b16588ed730357f4244c58e981b4364be68a046eadd",
+    "Toucan.Avalonia/Services/DesktopPluginLoader.cs": "a68da0dfa06c382c1b581eedc9c0d3e27af795756b2b586ae5189c6f9985944c",
+    "Toucan.Avalonia/Services/DialogService.cs": "3a38985e5719243fffda886c96c9b1538284cae45f17ea59c3a52d53a1517998",
+    "Toucan.Avalonia/Services/FileAssociationService.cs": "d3b287a05e2469a19efc3312d608297922fbe2247657900dcd3892a80ff00894",
+    "Toucan.Avalonia/Services/FileWatcherService.cs": "72e6e98ad10a5a947e52b14712fd3aa91e69878999d59853cb78c638d2ac2ac9",
+    "Toucan.Avalonia/Services/IDialogService.cs": "00715817feaeba5b6f5a55098cc98a14ae369006e409970eaa5db71d245026d2",
+    "Toucan.Avalonia/Services/KeyActions.cs": "01ce8c1820f22514dcff32acb244959739fbec5c0a700312cd89f7780c523664",
+    "Toucan.Avalonia/Services/KeyMenus.cs": "0ebf8a025a27d24064d15b58d58c68e92544b4df33834b45fd5566bcab016dfe",
+    "Toucan.Avalonia/Services/KeybindingService.cs": "02e83f4413d802150cccc25528949fc2e604c151aaed13f2d240a3e6ff9ef03c",
+    "Toucan.Avalonia/Services/LifecycleHandlers.cs": "f20cf4cdf118d7abbb91917e1629c21db08f424673bac770322edd9488383b19",
+    "Toucan.Avalonia/Services/MessageService.cs": "f94d0ac4aa9b13032148b209f3cf7ea9fdd805fc5d76fd6e75c501a935f39bbc",
+    "Toucan.Avalonia/Services/NotificationPresenter.cs": "8576dc87f59ad4d24fee53e01a2a328f51699245d9b339e26696b03ddd8234a8",
+    "Toucan.Avalonia/Services/PaletteCommand.cs": "9cd82b181f4a39557595c881961e15bb4ca9faca996f0a5f7fd3c4fdca06b784",
+    "Toucan.Avalonia/Services/PanelService.cs": "6c679c83869a84730d9a61e615c7818630b224f34ddabed8bd2c6a9b031f7f9a",
+    "Toucan.Avalonia/Services/PlatformService.cs": "891db3708071d46f0082e41a73b94506b8d0e80946f13256937cce05db90426d",
+    "Toucan.Avalonia/Services/PluginPrompt.cs": "64b213dfa4c5897da9291a3f1d35129eaf12fa59448b1af2bead0502bef73e1e",
+    "Toucan.Avalonia/Services/PluginWorkspaceContext.cs": "a41e137198e403d48ae3564aa34fedfeb800b49aae81b7da767bbc1b609fb858",
+    "Toucan.Avalonia/Services/ProviderSettingsService.cs": "8176a3e9353b06422dc79308b7b0f0a794cb4ecf7b6092cb8bd5afd4cc0dee35",
+    "Toucan.Avalonia/Services/RecentProjectService.cs": "028cf5d963748d421027819524510ff3fe8c94f34a83e84e19b7b16eacb301c1",
+    "Toucan.Avalonia/Services/RegistryCommand.cs": "1bd7b10a968b1e1dcacad5917e113d3c0882e1cf6a353271a10102f02acebee8",
+    "Toucan.Avalonia/Services/SimpleServices.cs": "32c72ec6143f998271ccefa8f09697e3258f4ba1b4caf27b5111650508b23eb5",
+    "Toucan.Avalonia/Services/SpellingSession.cs": "5dd6c93c47731dc3e451c926d07bec8491ee962349a96c35d1e5f9336f637034",
+    "Toucan.Avalonia/Services/StatusBarService.cs": "92df28e2be426df851f9496ccacba4ae6665bc2b127b3f5371f8d3bb57daa999",
+    "Toucan.Avalonia/Services/ThemeService.cs": "b7ec0183230136d7c32faa8abbf3be2bd75798dc8f181a607658c3c23809f04d",
+    "Toucan.Avalonia/Services/UpdateService.cs": "ca59f0af1e2acc75bd82399261605dfa851323a7b7f60674552941924b6aeb4e",
+    "Toucan.Avalonia/Services/WorkspaceBackend.cs": "9bc9dfaec3d4d08cf64081fe08c3d365464bd9195b35a5b4c90759e3e2bbe7e3",
+    "Toucan.Avalonia/Styles/AppStyles.axaml": "f42e6b62670ce92cc0f5cff158c0ccfdede37f359889251f3c47b6fa468546c5",
+    "Toucan.Avalonia/Toucan.Avalonia.csproj": "deeb62e6f8ab61c2d08ce64b078820fbab13800202f7f24739b69940203d1dd8",
+    "Toucan.Avalonia/ViewModels/AiSettingsViewModel.cs": "607977b1e84ac4d0e2339cfb842fd28549ff8390c732db196780adcc2393d1c1",
+    "Toucan.Avalonia/ViewModels/BuiltInModuleItemViewModel.cs": "845537cbce1253cc68458076925d763228135d71ef4d1914a0d8c7bab925b4f1",
+    "Toucan.Avalonia/ViewModels/EditorMode.cs": "08851f686dd0e931f81b9477cd053a4892d794293cabf1ba1ec4e11055a97121",
+    "Toucan.Avalonia/ViewModels/LanguageGroupViewModel.cs": "d146aa7cc1dc36eabb3aaaba8c364fa4b90a876c50b29f3411411e4f7d659b04",
+    "Toucan.Avalonia/ViewModels/LanguagePickerViewModels.cs": "50e98d26c00d1c0e49f6142558c0350d273dd84ee8ac037adad3dd454bc6d4a1",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Ai.cs": "c73652d90da9e7eecf9a4311770c60b9dac7ecb1b303ffac0c8a0639dc4951ae",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Bulk.cs": "6e383bc24da408524ca4b2c089e7557f9da16f3a4cef18b69eb8b797b3cb15fc",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Edit.cs": "b5144ee7bc3009ef3c56f793b7479575d3a721c6aec0a1aea9265c90c8b04f70",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.File.cs": "96af29b2e15b2d632e26fad52724fa23f70eec34ad1a5778a716f3313e84c0e5",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.FileFormat.cs": "9d527cb887d934e0fc51b3f36d4a7396851644ff703760b7a6b0629c0949ff8e",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.MachineTranslation.cs": "496cae780aca1a0c75daee461588fe8fb2befb1c08768b98f217b0e52e8995f1",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Nav.cs": "de453fd238b454f61554e92593480c608b5f42acbcc86c846826a75e7da3ea80",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Palette.cs": "ec218ff32e76d470c3dbc26d8e072e1ea1672894f290debf36ce2aae7d749f6c",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Search.cs": "7c07d5df2dc5ea19d7d704ace13092166cd3bdbc0d959f20db5398b07682cf34",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Spelling.cs": "277367c684b45f97e8a30666e75912e2a4bfdad132fa6e7042e83181ac97b46e",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.SpellingValidation.cs": "b07ae53a75dcdfc2e7e67666c2e97631d9844720fe1ef9ebf6edb28221a45157",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Translation.cs": "d3d0137aa5f2f3cd6ed91fac61a479eebeea5d3b9d25c1dd13468c9a455873eb",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Workspace.cs": "c4f1eaec9a4a041104dae60a4c75d55e6198b735ecb2d3861ba7c5662fd42be4",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.cs": "0a65623d46490a0068e277dfdc82a5c33bb6e8905f5c7ac79ad5cf54a7bed4bd",
+    "Toucan.Avalonia/ViewModels/OnboardingViewModel.cs": "a5f520f3bf590523504f203cc6e03876223f14cd35fa9e5b0576818a307f0a9a",
+    "Toucan.Avalonia/ViewModels/OperationsViewModel.cs": "74f1082254b57373e5240b7fc2918ebd9b96b1f47a10559a759f8f2065741258",
+    "Toucan.Avalonia/ViewModels/OptionsViewModel.Appearance.cs": "88f15da86a9bfb311ea4df7a9f8eed12200151e02316ac42b487d7b27fd1ac54",
+    "Toucan.Avalonia/ViewModels/OptionsViewModel.cs": "e7e4ae84b1221370f6388fc3a4a373c4eeb5236e8824a8047067f8c62b5c92a7",
+    "Toucan.Avalonia/ViewModels/PaginationViewModel.cs": "58ee611610888c3debfebcc0685fb49f5537a8f169a0d14186e2e8c8df9c1324",
+    "Toucan.Avalonia/ViewModels/PluginItemViewModel.cs": "c4f07d546cd8c94444882bff100baa0b46600cefe328c133a74339312c769883",
+    "Toucan.Avalonia/ViewModels/PluginStatusBarItem.cs": "243fcbec9e0e4e146ced55ce755aae53014af88be2f4e1ae41da947aa77d5c02",
+    "Toucan.Avalonia/ViewModels/PreTranslateViewModel.cs": "224cc9a95918b37309d71ef5abe2df19b0b444fa8f7747b103f2bce34f448f11",
+    "Toucan.Avalonia/ViewModels/ProjectDialogViewModels.cs": "f2612977ff5869b139cf2f279a61110055292ac991d71de866a0fff858f54040",
+    "Toucan.Avalonia/ViewModels/PromptEditorViewModel.cs": "a02cb0c23d68efc3f0682555c0334deb32967071770191644976bb0b77d011f4",
+    "Toucan.Avalonia/ViewModels/ProviderSettingsViewModel.cs": "8978da1f80efa03520156536e99abe8c2c9b02b38f2ad0b2aa6739ae26344202",
+    "Toucan.Avalonia/ViewModels/ResourceSettingsViewModel.cs": "f71fb34e680af984bb423e091c40d510b9251c39f0c56d3c45c6ecad161e07d2",
+    "Toucan.Avalonia/ViewModels/ShortcutRowViewModel.cs": "c5e44d76a489a28d420df687b2d1cfc536a80bc4dd93a6bcfb48143bfdbee723",
+    "Toucan.Avalonia/ViewModels/SmallModels.cs": "95d36fff4e83bd8abc80047e62f8d31949fb397e3a7d928f39a6e549275f7991",
+    "Toucan.Avalonia/ViewModels/StatisticsViewModel.cs": "df349cc55568fcb8e3e23e1df170895f2751939c19d1f510b00513b96195a275",
+    "Toucan.Avalonia/ViewModels/StatusBarPanels/BuiltInPanels.cs": "90722afe011553fb23ce7a6154ad44d5752a8997c4da837a2a3411f2d557196e",
+    "Toucan.Avalonia/ViewModels/StatusBarViewModel.cs": "37d138b82b7768c61e81b7eddd352d504d03dc1c226b74d94e1e006f7eab434b",
+    "Toucan.Avalonia/ViewModels/TranslationItemViewModel.Spelling.cs": "1e326d4d816b697195631790f15949578c0700349624d725e90afcafb5b0bed5",
+    "Toucan.Avalonia/ViewModels/TranslationItemViewModel.cs": "d668d7df8632a317397ef206250301cd093a504e10e213735c814a5717d74e16",
+    "Toucan.Avalonia/Views/Components/ActivityBar.axaml": "694dccf6976f822d0d9e74090b43737fd417648606d25d8531cefd46c3bb5ded",
+    "Toucan.Avalonia/Views/Components/ActivityBar.axaml.cs": "1dec4996a6b52fd74747e2074bff5e419c71063aada23bb5b41f753de927ecfa",
+    "Toucan.Avalonia/Views/Components/ArbPlaceholderEditor.cs": "79d12d6d3257119b70e27843dd8ac877b01da8eab23cd3e245555abac14c8d99",
+    "Toucan.Avalonia/Views/Components/ColorInput.cs": "bbc6cb1719e2a9ca01bf5bd77ce04b89195281df79274e7b573a4a54b506a7d0",
+    "Toucan.Avalonia/Views/Components/CommandPalette.axaml": "17562cb8401d5e08b5da054bbb7f7ea85abd0578ae860845bcd0e6a015f90a0a",
+    "Toucan.Avalonia/Views/Components/CommandPalette.axaml.cs": "2002c675c8a5a8e027f843ac8eb8f6c6a911c0a32d765fd6aa0672d89e7cbf66",
+    "Toucan.Avalonia/Views/Components/ConfigForm.cs": "a8fe045efc2628ea3c94e67de6d09b6ba4e3d8020698b3f092502c2a136ac2a0",
+    "Toucan.Avalonia/Views/Components/EditableTable.cs": "6ea6ab05caa2bab8907bb83177b39be6d4f86aae9230f61a2ae602ba5e371512",
+    "Toucan.Avalonia/Views/Components/FrameworkCard.axaml": "ddc2494ed51da3e7a00ebaf7f9feb2f27e76b69d1a32d44731778711715a1bfe",
+    "Toucan.Avalonia/Views/Components/FrameworkCard.axaml.cs": "723fbbe0c30afb2a74cc6e1d04c264579e190a25d50ce7e3ed07e4488ca5df8d",
+    "Toucan.Avalonia/Views/Components/MatchTextBlock.cs": "ced07ed3e8adbc41e0850af540fcfb32c94df35b3fa39f3bbad176a92042b270",
+    "Toucan.Avalonia/Views/Components/PaginationControl.axaml": "bb1df82329f1e62b7402b10a5cd3b8e6d2681b5091b0a97de884ba0b897c9f21",
+    "Toucan.Avalonia/Views/Components/PaginationControl.axaml.cs": "30ffe43a6cf3cdb786d1360f951769b1533b0fa09fbbca7f3a71e2157875b180",
+    "Toucan.Avalonia/Views/Components/ResourceSettingsView.cs": "438a8fdbcefe4dcb0b2d6cbca1d679ba65a29077b71a7056bb775f97fdc17913",
+    "Toucan.Avalonia/Views/Components/ResponsiveMenu.cs": "f00071797e47a812b65c8eb48af66f18aca816c8d5f641076746be9b5a486871",
+    "Toucan.Avalonia/Views/Components/SettingsList.cs": "7ac6e5b0faabf8aa189580481f3ed074dc90813a396c4d51b2cdc75527750639",
+    "Toucan.Avalonia/Views/Components/SettingsRow.cs": "b0bb75a565c61bd01fb9357282f6c117e68b7aef9b07f056ab4d3c34395a7206",
+    "Toucan.Avalonia/Views/Components/ShortcutSheet.axaml": "be4c5b11c0e24578223b4f39d7e75693c4c4d0d7b53d804616e1c20cb8fa803e",
+    "Toucan.Avalonia/Views/Components/ShortcutSheet.axaml.cs": "87708246586e3aba1cf75036cac56c4352e4460b72eee4579b2626775513ba8b",
+    "Toucan.Avalonia/Views/Components/SpellingSettingsView.cs": "074b31a7ce1e791cde2c7d870f14beaff23da18b61f12287f4d5bc7cdee67ee7",
+    "Toucan.Avalonia/Views/Components/SpellingUnderline.cs": "bbffa2d4e0c78b9cf72af27aa26184a4a9bb9f477dc9525843fa5beee7c7256d",
+    "Toucan.Avalonia/Views/Components/StatusBarView.axaml": "58986f2c8c140ed96f8c882ee0511338b6d821a655b01567736b6b09b871b9f4",
+    "Toucan.Avalonia/Views/Components/StatusBarView.axaml.cs": "bc2870dec8fbe53845a6f3ebde013841a6c5b33b07cd711ad67b136f366dbf30",
+    "Toucan.Avalonia/Views/Components/TranslationCard.axaml": "6818a9a32dc723a67b1d431a58f0c9e8351ec9abd4579abc2d1452e217b921f9",
+    "Toucan.Avalonia/Views/Components/TranslationCard.axaml.cs": "c98bf8f4e41ecdf03a725643d9d87e1dc1d0716ebbca32c1d3075ad4e7180528",
+    "Toucan.Avalonia/Views/Dialogs/DialogWindow.cs": "da83f1d1b20df43158cc424e6ea3f2b19982a21750e06518847b5a5d713e2f04",
+    "Toucan.Avalonia/Views/Dialogs/ImportProjectDialog.axaml": "207dd1524f99279ea4acd287789f5bc06f4b644b9525688e8452d980695f587c",
+    "Toucan.Avalonia/Views/Dialogs/ImportProjectDialog.axaml.cs": "09081a61c81ffc9baeb1f1db9d2acc79e2497bd1e32df36487ee807f4c4955f9",
+    "Toucan.Avalonia/Views/Dialogs/LanguagePromptDialog.axaml": "9669ffabf4588b62c459aa4d6007cf6b06020e40dd98e6b684b5dda75ed46587",
+    "Toucan.Avalonia/Views/Dialogs/LanguagePromptDialog.axaml.cs": "ac2a63a4564e1b30f99d0fb69aa9e452e1c9bc2072d5e32338aad067e4d1ae41",
+    "Toucan.Avalonia/Views/Dialogs/ManageLanguagesDialog.axaml": "92eef82cfd6c2eb1d8a40efea7c736da1109a7d9c86bc82c154990cb967077ea",
+    "Toucan.Avalonia/Views/Dialogs/ManageLanguagesDialog.axaml.cs": "0be2900dad501ac0f1a523c6b0750cfaa0016f896e10181c94705af673399f1e",
+    "Toucan.Avalonia/Views/Dialogs/MigrationReportDialog.cs": "16566af877bd41d891d621aaa51d2930474bb7ea249e3b319054e3743067d4df",
+    "Toucan.Avalonia/Views/Dialogs/NewProjectDialog.axaml": "b0de0f77ea390a2e4cef01f25dfc42557d4fe4795d957e3108da478e67220dcf",
+    "Toucan.Avalonia/Views/Dialogs/NewProjectDialog.axaml.cs": "ea58006a33532550fd34274986ebbc85f39e028effa0a2fa342f8bcfd082a235",
+    "Toucan.Avalonia/Views/Dialogs/OnboardingDialog.axaml": "cc0228ff98d77367b2369118777e35d1f3eb69b9a6dffab563454bb00d7625ae",
+    "Toucan.Avalonia/Views/Dialogs/OnboardingDialog.axaml.cs": "26f8bb4ea36754d2a6cc16767b0f049f70c7a2debaef9147dcf6bc218d457536",
+    "Toucan.Avalonia/Views/Dialogs/OptionsDialog.axaml": "455ed8049de1a2ef972d6085f40cb273358868cbb91bfb1d5e7c0f597d70acca",
+    "Toucan.Avalonia/Views/Dialogs/OptionsDialog.axaml.cs": "dff85af04bfa6a1eb6ba19ad1019e5042c1d855787bd36a5fd2c7e3614021476",
+    "Toucan.Avalonia/Views/Dialogs/PickDialog.axaml": "1a90d3c42b1e355f0ace5e9be6641dca4e53538a27965544143338f28558da8d",
+    "Toucan.Avalonia/Views/Dialogs/PickDialog.axaml.cs": "1dd738c4e5c2f2743fa245a818eed69ad6ee0eb1c0d76168c18fe333a39cc223",
+    "Toucan.Avalonia/Views/Dialogs/PluginDialogWindow.cs": "62216ab2a46225c3d844ecf6bb57015783a9494217d78ad8a3ec71567522710f",
+    "Toucan.Avalonia/Views/Dialogs/PreTranslateDialog.axaml": "3997b0c9fccc620a0fbd43bddea5e9dafdb48308bef22ec23a94d690a0a20092",
+    "Toucan.Avalonia/Views/Dialogs/PreTranslateDialog.axaml.cs": "bc9334d4e0888edfab8830778b869dbe00664de55607829f4c41d9880cfdef6a",
+    "Toucan.Avalonia/Views/Dialogs/ProjectPropertiesDialog.axaml": "207423d83cfef6b349f2f861daaa1a7063300e18720d9070f46e3fbe3e2ef0cb",
+    "Toucan.Avalonia/Views/Dialogs/ProjectPropertiesDialog.axaml.cs": "7969e65905045fce6cff7854bd89401736ef59896870fe7747b6cf2ebfb6ec68",
+    "Toucan.Avalonia/Views/Dialogs/PromptDialog.axaml": "d25fae4cd35eda99b8beb7d8994f6f71754990d30065885a63a233c6b8f8bcba",
+    "Toucan.Avalonia/Views/Dialogs/PromptDialog.axaml.cs": "9aa29586589bbeadb45a636a11b59119dffcb3522a657d980c6b2cb6f61e0a72",
+    "Toucan.Avalonia/Views/Dialogs/PromptEditorDialog.axaml": "0a2c67252413dfcb5b0f67750101279e0982fddd92fa18d8541350728229918a",
+    "Toucan.Avalonia/Views/Dialogs/PromptEditorDialog.axaml.cs": "b2f738cc02038096d5af214183cc0a5ef8b581ee5e0bd1bb993976267843adbb",
+    "Toucan.Avalonia/Views/Dialogs/ProviderSettingsDialog.axaml": "86618a45161e28e1911a4686a2ce404144b4759fc7356c0338c8baedf6e6a4fb",
+    "Toucan.Avalonia/Views/Dialogs/ProviderSettingsDialog.axaml.cs": "8060a08c1cd40e1f8ad6e3dbff2e57d3940ee5f9161d6ec806d90e795e8a6912",
+    "Toucan.Avalonia/Views/Dialogs/SpreadsheetPreviewDialog.cs": "7750e2b358b9eac3da1eb6990983e9310d11cb9017905c644e234aff5bbc30b7",
+    "Toucan.Avalonia/Views/Dialogs/StatisticsDialog.axaml": "5602028f1fb2cf8770654bd8910cf6903469139d5de51ccc5b0fdac6654145d3",
+    "Toucan.Avalonia/Views/Dialogs/StatisticsDialog.axaml.cs": "8c308b8634b086f2248c6b74032627e46b7658c8b00867bbb14bc4b531f34283",
+    "Toucan.Avalonia/Views/MainMenu.cs": "0c130160460a2f8e3d415e8c542513a0b0d47920bb51c391ec7bc7f3751254f4",
+    "Toucan.Avalonia/Views/MainWindow.axaml": "1e56d68740689808d028cf9882897311bdecc8951eb01aeda517d7747e79f54a",
+    "Toucan.Avalonia/Views/MainWindow.axaml.cs": "a8193ec52c6cf42b0fe1786a1acfa061611274338fa1a0957b51371ea8aa455f",
+    "Toucan.Avalonia/Views/Panels/ExplorerPanel.axaml": "43dce54c21c478f6477ca693abb53c8e226f9cecdd2c75df59673ad305c2505c",
+    "Toucan.Avalonia/Views/Panels/ExplorerPanel.axaml.cs": "e20e7bee392599c7fea51a4bad5c4394514f1215ef2971011f40c892198f0d6d",
+    "Toucan.Avalonia/Views/Panels/InspectorPanel.axaml": "f67aa965267c3c20720ff6899d4c131b947c37ca02dcfb2c3e256a3257a502c7",
+    "Toucan.Avalonia/Views/Panels/InspectorPanel.axaml.cs": "5e7f5aae6d4229432056e51c76c9736c8c155608c06428ff949b0e472f8003cc",
+    "Toucan.Avalonia/Views/Panels/IssuesPanel.axaml": "ed812a3c575e2f34544828dea385962616bc2f1c37de17e79da37c9900f3e2a6",
+    "Toucan.Avalonia/Views/Panels/IssuesPanel.axaml.cs": "c022afe39015afafa24af1da7c4e5f6ee470fa11aace16a662941d154a0a1c3d",
+    "Toucan.Avalonia/Views/Panels/LanguagesPanel.axaml": "4dfc574adb34a64ba4de1c785d84fed9f3ddc8adf04ff1d839b589a914e2a4dd",
+    "Toucan.Avalonia/Views/Panels/LanguagesPanel.axaml.cs": "eb89a5a781261734e0bb71e9cb9bb3c45094e04654770f7d3259f14a4f0f3dbb",
+    "Toucan.Avalonia/Views/Panels/MachineTranslationPanel.axaml": "3c4bd572c460f89832fad478b18adc6a25534cac81b5c76da866928fdf525273",
+    "Toucan.Avalonia/Views/Panels/MachineTranslationPanel.axaml.cs": "2674dfcf5a5d98704b4dde59b1d6286b24299dff44c54dc1dcb937898cd02381",
+    "Toucan.Avalonia/Views/Panels/SearchPanel.axaml": "544c1415a469d76430d29e17b6084cd76af423e55445e89a0cc8f362c3c21d52",
+    "Toucan.Avalonia/Views/Panels/SearchPanel.axaml.cs": "cf6141d94b5a89c22483acadb31864942d8b37512f5eb66b8e32a2b92c8de6ca",
+    "Toucan.Avalonia/Views/Panels/SourceCodePanel.axaml": "e2db484b983e7b52e788e853526a1c7bf5fd8b7c10d22a60eff4edd58d82d1fb",
+    "Toucan.Avalonia/Views/Panels/SourceCodePanel.axaml.cs": "306607ac97281a6ec494a86ffe5d03599f659b652726bb5f01888686613c2143",
+    "Toucan.Avalonia/Views/Panels/TranslationMemoryPanel.axaml": "0599211d54edb58de1acf08bedbce5c83cc9918e481191ab32d5e9543c5b4fc1",
+    "Toucan.Avalonia/Views/Panels/TranslationMemoryPanel.axaml.cs": "e2c404521079287ca74a64b374c3e1f671f4f3fa288554bd4e9f096d84ce8502",
+    "Toucan.Avalonia/Views/StartScreen.axaml": "379889a1205acd2b6c69e864dc22085b1d171f512e12d94479ccd4c427396bd3",
+    "Toucan.Avalonia/Views/StartScreen.axaml.cs": "c23e712e2b119ca1364031c63b3872bd1adbbd07031adf915ed70d3ec357b005",
+    "Toucan.Avalonia/Views/TranslationEditorView.axaml": "3ddab6f2ff8e85244afe0882835eb48002fd1e9e8a185ddf555750e8ce69ac0d",
+    "Toucan.Avalonia/Views/TranslationEditorView.axaml.cs": "d4e1d30e2977c595370c857bb5396b35d617b1ef822667fc9decf0d7796e8d67",
+    "Toucan.Avalonia/Views/ZenEditorView.axaml": "49920b8bce670b5ccece01efd9ba42a33863f9137aea753de0ad8bcb1109a4c2",
+    "Toucan.Avalonia/Views/ZenEditorView.axaml.cs": "91227016d82395db2bc7ad0caaf436f4065a082d594f12a86b17503ebfb52595",
+    "Toucan.CLI/Program.cs": "3d5bbabd72de9f345f0ff667937abaa9f36972b259a937630662180062918539",
+    "Toucan.CLI/Toucan.CLI.csproj": "93e5ffd77478192d18f6399297f613f5c2134debcad435b2982011b36ec602b4",
+    "Toucan.Core.Common/Contracts/IFileService.cs": "b1eb2772c609a2d5193d17c7f5a218327d802f93cfda70a40eb89b4531caf4c0",
+    "Toucan.Core.Common/Contracts/IManifestLoadStrategy.cs": "81d2cb48e69faf70aaf58a58bbfa5ff2f70e761f7b96ae82e62f84676ab88598",
+    "Toucan.Core.Common/Models/ScanProgress.cs": "8c7f8890c1f4801b2c78aa22596c8905749214ac5a176a934a63ed5055e6d619",
+    "Toucan.Core.Common/Plugins/BuiltInModule.cs": "f3ad0dc3fc27e5830ea0ac233a9b94f46d345f9547a731e766a7403c7b7eca1d",
+    "Toucan.Core.Common/Services/AiReply.cs": "855bd62a06ac6fb8d3f41a4ee749e673813a45241269bc94ef54655aa419270d",
+    "Toucan.Core.Common/Services/AtomicFile.cs": "d08045e3235bf84ede1668177d610671e673c803a766329c4589b8dab6283dad",
+    "Toucan.Core.Common/Services/FileEnumerator.cs": "b046ac895dba306ef44552b7786775e059d746da60fc924439137b5b6c9610f9",
+    "Toucan.Core.Common/Services/FileService.cs": "46888c1fb15d0a88a7ec4ed2aeee689950d1bf5318dc78a7ecab81cd99e791b8",
+    "Toucan.Core.Common/Services/NestedJsonParser.cs": "15a83860bba8a69d71bf48d75890bbb9befd562c89da35a57691c4e1f3a89110",
+    "Toucan.Core.Common/Services/ResourceFileAdapter.cs": "c6054674bddc4a28c5826aba5f1a25bbca8eee81019ad2b8ecf08cc96cebc14c",
+    "Toucan.Core.Common/Services/ResourceFilePath.cs": "7e82dff1d326d20c0615eeb9c4929aa30a9698f345d5ee2bb72cd2efa2630df5",
+    "Toucan.Core.Common/Services/ResourceJsonCodec.cs": "ca83796a198cdc58509bae6f1b5c3cd8b6cd51ea92661b5fee9959874ea43927",
+    "Toucan.Core.Common/Services/ResourceText.cs": "05513d13e92a194f54b49c0c936428be46e1be5d633bff8a12612c7fb3940171",
+    "Toucan.Core.Common/Services/ScanContext.cs": "e6fb5538ac5f265de9468773ed15bf4afd28b2457478d9e8154bdbba1641f232",
+    "Toucan.Core.Common/Services/SourceSyntax.cs": "c3411d0d11f0b95b0ccb05c2ad1edb7fca21c6cee5f33fc0b667f435c3764b53",
+    "Toucan.Core.Common/Services/UserDataFolder.cs": "6b21728ad61aebe66f62f5f9a2ed11d799a8dd7183672779c8d6889a8f5e3bda",
+    "Toucan.Core.Common/Toucan.Core.Common.csproj": "06c60510be45d60581af40fb52f1a9af49a7a4656903b378abe1ad5224ffc922",
+    "Toucan.Core/Commands/CommandRegistry.cs": "66c5fe518d7327106cb7ffd83d19bcb3d9289a0f1107d1fef213f212adf736fd",
+    "Toucan.Core/Commands/ShortcutText.cs": "6a9e8d4059dc0d74b6f99b380cdbf75ce948d594be4d803c8f4bfdd566f65694",
+    "Toucan.Core/Contracts/IAiSettingsStore.cs": "ddbb70f4da166d053afea4188a8e435e4269bd5cf5d375a7763c61706d6e9647",
+    "Toucan.Core/Contracts/IMessageService.cs": "0cc350048272fed8229dfc0d2089a7080685294f6faf329af31a5e97a7d4c2e0",
+    "Toucan.Core/Contracts/IParser.cs": "4055e3af3b934f56f41a045c41614e3ddaf432eb5ae549ab6cf2f51faa4dec64",
+    "Toucan.Core/Contracts/IPreferenceService.cs": "c825a81dfdce9bf7b5d57adaee02b0767512c418c6d09a21e1c9012fd064d629",
+    "Toucan.Core/Contracts/IProjectDefaultsService.cs": "d54af840ccf1083618bcab1a6f57213475caa3f8ed90e07e240051960b744145",
+    "Toucan.Core/Contracts/IProjectFile.cs": "ed4165727ff95c455dff7e2367c54944a9eb8ad5e3eb97d14307547924c27084",
+    "Toucan.Core/Contracts/IPromptLibrary.cs": "8c8558a36ae477505699f7c25f6fe0a63b2329988437ec8f6d9df49b165b1e12",
+    "Toucan.Core/Contracts/IProviderSettingsService.cs": "5661436840d0f955acfa720efcb5d575b0ad7dffc70736575ef49ad41c32fad8",
+    "Toucan.Core/Contracts/IRecentProjectService.cs": "a44a1a7209e6e28831c1b727c9a4a2e8d2fa6eab422fb1cc1372639a1387c22a",
+    "Toucan.Core/Contracts/ISecretService.cs": "0988f01e6789db9b55b575ebd35fca6292c13ee31a188f84df9fcb40d0c36fa9",
+    "Toucan.Core/Contracts/ISecureStorageService.cs": "7effeb237387dcb383405def2724ef0f040ce0357db3a859bbdeaf2ff2e67992",
+    "Toucan.Core/Contracts/ISourceClarityService.cs": "ec1ce0b7b7624776211a9bdfc5cbea854e88a85e58b9bee928ddbcac09803471",
+    "Toucan.Core/Contracts/ISourceCodeService.cs": "34a356ee4e73e1d6988a3e85ea3dac2ae34da17551b861c6e3a53e079180205d",
+    "Toucan.Core/Contracts/ITranslationAnalyzer.cs": "30168ba3e5163e16626bd607c483d89a5a1397582f0ec35b46f6bd7e8ce415a4",
+    "Toucan.Core/Contracts/ITranslationFile.cs": "020da04f8ce713fe43d9ff0e45b4dc85ccf35b8ff081bc1d2d80724afaf550b4",
+    "Toucan.Core/Contracts/ITranslationMemory.cs": "ee3ad66cc7414592a4b257277aea26908a5d9099d4c50234aaed5b31ab84b05f",
+    "Toucan.Core/Contracts/ITranslationProviderRegistry.cs": "9b2a7db8d9e07290359fa043f3d0cf22c2b6480a2d02eda963ec4fa01776b1c1",
+    "Toucan.Core/Contracts/IValidationPipeline.cs": "1f0191b4903dae5673f3a0f0f718e05b9130699bc9e46a1dcb9f992624703d1a",
+    "Toucan.Core/Contracts/Services/IAuditService.cs": "975d396903eea9ba1f6a72cfd15674f86496843a180280cec94a1157bb7b1a28",
+    "Toucan.Core/Contracts/Services/IAutoSaveService.cs": "d454a7235da5c810e3fe3a3f5b6ae08f1d20f569c5a442ff8239a22d8927e189",
+    "Toucan.Core/Contracts/Services/IBulkActionService.cs": "7447d86a989ffbaaa448234dbd83f62be5a76cf257acf5c3b2fa48b96bd57fa3",
+    "Toucan.Core/Contracts/Services/ICommentPersistenceService.cs": "722d953e71316f8b2ddd5902f323c5b5059ffdcfcd521da9ef29edd2e1538505",
+    "Toucan.Core/Contracts/Services/IDiffMergeEngine.cs": "005481279630ac53f3ecdb2c0b7b1d4a65173866c3dd93212c01c595785e5bf3",
+    "Toucan.Core/Contracts/Services/IExternalChangeHandler.cs": "29bb9da446a4330c6067c1e5ac7b18ee6e72d8c5df6747916c82736d63bdbd92",
+    "Toucan.Core/Contracts/Services/IFileWatcherService.cs": "e5eb3baaa0806e3005735ab203e8942fee33216e8ffe909e05f1b6c84fbaa39a",
+    "Toucan.Core/Contracts/Services/IFuzzySearchService.cs": "d58ddb31fc6bd8442b7035c55af9e6c39026cd00d7f9c2ef4819c54649de03ec",
+    "Toucan.Core/Contracts/Services/ILanguageManagementService.cs": "2f05983f2f8ee13e088a0c1542310172f32c2b44ab9b1cc2ad124e5e3d8e3763",
+    "Toucan.Core/Contracts/Services/IPackageService.cs": "77ac9fa740114480b2b6140376aa31c6d6d16b5e8f95942c58054f8b1b8cb71d",
+    "Toucan.Core/Contracts/Services/IPretranslationService.cs": "b5a2871124bb42caf17a3651a0d01d837f330d823e6e4c35655efd02db1fd89d",
+    "Toucan.Core/Contracts/Services/IProjectLifecycleService.cs": "06c8cc6e78b93bcef0e8e9a10daed2036782aa87662d3e7314e41adf58da2a7c",
+    "Toucan.Core/Contracts/Services/IProjectModeResolver.cs": "1977adb51fdad951b37e4192a98618cf527c44e5b3bd1395ab9e6e68c8681552",
+    "Toucan.Core/Contracts/Services/IProjectService.cs": "9c2ed5b57148ab5ffc1540e65bba7a62df1e55eb4aa111a209519f4617005f67",
+    "Toucan.Core/Contracts/Services/IRecoveryDraftService.cs": "3878381d222e38499671eec402369231250ab64523b122ff962064efa9e8aa99",
+    "Toucan.Core/Contracts/Services/ISearchAndReplaceService.cs": "edc4e668ccb3a85b44d5b922483c6b095edd0fb63362ff4bc2d4587c6bea8324",
+    "Toucan.Core/Contracts/Services/ITranslationManagementService.cs": "a5091419e5ebb9e114eefbbe8f68d13257f69aaa279ea7119ec22683d99bb42c",
+    "Toucan.Core/Contracts/Services/ITranslationStrategyFactory.cs": "202ea2db6c30483a6e12c045e93510230440b89a5726907e0a038225614fb29f",
+    "Toucan.Core/Contracts/Services/IUndoRedoService.cs": "308d80a942c4beb3d2557670434289a0ffad4c1b58d649230aee8ef9d4549293",
+    "Toucan.Core/Contracts/Services/IUnsavedChangesHandler.cs": "cf3d0930ff5025d4cd3be99200d98bf397c757459364312fd83342a326d3899d",
+    "Toucan.Core/Helpers/JsonHelper.cs": "f4c23caf5ac3e7fb5b19eaa3676e222b90e9073bb097cf6b68b2ee3286734afb",
+    "Toucan.Core/Models/BabelImportData.cs": "a9da049c44a4e73dbbb571fdd8d2f25de8052ea3fab23df80bc5813679143883",
+    "Toucan.Core/Models/CustomRuleDefinition.cs": "c56353a3f46df430d969a4e50a04f69ac9ae90f83fa3fd7f3cfccd365b011f3e",
+    "Toucan.Core/Models/EditAction.cs": "b4d3459033056271fee5b4e646e30deb03d3ac6382156571a322ee06071b313c",
+    "Toucan.Core/Models/FormatSaveBlockedException.cs": "d822b1b218717f0d5be727c9b12116a2527a17c48dcfffc3270f31780cdab8ce",
+    "Toucan.Core/Models/FormatUnavailableException.cs": "7133cd49b879fdb109e01a5e06091cdd19ac7253273e98f61544506c592e6d74",
+    "Toucan.Core/Models/MigrationReport.cs": "48b6c5545971bf6e1208a6c223cbb7be16b493c1e849f48af004b6fddd1b628a",
+    "Toucan.Core/Models/NsFlatItem.cs": "8458f0a9e4cee23bb3f1b6bfdd551cdd10310af07efa1bcce7800965cf43373c",
+    "Toucan.Core/Models/PretranslationRequest.cs": "ad9392e39a0db39a5a986a4326c104522012f9426e7d9a58dd2269e124d2d9e0",
+    "Toucan.Core/Models/Project.cs": "b98de4168e055c8182ec5c37fb609f68699f28a4b4b95f1a6b4de3248baa8289",
+    "Toucan.Core/Models/ProjectSettings.cs": "a15c95e04b929a5a6680ab6444450e35c0270c5f3c04c465b9de1fd91e545bcd",
+    "Toucan.Core/Models/ProjectTypeVariant.cs": "51c6c191ff2c08d53d7f68e843756e7c80760024350282d853050172a8bd9a38",
+    "Toucan.Core/Models/ProviderSettings.cs": "f4e27df1a8e82678ed14d1409808fdbd2508a04b3cbe1a25284a675628ae99a8",
+    "Toucan.Core/Models/SearchMatch.cs": "ea7884b1785fce18d1fa95d455f3cc1a105f6b75f6d1afc8a55939f308cc4595",
+    "Toucan.Core/Models/SearchMatchType.cs": "0a0e1b5e397c7a422c516bd087d1739c6bfc061ab0616dd8d058ac48443feaf2",
+    "Toucan.Core/Models/SearchOptions.cs": "3e136ba6e44350d93adb59502668f9b5d5ee8346872ff41025554238b95fed62",
+    "Toucan.Core/Models/SearchResultItem.cs": "a8a84abd71baa5898ed158f4f8a16dde15c57dddee2d89678a9038f6f197bcd8",
+    "Toucan.Core/Models/SearchScope.cs": "5bb506f7b55fd43518591fe9e0408f705660e92fe2def943dd2db2a52d309b46",
+    "Toucan.Core/Models/SidePanel.cs": "cc536f83b8a2510bcfcbed8b20b58828d15f25e27c43d3197ec5c6ec74097cab",
+    "Toucan.Core/Models/Spelling.cs": "c053214813d1412c6d3a7dbd2edeba31838cd566345b7e4f8d8714ba5c82b105",
+    "Toucan.Core/Models/StatusBarPanel.cs": "7c2806e1f1145086f10e03710c2729a3d4428377322e0dcd5aa3a9046b071152",
+    "Toucan.Core/Models/SummaryInfo.cs": "3a0427a8ae3d6d324d62f47e0d658aec0589c9335f307a5227505fe47956e0b8",
+    "Toucan.Core/Models/SummaryItem.cs": "18ee46846045e93100f8d2bd2fb800ae9b9f06fb56380c355ffd9691f4eb5c0f",
+    "Toucan.Core/Models/TmEntry.cs": "79ac059afa8c2d3faaa08937b6a1d25fb26d983af5e4d96893bc383271e5b098",
+    "Toucan.Core/Models/TranslationBaseline.cs": "09bb47bcf4f05e8dff4336c9ed79b51feec1c6c61f71b4f29e857bfb2a03b03f",
+    "Toucan.Core/Options/AiSettings.cs": "a2ab2748f209cf0adf2ed5f90ca9ac164b7c4ed4dd0aacc2547403c147215d35",
+    "Toucan.Core/Options/AppOptions.cs": "be8e9217f26de12329c970b5408d55ecc83ef103d14a2907acb46dd2141819a5",
+    "Toucan.Core/Options/ProjectDefaults.cs": "e9d016d101c480445874c32219cd87fce127918fb08cb1620c884d45a69fcd3c",
+    "Toucan.Core/Options/ValidationRuleConfig.cs": "b670226911e728226e7833115b49e6ab99dea57d3f27c866f19eaec91a508929",
+    "Toucan.Core/Plugins/PluginActivationService.cs": "e1906a79079998fe470f82d6cd8db50ac14a92085fb349cbd39071ae7731eb37",
+    "Toucan.Core/Plugins/PluginCompatibility.cs": "21404f9f5579bf5fb7d197a396b5ec8067950b6dc6c33169d776f2132c0e8b8e",
+    "Toucan.Core/Plugins/PluginContext.cs": "1f973b563ba3b0859537503fe7cf73c7dd351c86062aa9f0618151f1b1898adf",
+    "Toucan.Core/Plugins/PluginHost.cs": "09093088e95d890196d1d1b3149b59aebc3bc49954391886d29660d73372112e",
+    "Toucan.Core/Plugins/PluginHostOptions.cs": "09f154712f6dfa587e34ff50bd409f85be9f3fe95491182178a2fcc1cd369515",
+    "Toucan.Core/Plugins/PluginLoadContext.cs": "396df9869e2f61675b6ec9c8868ede16c7a37ba88d95f9cf5d07b081c99f61f2",
+    "Toucan.Core/Plugins/PluginLoadResult.cs": "e286046f4663393c3a2e6498027c78ae7f282bd01806218782b3ff77f95eab2d",
+    "Toucan.Core/Plugins/PluginTrust.cs": "97c3155137198bbac75ce4045798beaeb2e9ba1ca2973f4ba0598f5c393a3305",
+    "Toucan.Core/Plugins/Services/BackgroundOperations.cs": "07cfb31ce4270e95cae392aeec1e36e3905caf878cae2fd705f1459fc84498a5",
+    "Toucan.Core/Plugins/Services/Diagnostics.cs": "8aa2b581c0f565fc3cff0a1aff6d7cf824b2b6ddad1c3582cd2389420fac535b",
+    "Toucan.Core/Plugins/Services/FrameworkConfiguration.cs": "61fb0a46f72b00425f5ef57e055c790d121d95c50544f9df06bb46aa52c8df1e",
+    "Toucan.Core/Plugins/Services/Notifications.cs": "bcbfbd4de06274a24f2b868134ac0f7b820fcf81d1bbfdd77125b125274cbd9d",
+    "Toucan.Core/Plugins/Services/PluginConfiguration.cs": "a93c815e17c9302790a85318122f66c5895bfc8e9ecdf4ef40ea41c9eae64b55",
+    "Toucan.Core/Plugins/Services/PluginSecrets.cs": "c9998d6560b7919bde2924526883b612905db9f1876fa093347e01dd7a491472",
+    "Toucan.Core/Plugins/Services/PluginServices.cs": "4cfcf571299b7f1e02cf4d8f10152185873271f96e8f7d3c459e1c8c5133a900",
+    "Toucan.Core/Plugins/Services/PluginStorage.cs": "5b855c35768440cbe9c2c1a456e65e0325a7e1b509b6b25b195e769e1d5f11b8",
+    "Toucan.Core/Plugins/Services/PluginWorkspaceApi.cs": "d8c82a0a27d2a1a5b30b3260ecda1bc8f4bf38919c692ab30678327104bb7952",
+    "Toucan.Core/Plugins/Services/WorkspaceEditPlanner.cs": "0bc2f496bb8ee7f55d74d2b47cb968dc8bf0edfea685d26bc56febdd4ac356a1",
+    "Toucan.Core/RtlHelper.cs": "72a3f1c88aa42cb3fe7386e7853537cd15f3b5f3c6b2f347ae57df1c90cdbfe1",
+    "Toucan.Core/Services/Ai/AiReviewRunner.cs": "637c8a4e76b968e376831937e7fe06cb9c9cec0d6191907ba884d97e9926f385",
+    "Toucan.Core/Services/Ai/AiService.cs": "0c598a031ba45cdc3cb774045306edc74e2a4df57607cf78bef1b6bb2c23b2d2",
+    "Toucan.Core/Services/Ai/AiSettingsStore.cs": "929141f59feb21af1951f30cbee6a482a6fd2c78fe55556663a8d33b2abd4205",
+    "Toucan.Core/Services/Ai/BuiltInAiFeatures.cs": "6f6bde9b1305c2259a3a0869cb4a92a5151d248c7408eed203d9773cbee77a91",
+    "Toucan.Core/Services/Ai/LegacyAiMigration.cs": "d02fcef183f031f6b94e3ce063c78640097560964983ccbfe0b733c7a3b24d42",
+    "Toucan.Core/Services/Ai/PromptLibrary.cs": "388349591748c7c1b617f86a5ad90ddd345b67d0c41e96c77c60f5ef3eb2f2a1",
+    "Toucan.Core/Services/Ai/PromptTemplate.cs": "9c072bad116f53f6bcce0edf284938ce942f00931ac7b33497354c717306d41a",
+    "Toucan.Core/Services/ArbPlaceholderMetadata.cs": "bf3848e8d40f559d18344a7080d02f41b49a5e70d6b843ec20633cd08b8ac271",
+    "Toucan.Core/Services/AsyncEnumerableExtensions.cs": "be601d24fc3e7b4235f7d1cc476d1048f5a1a6ad0b7675527855b5840d8dded6",
+    "Toucan.Core/Services/AuditService.cs": "0314c85af1e8d75b267a6f6bcaecb90ed1711a027d7f6d3c0c97703c946796f1",
+    "Toucan.Core/Services/AutoSaveService.cs": "52c89712f06a19ab0e19798e8e00d17c73922af77534fa7a531c638c44138c86",
+    "Toucan.Core/Services/BulkActionService.cs": "130caedad6e1ba4ddec80fc29bff159a6df7ccc4cc5ad96e4b41259b7f6d8d5c",
+    "Toucan.Core/Services/BulkOperationService.cs": "37677a3f274ebe601ba317d87fa00bf9848b9b0743d159779f4fa28a4be07c65",
+    "Toucan.Core/Services/CommentPersistenceService.cs": "922b9563bdf00e61d32c4d28cf01fd530073aa61bd797d9d7e689f51df34e3f7",
+    "Toucan.Core/Services/DictionaryRegistry.cs": "99e188d78415f1c0e065a0493aa324622c087baea802c4fdd5d523e5e80976ca",
+    "Toucan.Core/Services/DiffMergeEngine.cs": "c061bc68123e4836747a6345574a73eca7f3688b9ae23d38b8cac97ad82a4caa",
+    "Toucan.Core/Services/EffectiveSettingsResolver.cs": "d0b57a7d8d712d8c4f729195a5c5fb453bce05c2ba3f9cc66bcd668e2aaf3e85",
+    "Toucan.Core/Services/ExcelService.cs": "454bc180bd916a2a8a5f252668901ddcd2cd639e3acc864e47884d08141e9ea4",
+    "Toucan.Core/Services/FormatDetector.cs": "9e55d72c2d391094c9fea7c3268d8a02c64fd3c05bfc82d8d3a5fb49ed49fde5",
+    "Toucan.Core/Services/FuzzySearchService.cs": "52848a3796bb437398316264e4d5702e2a1857f72ca3a05611acafb40dd3ef40",
+    "Toucan.Core/Services/GenderService.cs": "9c951b5085764e9b0c51bd92d3acec60e5bfbe96918aa5e1a5572e0c86b04189",
+    "Toucan.Core/Services/GenericSourceScanner.cs": "31b63d4366e9084f8ca4bed1895c8d86d11ae47a0cfd494c977a942dd11449c3",
+    "Toucan.Core/Services/LanguageManagementService.cs": "40584dfe146aead9891261236ec5dac9af9e840b1b098c8bcaa1c490fd0e996b",
+    "Toucan.Core/Services/LanguageService.cs": "765d0acc2077aa0388010c8279a6247c0e75d226c236477215f213e19ddf4471",
+    "Toucan.Core/Services/LegacySpreadsheetBridge.cs": "aa6bbbf95ba623526b1a0ede5b683e034eac739be6e3ad8709cf7cfa94e7d1b6",
+    "Toucan.Core/Services/PackageService.cs": "9521ec90a2669468fc4c741930a92b35c694844f7a4fece5b2294c9feda85d71",
+    "Toucan.Core/Services/PlaceholderService.cs": "7566329e4cc621bcaf7a70782c562378b9976deeff4322ed4e26a774d1f24083",
+    "Toucan.Core/Services/PluralService.cs": "522ce324660524b8f9379021d022e3f5d0e29531dba62a71898e7cef9efe5ed8",
+    "Toucan.Core/Services/PreferredLanguageDetector.cs": "487d4c6d475a02c78ab764e6ff9d70b1cc0fb264d8097b0a9e9abb66bbdd57aa",
+    "Toucan.Core/Services/PretranslationService.cs": "aec64b07fa3fb407c24e288ca1032f295146313a6a7d19710bf5e32b0c8256f1",
+    "Toucan.Core/Services/ProjectConfiguration.cs": "9ff28c26575bdcff3105a073f6a5d0b7ba803e23cdfd87702210a9cf8c289f15",
+    "Toucan.Core/Services/ProjectDefaultsService.cs": "eb060ffece7e1500ac0a5e19b22e13d77c8fb206cc80215878eb320b7f350498",
+    "Toucan.Core/Services/ProjectLifecycleService.ExternalChanges.cs": "e51ef6015b9f7f03374fedd328d10c26c6b66c7f48a1997d37a3c4ec41d14a4f",
+    "Toucan.Core/Services/ProjectLifecycleService.Recovery.cs": "93f7ff0ff539a19abfdbad8a7fc2a130f2e5aa810dc22a120e68183221d43e53",
+    "Toucan.Core/Services/ProjectLifecycleService.cs": "9499a5d3b83bf8ceba88a8aebafb98ff2901f497f1f3a2b33384fea8dcc3e455",
+    "Toucan.Core/Services/ProjectModeResolver.cs": "d5c4b13eab7f9f7d78e9d7db0866a3afcaed12d5ce3a0208c7053d6ee00a2860",
+    "Toucan.Core/Services/ProjectService.cs": "465359447c78ed8e78f6cd4ff1ae5ca13678397c8caec710acf166d314a7ebee",
+    "Toucan.Core/Services/ProjectTextFormat.cs": "68626e2c1f06ae21b9cb8c0a3eef5fa8708bdf310651eed3c3ed9eebafcb80cc",
+    "Toucan.Core/Services/RecoveryDraftService.cs": "acb6d12c4de4251b1c40e833081489486f0f146317976e62bc792b1f6b9f0992",
+    "Toucan.Core/Services/ResourceConfigurationPlanner.cs": "be0f078c7318d82030f627a41a6b7d8fedfb24fdc9d800959239b3660d334031",
+    "Toucan.Core/Services/ResourceStrategyExtensions.cs": "9431e1556d357e596a8aa04e5442de4f50d392ebe03e5d01225f6ecdbf359726",
+    "Toucan.Core/Services/SaveTransaction.cs": "bd7692f2894c60f1618b7d0d72f9e0aeeb54c4e99f023b089e14271da8231473",
+    "Toucan.Core/Services/SearchAndReplaceService.cs": "0e47e52361267f6a8b72a8f9799e9ba15ce26a8c554022c26e7d501f4b23541b",
+    "Toucan.Core/Services/SecretService.cs": "a86e91168a29e392760bca207cf1d003ad2ae527031721c57ad817a9e8c86679",
+    "Toucan.Core/Services/SecureStorageService.cs": "4bd684768ec09af28c9a50f77e1aede6a0bb2b8ffe611dcd2e6ca0890898632f",
+    "Toucan.Core/Services/SidePanelRegistry.cs": "5260dd636edbe98d02e266a5184d7e19efe20d965754dc64349a912f81c6052a",
+    "Toucan.Core/Services/SourceClarityService.cs": "8c6493d1bea8298212050b21d0a4b21920c6f0902c9384e7ccffd8cbb730b1e6",
+    "Toucan.Core/Services/SourceCodeService.cs": "e0ce3e88bb304004f9e8c28f8e66e1de72a1e4bafe363bdaed09b757c8f5bd2d",
+    "Toucan.Core/Services/SpellingService.cs": "1f091ca5c52a2905395206cb1fcdd5d3209657e3293cef04198346b275173baa",
+    "Toucan.Core/Services/SpellingText.cs": "b57b045421614454daf564148483040ebe91f54e42573686eacfe5ae3901ac8e",
+    "Toucan.Core/Services/SpreadsheetPlanner.cs": "79b25b34de5cc27cdb916ae7784f43f3450682afc144a519828871e89a2c7b8b",
+    "Toucan.Core/Services/StatusBarPanelRegistry.cs": "c603fe128caa2571258dc23e38a1d951aa9ddf7873a1d4761feb2f782842d71c",
+    "Toucan.Core/Services/TmxService.cs": "2d5ffae7f7c5521fcf763aba9a6a5116222d13302eb11856024398333d993b57",
+    "Toucan.Core/Services/TranslationAnalyzerService.cs": "450290722539a0cb314546904c1f7cb0fa6409eeac2060e2965573b9580902ec",
+    "Toucan.Core/Services/TranslationManagementService.cs": "6e23c4b19010b888eaa0fd4e2352c9a3eb125228de7c970f007c3abf6f23a9d3",
+    "Toucan.Core/Services/TranslationMemoryService.cs": "de096e3d595395e41efa7808a6d4cfd9fae5d4e64f7b2d5062aeb6d4da1e0e5d",
+    "Toucan.Core/Services/TranslationPostProcessor.cs": "6089bde035c0825c9621435035bfcb97e65dd85830b8dfd3a71cee1fc79ae7d2",
+    "Toucan.Core/Services/TranslationProviderRegistry.cs": "1a51e27b2e062de2f37d91cc31560bb3eba4548371827e84e19de9c68526dd17",
+    "Toucan.Core/Services/TranslationStrategyFactory.cs": "f4d163ace5985018128a88e0e1bc09ca6694d1b18410fd88cac946c4ac62d459",
+    "Toucan.Core/Services/Validation/CustomValidationRule.cs": "22fb04c8d94aa10db6bf864322319f4b494dcc9a143d12758ec4d55c84766b99",
+    "Toucan.Core/Services/Validation/ValidationPipeline.cs": "64ca16425c046477a8a97c851c77cea37aae03896b2ef3f88cde81eaf558c0b5",
+    "Toucan.Core/Toucan.Core.csproj": "88c7274249e38a63026f83c338341e7212226402183bac604eb5ae61ff7d2a3f",
+    "Toucan.Core/ToucanCoreServiceCollectionExtensions.cs": "819256fd7214c54b9f23fa6711434e4c8320fb5a4f1762aabfa337a91059dcba",
+    "Toucan.Modules.Compatibility.BabelEdit/BabelEditCompatibilityModule.cs": "646b00670d6283de865e986b2d7bd07cc9b6c08ff2a6d1059ee2d20009caedca",
+    "Toucan.Modules.Compatibility.BabelEdit/BabelProjectReader.cs": "a614e976d21a90e32de1b3ffe98df235eb58f95549249189af3f1e6645aac799",
+    "Toucan.Modules.Compatibility.BabelEdit/BabelSpreadsheetDialect.cs": "714dc0fc99bf9b357fdd880cf8a2fb49fe12db32e0080329bae301e07e8f44b3",
+    "Toucan.Modules.Compatibility.BabelEdit/ImportedProjectMetadata.cs": "07087b55d190be8ce5304d64971594f7547fc5e4af49b8e377116bee68486ad5",
+    "Toucan.Modules.Compatibility.BabelEdit/Toucan.Modules.Compatibility.BabelEdit.csproj": "de5f42bccd9c867d7a1c90394f5ca4853e03e0b38291f9aee95ad2b5de3f26fb",
+    "Toucan.Modules.Defaults/Toucan.Modules.Defaults.csproj": "4519c55c8a454ca8c3627b8d9bf958f2006dff5ddd1a98d676267800d300b9ea",
+    "Toucan.Modules.Defaults/ToucanDefaults.cs": "0ff0b3ba3e4c8bdbd2f0b7f56826869b9a3ec7ffaa234a28db02e47f87c38ce5",
+    "Toucan.Modules.Formats.Data/FormatsDataModule.cs": "1a890a0eeded937f8a6ff9cb8557fbe1d6ea0664751a5d489b607bfb7544f565",
+    "Toucan.Modules.Formats.Data/TomlLoadStrategy.cs": "53722fe11924189bd83ac524c40819e64dc5548cbae72d1dc78769b68f9f1f7f",
+    "Toucan.Modules.Formats.Data/TomlSaveStrategy.cs": "03db12bf6396a870b1858ca0b71cebbc284764122934f6923ba2b87352c94043",
+    "Toucan.Modules.Formats.Data/Toucan.Modules.Formats.Data.csproj": "4d6fa159e204b994699c19ca7b0b679b901f9a35654ded74b78efb6de7a25af1",
+    "Toucan.Modules.Formats.Data/YamlDocumentCodec.cs": "e4df6e4177b55be0cc33a55a679d3380572d7a411edfc4f1c9d73b2437c49504",
+    "Toucan.Modules.Formats.Data/YamlLoadStrategy.cs": "2ffac3682c5403d17d8598b07a47fd6a3fb64994730058fcea1e7a8763d9a62a",
+    "Toucan.Modules.Formats.Data/YamlSaveStrategy.cs": "ef7756feb0e2c8ddf7bafc07561b8aedc4c9cb6686c70c1f4195c63ef59c5010",
+    "Toucan.Modules.Formats.Json/ArbLoadStrategy.cs": "835cb98a5be5324aab7b98967d27b7fe2a40ea7658a7b2f45f3822a5ebd7be75",
+    "Toucan.Modules.Formats.Json/ArbSaveStrategy.cs": "a313a01954d2a29ea02ac852ed51bd3390d41a4bf5903621faec6ee591ccb338",
+    "Toucan.Modules.Formats.Json/FormatJsStrategy.cs": "ba887c97659106a2934fbb7219bb96eeffa3ea6073acd8ce5f0e65e53563816a",
+    "Toucan.Modules.Formats.Json/FormatJsTarget.cs": "27c60ee3e0b258c64c7bbbbbd99a992bd9afa3c8ac7a4042d76714214f4f4f49",
+    "Toucan.Modules.Formats.Json/FormatsJsonModule.cs": "fd1833e6beeb2ea12ea31c9f26bbbebdf25aaf6c45371f6343ab401c3d428bb5",
+    "Toucan.Modules.Formats.Json/JsonLoadStrategy.cs": "322f0147ec1734dc1cb51ebe992145ba2160b09ecd61190f14bf980eea87f710",
+    "Toucan.Modules.Formats.Json/JsonSaveStrategy.cs": "7b02e25df912817791a736c6cc265a4eee47058f095f3b4bfec885797d9bf805",
+    "Toucan.Modules.Formats.Json/ManifestLoadStrategy.cs": "8106a925b346b8b4d928880a1bb3caccf77f9c54d957713effce3c4065d949d1",
+    "Toucan.Modules.Formats.Json/NamespacedLoadStrategy.cs": "71b42609a0fb4684b721b1cf1c399e904a3b4baee23c7bd89ba3b1c42ed1cc8a",
+    "Toucan.Modules.Formats.Json/NamespacedSaveStrategy.cs": "22a9252d64136e4cc31b8a6de1642d1cb3b6f03b796a410ed9de9d761ad83db9",
+    "Toucan.Modules.Formats.Json/Toucan.Modules.Formats.Json.csproj": "ab51dec816b378e7259ee6f00c3d999f988b6c3b2eb89f28cce3b537e89de46a",
+    "Toucan.Modules.Formats.Text/CsvLoadStrategy.cs": "86eb205c2a8d9af9c571a32fed9000777c14fe8065c35a2fe4bd315b0ad33920",
+    "Toucan.Modules.Formats.Text/CsvSaveStrategy.cs": "58d286ce37e2477b033359d836e310bc56859eb2fb5e27dd3189cb0d7553be35",
+    "Toucan.Modules.Formats.Text/FormatsTextModule.cs": "22ef08e63eee948bec18635571c0825a79a7c63503feb1500c0c2ce14d5bb6f4",
+    "Toucan.Modules.Formats.Text/IniSaveStrategy.cs": "a87face2b75e3010416f6a2ef68c692942e8a87ff29a5bfc5651fa4942c2d50e",
+    "Toucan.Modules.Formats.Text/IosStringsLoadStrategy.cs": "1b7445c10e1e0429b73253dc728e1d1a2863569b37e19c9a69116f0ea24afd2e",
+    "Toucan.Modules.Formats.Text/IosStringsSaveStrategy.cs": "b561366ab9716fff546df66a44a2272918c2a63fff3152385e56134074f4cee1",
+    "Toucan.Modules.Formats.Text/JavaPropertiesLoadStrategy.cs": "f7e4cf446cac12fb57415fc7f4f984e5bc1cfc46e18894caecce78850753c740",
+    "Toucan.Modules.Formats.Text/JavaPropertiesSaveStrategy.cs": "4baec80675ed41f13260b2b27835d870cc7e96805240c323de74119a80ccba88",
+    "Toucan.Modules.Formats.Text/LaravelPhpLoadStrategy.cs": "76f7f6d95c24f26826859094ef44275025cce35fb9288cc20eaacd1f8fe85780",
+    "Toucan.Modules.Formats.Text/LaravelPhpSaveStrategy.cs": "fddac5cb80bbc462d4d1049cf0c7ff5f4bdfb100441f52da24456de5dadb2245",
+    "Toucan.Modules.Formats.Text/PoLoadStrategy.cs": "6b8cb0727ca452c508a8b5c21365499618948c6aac30df2993c7fd9d55befdd8",
+    "Toucan.Modules.Formats.Text/PoSaveStrategy.cs": "1971191c96e05800e095504376a81b8461e290b14bf69fa719b4f2dd90fa920f",
+    "Toucan.Modules.Formats.Text/PropertiesDocumentCodec.cs": "4a9d752cd86a708a96db0e30f88d180da40c98a91451f878314b7835fcf9eeb9",
+    "Toucan.Modules.Formats.Text/Toucan.Modules.Formats.Text.csproj": "461366e7cf6c061813a13e74969a47e8e35b5a8ec00e6a6605b9eab655fd1e75",
+    "Toucan.Modules.Formats.Xml/AndroidXmlLoadStrategy.cs": "4df56699a748f8a3c823644fcc068903e7e8734292c8685d02ee613291c6d537",
+    "Toucan.Modules.Formats.Xml/AndroidXmlSaveStrategy.cs": "a39ad9319cc7f424e965cc14a66925e6a8a91157d16a3c1375957b101fe0b41d",
+    "Toucan.Modules.Formats.Xml/FormatsXmlModule.cs": "df6b8b3f09fb57dfb3b26e4b328844aab466a821b73865cf5e879cd516e77bdf",
+    "Toucan.Modules.Formats.Xml/ResxLoadStrategy.cs": "f6e1fe0cb18595af54f2a13a83de5f8b65d4eeff418d6d1a1fdf06012f9f780f",
+    "Toucan.Modules.Formats.Xml/ResxSaveStrategy.cs": "ded5a656f98f87f6d67d2296f3d865f70f8e6ddcd822f4f6c1285d95319c3631",
+    "Toucan.Modules.Formats.Xml/Toucan.Modules.Formats.Xml.csproj": "c0264a6f2966fd5cd54ecb92d287943d2e090e69348fe10bb9cd851e4efb9398",
+    "Toucan.Modules.Formats.Xml/XliffLoadStrategy.cs": "afb999aafb7e515d35383c4b593e217f36388fa03dc80f20746da61a7c1e1b02",
+    "Toucan.Modules.Formats.Xml/XliffSaveStrategy.cs": "e17c5d8555f0bca397a7042d0efee9e1a3904cff89205976aa451583a01b7d2c",
+    "Toucan.Modules.Formats.Xml/XmlFile.cs": "664fab62ceb7e5c30aa94c03b92259dfe1f227e5356bd904ca90272fad77d210",
+    "Toucan.Modules.Frameworks/AndroidProfile.cs": "d3c49a9ecff59e188c9332f3b44d1c54767ab1e25eddb18fa3b6d35fe565d188",
+    "Toucan.Modules.Frameworks/DotNetResxProfile.cs": "ecc6ebee6d22772c926470bd10874203405f405c59d8cd38a2fce4dd5b3d831c",
+    "Toucan.Modules.Frameworks/FlutterArbProfile.cs": "52f5842443b47cad312b904ebe34f3faf602e73192729fb38ee332f06b429676",
+    "Toucan.Modules.Frameworks/FrameworkSourceScanner.cs": "e62b06c7f8e94b9386171cb52cf2e2b093ffc7d8fc7ae04ab19e812078006858",
+    "Toucan.Modules.Frameworks/FrameworksModule.cs": "e2d72cda5b8c9cc6b35b8cd0e3b4cf87a2682c56337af8848ec3e1db62c621de",
+    "Toucan.Modules.Frameworks/GenericJsonProfile.cs": "d4e059aa73adc78426db72545b1472e91840624565b8ea4f3cbfde66c60ebcae",
+    "Toucan.Modules.Frameworks/GettextProfile.cs": "ca692610e9691ec524803f0b264cb50af615961c402cff3fc08974f0403c0681",
+    "Toucan.Modules.Frameworks/I18nextProfile.cs": "ee42f396d7034cde6831fa5fe4e1af08d92e99cd0ca7c1fb59e63ea1c3455bff",
+    "Toucan.Modules.Frameworks/IosProfile.cs": "4cb1d915b6910bd23988c83774fafa16ed17a749cff155af25b99fe0ae49a2d1",
+    "Toucan.Modules.Frameworks/RailsYamlProfile.cs": "8cf7c9ad02005248afa4b56137a963e062df985feadf7aacf1551b5b1af291cc",
+    "Toucan.Modules.Frameworks/ScriptFrameworkProfile.cs": "a1b66683e7749541ae85ff615cd3b8d38cce7124f2553467ca3d7de91b1d92d0",
+    "Toucan.Modules.Frameworks/Toucan.Modules.Frameworks.csproj": "40744380fde7e0c7656a5198552918b3b9b4b2f0dfb72bc7d5a59cbd708aba0f",
+    "Toucan.Modules.Providers/Ai/AnthropicAiBackend.cs": "cb63fca9ba9147d0d0d6bd11b358a58b2daec0dc4472bd14f86ac04882476ee9",
+    "Toucan.Modules.Providers/Ai/GeminiAiBackend.cs": "e6f3db305d0ef95f903c42523a7e12052d28a2b67f10f52f53868c7495f0fdf6",
+    "Toucan.Modules.Providers/Ai/HttpAiBackend.cs": "dc80aa00d62db41e2046eee57b5e8ed5e7830fe8202725e9a30c06799664cf3a",
+    "Toucan.Modules.Providers/Ai/OpenAiCompatibleBackend.cs": "dda4bfe46ddb9c127a80e099aa3c1832d947d92a776febca18e097452a770b04",
+    "Toucan.Modules.Providers/AiTranslationProvider.cs": "3873234e11c855de42278d5ad09be3eb0b8ce5e049debe9882b381a581f650bb",
+    "Toucan.Modules.Providers/CustomWebhookTranslationProvider.cs": "a3106a2d16a6df53ebc79919c42cd0333e48a2c68423c8384fda2d93bce54b37",
+    "Toucan.Modules.Providers/DeepLTranslationProvider.cs": "31ad5896771c13b639b8c1831d7d4918d5a12db63923bbbc4e44f755a31a7eb1",
+    "Toucan.Modules.Providers/GoogleTranslationProvider.cs": "6caf36a0fd635ed6fa96ebdc0631d642d8469d2528bc1920300f4659705a7964",
+    "Toucan.Modules.Providers/MicrosoftTranslationProvider.cs": "8c6b1b2d7a60b71e7b7cffeb53d8b69673329f7d817a81e96cb4f63b8e872e28",
+    "Toucan.Modules.Providers/MockTranslationProvider.cs": "9c48edf72289d203fcc63dde93b86cb3ad7605a2b42153cd0d4c966dfe92f357",
+    "Toucan.Modules.Providers/ProvidersModule.cs": "34fff462fb9af116d474bac0d47625e929df1d731d3efce3568f8a5fc7f25a57",
+    "Toucan.Modules.Providers/Toucan.Modules.Providers.csproj": "d4d1ba41bb1a57b474ca2ac0709fabda727c41f7410e6e1aec4d78159c4f1d46",
+    "Toucan.Modules.Validation/Toucan.Modules.Validation.csproj": "fc0355cf5ad7d0342d7ee500953c18c039b8cee918a332620ced93d37f8b22d1",
+    "Toucan.Modules.Validation/ValidationModule.cs": "17d1c34b937a05bc33e99d2b4ab3e3a2c9b8ea2a2475862b1fa2eb84cae709c6",
+    "Toucan.Modules.Validation/ValidationRules.cs": "e1f5f2ba3f1b7e845cfa598b1ed63f055d7b84d7b59ab7cc81b93bf5f3e86dc8",
+    "Toucan.Plugins.Abstractions/Contracts/IAiBackend.cs": "dec2e732e454c658b1bbc612b01dfd99cef8fde5abe39a797eda2ba4eda67844",
+    "Toucan.Plugins.Abstractions/Contracts/IAiService.cs": "cab00f22a0bcb47717eee3df33ab1c7f43f087215f1c6e863d47108a464cb283",
+    "Toucan.Plugins.Abstractions/Contracts/IFrameworkFeatures.cs": "fba21871d670b24f12696765ae22bf91d022560f4e11f95c74c53df09392773c",
+    "Toucan.Plugins.Abstractions/Contracts/IFrameworkProfile.cs": "b073642205a8ce49a4a07cfed4a1d37147e0d077bb22fb66ba45e9dcda247654",
+    "Toucan.Plugins.Abstractions/Contracts/ILoadStrategy.cs": "a6f6375fbc7b7a394c7137e2d9340ccbea8f3865a0a74518a496f4f727e83321",
+    "Toucan.Plugins.Abstractions/Contracts/IProjectCompatibilityImporter.cs": "616333a7527db65b02e30addd5d2c9d7f26710e779ed4d51a966f34b9e92bc77",
+    "Toucan.Plugins.Abstractions/Contracts/IResourceOptionsProvider.cs": "3d4d11327f75fe9503e86fd0c4a1319a54494c1ac70a66852180595225affb35",
+    "Toucan.Plugins.Abstractions/Contracts/IResourceStrategy.cs": "839e7c1d75591035219d8cac0ec060d17b41b8d528287b9699caf2a049d4f329",
+    "Toucan.Plugins.Abstractions/Contracts/ISaveStrategy.cs": "5c59e950c9c616ecedcf3015a209af1f77e0034029113278ffe0f4d335dc3a16",
+    "Toucan.Plugins.Abstractions/Contracts/ISourceScanner.cs": "5666edae05d0ca41cd7cc2dd0f6f8ae73a929d152f569ffebb217017f8777144",
+    "Toucan.Plugins.Abstractions/Contracts/ITranslationProvider.cs": "72769673ef9e15082816b5478d2e3a98a2a99cc98dc1ab32059452bb07c93fb2",
+    "Toucan.Plugins.Abstractions/Contracts/IValidationRule.cs": "492631e0b39e57f71fe696e6ac76038ba28832dbbade3c9f84711d1054be94de",
+    "Toucan.Plugins.Abstractions/Extensions/LanguageSettingExtensions.cs": "08f13e9b5322872c3a42f467e43de116e412fba9ffe8d9e27fea204965b1d46b",
+    "Toucan.Plugins.Abstractions/Models/AiModels.cs": "5bc9c46bebb19410e96757937a3cc95914f220fd3648fcd552752de82e6c53eb",
+    "Toucan.Plugins.Abstractions/Models/ChangeType.cs": "0e4da7dbf10aba54d3633e91e6b73aade9b35add31b2c08757256f214d30363e",
+    "Toucan.Plugins.Abstractions/Models/CompatibilityProject.cs": "aed6dc4467fea6d2c138b568dae6115e4527022b60003f8c51e9d6400292f9f3",
+    "Toucan.Plugins.Abstractions/Models/FormatDetection.cs": "bf6377c2fd0b3398a214ecca7ca95462f9c6938fd4f6a3671db5f50183ae3fac",
+    "Toucan.Plugins.Abstractions/Models/FormatIds.cs": "59ca0d1c3f1bf61774c6dfe2aa3e73f173d4c5386cdbd83cc192c0b849c56b0b",
+    "Toucan.Plugins.Abstractions/Models/FormatSupport.cs": "07f50049cf966a68b3caf3d32c3fac40b25048d212a5ae9189edf7d4d0697280",
+    "Toucan.Plugins.Abstractions/Models/FrameworkOptions.cs": "2100d5d1d980eb185a916d03c563bbe14fd26eb78c262edc3f451e07e191c615",
+    "Toucan.Plugins.Abstractions/Models/NsTreeItem.cs": "00baadf454b858c31defefeb97ea7119e18aeb865e8f76a3a7400adc46b23fdf",
+    "Toucan.Plugins.Abstractions/Models/PretranslationJob.cs": "b72ed6344ca29ab2e05422f2382d665afaf1bac4f875e56afdd4ae5a19e07f3b",
+    "Toucan.Plugins.Abstractions/Models/PretranslationOptions.cs": "640cc98582e402462ec95ef095ca0d47c03937dc1945721a9ee49d3c54528871",
+    "Toucan.Plugins.Abstractions/Models/PretranslationProgress.cs": "dcd07460098134a70172d7367f8df87ca8a6bca2510daf39017115c4228e07d2",
+    "Toucan.Plugins.Abstractions/Models/PretranslationResult.cs": "c8ca1dff2f0f7ebdda0535adad77e44a4569af997b2d77dc2919f9b53540d291",
+    "Toucan.Plugins.Abstractions/Models/ProviderDefinition.cs": "8a87e9efb5865a84d447ef9e0cbe8ec04ee85a0d35c2b24773adfe7bb6b28b51",
+    "Toucan.Plugins.Abstractions/Models/ResourceDocument.cs": "32d6025349dec78fda0fcf5a1e4be3265120ecae6afabbd4e718e8feeaa7198c",
+    "Toucan.Plugins.Abstractions/Models/ResourceIdentity.cs": "5bdc3cd839e78b38ad53b3ac8a0375f2176936fe436e9b3bf7cb3f07da573471",
+    "Toucan.Plugins.Abstractions/Models/SaveContext.cs": "299a8639d1d098199fb50c99339a9800c5ddeaa3ad5d444dd41777653b23221c",
+    "Toucan.Plugins.Abstractions/Models/SaveStyle.cs": "25e9c588ed788199b6f6d28e45905afb0a18f1a356693f88efd161670cd6c933",
+    "Toucan.Plugins.Abstractions/Models/SpreadsheetDialect.cs": "2a35190d34038244486d09af6d24387982678df1f1e5762b3e2b287930e1db76",
+    "Toucan.Plugins.Abstractions/Models/TranslationItem.cs": "1bbd16b84ba9a6630da2a2b525d53293032733bbbcc43f181a17b1778b4807d3",
+    "Toucan.Plugins.Abstractions/Models/TranslationPackage.cs": "d4bf1f255a864e30dc7bc681252b7067bec6d200409dcf53d9eb88be7a27ab5d",
+    "Toucan.Plugins.Abstractions/Plugin/Commands.cs": "caed25df295362bac1645a5fb51964245cccfe41fb9923a141d7ffb83ad94927",
+    "Toucan.Plugins.Abstractions/Plugin/IPluginContext.cs": "a3d9ae20ede18c1b44712d279b39aa44a0544b3f0e2018085bcda3ac4ada6e22",
+    "Toucan.Plugins.Abstractions/Plugin/IToucanPlugin.cs": "0f1c2ff6322bb0b40bc20f98e48d3fd591f38ca8946b276eac7f030a99e26067",
+    "Toucan.Plugins.Abstractions/Plugin/LocalizedText.cs": "a8f1db62e387f5bb62020796aadc96c5be5291097acbadfb570488339ebef5e0",
+    "Toucan.Plugins.Abstractions/Plugin/PluginActivation.cs": "3f20224059b5df5b4b165ec30173ebdf53858e7e82ff5218777e17f84f8a8256",
+    "Toucan.Plugins.Abstractions/Plugin/PluginApi.cs": "981e9f38f1db3911201cb4da6ea92911ae73675ca89eb03d5e7da4def1b44eb1",
+    "Toucan.Plugins.Abstractions/Plugin/PluginManifest.cs": "0df30d89a9417309e3ffd76cc1ecfcc269e919c5fdc08cc749e2b005557e294d",
+    "Toucan.Plugins.Abstractions/Plugin/Services.cs": "5a6509c7178fa4822404432095cff2cbfd5b46fbdd471f9767ffbc9f55be7798",
+    "Toucan.Plugins.Abstractions/Plugin/Workspace.cs": "e6f9ec4ca8ac770a1d1173c654d869c58614ce5927063526dbe4d2c5c5401e3e",
+    "Toucan.Plugins.Abstractions/Toucan.Plugins.Abstractions.csproj": "ed6ba062fb0f48de8f473a4385ce2848aef1287aef245f5a0ec4dd88a9b36ae4",
+    "Toucan.Plugins.Avalonia/Contexts.cs": "fd485735b34811201355006436d4383a42c3d46651ad58e4b84715ccecdd6cfe",
+    "Toucan.Plugins.Avalonia/Contributions.cs": "af9cd054bec9c78c9fe712d0c43f4fed69924ab59bcf2f8bc86e6f020e7deef2",
+    "Toucan.Plugins.Avalonia/DesktopContract.cs": "22ab431f6e76fea529e839f27e7e485d5f23e4cc62bef0ca08937d21ae01c23d",
+    "Toucan.Plugins.Avalonia/Toucan.Plugins.Avalonia.csproj": "f0fd1c9ed624f4c798967b5c66c275e5ed3083d3463642bc9ea7c0d1ecf76b05",
+    "Toucan.Plugins.Testing/InMemoryServices.cs": "8ab40304e6726154157c059e470e303454c90785cb84d4b0fb7d6d8010ee293b",
+    "Toucan.Plugins.Testing/InMemoryWorkspace.cs": "024776b8bba9150f2585b0784d9c04ad50ff96ce49e4af8dceb06dabef55e3b3",
+    "Toucan.Plugins.Testing/PluginTestHost.cs": "b753eb9cfd25db5de0c9a0219b2579355e3b3b8d1f243b5fd8e7668a2241e30b",
+    "Toucan.Plugins.Testing/Toucan.Plugins.Testing.csproj": "5601c7e07261cab4ed98d619b74fff071bb3ee52adafdb20a6e548249d8a40d7",
+    "packaging/Build-Msix.ps1": "fda2a17104d92cbfe27dfff3b10c57b7093a792fd75abe9644ae68f43d1a7109",
+    "packaging/build-macos-app.sh": "f9ba53231c010eeb82d4cd0bfc14e37035ff37344753ccc57d8a16bffa8bab59",
+    "tests/Plugins/Toucan.TestPlugins/TestPlugins.cs": "04e77a0df4c45958b0d4fa5b1dac686a8e6150f4c4675d06287b4fdd4af31324",
+    "tests/Plugins/Toucan.TestPlugins/Toucan.TestPlugins.csproj": "199e25715dace8449787dac0b88b127e5bfef32f6f4003256858110428b63e80",
+    "tests/Toucan.Avalonia.Tests/AiIntegrationUiTests.cs": "074b68dbcbaccb3ba490a712b37cbf88a071ec3fceac2d326f2b16a3170c7c43",
+    "tests/Toucan.Avalonia.Tests/AppSmokeTests.cs": "db85a309d1282e445004d3375cb38f2e59e906ada2a01ade895e4a7b7c049c47",
+    "tests/Toucan.Avalonia.Tests/AppearanceAndUpdateTests.cs": "f36c22d834f0270055fea9b2d80f3796dac7eae698af48af2967363f36170408",
+    "tests/Toucan.Avalonia.Tests/BabelImportFlowTests.cs": "2205ea8867beadc1fce58de5060853b65da0ece70b16648c5d534bc6b3490bef",
+    "tests/Toucan.Avalonia.Tests/BuiltInModulesPageTests.cs": "026ea4039ee645960d1d2ae1fce5a63ed94fece2565ea5e125bdca7db89ebf28",
+    "tests/Toucan.Avalonia.Tests/ColorInputTests.cs": "8eadbae31ecc95e04062e5226324d39df2f6156b5e00d2b0e0d97229ca9ef6b9",
+    "tests/Toucan.Avalonia.Tests/CommandPaletteTests.cs": "8c7606c539aa5b9d5402b9d6ec33d7b15f9213f90006ee384ab438a08e62c46f",
+    "tests/Toucan.Avalonia.Tests/DesktopPluginTests.cs": "fc1813f9654bbd6b04c3a5f0734fc6ad7ceb07cce645fb06a6a77fd285eef02c",
+    "tests/Toucan.Avalonia.Tests/DesktopServicesTests.cs": "63207868a03d57ba389516eef03f72b088d760ff2bd0cc45372b21e14c9fc5f0",
+    "tests/Toucan.Avalonia.Tests/DialogSurfaceTests.cs": "1ba5fd70803857c814eb9ae17c2d7bb7f8c7af142dc81bc7784c62f4561b0f89",
+    "tests/Toucan.Avalonia.Tests/EditableTableTests.cs": "f2c6fb405d44f28a58cfde9223e1305cb64da912773a84997dc536779c173744",
+    "tests/Toucan.Avalonia.Tests/EditorPolishTests.cs": "9890f8df9964d0f3fc6e61f5d16b533cced0135a1ad7d07eb43261eba3e84db2",
+    "tests/Toucan.Avalonia.Tests/ExplorerContextMenuTests.cs": "5dfa1901fbca7d620f1186c7007c8303485772d94bee57813e4c8f85f58125ae",
+    "tests/Toucan.Avalonia.Tests/FrameworkIntegrationFlowTests.cs": "9b976d7e6cc41abe59458ca207c9d2edae51fddcc50daad5faba9281e229c546",
+    "tests/Toucan.Avalonia.Tests/GhostTextTests.cs": "ff6e61d2b42c7c79a52fa8f9be8c7d41428325ce55147dd2dfd6ef564e8b1d60",
+    "tests/Toucan.Avalonia.Tests/IntegrationAndTranslationPanelTests.cs": "001e7b9e0bd0ae23fbf4f34e20046582ad94a46c51cc17726d1a4d14f43c79c2",
+    "tests/Toucan.Avalonia.Tests/LocalizationTests.cs": "096c0382196224a62aaf696f6a3ac9b72e2aa555800db4d377f42180a4a55942",
+    "tests/Toucan.Avalonia.Tests/MainWindowSmokeTests.cs": "2a758ae793c3b21ba39be995dc548eeaf25bc9a44807a063f36fa0a779d004bd",
+    "tests/Toucan.Avalonia.Tests/MainWindowViewModelTests.cs": "75128e5db696769316fba0f95f10a87b390809744c2bad0963d71404ca3f48a9",
+    "tests/Toucan.Avalonia.Tests/PanelAlignmentTests.cs": "f3ae9a8f262d1da4422c624606165d1fc14a2b7ee103a601aef6e2bf905042cc",
+    "tests/Toucan.Avalonia.Tests/PluginsUiTests.cs": "c79684cb6e04011d83a0590e6d36e7cb24da642bba2c748ba671811efe40e72a",
+    "tests/Toucan.Avalonia.Tests/ProjectCreationUiTests.cs": "86e0aae3ef1825714c741de5b7a0694dca61069152244c72ce775395a119a20a",
+    "tests/Toucan.Avalonia.Tests/RecentProjectsTests.cs": "cff6583f12aea3e1aea3737f03dda777edbd87953406a0dd0e9333563f8ca34c",
+    "tests/Toucan.Avalonia.Tests/ResourceFidelityFlowTests.cs": "d45427266335d417607cc49526435c3ff60d66bc4fdcf18f1fab29a2e9e9522a",
+    "tests/Toucan.Avalonia.Tests/ResourceIdentityFlowTests.cs": "d69bb3fe715551cf8d05883c65c496735e521a35c2ab056c5b07cfd051359472",
+    "tests/Toucan.Avalonia.Tests/ScanCancellationTests.cs": "91918db67da0a7329e75e1a3b76efcc67b54909bf62ede72ffcf50fa17fef0d7",
+    "tests/Toucan.Avalonia.Tests/SettingsListTests.cs": "acde77bd44781b83fe45473f78e2056f53b594e659589d4628320b0cb8766853",
+    "tests/Toucan.Avalonia.Tests/ShortcutEditingTests.cs": "1dde79d10a1b487bea345b8a970244e5c7b9b7020d01142f72c698fc6fd94ddb",
+    "tests/Toucan.Avalonia.Tests/SpreadsheetImportFlowTests.cs": "9d88df9cbb5695b194781b4f331484a312258142f7b5995ebd999e40e5e3147e",
+    "tests/Toucan.Avalonia.Tests/StatusBarActionTests.cs": "41810924d3c8dc02a5fc4d90cb3f04e5e89dfb581939e8537b28b1ea92a54d44",
+    "tests/Toucan.Avalonia.Tests/TestHost.cs": "c77c2a696fb405bd8d2d475a98e7e654a423019196e1793350f9479956cced02",
+    "tests/Toucan.Avalonia.Tests/TitleBarTests.cs": "4ebbd7309bc8cec77c9c283cd0d49f0da75fa373f287dac155a79178326278b1",
+    "tests/Toucan.Avalonia.Tests/Toucan.Avalonia.Tests.csproj": "f1d0bd24e928185b6d8570493e2d9bd58e1009cce84a678b469579e3864b6b5b",
+    "tests/Toucan.Avalonia.Tests/UiClosureFlowTests.cs": "1926438866c7f9115cf48a128961ad1dea44a156b6ca85ab1d3e49c3903aadb8",
+    "tests/Toucan.Avalonia.Tests/UiClosureRecoveryTests.cs": "b77767e1128c415ef55a1e28b63e10d9ef1df7437a90ff982836cc7e2d4769b9",
+    "tests/Toucan.Avalonia.Tests/UiScreenshotTests.cs": "a0f2e9cb21ed6de2b14820fffc0b1c2feeaf4fea202e76d46377f745e98ad32b",
+    "tests/Toucan.Avalonia.Tests/UndoRedoGroupTests.cs": "e76daa10b071493f28a1d09504b2b7a76bf3684d9898a4845aa2bf182fa1403f",
+    "tests/Toucan.Avalonia.Tests/UnitTests.cs": "e4e0389dc5aff37ad626e4baf6b9bc38279c02abfa74c51ab2387acf869c2994",
+    "tests/Toucan.Avalonia.Tests/ValidationPageTests.cs": "ccd1e00ff5b6a4032e6bf13e501b4ab245a24040ce1e2408244b0bfe4a2c9b77",
+    "tests/Toucan.Avalonia.Tests/WorkspaceApiTests.cs": "5ba40914a98472a620a838149f268717e74a363d12539fce5cabb07e6b1cfba0",
+    "tests/Toucan.Avalonia.Tests/WpfParityTests.cs": "9a19d138ec20f68b99fd58f59d8fe08a3c90051505c32fb43dcbf45b1439382d",
+    "tests/Toucan.Core.Tests/AiIntegrationTests.cs": "440cbd43f5881d008d7aa8192631af474be991af8ce1fbe88f2084ac2cd69ba1",
+    "tests/Toucan.Core.Tests/AtomicFileServiceTests.cs": "fe960f30132d5f6725e02059c0ee7c6f87b8d14e27a5b2f9420d505b9c28dddb",
+    "tests/Toucan.Core.Tests/BabelExcelTests.cs": "af18904eaea42c3baa3cb7e32bd2ab70c7a5f08edf256e0b51ba7be64e622438",
+    "tests/Toucan.Core.Tests/BulkActionServiceTests.cs": "9efda96d7beed1272a6be7e50389aa9eea5deea92dbf4fc0a46eb8c104ee00b1",
+    "tests/Toucan.Core.Tests/Commands/CommandRegistryTests.cs": "dea51efe9cc6a639184466d65172177ee5f682cba44df0f1d341b2c2eee4a976",
+    "tests/Toucan.Core.Tests/CommentPersistenceServiceTests.cs": "11cf6e406d4b4c9347772c2beb22e56ad91263fd1bddc6323658390261bcc590",
+    "tests/Toucan.Core.Tests/CompositionRootTests.cs": "bd12b186b3bf0fbdc5c98a801cda42d607e8f534ea2ba360de9d62cc0932e6f8",
+    "tests/Toucan.Core.Tests/DeepLProviderTests.cs": "c372e5ce351e71ed05b3644a7feb5d24081e4134cd88d7dec283313d0b8feadc",
+    "tests/Toucan.Core.Tests/Formats/BabelParityRegressionTests.cs": "c898c395e2b52d7f485d4a41fab692d50fa331462c7e9fd280a13e3db41d3608",
+    "tests/Toucan.Core.Tests/Formats/ExactResourceIntegrationTests.cs": "800cf29c29210db51e7d2c246e00cd94afa63b6dc5710419d779da4a33d0dee5",
+    "tests/Toucan.Core.Tests/Formats/FormatBugRegressionTests.cs": "3efc1b86dcea40d482b5fa9bebed409256add474314b4cf03763db08a155a5d7",
+    "tests/Toucan.Core.Tests/Formats/FormatConventionsTests.cs": "5cc2c766b39ab140d8922d8cc4132e358b5b2f1c63a3c7fc89902d4b7248bddd",
+    "tests/Toucan.Core.Tests/Formats/FormatFidelityFixtureTests.cs": "273c763f3155e2baf79bb466e053c96a5fb6f4763b0389d82ce18da5a490a7a2",
+    "tests/Toucan.Core.Tests/Formats/FormatRoundTripTests.cs": "3c15f26ad274176531a242aef0f68502be049b472d045ffc0e62e3bff3ca74d9",
+    "tests/Toucan.Core.Tests/Formats/FormatStabilityTests.cs": "afc160f451d60cbc5f0f43796be3e27cc64d28fd90d0c7d828a5993505e5ff5a",
+    "tests/Toucan.Core.Tests/Formats/FormatSupportTests.cs": "172ae81e73372a79a21bc040856560f830edb0569005dfe48df673dc202f8184",
+    "tests/Toucan.Core.Tests/Formats/FormatTestHost.cs": "a5829c851a725c549305c2b6dc881ac8a62ae5a64dfa3744b66648da05c0c7e3",
+    "tests/Toucan.Core.Tests/Formats/FormatUnavailableTests.cs": "0f34486ef458d239d7b65ae921e74fb288f05c1550086a96b07c79cba5c69a0c",
+    "tests/Toucan.Core.Tests/Formats/PoCsvBugTests.cs": "525c52d6ff8d01099267b55374de979e660e2d66fffa1407ea4002a101d3fd83",
+    "tests/Toucan.Core.Tests/Formats/PoRoundTripTests.cs": "a8e24fb828c6cd662fa078acb4a1f82e6b343538a120c79636f98a4f6ebb9a15",
+    "tests/Toucan.Core.Tests/Formats/ProjectSettingsFormatTests.cs": "fa526fbd3f6c1d3c6c94151c47f04219c25ceebf54d60846d0395cdc82a89a81",
+    "tests/Toucan.Core.Tests/Formats/ResourceContractTests.cs": "1b3c05133378e0587f9c71717b363d85ee6822cf1a35eba352a64bf2f01b730a",
+    "tests/Toucan.Core.Tests/Formats/ResourceFidelitySettingsTests.cs": "3cace4051bc8769877d96f9c16b2f193902b14b91bb00af174b7f56ecfdd3b3b",
+    "tests/Toucan.Core.Tests/Formats/YamlFidelityTests.cs": "90de854f081f518c2940583ec5958313113ced1798f3042e5a7bf29f6d42c302",
+    "tests/Toucan.Core.Tests/FrameworkCapabilitiesTests.cs": "74eb2f2f80dc661d4526af79e984157b5828f8a9de0955674dc76bb3861def42",
+    "tests/Toucan.Core.Tests/FrameworkSourceScannerTests.cs": "f89829960bd76a5ba25d8f319f604ba8cd8ab89c450c47c5f44148676fe57ebc",
+    "tests/Toucan.Core.Tests/Helpers/DirectProgress.cs": "41bafb8f632ae493b562aabde23637eab8516a1bd185823e5c6bb9409c8e8149",
+    "tests/Toucan.Core.Tests/IO/Generators/DiffTripleGenerator.cs": "39bc63739c30f25ef28fd020e109261fbe4fbb8b4ec0ca4a37f03fffee4982d6",
+    "tests/Toucan.Core.Tests/IO/Generators/EditSequenceGenerator.cs": "fd5b1bc80bc7093021b0229cdc56016498ed3f01bdd88369003ce8ae26709a8b",
+    "tests/Toucan.Core.Tests/IO/Generators/TranslationItemGenerator.cs": "0c771bd3c67fe7ad296886684207efb222329b580e835e495a33b47e252f280d",
+    "tests/Toucan.Core.Tests/LocalSpellingTests.cs": "73291b1502c253c39e4ac87a4673563444bafdf01280d3eef6932d37b7999519",
+    "tests/Toucan.Core.Tests/MockTranslationProviderTests.cs": "c7d146b8f155f67f3c981761016255917b08824d9fd28163351e461f487a3ec4",
+    "tests/Toucan.Core.Tests/Modules/ArchitectureTests.cs": "637c0ea52e91c6f0df5f821807f8d9518783b51eea8213bbb3182b10e95cad18",
+    "tests/Toucan.Core.Tests/Modules/BuiltInModuleTests.cs": "726a589682abac39252e9195c440edd15eae43c32054a4b909e40f86ec587b92",
+    "tests/Toucan.Core.Tests/Modules/ModuleSnapshotTests.cs": "97c9717ca8555bed7fc4322c58e10fd4f1fdb93920a95838c5e47d2930b1e0fe",
+    "tests/Toucan.Core.Tests/Plugins/PluginActivationTests.cs": "abddc0e916d7a4bee2b29c0fbe22f35dff95252019f4985113dc095cdf1b84c5",
+    "tests/Toucan.Core.Tests/Plugins/PluginCompatibilityTests.cs": "8a0ed0c2832df1f1d2afa24f5babf51c54dcf7fd007bda9f004ae7ec3ad48d1f",
+    "tests/Toucan.Core.Tests/Plugins/PluginContractTests.cs": "1fba7a0159edb19eda9b76edb8c2c2b7afb1f85ba0c5ab589ad3b56ef75d1817",
+    "tests/Toucan.Core.Tests/Plugins/PluginHostTests.cs": "e3af62ccd083d49173167943bf2d39c5bb9772a0ee73ec72657a4755c88cbf5e",
+    "tests/Toucan.Core.Tests/Plugins/PluginServicesTests.cs": "87326f11069ecd9f393ee18c1d7c2dff842b23fd0804122b5987ba09ff95a8c4",
+    "tests/Toucan.Core.Tests/Plugins/PluginTrustTests.cs": "e39fab359c7028e9916fa74e55d151131ed26c3e8e0be4b8e80f634c31a7844f",
+    "tests/Toucan.Core.Tests/Plugins/SamplePluginTests.cs": "e6a7c5560396a8c8064b0086c393dd542d11ea78181c93dbb9115eae218eba63",
+    "tests/Toucan.Core.Tests/Plugins/WorkspaceEditPlannerTests.cs": "701ce6c48f37930adf66e5a601086f2824fe4a4cbe741938c9d69f1ab56cc882",
+    "tests/Toucan.Core.Tests/PreferredLanguageDetectorTests.cs": "57eafae145c95b74e68d542a1bc1bff50b62dc353b721d8ddc69cc1993a8cde8",
+    "tests/Toucan.Core.Tests/PretranslationServiceTests.cs": "b1bed19adebef919851facc668744244ff9391effcd03cdf21338f2e188ff0a3",
+    "tests/Toucan.Core.Tests/ProjectTextFormatTests.cs": "542d14ecd948cb1c53ff7ea4eb3a2b4b5e2a262999b52fedda7bd3e79ab7a5ce",
+    "tests/Toucan.Core.Tests/ProviderSelectionTests.cs": "3f3c202724ea678c7cbb99802f02ec3cb4ee44f91b7847075943e85f6c9e929c",
+    "tests/Toucan.Core.Tests/Qa01RegressionTests.cs": "35e568d56fc3c3f9eeaf6dc9abc78223de605e2bc6ce71d817a5ceb75c26d3bf",
+    "tests/Toucan.Core.Tests/ResourceConfigurationTests.cs": "d524fc1cbf17ca06df5c140e152ad2998690420873dd4b92066570f7c9ef30ac",
+    "tests/Toucan.Core.Tests/SaveRecoveryTests.cs": "43d5fde4787411eaf860d69fd32fb609ae6e29f5335dbe5a2dbb21e391540702",
+    "tests/Toucan.Core.Tests/SearchAndReplaceServiceTests.cs": "9518f39017588d7428320bed301493ef824c1bbeb3595cf57b7aa6aafcd19b9d",
+    "tests/Toucan.Core.Tests/SpreadsheetExchangeTests.cs": "b0e212decfa60246154b29e859c8dd7bb3fe764ec26445fc43fc260711131002",
+    "tests/Toucan.Core.Tests/TempFolder.cs": "376f7e9b367fdf6f89448ffae7a2116e69d9c7318af2f9735a8266f07b217fb6",
+    "tests/Toucan.Core.Tests/Toucan.Core.Tests.csproj": "57bbc352d56579e492d9e8afd0e95edda0e20f37e121c72f009a462d04cc6ddc",
+    "tests/Toucan.Core.Tests/TranslationPostProcessorTests.cs": "2ffffaf8955353c92661190aec83b97c17beeb1c45f8bda6567916c72a74e988",
+    "tests/Toucan.Plugins.Testing.Tests/ConnectorHarnessTests.cs": "effdccf21af474f7f6e87a3368ead2051ac982caad2e7aa10f5b7a80525b6010",
+    "tests/Toucan.Plugins.Testing.Tests/Toucan.Plugins.Testing.Tests.csproj": "72f94d06f3243aae9f3f081cb9c5eacefea12c6342cc1083d45c65cb96951411",
+    "third-party/WeCantSpell.Hunspell/7.0.1/MPL-1.1.txt": "f849fc26a7a99981611a3a370e83078deb617d12a45776d6c4cada4d338be469",
+    "third-party/WeCantSpell.Hunspell/7.0.1/NOTICE.txt": "43d030d1ad8b4eb2c4e143a683e10fc43fdf2745037c5cd64c22fd867bcb638b",
+    "third-party/WeCantSpell.Hunspell/7.0.1/license.txt": "6d69e66d4533c9b9048db18d3f340b077313dc5d33324066f1b91cfbca15be00",
+    "third-party/WeCantSpell.Hunspell/7.0.1/provenance.json": "75000000296237ea620a95edd201477497046a8039ed2cc9c9874f1ef213a1f4",
+    "third-party/WeCantSpell.Hunspell/7.0.1/source.zip": "feb3486319237e1aee298518e5753019b013a9caee075c4f8ac4d5f6f1f72e71",
+    "tools/Babel2Toucan.cs": "1912f9a1ec514f178209c3021c3a19f3494f257f356d277298fafba8d7a0461b",
+    "tools/Babel2Toucan.csproj": "0decffff333e15549c7b0237a44764ede5bf180db6d2e99833b2c8fae551976a",
+    "tools/CompatibilityBaseline/CompatibilityBaseline.csproj": "1f94cb269dd90f7ed8b6602f5b1fdb29ed9651e3ee2fdbdcc38197984da381bf",
+    "tools/CompatibilityBaseline/Program.cs": "73088a1dda65f328242d507e47571d5459bbc80860f4835d5345d5006a309e35",
+    "tools/CompatibilityBaseline/collect_evidence.py": "53390d96fd288ff7bd2ffa3e74f8550f7ba4fdb2146d981eb883fbe6abe269e2",
+    "tools/CompatibilityBaseline/collect_m1_evidence.py": "fa4516e57c47551a1de01c26342e0140bf489cf8d2a6a23813072e97e8b6e402",
+    "tools/CompatibilityBaseline/collect_m2_evidence.py": "ea3a0aaf8df3652366ff37714fbba1bdd8fc9b1f1e9e9d11005793565924f600",
+    "tools/CompatibilityBaseline/collect_m3_evidence.py": "5f595c0967c1d535207b89c5337c46f0aaf804f47eadfbd8a9118e13c15430b0",
+    "tools/CompatibilityBaseline/collect_m4_evidence.py": "faf6bd02f3a824a97fe8c5458ec26e7f37ddaf9f7a1e3c6df21239140ac14503",
+    "tools/CompatibilityBaseline/collect_m5_m6_evidence.py": "777f36e6c133bcb6cfc55343521feed12ca2237fde06f0de68c5de2ded6fad25",
+    "tools/CompatibilityBaseline/collect_m7_ui_evidence.py": "e9017c480d05f8387435abb331b306617cb59940cfc630607490e28b26661dc8",
+    "tools/New-BabelParityFixtures.py": "fae1872a27b4146af684e436638fd346054af96d22bed992497265c27aea3a5e",
+    "tools/New-BabelParityGallery.py": "54c3d3234edbc7d31c9b9c059debe3937733331261fa0ee8fc2904864d117d2c",
+    "tools/New-UiReviewGallery.ps1": "b8430518c5b1eeb24e2bf3d6bada8c7933343e6d9a85b711e35d8a1bfde44d5a",
+    "tools/Test-BabelConverters.py": "242c84969e3fa0b9ee92e599ff1d0d9a3203d555a83aade4b8928b3b92e9aa22",
+    "tools/Test-BabelParityFixtures.py": "5e6e3bc0128c58685a7a4712d3c764ad6799c4b517d475d739c5ad254c00ac5a",
+    "tools/Test-ExactResourceMigration.py": "c4cc379d4baa4ff1c18ef71d0b4c38094f1c42982e0a51694748e38ca0410674",
+    "tools/Test-FrameworkIntegration.py": "c0982906ff8056836db151ebc798834006b599e24cbfe2e34d8d42a76ff5dcf4",
+    "tools/Test-ResourceFidelity.py": "fd9fcae0a575f45cb2ec3b77cf346e965d0a1876f186ac43054e52185de76ee8",
+    "tools/Verify-SpellingArtifacts.py": "d3d1bad1dd2751896e34a995e721da1a1b57dea237812435432e852e5213fcb9",
+    "tools/babel2toucan.py": "81ba9bcfb05fdb8ccb1716549b6bc9b64caa4df61c54ba15124d2d91e3c8284f",
+    "tools/build-docs.py": "22c07120cef06bc83aa724ddc04f7dc28d756a7bf01df5425a8fd5fcf7e0f88c",
+    "tools/generate-changelog.py": "27fcd6965c3d28e519c28253cc99cd07fed389a1ffe9ff613ce670a70004a27e",
+    "tools/site_links.py": "0c7c0a1a0555c97c8b5855e8c09f191cf26d909be55305b70cde9a5de3540d20"
+  },
+  "docsCheck": "docs ok",
+  "limitations": [
+    "Windows x64 execution only; configured Linux/macOS CI has not run in this session.",
+    "Native pickers, installed/signed packages and interactive packaged recovery/correction workflows remain unverified.",
+    "Unsigned MSIX probe checks component materials, not production assets, installation or signing.",
+    "ReadyToRun/trimming/AOT, other runtime targets and architectures remain unverified.",
+    "Bundled assembly identity is established from pinned inputs and the folder build; the guard does not extract the bundle.",
+    "No dictionaries or automatic dictionary download catalog are shipped. Existing AVLN3001 warning remains."
+  ]
+}

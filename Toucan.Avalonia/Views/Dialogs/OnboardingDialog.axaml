@@ -4,25 +4,38 @@
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
                 xmlns:c="using:Toucan.Avalonia.Views.Components"
-                Title="{loc:Loc 'Welcome to Toucan'}" Width="600" SizeToContent="Height" CanResize="False">
+                Title="{loc:Loc 'Welcome to Toucan'}" Width="600" Height="700" MinHeight="400" CanResize="True">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button Content="{loc:Loc 'Skip setup'}" Click="SkipSetup"/>
         <Button Content="{loc:Loc 'Continue'}" Classes="accent" Command="{Binding FinishCommand}" IsDefault="True"/>
       </StackPanel>
     </Border>
 
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
     <StackPanel Margin="24,22,24,20" Spacing="14">
+      <c:SettingsGroup Header="{loc:Loc 'Your workspace'}">
+        <StackPanel>
+        <c:SettingsRow Title="{loc:Loc 'Default source language'}" Description="{loc:Loc 'Use a language code such as en-US. Each project can override it.'}">
+          <TextBox Text="{Binding DefaultLanguage}" AutomationProperties.Name="{loc:Loc 'Default source language'}"/>
+        </c:SettingsRow>
+        <c:SettingsRow Title="{loc:Loc 'Theme'}">
+          <ComboBox ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme}" AutomationProperties.Name="{loc:Loc 'Theme'}"/>
+        </c:SettingsRow>
+        </StackPanel>
+      </c:SettingsGroup>
       <StackPanel Orientation="Horizontal" Spacing="14">
         <Image Source="/Assets/logo.png" Width="48" Height="48"/>
         <StackPanel VerticalAlignment="Center" Spacing="2">
           <TextBlock Text="{loc:Loc 'Welcome to Toucan'}" Classes="dialogTitle"/>
-          <TextBlock Text="{loc:Loc 'One choice before you start. You can change it any time in Settings → AI.'}" Classes="caption" TextWrapping="Wrap"/>
+          <TextBlock Text="{loc:Loc 'Choose your defaults. Translation services are optional and can be configured later.'}" Classes="caption" TextWrapping="Wrap"/>
         </StackPanel>
       </StackPanel>
 
       <TextBlock TextWrapping="Wrap"
                  Text="{loc:Loc 'Toucan can use an AI service to translate, to check translations for wrong terms and tone, and to find source strings translators could misread. When AI is on, the text you run these on is sent to the service you choose. Every prompt Toucan sends is open and editable.'}"/>
+
 
       <c:SettingsGroup>
         <StackPanel>
@@ -46,5 +59,6 @@
         </StackPanel>
       </c:SettingsGroup>
     </StackPanel>
+    </ScrollViewer>
   </DockPanel>
 </d:DialogWindow>

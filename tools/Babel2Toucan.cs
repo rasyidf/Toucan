@@ -119,20 +119,21 @@ if (edNode is not null)
         }
         else
         {
-            editorCfg[c.Name.LocalName] = c.Value;
+            editorCfg[c.Name.LocalName] = c.Name == "copy_templates"
+                ? c.Elements("copy_template").Select(t => t.Value).ToList() : XmlValue(c);
         }
     }
 }
 project["editorConfiguration"] = editorCfg;
 
 // Configuration
-var cfg = new Dictionary<string, string?>();
+var cfg = new Dictionary<string, object>();
 var confNode = root.Element("configuration");
 if (confNode is not null)
 {
     foreach (var c in confNode.Elements())
     {
-        cfg[c.Name.LocalName] = c.Value;
+        cfg[c.Name.LocalName] = XmlValue(c);
     }
 }
 project["configuration"] = cfg;
@@ -153,6 +154,10 @@ static string? NodeText(XElement parent, string childName)
 {
     return parent.Element(childName)?.Value;
 }
+
+static object XmlValue(XElement element) => element.HasElements
+    ? element.Elements().ToDictionary(c => c.Name.LocalName, XmlValue)
+    : bool.TryParse(element.Value, out var flag) ? flag : element.Value;
 
 static Dictionary<string, object?> ParseTranslations(XElement? transElem)
 {
@@ -254,6 +259,12 @@ static Dictionary<string, object?> ParsePackage(XElement pkg)
         {
             if (child.Name.LocalName == "file_node")
                 files.Add(ParseFile(child));
+        }
+        if (children.Elements().Any(c => c.Name == "folder_node" || c.Name == "concept_node"))
+        {
+            var direct = ParseFile(pkg);
+            direct["name"] = "";
+            files.Add(direct);
         }
     }
 

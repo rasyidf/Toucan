@@ -9,11 +9,12 @@
       <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsScanning}"/>
       <StackPanel Spacing="6">
         <Button Content="{loc:Loc 'Scan'}" Classes="accent" Command="{Binding ScanSourceCodeCommand}"/>
+        <Button Content="{loc:Loc 'Cancel scan'}" Command="{Binding CancelSourceScanCommand}" IsVisible="{Binding IsScanning}"/>
         <Button Content="{loc:Loc 'Choose folder…'}" Command="{Binding SelectSourceRootCommand}"/>
       </StackPanel>
       <WrapPanel IsVisible="{Binding SourceCodeScanned}">
         <Button Classes="link" Content="{loc:Loc 'Show used keys'}" Command="{Binding FilterUsedKeysCommand}"/>
-        <Button Classes="link" Content="{loc:Loc 'Show unused keys'}" Command="{Binding FilterUnusedKeysCommand}"/>
+        <Button Classes="link" Content="{loc:Loc 'Show unused keys'}" Command="{Binding FilterUnusedKeysCommand}" IsEnabled="{Binding CanClassifyUnusedSourceKeys}"/>
         <Button Classes="link" Content="{loc:Loc 'Clear'}" Command="{Binding ClearSourceFilterCommand}"/>
       </WrapPanel>
     </StackPanel>
@@ -33,6 +34,19 @@
       </ItemsControl>
     </Expander>
 
+    <Expander DockPanel.Dock="Top" Header="{loc:Loc 'Scan diagnostics'}" IsVisible="{Binding SourceScanDiagnostics.Count}">
+      <ItemsControl ItemsSource="{Binding SourceScanDiagnostics}" MaxHeight="160">
+        <ItemsControl.ItemTemplate><DataTemplate>
+          <StackPanel Margin="4" Spacing="3">
+            <TextBlock Text="{Binding Code}" FontWeight="SemiBold"/>
+            <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+            <Button Command="{Binding $parent[UserControl].DataContext.OpenScanDiagnosticCommand}" CommandParameter="{Binding}" IsVisible="{Binding File, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+              <TextBlock><Run Text="{Binding File}"/><Run Text=":"/><Run Text="{Binding Line}"/><Run Text=":"/><Run Text="{Binding Column}"/></TextBlock>
+            </Button>
+          </StackPanel>
+        </DataTemplate></ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </Expander>
     <ListBox Classes="plain" ItemsSource="{Binding SourceCodeUsages}">
       <ListBox.ItemTemplate>
         <DataTemplate>
@@ -40,7 +54,7 @@
             <StackPanel Spacing="1">
               <TextBlock Text="{Binding Key}" Classes="mono" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
               <TextBlock Classes="caption mono" FontSize="11" TextTrimming="PathSegmentEllipsis">
-                <Run Text="{Binding FilePath}"/><Run Text=":"/><Run Text="{Binding Line}"/>
+                <Run Text="{Binding FilePath}"/><Run Text=":"/><Run Text="{Binding Line}"/><Run Text=":"/><Run Text="{Binding Column}"/>
               </TextBlock>
               <TextBlock Text="{Binding LineContent}" Classes="hint mono" MaxLines="1" TextTrimming="CharacterEllipsis"/>
             </StackPanel>

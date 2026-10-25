@@ -107,7 +107,7 @@ public partial class TranslationStatsPanel : StatusBarPanelBase
         Warnings = warningCount;
 
         Icon = "Translate24";
-        Content = total == 0 ? "No keys" : $"{translated}/{total}";
+        Content = total == 0 ? Locales.Loc.T("No keys") : $"{translated}/{total} " + Locales.Loc.T("translated");
 
         // Show worst badge
         if (errorCount > 0) { Badge = errorCount.ToString(); BadgeSeverity = "error"; }
@@ -331,6 +331,9 @@ public partial class NotificationsPanel : StatusBarPanelBase
     public int Warnings { get; private set; }
     public int Info { get; private set; }
 
+    /// <summary>Notifications in the history that have not been seen yet.</summary>
+    public int Unseen { get; private set; }
+
     public void UpdateSummary(int untranslated, int errors, int warnings, int info)
     {
         Untranslated = untranslated;
@@ -341,15 +344,22 @@ public partial class NotificationsPanel : StatusBarPanelBase
         ToolTip = $"{untranslated} untranslated, {errors} errors, {warnings} warnings, {info} info";
     }
 
+    /// <summary>Updates the unseen-notification count shown as the badge (independent of the validation summary).</summary>
+    public void UpdateUnseen(int unseen)
+    {
+        Unseen = unseen;
+        IsVisible = true;
+        Icon = "Alert24";
+        Badge = unseen > 0 ? unseen.ToString() : null;
+        BadgeSeverity = null; // accent color
+        ToolTip = unseen > 0 ? $"{unseen} new notification(s)" : "Notifications";
+    }
+
     public void Update(int notificationCount)
     {
         Count = notificationCount;
-        IsVisible = true;
         Content = "";
-        Icon = "Alert24";
-        Badge = notificationCount > 0 ? notificationCount.ToString() : null;
-        BadgeSeverity = null; // accent color
-        ToolTip = $"{notificationCount} notification(s)";
+        UpdateUnseen(Unseen);
     }
 }
 

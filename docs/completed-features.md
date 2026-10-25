@@ -1,17 +1,15 @@
 ---
 title: "Shipped Features"
 status: active
-updated: 2026-10-13
-summary: "Checklist of shipped features as of v0.23.0 (extension platform added), grouped by area. Only shipped items are listed; open work is in the roadmap and bugs in known-bugs.md."
+updated: 2026-10-25
+summary: "Checklist of shipped and implemented capabilities through the v0.24 source build, grouped by area. Only completed items are listed; open work is in the roadmap."
 ---
 # Shipped Features
 
-> As of v0.23.0 (Windows, macOS and Linux). The WPF app is deprecated; v0.17.3 was its last release. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
+> Current release: **v0.23.0** (published preview); current source build: **0.24.0** (Windows, macOS and Linux). The WPF app was retired after v0.17.3. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
 > open work is in [todos/future-roadmap.md](todos/future-roadmap.md) and open bugs in [known-bugs.md](known-bugs.md).
-> This file lists shipped features only: when something ships, add it here and delete it from the roadmap.
-> Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform. Lines marked (WPF) shipped
-> only in the WPF app (last release v0.17.3) and are not in the Avalonia app. The Avalonia app does not have the Source
-> Control and Dictionary panels yet; its Translation panel is the Machine Translation panel.
+> This file lists shipped and implemented features only: when something ships, add it here and delete it from the roadmap.
+> Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform.
 
 ## Core Editor
 
@@ -20,9 +18,10 @@ summary: "Checklist of shipped features as of v0.23.0 (extension platform added)
 - [x] Add / Remove / Rename / Duplicate translation IDs
 - [x] Add / Remove languages
 - [x] Undo / Redo (Ctrl+Z / Ctrl+Y)
+- [x] Grouped bulk undo (copy, move to namespace, replace all, accepted pre-translation, and approval batches undo as one step)
 - [x] Comment field per translation
 - [x] Approved flag (toggle per row)
-- [x] Spell checking (WPF)
+- [x] Local spell checking with Hunspell and user-managed dictionaries (Avalonia; was WPF only)
 - [x] Word-wrapping for long IDs
 - [x] Plain text keys mode (no dot-splitting)
 - [x] Auto-select newly added ID
@@ -33,6 +32,12 @@ summary: "Checklist of shipped features as of v0.23.0 (extension platform added)
 - [x] Convert case (lower / upper / sentence / title)
 - [x] Remove whitespace (trim / line-by-line / simplify)
 - [x] Tab between edit fields
+- [x] Source-first card layout (two columns in wide windows, stacked in narrow windows)
+- [x] Focused target metrics: Unicode character count, word count, and translation-memory provenance
+- [x] Registered keyboard editing commands: Approve and Next (Ctrl/Cmd+Enter), Next Pending Translation, Accept Suggestion
+- [x] Live placeholder source context across edits, linked renames, undo/redo and independent plural variants
+- [x] Retained target field focus across card and page boundaries
+- [x] Dismissible onboarding guide and first-run setup (default language, theme, optional AI)
 - [x] Filter expression history (last 15)
 - [x] Statistics dialog (visual grid, per-language)
 - [x] Custom language codes (alias mapping)
@@ -54,6 +59,11 @@ summary: "Checklist of shipped features as of v0.23.0 (extension platform added)
 - [x] Save never blocked by validation findings; findings shown in the Issues panel
 - [x] Saving refuses to overwrite files edited outside Toucan without confirmation
 - [x] Recovery drafts of unsaved edits, offered after a crash without overwriting newer disk content
+- [x] BabelEdit project import (.babel folders: settings, concepts, comments, approvals, and package mappings into toucan.tproj)
+- [x] Exact-resource fidelity and migration for JSON, YAML, Java properties, ARB, RESX, and Laravel PHP
+- [x] Spreadsheet interchange with dialect detection (Toucan / BabelEdit), header validation, diff preview, review-state exchange, and batch undo
+- [x] ARB placeholder and metadata editor with structured JSON view
+- [x] FormatJS generated extraction catalog protection (read-only source catalogs with separate target editing)
 - [x] YAML, TOML, INI
 - [x] PO / Gettext
 - [x] RESX (.NET), Android XML, iOS .strings
@@ -111,17 +121,23 @@ summary: "Checklist of shipped features as of v0.23.0 (extension platform added)
 - [x] Auto-open last project on startup
 - [x] Reveal in Explorer
 - [x] Centralized KeybindingService (22+ shortcuts)
-- [x] Keyboard Shortcuts page in Settings (reassign shortcuts with conflict detection; reset to default)
+- [x] Keyboard Shortcuts page in Settings with search, conflict handling, persisted reassignments, and reset
 - [x] Settings dialog with 12 pages and two-tier settings (app defaults, per-project overrides)
 - [x] Filter: untranslated / translated / approved
 - [x] Status bar (project, language, cursor, loading, notifications)
+- [x] Notification history flyout in the status bar (retains up to 200 items with severity, source, timestamp, retry save, issues, preferences)
+- [x] Unseen notification badge stays cleared after reading history and across validation/project summary refreshes
+- [x] Shared custom dialog chrome with caption buttons matching window theme
+- [x] Contextual start screen: collapses activity rails and reserved columns until a project is opened
+- [x] Project-aware menus and command palette: hides editing, persistence, validation, statistics, and project properties until a project opens
+- [x] Plugin toolbar contributions rendered directly in the editor toolbar
 - [x] Title bar with logo, save-state chip and command palette pill
 - [x] Command palette (Cmd/Ctrl+Shift+P) over every menu command
 - [x] Settings search
 - [x] Keyboard shortcut sheet (Cmd/Ctrl+/)
 - [x] Compact pagination controls
 - [x] Editor, Review, and Audit modes; Zen mode (J/K navigation)
-- [x] Activity bar with side panels: Explorer, Source Code, Search, Issues, Source Control, Languages, Inspector, Translation, Memory (Dictionary panel is a placeholder)
+- [x] Activity bar with side panels: Explorer, Source Code, Search, Issues, Languages, Inspector, Translation, Memory (Dictionary panel is a placeholder)
 - [x] Panel layout saved between sessions
 
 ## Search, Bulk Edits, Validation
@@ -129,9 +145,8 @@ summary: "Checklist of shipped features as of v0.23.0 (extension platform added)
 - [x] Search and replace across keys, values, and languages (match case, whole word, regex, scope, preview, history, highlighted matches)
 - [x] Bulk delete, move to namespace, pre-translate, approve, and copy source to target
 - [x] Six built-in validation rules: missing, placeholder mismatch, duplicate keys, untranslated (same as source), empty, whitespace mismatch
-- [x] Per-rule enable/disable and severity
+- [x] Settings editor lists built-in/plugin validation rules and persists enable/severity preferences (runtime enforcement remains APP-06)
 - [x] Auto-fix suggestions for common issues (trailing spaces, wrong quotes)
-- [x] Custom rules per project: max length, forbidden words, regex, required
 
 ## Translation Memory
 
@@ -153,10 +168,9 @@ summary: "Checklist of shipped features as of v0.23.0 (extension platform added)
 - [x] Avalonia app for macOS (`Toucan.app`) and Linux (tarball), preview since v0.18.0
 - [x] Windows packaging scripts: portable EXE, Inno Setup installer, MSIX (`publish.ps1`)
 - [x] File association (`.tproj` → open app)
-- [x] Git branch and changed-file count in the status bar
+- [x] macOS native menu bar with registry commands, project-aware visibility and native shortcut ownership
 - [x] Translation file locations configurable per language
 - [x] Encoding (UTF-8, UTF-8 BOM) and line endings (LF, CRLF) per project, from the status bar
-
 
 ## Source Code Integration
 
@@ -166,13 +180,21 @@ summary: "Checklist of shipped features as of v0.23.0 (extension platform added)
 - [x] Double-click opens source in external editor
 - [x] Wire source root configuration
 - [x] Support `.tsx`, `.vue`, `.svelte`, `.py` scanning
+- [x] Bounded framework-selected source scanners (i18next, Rails YAML, script profiles)
 
 ## Plugins (since v0.18.0; Avalonia app and CLI)
 
 - [x] Plugins add file formats, translation providers, validation rules, and framework profiles from `.dll` assemblies
 - [x] Trust model: a plugin loads only when enabled and trusted (SHA-256 of its files)
-- [x] `Toucan.Plugins.Abstractions` contract package (plugin API 1.1) and a sample plugin
+- [x] `Toucan.Plugins.Abstractions` contract package (plugin API 1.2) and a sample plugin
 - [x] Built-in formats, providers, rules and profiles load as compiled-in modules, listed in Settings → Plugins and `toucan plugins list`
+- [x] Extension platform: registration vs activation split (application, workspace, and connection scopes)
+- [x] Command registry (`ICommandRegistry`) with stable IDs, states, async execution, cancellation, progress, and user shortcuts
+- [x] Desktop plugin contributions package (`Toucan.Plugins.Avalonia`): registered panels, inspector sections, settings pages, dialogs, and editor actions
+- [x] Host services for plugins (`IPluginServices`): scoped storage, typed settings with schema migrations, secrets, notifications, background operations, and redacted diagnostics
+- [x] Controlled workspace API (`IWorkspaceApi`): snapshots, all-or-nothing edit transactions, and undo groups
+- [x] Compatibility verification: `minHostVersion`, `platforms`, and settings schema version checks with actionable errors
+- [x] SDK test harness (`Toucan.Plugins.Testing`) for host-free plugin unit testing
 
 ### Extension platform (since v0.23.0)
 

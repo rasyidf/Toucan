@@ -41,12 +41,12 @@ public class PoSaveStrategy(IFileService fileService) : ISaveStrategy
         foreach (var (language, list) in context.LanguageDictionary)
         {
             // Entries go back to the file they were loaded from; new ones go to <language>.po.
-            var byFile = list.NoEmpty().GroupBy(i => FileFor(i, language, root));
+            var byFile = list.ForParse().GroupBy(i => FileFor(i, language, root));
             var written = false;
             foreach (var group in byFile)
             {
                 written = true;
-                WriteFile(root, group.Key, language, group.ToList());
+                WriteFile(root, group.Key, language, group.ToList(), context.SaveEmptyTranslations);
             }
             if (!written) WriteFile(root, DefaultFilePath(language), language, []);
         }
@@ -62,7 +62,7 @@ public class PoSaveStrategy(IFileService fileService) : ISaveStrategy
         return $"{language}.po";
     }
 
-    private void WriteFile(string root, string relative, string language, List<TranslationItem> items)
+    private void WriteFile(string root, string relative, string language, List<TranslationItem> items, bool keepEmpty = true)
     {
         var sb = new StringBuilder();
 
@@ -74,7 +74,8 @@ public class PoSaveStrategy(IFileService fileService) : ISaveStrategy
         AppendField(sb, "msgstr", header);
         sb.AppendLine();
 
-        foreach (var item in items)
+        foreach (var item in items.Where(i => keepEmpty || !string.IsNullOrEmpty(i.Value) ||
+            i.FormatData?.Any(p => p.Key.StartsWith(PoFormat.PluralPrefix, StringComparison.Ordinal) && !string.IsNullOrEmpty(p.Value)) == true))
         {
             var data = item.FormatData;
             foreach (var line in Lines(item.Comment)) sb.AppendLine(line.Length == 0 ? "#" : "# " + line);

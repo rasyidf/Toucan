@@ -1,84 +1,52 @@
 ---
 title: "Toucan Packaging"
 status: active
-updated: 2026-10-07
-summary: "How to build the Windows self-contained EXE, MSIX and installer, plus macOS and Linux packages."
+updated: 2026-10-25
+summary: "Canonical solution, Windows packaging entry points, shared MSIX manifest, output layout, evidence retention and macOS signing."
 ---
 # Toucan Packaging
 
-## Quick Start
+## Supported entry points
 
-### Self-contained executable (no MSIX)
+Open `Toucan.CrossPlatform.slnx` for the maintained application, CLI, modules, SDK, samples and tests. The older `ToucanProject.slnx` was removed because it omitted maintained projects.
+
+Run Windows packaging through one of these commands (Python 3.9+ and the .NET SDK from `global.json` are required):
 
 ```powershell
-dotnet publish Toucan.Avalonia/Toucan.Avalonia.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o dist/
+.\publish.ps1 portable
+.\publish.ps1 installer
+.\publish.ps1 msix
 ```
 
-This produces a single `Toucan.exe` (~60-80MB) that runs without .NET installed.
+`portable` creates `dist/Toucan-<version>-portable-x64.zip`, containing the self-contained executable and required spelling-engine source/license sidecars. Distribute the complete ZIP; an EXE alone is incomplete.
 
-### MSIX Package
+`installer` needs Inno Setup 6 or 7 and creates `dist/ToucanSetup-<version>.exe`. Missing packaging tools cause failure rather than a successful-looking skipped package. `all` runs all three targets and requires both Inno Setup and the Windows SDK.
 
-Requires: [Windows 10 SDK](https://developer.microsoft.com/windows/downloads/windows-sdk/) (for `makeappx.exe`)
+Windows staging folders live in ignored `build/publish/`; final Windows packages live in ignored `dist/`. App and installer versions come from `Directory.Build.props`.
+
+## MSIX
+
+Both `publish.ps1 msix` and `packaging/Build-Msix.ps1` use the same implementation and `packaging/msix/AppxManifest.xml`. The manifest keeps the `rasyid.dev.Toucan` identity and `.tproj` association from the former root publish path. The retired standalone manifest used a different identity (`rasyidf.Toucan`) and `.toucan` association; installations made with that experimental manifest need separate migration testing.
 
 ```powershell
 .\packaging\Build-Msix.ps1
+.\packaging\Build-Msix.ps1 -SkipBuild -LayoutOnly
+.\packaging\Build-Msix.ps1 -Sign -CertPath path\to\cert.pfx
 ```
 
-Options:
-- `-SkipBuild` — skip the publish step (reuse existing output)
-- `-Sign -CertPath path\to\cert.pfx -CertPassword pwd` — sign the MSIX
-- `-Version 0.22.0.0` — override the version (default: `<Version>` from `Directory.Build.props` plus `.0`)
+The Windows SDK supplies `makeappx.exe` and `signtool.exe`. `-LayoutOnly` prepares the layout without packing or signing; `-SkipBuild` reuses `build/publish/msix/`, which must contain the full published app and source/license materials. `-Configuration` defaults to `Release`; `-Version` optionally overrides the four-part package version.
 
-### Signing for sideloading
+`New-MsixAssets.ps1` generates correctly sized PNGs from the maintained app logo, including a 310×150 wide tile. Authored images in `packaging/msix/Assets/` override generated images. No 1×1 placeholders are generated. Asset generation requires Windows System.Drawing.
 
-Generate a self-signed cert (one-time):
-```powershell
-New-SelfSignedCertificate -Type Custom -Subject "CN=rasyid.dev" `
-    -KeyUsage DigitalSignature -FriendlyName "Toucan Dev" `
-    -CertStoreLocation "Cert:\CurrentUser\My" `
-    -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
-```
+Unsigned output is for packaging inspection. Installation acceptance requires signing with a certificate trusted by the target machine; Developer Mode does not replace certificate trust. Signing, installation, upgrades and native workflow acceptance remain release gates.
 
-Export to PFX:
-```powershell
-$cert = Get-ChildItem Cert:\CurrentUser\My | Where-Object { $_.Subject -eq "CN=rasyid.dev" }
-Export-PfxCertificate -Cert $cert -FilePath packaging\dev-cert.pfx -Password (ConvertTo-SecureString "password" -Force -AsPlainText)
-```
+## Build evidence and cleanup
 
-Then build signed:
-```powershell
-.\packaging\Build-Msix.ps1 -Sign -CertPath packaging\dev-cert.pfx -CertPassword password
-```
+Treat historical acceptance evidence as immutable. Before clearing `build/` or old `publish/` output, preserve reports, verification manifests, captures, fixture/probe outputs and referenced package artifacts outside the checkout. Record file hashes and verify the archive before removal. Restore archived paths under the repository root when reproducing a report that links to `build/`.
 
-### Installing unsigned MSIX (development)
+The 2026-10-25 local cleanup stores a Git bundle, evidence/package ZIP and per-file SHA-256 manifest in the sibling `Toucan-maintenance/2026-10-25/` directory. This is a local backup, not a published release or acceptance result. Do not commit regenerated outputs, archived binaries or local agent auto-state.
 
-1. Enable Developer Mode (Settings → For developers)
-2. Double-click the `.msix` file
-3. Click "Install"
-
-## Assets
-
-Place these in `packaging/Assets/` for proper store-quality icons:
-- `StoreLogo.png` — 50x50
-- `Square44x44Logo.png` — 44x44
-- `Square150x150Logo.png` — 150x150
-- `Wide310x150Logo.png` — 310x150
-
-## CI/CD (GitHub Actions)
-
-```yaml
-- name: Publish
-  run: dotnet publish Toucan.Avalonia/Toucan.Avalonia.csproj -c Release -r win-x64 --self-contained -o publish/
-
-- name: Package MSIX
-  run: .\packaging\Build-Msix.ps1 -SkipBuild
-
-- name: Upload artifact
-  uses: actions/upload-artifact@v4
-  with:
-    name: Toucan-${{ github.ref_name }}-x64.msix
-    path: dist/*.msix
-```
+Keep the frozen M0 plugin fixture and third-party source archive tracked: they are required inputs, not accidental build products. Keep generated documentation HTML tracked for the existing static site; regenerate it from Markdown with `tools/build-docs.py` and `tools/generate-changelog.py`.
 
 ## macOS signing and notarization
 
@@ -90,3 +58,11 @@ SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" NOTARY_PROFILE=touc
 ```
 
 Release the `.dmg` the script writes next to the app. It is the drag-to-Applications installer. Install `create-dmg` (`brew install create-dmg`) for a styled window; without it the script falls back to a plain `hdiutil` image.
+
+## Spelling engine materials
+
+The selected engine is WeCantSpell.Hunspell 7.0.1 under its MPL 1.1 alternative. Published output must retain `third-party/WeCantSpell.Hunspell/7.0.1`, including the license texts, notice, provenance and corresponding source archive. These sidecars remain outside single-file bundles; distributing an EXE alone omits required component materials. No dictionary pack is bundled.
+
+Python 3.9+ runs `tools/Verify-SpellingArtifacts.py --folder <published-folder>` for a separate-assembly net10.0 build. Use `--bundled` for a source/notice sidecar audit of bundled output; it does not extract a bundled assembly or certify ReadyToRun/AOT transformations. Windows publishing/MSIX and macOS packaging invoke the guard. Keep generated artifact hashes with release evidence. CI checks folder output on its existing OS matrix.
+
+See the [M7/UI implementation and remaining release rows](../docs/specs/resource-compatibility/m7-ui.md). Windows source/material packaging probes are not evidence of native picker behavior, installation/signing or Linux/macOS execution.

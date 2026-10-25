@@ -44,7 +44,7 @@ Up to 0.19, Claude, OpenAI and Gemini were separate providers here. Their settin
 ## Security model
 
 - All secrets (provider keys and AI service keys) are in one file, `secrets.json`, in the user's application-data folder (`%APPDATA%\Toucan`, `~/Library/Application Support/Toucan`, `~/.config/Toucan`), written with owner-only (0600) permissions on macOS and Linux. Key names are in clear, values encrypted. Settings → Data & privacy lists the names and removes secrets.
-- Windows: values are encrypted with the current user's DPAPI key, so they can only be read by that account on that machine (the same format the WPF app used).
+- Windows: values are encrypted with the current user's DPAPI key, so they can only be read by that account on that machine.
 - macOS and Linux: values are encrypted with AES-GCM using a random per-user key stored as `secret.key` next to `secrets.json`, with owner-only (0600) permissions. Encrypted values start with `aesgcm1:`. Anyone who can read both that key file and `secrets.json` can decrypt the secrets.
 - If DPAPI was unavailable, old builds stored secrets base64-encoded inline in `providers.json`. Toucan still reads those values and moves them, encrypted, to the secret store the next time the provider settings are saved.
 - For automated / CI scenarios you can still opt to use application-level settings or supply provider credentials in environment-specific locations; consider using OS-level secret stores for advanced scenarios.

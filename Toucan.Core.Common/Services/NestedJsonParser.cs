@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Toucan.Core.Models;
 
@@ -25,11 +24,7 @@ public static class NestedJsonParser
 
         try
         {
-            using var doc = JsonDocument.Parse(jsonContent);
-            // Pre-estimate capacity: average JSON object has ~50 leaf keys
-            var result = new List<TranslationItem>(64);
-            WalkElement(internedLang, doc.RootElement, "", result);
-            return result;
+            return ResourceJsonCodec.Read(jsonContent, new ResourceDescriptor { Id = "", Language = internedLang, FormatId = FormatIds.Json }).Entries.ToList();
         }
         catch (Exception ex)
         {
@@ -38,44 +33,4 @@ public static class NestedJsonParser
         }
     }
 
-    private static void WalkElement(string language, JsonElement element, string path, List<TranslationItem> result)
-    {
-        switch (element.ValueKind)
-        {
-            case JsonValueKind.Object:
-                foreach (var prop in element.EnumerateObject())
-                {
-                    var childPath = path.Length == 0 ? prop.Name : string.Concat(path, ".", prop.Name);
-                    WalkElement(language, prop.Value, childPath, result);
-                }
-                break;
-
-            case JsonValueKind.String:
-                result.Add(new TranslationItem { Namespace = path, Value = element.GetString() ?? "", Language = language });
-                break;
-
-            case JsonValueKind.Number:
-            case JsonValueKind.True:
-            case JsonValueKind.False:
-                // Keep the JSON text so an untouched value is written back as a number or boolean, not a string.
-                result.Add(new TranslationItem
-                {
-                    Namespace = path,
-                    Value = element.ToString(),
-                    Language = language,
-                    FormatData = new Dictionary<string, string> { [JsonScalarKey] = element.GetRawText() },
-                });
-                break;
-
-            case JsonValueKind.Array:
-                int idx = 0;
-                foreach (var arrayItem in element.EnumerateArray())
-                {
-                    var itemPath = path.Length == 0 ? $"[{idx}]" : string.Concat(path, "[", idx.ToString(), "]");
-                    WalkElement(language, arrayItem, itemPath, result);
-                    idx++;
-                }
-                break;
-        }
-    }
 }

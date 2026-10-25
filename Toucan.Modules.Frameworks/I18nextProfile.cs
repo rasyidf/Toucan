@@ -13,8 +13,18 @@ namespace Toucan.Core.Services.Frameworks;
 ///   - Single-file variant: locales/{lang}.json
 ///   - Plural suffixes: _one, _other, _many, _few, _two, _zero
 /// </summary>
-public partial class I18nextProfile : IFrameworkProfile
+public partial class I18nextProfile : IFrameworkProfile, IFrameworkFeatures
 {
+    public string ScannerId => "i18next";
+    public Toucan.Plugins.ConfigSchema Settings => FrameworkFeatureSettings.Schema;
+
+    public ResourceDescriptor Describe(DiscoveredFile file) => new()
+    {
+        Id = file.RelativePath.Replace('\\', '/'), RelativePath = file.RelativePath.Replace('\\', '/'), Language = file.Language,
+        FormatId = FormatIds.Json, Dialect = "i18next", Package = file.Package ?? "main",
+        SelectorPrefix = file.Package == null ? "" : ResourceEntryOperations.Escape(file.Package) + ".",
+        Options = new() { Layout = ResourceLayout.Nested }
+    };
     public string Id => "i18next";
     public string DisplayName => "i18next (JSON)";
     public string DefaultFormatId => FormatIds.Namespaced;

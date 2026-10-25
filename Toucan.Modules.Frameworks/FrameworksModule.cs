@@ -13,6 +13,8 @@ public static class FrameworksModule
     public static IServiceCollection AddToucanFrameworksModule(this IServiceCollection services) =>
         services.AddToucanModule(new BuiltInModule(Id, "Built-in framework profiles", "i18n framework conventions for file discovery and paths", typeof(FrameworksModule).Assembly), s =>
         {
+            foreach (var scanner in new[] { "generic", "i18next", "transloco", "vue", "rails", "formatjs" })
+                s.AddSingleton<ISourceScanner>(new FrameworkSourceScanner(scanner));
             s.AddSingleton<IFrameworkProfile, GenericJsonProfile>();
             s.AddSingleton<IFrameworkProfile, I18nextProfile>();
             s.AddSingleton<IFrameworkProfile, AndroidProfile>();
@@ -21,5 +23,9 @@ public static class FrameworksModule
             s.AddSingleton<IFrameworkProfile, IosProfile>();
             s.AddSingleton<IFrameworkProfile, GettextProfile>();
             s.AddSingleton<IFrameworkProfile, RailsYamlProfile>();
+            s.AddSingleton<IFrameworkProfile>(new ScriptFrameworkProfile("formatjs", "React / FormatJS", "formatjs"));
+            s.AddSingleton<IFrameworkProfile>(new ScriptFrameworkProfile("angular-transloco", "Transloco", "transloco"));
+            s.AddSingleton<IFrameworkProfile>(new ScriptFrameworkProfile("vue-json", "Vue i18n", "vue"));
+            s.AddSingleton<IFrameworkProfile>(new ScriptFrameworkProfile("react-json", "React Intl / FormatJS", "formatjs"));
         });
 }

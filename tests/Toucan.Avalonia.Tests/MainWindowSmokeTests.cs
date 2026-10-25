@@ -59,6 +59,8 @@ public class MainWindowSmokeTests
             CheckShell("fullscreen");
             window.WindowState = WindowState.Normal;
             CheckShell("restored");
+            await vm.CloseProjectCommand.ExecuteAsync(null);
+            CheckShell("closed");
         }
         finally
         {
@@ -75,11 +77,30 @@ public class MainWindowSmokeTests
             Assert.Equal(8, clip.RadiusX);
             Assert.Equal(8, clip.RadiusY);
             var rail = window.FindControl<ActivityBar>("LeftActivityBar")!;
-            var firstActivity = rail.GetVisualDescendants().OfType<Button>().First(b => b.Classes.Contains("activity"));
-            Assert.InRange(firstActivity.TranslatePoint(default, rail)!.Value.Y, 3, 5);
+            Assert.Equal(!vm.ShowStartScreen, rail.IsEffectivelyVisible);
+            Assert.Equal(!vm.ShowStartScreen, window.FindControl<Button>("RailSettings")!.IsEffectivelyVisible);
+            if (rail.IsEffectivelyVisible)
+            {
+                var firstActivity = rail.GetVisualDescendants().OfType<Button>().First(b => b.Classes.Contains("activity"));
+                Assert.InRange(firstActivity.TranslatePoint(default, rail)!.Value.Y, 3, 5);
+            }
+            else
+            {
+                var surface = window.FindControl<Border>("WorkspaceSurface")!;
+                Assert.InRange(surface.TranslatePoint(default, window)!.Value.X, 7, 9);
+            }
             var search = window.FindControl<Button>("PalettePill")!;
             var origin = search.TranslatePoint(default, window)!.Value;
-            Assert.InRange(Math.Abs(origin.X + search.Bounds.Width / 2 - window.ClientSize.Width / 2), 0, 1);
+            var titleLeading = window.FindControl<Control>("TitleBarLeading")!;
+            var titleTrailing = window.FindControl<Control>("TitleBarTrailing")!;
+            var leadingEnd = titleLeading.TranslatePoint(new Point(titleLeading.Bounds.Width, 0), window)!.Value.X;
+            var trailingStart = titleTrailing.TranslatePoint(default, window)!.Value.X;
+            // Search is centered when both sides leave room for it; otherwise it sits between them. Never under either, and the
+            // window buttons stay inside the window.
+            Assert.True(origin.X >= leadingEnd - 0.5 && origin.X + search.Bounds.Width <= trailingStart + 0.5, $"Search overlaps the title bar sides in {state}");
+            Assert.True(trailingStart + titleTrailing.Bounds.Width <= window.ClientSize.Width + 0.5, $"Title bar controls leave the window in {state}");
+            if (leadingEnd + 16 <= (window.ClientSize.Width - search.Bounds.Width) / 2 && titleTrailing.Bounds.Width + 16 <= (window.ClientSize.Width - search.Bounds.Width) / 2)
+                Assert.InRange(Math.Abs(origin.X + search.Bounds.Width / 2 - window.ClientSize.Width / 2), 0, 1);
             if (vm.HasProject)
             {
                 var trailing = window.FindControl<StackPanel>("TitleBarTrailing")!;
@@ -91,10 +112,10 @@ public class MainWindowSmokeTests
                 Assert.True(modesOrigin.X >= origin.X + search.Bounds.Width);
                 Assert.True(modesOrigin.Y + modes.Bounds.Height <= window.FindControl<Border>("TopBar")!.Bounds.Height);
             }
-            foreach (var name in new[] { "PalettePill", "RailSettings", "StatusBar" })
+            foreach (var name in new[] { "PalettePill", "StatusBar" })
             {
                 var control = window.FindControl<Control>(name)!;
-                Assert.True(control.IsEffectivelyVisible);
+                Assert.True(control.IsEffectivelyVisible, $"{name} is hidden in {state}");
                 var point = control.TranslatePoint(default, window)!.Value;
                 Assert.True(point.X >= 0 && point.Y >= 0, name);
                 Assert.True(point.X + control.Bounds.Width <= window.ClientSize.Width + 1, name);

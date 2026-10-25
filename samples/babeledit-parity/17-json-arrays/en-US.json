@@ -1,0 +1,18 @@
+{
+  "title": "Parity Lab",
+  "welcome": "Hello {name}",
+  "empty": "",
+  "unicode": "日本語 — café 😀",
+  "multiline": "First line\nSecond line",
+  "quoted": "Say \"hello\"",
+  "path": "C:\\translations\\new",
+  "items_one": "{{count}} item",
+  "items_other": "{{count}} items",
+  "choices": [
+    "First",
+    "Second"
+  ],
+  "enabled": true,
+  "limit": 42,
+  "absent": null
+}

@@ -3,7 +3,7 @@
              xmlns:loc="using:Toucan.Avalonia.Locales"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
-                Title="{loc:Loc 'Statistics'}" Width="640" Height="620">
+                Title="{loc:Loc 'Statistics'}" Width="640" Height="620" MinWidth="520" MinHeight="420">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <Button Content="{loc:Loc 'Close'}" HorizontalAlignment="Right" x:Name="CloseButton" IsDefault="True"/>

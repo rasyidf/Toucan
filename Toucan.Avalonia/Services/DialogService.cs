@@ -76,9 +76,11 @@ public sealed class DialogService(IServiceProvider services) : IDialogService
         return new LanguagePromptDialog(vm).ShowDialog<string?>(Owner);
     }
 
-    public async Task<NewProjectViewModel?> ShowNewProjectAsync()
+    public async Task<NewProjectViewModel?> ShowNewProjectAsync(string? frameworkName = null)
     {
         var vm = services.GetRequiredService<NewProjectViewModel>();
+        if (vm.Frameworks.FirstOrDefault(f => string.Equals(f.Name, frameworkName, StringComparison.Ordinal)) is { } framework)
+            vm.SelectedFramework = framework;
         return await new NewProjectDialog(vm).ShowDialog<bool>(Owner) ? vm : null;
     }
 
@@ -94,6 +96,9 @@ public sealed class DialogService(IServiceProvider services) : IDialogService
         vm.SelectedPageIndex = Math.Clamp(startPage, 0, OptionsViewModel.Pages.Count - 1);
         return await new OptionsDialog(vm).ShowDialog<bool>(Owner) ? vm.AppOptions : null;
     }
+
+    public Task<bool> ShowSpreadsheetPreviewAsync(Toucan.Core.Services.SpreadsheetPreview preview) =>
+        new SpreadsheetPreviewDialog(preview).ShowDialog<bool>(Owner);
 
     public async Task<bool> ShowPreTranslateAsync(PreTranslateViewModel vm) =>
         await new PreTranslateDialog(vm).ShowDialog<bool>(Owner);
@@ -114,11 +119,19 @@ public sealed class DialogService(IServiceProvider services) : IDialogService
         await new OnboardingDialog(vm).ShowDialog<bool>(Owner);
     }
 
+    public Task<bool> ShowMigrationReportAsync(MigrationReport report, bool canApply) => new MigrationReportDialog(report, canApply, this).ShowDialog<bool>(Owner);
+
     public async Task<ProjectPropertiesViewModel?> ShowProjectPropertiesAsync(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null)
     {
         var vm = new ProjectPropertiesViewModel(settings, this, discoveredLanguages, services.GetService<IProjectDefaultsService>(),
             services.GetServices<ISaveStrategy>().FirstOrDefault(f => FormatIds.Comparer.Equals(f.FormatId, settings.SaveFormat)));
-        return await new ProjectPropertiesDialog(vm).ShowDialog<bool>(Owner) ? vm : null;
+        vm.PersistOnSave = false;
+        if (settings.ResourceDocuments.Count > 0)
+            vm.ResourceSettings = new ResourceSettingsViewModel(settings, services.GetRequiredService<ITranslationStrategyFactory>(),
+                services.GetRequiredService<ITranslationManagementService>().Translations, settings.IsDirty || services.GetRequiredService<ITranslationManagementService>().IsDirty);
+        if (services.GetServices<IFrameworkProfile>().FirstOrDefault(p => p.Id == settings.Framework) is IFrameworkFeatures features)
+            vm.FrameworkConfiguration = new Toucan.Core.Plugins.FrameworkConfiguration(features.Settings, settings.FrameworkOptions, settings.ProjectPath);
+        return await new ProjectPropertiesDialog(vm, services.GetRequiredService<Toucan.Core.Services.DictionaryRegistry>(), this).ShowDialog<bool>(Owner) ? vm : null;
     }
 
     public async Task<LanguageManagerViewModel?> ShowManageLanguagesAsync(IEnumerable<TranslationItem> allTranslations, string? primaryLanguage = null)

@@ -18,6 +18,7 @@ public partial class ProjectLifecycleService
     private Dictionary<(string Language, string Namespace), TranslationItem> _snapshotIndex = [];
     private Dictionary<string, string> _diskBaseline = [];
     private RecoveryDraft? _pendingRecovery;
+    private string _configurationBaseline = string.Empty;
     private SaveTransaction? _interruptedSave;
 
     /// <inheritdoc />
@@ -74,6 +75,8 @@ public partial class ProjectLifecycleService
         return current
             .Where(kv => _diskBaseline.TryGetValue(kv.Key, out var known) && known.Length > 0 && known != kv.Value)
             .Select(kv => kv.Key)
+            .Concat(settings.ExpectedResourceFiles.Where(p => !_diskBaseline.ContainsKey(p.Key) && ResourceConfigurationPlanner.Fingerprint(p.Key) != p.Value).Select(p => p.Key))
+            .Distinct(StringComparer.Ordinal)
             .Order(StringComparer.Ordinal)
             .ToList();
     }
@@ -112,7 +115,7 @@ public partial class ProjectLifecycleService
             }
 
             var signature = string.Join('\u001f',
-                draft.Entries.Select(e => $"e{e.Language}\u001e{e.Namespace}\u001e{e.Value}\u001e{e.Comment}")
+                new[] { draft.Configuration == null ? "" : ProjectConfiguration.Signature(draft.Configuration) }.Concat(draft.Entries.Select(e => $"e{e.Language}\u001e{e.Namespace}\u001e{e.Value}\u001e{e.Comment}\u001e{e.Identity?.Address}\u001e{e.Approved}\u001e{System.Text.Json.JsonSerializer.Serialize(e.FormatData)}"))
                     .Concat(draft.Deleted!.Select(d => $"d{d.Language}\u001e{d.Namespace}"))
                     .Concat(draft.Approvals!.Select(a => $"a{a.Language}\u001e{a.Namespace}\u001e{a.Approved}")));
             if (signature == _lastDraftSignature) return;
@@ -138,7 +141,8 @@ public partial class ProjectLifecycleService
             var hasBase = translationManagement.TryGetSavedState(item, out var savedValue, out var savedComment);
             entries.Add(new RecoveryDraftEntry(item.Language, item.Namespace,
                 hasBase ? savedValue : null, item.Value ?? string.Empty,
-                hasBase ? savedComment : null, item.Comment ?? string.Empty));
+                hasBase ? savedComment : null, item.Comment ?? string.Empty)
+                { Identity = item.Identity, BaseFormatData = _snapshotIndex.TryGetValue((item.Language, item.Namespace), out var original) && original.FormatData != null ? new(original.FormatData) : null, FormatData = item.FormatData is null ? null : new(item.FormatData), Approved = item.IsApproved });
         }
 
         var current = translationManagement.Translations.ToArray();
@@ -152,7 +156,11 @@ public partial class ProjectLifecycleService
             if (_snapshotIndex.TryGetValue((item.Language, item.Namespace), out var saved) && saved.IsApproved != item.IsApproved)
                 approvals.Add(new RecoveryDraftApproval(item.Language, item.Namespace, item.IsApproved));
 
-        return new RecoveryDraft(_currentProject!.ProjectPath, DateTime.UtcNow, entries, deleted, approvals);
+        return new RecoveryDraft(_currentProject!.ProjectPath, DateTime.UtcNow, entries, deleted, approvals)
+            { Documents = _currentProject.ResourceDocuments,
+                Configuration = ProjectConfiguration.Signature(_currentProject) == _configurationBaseline ? null : ProjectConfiguration.Copy(_currentProject),
+                ConfigurationFileHashes = _currentProject.ExpectedResourceFiles.ToDictionary(p => Path.GetRelativePath(_currentProject.ProjectPath, p.Key), p => p.Value),
+                BaseConfigurationSignature = _configurationBaseline };
     }
 
     private void DeleteRecoveryDraft()
@@ -168,11 +176,35 @@ public partial class ProjectLifecycleService
         if (draft is null || _currentProject is null) return new RecoveryApplyResult(0, []);
         _pendingRecovery = null;
 
+        if (draft.Configuration != null && draft.BaseConfigurationSignature != ProjectConfiguration.Signature(_currentProject))
+        {
+            _pendingRecovery = draft;
+            return new RecoveryApplyResult(0, [new RecoveryDraftEntry("", "configuration", null, "Project configuration changed on disk; the retained draft requires manual review.", null, null)]);
+        }
+
+        if (draft.Configuration != null && draft.ConfigurationFileHashes != null &&
+            draft.ConfigurationFileHashes.Any(p => ResourceConfigurationPlanner.Fingerprint(ResourceFilePath.Resolve(_currentProject.ProjectPath, p.Key)) != p.Value))
+        {
+            _pendingRecovery = draft;
+            return new RecoveryApplyResult(0, [new RecoveryDraftEntry("", "configuration", null, "Resource destinations changed since the draft; review the retained draft before applying.", null, null)]);
+        }
+
         var byKey = translationManagement.Translations
             .GroupBy(t => (t.Language, t.Namespace)).ToDictionary(g => g.Key, g => g.First());
         var applied = 0;
         var conflicts = new List<RecoveryDraftEntry>();
         var added = new List<TranslationItem>();
+
+        if (draft.Configuration != null)
+        {
+            // Configuration and remapped entries form one operation. Refuse the whole operation on conflicts.
+            var blocked = draft.Entries.Where(e => byKey.TryGetValue((e.Language, e.Namespace), out var item)
+                ? item.Value != e.BaseValue && item.Value != e.Value || (item.Comment ?? "") != (e.BaseComment ?? "") && (item.Comment ?? "") != (e.Comment ?? "")
+                : e.BaseValue != null).ToList();
+            blocked.AddRange((draft.Deleted ?? []).Where(d => byKey.TryGetValue((d.Language, d.Namespace), out var item) && item.Value != d.BaseValue)
+                .Select(d => new RecoveryDraftEntry(d.Language, d.Namespace, d.BaseValue, "", null, null)));
+            if (blocked.Count > 0) { _pendingRecovery = draft; return new RecoveryApplyResult(0, blocked); }
+        }
 
         foreach (var entry in draft.Entries)
         {
@@ -182,7 +214,8 @@ public partial class ProjectLifecycleService
                 // Still absent: a new entry can be re-created; an edit to something deleted on disk is a conflict.
                 if (entry.BaseValue is null)
                 {
-                    added.Add(new TranslationItem { Language = entry.Language, Namespace = entry.Namespace, Value = entry.Value, Comment = entry.Comment ?? string.Empty });
+                    added.Add(new TranslationItem { Language = entry.Language, Namespace = entry.Namespace, Value = entry.Value, Comment = entry.Comment ?? string.Empty,
+                        Identity = entry.Identity, FormatData = entry.FormatData is null ? null : new(entry.FormatData), IsApproved = entry.Approved ?? false });
                     applied++;
                 }
                 else conflicts.Add(entry);
@@ -209,11 +242,29 @@ public partial class ProjectLifecycleService
                 else conflict = true;
             }
 
+            if (entry.BaseFormatData != null && entry.FormatData != null &&
+                !entry.BaseFormatData.OrderBy(p => p.Key).SequenceEqual((item.FormatData ?? []).OrderBy(p => p.Key)) &&
+                !entry.FormatData.OrderBy(p => p.Key).SequenceEqual((item.FormatData ?? []).OrderBy(p => p.Key))) conflict = true;
+            if (!conflict && entry.Identity is { } identity)
+            {
+                item.Identity = identity;
+                if (entry.FormatData is not null && item.Permissions.EditMetadata) { item.FormatData = new(entry.FormatData); did = true; }
+                if (entry.Approved is { } approved) item.IsApproved = approved;
+            }
             if (did) applied++;
             if (conflict) conflicts.Add(entry);
         }
 
+        if (draft.Configuration != null && conflicts.Count == 0)
+        {
+            ProjectConfiguration.Apply(_currentProject, draft.Configuration);
+            _currentProject.ExpectedResourceFiles = (draft.ConfigurationFileHashes ?? new Dictionary<string, string>()).ToDictionary(p => ResourceFilePath.Resolve(_currentProject.ProjectPath, p.Key), p => p.Value);
+            translationManagement.NotifyConfigurationChanged(true);
+            applied++;
+        }
         if (added.Count > 0) translationManagement.AddItems(added);
+        if (draft.Documents is { } documents && conflicts.Count == 0)
+            _currentProject.ResourceDocuments = documents.ToList();
 
         var removals = new HashSet<(string, string)>();
         foreach (var d in draft.Deleted ?? [])

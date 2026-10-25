@@ -47,7 +47,7 @@ public class DiffMergeEngine : IDiffMergeEngine
                     category.Value,
                     baseValue,
                     mineValue,
-                    theirsValue));
+                    theirsValue) { TheirsItem = theirsItem is null ? null : ResourceEntryOperations.Copy(theirsItem) });
             }
         }
 
@@ -68,7 +68,7 @@ public class DiffMergeEngine : IDiffMergeEngine
             switch (entry.Category)
             {
                 case DiffCategory.AddedOnDisk:
-                    var added = new TranslationItem
+                    var added = entry.TheirsItem is { } source ? ResourceEntryOperations.Copy(source) : new TranslationItem
                     {
                         Language = entry.Language,
                         Namespace = entry.Namespace,

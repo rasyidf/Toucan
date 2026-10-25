@@ -256,6 +256,8 @@ public sealed class DesktopServicesTests : IDisposable
     {
         using var host = HostWithSample();
         var config = host.Services.GetServices<PluginServicesRegistration>().Single().Services.Configuration;
+        var committed = new System.Collections.Concurrent.ConcurrentDictionary<string, byte>();
+        config.Changed += (_, e) => committed.TryAdd(e.Key, 0); // raised after persistence, unlike GetValue
         var form = new ConfigForm(config, () => null);
         var window = new Window { Content = form, Width = 700, Height = 600 };
         window.Show();
@@ -281,16 +283,20 @@ public sealed class DesktopServicesTests : IDisposable
         Assert.Equal("Hello", config.GetValue<string>("greeting")); // refused, so unchanged
 
         Commit(greeting, "Hey");
-        await WaitUntil(() => config.GetValue<string>("greeting") == "Hey");
+        await WaitUntil(() => committed.ContainsKey("greeting") && config.GetValue<string>("greeting") == "Hey");
 
         var mode = form.GetVisualDescendants().OfType<ComboBox>().Single();
+        greeting.Text = "Uncommitted draft";
         mode.SelectedIndex = 1;
-        await WaitUntil(() => config.GetValue<string>("mode") == "fast");
+        await WaitUntil(() => committed.ContainsKey("mode") && config.GetValue<string>("mode") == "fast");
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        Assert.Equal("Uncommitted draft", greeting.Text); // another field's save must not reset a draft
+        greeting.Text = "Hey";
 
         var secret = form.GetVisualDescendants().OfType<TextBox>().Single(t => t.PasswordChar == '•');
         Commit(secret, "form-secret-value-1");
         await WaitUntil(() => config.GetSecretAsync("apiKey").Result == "form-secret-value-1");
-        await WaitUntil(() => string.IsNullOrEmpty(secret.Text)); // never shown again
+        await WaitUntil(() => committed.ContainsKey("apiKey") && string.IsNullOrEmpty(secret.Text)); // never shown again
         Assert.DoesNotContain("form-secret-value-1", File.ReadAllText(Path.Combine(_root, "plugin-data", "sample.tsv", "config.json")), StringComparison.Ordinal);
         window.Close();
     }

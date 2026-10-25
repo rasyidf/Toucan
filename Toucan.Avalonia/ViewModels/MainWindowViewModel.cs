@@ -39,7 +39,11 @@ public sealed record MainWindowServices(
     IAiSettingsStore AiSettings,
     ISourceClarityService Clarity,
     IDiagnosticsService? Diagnostics = null,
-    IPluginCatalog? PluginCatalog = null);
+    IPluginCatalog? PluginCatalog = null,
+    IEnumerable<SpreadsheetDialect>? SpreadsheetDialects = null,
+    IEnumerable<IProjectCompatibilityImporter>? CompatibilityImporters = null,
+    SpellingService? Spelling = null, DictionaryRegistry? Dictionaries = null,
+    INotificationCenter? Notifications = null, NotificationHistoryViewModel? History = null);
 
 /// <summary>
 /// State and commands for the main editor window. Split across partial files by concern:
@@ -50,6 +54,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 {
     private readonly IRecentProjectService _recentFileService;
     private readonly IDialogService _dialogService;
+    private readonly IReadOnlyList<SpreadsheetDialect> _spreadsheetDialects;
+    private readonly IReadOnlyList<IProjectCompatibilityImporter> _compatibilityImporters;
     private readonly IAsyncMessageService _messageService;
     private readonly IPreferenceService _preferenceService;
     private readonly IProjectService _projectService;
@@ -73,6 +79,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly ISourceClarityService _clarity;
     private readonly IDiagnosticsService? _diagnostics;
     private readonly IPluginCatalog? _pluginCatalog;
+    private readonly SpellingService? _spellingService;
+    private readonly DictionaryRegistry? _dictionaries;
+    private SpellingSession? _spellingSession;
 
     private readonly DispatcherTimer _searchDebounce;
     /// <summary>Pause between the last keystroke in the Search panel and the search itself.</summary>
@@ -81,8 +90,15 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     public MainWindowViewModel(MainWindowServices services)
     {
         ArgumentNullException.ThrowIfNull(services);
+        _notifications = services.Notifications ?? new NotificationCenter();
+        NotificationHistory = services.History ?? new NotificationHistoryViewModel(_notifications,
+            id => KeybindingService.Registry.ExecuteAsync(id));
+        NotificationHistory.PropertyChanged += OnNotificationHistoryChanged;
+        _spellingService = services.Spelling; _dictionaries = services.Dictionaries;
         _recentFileService = services.RecentProjects;
         _dialogService = services.Dialogs;
+        _compatibilityImporters = (services.CompatibilityImporters ?? []).ToList();
+        _spreadsheetDialects = new[] { ExcelService.Toucan }.Concat(services.SpreadsheetDialects ?? []).ToList();
         _messageService = services.Messages;
         _preferenceService = services.Preferences;
         _projectService = services.ProjectService;
@@ -297,6 +313,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             ValidationIssues.Count(i => i.Severity == ValidationSeverity.Error),
             ValidationIssues.Count(i => i.Severity == ValidationSeverity.Warning),
             ValidationIssues.Count(i => i.Severity == ValidationSeverity.Info));
+        StatusBarService.Instance.ViewModel?.Notifications.Update(NotificationHistory.Count);
     }
 
     // ───────────────────────── Dirty tracking ─────────────────────────
@@ -417,12 +434,17 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         if (ReferenceEquals(item, FocusedTranslationItem)) UpdateGhostSuggestion(item);
     }
 
-    internal TranslationItemViewModel CreateItemViewModel(TranslationItem item) =>
-        new(item, _undoRedoService, _translationStore, OnTranslationItemChanged, CanApprove);
+    internal TranslationItemViewModel CreateItemViewModel(TranslationItem item)
+    {
+        var resource = ProjectSettings?.ResourceDocuments.FirstOrDefault(d => d.Resource.Id == item.Identity?.ResourceId)?.Resource;
+        return new(item, _undoRedoService, _translationStore, OnTranslationItemChanged, CanApprove, _spellingSession)
+            { ResourcePath = resource?.RelativePath ?? "", IsArbResource = resource?.FormatId == FormatIds.Arb,
+              IsSource = string.Equals(item.Language, PrimaryLanguage, StringComparison.OrdinalIgnoreCase) };
+    }
 
     internal LanguageGroupViewModel CreateGroup(string ns)
     {
-        var group = new LanguageGroupViewModel(ns, CreateItemViewModel);
+        var group = new LanguageGroupViewModel(ns, CreateItemViewModel, PrimaryLanguage);
         group.TranslateRequested += (s, e) =>
         {
             if (s is LanguageGroupViewModel g) _ = TranslateKeyAsync(g.Namespace);
@@ -474,6 +496,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         ThemeService.Apply(AppOptions.Theme);
         ColorSchemeService.Apply(AppOptions);
         ThemeService.ApplyFontSize(AppOptions.FontSize);
+        PanelService.Instance.ShowPlaceholderWarnings = AppOptions.ShowPlaceholderWarnings;
+        foreach (var row in PagingController.Data.SelectMany(g => g.AllItems)) row.RefreshPlaceholderWarning();
 
         if (!string.Equals(previousLanguage, AppOptions.AppLanguage, StringComparison.OrdinalIgnoreCase))
         {
@@ -494,10 +518,38 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         if (!HasProject) return;
         var settings = ProjectSettings ?? ProjectSettings.LoadFrom(CurrentPath) ?? ProjectSettings.CreateDefault(CurrentPath);
         var previousPrimary = settings.PrimaryLanguage;
-        var result = await _dialogService.ShowProjectPropertiesAsync(settings, OrderedLanguages().ToList());
+        FlushPendingEdits();
+        var revision = _workspaceRevision;
+        var before = ProjectConfiguration.Copy(settings);
+        before.ExpectedResourceFiles = settings.ResourceDocuments.ToDictionary(d => ResourceFilePath.Resolve(settings.ProjectPath, d.Resource.RelativePath), d => ResourceConfigurationPlanner.Fingerprint(ResourceFilePath.Resolve(settings.ProjectPath, d.Resource.RelativePath)));
+        var staged = ProjectConfiguration.Copy(settings);
+        staged.IsDirty = IsDirty;
+        var result = await _dialogService.ShowProjectPropertiesAsync(staged, OrderedLanguages().ToList());
         if (result == null) return;
 
+        if (revision != _workspaceRevision || !ReferenceEquals(settings, ProjectSettings))
+        {
+            await _messageService.ShowMessageAsync("The workspace changed while properties were open. Reopen properties to apply these changes.", "Project Properties");
+            return;
+        }
+        var plan = result.ResourceSettings?.AcceptedPlan;
+        if (plan != null && plan.DestinationHashes.Concat(plan.ExternalHashes).Any(p => ResourceConfigurationPlanner.Fingerprint(p.Key) != p.Value))
+        {
+            await _messageService.ShowMessageAsync("Resource files changed while properties were open. Review a new preview.", "Project Properties");
+            return;
+        }
+        if (plan != null) staged.ExpectedResourceFiles = new(plan.DestinationHashes);
+        using (_undoRedoService.BeginGroup())
+        {
+            _undoRedoService.RecordConfiguration(before, staged);
+            if (plan != null) { _undoRedoService.RecordStructure(CaptureStructure(), plan.Entries); AllTranslation = plan.Entries.Select(i => ResourceEntryOperations.Copy(i)).ToList(); }
+            ProjectConfiguration.Apply(settings, staged);
+        }
+        if (plan != null) settings.ExpectedResourceFiles = new(plan.DestinationHashes);
+        _translationStore.NotifyConfigurationChanged(true);
+        MarkStructureChanged();
         ProjectSettings = settings;
+        _spellingSession?.Refresh();
         HiddenNamespaces = new ObservableCollection<string>(settings.HiddenNamespaces ?? []);
         StatusBarService.Instance.UpdateProjectName(ProjectName);
         OnPropertyChanged(nameof(ProjectName));
@@ -520,9 +572,16 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        NotificationHistory.PropertyChanged -= OnNotificationHistoryChanged;
+        NotificationHistory.Dispose();
+        if (FocusedTranslationItem != null) FocusedTranslationItem.PropertyChanged -= OnFocusedItemPropertyChanged;
+        _spellingValidation?.Cancel();
+        _spellingSession?.Dispose();
         _translationStore.DirtyStateChanged -= OnStoreDirtyStateChanged;
         _searchDebounce.Stop();
         _panelSearchTimer.Stop();
+        _sourceScanCancellation?.Cancel();
+        _sourceScanCancellation?.Dispose();
         _openCts?.Cancel();
         _openCts?.Dispose();
         foreach (var g in PagingController.Data) g.Dispose();

@@ -6,6 +6,7 @@
 <title>Toucan · Visual review: screenshots of every screen</title>
 <meta name="description" content="How to render PNGs of every screen headlessly with TOUCAN_TEST_SCREENSHOTS, what each file shows and the known limits.">
 <link rel="canonical" href="https://toucan.rasyid.dev/visual-review.html">
+<meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -17,6 +18,25 @@
 <meta property="og:description" content="How to render PNGs of every screen headlessly with TOUCAN_TEST_SCREENSHOTS, what each file shows and the known limits.">
 <meta property="og:url" content="https://toucan.rasyid.dev/visual-review.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Toucan · Visual review: screenshots of every screen">
+<meta name="twitter:description" content="How to render PNGs of every screen headlessly with TOUCAN_TEST_SCREENSHOTS, what each file shows and the known limits.">
+<meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Toucan \u00b7 Visual review: screenshots of every screen",
+  "description": "How to render PNGs of every screen headlessly with TOUCAN_TEST_SCREENSHOTS, what each file shows and the known limits.",
+  "url": "https://toucan.rasyid.dev/visual-review.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Toucan",
+    "url": "https://toucan.rasyid.dev",
+    "logo": "https://toucan.rasyid.dev/assets/icons/icon-512.png"
+  }
+}
+</script>
 <script>
 (function () {
   try {
@@ -61,18 +81,18 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="ai-integration.html">AI Integration</a>
+<a href="user-guide.html">Toucan User Guide</a>
+<a href="translator-guide.html">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
+<a href="ai-integration.html">AI Integration</a>
 <a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
 <a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
 <a href="architecture.html">Toucan architecture</a>
 <a href="core-architecture.html">Toucan.Core interop architecture</a>
 <a href="roadmap.html">Toucan roadmap: v0.21 to v1.0</a>
-<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
 <a href="completed-features.html">Shipped Features</a>
-<a href="branding.html">Toucan: Brand Guidelines</a>
-<a href="visual-review.html" aria-current="page">Visual review: screenshots of every screen</a>
+<a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
       </nav>
       <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#run-it">Run it</a><a class="l2" href="#what-you-get">What you get</a><a class="l2" href="#notes">Notes</a></nav>
     </aside>
@@ -81,7 +101,7 @@
         <div class="kicker">Documentation</div>
         <h1>Visual review: screenshots of every screen</h1>
         <p class="lead">How to render PNGs of every screen headlessly with TOUCAN_TEST_SCREENSHOTS, what each file shows and the known limits.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-06</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/visual-review.md">Edit on GitHub ↗</a></div>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-21</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/visual-review.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <p><code>tests/Toucan.Avalonia.Tests/UiScreenshotTests.cs</code> renders the real windows, side panels and dialogs headlessly (Avalonia.Headless with Skia) and saves a PNG of each. It is how UI changes get reviewed without clicking through the app, and it works on any OS (no UI Automation tooling needed).</p>
@@ -89,15 +109,24 @@
 <pre><code class="language-bash">TOUCAN_TEST_SCREENSHOTS=/tmp/toucan-shots \
   dotnet run --project tests/Toucan.Avalonia.Tests -- -class Toucan.Avalonia.Tests.UiScreenshotTests</code></pre>
 <p>Without <code>TOUCAN_TEST_SCREENSHOTS</code> the tests do nothing, so a normal <code>dotnet test</code> stays fast and writes no files.</p>
+<p>On Windows (PowerShell), build with a single MSBuild worker, then invoke the runner directly:</p>
+<pre><code class="language-powershell">dotnet restore tests/Toucan.Avalonia.Tests --disable-parallel -p:BuildInParallel=false -m:1
+dotnet build tests/Toucan.Avalonia.Tests --no-restore -m:1
+$env:TOUCAN_TEST_SCREENSHOTS = "$PWD/build/ui-review/after"
+dotnet build/Toucan.Avalonia.Tests/Debug/net10.0/Toucan.Avalonia.Tests.dll -class Toucan.Avalonia.Tests.UiScreenshotTests
+./tools/New-UiReviewGallery.ps1</code></pre>
+<p>Open <code>build/ui-review/after/index.html</code> to filter captures by name and theme. The two theme cases produce <strong>140 PNGs</strong>, in <code>light/</code> and <code>dark/</code>. The suite explicitly selects each theme and restores the previous theme afterward. UI tests run sequentially because they share application themes, command registries and side panels.</p>
 <h2 id="what-you-get"><a class="anchor" href="#what-you-get" aria-label="Link to this section">#</a>What you get</h2>
-<div class="table-wrap"><table><thead><tr><th>Files</th><th>Shows</th></tr></thead><tbody><tr><td><code>01</code>–<code>13</code></td><td>Start screen, editor, every side panel, the multi-select bar, Zen mode, the unsaved title bar, the command palette, the shortcut sheet and ghost text</td></tr><tr><td><code>10-options-*</code></td><td>Every Settings page, plus the Plugins page filled with fixture plugins in each state</td></tr><tr><td><code>20</code>–<code>28</code></td><td>New project, Import, Project Properties (each page), Statistics, Manage languages, Provider settings and the small prompt dialogs</td></tr><tr><td><code>30</code>–<code>38</code></td><td>The dark theme: Settings, Project Properties, dialogs, the editor and every side panel</td></tr><tr><td><code>40</code>–<code>42</code></td><td>Settings search with a matching query, another matching query, and no matches</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Files</th><th>Shows</th></tr></thead><tbody><tr><td><code>01</code>–<code>13</code></td><td>Start screen, editor, every side panel, the multi-select bar, Zen mode, the unsaved title bar, the command palette, the shortcut sheet and ghost text</td></tr><tr><td><code>10-options-*</code></td><td>Every Settings page, plus the Plugins page filled with fixture plugins in each state</td></tr><tr><td><code>20</code>–<code>28</code></td><td>New project, Import, Project Properties (each page), Statistics, Manage languages, Provider settings and the small prompt dialogs</td></tr><tr><td><code>29</code></td><td>Onboarding, prompt editor, pre-translation and the plugin dialog host</td></tr><tr><td><code>40</code>–<code>42</code></td><td>Settings search with a matching query, another matching query, and no matches</td></tr><tr><td><code>50</code></td><td>Information, confirmation and unsaved-changes message overlays</td></tr></tbody></table></div>
+<p>Every row is captured in <strong>both</strong> themes. Additional captures cover both new-project wizard steps, detected import files, minimum window sizes, Review/Audit modes and the File menu popup. <code>Snap</code> fails if rendering returns no bitmap; dialog captures also check that the resolved window surface is opaque. <code>DialogSurfaceTests</code> checks theme changes on an open dialog and verifies rendered client pixels with transparent Grid and Border roots.</p>
 <p>The sample project has 60 generated keys so the pager and the Explorer tree have something to show.</p>
 <h2 id="notes"><a class="anchor" href="#notes" aria-label="Link to this section">#</a>Notes</h2>
 <ul>
 <li>Screenshots use the platform fonts and a 1280×800 window, so they are close to, not identical with, a real window. The macOS traffic-light inset is simulated with a fixed 78px.</li>
-<li>Popups (menus, flyouts) are separate windows and do not appear in these captures. Check them in the running app.</li>
+<li>The File menu popup has a separate PNG; other context menus, flyouts, OS file pickers, native title bars, multi-monitor behavior and display scaling still need native desktop checks. Headless captures cannot prove Windows compositor correctness.</li>
 <li>Add a screen by adding a <code>Snap(window, "NN-name")</code> call where it is reachable. Keep new dialogs in <code>CaptureDialogs</code>.</li>
 </ul>
+<p>See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/windows-ui-review.md">the Windows review</a> for findings and remaining work.</p>
       </div>
     </article>
   </div>

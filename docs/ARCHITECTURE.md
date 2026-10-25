@@ -1,7 +1,7 @@
 ---
 title: Toucan architecture
 status: active
-updated: 2026-10-07
+updated: 2026-10-25
 summary: Current project boundaries, host composition, desktop state, project persistence, plugins, and AI integration, with implementation links and Mermaid diagrams.
 ---
 
@@ -18,6 +18,7 @@ Arrows below mean project references. Runtime registration does not create a Cor
 ```mermaid
 flowchart TD
     Desktop["Toucan.Avalonia"] --> Core["Toucan.Core"]
+    Desktop --> DesktopContracts["Toucan.Plugins.Avalonia"]
     CLI["Toucan.CLI"] --> Core
     Desktop --> Defaults["Toucan.Modules.Defaults"]
     CLI --> Defaults
@@ -25,27 +26,34 @@ flowchart TD
     Defaults --> Providers["Modules.Providers"]
     Defaults --> Validation["Modules.Validation"]
     Defaults --> Frameworks["Modules.Frameworks"]
+    Defaults --> Compatibility["Modules.Compatibility.BabelEdit"]
     Core --> Common["Toucan.Core.Common"]
     Core --> Contracts["Toucan.Plugins.Abstractions"]
+    DesktopContracts --> Contracts
     Formats --> Common
     Providers --> Common
     Validation --> Common
     Frameworks --> Common
+    Compatibility --> Common
     Formats --> Contracts
     Providers --> Contracts
     Validation --> Contracts
     Frameworks --> Contracts
+    Compatibility --> Contracts
     Common --> Contracts
     Plugin["External plugin"] --> Contracts
+    DesktopPlugin["Desktop plugin"] --> DesktopContracts
 ```
 
 | Project | Responsibility | Boundary |
 |---|---|---|
 | `Toucan.Plugins.Abstractions` | Plugin entry point, format/provider/rule/profile contracts, shared DTOs | No Core or UI dependency. Some public types retain `Toucan.Core.*` namespaces for compatibility. |
+| `Toucan.Plugins.Avalonia` | Desktop contribution contracts (panels, inspector sections, settings, dialogs, actions) | References Abstractions; Avalonia UI contracts for desktop plugins without CLI dependencies. |
+| `Toucan.Plugins.Testing` | In-memory test harness for plugin authors | References only Abstractions; tests plugins without host or UI assemblies. |
 | `Toucan.Core.Common` | Shared file/helpers code and built-in module registration support | References Abstractions; never Core or a module. |
 | `Toucan.Core` | Project IO and lifecycle implementations, registries, validation pipeline, AI policy, plugin host, editing services | No Avalonia dependency and no reference to built-in modules. |
-| `Toucan.Modules.*` | Concrete formats, providers, validation rules, framework profiles | Leaf modules reference Common and Abstractions, not Core or sibling modules. |
-| `Toucan.Modules.Defaults` | Registers the seven built-in modules | The aggregation point that references every module. |
+| `Toucan.Modules.*` | Concrete formats, providers, validation rules, framework profiles, BabelEdit compatibility | Leaf modules reference Common and Abstractions, not Core or sibling modules. |
+| `Toucan.Modules.Defaults` | Registers the built-in modules | The aggregation point that references every module. |
 | `Toucan.Avalonia` | Desktop startup, views, view models, platform services, application state | Composes Core and Defaults; uses Avalonia and FluentAvalonia. |
 | `Toucan.CLI` | Console commands for checking, translation, export, key access, and plugin policy | Composes Core and Defaults without constructing the desktop lifecycle. |
 
@@ -152,18 +160,20 @@ Editing flows through [TranslationItemViewModel](../Toucan.Avalonia/ViewModels/T
 ```mermaid
 flowchart TD
     Save["SaveProjectAsync"] --> Validate["Run validation pipeline"]
-    Validate --> Errors{"Error severity results?"}
-    Errors -->|Yes| Stop["Return ValidationErrors without writing"]
-    Errors -->|No| Write["ProjectService.Save through format strategy"]
+    Validate --> Findings["Findings recorded to Issues panel"]
+    Findings --> Strict{"Strict policy / EnforceValidation?"}
+    Strict -->|Yes and errors| Stop["Return ValidationErrors without writing"]
+    Strict -->|No| Journal["Begin SaveTransaction journal"]
+    Journal --> Write["ProjectService.Save: atomic temporary file swap"]
     Write --> Text["Apply configured encoding and line endings"]
     Text --> Meta["Persist comments, audit, and manifest packages"]
-    Meta --> Baseline["MarkAllSaved and update snapshots"]
+    Meta --> Baseline["MarkAllSaved, commit transaction, update snapshots"]
     Baseline --> Timer["Reset auto-save timer and publish Saved"]
 ```
 
-The save strategy owns translation serialization. Project text settings are applied afterward to language files reported by built-in strategies; Java properties retains Latin-1 encoding. The post-processing does not apply arbitrary encoding changes to plugin formats. Comment sidecars are used when `StoresCommentsInline` is false. Audit uses `.toucan-metadata.json`.
+The save strategy owns translation serialization; exact-resource strategies preserve original document formatting, comments, and structure. Project text settings are applied afterward to language files reported by built-in strategies; Java properties retains Latin-1 encoding. The post-processing does not apply arbitrary encoding changes to plugin formats. Comment sidecars are used when `StoresCommentsInline` is false. Audit uses `.toucan-metadata.json`.
 
-Save spans multiple files and sidecars; it is not a transaction across the project. Do not describe successful individual file writes as an atomic project commit. The lifecycle marks baselines saved only after its persistence steps complete.
+Files are replaced atomically using a temporary file swap. Multi-file saves are coordinated by a journaled `SaveTransaction`: if an individual write fails, previously written files are rolled back and unsaved edits remain in memory. Unsaved changes are also periodically backed up as recovery drafts to protect against unexpected termination.
 
 External changes are coordinated by [ProjectLifecycleService.ExternalChanges](../Toucan.Core/Services/ProjectLifecycleService.ExternalChanges.cs). A clean project reloads automatically. A dirty project offers Reload, Merge, or Ignore through the host handler. Merge uses the saved snapshot, in-memory records, and disk records; it applies non-conflicting entries before asking for conflict resolution. Cancelling that dialog therefore does not undo already-applied entries.
 

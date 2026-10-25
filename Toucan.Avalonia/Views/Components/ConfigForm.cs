@@ -18,7 +18,7 @@ public sealed class ConfigForm : UserControl
 {
     private readonly IPluginConfiguration _config;
     private readonly Func<string?> _workspaceId;
-    private readonly List<Action> _refreshers = [];
+    private readonly Dictionary<string, Action> _refreshers = new(StringComparer.Ordinal);
 
     public ConfigForm(IPluginConfiguration config, Func<string?> workspaceId)
     {
@@ -61,7 +61,7 @@ public sealed class ConfigForm : UserControl
             refresh();
             reset.IsVisible = field.Type != ConfigFieldType.Secret && !Equals(Current(field), field.Default is long l && field.Type == ConfigFieldType.WholeNumber ? l : field.Default);
         }
-        _refreshers.Add(Refresh);
+        _refreshers[field.Key] = Refresh;
         Refresh();
 
         var title = LocalizedText.Pick(field.LocalizedLabels, field.Label);
@@ -181,7 +181,7 @@ public sealed class ConfigForm : UserControl
         var result = await _config.SetAsync(field.Key, value, TargetFor(field));
         error.Text = result.Error;
         error.IsVisible = !result.IsValid;
-        foreach (var refresh in _refreshers) refresh();
+        if (_refreshers.TryGetValue(field.Key, out var refresh)) refresh();
         return result.IsValid;
     }
 }

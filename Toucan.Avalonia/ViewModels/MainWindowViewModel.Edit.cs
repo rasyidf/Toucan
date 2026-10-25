@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.Input;
 using Toucan.Avalonia.Services;
 using Toucan.Core.Models;
+using Toucan.Core.Services;
 using Toucan.Extensions;
 
 namespace Toucan.Avalonia.ViewModels;
@@ -12,9 +13,10 @@ public partial class MainWindowViewModel
 {
     // ───────────────────────── Languages ─────────────────────────
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanCreateKeys))]
     private async Task NewLanguage()
     {
+        if (!CanChangeKeys) { StatusText = "Configure a target resource file before adding a generated-catalog language."; return; }
         if (!HasProject) return;
         var code = await _dialogService.ShowLanguagePromptAsync("New Language", "Choose the language to add to this project.", AllTranslation);
         if (code != null) await AddLanguageAsync(code);
@@ -22,6 +24,7 @@ public partial class MainWindowViewModel
 
     public async Task AddLanguageAsync(string code)
     {
+        if (!CanChangeKeys) { StatusText = "Resource capabilities forbid changing the generated catalog language set."; return; }
         if (string.IsNullOrWhiteSpace(code)) return;
         if (AllTranslation.Any(t => string.Equals(t.Language, code, StringComparison.OrdinalIgnoreCase)))
         {
@@ -42,6 +45,7 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private async Task ManageLanguages()
     {
+        if (!CanChangeKeys) { StatusText = "Configure generated-catalog resource languages in the project descriptor."; return; }
         if (!HasProject) return;
         var result = await _dialogService.ShowManageLanguagesAsync(AllTranslation, PrimaryLanguage);
         if (result == null) return;
@@ -73,6 +77,7 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private async Task DeleteLanguage(SummaryItem? item)
     {
+        if (!CanChangeKeys) { StatusText = "Resource capabilities forbid removing generated-catalog languages."; return; }
         if (item == null || string.IsNullOrEmpty(item.Language)) return;
         if (string.Equals(item.Language, PrimaryLanguage, StringComparison.OrdinalIgnoreCase))
         {
@@ -135,7 +140,7 @@ public partial class MainWindowViewModel
 
     // ───────────────────────── Keys ─────────────────────────
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanCreateKeys))]
     private async Task NewItem()
     {
         if (!HasProject) return;
@@ -145,10 +150,13 @@ public partial class MainWindowViewModel
         if (result != null) await CreateNewItemAsync(result.Trim());
     }
 
-    private static string ParentPrefix(string ns) => ns.Contains('.', StringComparison.Ordinal) ? ns[..(ns.LastIndexOf('.') + 1)] : string.Empty;
+    private static string ParentPrefix(string ns) => ResourceEntryOperations.ParentPrefix(ns);
+
+    public bool CanChangeKeys => !AllTranslation.Any(t => !t.Permissions.EditKeys) && ProjectSettings?.ResourceDocuments.Any(d => d.Resource.Ownership != ResourceOwnership.User) != true;
 
     public async Task CreateNewItemAsync(string newNamespace)
     {
+        if (!CanChangeKeys) { StatusText = "Generated catalogs own the keys. Edit source and extract again."; return; }
         if (string.IsNullOrWhiteSpace(newNamespace) || newNamespace.EndsWith('.') || newNamespace.StartsWith('.')) return;
         if (AllTranslation.Any(t => t.Namespace == newNamespace))
         {
@@ -163,9 +171,11 @@ public partial class MainWindowViewModel
 
         var languages = ProjectLanguages();
         if (languages.Count == 0) languages.Add(PrimaryLanguage);
+        var before = CaptureStructure();
         foreach (var lang in languages)
             AllTranslation.Add(new TranslationItem { Namespace = newNamespace, Value = string.Empty, Language = lang, LastModifiedUtc = DateTime.UtcNow });
 
+        _undoRedoService.RecordStructure(before, AllTranslation);
         MarkStructureChanged([newNamespace]);
         RefreshTree();
         UpdateSummaryInfo();
@@ -173,7 +183,8 @@ public partial class MainWindowViewModel
         StatusText = $"Added key {newNamespace}";
     }
 
-    private bool HasSelectedNode() => SelectedNode != null;
+    private bool HasSelectedNode() => SelectedNode != null && CanChangeKeys;
+    private bool CanCreateKeys() => HasProject && CanChangeKeys;
 
     [RelayCommand(CanExecute = nameof(HasSelectedNode))]
     private async Task RenameItem()
@@ -189,6 +200,7 @@ public partial class MainWindowViewModel
     /// <summary>Renames one key segment and every key below it. Returns an error message or null.</summary>
     public string? RenameItemCore(NsTreeItem node, string newName)
     {
+        if (!CanChangeKeys) return "Resource capabilities forbid renaming keys.";
         newName = newName.Trim();
         if (string.IsNullOrWhiteSpace(newName)) return "Name can't be empty.";
         if (newName.Contains('.', StringComparison.Ordinal)) return "Name can't contain '.'.";
@@ -201,6 +213,7 @@ public partial class MainWindowViewModel
 
         FlushPendingEdits();
         var renamed = new List<string>();
+        var before = CaptureStructure();
         foreach (var item in AllTranslation)
         {
             if (item.Namespace == oldNs) item.Namespace = newNs;
@@ -209,6 +222,7 @@ public partial class MainWindowViewModel
             renamed.Add(item.Namespace);
         }
 
+        _undoRedoService.RecordStructure(before, AllTranslation);
         MarkStructureChanged(renamed);
         RefreshTree();
         RevealKey(newNs);
@@ -259,12 +273,15 @@ public partial class MainWindowViewModel
     /// <summary>Deletes the given keys (and any keys nested under them).</summary>
     public void DeleteNamespaces(IReadOnlyCollection<string> namespaces)
     {
+        if (!CanChangeKeys) { StatusText = "Resource capabilities forbid deleting keys."; return; }
         if (namespaces.Count == 0) return;
+        var before = CaptureStructure();
         FlushPendingEdits();
         var removed = AllTranslation.Where(t => namespaces.Any(n => MatchesNode(t.Namespace, n))).Select(t => t.Namespace).Distinct().ToList();
         AllTranslation.RemoveAll(t => namespaces.Any(n => MatchesNode(t.Namespace, n)));
         SelectedNode = null;
         SelectedGroup = null;
+        _undoRedoService.RecordStructure(before, AllTranslation);
         MarkStructureChanged(removed);
         RefreshTree();
         UpdateSummaryInfo();
@@ -275,25 +292,24 @@ public partial class MainWindowViewModel
     [RelayCommand(CanExecute = nameof(HasSelectedNode))]
     private void DuplicateItem()
     {
+        if (!CanChangeKeys) return;
         if (SelectedNode is not { } node) return;
         FlushPendingEdits();
 
         var newNs = node.Namespace + "_copy";
         var n = 2;
         while (AllTranslation.Any(t => t.Namespace == newNs)) newNs = $"{node.Namespace}_copy{n++}";
+        var before = CaptureStructure();
 
         foreach (var item in AllTranslation.Where(t => t.Namespace == node.Namespace).ToList())
         {
-            AllTranslation.Add(new TranslationItem
-            {
-                Namespace = newNs,
-                Value = item.Value,
-                Language = item.Language,
-                Comment = item.Comment,
-                LastModifiedUtc = DateTime.UtcNow
-            });
+            var copy = ResourceEntryOperations.Copy(item, duplicate: true);
+            copy.Namespace = newNs;
+            copy.LastModifiedUtc = DateTime.UtcNow;
+            AllTranslation.Add(copy);
         }
 
+        _undoRedoService.RecordStructure(before, AllTranslation);
         MarkStructureChanged([newNs]);
         RefreshTree();
         UpdateSummaryInfo();
@@ -325,6 +341,22 @@ public partial class MainWindowViewModel
     /// <summary>Adds empty items so every key exists in every language. Returns the items added.</summary>
     private List<TranslationItem> AddMissingTranslationsCore()
     {
+        if (!CanChangeKeys)
+        {
+            var targets = ProjectSettings?.ResourceDocuments.Where(d => d.Resource.Ownership == ResourceOwnership.User).Select(d => d.Resource).ToList() ?? [];
+            var addedTargets = new List<TranslationItem>();
+            foreach (var source in AllTranslation.Where(i => !i.Permissions.EditKeys && i.Identity != null).ToList())
+                foreach (var target in targets.Where(d => d.Package == source.Identity!.Package))
+                {
+                    var key = ResourceEntryOperations.Selector(source.Identity!.Path);
+                    if (AllTranslation.Any(i => i.Language == target.Language && i.Identity?.Package == target.Package &&
+                        i.Identity != null && ResourceEntryOperations.Selector(i.Identity.Path) == key)) continue;
+                    var item = new TranslationItem { Language = target.Language };
+                    ResourceEntryOperations.Move(item, target, key);
+                    AllTranslation.Add(item); addedTargets.Add(item);
+                }
+            return addedTargets;
+        }
         var namespaces = AllTranslation.ToNamespaces().ToList();
         var added = new List<TranslationItem>();
         var existing = AllTranslation.Select(t => (t.Language, t.Namespace)).ToHashSet();
@@ -379,14 +411,85 @@ public partial class MainWindowViewModel
     {
         FlushPendingEdits();
         // A step may hold several edits (a bulk operation); undo them last to first.
-        if (_undoRedoService.Undo() is { } step) ApplyUndoRedo(step.Reverse().Select(a => (a.Namespace, a.Language, a.OldValue)).ToList());
+        if (_undoRedoService.Undo() is { } step) ApplyHistory(step.Reverse(), undo: true);
     }
 
     [RelayCommand]
     private void Redo()
     {
         FlushPendingEdits();
-        if (_undoRedoService.Redo() is { } step) ApplyUndoRedo(step.Select(a => (a.Namespace, a.Language, a.NewValue)).ToList());
+        if (_undoRedoService.Redo() is { } step) ApplyHistory(step, undo: false);
+    }
+
+    private List<TranslationItem> CaptureStructure() => AllTranslation.Select(i => ResourceEntryOperations.Copy(i)).ToList();
+
+    private static Dictionary<TranslationItem, TranslationItem> CaptureEntries(IEnumerable<TranslationItem> items) =>
+        items.Distinct().ToDictionary(i => i, i => ResourceEntryOperations.Copy(i));
+
+    private int RecordEntryChanges(Dictionary<TranslationItem, TranslationItem> before)
+    {
+        var changed = before.Where(p => System.Text.Json.JsonSerializer.Serialize(p.Value) != System.Text.Json.JsonSerializer.Serialize(p.Key)).ToList();
+        using (_undoRedoService.BeginGroup())
+            foreach (var pair in changed) _undoRedoService.RecordEntry(pair.Value, pair.Key);
+        return changed.Count;
+    }
+
+    private void ApplyHistory(IEnumerable<EditAction> step, bool undo)
+    {
+        foreach (var action in step)
+        {
+            if ((undo ? action.BeforeEntry : action.AfterEntry) is { } entry)
+            {
+                var item = AllTranslation.FirstOrDefault(i => entry.Identity != null
+                    ? i.Identity?.Address == entry.Identity.Address
+                    : i.Namespace == entry.Namespace && i.Language == entry.Language);
+                if (item == null) continue;
+                item.Value = entry.Value;
+                item.Comment = entry.Comment;
+                item.IsApproved = entry.IsApproved;
+                item.ApprovedAtUtc = entry.ApprovedAtUtc;
+                item.LastModifiedUtc = entry.LastModifiedUtc;
+                item.ChangeType = entry.ChangeType;
+                item.FormatData = entry.FormatData == null ? null : new(entry.FormatData);
+                NotifyBulkValueChanges([item]);
+                foreach (var shown in PagingController.Data.SelectMany(g => g.AllItems).Where(v => ReferenceEquals(v.Model, item))) shown.Refresh();
+                UpdateSummaryInfo();
+                continue;
+            }
+            if ((undo ? action.BeforeSpelling : action.AfterSpelling) is { } spelling && ProjectSettings != null)
+            {
+                ProjectSettings.Spelling = SpellingSettings.Copy(spelling); _translationStore.NotifyConfigurationChanged(true);
+                _spellingSession?.Refresh(); MarkStructureChanged(); continue;
+            }
+            if ((undo ? action.BeforeMetadata : action.AfterMetadata) is { } metadata)
+            {
+                var item = AllTranslation.FirstOrDefault(i => i.Namespace == action.Namespace && i.Language == action.Language);
+                if (item?.Permissions.EditMetadata == true)
+                {
+                    item.FormatData = new(metadata);
+                    NotifyBulkValueChanges([item]);
+                    foreach (var shown in PagingController.Data.SelectMany(g => g.AllItems)) if (ReferenceEquals(shown.Model, item)) shown.Refresh();
+                }
+                continue;
+            }
+            if ((undo ? action.BeforeConfiguration : action.AfterConfiguration) is { } configuration && ProjectSettings != null)
+            {
+                ProjectConfiguration.Apply(ProjectSettings, configuration);
+                _translationStore.NotifyConfigurationChanged(true);
+                _spellingSession?.Refresh();
+                MarkStructureChanged();
+                OnPropertyChanged(nameof(CanChangeKeys));
+            }
+            if ((undo ? action.BeforeStructure : action.AfterStructure) is { } structure)
+            {
+                AllTranslation = structure.Select(i => ResourceEntryOperations.Copy(i)).ToList();
+                MarkStructureChanged(AllTranslation.Select(i => i.Namespace));
+                RefreshTree();
+                Search(SearchText, true);
+                UpdateSummaryInfo();
+            }
+            else if (action.BeforeConfiguration == null) ApplyUndoRedo([(action.Namespace, action.Language, undo ? action.OldValue : action.NewValue)]);
+        }
     }
 
     private void ApplyUndoRedo(IReadOnlyList<(string Namespace, string Language, string Value)> edits)
@@ -415,6 +518,33 @@ public partial class MainWindowViewModel
         StatusText = restored.Count == 1 ? $"{last.Namespace} [{last.Language}] restored" : $"{restored.Count} edits restored";
     }
 
+    /// <summary>
+    /// Runs a value-changing bulk operation so it undoes and redoes as one step. Snapshots the given items' values,
+    /// runs <paramref name="mutate"/>, then records every value that changed inside one undo group. Returns the items
+    /// that changed. A no-op records nothing (an empty group is no step).
+    /// </summary>
+    private IReadOnlyList<TranslationItem> RecordBulkEdit(IEnumerable<TranslationItem> items, Action mutate)
+    {
+        var tracked = items as IReadOnlyList<TranslationItem> ?? items.ToList();
+        var before = new Dictionary<TranslationItem, string>(ReferenceEqualityComparer.Instance);
+        foreach (var item in tracked) before[item] = item.Value;
+
+        using (_undoRedoService.BeginGroup())
+        {
+            mutate();
+            var changed = new List<TranslationItem>();
+            foreach (var item in tracked)
+            {
+                if (before.TryGetValue(item, out var old) && old != item.Value)
+                {
+                    _undoRedoService.Record(item.Namespace, item.Language, old, item.Value);
+                    changed.Add(item);
+                }
+            }
+            return changed;
+        }
+    }
+
     // ───────────────────────── Text transforms ─────────────────────────
 
     /// <summary>Applies a transform to the values currently shown in the editor (the active filter).</summary>
@@ -435,10 +565,13 @@ public partial class MainWindowViewModel
         if (planned.Count > 50 && !await _messageService.ConfirmAsync($"{label} will change {planned.Count} values in the current view. Continue?", label))
             return;
 
-        foreach (var (item, next) in planned)
+        using (_undoRedoService.BeginGroup())
         {
-            _undoRedoService.Record(item.Namespace, item.Language, item.Value, next);
-            item.Value = next;
+            foreach (var (item, next) in planned)
+            {
+                _undoRedoService.Record(item.Namespace, item.Language, item.Value, next);
+                item.Value = next;
+            }
         }
         var changed = planned.Select(p => p.Item).ToList();
 

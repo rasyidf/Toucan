@@ -55,7 +55,7 @@ public class StatusBarActionTests
     }
 
     [AvaloniaFact]
-    public async Task Notifications_IncludeValidationAndUntranslatedEntries()
+    public async Task Notifications_CountHistoryWhileRetainingValidationAndUntranslatedSummary()
     {
         using var host = new TestHost();
         var status = host.Services.GetRequiredService<StatusBarViewModel>();
@@ -73,10 +73,23 @@ public class StatusBarActionTests
             Assert.Equal(1, status.Notifications.Errors);
             Assert.Equal(1, status.Notifications.Warnings);
             Assert.Equal(1, status.Notifications.Info);
-            Assert.Equal(4, status.Notifications.Count);
+            Assert.Equal(0, status.Notifications.Count);
+            host.Services.GetRequiredService<Toucan.Core.Plugins.INotificationCenter>().Publish("toucan", new Toucan.Plugins.PluginNotification { Title = "Validation complete" });
+            Assert.Equal(1, status.Notifications.Count);
+            Assert.Equal("1", status.Notifications.Badge);
+            vm.NotificationHistory.MarkSeen();
+            Assert.Null(status.Notifications.Badge);
             vm.ValidationIssues.Clear();
             vm.AllTranslation.Single(t => t.Language == "fr").Value = "Bonjour";
             vm.UpdateSummaryInfo();
+            Assert.Equal(1, status.Notifications.Count);
+            Assert.Equal(0, status.Notifications.Unseen);
+            Assert.Null(status.Notifications.Badge);
+            host.Services.GetRequiredService<Toucan.Core.Plugins.INotificationCenter>().Publish("toucan", new Toucan.Plugins.PluginNotification { Title = "Saved" });
+            Assert.Equal(2, status.Notifications.Count);
+            Assert.Equal(1, status.Notifications.Unseen);
+            Assert.Equal("1", status.Notifications.Badge);
+            vm.NotificationHistory.ClearCommand.Execute(null);
             Assert.Equal(0, status.Notifications.Count);
             Assert.True(status.Notifications.IsVisible);
         }

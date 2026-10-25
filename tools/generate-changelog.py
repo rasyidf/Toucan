@@ -66,7 +66,7 @@ def blocks(text):
 
 
 def main():
-    source = (ROOT / 'CHANGELOG.md').read_text()
+    source = (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8')
     sections = re.split(r'^## \[([^\]]+)\](?: - (\d{4}-\d{2}-\d{2}))?\s*$', source, flags=re.M)
     articles, links = [], []
     latest = next(sections[i] for i in range(1, len(sections), 3) if sections[i] != 'Unreleased')
@@ -99,13 +99,13 @@ def main():
 <div class="release-links"><a href="#{anchor}" aria-label="Permalink to {label}">Permalink</a>{release_link}</div>
 </article>''')
     page = ROOT / 'docs/changelog.html'
-    html = page.read_text()
+    html = page.read_text(encoding='utf-8')
     for marker, content in [('RELEASE INDEX', '\n'.join(links)), ('RELEASES', '\n'.join(articles))]:
         start, end = f'<!-- {marker} START -->', f'<!-- {marker} END -->'
         before, remainder = html.split(start, 1)
         _, after = remainder.split(end, 1)
         html = before + start + '\n' + content + '\n' + end + after
-    page.write_text(html)
+    page.write_text(html, encoding='utf-8')
     print(f'Generated {len(articles)} changelog entries.')
 
 

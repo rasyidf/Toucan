@@ -26,7 +26,7 @@ public sealed class FormatSupportTests : IDisposable
         new ProjectModeResolver(),
         NullLogger<ProjectService>.Instance);
 
-    private static IEnumerable<ISaveStrategy> BuiltIns => FormatTestHost.SaveStrategies.Where(s => FormatIds.TryGetStyle(s.FormatId, out _));
+    private static IEnumerable<ISaveStrategy> BuiltIns => FormatTestHost.SaveStrategies.Where(s => s.Support != null);
 
     [Fact]
     public void EveryBuiltInFormatDeclaresSupport()
@@ -67,6 +67,7 @@ public sealed class FormatSupportTests : IDisposable
         sb.AppendLine("---");
         sb.AppendLine("title: \"Format support matrix\"");
         sb.AppendLine("status: active");
+        sb.AppendLine("updated: 2026-10-22");
         sb.AppendLine("summary: \"Which file formats Toucan edits safely, what survives a save, and what does not.\"");
         sb.AppendLine("---");
         sb.AppendLine("# Format support matrix");

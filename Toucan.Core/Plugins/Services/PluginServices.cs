@@ -50,7 +50,7 @@ internal sealed class PluginHostServices
         var diagnostics = new DiagnosticsService();
         Diagnostics = diagnostics;
         Notifications = new NotificationCenter(diagnostics);
-        Operations = new BackgroundOperationService(diagnostics);
+        Operations = new BackgroundOperationService(diagnostics, Notifications);
     }
 }
 

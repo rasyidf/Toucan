@@ -27,7 +27,7 @@ public class IniSaveStrategy(IFileService fileService) : ISaveStrategy
         foreach (var (language, list) in context.LanguageDictionary)
         {
             var sb = new StringBuilder($"; Translation file for {language}\n\n");
-            foreach (var item in list.NoEmpty())
+            foreach (var item in list.ForSave(context))
             {
                 var key = item.Namespace.Replace('.', '_');
                 var value = item.Value ?? string.Empty;

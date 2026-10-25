@@ -8,6 +8,8 @@ public partial class OnboardingDialog : DialogWindow
 
     public OnboardingDialog() => InitializeComponent();
 
+    private void SkipSetup(object? sender, global::Avalonia.Interactivity.RoutedEventArgs e) => Close(false);
+
     public OnboardingDialog(OnboardingViewModel vm) : this()
     {
         DataContext = vm;

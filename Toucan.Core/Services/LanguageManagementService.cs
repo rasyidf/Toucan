@@ -36,6 +36,8 @@ public class LanguageManagementService(
 
         try
         {
+            if (settings.ResourceDocuments.Select(d => d.Resource.Package).Distinct().Skip(1).Any())
+                return new LanguageOperationResult(false, "Choose explicit resource destinations for each package before adding this language.");
             // Get all distinct namespaces from existing translations
             var namespaces = translationManagement.Translations
                 .ForParse()
@@ -50,6 +52,17 @@ public class LanguageManagementService(
                 Namespace = ns,
                 Value = string.Empty
             }).ToList();
+
+            ResourceDocumentState? addedDocument = null;
+            if (settings.ResourceDocuments.FirstOrDefault() is { } template)
+            {
+                var relative = projectService.GetDefaultFilePath(settings, languageCode);
+                var resource = template.Resource with { Id = relative.Replace('\\', '/'), Language = languageCode, RelativePath = relative };
+                addedDocument = new ResourceDocumentState { Resource = resource };
+                foreach (var item in newItems)
+                    if (translationManagement.Translations.FirstOrDefault(i => i.Namespace == item.Namespace)?.Identity is { } identity)
+                        item.Identity = identity with { EntryId = Guid.NewGuid().ToString("N"), ResourceId = resource.Id, Path = [.. identity.Path] };
+            }
 
             // If no namespaces exist, create a placeholder so the language is recognized
             if (newItems.Count == 0)
@@ -68,6 +81,7 @@ public class LanguageManagementService(
 
             // Add items to in-memory collection
             translationManagement.AddItems(newItems);
+            if (addedDocument is not null) settings.ResourceDocuments.Add(addedDocument);
 
             // Update manifest languages list and persist
             if (!settings.Languages.Contains(languageCode))
@@ -135,6 +149,9 @@ public class LanguageManagementService(
 
         // Remove from manifest languages list
         settings.Languages.RemoveAll(l => string.Equals(l, languageCode, StringComparison.OrdinalIgnoreCase));
+        settings.ResourceDocuments.RemoveAll(d => string.Equals(d.Resource.Language, languageCode, StringComparison.OrdinalIgnoreCase));
+        foreach (var package in settings.TranslationPackages)
+            package.TranslationUrls.RemoveAll(u => string.Equals(u.Language, languageCode, StringComparison.OrdinalIgnoreCase));
 
         // Safety: if primary language was somehow removed, assign first remaining
         if (!settings.Languages.Contains(settings.PrimaryLanguage, StringComparer.OrdinalIgnoreCase)

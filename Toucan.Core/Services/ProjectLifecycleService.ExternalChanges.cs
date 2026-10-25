@@ -77,16 +77,12 @@ public partial class ProjectLifecycleService
     /// </summary>
     private void UpdateLastSavedSnapshot()
     {
+        if (_currentProject != null) _configurationBaseline = ProjectConfiguration.Signature(_currentProject);
+        _currentProject?.ExpectedResourceFiles.Clear();
+        if (_currentProject != null) _currentProject.IsDirty = false;
         CaptureDiskBaseline();
         _lastSavedSnapshot = translationManagement.Translations
-            .Select(t => new TranslationItem
-            {
-                Language = t.Language,
-                Namespace = t.Namespace,
-                Value = t.Value,
-                Comment = t.Comment,
-                IsApproved = t.IsApproved
-            })
+            .Select(t => ResourceEntryOperations.Copy(t))
             .ToList();
         _snapshotIndex = _lastSavedSnapshot
             .GroupBy(t => (t.Language, t.Namespace))
@@ -168,6 +164,7 @@ public partial class ProjectLifecycleService
             // Reload translations from disk
             var loadResult = projectService.LoadProject(folderPath);
             var translations = loadResult.Translations;
+            _currentProject.ResourceDocuments = loadResult.Settings.ResourceDocuments;
 
             // Re-initialize the translation management service (clears dirty and sets new baselines)
             translationManagement.Initialize(translations);
@@ -285,7 +282,7 @@ public partial class ProjectLifecycleService
             else if (item is null && entry.TheirsValue is not null)
             {
                 // Item was added on disk and resolved — add it
-                translationManagement.AddItems([new TranslationItem
+                translationManagement.AddItems([entry.TheirsItem is { } source ? ResourceEntryOperations.Copy(source) : new TranslationItem
                 {
                     Language = entry.Language,
                     Namespace = entry.Namespace,

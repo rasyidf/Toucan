@@ -22,7 +22,7 @@ public sealed class FormatStabilityTests : IDisposable
     public static TheoryData<string> LoadableFormats()
     {
         var data = new TheoryData<string>();
-        foreach (var s in FormatTestHost.SaveStrategies.Where(s => FormatTestHost.Factory.GetLoadStrategy(s.FormatId) != null))
+        foreach (var s in FormatTestHost.EditableStrategies.Where(s => FormatTestHost.Factory.GetLoadStrategy(s.FormatId) != null))
             data.Add(s.FormatId);
         return data;
     }

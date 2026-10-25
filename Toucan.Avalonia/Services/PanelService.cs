@@ -26,6 +26,9 @@ public partial class PanelService : ObservableObject
     [ObservableProperty] private double sidebarWidth = 280;
     [ObservableProperty] private double inspectorWidth = 300;
 
+    /// <summary>Whether rows show an inline warning when a <c>{{ }}</c> placeholder from the source is missing. Mirrors <see cref="Toucan.Core.Options.AppOptions.ShowPlaceholderWarnings"/>.</summary>
+    [ObservableProperty] private bool showPlaceholderWarnings = true;
+
     public bool IsEditorMode => EditorMode == EditorMode.Editor;
     public bool IsReviewMode => EditorMode == EditorMode.Review;
     public bool IsAuditMode => EditorMode == EditorMode.Audit;

@@ -402,6 +402,7 @@ public partial class OptionsViewModel : ObservableObject, IShortcutEditor
 
     // Editor
     [ObservableProperty] private bool plainTextKeys;
+    [ObservableProperty] private bool showPlaceholderWarnings = true;
     [ObservableProperty] private string defaultLanguage = "en-US";
 
 
@@ -477,6 +478,7 @@ public partial class OptionsViewModel : ObservableObject, IShortcutEditor
         LoadSchemeFromOptions();
         FontSize = (decimal)opts.FontSize;
         PlainTextKeys = opts.PlainTextKeys;
+        ShowPlaceholderWarnings = opts.ShowPlaceholderWarnings;
         DefaultLanguage = opts.DefaultLanguage ?? "en-US";
 
         CopyTemplates.Clear();
@@ -535,6 +537,7 @@ public partial class OptionsViewModel : ObservableObject, IShortcutEditor
         _shortcutsSaved = true;
         AppOptions.FontSize = (double)Math.Clamp(FontSize, 11, 18);
         AppOptions.PlainTextKeys = PlainTextKeys;
+        AppOptions.ShowPlaceholderWarnings = ShowPlaceholderWarnings;
         AppOptions.DefaultLanguage = DefaultLanguage;
         AppOptions.CopyTemplates = [.. CopyTemplates.Select(t => t.Value)];
         AppOptions.TmSimilarityThreshold = Math.Round(TmSimilarityThreshold, 2);
@@ -761,7 +764,8 @@ public sealed record AppLanguageOption(string Code, string Name)
 
 public sealed record SettingsNavEntry(string Title, string Icon, string Color)
 {
-    public global::Avalonia.Media.IBrush TileBrush { get; } = global::Avalonia.Media.Brush.Parse(Color);
+    public global::Avalonia.Media.IBrush TileBrush { get; } =
+        new global::Avalonia.Media.Immutable.ImmutableSolidColorBrush(global::Avalonia.Media.Color.Parse(Color));
 }
 
 public sealed record ShortcutGroup(string Category, IReadOnlyList<KeybindingEntry> Items);

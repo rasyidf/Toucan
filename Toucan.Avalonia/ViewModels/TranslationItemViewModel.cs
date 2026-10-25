@@ -1,3 +1,4 @@
+using System.Text;
 using Avalonia.Media;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -30,8 +31,10 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         IUndoRedoService? undoRedoService = null,
         ITranslationManagementService? translationManagement = null,
         Action<TranslationItemViewModel>? onChanged = null,
-        Func<TranslationItem, bool>? canApprove = null)
+        Func<TranslationItem, bool>? canApprove = null, SpellingSession? spelling = null)
     {
+        _spelling = spelling;
+        if (_spelling != null) _spelling.Changed += OnSpellingChanged;
         _canApprove = canApprove;
         _model = model;
         _undoRedoService = undoRedoService;
@@ -44,6 +47,35 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
 
     public TranslationItem Model => _model;
 
+    public bool IsResourceReadOnly => !_model.Permissions.EditValues;
+    public bool IsSource { get; init; }
+    public int CharacterCount => _value.EnumerateRunes().Count();
+    public int WordCount => _value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
+    public string ReadOnlyReason => _model.Permissions.Reason ?? Locales.Loc.T("This resource is read-only.");
+    public string ResourcePath { get; init; } = "";
+    public string EditorDetails => IdentityDetails + (string.IsNullOrEmpty(SpellingStatus) ? "" : "\n" + SpellingStatus);
+    public string IdentityDetails => _model.Identity is { } identity ? $"{ResourcePath}\n{identity.Package} / {identity.ResourceId}\n{System.Text.Json.JsonSerializer.Serialize(identity.Path)}" : Namespace;
+    public bool IsArbResource { get; init; }
+    public bool HasArbMetadata => IsArbResource || _model.FormatData?.ContainsKey("arb.file") == true;
+    public string PlaceholderMetadata => _model.FormatData?.GetValueOrDefault("arb.placeholders") ?? "{}";
+    public string? ApplyPlaceholderMetadata(string json, string expected)
+    {
+        if (_spellingDisposed || _spelling?.IsCurrent == false || !_model.Permissions.EditMetadata || PanelService.Instance.IsAuditMode) return Locales.Loc.T("Resource metadata is read-only.");
+        if (PlaceholderMetadata != expected) return Locales.Loc.T("Metadata changed. Reopen the editor.");
+        try
+        {
+            Toucan.Core.Services.ArbPlaceholderMetadata.Validate(json);
+            var before = new Dictionary<string, string>(_model.FormatData ?? []);
+            var after = new Dictionary<string, string>(before) { ["arb.placeholders"] = json };
+            _undoRedoService?.RecordMetadata(Namespace, Language, before, after);
+            _model.FormatData = after;
+            _translationManagement?.NotifyValueChanged(_model, _model.Value);
+            _onChanged?.Invoke(this);
+            OnPropertyChanged(nameof(PlaceholderMetadata));
+            return null;
+        }
+        catch (Exception ex) when (ex is FormatException or System.Text.Json.JsonException) { return ex.Message; }
+    }
     public string Namespace => _model.Namespace;
 
     public string Language { get; }
@@ -57,12 +89,19 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         get => _value;
         set
         {
-            if (_value == value) return;
+            if (!_model.Permissions.EditValues || _value == value) return;
             _debounceTimer ??= CreateTimer();
             if (!_debounceTimer.IsEnabled) _valueBeforeEdit = _value;
             _value = value;
+            QueueSpelling();
             OnPropertyChanged();
             OnPropertyChanged(nameof(IsEmpty));
+            OnPropertyChanged(nameof(CharacterCount));
+            OnPropertyChanged(nameof(WordCount));
+            OnPropertyChanged(nameof(CountSummary));
+            OnPropertyChanged(nameof(MissingPlaceholders));
+            OnPropertyChanged(nameof(HasPlaceholderWarning));
+            OnPropertyChanged(nameof(PlaceholderWarning));
             _debounceTimer.Stop();
             _debounceTimer.Start();
         }
@@ -70,12 +109,43 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
 
     public bool IsEmpty => string.IsNullOrEmpty(_value);
 
+    /// <summary>"12 chars · 3 words", for the counter shown under the field.</summary>
+    public string CountSummary => $"{CharacterCount} {(CharacterCount == 1 ? "char" : "chars")} · {WordCount} {(WordCount == 1 ? "word" : "words")}";
+
+    /// <summary>
+    /// The primary-language value of the same key, for the side-by-side source column. Set by the owning group;
+    /// null for the primary-language row itself (it is the source).
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSource), nameof(MissingPlaceholders), nameof(HasPlaceholderWarning), nameof(PlaceholderWarning))]
+    private string? sourceText;
+
+    public bool HasSource => SourceText is not null;
+
+    /// <summary>
+    /// The <c>{{ }}</c> placeholders present in the source but missing from this value. Empty for the source row,
+    /// for an empty value, or when there is no source. Independent of whether the warning is shown.
+    /// </summary>
+    public IReadOnlyList<string> MissingPlaceholders =>
+        SourceText is null || string.IsNullOrEmpty(_value)
+            ? []
+            : [.. Toucan.Core.Services.PlaceholderService.NamedDouble(SourceText)
+                .Where(p => !_value.Contains(p, StringComparison.Ordinal))];
+
+    /// <summary>True when the inline warning should show: the toggle is on and this value drops a source placeholder.</summary>
+    public bool HasPlaceholderWarning =>
+        Services.PanelService.Instance.ShowPlaceholderWarnings && MissingPlaceholders.Count > 0;
+
+    /// <summary>The warning text listing the missing placeholders, e.g. "Missing: {{name}}, {{count}}".</summary>
+    public string PlaceholderWarning =>
+        MissingPlaceholders.Count == 0 ? string.Empty : "Missing: " + string.Join(", ", MissingPlaceholders);
+
     public string Comment
     {
         get => _model.Comment ?? string.Empty;
         set
         {
-            if (_model.Comment == value) return;
+            if (!_model.Permissions.EditMetadata || _model.Comment == value) return;
             if (_translationManagement != null)
                 _translationManagement.NotifyCommentChanged(_model, value);
             else
@@ -93,7 +163,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         get => _model.IsApproved;
         set
         {
-            if (_model.IsApproved == value) return;
+            if (!_model.Permissions.EditMetadata || _model.IsApproved == value) return;
             if (value && _canApprove?.Invoke(_model) == false)
             {
                 // Policy refused: tell bound controls to show the unchanged state again.
@@ -154,14 +224,32 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     public void Refresh()
     {
         _debounceTimer?.Stop();
-        _value = _model.Value ?? string.Empty;
+        var incoming = _model.Value ?? string.Empty;
+        var valueChanged = _value != incoming;
+        _value = incoming;
         _valueBeforeEdit = _value;
-        OnPropertyChanged(nameof(Value));
-        OnPropertyChanged(nameof(IsEmpty));
+        // Only raise Value when it actually changed, so a refresh triggered by an unrelated edit
+        // does not reset the caret of a field the user is typing in.
+        if (valueChanged)
+        {
+            OnPropertyChanged(nameof(Value));
+            OnPropertyChanged(nameof(IsEmpty));
+            OnPropertyChanged(nameof(CharacterCount));
+            OnPropertyChanged(nameof(WordCount));
+            OnPropertyChanged(nameof(CountSummary));
+            OnPropertyChanged(nameof(MissingPlaceholders));
+            OnPropertyChanged(nameof(HasPlaceholderWarning));
+            OnPropertyChanged(nameof(PlaceholderWarning));
+        }
         OnPropertyChanged(nameof(IsApproved));
         OnPropertyChanged(nameof(Comment));
         OnPropertyChanged(nameof(HasComment));
+        OnPropertyChanged(nameof(PlaceholderMetadata));
+        QueueSpelling();
     }
+
+    /// <summary>Re-evaluates the inline placeholder warning (e.g. after the global toggle changed).</summary>
+    public void RefreshPlaceholderWarning() => OnPropertyChanged(nameof(HasPlaceholderWarning));
 
     private void Commit()
     {
@@ -194,8 +282,13 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        if (_spellingDisposed) return;
         // Never drop an in-flight edit when the editor list is rebuilt.
         Flush();
+        _spellingDisposed = true;
+        _spellingCancellation?.Cancel();
+        _spellingCancellation = null;
+        if (_spelling != null) _spelling.Changed -= OnSpellingChanged;
         _debounceTimer = null;
         GC.SuppressFinalize(this);
     }

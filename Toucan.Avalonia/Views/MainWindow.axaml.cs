@@ -59,6 +59,10 @@ public partial class MainWindow : Window
         Palette.AnchorSource = () => PalettePill.TranslatePoint(default, Palette) is { } origin ? new Rect(origin, PalettePill.Bounds.Size) : null;
         KeybindingService.Apply(this, _vm, MainMenu.NativeGestures);
         BindChromeCommands();
+        void OnToolbarCommandsChanged(object? sender, EventArgs e) => global::Avalonia.Threading.Dispatcher.UIThread.Post(_vm.RefreshContributedToolbar);
+        var toolbarRegistry = KeybindingService.Registry;
+        toolbarRegistry.CommandsChanged += OnToolbarCommandsChanged;
+        Closed += (_, _) => toolbarRegistry.CommandsChanged -= OnToolbarCommandsChanged;
         // After Apply: the built-in commands are registered there, so the shortcut can be looked up.
         PaletteShortcut.Text = KeybindingService.GestureFor("Command Palette")?.ToString("p", null);
         // A reassigned shortcut takes effect at once. Posted after the menu's own rebuild, which decides the native gestures.
@@ -171,19 +175,25 @@ public partial class MainWindow : Window
 
     private void UpdateTitleBarLayout()
     {
-        // Equal reserved wings keep search centered even when the native controls are visible. A wide menu (Windows and Linux)
-        // can leave too little room that way, so then settle for whatever is free between the two sides.
+        // Both sides size to their content. The search pill sits centered in the window when both sides leave room for it, and
+        // otherwise in the space between them (never narrower than 180), so nothing is clipped or overlapped at any width.
         var leading = TitleBarLeading.DesiredSize.Width;
         var trailing = TitleBarTrailing.DesiredSize.Width;
 
         // The menu folds into "…" rather than overlap the search pill and the controls on the right.
         var beside = leading - MenuHost.DesiredSize.Width;
-        var menuRoom = Math.Max(0, TitleBarLayout.Bounds.Width - beside - trailing - 180 - 40);
+        var menuRoom = Math.Max(0, TitleBarLayout.Bounds.Width - beside - trailing - 220 - 32);
         if (double.IsInfinity(MenuHost.MaxWidth) || Math.Abs(MenuHost.MaxWidth - menuRoom) > 0.5) MenuHost.MaxWidth = menuRoom;
+
+        var total = TitleBarLayout.Bounds.Width;
+        var free = total - leading - trailing - 32;
         var wing = Math.Max(leading, trailing) + 16;
-        var free = TitleBarLayout.Bounds.Width - leading - trailing - 32;
-        var width = Math.Clamp(TitleBarLayout.Bounds.Width - 2 * wing, Math.Clamp(free, 180, 280), 500);
+        var centeredWidth = total - 2 * wing;
+        var width = Math.Clamp(centeredWidth >= 260 ? centeredWidth : Math.Min(free, 280), 180, 500);
+        var left = (total - width) / 2 - leading;
+        if (left < 16 || (total + width) / 2 + 16 > total - trailing) left = 16 + Math.Max(0, (free - width) / 2);
         if (Math.Abs(PalettePill.Width - width) > 0.5) PalettePill.Width = width;
+        if (Math.Abs(PalettePill.Margin.Left - left) > 0.5) PalettePill.Margin = new Thickness(left, 0, 0, 0);
     }
 
     private void FitSidePanels()

@@ -17,20 +17,37 @@
         <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'KEY'}">
           <StackPanel Margin="10,8" Spacing="8">
             <Grid ColumnDefinitions="*,Auto">
-              <SelectableTextBlock Text="{Binding SelectedKeyNamespace}" Classes="mono" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"/>
+              <SelectableTextBlock Text="{Binding SelectedKeyNamespace}" Classes="mono" FontSize="12" TextWrapping="Wrap" MaxLines="3"
+                                   TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,6,0" ToolTip.Tip="{Binding SelectedKeyNamespace}"/>
               <Button Grid.Column="1" Classes="icon small" ToolTip.Tip="{loc:Loc 'Copy key'}" VerticalAlignment="Top"
                       Command="{Binding CopyKeyCommand}" CommandParameter="{Binding SelectedKeyNamespace}">
                 <ui:FASymbolIcon Symbol="Copy"/>
               </Button>
             </Grid>
-            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="6" ColumnSpacing="6">
-              <Button Grid.ColumnSpan="2" Content="{loc:Loc 'Translate empty'}" Command="{Binding TranslateSelectedKeyCommand}" Classes="inspectorAction"/>
-              <Button Grid.Row="1" Content="{loc:Loc 'Plural forms'}" Command="{Binding GeneratePluralFormsCommand}" Classes="inspectorAction"/>
-              <Button Grid.Row="1" Grid.Column="1" Content="{loc:Loc 'Gender forms'}" Command="{Binding GenerateGenderFormsCommand}" Classes="inspectorAction"/>
-            </Grid>
+            <StackPanel Spacing="6">
+              <Button Content="{loc:Loc 'Translate empty'}" Command="{Binding TranslateSelectedKeyCommand}" Classes="inspectorAction"/>
+              <Button Content="{loc:Loc 'Plural forms'}" Command="{Binding GeneratePluralFormsCommand}" Classes="inspectorAction"/>
+              <Button Content="{loc:Loc 'Gender forms'}" Command="{Binding GenerateGenderFormsCommand}" Classes="inspectorAction"/>
+            </StackPanel>
             <!-- Actions plugins offer for the selected key -->
             <StackPanel x:Name="PluginKeyActions" Spacing="6" IsVisible="False"/>
           </StackPanel>
+        </c:SettingsGroup>
+
+        <!-- Placeholders that must survive translation (parsed from the source value) -->
+        <c:SettingsGroup Classes="compact" Margin="0,0,0,10" Header="{loc:Loc 'PLACEHOLDERS'}" IsVisible="{Binding HasSelectedKeyPlaceholders}">
+          <ItemsControl ItemsSource="{Binding SelectedKeyPlaceholders}" Margin="10,8">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Classes="badge" Margin="0,0,4,4" ToolTip.Tip="{loc:Loc 'This placeholder must appear in every translation'}">
+                  <TextBlock Classes="mono" Text="{Binding}"/>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
         </c:SettingsGroup>
 
         <!-- Per-language values -->
@@ -39,12 +56,12 @@
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <Border Classes="itemRow" Padding="10,6">
-                  <Grid ColumnDefinitions="Auto,*,Auto">
-                    <Border Classes="langBadge" Margin="0,0,10,0" VerticalAlignment="Center"><TextBlock Text="{Binding Language}"/></Border>
-                    <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="12" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
-                               Margin="0,0,8,0" ToolTip.Tip="{Binding Value}"/>
-                    <TextBlock Grid.Column="2" Text="{Binding Status}" FontSize="11" VerticalAlignment="Center"
+                  <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" RowSpacing="3">
+                    <Border Classes="langBadge" VerticalAlignment="Center"><TextBlock Text="{Binding Language}"/></Border>
+                    <TextBlock Grid.Column="1" Text="{Binding Status}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"
                                Foreground="{Binding Status, Converter={StaticResource StatusBrush}}"/>
+                    <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Value}" FontSize="12" TextWrapping="Wrap" MaxLines="3"
+                               TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Value}"/>
                   </Grid>
                 </Border>
               </DataTemplate>

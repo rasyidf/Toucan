@@ -25,7 +25,8 @@ internal static class MainMenu
         object? Parameter = null,
         string? Action = null,
         IReadOnlyList<Item>? Children = null,
-        bool IsSeparator = false);
+        bool IsSeparator = false,
+        bool RequiresProject = false);
 
     private const string ExtensionsHeader = "E_xtensions";
 
@@ -45,18 +46,19 @@ internal static class MainMenu
             var category = Loc.T(top.Header).Replace("_", string.Empty, StringComparison.Ordinal);
             Flatten(top.Children ?? [], category, string.Empty, result);
         }
-        AddPluginPaletteCommands(result);
+        AddPluginPaletteCommands(result, vm.HasProject);
         return result;
     }
 
-    private static IEnumerable<RegisteredCommand> PluginCommands(CommandPlacement placement) =>
+    private static IEnumerable<RegisteredCommand> PluginCommands(CommandPlacement placement, bool hasProject) =>
         KeybindingService.Registry.Commands
-            .Where(c => c.PluginId is not null && c.Definition.Placements.HasFlag(placement) && KeybindingService.Registry.GetState(c.Id).IsVisible);
+            .Where(c => c.PluginId is not null && c.Definition.Placements.HasFlag(placement)
+                && (hasProject || !c.Definition.RequiresWorkspace) && KeybindingService.Registry.GetState(c.Id).IsVisible);
 
-    private static void AddPluginPaletteCommands(List<PaletteCommand> into)
+    private static void AddPluginPaletteCommands(List<PaletteCommand> into, bool hasProject)
     {
         var registry = KeybindingService.Registry;
-        foreach (var command in PluginCommands(CommandPlacement.CommandPalette))
+        foreach (var command in PluginCommands(CommandPlacement.CommandPalette, hasProject))
         {
             var shortcut = KeybindingService.ToGesture(registry.GetShortcut(command.Id))?.ToString("p", null);
             into.Add(new PaletteCommand(registry.GetCategory(command.Id), registry.GetTitle(command.Id), shortcut, RegistryCommand.For(registry, command.Id)));
@@ -64,10 +66,10 @@ internal static class MainMenu
     }
 
     /// <summary>Plugin commands that asked for a menu, one submenu per category under Extensions.</summary>
-    private static Item? ExtensionsMenu()
+    private static Item? ExtensionsMenu(bool hasProject)
     {
         var registry = KeybindingService.Registry;
-        var groups = PluginCommands(CommandPlacement.Menu)
+        var groups = PluginCommands(CommandPlacement.Menu, hasProject)
             .GroupBy(c => registry.GetCategory(c.Id))
             .OrderBy(g => g.Key, StringComparer.CurrentCultureIgnoreCase)
             .Select(g => new Item(g.Key, Children: g
@@ -122,6 +124,8 @@ internal static class MainMenu
                     FillNative(root, items);
                 }
                 host.IsVisible = false;
+                // Opening or closing a project changes which shortcuts the native menu owns.
+                KeybindingService.Refresh(window, s_nativeGestures);
             }
             else
             {
@@ -162,7 +166,7 @@ internal static class MainMenu
         // The Open Recent submenu lists projects, so rebuild when the list changes.
         vm.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(MainWindowViewModel.RecentProjects) or nameof(MainWindowViewModel.CopyTemplates) or nameof(MainWindowViewModel.ProjectSettings))
+            if (e.PropertyName is nameof(MainWindowViewModel.RecentProjects) or nameof(MainWindowViewModel.CopyTemplates) or nameof(MainWindowViewModel.ProjectSettings) or nameof(MainWindowViewModel.HasProject))
                 Rebuild();
         };
     }
@@ -191,17 +195,17 @@ internal static class MainMenu
             new("Import Existing Project…", vm.ImportProjectCommand),
             new("Open Recent", Children: recent),
             Separator,
-            new("Save", vm.SaveCommand, Action: "Save"),
-            new("Save As…", vm.SaveToCommand, Action: "Save As"),
+            new("Save", vm.SaveCommand, Action: "Save", RequiresProject: true),
+            new("Save As…", vm.SaveToCommand, Action: "Save As", RequiresProject: true),
             Separator,
-            new("Import Translations…", vm.ImportCommand),
-            new("Import from Excel…", vm.ImportExcelCommand),
-            new("Export…", vm.ExportCommand),
-            new("Export to Excel…", vm.ExportExcelCommand),
+            new("Import Translations…", vm.ImportCommand, RequiresProject: true),
+            new("Import from Excel…", vm.ImportExcelCommand, RequiresProject: true),
+            new("Export…", vm.ExportCommand, RequiresProject: true),
+            new("Export to Excel…", vm.ExportExcelCommand, RequiresProject: true),
             Separator,
-            new($"Reveal in {PlatformService.FileManagerName}", vm.RevealInFileManagerCommand),
-            new("Reload from Disk", vm.RefreshCommand, Action: "Refresh"),
-            new("Close Project", vm.CloseProjectCommand, Action: "Close Project"),
+            new($"Reveal in {PlatformService.FileManagerName}", vm.RevealInFileManagerCommand, RequiresProject: true),
+            new("Reload from Disk", vm.RefreshCommand, Action: "Refresh", RequiresProject: true),
+            new("Close Project", vm.CloseProjectCommand, Action: "Close Project", RequiresProject: true),
         };
         if (!mac)
         {
@@ -224,8 +228,8 @@ internal static class MainMenu
             edit.Add(new Item("Select All", SmartTextCommand(window, null, t => t.SelectAll()), Action: "__selectall"));
             edit.Add(Separator);
         }
-        edit.AddRange(
-        [
+        edit.AddRange(new Item[]
+        {
             new("Cut Key Values", vm.EditCutCommand),
             new("Copy Key Values", vm.EditCopyCommand),
             new("Paste Key Values", vm.EditPasteCommand),
@@ -256,7 +260,7 @@ internal static class MainMenu
             Separator,
             new("Add Missing Entries", vm.AddMissingTranslationsCommand),
             new("Delete Empty Keys…", vm.DeleteUnusedTranslationsCommand),
-        ]);
+        }.Select(item => item with { RequiresProject = true }));
 
         var find = new List<Item>
         {
@@ -275,44 +279,44 @@ internal static class MainMenu
 
         var view = new List<Item>
         {
-            new("Toggle Tree / List", vm.ToggleViewModeCommand),
-            new("Toggle Left Panel", PanelService.Instance.ToggleSidebarCommand, Action: "Toggle Left Panel"),
-            new("Toggle Right Panel", PanelService.Instance.ToggleInspectorCommand, Action: "Toggle Right Panel"),
+            new("Toggle Tree / List", vm.ToggleViewModeCommand, RequiresProject: true),
+            new("Toggle Left Panel", PanelService.Instance.ToggleSidebarCommand, Action: "Toggle Left Panel", RequiresProject: true),
+            new("Toggle Right Panel", PanelService.Instance.ToggleInspectorCommand, Action: "Toggle Right Panel", RequiresProject: true),
             new("Toggle Status Bar", PanelService.Instance.ToggleStatusBarCommand),
             new("Command Palette…", vm.ToggleCommandPaletteCommand, Action: "Command Palette"),
             Separator,
-            new("Editor Mode", vm.SwitchToEditorModeCommand, Action: "Editor Mode"),
-            new("Review Mode", vm.SwitchToReviewModeCommand, Action: "Review Mode"),
-            new("Audit Mode", vm.SwitchToAuditModeCommand, Action: "Audit Mode"),
+            new("Editor Mode", vm.SwitchToEditorModeCommand, Action: "Editor Mode", RequiresProject: true),
+            new("Review Mode", vm.SwitchToReviewModeCommand, Action: "Review Mode", RequiresProject: true),
+            new("Audit Mode", vm.SwitchToAuditModeCommand, Action: "Audit Mode", RequiresProject: true),
             Separator,
-            new("Focused Editor", vm.ToggleFocusedEditorCommand, Action: "Focused Editor"),
-            new("Zen Mode", vm.ToggleZenModeCommand, Action: "Zen Mode"),
-            new("Multi-select", vm.ToggleMultiSelectCommand),
-            new("Show All Items (No Paging)", vm.ToggleInfiniteScrollCommand),
+            new("Focused Editor", vm.ToggleFocusedEditorCommand, Action: "Focused Editor", RequiresProject: true),
+            new("Zen Mode", vm.ToggleZenModeCommand, Action: "Zen Mode", RequiresProject: true),
+            new("Multi-select", vm.ToggleMultiSelectCommand, RequiresProject: true),
+            new("Show All Items (No Paging)", vm.ToggleInfiniteScrollCommand, RequiresProject: true),
             new("Full Screen", vm.ToggleFullscreenCommand, Action: "Fullscreen"),
         };
 
         var translate = new List<Item>
         {
-            new("Pre-translate…", vm.PreTranslateBulkCommand, Action: "Pre-translate"),
-            new("Translate Selected Key", vm.TranslateSelectedKeyCommand),
-            new("Fill Empty Values in View", vm.PreTranslateVisibleCommand),
-            new("Approve All in View", vm.ApproveVisibleCommand),
+            new("Pre-translate…", vm.PreTranslateBulkCommand, Action: "Pre-translate", RequiresProject: true),
+            new("Translate Selected Key", vm.TranslateSelectedKeyCommand, RequiresProject: true),
+            new("Fill Empty Values in View", vm.PreTranslateVisibleCommand, RequiresProject: true),
+            new("Approve All in View", vm.ApproveVisibleCommand, RequiresProject: true),
             Separator,
-            new("Run Validation", vm.RunValidationCommand, Action: "Run Validation"),
+            new("Run Validation", vm.RunValidationCommand, Action: "Run Validation", RequiresProject: true),
             new("AI", Children:
             [
-                new("Analyze Translations…", vm.AnalyzeTranslationsCommand),
-                new("Check Source Clarity…", vm.CheckSourceClarityCommand),
+                new("Analyze Translations…", vm.AnalyzeTranslationsCommand, RequiresProject: true),
+                new("Check Source Clarity…", vm.CheckSourceClarityCommand, RequiresProject: true),
                 Separator,
                 new("AI Settings…", vm.OpenAiSettingsCommand),
             ]),
-            new("Statistics…", vm.GenerateStatisticsBulkCommand),
+            new("Statistics…", vm.GenerateStatisticsBulkCommand, RequiresProject: true),
             Separator,
-            new("Scan Source Code", vm.ScanSourceCodeCommand),
+            new("Scan Source Code", vm.ScanSourceCodeCommand, RequiresProject: true),
             new("Translation Memory", Children:
             [
-                new("Learn from This Project", vm.LearnProjectIntoMemoryCommand),
+                new("Learn from This Project", vm.LearnProjectIntoMemoryCommand, RequiresProject: true),
                 new("Import TMX…", vm.ImportTmxCommand),
                 new("Export TMX…", vm.ExportTmxCommand),
                 Separator,
@@ -324,7 +328,7 @@ internal static class MainMenu
 
         var settings = new List<Item>
         {
-            new("Project Properties…", vm.ShowProjectPropertiesCommand),
+            new("Project Properties…", vm.ShowProjectPropertiesCommand, RequiresProject: true),
             new("Plugins…", vm.ShowPluginsCommand),
         };
         if (!mac)
@@ -338,21 +342,43 @@ internal static class MainMenu
             new("Documentation", vm.HelpHomepageCommand),
             new("Report an Issue", vm.ReportIssueCommand),
             new("Copy Diagnostics", vm.CopyDiagnosticsCommand),
+            new("Migration report…", vm.ShowMigrationReportCommand, RequiresProject: true),
         };
         if (!mac) help.Add(new Item("About Toucan", vm.HelpAboutCommand));
 
         var menus = new List<Item>
         {
             new("_File", Children: file),
-            new("_Edit", Children: edit),
-            new("F_ind", Children: find),
+            new("_Edit", Children: edit, RequiresProject: !mac),
+            new("F_ind", Children: find, RequiresProject: true),
             new("_View", Children: view),
             new("_Translate", Children: translate),
         };
-        if (ExtensionsMenu() is { } extensions) menus.Add(extensions);
+        if (ExtensionsMenu(vm.HasProject) is { } extensions) menus.Add(extensions);
         menus.Add(new(mac ? "Project" : "_Settings", Children: settings));
         menus.Add(new("_Help", Children: help));
-        return menus;
+        return VisibleItems(menus, vm.HasProject);
+    }
+
+    /// <summary>One visibility policy for native menus, the responsive bar and the palette.</summary>
+    private static List<Item> VisibleItems(IEnumerable<Item> items, bool hasProject)
+    {
+        var visible = new List<Item>();
+        foreach (var item in items)
+        {
+            if (item.RequiresProject && !hasProject) continue;
+            var current = item;
+            if (item.Children != null)
+            {
+                var children = VisibleItems(item.Children, hasProject);
+                if (children.Count == 0) continue;
+                current = item with { Children = children };
+            }
+            if (current.IsSeparator && (visible.Count == 0 || visible[^1].IsSeparator)) continue;
+            visible.Add(current);
+        }
+        if (visible.Count > 0 && visible[^1].IsSeparator) visible.RemoveAt(visible.Count - 1);
+        return visible;
     }
 
     /// <summary>Uses the focused text box when there is one (text undo, clipboard), otherwise the app command.</summary>

@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Known Issues &amp; Unfinished Features</title>
-<meta name="description" content="Open issues for v0.22.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.">
+<meta name="description" content="Open v0.24 source-build issues: validation-policy enforcement, release distribution, missing panels, external connector acceptance and native workflow verification.">
 <link rel="canonical" href="https://toucan.rasyid.dev/known-bugs.html">
+<meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -14,9 +15,28 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Known Issues &amp; Unfinished Features">
-<meta property="og:description" content="Open issues for v0.22.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.">
+<meta property="og:description" content="Open v0.24 source-build issues: validation-policy enforcement, release distribution, missing panels, external connector acceptance and native workflow verification.">
 <meta property="og:url" content="https://toucan.rasyid.dev/known-bugs.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Toucan · Known Issues &amp; Unfinished Features">
+<meta name="twitter:description" content="Open v0.24 source-build issues: validation-policy enforcement, release distribution, missing panels, external connector acceptance and native workflow verification.">
+<meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Toucan \u00b7 Known Issues & Unfinished Features",
+  "description": "Open v0.24 source-build issues: validation-policy enforcement, release distribution, missing panels, external connector acceptance and native workflow verification.",
+  "url": "https://toucan.rasyid.dev/known-bugs.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Toucan",
+    "url": "https://toucan.rasyid.dev",
+    "logo": "https://toucan.rasyid.dev/assets/icons/icon-512.png"
+  }
+}
+</script>
 <script>
 (function () {
   try {
@@ -61,18 +81,18 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="ai-integration.html">AI Integration</a>
+<a href="user-guide.html">Toucan User Guide</a>
+<a href="translator-guide.html">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
+<a href="ai-integration.html">AI Integration</a>
 <a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
 <a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
 <a href="architecture.html">Toucan architecture</a>
 <a href="core-architecture.html">Toucan.Core interop architecture</a>
 <a href="roadmap.html">Toucan roadmap: v0.21 to v1.0</a>
-<a href="known-bugs.html" aria-current="page">Known Issues &amp; Unfinished Features</a>
 <a href="completed-features.html">Shipped Features</a>
-<a href="branding.html">Toucan: Brand Guidelines</a>
-<a href="visual-review.html">Visual review: screenshots of every screen</a>
+<a href="known-bugs.html" aria-current="page">Known Issues &amp; Unfinished Features</a>
       </nav>
       <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#open-issues">Open issues</a><a class="l2" href="#format-bugs">Format bugs</a><a class="l2" href="#release-and-distribution">Release and distribution</a><a class="l2" href="#app-gaps">App gaps</a><a class="l2" href="#quality">Quality</a><a class="l2" href="#where-the-old-fixes-went">Where the old fixes went</a></nav>
     </aside>
@@ -80,15 +100,15 @@
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Known Issues &amp; Unfinished Features</h1>
-        <p class="lead">Open issues for v0.22.0: no tracked format bugs (limits per format are in formats.md), release gaps, missing panels, and verification limits. Fixed bugs live in CHANGELOG.md.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-11</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/known-bugs.md">Edit on GitHub ↗</a></div>
+        <p class="lead">Open v0.24 source-build issues: validation-policy enforcement, release distribution, missing panels, external connector acceptance and native workflow verification.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/known-bugs.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
-<p>Current release: <strong>v0.22.0</strong> (preview). Last audited <strong>2026-10-09</strong> against the code on <code>release/v0.22.0</code>.</p>
+<p>Published release: <strong>v0.23.0</strong> (preview). Current source build: <strong>0.24.0</strong>, audited <strong>2026-10-25</strong> on <code>release/v0.24.0</code>; native Windows release acceptance remains pending. The readiness review treats macOS/Linux testing as passed at the user's request; that assumption is separate from this host's recorded execution evidence.</p>
 <p>This file lists what is wrong <em>now</em>. Fixed bugs are not kept here: they are in <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md">CHANGELOG.md</a> (see <a href="#where-the-old-fixes-went">Where the old fixes went</a>). When a bug is fixed, delete its row and section here and add a <code>### Fixed</code> line to the changelog <code>[Unreleased]</code> section. Planned work for an ID is linked from <a href="roadmap.html">the roadmap</a> (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from <code>main</code> (source: branch <code>legacy/wpf</code>), so nothing here is about WPF.</p>
 <p><strong>How each issue was checked.</strong> "Reproduced" means I ran the case through the real load and save strategies and the output is quoted. "From code" means the cause is visible in the source but I did not run it. Run the same cases again before fixing, and turn each repro into a test in <code>tests/Toucan.Core.Tests/Formats/</code>.</p>
 <h2 id="open-issues"><a class="anchor" href="#open-issues" aria-label="Link to this section">#</a>Open issues</h2>
-<div class="table-wrap"><table><thead><tr><th>ID</th><th>Severity</th><th>Area</th><th>Problem</th><th>Checked</th></tr></thead><tbody><tr><td><a href="#rel-01">REL-01</a></td><td>Medium</td><td>Release</td><td>No release pipeline; every release is built by hand (cross-platform CI is finalized)</td><td>Reproduced</td></tr><tr><td><a href="#rel-02">REL-02</a></td><td>Medium</td><td>Release</td><td>macOS app is ad-hoc signed and not notarized</td><td>From docs and script</td></tr><tr><td><a href="#rel-03">REL-03</a></td><td>Low</td><td>Release</td><td>Update check is manual only: no check on startup, no download or install</td><td>From code</td></tr><tr><td><a href="#rel-04">REL-04</a></td><td>Low</td><td>Release</td><td>Windows ships as a portable zip; no installer or MSIX in releases</td><td>From docs</td></tr><tr><td><a href="#app-01">APP-01</a></td><td>Low</td><td>App</td><td>Source Control and Dictionary panels do not exist</td><td>Reproduced</td></tr><tr><td><a href="#app-02">APP-02</a></td><td>Low</td><td>App</td><td>Keyboard shortcuts cannot be changed</td><td>Reproduced</td></tr><tr><td><a href="#app-03">APP-03</a></td><td>Low</td><td>App</td><td>No notification history; the status-bar badge only shows a count of empty translations</td><td>Reproduced</td></tr><tr><td><a href="#app-04">APP-04</a></td><td>Low</td><td>App</td><td>Bulk operations (copy to language, replace all, pre-translate, move, delete) cannot be undone</td><td>From code</td></tr><tr><td><a href="#qa-02">QA-02</a></td><td>Info</td><td>Perf</td><td>Large-project performance has never been profiled</td><td>Not checked</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>Severity</th><th>Area</th><th>Problem</th><th>Checked</th></tr></thead><tbody><tr><td><a href="#rel-01">REL-01</a></td><td>Medium</td><td>Release</td><td>No release pipeline; every release is built by hand (cross-platform CI is finalized)</td><td>Reproduced</td></tr><tr><td><a href="#rel-02">REL-02</a></td><td>Medium</td><td>Release</td><td>macOS app is ad-hoc signed and not notarized</td><td>From docs and script</td></tr><tr><td><a href="#rel-03">REL-03</a></td><td>Low</td><td>Release</td><td>Update check is manual only: no check on startup, no download or install</td><td>From code</td></tr><tr><td><a href="#rel-04">REL-04</a></td><td>Low</td><td>Release</td><td>Windows ships as a portable zip; no installer or MSIX in releases</td><td>From docs</td></tr><tr><td><a href="#app-01">APP-01</a></td><td>Low</td><td>App</td><td>Source Control and Dictionary panels do not exist</td><td>Reproduced</td></tr><tr><td><a href="#app-05">APP-05</a></td><td>Medium</td><td>Integration</td><td>External connector and connection lifecycle acceptance remains unverified</td><td>From code and available environment</td></tr><tr><td><a href="#app-06">APP-06</a></td><td>Medium</td><td>Validation</td><td>Saved rule enable/severity preferences are not enforced by validation entry points; project custom-rule loading is not wired</td><td>From code</td></tr><tr><td><a href="#qa-03">QA-03</a></td><td>Medium</td><td>Release acceptance</td><td>Native Windows accessibility/workflow acceptance pending; macOS/Linux assumed passed for this readiness review</td><td>Windows native not executed</td></tr><tr><td><a href="#qa-02">QA-02</a></td><td>Info</td><td>Perf</td><td>Large-project performance has never been profiled</td><td>Not checked</td></tr></tbody></table></div>
 <p>Severity: <strong>High</strong> loses or corrupts user data; <strong>Medium</strong> gives wrong results or blocks a release goal; <strong>Low</strong> is a gap or a cosmetic problem; <strong>Info</strong> is a known unknown.</p>
 <p>Suggested order: release work first (REL-01), then the rest.</p>
 <hr>
@@ -117,7 +137,7 @@
 <ul>
 <li><strong>Severity:</strong> Low · <strong>Checked:</strong> since v0.20.0, Settings → About has a release channel (Stable or Preview) and a Check for updates button (<code>UpdateService</code>, GitHub Releases API). Nothing checks on startup, and nothing downloads or installs.</li>
 <li><strong>Impact:</strong> users who never open About stay on old builds, which matters while the formats above lose data.</li>
-<li><strong>Fix direction:</strong> FG-02, planned for v0.24: check on startup (off / notify / auto-install), then download and apply. Depends on REL-01 and signing (REL-02).</li>
+<li><strong>Fix direction:</strong> FG-02, planned for v0.30: check on startup (off / notify / auto-install), then download and apply. Depends on REL-01 and signing (REL-02).</li>
 </ul>
 <a id="rel-04"></a>
 <h3 id="rel-04--windows-has-no-installer"><a class="anchor" href="#rel-04--windows-has-no-installer" aria-label="Link to this section">#</a>REL-04 — Windows has no installer</h3>
@@ -133,28 +153,20 @@
 <ul>
 <li><strong>Severity:</strong> Low · <strong>Checked:</strong> <code>App.RegisterSidePanels</code> registers Explorer, Search, Issues, Source Code, Languages, Inspector, Translation, Memory. No panel for Git or glossary.</li>
 <li><strong>Correction:</strong> the old text also listed "Translation" as missing. It exists (<code>machine-translation</code>, titled Translation).</li>
-<li><strong>Plan:</strong> Git integration is FG-06 (v0.23), the glossary is FG-15 (v0.21).</li>
-</ul>
-<a id="app-02"></a>
-<h3 id="app-02--shortcuts-cannot-be-changed"><a class="anchor" href="#app-02--shortcuts-cannot-be-changed" aria-label="Link to this section">#</a>APP-02 — Shortcuts cannot be changed</h3>
-<ul>
-<li><strong>Severity:</strong> Low · <strong>Checked:</strong> Settings → Shortcuts lists <code>KeybindingService.GetDefinitions()</code> with no edit control and nothing is stored.</li>
-<li><strong>Fix direction:</strong> per-user overrides in <code>settings.json</code>, a conflict check, a reset button, and the command palette showing the active shortcut (it already reads the definitions).</li>
-</ul>
-<a id="app-03"></a>
-<h3 id="app-03--no-notification-history"><a class="anchor" href="#app-03--no-notification-history" aria-label="Link to this section">#</a>APP-03 — No notification history</h3>
-<ul>
-<li><strong>Severity:</strong> Low · <strong>Checked:</strong> <code>StatusBarService.ShowNotificationBadge</code> is only fed the number of empty translations (<code>MainWindowViewModel.cs:266</code>). There is no <code>NotificationService</code> and nothing opens when the badge is clicked.</li>
-<li><strong>Fix direction:</strong> a small service holding title, message, severity and time, a flyout anchored to the badge, and producers: save failures, validation summaries, plugin load errors, and (later) update availability.</li>
-</ul>
-<a id="app-04"></a>
-<h3 id="app-04--bulk-operations-cannot-be-undone"><a class="anchor" href="#app-04--bulk-operations-cannot-be-undone" aria-label="Link to this section">#</a>APP-04 — Bulk operations cannot be undone</h3>
-<ul>
-<li><strong>Severity:</strong> Low · <strong>Checked:</strong> <code>UndoRedoService</code> records single value edits (<code>Record(ns, language, old, new)</code>); <code>NotifyBulkValueChanges</code> and the bulk commands never record anything, so Undo after "copy to language" does nothing.</li>
-<li><strong>Fix direction:</strong> group the edits of one bulk operation into a single undo step. Planned in v0.24.</li>
+<li><strong>Plan:</strong> Git integration is planned after v1.0, and the glossary is planned for v0.25.</li>
 </ul>
 <hr>
+<a id="app-05"></a>
+<h3 id="app-05--external-connector-acceptance"><a class="anchor" href="#app-05--external-connector-acceptance" aria-label="Link to this section">#</a>APP-05 — External connector acceptance</h3>
+<p>Toolbar contributions now render and follow registry state. Core connection activation exists, but no desktop/CLI connection-management caller was found. The separate external connector repository is unavailable here, so its package-only desktop/CLI acceptance remains open. Keep the v0.23 integration gate pending; see <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/editor-comfort/acceptance.md">v0.24 acceptance</a>.</p>
+<a id="app-06"></a>
+<h3 id="app-06--validation-settings-are-not-applied-at-runtime"><a class="anchor" href="#app-06--validation-settings-are-not-applied-at-runtime" aria-label="Link to this section">#</a>APP-06 — Validation settings are not applied at runtime</h3>
+<p>The Validation settings page lists registered built-in/plugin rules and persists enable/severity preferences. <code>ValidationPipeline.RunAll</code> still executes every registered rule with its default severity. Manual validation, save, approval checks and plugin workspace edits call that pipeline without applying effective project/default overrides. <code>CustomValidationRule</code> and its definition model exist, but no production project-rule loader/registration path was found. The earlier capability list overstated these foundations as complete configurable project validation. Runtime enforcement and project rule files remain roadmap work, with enforcement tracked in v0.25.</p>
+<p>This is a source audit, not a new runtime reproduction. It does not prevent draft saves, but an ignored preference can change approval eligibility. Keep the same policy across all entry points when implementing the fix.</p>
 <h2 id="quality"><a class="anchor" href="#quality" aria-label="Link to this section">#</a>Quality</h2>
+<a id="qa-03"></a>
+<h3 id="qa-03--native-and-supported-platform-acceptance"><a class="anchor" href="#qa-03--native-and-supported-platform-acceptance" aria-label="Link to this section">#</a>QA-03 — Native and supported-platform acceptance</h3>
+<p>Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements, operating-system text scaling and the corresponding compatibility M7c rows remain unexecuted. The 2026-10-25 readiness review assumes macOS/Linux testing passed at the user's request; no cross-platform execution artifacts were produced on this Windows host.</p>
 <a id="qa-02"></a>
 <h3 id="qa-02--performance-not-profiled"><a class="anchor" href="#qa-02--performance-not-profiled" aria-label="Link to this section">#</a>QA-02 — Performance not profiled</h3>
 <ul>

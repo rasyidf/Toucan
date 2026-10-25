@@ -42,7 +42,7 @@ public sealed class FormatFidelityFixtureTests : IDisposable
     public static TheoryData<string, string> Cases()
     {
         var data = new TheoryData<string, string>();
-        foreach (var strategy in FormatTestHost.SaveStrategies.Where(s => FormatTestHost.Factory.GetLoadStrategy(s.FormatId) != null))
+        foreach (var strategy in FormatTestHost.EditableStrategies.Where(s => FormatTestHost.Factory.GetLoadStrategy(s.FormatId) != null))
             foreach (var (name, _) in Constructs)
                 data.Add(strategy.FormatId, name);
         return data;

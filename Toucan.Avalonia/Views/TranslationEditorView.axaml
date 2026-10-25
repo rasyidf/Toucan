@@ -5,9 +5,15 @@
              xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:c="using:Toucan.Avalonia.Views.Components">
   <DockPanel Background="{DynamicResource EditorBackgroundBrush}">
+    <Border DockPanel.Dock="Top" IsVisible="{Binding WorkflowGuideVisible}" Padding="10" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SubtleBorderBrush}">
+      <DockPanel>
+        <Button DockPanel.Dock="Right" Content="{loc:Loc 'Dismiss guide'}" Command="{Binding DismissWorkflowGuideCommand}"/>
+        <TextBlock Text="{loc:Loc '1. Choose a target field.  2. Edit or accept a suggestion.  3. Approve and move to the next target, then save.'}" TextWrapping="Wrap"/>
+      </DockPanel>
+    </Border>
 
     <!-- ═══ Filter toolbar ═══ -->
-    <Border DockPanel.Dock="Top" Classes="toolbar">
+    <Border x:Name="FilterToolbar" DockPanel.Dock="Top" Classes="toolbar">
       <Grid Classes="filterLayout" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
         <TextBox Classes="clearButton filterInput" x:Name="FilterBox" Text="{Binding SearchText}"
                  PlaceholderText="{loc:Loc 'Filter keys and values (end with “.” for a key path)'}">
@@ -128,6 +134,21 @@
     </Border>
 
     <c:PaginationControl DockPanel.Dock="Bottom" IsVisible="{Binding !FocusedEditorMode}"/>
+    <Border DockPanel.Dock="Top" Classes="toolbar" IsVisible="{Binding HasProject}">
+      <StackPanel Spacing="4">
+        <WrapPanel>
+          <Button Content="{loc:Loc 'Approve &amp; next'}" Command="{Binding ApproveAndNextCommand}" AutomationProperties.Name="{loc:Loc 'Approve current translation and go to next'}"/>
+          <Button Content="{loc:Loc 'Next pending'}" Command="{Binding NextPendingTranslationCommand}"/>
+          <Button Content="{loc:Loc 'Accept suggestion'}" Command="{Binding AcceptSuggestionCommand}"/>
+          <TextBlock Text="{Binding FocusedTextCounts}" Classes="caption" Margin="8,4" VerticalAlignment="Center"/>
+        </WrapPanel>
+        <TextBlock Text="{Binding SuggestionProvenance}" Classes="caption" TextWrapping="Wrap"/>
+        <ItemsControl ItemsSource="{Binding ContributedToolbarActions}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate><DataTemplate><Button Content="{Binding Title}" Command="{Binding Command}" AutomationProperties.Name="{Binding Title}"/></DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
 
     <Panel>
       <!-- Card list -->

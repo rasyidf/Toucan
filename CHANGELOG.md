@@ -2,6 +2,45 @@
 
 ## [Unreleased]
 
+Editor comfort, resource compatibility and a contextual desktop shell for the 0.24 source build.
+
+### Added
+- **Editor workflow** — Source-first language cards switch to two columns in wide editors and stack in narrow windows. Focused fields show Unicode character and word counts and translation-memory provenance. Approve and Next (`Ctrl/Cmd+Enter`), Next Pending Translation and Accept Suggestion are registered, reassignable commands that retain target focus across pages.
+- **Workspace setup and guide** — First-run setup offers default source language, theme and optional AI credentials. A dismissible editing guide can be reopened from Help.
+- **Notification history** — The status-bar flyout keeps host and plugin notifications with time, source, severity and action buttons. Save failures offer Retry save, validation opens Issues, command failures offer Preferences, and background tasks retain completion, cancellation and failure outcomes.
+- **Resource compatibility workflows** — Exact-resource fidelity options, generated-source protection, framework extraction diagnostics, local spelling imports and hash-verified engine source/notices accompany the committed M3–M7 implementation. Native and cross-platform compatibility acceptance remains a release gate.
+- **BabelEdit project import** — Open a folder containing one `.babel` project to load its settings, concepts, comments, approvals and JSON package/file mappings. Saving creates `toucan.tproj` and leaves the original `.babel` unchanged. Resource paths must stay within the project folder; multiple `.babel` projects need separate folders.
+- **Compatibility fixtures and reports** — Nineteen synthetic bilingual projects, the original BabelEdit Excel export, native save/reopen regressions, and reproducible CLI and converter checks. The result gallery includes the updated report, project outcomes and reference screenshots; it distinguishes verified cases from broader framework parity that remains untested.
+- **Placeholder help in the editor** — A translation value that drops a `{{ }}` placeholder its source has now shows an inline warning naming the missing placeholder (toggle it under Settings → Editor). Right-click a key → Placeholders → "Rename … in all languages" renames a `{{token}}` across every language of that key as a single undo step; the same is available as a command, and a "Sync Placeholder to All Languages" command applies a rename you typed in one field to the rest. No modifier keys, so it works the same on macOS, Windows and Linux.
+- **Accessibility pass** — Right-to-left target languages lay out right-to-left in the editor, interactive icon-only controls carry accessible names for screen readers (guarded by a test), and the window and panels lay out at a narrow width with large text without clipping.
+- **First-run setup and a feature tour** — The first-run dialog now also sets the default source language and theme, and a one-time, dismissible tour points out editing, keyboard review and the command palette. The empty start screen and the "no keys match" state already offer the actions to open, create or import a project and to add a key.
+- **Placeholders in the inspector** — Selecting a key lists the placeholders parsed from its source value (`{name}`, `{{count}}`, `%s`, `:param`, `${expr}`, ICU), so a translator can see at a glance what every translation must keep. The inspector already shows the per-language values with their state (empty, machine, translated, approved), translation-memory matches, source-code references and history.
+
+### Changed
+- **Repository and packaging cleanup** — One maintained solution and one MSIX implementation/manifest; Windows packages go to `dist/` with staging under `build/publish/`. MSIX assets are generated at their declared sizes, and local build probes and retired WPF agent configuration are removed.
+- **Plugin toolbar contributions** — Commands with toolbar placement now render in the editor and follow registry availability and registration changes.
+- **Preview version** — Source builds identify themselves as 0.24.0; publishing the release still requires the native/platform acceptance recorded in the editor-comfort spec.
+- **Welcome screen and project setup** — Theme-aware artwork, responsive welcome sections, shared framework cards with consistent sizing, and template shortcuts that preselect their framework. The project wizard places aligned project details above its framework selector and scrolls the body above a fixed footer. Redundant welcome navigation was removed.
+- The `Toucan.Plugins.Abstractions` package is version 1.2.0 to match plugin API 1.2, including additive resource compatibility contracts.
+
+### Fixed
+- **Live placeholder context** — Source edits, linked placeholder renames and undo/redo update target warnings immediately, including independent plural variants. A successful rename no longer warns that the old source token is missing.
+- **Unread notification badge** — Reading notification history clears its badge across project/validation refreshes. Retained history and validation counts remain available, while only new notifications increase the badge.
+- **Start-screen sidebar** — The project activity rail and its reserved column disappear on the start screen, return after opening a project and hide again when it closes. Preferences remains available from Settings.
+- **Menus without a project** — Project editing, save/export, validation, statistics and project properties are hidden until a project opens. Native menus, overflow menus and the command palette use the same rule, including workspace-only plugin commands; global tools remain available.
+- **Dialog title bars** — App-owned settings, provider, message and plugin dialogs share themed custom chrome with the main window's caption-button styling. Translation Providers uses its scope switch without a duplicate "Editing:" label.
+- **Bulk history (APP-04)** — Copy, namespace move, Replace All, accepted pre-translation and approval batches each undo as one step, restoring review metadata as well as values. Stale translation previews and namespace collisions leave the workspace unchanged. Existing grouped delete history remains supported.
+- **Notification access (APP-03)** — The notification badge opens retained history even with no untranslated strings. Validation distinguishes an unchecked project from a clean result.
+- **Shortcut customization (APP-02)** — The existing settings editor supports persisted reassignment, conflicts and reset; this issue no longer describes current code.
+- **Responsive editor and dialogs** — Editor toolbars grow when controls wrap; resource explanations occupy a separate row. Dialog footers retain their spacing and onboarding content scrolls above its actions.
+- **Windows dialog surfaces** — Dialog windows and their backplates use the active theme's opaque background, including dialogs with a Border content root, and follow theme changes while open. Shared color swatches use immutable brushes to avoid UI-thread ownership errors.
+- **Empty translations** — Format writers retain intentional empty values by default and honor the project's save-empty setting through GUI, CLI and package saves. Excluding empty values also rewrites a file when its final translation becomes empty, instead of leaving old text on disk.
+- **Java properties encoding** — UTF-8 and Latin-1 text load correctly, imported encoding declarations take precedence over detection, and saves retain original filenames. Explicit newline conversion preserves existing UTF-8 text.
+- **Rails YAML and sequences** — Locale wrappers no longer become translation key prefixes. Scalar and mapping sequences load and save, existing `.yml`/`.yaml` paths are retained, and new keys join the existing language file.
+- **BabelEdit metadata conversion** — Both converters retain concepts directly inside package folders and preserve typed settings and copy templates. Native project saves retain comments and approvals across reopening, language aliases and Save As.
+- **Excel interchange** — Import recognizes BabelEdit package, translation ID and per-language approval columns as well as older Toucan workbooks. Export preserves approval per language. Comment and approval changes apply even when translation text is unchanged, and invalid headers are rejected before merging.
+- **Editing keeps focus** — Refreshing a row after an unrelated edit (undo, redo or a bulk operation elsewhere) no longer resets the field you are typing in; the caret stays put.
+
 ## [0.23.0] - 2026-10-13
 
 Extension platform: a connector can be built, installed, configured and used without changing Toucan.

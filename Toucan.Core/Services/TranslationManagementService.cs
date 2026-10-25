@@ -38,7 +38,13 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
     }
 
     /// <inheritdoc/>
-    public bool IsDirty => GetDirtyItems().Count > 0;
+    private bool _configurationDirty;
+    public bool IsDirty => _configurationDirty || GetDirtyItems().Count > 0;
+    public void NotifyConfigurationChanged(bool dirty)
+    {
+        _configurationDirty = dirty;
+        RaiseDirtyStateChangedIfNeeded();
+    }
 
     /// <inheritdoc/>
 #pragma warning disable CA1003
@@ -51,6 +57,7 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
         lock (_lock)
         {
             _translations.Clear();
+            _configurationDirty = false;
             _baselines.Clear();
             _translations.AddRange(items);
 
@@ -62,7 +69,9 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
                     Language = item.Language,
                     Namespace = item.Namespace,
                     SavedValue = item.Value,
-                    SavedComment = item.Comment
+                    SavedComment = item.Comment,
+                    SavedFormatData = DataSignature(item),
+                    ResourceAddress = item.Identity?.Address
                 };
             }
 
@@ -106,7 +115,7 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
             if (_baselines.TryGetValue(key, out var baseline))
             {
                 if (!string.Equals(item.Value, baseline.SavedValue, StringComparison.Ordinal) ||
-                    !string.Equals(item.Comment, baseline.SavedComment, StringComparison.Ordinal))
+                    !string.Equals(item.Comment, baseline.SavedComment, StringComparison.Ordinal) || item.Identity?.Address != baseline.ResourceAddress || DataSignature(item) != baseline.SavedFormatData)
                 {
                     dirty.Add(item);
                 }
@@ -121,6 +130,8 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
         return dirty;
     }
 
+    private static string DataSignature(TranslationItem item) => System.Text.Json.JsonSerializer.Serialize((item.FormatData ?? []).OrderBy(p => p.Key, StringComparer.Ordinal));
+
     /// <inheritdoc/>
     public bool IsItemDirty(TranslationItem item)
     {
@@ -130,7 +141,7 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
             if (_baselines.TryGetValue(key, out var baseline))
             {
                 return !string.Equals(item.Value, baseline.SavedValue, StringComparison.Ordinal) ||
-                       !string.Equals(item.Comment, baseline.SavedComment, StringComparison.Ordinal);
+                       !string.Equals(item.Comment, baseline.SavedComment, StringComparison.Ordinal) || item.Identity?.Address != baseline.ResourceAddress || DataSignature(item) != baseline.SavedFormatData;
             }
 
             // No baseline means the item was added after init — it's dirty.
@@ -159,6 +170,7 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
     {
         lock (_lock)
         {
+            _configurationDirty = false;
             _baselines.Clear();
 
             foreach (var item in _translations)
@@ -169,7 +181,9 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
                     Language = item.Language,
                     Namespace = item.Namespace,
                     SavedValue = item.Value,
-                    SavedComment = item.Comment
+                    SavedComment = item.Comment,
+                    SavedFormatData = DataSignature(item),
+                    ResourceAddress = item.Identity?.Address
                 };
             }
         }
@@ -190,7 +204,9 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
                     Language = item.Language,
                     Namespace = item.Namespace,
                     SavedValue = item.Value,
-                    SavedComment = item.Comment
+                    SavedComment = item.Comment,
+                    SavedFormatData = DataSignature(item),
+                    ResourceAddress = item.Identity?.Address
                 };
             }
         }
@@ -204,6 +220,7 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
         lock (_lock)
         {
             _translations.Clear();
+            _configurationDirty = false;
             _baselines.Clear();
             _debounceTimer?.Dispose();
             _debounceTimer = null;
@@ -233,12 +250,10 @@ public class TranslationManagementService : ITranslationManagementService, IDisp
         lock (_lock)
         {
             var toRemove = _translations.Where(predicate).ToList();
-            foreach (var item in toRemove)
-            {
-                _translations.Remove(item);
-                var key = (item.Language, item.Namespace);
-                _baselines.Remove(key);
-            }
+            // Saved state belongs to the project, not this object instance. Structural history
+            // replaces instances; retain baselines until save/initialize so undo and recovery
+            // can compare restored entries against disk.
+            foreach (var item in toRemove) _translations.Remove(item);
         }
 
         RaiseDirtyStateChangedIfNeeded();

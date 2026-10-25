@@ -1,0 +1,32 @@
+<UserControl x:Class="Toucan.Avalonia.Views.Components.DialogTitleBar"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
+             Height="40">
+  <Border x:Name="DragArea" Background="{DynamicResource ChromeBackgroundBrush}" Padding="12,0,6,0">
+    <Grid ColumnDefinitions="*,Auto">
+      <Grid x:Name="TitleContent" ColumnDefinitions="Auto,*" Margin="0,0,12,0">
+        <Image Source="/Assets/logo.png" Width="20" Height="20" Margin="0,0,8,0"/>
+        <TextBlock x:Name="CaptionTitle" Grid.Column="1" Text="{Binding $parent[Window].Title}"
+                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+      </Grid>
+      <StackPanel x:Name="CaptionButtons" Grid.Column="1" Orientation="Horizontal" Spacing="2">
+        <Button x:Name="MinimizeButton" Classes="caption" IsVisible="{Binding $parent[Window].CanMinimize}"
+                ToolTip.Tip="{loc:Loc 'Minimize'}" AutomationProperties.Name="{loc:Loc 'Minimize'}">
+          <Path Data="M0,0.5 L10,0.5" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" Stretch="None"/>
+        </Button>
+        <Button x:Name="MaximizeButton" Classes="caption" IsVisible="{Binding $parent[Window].CanResize}"
+                ToolTip.Tip="{loc:Loc 'Maximize'}" AutomationProperties.Name="{loc:Loc 'Maximize'}">
+          <Panel>
+            <Path x:Name="MaximizeGlyph" Data="M0.5,0.5 L9.5,0.5 L9.5,9.5 L0.5,9.5 Z" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" Stretch="None"/>
+            <Path x:Name="RestoreGlyph" Data="M2.5,2.5 L2.5,0.5 L9.5,0.5 L9.5,7.5 L7.5,7.5 M0.5,2.5 L7.5,2.5 L7.5,9.5 L0.5,9.5 Z"
+                  IsVisible="False" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" Stretch="None"/>
+          </Panel>
+        </Button>
+        <Button x:Name="CloseButton" Classes="caption close" ToolTip.Tip="{loc:Loc 'Close'}" AutomationProperties.Name="{loc:Loc 'Close'}">
+          <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" Stretch="None"/>
+        </Button>
+      </StackPanel>
+    </Grid>
+  </Border>
+</UserControl>

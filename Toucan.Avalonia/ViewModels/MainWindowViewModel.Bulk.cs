@@ -79,13 +79,21 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private async Task BulkMoveToNamespace()
     {
-        if (SelectedKeys.Count == 0) return;
+        if (SelectedKeys.Count == 0 || !CanChangeKeys || IsAuditMode) return;
         var target = await _dialogService.ShowPromptAsync("Move to Namespace", "Enter the target key prefix (e.g. common.buttons). Leave empty to move to the root.");
         if (target == null) return;
 
         FlushPendingEdits();
         var keys = SelectedKeys.ToList();
-        var moved = _bulkOperations.MoveNamespace(AllTranslation, keys, target.Trim().TrimEnd('.'));
+        var prefix = target.Trim().TrimEnd('.');
+        var selected = keys.ToHashSet(StringComparer.Ordinal);
+        var destinations = AllTranslation.Select(i => (i.Language, Key: selected.Contains(i.Namespace)
+            ? (string.IsNullOrEmpty(prefix) ? i.Namespace.Split('.').Last() : prefix + "." + i.Namespace.Split('.').Last()) : i.Namespace)).ToList();
+        if (destinations.Distinct().Count() != destinations.Count) { StatusText = "Move cancelled: a destination key already exists."; return; }
+        var before = CaptureStructure();
+        var moved = _bulkOperations.MoveNamespace(AllTranslation, keys, prefix);
+        if (moved == 0 || before.Zip(AllTranslation).All(p => p.First.Namespace == p.Second.Namespace)) return;
+        _undoRedoService.RecordStructure(before, AllTranslation);
         BulkDeselectAll();
         MarkStructureChanged(AllTranslation.ToNamespaces());
         RefreshTree();
@@ -113,7 +121,7 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private async Task BulkCopyToLanguage()
     {
-        if (SelectedKeys.Count == 0) return;
+        if (SelectedKeys.Count == 0 || IsAuditMode) return;
         var primary = PrimaryLanguage;
         var targets = OrderedLanguages().Where(l => l != primary).ToList();
         if (targets.Count == 0)
@@ -127,7 +135,15 @@ public partial class MainWindowViewModel
 
         FlushPendingEdits();
         var keys = SelectedKeys.ToList();
-        var copied = _bulkOperations.CopyToLanguage(AllTranslation, keys, primary, target);
+        var before = CaptureEntries(AllTranslation.Where(i => keys.Contains(i.Namespace) && i.Language == target));
+        _bulkOperations.CopyToLanguage(AllTranslation, keys, primary, target);
+        foreach (var pair in before.Where(p => p.Value.Value != p.Key.Value))
+        {
+            pair.Key.IsApproved = false; pair.Key.ApprovedAtUtc = null;
+            pair.Key.LastModifiedUtc = DateTime.UtcNow; pair.Key.ChangeType = Toucan.Core.Contracts.Services.ChangeType.DirectEdit;
+        }
+        var copied = RecordEntryChanges(before);
+        if (copied == 0) { StatusText = "No values changed."; return; }
         var keySet = keys.ToHashSet(StringComparer.Ordinal);
         NotifyBulkValueChanges(AllTranslation.Where(t => keySet.Contains(t.Namespace) && t.Language == target).ToList());
         foreach (var vm in PagingController.Data.SelectMany(g => g.AllItems)) vm.Refresh();

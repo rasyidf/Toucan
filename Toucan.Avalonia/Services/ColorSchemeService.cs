@@ -11,7 +11,7 @@ namespace Toucan.Avalonia.Services;
 /// <summary>A named accent color the user can pick as a starting point.</summary>
 public sealed record ColorSchemePreset(string Name, string Accent)
 {
-    public IBrush Swatch { get; } = Brush.Parse(Accent);
+    public IBrush Swatch { get; } = new global::Avalonia.Media.Immutable.ImmutableSolidColorBrush(Color.Parse(Accent));
 }
 
 /// <summary>One editable theme color: the resource key and a label for the editor.</summary>

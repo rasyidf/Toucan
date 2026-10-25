@@ -5,7 +5,7 @@
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
                 xmlns:ui="using:FluentAvalonia.UI.Controls"
                 xmlns:c="using:Toucan.Avalonia.Views.Components"
-                Title="{loc:Loc 'Translation Providers'}" Width="840" Height="600">
+                Title="{loc:Loc 'Translation Providers'}" Width="840" Height="600" MinWidth="680" MinHeight="460">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
       <DockPanel>
@@ -27,12 +27,7 @@
             <Button Classes="segment" Classes.active="{Binding ProjectScope}" Content="{loc:Loc 'Project…'}" Command="{Binding LoadProjectSettingsCommand}"/>
           </StackPanel>
         </Border>
-        <StackPanel Spacing="2">
-          <TextBlock Text="{loc:Loc 'Translation providers'}" Classes="dialogTitle"/>
-          <TextBlock Classes="caption">
-            <Run Text="{loc:Loc 'Editing: '}"/><Run Text="{Binding ScopeLabel}" FontWeight="SemiBold"/>
-          </TextBlock>
-        </StackPanel>
+        <TextBlock Text="{loc:Loc 'Translation providers'}" Classes="dialogTitle" VerticalAlignment="Center"/>
       </DockPanel>
     </Border>
 

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <data name="title" xml:space="preserve">
+    <value>Paritätslabor</value>
+  </data>
+  <data name="welcome" xml:space="preserve">
+    <value>Hallo {name}</value>
+  </data>
+  <data name="empty" xml:space="preserve">
+    <value/>
+  </data>
+  <data name="unicode" xml:space="preserve">
+    <value>日本語 — café 😀</value>
+  </data>
+  <data name="multiline" xml:space="preserve">
+    <value>First line
+Second line</value>
+  </data>
+  <data name="quoted" xml:space="preserve">
+    <value>Say &quot;hello&quot;</value>
+  </data>
+  <data name="path" xml:space="preserve">
+    <value>C:\translations\new</value>
+  </data>
+  <data name="items_one" xml:space="preserve">
+    <value>{{count}} item</value>
+  </data>
+  <data name="items_other" xml:space="preserve">
+    <value>{{count}} items</value>
+  </data>
+</root>

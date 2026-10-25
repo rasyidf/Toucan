@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Toucan.Avalonia.Services;
@@ -14,10 +15,12 @@ namespace Toucan.Avalonia.ViewModels;
 public partial class LanguageGroupViewModel : ObservableObject, IDisposable
 {
     private readonly Func<TranslationItem, TranslationItemViewModel> _translationItemFactory;
+    private readonly string? _primaryLanguage;
 
-    public LanguageGroupViewModel(string ns, Func<TranslationItem, TranslationItemViewModel>? translationItemFactory = null)
+    public LanguageGroupViewModel(string ns, Func<TranslationItem, TranslationItemViewModel>? translationItemFactory = null, string? primaryLanguage = null)
     {
         Namespace = ns;
+        _primaryLanguage = primaryLanguage;
         _translationItemFactory = translationItemFactory ?? (ti => new TranslationItemViewModel(ti));
     }
 
@@ -55,7 +58,8 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
         DisposeItems();
         Translations.Clear();
         foreach (var t in OrderByPrimary(items))
-            Translations.Add(_translationItemFactory(t));
+            Translations.Add(CreateRow(t));
+        ApplySourceText(Translations);
     }
 
     public void LoadPluralVariants(IEnumerable<IGrouping<string, TranslationItem>> variantGroups)
@@ -70,15 +74,48 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
                 FullNamespace = group.Key
             };
             foreach (var t in OrderByPrimary(group))
-                variant.Translations.Add(_translationItemFactory(t));
+                variant.Translations.Add(CreateRow(t));
+            ApplySourceText(variant.Translations);
             PluralVariants.Add(variant);
         }
         OnPropertyChanged(nameof(IsPluralGroup));
     }
 
-    private static IEnumerable<TranslationItem> OrderByPrimary(IEnumerable<TranslationItem> items)
+    /// <summary>
+    /// Give each target the current primary value. Source edits and model refreshes reuse this path,
+    /// keeping placeholder warnings current without refreshing target editor values or caret positions.
+    /// </summary>
+    private void ApplySourceText(IReadOnlyList<TranslationItemViewModel> rows)
     {
-        var primary = StatusBarService.Instance.ViewModel?.DefaultLanguage;
+        var primary = _primaryLanguage ?? StatusBarService.Instance.ViewModel?.DefaultLanguage;
+        if (rows.Count == 0) return;
+        // OrderByPrimary puts the primary language first when it is known; fall back to the first row.
+        var source = string.IsNullOrEmpty(primary)
+            ? rows[0]
+            : rows.FirstOrDefault(r => string.Equals(r.Language, primary, StringComparison.OrdinalIgnoreCase)) ?? rows[0];
+        foreach (var row in rows)
+            row.SourceText = ReferenceEquals(row, source) ? null : source.Value;
+    }
+
+    private TranslationItemViewModel CreateRow(TranslationItem item)
+    {
+        var row = _translationItemFactory(item);
+        row.PropertyChanged += OnRowPropertyChanged;
+        return row;
+    }
+
+    private void OnRowPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(TranslationItemViewModel.Value) || sender is not TranslationItemViewModel row) return;
+        if (Translations.Contains(row)) ApplySourceText(Translations);
+        else
+            foreach (var variant in PluralVariants)
+                if (variant.Translations.Contains(row)) ApplySourceText(variant.Translations);
+    }
+
+    private IEnumerable<TranslationItem> OrderByPrimary(IEnumerable<TranslationItem> items)
+    {
+        var primary = _primaryLanguage ?? StatusBarService.Instance.ViewModel?.DefaultLanguage;
         return string.IsNullOrEmpty(primary)
             ? items.OrderBy(o => o.Language, StringComparer.Ordinal)
             : items.OrderBy(o => string.Equals(o.Language, primary, StringComparison.OrdinalIgnoreCase) ? 0 : 1)
@@ -98,7 +135,11 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
 
     private void DisposeItems()
     {
-        foreach (var item in AllItems) item.Dispose();
+        foreach (var item in AllItems)
+        {
+            item.PropertyChanged -= OnRowPropertyChanged;
+            item.Dispose();
+        }
     }
 
     public void Dispose()

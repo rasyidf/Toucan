@@ -235,6 +235,36 @@ public sealed class SaveRecoveryTests : IDisposable
     }
 
     [Fact]
+    public async Task TypedLiteralRenameMetadataAndDocumentStateSurviveCrashRecovery()
+    {
+        File.WriteAllText(Path.Combine(_project, "en.json"), """{"a.b":"Literal","a":{"b":"Nested"}}""");
+        var first = await OpenAsync();
+        var literal = first.Store.Translations.Single(i => i.Language == "en" && i.Value == "Literal");
+        var entryId = literal.Identity!.EntryId;
+        literal.Namespace = "renamed";
+        literal.IsApproved = true;
+        first.Store.NotifyCommentChanged(literal, "Recovered note");
+        first.Store.NotifyValueChanged(literal, "Recovered literal");
+        first.Lifecycle.CurrentProject!.ResourceDocuments.Single(d => d.Resource.Language == "en").Data["opaque.test"] = System.Text.Json.JsonSerializer.SerializeToElement(42);
+        first.Lifecycle.FlushRecoveryDraft();
+
+        var second = await OpenAsync();
+        Assert.NotNull(second.Lifecycle.PendingRecovery);
+        Assert.Empty(second.Lifecycle.ApplyRecovery().Conflicts);
+        var recovered = second.Store.Translations.Single(i => i.Value == "Recovered literal");
+        Assert.Equal(entryId, recovered.Identity!.EntryId);
+        Assert.Equal("renamed", recovered.Identity.Path.Single().Property);
+        Assert.Equal("Recovered note", recovered.Comment);
+        Assert.True(recovered.IsApproved);
+        Assert.Equal(ProjectSaveStatus.Success, (await second.Lifecycle.SaveProjectAsync()).Status);
+        using var json = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(_project, "en.json")));
+        Assert.Equal("Recovered literal", json.RootElement.GetProperty("renamed").GetString());
+        Assert.Equal("Nested", json.RootElement.GetProperty("a").GetProperty("b").GetString());
+        Assert.False(json.RootElement.TryGetProperty("a.b", out _));
+        Assert.Equal(42, second.Lifecycle.CurrentProject!.ResourceDocuments.Single(d => d.Resource.Language == "en").Data["opaque.test"].GetInt32());
+    }
+
+    [Fact]
     public async Task Recovery_NeverReplacesNewerDiskContent()
     {
         var first = await OpenAsync();

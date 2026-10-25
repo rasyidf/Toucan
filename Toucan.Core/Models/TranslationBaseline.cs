@@ -17,4 +17,6 @@ internal class TranslationBaseline
 
     /// <summary>Comment at last save/load.</summary>
     public string SavedComment { get; set; } = string.Empty;
+    public string SavedFormatData { get; set; } = "[]";
+    public string? ResourceAddress { get; set; }
 }

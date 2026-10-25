@@ -1,0 +1,9 @@
+WeCantSpell.Hunspell 7.0.1
+Upstream: https://github.com/aarondandy/WeCantSpell.Hunspell
+Source commit: ab5709d95b2d23541984d22baa0ab2d1e783582f
+Toucan distributes the unmodified engine under its MPL 1.1 alternative.
+Original authors, contributors and copyright: see license.txt and source.zip.
+The exact library source is provided in source.zip beside this notice.
+The full chosen license is in MPL-1.1.txt. Other grants remain in license.txt.
+No dictionary data, upstream icons or test corpora are included.
+Local user dictionary imports have independent grants and are not release assets.

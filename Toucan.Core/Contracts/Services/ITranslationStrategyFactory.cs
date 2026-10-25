@@ -7,6 +7,8 @@ public interface ITranslationStrategyFactory
     ISaveStrategy? GetSaveStrategy(string formatId);
     ILoadStrategy? GetLoadStrategy(string formatId);
     ILoadStrategy? GetManifestLoadStrategy();
+    IResourceLoadStrategy? GetResourceLoadStrategy(string formatId) => GetLoadStrategy(formatId) as IResourceLoadStrategy;
+    IResourceSaveStrategy? GetResourceSaveStrategy(string formatId) => GetSaveStrategy(formatId) as IResourceSaveStrategy;
 
     /// <summary>All registered save strategies (built-in and plugin), in registration order.</summary>
     IReadOnlyList<ISaveStrategy> SaveStrategies { get; }

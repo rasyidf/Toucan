@@ -21,6 +21,16 @@ public class ProjectSettings
     public string? Name { get; set; }
     public string? Description { get; set; }
     public string? Version { get; set; }
+    [JsonIgnore] public BabelImportData? BabelImport { get; set; }
+    [JsonPropertyName("babelImport"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public BabelImportData? LegacyBabelImport { get => null; set => BabelImport = value; }
+    public int ResourceSchemaVersion { get; set; } = 1;
+    public List<ResourceDocumentState> ResourceDocuments { get; set; } = [];
+    public ResourceOptions ResourceOptions { get; set; } = new();
+    public MigrationReport? LastMigrationReport { get; set; }
+    public Dictionary<string, CompatibilityEnvelope> Compatibility { get; set; } = [];
+    [JsonExtensionData] public Dictionary<string, JsonElement>? ExtensionData { get; set; }
+    public List<TranslationState> TranslationStates { get; set; } = [];
 
     // --- Language config ---
     public string PrimaryLanguage { get; set; } = "en-US";
@@ -46,9 +56,13 @@ public class ProjectSettings
     }
     /// <summary>Output encoding override: UTF-8 or UTF-8 BOM; null keeps the format default.</summary>
     public string? TextEncoding { get; set; }
+    /// <summary>Explicit resource input encoding; null lets the format detect it.</summary>
+    public string? InputEncoding { get; set; }
     /// <summary>Output newline override: LF or CRLF; null keeps the format default.</summary>
     public string? LineEnding { get; set; }
     public string? Framework { get; set; }
+    public SpellingSettings Spelling { get; set; } = new();
+    public FrameworkOptions FrameworkOptions { get; set; } = new();
     public List<TranslationPackage> TranslationPackages { get; set; } = [];
 
     // --- Editor preferences (project-scoped, null = inherit from ProjectDefaults) ---
@@ -95,6 +109,7 @@ public class ProjectSettings
 
     /// <summary>File extensions to include in source code scanning.</summary>
     public List<string>? ScanExtensions { get; set; }
+    public List<string>? ScanIncludes { get; set; }
 
     /// <summary>Directories to exclude from source code scanning.</summary>
     public List<string>? ExcludedDirectories { get; set; }
@@ -115,19 +130,33 @@ public class ProjectSettings
 
     // --- Runtime (not serialized) ---
     [JsonIgnore] public string ProjectPath { get; set; } = string.Empty;
+    [JsonIgnore] public List<ResourceDiagnostic> ImportDiagnostics { get; set; } = [];
+    [JsonIgnore] public Dictionary<string, string> ExpectedResourceFiles { get; set; } = [];
     [JsonIgnore] public bool IsDirty { get; set; }
 
-    public static ProjectSettings? LoadFrom(string folder)
+    public static ProjectSettings? LoadFrom(string folder) => LoadFile(Path.Combine(folder, "toucan.tproj"));
+
+    public static ProjectSettings? LoadFile(string file)
     {
-        var file = Path.Combine(folder, "toucan.tproj");
+        var folder = Path.GetDirectoryName(Path.GetFullPath(file))!;
         if (!File.Exists(file)) return null;
 
         try
         {
             var json = File.ReadAllText(file);
             var settings = JsonSerializer.Deserialize<ProjectSettings>(json, s_options) ?? new ProjectSettings();
+            settings.Spelling ??= new();
+            settings.Spelling.Assignments ??= []; settings.Spelling.Fallbacks ??= []; settings.Spelling.Words ??= [];
             settings.ProjectPath = folder;
             settings.MigrateLegacyFormat(json);
+            if (settings.BabelImport is null && settings.Compatibility.TryGetValue("babeledit", out var envelope) && envelope.Version == 1 && envelope.Data.TryGetValue("project", out var imported))
+                settings.BabelImport = imported.Deserialize<BabelImportData>();
+            if (settings.BabelImport is { } legacy && !settings.Compatibility.ContainsKey("babeledit"))
+            {
+                var migrated = new CompatibilityEnvelope { Source = "babeledit" };
+                migrated.Data["project"] = JsonSerializer.SerializeToElement(legacy);
+                settings.Compatibility["babeledit"] = migrated;
+            }
             return settings;
         }
         catch { return null; }
@@ -189,17 +218,4 @@ public class ProjectSettings
 
     private string ResolveDefaultPath(string language) =>
         DefaultPathResolver?.Invoke(SaveFormat, language) ?? $"{language}.json";
-}
-
-/// <summary>A named package of translation files within a project.</summary>
-public class TranslationPackage
-{
-    public string Name { get; set; } = "main";
-    public List<TranslationUrl> TranslationUrls { get; set; } = [];
-}
-
-public class TranslationUrl
-{
-    public string Language { get; set; } = string.Empty;
-    public string Path { get; set; } = string.Empty;
 }

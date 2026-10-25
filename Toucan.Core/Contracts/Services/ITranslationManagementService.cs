@@ -10,6 +10,8 @@ public interface ITranslationManagementService
     /// <summary>Whether any item is dirty.</summary>
     bool IsDirty { get; }
 
+    void NotifyConfigurationChanged(bool dirty) { }
+
     /// <summary>Raised when IsDirty changes. The boolean argument indicates the new IsDirty value.</summary>
 #pragma warning disable CA1003 // Use generic event handler instances — design requires EventHandler<bool> for simplicity
     event EventHandler<bool>? DirtyStateChanged;

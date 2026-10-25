@@ -22,7 +22,13 @@ public sealed class FrameworkTile
     /// <summary>Framework profile ID (matches IFrameworkProfile.Id). Null = use the FormatId-based fallback.</summary>
     public string? ProfileId { get; init; }
 
-    private static readonly string[] Palette = ["#007AFF", "#34C759", "#FF9500", "#AF52DE", "#FF2D55", "#5AC8FA", "#5856D6", "#FF3B30", "#30B0C7", "#A2845E"];
+    private static readonly IReadOnlyDictionary<string, string> Palette = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["i18next"] = "#D6336C", ["React"] = "#087EA4", ["Vue"] = "#27845A", ["Angular"] = "#A82DB5",
+        ["Flutter"] = "#147DA8", ["Laravel"] = "#CB4935", [".NET"] = "#6941C6", ["Android"] = "#27845A",
+        ["iOS"] = "#526579", ["Ruby/Rails"] = "#BA3434", ["Svelte"] = "#C34A20", ["Java"] = "#9B5A18",
+        ["Gettext"] = "#8C476D", ["Generic JSON"] = "#087EA4", ["Generic YAML"] = "#8B6921", ["CSV"] = "#52733E",
+    };
     private static readonly Dictionary<string, string> Badges = new(StringComparer.Ordinal)
     {
         ["i18next"] = "i18", ["React"] = "Re", ["Vue"] = "Vu", ["Angular"] = "Ng", ["Flutter"] = "Fl", ["Laravel"] = "La", [".NET"] = ".N",
@@ -34,7 +40,8 @@ public sealed class FrameworkTile
     public string Badge => Badges.TryGetValue(Name, out var b) ? b : Name.Length >= 2 ? Name[..2] : Name;
 
     public global::Avalonia.Media.IBrush TileBrush =>
-        global::Avalonia.Media.Brush.Parse(Palette[(int)((uint)Name.Aggregate(17, (h, c) => unchecked(h * 31 + c)) % (uint)Palette.Length)]);
+        new global::Avalonia.Media.Immutable.ImmutableSolidColorBrush(
+            global::Avalonia.Media.Color.Parse(Palette.GetValueOrDefault(Name, "#526579")));
 }
 
 /// <summary>Two-step New Project wizard: template and location, then languages.</summary>
@@ -64,7 +71,12 @@ public partial class NewProjectViewModel : ObservableObject
         ProjectFolder = Path.Combine(_defaultBaseFolder, ProjectName);
     }
 
-    public ObservableCollection<FrameworkTile> Frameworks { get; } =
+    public ObservableCollection<FrameworkTile> Frameworks { get; } = [.. TemplateCatalog];
+
+    public static IReadOnlyList<FrameworkTile> FeaturedFrameworks =>
+        [TemplateCatalog[0], TemplateCatalog[7], TemplateCatalog[8], TemplateCatalog[6], TemplateCatalog[4], TemplateCatalog[13]];
+
+    public static IReadOnlyList<FrameworkTile> TemplateCatalog { get; } =
     [
         new() { Name = "i18next", Description = "JSON namespaced", Icon = "⚙", FormatId = FormatIds.Namespaced, ProfileId = "i18next" },
         new() { Name = "React", Description = "Flat JSON", Icon = "⚛", FormatId = FormatIds.Json, ProfileId = "generic-json" },
@@ -229,6 +241,8 @@ public partial class ImportProjectViewModel : ObservableObject
     {
         _profiles = profiles;
         _dialogService = dialogService;
+        DiscoveredFiles.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasDiscoveredFiles));
+        DetectedLanguages.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasDetectedLanguages));
         foreach (var p in profiles) AvailableProfiles.Add(p);
     }
 
@@ -239,6 +253,8 @@ public partial class ImportProjectViewModel : ObservableObject
     public ObservableCollection<IFrameworkProfile> AvailableProfiles { get; } = [];
     public ObservableCollection<DiscoveredFile> DiscoveredFiles { get; } = [];
     public ObservableCollection<string> DetectedLanguages { get; } = [];
+    public bool HasDiscoveredFiles => DiscoveredFiles.Count > 0;
+    public bool HasDetectedLanguages => DetectedLanguages.Count > 0;
 
     public bool IsValid => !string.IsNullOrWhiteSpace(Folder) && SelectedProfile != null && DiscoveredFiles.Count > 0;
 
@@ -325,6 +341,8 @@ public partial class ProjectPropertiesViewModel : ObservableObject
         new("Editor", "Edit", "#007AFF"),
         new("Source code", "CodeHTML", "#5AC8FA"),
         new("Hidden", "View", "#636366"),
+        new("Resources", "Document", "#AF52DE"),
+        new("Spelling", "Character", "#34C759"),
     ];
 
     public static IReadOnlyList<string> TranslationOrderOptions { get; } = ["Alphabetically sorted", "Primary language"];
@@ -345,12 +363,19 @@ public partial class ProjectPropertiesViewModel : ObservableObject
     [ObservableProperty] private decimal autoSaveInterval = 60;
     [ObservableProperty] private string sourceRoots = string.Empty;
     [ObservableProperty] private string externalEditor = string.Empty;
+    [ObservableProperty] private string scanIncludes = string.Empty;
     [ObservableProperty] private string scanExtensions = string.Empty;
     [ObservableProperty] private string excludedDirectories = string.Empty;
     [ObservableProperty] private bool autoScanOnOpen;
     [ObservableProperty] private bool validateOnSave = true;
     [ObservableProperty] private bool requireValidForApproval;
 
+    public Toucan.Core.Plugins.FrameworkConfiguration? FrameworkConfiguration { get; set; }
+    public ProjectSettings ConfigurationDraft => _settings;
+    public ResourceSettingsViewModel? ResourceSettings { get; set; }
+    public bool HasResourceSettings => ResourceSettings != null;
+    [ObservableProperty] private string configurationError = string.Empty;
+    public bool PersistOnSave { get; set; } = true;
     public string ProjectPath => _settings.ProjectPath;
     public string SaveStyleName => _format?.DisplayName ?? _settings.SaveFormat;
 
@@ -394,6 +419,7 @@ public partial class ProjectPropertiesViewModel : ObservableObject
         AutoSaveInterval = _settings.AutoSaveIntervalSeconds ?? 60;
         ExternalEditor = _settings.ExternalEditor ?? string.Empty;
         SourceRoots = string.Join(";", _settings.SourceRoots ?? []);
+        ScanIncludes = string.Join(", ", _settings.ScanIncludes ?? []);
         ScanExtensions = string.Join(", ", _settings.ScanExtensions ?? []);
         ExcludedDirectories = string.Join(", ", _settings.ExcludedDirectories ?? []);
         AutoScanOnOpen = _settings.AutoScanOnOpen ?? false;
@@ -484,6 +510,13 @@ public partial class ProjectPropertiesViewModel : ObservableObject
     [RelayCommand]
     private void Save()
     {
+        try
+        {
+            foreach (var fallback in _settings.Spelling.Fallbacks) { Toucan.Core.Services.DictionaryRegistry.NormalizeLocale(fallback.Key); Toucan.Core.Services.DictionaryRegistry.NormalizeLocale(fallback.Value); }
+            foreach (var words in _settings.Spelling.Words) { Toucan.Core.Services.DictionaryRegistry.NormalizeLocale(words.Key); if (words.Value == null || words.Value.Count > 10000 || words.Value.Any(w => w.Length > 128 || w.Any(char.IsWhiteSpace))) throw new FormatException("Project word lists support at most 10,000 individual words of at most 128 characters."); }
+            ResourceSettings?.ApplyDraft(); ConfigurationError = "";
+        }
+        catch (Exception ex) when (ex is FormatException or IOException or InvalidOperationException) { ConfigurationError = ex.Message; return; }
         _settings.Name = ProjectName;
         _settings.Description = Description;
         _settings.PrimaryLanguage = PrimaryLanguage;
@@ -499,6 +532,8 @@ public partial class ProjectPropertiesViewModel : ObservableObject
         _settings.AutoSaveIntervalSeconds = (int)Math.Clamp(AutoSaveInterval, 10, 600);
         _settings.ExternalEditor = string.IsNullOrWhiteSpace(ExternalEditor) ? null : ExternalEditor;
         _settings.SourceRoots = SplitList(SourceRoots, ';') ?? [];
+        if (FrameworkConfiguration != null) _settings.FrameworkOptions = FrameworkConfiguration.Options;
+        _settings.ScanIncludes = SplitList(ScanIncludes, ',');
         _settings.ScanExtensions = SplitList(ScanExtensions, ',');
         _settings.ExcludedDirectories = SplitList(ExcludedDirectories, ',');
         _settings.AutoScanOnOpen = AutoScanOnOpen;
@@ -506,7 +541,7 @@ public partial class ProjectPropertiesViewModel : ObservableObject
         _settings.RequireValidForApproval = RequireValidForApproval ? true : null;
         _settings.CopyTemplates = [.. CopyTemplates.Select(t => t.Value)];
         _settings.HiddenNamespaces = [.. HiddenNamespaces];
-        _settings.Save();
+        if (PersistOnSave) _settings.Save();
         CloseAction?.Invoke(true);
     }
 

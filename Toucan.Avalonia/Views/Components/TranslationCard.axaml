@@ -3,21 +3,34 @@
              xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
-             xmlns:svc="using:Toucan.Avalonia.Services">
+             xmlns:svc="using:Toucan.Avalonia.Services"
+             xmlns:c="using:Toucan.Avalonia.Views.Components">
   <UserControl.Resources>
     <!-- One language row: badge · value editor · row actions -->
     <DataTemplate x:Key="RowTemplate">
-      <Grid Classes="translationRow" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" Margin="0,4" IsVisible="{Binding IsLanguageVisible}">
-        <Border Classes="langBadge rowLanguage" MinWidth="36" MaxWidth="80" ToolTip.Tip="{Binding Language, Converter={StaticResource LanguageName}}">
-          <TextBlock Text="{Binding Language}" TextTrimming="CharacterEllipsis"/>
+      <Grid Classes="translationRow" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,4" IsVisible="{Binding IsLanguageVisible}">
+        <Border Classes="langBadge rowLanguage" MinWidth="36" MinHeight="36" MaxWidth="80" ToolTip.Tip="{Binding Language, Converter={StaticResource LanguageName}}">
+          <StackPanel>
+            <TextBlock Text="{Binding Language}" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Text="{loc:Loc 'Source'}" IsVisible="{Binding IsSource}" FontSize="10"/>
+          </StackPanel>
         </Border>
 
-        <Panel Classes="valueCell">
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Spacing="4">
+          <Border Classes="badge" IsVisible="{Binding IsResourceReadOnly}" HorizontalAlignment="Left"><TextBlock Text="{loc:Loc 'Read-only resource'}"/></Border>
+          <TextBlock Text="{Binding ReadOnlyReason}" IsVisible="{Binding IsResourceReadOnly}" TextWrapping="Wrap" Classes="caption"/>
+          <Expander Header="{loc:Loc 'ARB placeholders'}" IsVisible="{Binding HasArbMetadata}">
+            <c:ArbPlaceholderEditor/>
+          </Expander>
+        </StackPanel>
+        <Panel Classes="valueCell" ToolTip.Tip="{Binding EditorDetails}">
           <TextBox Classes="translation" Classes.empty="{Binding IsEmpty}"
                    Text="{Binding Value}"
                    PlaceholderText="{Binding PlaceholderText}"
+                   AutomationProperties.Name="{Binding Language, Converter={StaticResource LanguageName}}"
                    FlowDirection="{Binding FlowDirection}"
-                   IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}"/>
+                   IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}" IsEnabled="{Binding !IsResourceReadOnly}"/>
+          <c:SpellingUnderline/>
           <!-- Inline TM suggestion (ghost text): shown while the field is empty; Tab accepts -->
           <Grid ColumnDefinitions="*,Auto" IsHitTestVisible="False" Margin="11,0,10,0" VerticalAlignment="Center"
                 FlowDirection="{Binding FlowDirection}">
@@ -33,6 +46,20 @@
             </Border>
           </Grid>
         </Panel>
+
+        <!-- Side-by-side source (dimmed, read-only) and the character/word count, under the field -->
+        <Grid Grid.Row="3" Grid.ColumnSpan="3" ColumnDefinitions="*,Auto" Margin="2,1,2,0">
+          <TextBlock Grid.Column="1" Classes="caption" Foreground="{DynamicResource FaintTextBrush}"
+                     HorizontalAlignment="Right" Margin="8,0,0,0" Text="{Binding CountSummary}"/>
+        </Grid>
+
+        <!-- Inline warning: a {{ }} placeholder from the source is missing here -->
+        <StackPanel Grid.Row="4" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="6" Margin="2,2,2,0"
+                    IsVisible="{Binding HasPlaceholderWarning}">
+          <ui:FASymbolIcon Symbol="Important" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource WarnBrush}"/>
+          <TextBlock Classes="caption" Foreground="{DynamicResource WarnBrush}" TextWrapping="Wrap"
+                     Text="{Binding PlaceholderWarning}" ToolTip.Tip="{loc:Loc 'This translation is missing a placeholder from the source'}"/>
+        </StackPanel>
 
         <StackPanel Classes="valueActions" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Spacing="1">
           <!-- Machine-translated marker -->
@@ -62,7 +89,7 @@
                 <StackPanel Width="280" Spacing="6">
                   <TextBlock Text="{loc:Loc 'Comment for translators'}" Classes="caption"/>
                   <TextBox Text="{Binding Comment}" AcceptsReturn="True" TextWrapping="Wrap" Height="90"
-                           IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}"/>
+                           IsReadOnly="{Binding Source={x:Static svc:PanelService.Instance}, Path=IsAuditMode}" IsEnabled="{Binding !IsResourceReadOnly}"/>
                 </StackPanel>
               </Flyout>
             </Button.Flyout>
@@ -124,7 +151,9 @@
 
       <!-- Single key: one row per language -->
       <ItemsControl Grid.Row="1" ItemsSource="{Binding Translations}" ItemTemplate="{StaticResource RowTemplate}"
-                    IsVisible="{Binding !IsPluralGroup}"/>
+                    IsVisible="{Binding !IsPluralGroup}">
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding $parent[UserControl].ComparisonColumns}"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+      </ItemsControl>
 
       <!-- Plural key: a section per category -->
       <ItemsControl Grid.Row="1" ItemsSource="{Binding PluralVariants}" IsVisible="{Binding IsPluralGroup}">
@@ -132,7 +161,9 @@
           <DataTemplate>
             <StackPanel Margin="0,2,0,6">
               <TextBlock Text="{Binding Category}" Classes="caption" FontWeight="SemiBold" Margin="0,4,0,2"/>
-              <ItemsControl ItemsSource="{Binding Translations}" ItemTemplate="{StaticResource RowTemplate}"/>
+              <ItemsControl ItemsSource="{Binding Translations}" ItemTemplate="{StaticResource RowTemplate}">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding $parent[UserControl].ComparisonColumns}"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+              </ItemsControl>
             </StackPanel>
           </DataTemplate>
         </ItemsControl.ItemTemplate>

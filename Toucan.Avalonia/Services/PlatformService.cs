@@ -80,6 +80,42 @@ internal static class PlatformService
         }
     }
 
+    /// <summary>Substitute source locations after parsing the trusted editor template; filenames remain arguments.</summary>
+    internal static ProcessStartInfo EditorStartInfo(string template, string file, int line, int column)
+    {
+        var tokens = new List<string>(); var token = new System.Text.StringBuilder(); char quote = '\0'; var started = false;
+        for (var at = 0; at < template.Length; at++)
+        {
+            var ch = template[at];
+            if (ch == '\\' && at + 1 < template.Length && template[at + 1] == '"') { token.Append('"'); at++; started = true; continue; }
+            if (ch is '\'' or '"')
+            {
+                if (quote == '\0') { quote = ch; started = true; continue; }
+                if (quote == ch) { quote = '\0'; continue; }
+            }
+            if (char.IsWhiteSpace(ch) && quote == '\0') { if (started) { tokens.Add(token.ToString()); token.Clear(); started = false; } }
+            else { token.Append(ch); started = true; }
+        }
+        if (quote != '\0') throw new FormatException("The external editor template contains an unmatched quote.");
+        if (started) tokens.Add(token.ToString());
+        if (tokens.Count == 0 || tokens[0].Contains('{')) throw new FormatException("Choose an editor executable and location arguments.");
+        var executable = tokens[0];
+        if (IsWindows && executable.Equals("code", StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (var directory in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator))
+            {
+                if (string.IsNullOrWhiteSpace(directory)) continue;
+                var code = Path.GetFullPath(Path.Combine(directory.Trim('"'), "..", "Code.exe"));
+                if (File.Exists(code)) { executable = code; break; }
+            }
+        }
+        var info = new ProcessStartInfo(executable) { UseShellExecute = false, CreateNoWindow = true };
+        foreach (var argument in tokens.Skip(1)) info.ArgumentList.Add(argument.Replace("{file}", file, StringComparison.Ordinal)
+            .Replace("{line}", Math.Max(1, line).ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal)
+            .Replace("{column}", Math.Max(1, column).ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal));
+        return info;
+    }
+
     private static IClipboard? Clipboard => AppWindows.Active?.Clipboard ?? AppWindows.Main?.Clipboard;
 
     public static async Task SetClipboardTextAsync(string? text)

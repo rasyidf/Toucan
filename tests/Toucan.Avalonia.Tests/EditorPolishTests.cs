@@ -82,7 +82,7 @@ public class EditorPolishTests
                 Assert.True(point.X >= 0);
                 Assert.True(point.X + box.Bounds.Width <= card.Bounds.Width + 1);
                 Assert.True(box.Bounds.Width >= 150);
-                if (card.Classes.Contains("narrow")) Assert.True(box.Bounds.Width >= card.Bounds.Width - 28);
+                if (card.Classes.Contains("narrow") && card.ComparisonColumns == 1) Assert.True(box.Bounds.Width >= card.Bounds.Width - 28);
             }
             SaveShot(window, $"focused-{width}-{(dark ? "dark" : "light")}-{mode}");
             vm.FocusedNextCommand.Execute(null);

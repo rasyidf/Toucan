@@ -6,6 +6,7 @@
 <title>Toucan · Changelog</title>
 <meta name="description" content="Release notes for Toucan, the open-source desktop translation editor. Browse features, improvements, and fixes from every documented release.">
 <link rel="canonical" href="https://toucan.rasyid.dev/changelog.html">
+<meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
@@ -17,6 +18,25 @@
 <meta property="og:description" content="Features, improvements, and fixes from every documented Toucan release.">
 <meta property="og:url" content="https://toucan.rasyid.dev/changelog.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Toucan · Changelog">
+<meta name="twitter:description" content="Release notes for Toucan, the open-source desktop translation editor. Browse features, improvements, and fixes from every documented release.">
+<meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Toucan · Changelog",
+  "description": "Release notes for Toucan, the open-source desktop translation editor. Browse features, improvements, and fixes from every documented release.",
+  "url": "https://toucan.rasyid.dev/changelog.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Toucan",
+    "url": "https://toucan.rasyid.dev",
+    "logo": "https://toucan.rasyid.dev/assets/icons/icon-512.png"
+  }
+}
+</script>
 <script>
 (function () {
   try {
@@ -74,6 +94,7 @@
       <div class="sidebar-title">Jump to a release</div>
       <nav id="release-index" aria-label="Versions">
 <!-- RELEASE INDEX START -->
+<a href="#unreleased">Unreleased</a>
 <a href="#v0.23.0">v0.23.0</a>
 <a href="#v0.22.0">v0.22.0</a>
 <a href="#v0.21.0">v0.21.0</a>
@@ -105,6 +126,52 @@
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div id="releases">
 <!-- RELEASES START -->
+<article class="release" id="unreleased" aria-labelledby="heading-unreleased">
+<div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
+<div class="release-lead"><p>Editor comfort, resource compatibility and a contextual desktop shell for the 0.24 source build.</p></div>
+<div class="release-counts"><span class="added">10 added</span><span class="changed">5 changed</span><span class="fixed">16 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Editor workflow</strong> — Source-first language cards switch to two columns in wide editors and stack in narrow windows. Focused fields show Unicode character and word counts and translation-memory provenance. Approve and Next (<code>Ctrl/Cmd+Enter</code>), Next Pending Translation and Accept Suggestion are registered, reassignable commands that retain target focus across pages.</li>
+<li><strong>Workspace setup and guide</strong> — First-run setup offers default source language, theme and optional AI credentials. A dismissible editing guide can be reopened from Help.</li>
+<li><strong>Notification history</strong> — The status-bar flyout keeps host and plugin notifications with time, source, severity and action buttons. Save failures offer Retry save, validation opens Issues, command failures offer Preferences, and background tasks retain completion, cancellation and failure outcomes.</li>
+<li><strong>Resource compatibility workflows</strong> — Exact-resource fidelity options, generated-source protection, framework extraction diagnostics, local spelling imports and hash-verified engine source/notices accompany the committed M3–M7 implementation. Native and cross-platform compatibility acceptance remains a release gate.</li>
+<li><strong>BabelEdit project import</strong> — Open a folder containing one <code>.babel</code> project to load its settings, concepts, comments, approvals and JSON package/file mappings. Saving creates <code>toucan.tproj</code> and leaves the original <code>.babel</code> unchanged. Resource paths must stay within the project folder; multiple <code>.babel</code> projects need separate folders.</li>
+<li><strong>Compatibility fixtures and reports</strong> — Nineteen synthetic bilingual projects, the original BabelEdit Excel export, native save/reopen regressions, and reproducible CLI and converter checks. The result gallery includes the updated report, project outcomes and reference screenshots; it distinguishes verified cases from broader framework parity that remains untested.</li>
+<li><strong>Placeholder help in the editor</strong> — A translation value that drops a <code>{{ }}</code> placeholder its source has now shows an inline warning naming the missing placeholder (toggle it under Settings → Editor). Right-click a key → Placeholders → &quot;Rename … in all languages&quot; renames a <code>{{token}}</code> across every language of that key as a single undo step; the same is available as a command, and a &quot;Sync Placeholder to All Languages&quot; command applies a rename you typed in one field to the rest. No modifier keys, so it works the same on macOS, Windows and Linux.</li>
+<li><strong>Accessibility pass</strong> — Right-to-left target languages lay out right-to-left in the editor, interactive icon-only controls carry accessible names for screen readers (guarded by a test), and the window and panels lay out at a narrow width with large text without clipping.</li>
+<li><strong>First-run setup and a feature tour</strong> — The first-run dialog now also sets the default source language and theme, and a one-time, dismissible tour points out editing, keyboard review and the command palette. The empty start screen and the &quot;no keys match&quot; state already offer the actions to open, create or import a project and to add a key.</li>
+<li><strong>Placeholders in the inspector</strong> — Selecting a key lists the placeholders parsed from its source value (<code>{name}</code>, <code>{{count}}</code>, <code>%s</code>, <code>:param</code>, <code>${expr}</code>, ICU), so a translator can see at a glance what every translation must keep. The inspector already shows the per-language values with their state (empty, machine, translated, approved), translation-memory matches, source-code references and history.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><strong>Repository and packaging cleanup</strong> — One maintained solution and one MSIX implementation/manifest; Windows packages go to <code>dist/</code> with staging under <code>build/publish/</code>. MSIX assets are generated at their declared sizes, and local build probes and retired WPF agent configuration are removed.</li>
+<li><strong>Plugin toolbar contributions</strong> — Commands with toolbar placement now render in the editor and follow registry availability and registration changes.</li>
+<li><strong>Preview version</strong> — Source builds identify themselves as 0.24.0; publishing the release still requires the native/platform acceptance recorded in the editor-comfort spec.</li>
+<li><strong>Welcome screen and project setup</strong> — Theme-aware artwork, responsive welcome sections, shared framework cards with consistent sizing, and template shortcuts that preselect their framework. The project wizard places aligned project details above its framework selector and scrolls the body above a fixed footer. Redundant welcome navigation was removed.</li>
+<li>The <code>Toucan.Plugins.Abstractions</code> package is version 1.2.0 to match plugin API 1.2, including additive resource compatibility contracts.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>Live placeholder context</strong> — Source edits, linked placeholder renames and undo/redo update target warnings immediately, including independent plural variants. A successful rename no longer warns that the old source token is missing.</li>
+<li><strong>Unread notification badge</strong> — Reading notification history clears its badge across project/validation refreshes. Retained history and validation counts remain available, while only new notifications increase the badge.</li>
+<li><strong>Start-screen sidebar</strong> — The project activity rail and its reserved column disappear on the start screen, return after opening a project and hide again when it closes. Preferences remains available from Settings.</li>
+<li><strong>Menus without a project</strong> — Project editing, save/export, validation, statistics and project properties are hidden until a project opens. Native menus, overflow menus and the command palette use the same rule, including workspace-only plugin commands; global tools remain available.</li>
+<li><strong>Dialog title bars</strong> — App-owned settings, provider, message and plugin dialogs share themed custom chrome with the main window&#x27;s caption-button styling. Translation Providers uses its scope switch without a duplicate &quot;Editing:&quot; label.</li>
+<li><strong>Bulk history (APP-04)</strong> — Copy, namespace move, Replace All, accepted pre-translation and approval batches each undo as one step, restoring review metadata as well as values. Stale translation previews and namespace collisions leave the workspace unchanged. Existing grouped delete history remains supported.</li>
+<li><strong>Notification access (APP-03)</strong> — The notification badge opens retained history even with no untranslated strings. Validation distinguishes an unchecked project from a clean result.</li>
+<li><strong>Shortcut customization (APP-02)</strong> — The existing settings editor supports persisted reassignment, conflicts and reset; this issue no longer describes current code.</li>
+<li><strong>Responsive editor and dialogs</strong> — Editor toolbars grow when controls wrap; resource explanations occupy a separate row. Dialog footers retain their spacing and onboarding content scrolls above its actions.</li>
+<li><strong>Windows dialog surfaces</strong> — Dialog windows and their backplates use the active theme&#x27;s opaque background, including dialogs with a Border content root, and follow theme changes while open. Shared color swatches use immutable brushes to avoid UI-thread ownership errors.</li>
+<li><strong>Empty translations</strong> — Format writers retain intentional empty values by default and honor the project&#x27;s save-empty setting through GUI, CLI and package saves. Excluding empty values also rewrites a file when its final translation becomes empty, instead of leaving old text on disk.</li>
+<li><strong>Java properties encoding</strong> — UTF-8 and Latin-1 text load correctly, imported encoding declarations take precedence over detection, and saves retain original filenames. Explicit newline conversion preserves existing UTF-8 text.</li>
+<li><strong>Rails YAML and sequences</strong> — Locale wrappers no longer become translation key prefixes. Scalar and mapping sequences load and save, existing <code>.yml</code>/<code>.yaml</code> paths are retained, and new keys join the existing language file.</li>
+<li><strong>BabelEdit metadata conversion</strong> — Both converters retain concepts directly inside package folders and preserve typed settings and copy templates. Native project saves retain comments and approvals across reopening, language aliases and Save As.</li>
+<li><strong>Excel interchange</strong> — Import recognizes BabelEdit package, translation ID and per-language approval columns as well as older Toucan workbooks. Export preserves approval per language. Comment and approval changes apply even when translation text is unchanged, and invalid headers are rejected before merging.</li>
+<li><strong>Editing keeps focus</strong> — Refreshing a row after an unrelated edit (undo, redo or a bulk operation elsewhere) no longer resets the field you are typing in; the caret stays put.</li>
+</ul></div></details>
+<div class="release-links"><a href="#unreleased" aria-label="Permalink to Unreleased">Permalink</a></div>
+</article>
 <article class="release" id="v0.23.0" aria-labelledby="heading-v0.23.0">
 <div class="release-heading"><h2 id="heading-v0.23.0"><a href="#v0.23.0">v0.23.0</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-10-13">Oct 13, 2026</time></div>
 <div class="release-lead"><p>Extension platform: a connector can be built, installed, configured and used without changing Toucan.</p></div>

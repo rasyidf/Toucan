@@ -55,11 +55,21 @@ internal static class BuiltInCommands
             B("View", "Focused Editor", "Mod+E", vm => vm.ToggleFocusedEditorCommand),
             B("View", "Zen Mode", "Mod+Shift+Enter", vm => vm.ToggleZenModeCommand),
             B("View", "Fullscreen", Mac ? "Mod+Ctrl+F" : "F11", vm => vm.ToggleFullscreenCommand),
+            B("View", "Show Issues", null, vm => vm.ShowIssuesCommand),
             B("View", "Editor Mode", "Mod+Alt+D1", vm => vm.SwitchToEditorModeCommand),
             B("View", "Review Mode", "Mod+Alt+D2", vm => vm.SwitchToReviewModeCommand),
             B("View", "Audit Mode", "Mod+Alt+D3", vm => vm.SwitchToAuditModeCommand),
             B("Translate", "Pre-translate", "Mod+Shift+T", vm => vm.PreTranslateBulkCommand),
+            B("Translate", "Approve and Next", "Mod+Enter", vm => vm.ApproveAndNextCommand),
+            B("Translate", "Next Pending Translation", "Mod+Alt+Right", vm => vm.NextPendingTranslationCommand),
+            B("Translate", "Accept Suggestion", "Mod+Alt+Enter", vm => vm.AcceptSuggestionCommand),
+            B("Help", "Migration Report", null, vm => vm.ShowMigrationReportCommand),
+            B("Help", "Show Editing Guide", null, vm => vm.ShowWorkflowGuideCommand),
+            B("Translate", "Check Spelling Locally", null, vm => vm.CheckProjectSpellingCommand),
             B("Translate", "Run Validation", "F7", vm => vm.RunValidationCommand),
+            B("Review", "Approve and Next", null, vm => vm.ApproveAndNextCommand),
+            B("Review", "Next Needing Review", null, vm => vm.FocusedNextNeedingReviewCommand),
+            B("Edit", "Sync Placeholder to All Languages", null, vm => vm.SyncPlaceholderToAllLanguagesCommand),
             B("Settings", "Preferences", "Mod+OemComma", vm => vm.ShowPreferencesCommand),
         ];
     }
@@ -90,22 +100,23 @@ internal static class BuiltInCommands
                 DefaultShortcut = b.Shortcut,
                 RequiresWorkspace = false,
                 Placements = CommandPlacement.CommandPalette | CommandPlacement.Menu,
-            }, new ViewModelCommandHandler(command, b.Parameter));
+            }, new ViewModelCommandHandler(command, b.Parameter, () => vm?.CanChangeKeys != false || b.Action is not ("Add Translation Key" or "Add Language" or "Rename" or "Delete" or "Duplicate")));
         }
     }
 
-    private sealed class ViewModelCommandHandler(ICommand? command, object? parameter) : ICommandHandler
+    private sealed class ViewModelCommandHandler(ICommand? command, object? parameter, Func<bool> allowed) : ICommandHandler
     {
         public ICommand? Command { get; } = command;
 
         public CommandState GetState(ICommandContext context) =>
             Command is null ? new CommandState(CommandAvailability.Unavailable, "Not ready yet.")
+            : !allowed() ? new CommandState(CommandAvailability.Unavailable, "Generated catalogs must be edited in source and extracted again.")
             : Command.CanExecute(parameter) ? CommandState.Available
             : new CommandState(CommandAvailability.Unavailable);
 
         public Task ExecuteAsync(ICommandInvocation invocation, CancellationToken cancellationToken)
         {
-            Command?.Execute(parameter);
+            if (allowed()) Command?.Execute(parameter);
             return Task.CompletedTask;
         }
     }

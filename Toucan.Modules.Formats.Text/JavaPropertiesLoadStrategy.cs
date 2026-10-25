@@ -5,11 +5,13 @@ using Toucan.Core.Models;
 
 namespace Toucan.Core.Services.LoadStrategies;
 
-public class JavaPropertiesLoadStrategy : ILoadStrategy
+public class JavaPropertiesLoadStrategy : ILoadStrategy, IResourceLoadStrategy
 {
     public string FormatId => FormatIds.JavaProperties;
 
-    public IEnumerable<TranslationItem> Load(string folder)
+    public IEnumerable<TranslationItem> Load(string folder) => Load(folder, null);
+
+    public IEnumerable<TranslationItem> Load(string folder, string? textEncoding)
     {
         var files = Directory.GetFiles(folder, "*.properties", SearchOption.AllDirectories);
         var items = new List<TranslationItem>();
@@ -22,101 +24,46 @@ public class JavaPropertiesLoadStrategy : ILoadStrategy
             if (underscoreIdx > 0)
                 lang = lang[(underscoreIdx + 1)..];
 
-            var rawLines = File.ReadAllLines(file, Encoding.Latin1);
-            var lines = JoinContinuationLines(rawLines);
-
-            foreach (var line in lines)
-            {
-                var trimmed = line.TrimStart();
-                if (trimmed.Length == 0 || trimmed[0] == '#' || trimmed[0] == '!') continue;
-
-                var sepIdx = trimmed.IndexOfAny(['=', ':']);
-                if (sepIdx <= 0) continue;
-
-                var key = Unescape(trimmed[..sepIdx].TrimEnd());
-                var value = Unescape(trimmed[(sepIdx + 1)..].TrimStart());
-
-                items.Add(new TranslationItem { Language = lang, Namespace = key, Value = value });
-            }
+            items.AddRange(ReadFile(file, lang, Path.GetRelativePath(folder, file), textEncoding, out _, out _));
         }
         return items;
     }
 
-    /// <summary>
-    /// Joins logical lines: a trailing unescaped backslash means the next line is a continuation.
-    /// Leading whitespace on continuation lines is stripped per the .properties spec.
-    /// </summary>
-    private static List<string> JoinContinuationLines(string[] rawLines)
+    public ResourceReadResult ReadResource(ResourceReadRequest request)
     {
-        var result = new List<string>(rawLines.Length);
-        var sb = new StringBuilder();
-        bool continuing = false;
-
-        for (int i = 0; i < rawLines.Length; i++)
-        {
-            var line = rawLines[i];
-
-            // Strip leading whitespace on continuation lines
-            if (continuing)
-                line = line.TrimStart();
-
-            if (EndsWithContinuation(line))
-            {
-                // Strip the trailing backslash and append
-                sb.Append(line, 0, line.Length - 1);
-                continuing = true;
-            }
-            else
-            {
-                sb.Append(line);
-                result.Add(sb.ToString());
-                sb.Clear();
-                continuing = false;
-            }
-        }
-
-        // Flush any trailing continued line (file ended mid-continuation)
-        if (sb.Length > 0)
-            result.Add(sb.ToString());
-
+        request.CancellationToken.ThrowIfCancellationRequested();
+        var file = ResourceFilePath.Resolve(request.ProjectRoot, request.Resource.RelativePath);
+        var encoding = ResourceOptions.Resolve(request.Resource.Options, request.ProjectOptions, null, null).InputEncoding;
+        var items = ReadFile(file, request.Resource.Language, request.Resource.RelativePath, encoding, out var text, out var detected);
+        var result = ResourceFileAdapter.Bind(request, items, true, new() { ["properties.encoding"] = detected });
+        result.Document!.Data["properties"] = System.Text.Json.JsonSerializer.SerializeToElement(text);
+        result.Document.DetectedOptions = ResourceText.Detect(text, detected);
         return result;
     }
 
-    /// <summary>
-    /// Returns true if the line ends with an odd number of backslashes (unescaped continuation).
-    /// </summary>
-    private static bool EndsWithContinuation(string line)
+    private static List<TranslationItem> ReadFile(string file, string lang, string relative, string? textEncoding, out string original, out string detected)
     {
-        int trailingBackslashes = 0;
-        for (int i = line.Length - 1; i >= 0 && line[i] == '\\'; i--)
-            trailingBackslashes++;
-        return trailingBackslashes % 2 == 1;
+        var items = new List<TranslationItem>();
+        var bytes = File.ReadAllBytes(file);
+        if (textEncoding != null) ResourceText.EncodingFor(textEncoding, relative, "inputEncoding", latin: true);
+        detected = "ISO-8859-1";
+        if (textEncoding is "ISO-8859-1" or "Latin1") original = Encoding.Latin1.GetString(bytes);
+        else if (textEncoding is "UTF-8" or "UTF-8 BOM")
+        {
+            original = new UTF8Encoding(false, true).GetString(bytes).TrimStart('\uFEFF');
+            detected = bytes.AsSpan().StartsWith(Encoding.UTF8.Preamble) ? "UTF-8 BOM" : "UTF-8";
+        }
+        else try
+        {
+            original = new UTF8Encoding(false, true).GetString(bytes).TrimStart('\uFEFF');
+            if (bytes.Any(b => b >= 128)) detected = bytes.AsSpan().StartsWith(Encoding.UTF8.Preamble) ? "UTF-8 BOM" : "UTF-8";
+        }
+        catch (DecoderFallbackException) { original = Encoding.Latin1.GetString(bytes); }
+        foreach (var line in PropertiesDocumentCodec.Parse(original).Where(l => l.Key != null))
+            items.Add(new TranslationItem { Language = lang, Namespace = line.Key!, Value = line.Value ?? "",
+                FormatData = new() { ["properties.encoding"] = detected, ["properties.file"] = relative } });
+
+        return items;
     }
 
-    private static string Unescape(string s)
-    {
-        var sb = new StringBuilder(s.Length);
-        for (int i = 0; i < s.Length; i++)
-        {
-            if (s[i] == '\\' && i + 1 < s.Length)
-            {
-                i++;
-                switch (s[i])
-                {
-                    case 'n': sb.Append('\n'); break;
-                    case 't': sb.Append('\t'); break;
-                    case 'r': sb.Append('\r'); break;
-                    case 'f': sb.Append('\f'); break;
-                    case 'u' when i + 4 < s.Length:
-                        if (ushort.TryParse(s.AsSpan(i + 1, 4), System.Globalization.NumberStyles.HexNumber, null, out var ch))
-                        { sb.Append((char)ch); i += 4; }
-                        else sb.Append(s[i]);
-                        break;
-                    default: sb.Append(s[i]); break;
-                }
-            }
-            else sb.Append(s[i]);
-        }
-        return sb.ToString();
-    }
 }
