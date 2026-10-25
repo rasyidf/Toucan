@@ -7,7 +7,7 @@
 
 Translate, review and validate your project's languages in one place. Toucan runs on **Windows, macOS and Linux**, works with local resource files, and brings source text, target translations, context and quality checks into the same editor.
 
-**v0.24 preview:** this is the [`release/v0.24.0`](https://github.com/rasyidf/Toucan/tree/release/v0.24.0) branch, based on the merged v0.23 development branch. The latest published release is **v0.23.0**. Settings and project files may change before 1.0. Native accessibility and packaged platform acceptance for v0.24 remain pending; see the [acceptance record](docs/specs/editor-comfort/acceptance.md).
+**v0.24.0 preview:** editor comfort and resource compatibility are merged into `main`. The [release notes](docs/release-notes/v0.24.0.md) cover the prepared GitHub draft, packages and known limits. Until that draft is published, **v0.23.0** remains the public download. Settings and project files may change before 1.0. Native accessibility and packaged platform acceptance remain pending; see the [acceptance record](docs/specs/editor-comfort/acceptance.md).
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshots/editor-dark.png"/>
@@ -15,7 +15,7 @@ Translate, review and validate your project's languages in one place. Toucan run
   <img src="docs/assets/screenshots/editor-light.png" width="1440" alt="Toucan v0.24 editor with English source strings and Indonesian translations side by side, the project explorer, placeholder context and inspector"/>
 </picture>
 
-*Current source build, rendered with a local sample project. The screenshot follows your light or dark theme.*
+*v0.24.0 preview, rendered with a local sample project. The screenshot follows your light or dark theme.*
 
 ## Get started
 
@@ -124,7 +124,7 @@ The WPF app was retired after v0.17.3 and remains on the [`legacy/wpf`](https://
 - [Documentation index](docs/INDEX.md), including each document's status
 - [Roadmap](docs/todos/future-roadmap.md) and [completed features](docs/completed-features.md)
 
-The v0.24 source build focuses on editor workflows, compatibility and the contextual desktop shell. Upcoming milestones cover glossary and review state, content-source synchronization, release packaging and performance. The roadmap records acceptance gates and planned order; it is not a delivery-date promise.
+The v0.24.0 preview focuses on editor workflows, compatibility and the contextual desktop shell. Upcoming milestones cover glossary and review state, content-source synchronization, release packaging and performance. The roadmap records acceptance gates and planned order; it is not a delivery-date promise.
 
 ## Contributing
 
@@ -132,7 +132,7 @@ Report bugs and request features in [GitHub Issues](https://github.com/rasyidf/T
 
 See [Contributing](CONTRIBUTING.md) for the workflow and [Security](SECURITY.md) for private vulnerability reports.
 
-Maintainers: run [CI](https://github.com/rasyidf/Toucan/actions/workflows/ci.yml) or [Deploy docs](https://github.com/rasyidf/Toucan/actions/workflows/pages.yml) manually from the Actions tab. Pushes and pull requests do not start these workflows.
+Maintainers: run [CI](https://github.com/rasyidf/Toucan/actions/workflows/ci.yml) or [Deploy docs](https://github.com/rasyidf/Toucan/actions/workflows/pages.yml) manually from the Actions tab. Pushes and pull requests do not start these workflows. CI’s explicit `release_packages` option builds all four platform packages and fills the existing preview draft without publishing it; see [packaging](packaging/README.md).
 
 ## License
 

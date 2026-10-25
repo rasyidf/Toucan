@@ -69,7 +69,8 @@ def main():
     source = (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8')
     sections = re.split(r'^## \[([^\]]+)\](?: - (\d{4}-\d{2}-\d{2}))?\s*$', source, flags=re.M)
     articles, links = [], []
-    latest = next(sections[i] for i in range(1, len(sections), 3) if sections[i] != 'Unreleased')
+    latest = next((sections[i] for i in range(1, len(sections), 3)
+                   if sections[i] != 'Unreleased' and 'Release draft:' not in sections[i + 2]), None)
     for i in range(1, len(sections), 3):
         version, released, body = sections[i:i + 3]
         pending = version == 'Unreleased'
@@ -88,7 +89,8 @@ def main():
             count = len(re.findall(r'^- ', content, re.M))
             kind = category.lower().split()[0]
             counts.append(f'<span class="{escape(kind)}">{count} {escape(category.lower())}</span>')
-        badge = '<span class="release-badge pending">Not released</span>' if pending else '<span class="release-badge">Latest preview</span>' if version == latest else ''
+        draft = 'Release draft:' in intro
+        badge = '<span class="release-badge pending">Release draft</span>' if draft else '<span class="release-badge pending">Not released</span>' if pending else '<span class="release-badge">Latest preview</span>' if version == latest else ''
         timestamp = '' if pending else f'<time datetime="{released}">{date.fromisoformat(released).strftime("%b %d, %Y")}</time>'
         release_link = '' if pending else f'<a href="{REPO}/releases/tag/v{version}">Release on GitHub ↗</a>'
         articles.append(f'''<article class="release" id="{anchor}" aria-labelledby="heading-{anchor}">

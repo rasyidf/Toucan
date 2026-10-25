@@ -2,7 +2,11 @@
 
 ## [Unreleased]
 
-Editor comfort, resource compatibility and a contextual desktop shell for the 0.24 source build.
+## [0.24.0] - 2026-10-25
+
+Editor comfort, resource compatibility and a contextual desktop shell.
+
+Release draft: packages and notes are being prepared; publication and native acceptance remain pending. See [v0.24.0 release notes](docs/release-notes/v0.24.0.md) for downloads, compatibility and known limits.
 
 ### Added
 - **Editor workflow** — Source-first language cards switch to two columns in wide editors and stack in narrow windows. Focused fields show Unicode character and word counts and translation-memory provenance. Approve and Next (`Ctrl/Cmd+Enter`), Next Pending Translation and Accept Suggestion are registered, reassignable commands that retain target focus across pages.
@@ -19,11 +23,12 @@ Editor comfort, resource compatibility and a contextual desktop shell for the 0.
 ### Changed
 - **Repository and packaging cleanup** — One maintained solution and one MSIX implementation/manifest; Windows packages go to `dist/` with staging under `build/publish/`. MSIX assets are generated at their declared sizes, and local build probes and retired WPF agent configuration are removed.
 - **Plugin toolbar contributions** — Commands with toolbar placement now render in the editor and follow registry availability and registration changes.
-- **Preview version** — Source builds identify themselves as 0.24.0; publishing the release still requires the native/platform acceptance recorded in the editor-comfort spec.
+- **Preview version** — Toucan identifies itself as 0.24.0, with plugin API 1.2. The named release draft collects this version’s changes; remaining acceptance checks are recorded in the editor-comfort spec.
 - **Welcome screen and project setup** — Theme-aware artwork, responsive welcome sections, shared framework cards with consistent sizing, and template shortcuts that preselect their framework. The project wizard places aligned project details above its framework selector and scrolls the body above a fixed footer. Redundant welcome navigation was removed.
 - The `Toucan.Plugins.Abstractions` package is version 1.2.0 to match plugin API 1.2, including additive resource compatibility contracts.
 
 ### Fixed
+- **macOS package signing** — Spelling-engine source and license materials live under the app’s Resources directory, so signing no longer treats them as an invalid nested code bundle. Runtime assembly and material hashes are still verified before packaging.
 - **Live placeholder context** — Source edits, linked placeholder renames and undo/redo update target warnings immediately, including independent plural variants. A successful rename no longer warns that the old source token is missing.
 - **Unread notification badge** — Reading notification history clears its badge across project/validation refreshes. Retained history and validation counts remain available, while only new notifications increase the badge.
 - **Start-screen sidebar** — The project activity rail and its reserved column disappear on the start screen, return after opening a project and hide again when it closes. Preferences remains available from Settings.

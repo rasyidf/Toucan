@@ -8,6 +8,7 @@ REPO = 'https://github.com/rasyidf/Toucan'
 
 # Repo path (relative to the repo root) -> page file in docs/.
 PAGES = {
+    'docs/release-notes/v0.24.0.md': 'release-v0.24.0.html',
     'docs/user-guide.md': 'user-guide.html',
     'docs/translator-guide.md': 'translator-guide.html',
     'docs/plugins.md': 'plugins.html',

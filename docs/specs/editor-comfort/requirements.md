@@ -1,11 +1,13 @@
 ---
 title: "editor-comfort — requirements"
-status: planned
-progress: "0/7 requirements"
-updated: 2026-10-13
-summary: "v0.24 requirements: first-run setup and empty states, inline and side-by-side editing, bulk operations undoable as one step, a predictable keyboard review workflow, clearer source/target and provenance, notification history, and an accessibility pass."
+status: reference
+updated: 2026-10-25
+summary: "Implemented v0.24 editor comfort requirements. Native workflow and accessibility acceptance remain open; see acceptance.md."
 ---
 # Requirements: editor comfort and onboarding (v0.24)
+
+Implementation is merged into `main` for the [v0.24.0 release draft](../../release-notes/v0.24.0.md). This document preserves the design scope; [acceptance.md](acceptance.md) records executed checks and remaining gates.
+
 
 Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v024-editor-comfort-and-onboarding). This milestone makes a new user able to open a project and finish a keyboard-driven translation session comfortably. It is UI and workflow work on top of the v0.23 command registry, workspace API and undo groups; it does not change file formats, the project model, or translation engines.
 
