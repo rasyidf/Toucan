@@ -139,6 +139,11 @@ DocProject/Help/html
 # Click-Once directory
 publish/
 
+# Distribution output and obsolete local build probes
+/dist/
+/Toucan.Core/build_test/
+/.agents/skills/.dotnet-skills-auto-state.json
+
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
