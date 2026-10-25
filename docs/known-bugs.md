@@ -43,7 +43,7 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 <a id="rel-01"></a>
 ### REL-01 — No automated release pipeline
 
-- **Severity:** Medium · **Checked:** `.github/workflows/ci.yml` builds and tests on Windows, macOS and Linux for pull requests and pushes. CI is fixed and finalized. There is no release workflow.
+- **Severity:** Medium · **Checked:** `.github/workflows/ci.yml` builds and tests on manual dispatch only. Linux is the default; select `all` for Windows, macOS and Linux. Documentation deployment is a separate manual workflow. There is no application release workflow.
 - **State:** release builds come from `publish.ps1`, `packaging/build-macos-app.sh` and `dotnet publish` run by hand. v0.18.0 Linux tarballs were made by hand too. 
 - **Impact:** CI protects against regressions, but release artifacts are still built manually and depend on the build machine.
 - **Fix direction:** FG-01 and FG-16 in [docs/todos/future-roadmap.md](todos/future-roadmap.md): CI is complete; the remaining work is the v0.30 tag-triggered release workflow that builds all packages and attaches them to the GitHub release.

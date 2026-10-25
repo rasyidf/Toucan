@@ -119,7 +119,7 @@
 <a id="rel-01"></a>
 <h3 id="rel-01--no-automated-release-pipeline"><a class="anchor" href="#rel-01--no-automated-release-pipeline" aria-label="Link to this section">#</a>REL-01 — No automated release pipeline</h3>
 <ul>
-<li><strong>Severity:</strong> Medium · <strong>Checked:</strong> <code>.github/workflows/ci.yml</code> builds and tests on Windows, macOS and Linux for pull requests and pushes. CI is fixed and finalized. There is no release workflow.</li>
+<li><strong>Severity:</strong> Medium · <strong>Checked:</strong> <code>.github/workflows/ci.yml</code> builds and tests on manual dispatch only. Linux is the default; select <code>all</code> for Windows, macOS and Linux. Documentation deployment is a separate manual workflow. There is no application release workflow.</li>
 <li><strong>State:</strong> release builds come from <code>publish.ps1</code>, <code>packaging/build-macos-app.sh</code> and <code>dotnet publish</code> run by hand. v0.18.0 Linux tarballs were made by hand too.</li>
 <li><strong>Impact:</strong> CI protects against regressions, but release artifacts are still built manually and depend on the build machine.</li>
 <li><strong>Fix direction:</strong> FG-01 and FG-16 in <a href="roadmap.html">docs/todos/future-roadmap.md</a>: CI is complete; the remaining work is the v0.30 tag-triggered release workflow that builds all packages and attaches them to the GitHub release.</li>

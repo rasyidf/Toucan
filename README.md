@@ -132,6 +132,8 @@ Report bugs and request features in [GitHub Issues](https://github.com/rasyidf/T
 
 See [Contributing](CONTRIBUTING.md) for the workflow and [Security](SECURITY.md) for private vulnerability reports.
 
+Maintainers: run [CI](https://github.com/rasyidf/Toucan/actions/workflows/ci.yml) or [Deploy docs](https://github.com/rasyidf/Toucan/actions/workflows/pages.yml) manually from the Actions tab. Pushes and pull requests do not start these workflows.
+
 ## License
 
 [MIT](LICENSE.txt), copyright 2023–2026 Muhammad Fahmi Rasyid ([rasyid.dev](https://rasyid.dev)).
