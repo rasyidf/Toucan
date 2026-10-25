@@ -130,6 +130,8 @@ The v0.24 source build focuses on editor workflows, compatibility and the contex
 
 Report bugs and request features in [GitHub Issues](https://github.com/rasyidf/Toucan/issues). Include your OS, Toucan version, resource format and steps to reproduce. Pull requests are welcome; check the format support matrix and existing regression fixtures when changing file handling.
 
+See [Contributing](CONTRIBUTING.md) for the workflow and [Security](SECURITY.md) for private vulnerability reports.
+
 ## License
 
 [MIT](LICENSE.txt), copyright 2023–2026 Muhammad Fahmi Rasyid ([rasyid.dev](https://rasyid.dev)).

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: mailto:report.toucan@rasyid.dev
+    about: Report vulnerabilities privately instead of opening a public issue.
