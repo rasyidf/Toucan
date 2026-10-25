@@ -13,9 +13,10 @@ def notice(record):
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
-def verify(folder, bundled=False):
+def verify(folder, bundled=False, materials_folder=None):
     folder = Path(folder).resolve()
-    base = folder / REL
+    materials_folder = Path(materials_folder).resolve() if materials_folder else folder
+    base = materials_folder / REL
     record = json.loads((base / 'provenance.json').read_text(encoding='utf-8-sig'))
     assert record['id'] == 'WeCantSpell.Hunspell' and record['version'] == '7.0.1'
     assert record['chosenGrant'] == 'MPL-1.1' and record['runtimeTarget'] == 'net10.0'
@@ -36,16 +37,18 @@ def verify(folder, bundled=False):
         assert dll.is_file() and sha(dll) == record['assemblySha256'], 'missing/changed net10.0 engine'
     if folder != ROOT:
         assert not any(p.suffix.lower() in ['.aff','.dic','.xcu'] for p in folder.rglob('*')), 'unapproved dictionary in release output'
-    return {'folder': str(folder), 'engine': record['id'], 'version':record['version'], 'license':record['chosenGrant'],
+        assert not any(p.suffix.lower() in ['.aff','.dic','.xcu'] for p in materials_folder.rglob('*')), 'unapproved dictionary in release materials'
+    return {'folder': str(folder), 'materialsFolder': str(materials_folder), 'engine': record['id'], 'version':record['version'], 'license':record['chosenGrant'],
             'sourceSha256':sha(base/'source.zip'), 'noticeSha256':sha(base/'NOTICE.txt'), 'assemblyMode':'bundled; assembly verified from build separately' if bundled else 'separate assembly', 'applicationHashes':{p.name:sha(p) for p in [folder/'Toucan.dll',folder/'Toucan.exe'] if p.is_file()}, 'verified':True}
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--folder',type=Path,default=ROOT);parser.add_argument('--bundled',action='store_true');parser.add_argument('--output',type=Path)
+    parser.add_argument('--materials-folder',type=Path,help='Separate source/notice root, e.g. macOS Contents/Resources')
     parser.add_argument('--write-notice',action='store_true');args=parser.parse_args()
     if args.write_notice:
         assert args.folder.resolve() == ROOT, 'only generate the source notice'
         record=json.loads((ROOT/REL/'provenance.json').read_text(encoding='utf-8'))
         (ROOT/REL/'NOTICE.txt').write_text(notice(record),encoding='utf-8')
-    result=verify(args.folder,args.bundled)
+    result=verify(args.folder,args.bundled,args.materials_folder)
     if args.output: args.output.parent.mkdir(parents=True,exist_ok=True);args.output.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(result))

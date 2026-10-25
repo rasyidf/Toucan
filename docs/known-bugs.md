@@ -44,7 +44,7 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 ### REL-01 — No tag-triggered release pipeline
 
 - **Severity:** Medium · **Checked:** `.github/workflows/ci.yml` builds and tests on manual dispatch only. Linux is the default; select `all` for Windows, macOS and Linux. Documentation deployment is a separate manual workflow. Its explicit `release_packages` mode builds native packages and attaches a complete set to an existing preview draft.
-- **State:** CI has an opt-in manual packaging mode using `publish.ps1`, `packaging/build-macos-app.sh` and Linux `dotnet publish`. All four packages must succeed before draft attachment; the release stays unpublished. Tag-triggered release automation remains planned for v0.30. 
+- **State:** CI has an opt-in manual packaging mode using `publish.ps1`, `packaging/build-macos-app.sh` and Linux `dotnet publish`. All four packages must succeed before draft attachment; the release stays unpublished. Tag-triggered release automation remains planned for v0.30.
 - **Impact:** maintainers must dispatch packaging, run regression CI separately, and review acceptance evidence before publishing. No tag automatically prepares or publishes a release.
 - **Fix direction:** FG-01 and FG-16 in [docs/todos/future-roadmap.md](todos/future-roadmap.md): CI is complete; the remaining work is the v0.30 tag-triggered release workflow that builds all packages and attaches them to the GitHub release.
 
