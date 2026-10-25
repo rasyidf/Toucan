@@ -28,6 +28,7 @@ Release draft: packages and notes are being prepared; publication and native acc
 - The `Toucan.Plugins.Abstractions` package is version 1.2.0 to match plugin API 1.2, including additive resource compatibility contracts.
 
 ### Fixed
+- **macOS package signing** — Spelling-engine source and license materials live under the app’s Resources directory, so signing no longer treats them as an invalid nested code bundle. Runtime assembly and material hashes are still verified before packaging.
 - **Live placeholder context** — Source edits, linked placeholder renames and undo/redo update target warnings immediately, including independent plural variants. A successful rename no longer warns that the old source token is missing.
 - **Unread notification badge** — Reading notification history clears its badge across project/validation refreshes. Retained history and validation counts remain available, while only new notifications increase the badge.
 - **Start-screen sidebar** — The project activity rail and its reserved column disappear on the start screen, return after opening a project and hide again when it closes. Preferences remains available from Settings.

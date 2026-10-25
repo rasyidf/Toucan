@@ -2,6 +2,7 @@
 import hashlib
 import importlib.util
 from pathlib import Path
+import shutil
 import tempfile
 import unittest
 
@@ -9,6 +10,9 @@ ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('draft', ROOT / 'tools/attach-draft-packages.py')
 draft = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(draft)
+spelling_spec = importlib.util.spec_from_file_location('spelling', ROOT / 'tools/Verify-SpellingArtifacts.py')
+spelling = importlib.util.module_from_spec(spelling_spec)
+spelling_spec.loader.exec_module(spelling)
 
 
 class DraftPackagesTests(unittest.TestCase):
@@ -51,6 +55,29 @@ class DraftPackagesTests(unittest.TestCase):
         for line in lines:
             digest, name = line.split('  ')
             self.assertEqual(digest, hashlib.sha256((self.folder / name).read_bytes()).hexdigest())
+
+
+class MacMaterialsLayoutTests(unittest.TestCase):
+    def setUp(self):
+        (ROOT / 'build').mkdir(exist_ok=True)
+        self.temp = tempfile.TemporaryDirectory(dir=ROOT / 'build')
+        self.addCleanup(self.temp.cleanup)
+        self.runtime = Path(self.temp.name) / 'MacOS'
+        self.resources = Path(self.temp.name) / 'Resources'
+        self.runtime.mkdir()
+        shutil.copytree(ROOT / 'third-party', self.resources / 'third-party')
+
+    def test_verifies_materials_in_resources(self):
+        self.assertTrue(spelling.verify(self.runtime, True, self.resources)['verified'])
+
+    def test_split_layout_still_requires_runtime_assembly(self):
+        with self.assertRaisesRegex(AssertionError, 'missing/changed net10.0 engine'):
+            spelling.verify(self.runtime, False, self.resources)
+
+    def test_rejects_changed_materials(self):
+        (self.resources / spelling.REL / 'NOTICE.txt').write_text('changed notice')
+        with self.assertRaises(AssertionError):
+            spelling.verify(self.runtime, True, self.resources)
 
 
 if __name__ == '__main__':
