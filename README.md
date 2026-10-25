@@ -132,7 +132,7 @@ Report bugs and request features in [GitHub Issues](https://github.com/rasyidf/T
 
 See [Contributing](CONTRIBUTING.md) for the workflow and [Security](SECURITY.md) for private vulnerability reports.
 
-Maintainers: run [CI](https://github.com/rasyidf/Toucan/actions/workflows/ci.yml) or [Deploy docs](https://github.com/rasyidf/Toucan/actions/workflows/pages.yml) manually from the Actions tab. Pushes and pull requests do not start these workflows.
+Maintainers: run [CI](https://github.com/rasyidf/Toucan/actions/workflows/ci.yml) or [Deploy docs](https://github.com/rasyidf/Toucan/actions/workflows/pages.yml) manually from the Actions tab. Pushes and pull requests do not start these workflows. CI’s explicit `release_packages` option builds all four platform packages and fills the existing preview draft without publishing it; see [packaging](packaging/README.md).
 
 ## License
 
