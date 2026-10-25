@@ -22,6 +22,7 @@ SITE = 'https://toucan.rasyid.dev'
 
 # docs.html sections: (heading, blurb, [repo paths]).
 GROUPS = [
+    ('Release notes', 'Downloads, changes and known limits for the current preview.', ['docs/release-notes/v0.24.0.md']),
     ('Using Toucan', 'Guides for translators, editors, and localization managers.', [
         'docs/user-guide.md', 'docs/translator-guide.md', 'docs/formats.md', 'docs/ai-integration.md', 'docs/provider-settings.md', 'docs/pretranslation-preview.md']),
     ('Plugin Development & Extensibility', 'Extend Toucan with custom formats, translation providers, validation rules, and desktop UI contributions.', [

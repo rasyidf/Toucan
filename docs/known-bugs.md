@@ -2,11 +2,11 @@
 title: "Known Issues & Unfinished Features"
 status: active
 updated: 2026-10-25
-summary: "Open v0.24 source-build issues: validation-policy enforcement, release distribution, missing panels, external connector acceptance and native workflow verification."
+summary: "Open v0.24.0 preview issues: validation-policy enforcement, release distribution, missing panels, external connector acceptance and native workflow verification."
 ---
 # Known Issues & Unfinished Features
 
-Published release: **v0.23.0** (preview). Current source build: **0.24.0**, audited **2026-10-25** on `release/v0.24.0`; native Windows release acceptance remains pending. The readiness review treats macOS/Linux testing as passed at the user's request; that assumption is separate from this host's recorded execution evidence.
+Current preview: **v0.24.0**, merged into `main`; the [release draft](release-notes/v0.24.0.md) is being prepared. Public downloads remain on v0.23.0 until publication. The source was audited **2026-10-25** on `release/v0.24.0`; native Windows release acceptance remains pending. The readiness review treats macOS/Linux testing as passed at the user's request; that assumption is separate from this host's recorded execution evidence.
 
 This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [CHANGELOG.md](../CHANGELOG.md) (see [Where the old fixes went](#where-the-old-fixes-went)). When a bug is fixed, delete its row and section here and add a `### Fixed` line to the changelog `[Unreleased]` section. Planned work for an ID is linked from [the roadmap](todos/future-roadmap.md) (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from `main` (source: branch `legacy/wpf`), so nothing here is about WPF.
 
@@ -66,8 +66,8 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 <a id="rel-04"></a>
 ### REL-04 — Windows has no installer
 
-- **Severity:** Low · **Checked:** README says "portable x64 zip; no installer yet".
-- **State:** `installer.iss` (Inno Setup) and `packaging/Build-Msix.ps1` exist and refer to `Toucan.exe`, which is the Avalonia app's assembly name. I did not check whether they still work with the Avalonia build since the switch from WPF.
+- **Severity:** Low · **Checked:** v0.24.0 packaging scripts and local ZIP/MSIX output; GitHub draft asset preparation.
+- **State:** Windows portable ZIP and unsigned MSIX packaging output exist for v0.24.0. The portable ZIP is the distributable package; MSIX signing/trusted installation and the Inno Setup installer still need acceptance. See [packaging](../packaging/README.md).
 - **Fix direction:** run both against the current build, fix what breaks, then publish an installer with each release (part of REL-01).
 
 ---
@@ -123,8 +123,8 @@ The earlier version of this file kept tables of fixed bugs (B1 to B11 and the v0
 | B5 | iOS `.strings` `\\n` corrupted | 0.17.1 |
 | B6 | Java `.properties` line continuations truncated values | 0.17.1 |
 | B7 to B11 | WPF-only UI fixes (Issues grouping, Search panel sizing, Source Code panel, Explorer foreground, status bar clicks) | 0.17.2 |
-| QA-01 | Missing regression tests for B1 to B6 and the format edge cases | Unreleased (`Qa01RegressionTests`, `FormatFidelityFixtureTests`, `FormatStabilityTests`) |
-| FMT-05 to FMT-09 | RESX language detection, XLIFF save losing source/notes/state, ARB metadata and region locales, YAML flat keys and `__self` | Unreleased |
+| QA-01 | Missing regression tests for B1 to B6 and the format edge cases | v0.24.0 (`Qa01RegressionTests`, `FormatFidelityFixtureTests`, `FormatStabilityTests`) |
+| FMT-05 to FMT-09 | RESX language detection, XLIFF save losing source/notes/state, ARB metadata and region locales, YAML flat keys and `__self` | v0.24.0 |
 | v0.14.1 to v0.16.1 | Earlier bug batches | 0.14.1, 0.14.2, 0.15.0, 0.16.1 |
 
 B7 to B11 were fixed in the WPF app. Whether the Avalonia app has the same problems was not checked in this audit.

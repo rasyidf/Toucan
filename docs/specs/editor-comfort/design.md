@@ -1,11 +1,13 @@
 ---
 title: "editor-comfort — design"
-status: planned
-progress: "0/7 areas"
-updated: 2026-10-13
-summary: "v0.24 design: extend onboarding and add empty states, make the editor keep focus and show side-by-side multiline fields, wrap bulk operations in an undo group, keep focus through the review loop, surface provenance in the inspector, add a notification history flyout over the existing center, and run an accessibility pass."
+status: reference
+updated: 2026-10-25
+summary: "Implemented v0.24 editor comfort design. Native workflow and accessibility acceptance remain open; see acceptance.md."
 ---
 # Design: editor comfort and onboarding (v0.24)
+
+Implementation is merged into `main` for the [v0.24.0 release draft](../../release-notes/v0.24.0.md). This document preserves the design scope; [acceptance.md](acceptance.md) records executed checks and remaining gates.
+
 
 Requirements: [requirements.md](requirements.md). This design maps each requirement to the existing code it extends, so the work is wiring and UI rather than new subsystems. Every change keeps `dotnet test Toucan.CrossPlatform.slnx` green.
 

@@ -33,7 +33,7 @@
   "description": "Open-source desktop editor for translation files",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Windows 10+, macOS, Linux",
-  "softwareVersion": "0.23.0",
+  "softwareVersion": "0.24.0",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "license": "https://opensource.org/licenses/MIT",
   "url": "https://toucan.rasyid.dev/",
@@ -73,16 +73,11 @@
       <img src="assets/logo.png" alt="" width="30" height="30">
       Toucan
     </a>
-    <nav class="nav-links" aria-label="Sections">
-      <a href="#modes">Modes</a>
-      <a href="#features">Features</a>
-      <a href="#formats">Formats</a>
-      <a href="#cli">CLI &amp; plugins</a>
-      <a href="#platforms">Platforms</a>
-      <a href="#roadmap">Roadmap</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html" aria-current="page">Overview</a>
       <a href="docs.html">Docs</a>
-      <a href="user-guide.html">User Guide</a>
-      <a href="translator-guide.html">Translators</a>
+      <a href="plugins.html">Plugins</a>
+      <a href="roadmap.html">Roadmap</a>
       <a href="changelog.html">Changelog</a>
     </nav>
     <div class="nav-actions">
@@ -104,7 +99,7 @@
 <section class="hero" id="top">
   <div class="wrap hero-grid">
     <div class="intro">
-      <a class="eyebrow" href="https://github.com/rasyidf/Toucan/releases/tag/v0.23.0"><span class="ver">v0.23.0</span><span class="pre">preview</span> · open source · MIT</a>
+      <a class="eyebrow" href="release-v0.24.0.html"><span class="ver">v0.24.0</span><span class="pre">preview</span> · open source · MIT</a>
       <h1>Every language, <span class="hl">side by side.</span></h1>
       <div class="tagline-i18n" aria-hidden="true">
         <span class="lang" id="tl-lang">id-ID</span>
@@ -118,7 +113,7 @@
         </a>
         <a class="btn btn-ghost" href="https://github.com/rasyidf/Toucan">View source</a>
       </div>
-      <p class="hero-note">v0.23.0 on Windows 10+, macOS and Linux. Expect rough edges before 1.0.</p>
+      <p class="hero-note">v0.24.0 preview draft · Windows 10+, macOS and Linux. <a href="release-v0.24.0.html">Release notes and package status</a>. Public downloads remain on v0.23.0 until publication.</p>
     </div>
 
     <!-- Interactive demo: a small model of the editor, driven by the data in the script below. -->
@@ -428,14 +423,14 @@ Languages: 4
       <p>No account, no upload, no server. Text leaves your machine only when you run a translation provider or turn AI on. API keys live in one secret store in your user profile, encrypted at rest: DPAPI on Windows, AES-GCM with a per-user key on macOS and Linux.</p>
     </div>
     <div class="preview-note reveal" role="note">
-      <strong>Preview software.</strong> Toucan is at v0.23.0 on Windows, macOS and Linux, and every build is a preview until 1.0. Settings and project files can change between releases, so keep your locales in version control and <a href="https://github.com/rasyidf/Toucan/issues">report what breaks</a>.
+      <strong>Preview software.</strong> Toucan v0.24.0 is prepared as a release draft for Windows, macOS and Linux, and every build is a preview until 1.0. Settings and project files can change between releases, so keep your locales in version control and <a href="https://github.com/rasyidf/Toucan/issues">report what breaks</a>.
     </div>
     <div class="platforms">
       <div class="platform reveal">
         <span class="chip warn">preview</span>
         <h3>Windows, macOS and Linux</h3>
         <p>One app on the same core everywhere, so formats, validation, and providers behave the same, with the modes, Zen, command palette, AI Integration, side panels, and plugins. Windows 10 and later as a portable zip for now, macOS as a DMG, Linux as a tarball.</p>
-        <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.23.0">Download v0.23.0 →</a>
+        <a href="release-v0.24.0.html">v0.24.0 release notes →</a>
       </div>
       <div class="platform reveal" style="--d:80ms">
         <span class="chip warn">preview</span>
@@ -457,23 +452,22 @@ Languages: 4
     </div>
     <ol class="timeline reveal">
       <li>
-        <div class="ver">v0.20</div>
-        <span class="when">now · v0.23.0 on Windows, macOS and Linux</span>
-        <h3>AI Integration</h3>
+        <div class="ver">v0.24.0</div>
+        <span class="when">current preview · release draft</span>
+        <h3>Editor comfort and compatibility</h3>
         <ul>
-          <li>One AI switch, off by default: Claude, OpenAI-compatible, Gemini</li>
-          <li>Editable prompts, app-wide or per project</li>
-          <li>Analyze translations and check source clarity</li>
-          <li>Encrypted secret store; color schemes; update check</li>
+          <li>Source-first editing, keyboard review and grouped bulk undo</li>
+          <li>First-run language/theme setup and notification history</li>
+          <li>Resource compatibility and BabelEdit project import</li>
+          <li>Contextual menus, responsive dialogs and live placeholder warnings</li>
         </ul>
       </li>
       <li>
-        <div class="ver">v0.21–0.31</div>
+        <div class="ver">v0.25–0.31</div>
         <span class="when">next</span>
-        <h3>Ten focused preview releases</h3>
+        <h3>Next preview milestones</h3>
         <ul>
-          <li>v0.21–0.23: file fidelity, CI, safe saves and recovery, extension platform</li>
-          <li>v0.24: editor workflow implemented; native/platform acceptance pending. v0.25–0.26: glossary, validation and review</li>
+          <li>v0.25–0.26: glossary, validation and review</li>
           <li>v0.27–0.29: snapshot sources, CRUD sync and one online connector</li>
           <li>v0.30–0.31: release packages, update notifications and a measured release candidate</li>
         </ul>

@@ -6,7 +6,7 @@ summary: "v0.24 Windows automated evidence, two editor regression fixes and rema
 ---
 # v0.24 acceptance evidence
 
-The 0.24.0 source build implements the editor comfort work. It is not a published or fully accepted cross-platform release. Work was performed on `release/v0.23.0`, starting from compatibility commit `bf7d51e` and preserving the 18 pending UI/test edits. The initial verification preceded the commits and push requested afterward; no branch switch or release publication was performed.
+The v0.24.0 preview implements the editor comfort work and is merged into `main`. Its [named release draft](../../release-notes/v0.24.0.md) is being prepared; it is not yet a published or fully accepted cross-platform release. The following evidence describes historical verification snapshots. Work was performed on `release/v0.23.0`, starting from compatibility commit `bf7d51e` and preserving the 18 pending UI/test edits. The initial verification preceded the commits and push requested afterward; no branch switch or release publication was performed.
 
 ## Implemented and verified behavior
 
