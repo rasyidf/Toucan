@@ -1,18 +1,43 @@
 name: CI
 
 on:
-  push:
-    branches: [main, "release/**"]
-  pull_request:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Test platform (all runs the full release matrix)
+        type: choice
+        default: ubuntu-latest
+        options:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+          - all
+      coverage:
+        description: Collect and upload code coverage
+        type: boolean
+        default: false
+      release_packages:
+        description: Build all platform packages and attach them to the existing draft (does not publish)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
+    if: ${{ !inputs.release_packages }}
     name: Build and test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ inputs.platform == 'all' && fromJSON('["ubuntu-latest","macos-latest","windows-latest"]') || fromJSON(format('["{0}"]', inputs.platform)) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -21,6 +46,10 @@ jobs:
       - name: Build
         run: dotnet build Toucan.CrossPlatform.slnx --configuration Release
       - name: Test
+        if: ${{ !inputs.coverage }}
+        run: dotnet test Toucan.CrossPlatform.slnx --configuration Release --no-build --results-directory TestResults --logger trx
+      - name: Test with coverage
+        if: ${{ inputs.coverage }}
         run: dotnet test Toucan.CrossPlatform.slnx --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults --logger trx
       - uses: actions/setup-python@v5
         with:
@@ -42,10 +71,82 @@ jobs:
             build/macos/spelling-artifacts.json
             TestResults/**/*.trx
           if-no-files-found: ignore
+          retention-days: 3
       - name: Upload coverage
-        if: always()
+        if: ${{ always() && inputs.coverage }}
         uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.os }}
           path: TestResults/**/coverage.cobertura.xml
           if-no-files-found: ignore
+          retention-days: 3
+
+  package:
+    if: ${{ inputs.release_packages }}
+    name: Package (${{ matrix.rid }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, rid: win-x64 }
+          - { os: ubuntu-latest, rid: linux-x64 }
+          - { os: macos-latest, rid: osx-arm64 }
+          - { os: macos-15-intel, rid: osx-x64 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Windows portable ZIP
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./publish.ps1 portable
+      - name: macOS app and DMG
+        if: runner.os == 'macOS'
+        shell: bash
+        env:
+          RID: ${{ matrix.rid }}
+        run: |
+          bash packaging/build-macos-app.sh "$PWD/build/macos" "$RID"
+          mkdir -p dist
+          cp build/macos/*.dmg dist/
+      - name: Linux self-contained tarball
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          version=$(python -c "import xml.etree.ElementTree as E; print(E.parse('Directory.Build.props').findtext('.//Version'))")
+          dotnet publish Toucan.Avalonia/Toucan.Avalonia.csproj -c Release -r linux-x64 --self-contained -p:DebugType=none -p:DebugSymbols=false -o build/linux
+          python tools/Verify-SpellingArtifacts.py --folder build/linux
+          mkdir -p dist
+          tar -czf "dist/Toucan-$version-linux-x64.tar.gz" -C build/linux .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-package-${{ matrix.rid }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 3
+
+  attach-draft:
+    if: ${{ inputs.release_packages }}
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-package-*
+          path: dist
+          merge-multiple: true
+      - name: Verify draft, checksum packages and attach
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python tools/attach-draft-packages.py

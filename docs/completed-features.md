@@ -2,11 +2,11 @@
 title: "Shipped Features"
 status: active
 updated: 2026-10-25
-summary: "Checklist of shipped and implemented capabilities through the v0.24 source build, grouped by area. Only completed items are listed; open work is in the roadmap."
+summary: "Implemented capabilities through v0.24.0, grouped by area. The release is a draft; open work is tracked in the roadmap."
 ---
 # Shipped Features
 
-> Current release: **v0.23.0** (published preview); current source build: **0.24.0** (Windows, macOS and Linux). The WPF app was retired after v0.17.3. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
+> Current preview: **v0.24.0**, merged into `main`; the [release draft](release-notes/v0.24.0.md) is prepared for publication. Public downloads remain on v0.23.0 until it is published. Toucan targets Windows, macOS and Linux. The WPF app was retired after v0.17.3. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
 > open work is in [todos/future-roadmap.md](todos/future-roadmap.md) and open bugs in [known-bugs.md](known-bugs.md).
 > This file lists shipped and implemented features only: when something ships, add it here and delete it from the roadmap.
 > Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform.

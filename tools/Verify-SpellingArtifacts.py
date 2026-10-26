@@ -13,7 +13,7 @@ def notice(record):
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
-def verify(folder, bundled=False):
+def verify(folder, bundled=False, materials_folder=None):
     folder = Path(folder).resolve()
     app_bundle = folder.suffix == '.app'
     code = folder / 'Contents/MacOS' if app_bundle else folder
@@ -44,11 +44,12 @@ def verify(folder, bundled=False):
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--folder',type=Path,default=ROOT);parser.add_argument('--bundled',action='store_true');parser.add_argument('--output',type=Path)
+    parser.add_argument('--materials-folder',type=Path,help='Separate source/notice root, e.g. macOS Contents/Resources')
     parser.add_argument('--write-notice',action='store_true');args=parser.parse_args()
     if args.write_notice:
         assert args.folder.resolve() == ROOT, 'only generate the source notice'
         record=json.loads((ROOT/REL/'provenance.json').read_text(encoding='utf-8'))
         (ROOT/REL/'NOTICE.txt').write_text(notice(record),encoding='utf-8')
-    result=verify(args.folder,args.bundled)
+    result=verify(args.folder,args.bundled,args.materials_folder)
     if args.output: args.output.parent.mkdir(parents=True,exist_ok=True);args.output.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(result))

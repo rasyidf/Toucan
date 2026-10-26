@@ -24,6 +24,14 @@ Run Windows packaging through one of these commands (Python 3.9+ and the .NET SD
 
 Windows staging folders live in ignored `build/publish/`; final Windows packages live in ignored `dist/`. App and installer versions come from `Directory.Build.props`.
 
+## Build the existing release draft on native runners
+
+Run **CI → Run workflow** on the release-preparation branch and enable **release_packages** (or use `gh workflow run ci.yml --ref <branch> -f release_packages=true`). Normal test dispatches are unchanged. No push, PR or tag automatically runs this workflow.
+
+This explicit mode builds a Windows x64 portable ZIP, Linux x64 self-contained tarball, and macOS ARM64/Intel DMGs on native runners. Each build verifies its spelling-engine materials. Only after all four packages succeed does the attachment job compute `SHA256SUMS.txt`, record the source commit in `build-provenance.json`, and replace matching assets in the existing version's preview draft. It refuses published releases, stable releases and incomplete or unexpected package sets. It never publishes a release or changes its notes.
+
+Run regression CI separately; packaging success is not a native accessibility, install/upgrade or external connector acceptance result. macOS packages are ad-hoc signed and not notarized. The workflow does not attach unsigned MSIX or unaccepted installers. Review package and acceptance results before publishing the draft.
+
 ## MSIX
 
 Both `publish.ps1 msix` and `packaging/Build-Msix.ps1` use the same implementation and `packaging/msix/AppxManifest.xml`. The manifest keeps the `rasyid.dev.Toucan` identity and `.tproj` association from the former root publish path. The retired standalone manifest used a different identity (`rasyidf.Toucan`) and `.toucan` association; installations made with that experimental manifest need separate migration testing.
@@ -63,7 +71,7 @@ The app keeps Hunspell's source and license materials in `Contents/Resources/thi
 
 ## Spelling engine materials
 
-The selected engine is WeCantSpell.Hunspell 7.0.1 under its MPL 1.1 alternative. Published output must retain `third-party/WeCantSpell.Hunspell/7.0.1`, including the license texts, notice, provenance and corresponding source archive. These sidecars remain outside single-file bundles; distributing an EXE alone omits required component materials. No dictionary pack is bundled.
+The selected engine is WeCantSpell.Hunspell 7.0.1 under its MPL 1.1 alternative. Published output must retain `third-party/WeCantSpell.Hunspell/7.0.1`, including the license texts, notice, provenance and corresponding source archive. macOS apps keep this directory under `Contents/Resources`; the verifier checks it with `--materials-folder` while verifying the engine assembly under `Contents/MacOS`. This avoids treating the dotted material directory as nested executable code during signing. These sidecars remain outside single-file bundles; distributing an EXE alone omits required component materials. No dictionary pack is bundled.
 
 Python 3.9+ runs `tools/Verify-SpellingArtifacts.py --folder <published-folder>` for a separate-assembly net10.0 build. Use `--bundled` for a source/notice sidecar audit of bundled output; it does not extract a bundled assembly or certify ReadyToRun/AOT transformations. Windows publishing/MSIX and macOS packaging invoke the guard. Keep generated artifact hashes with release evidence. CI checks folder output on its existing OS matrix.
 

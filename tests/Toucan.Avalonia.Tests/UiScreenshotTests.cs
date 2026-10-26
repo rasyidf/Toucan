@@ -64,6 +64,68 @@ public class UiScreenshotTests
         finally { dialog.Close(); }
     }
 
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CaptureWebsiteModes(bool dark)
+    {
+        if (string.IsNullOrEmpty(OutDir)) return;
+        using var host = new TestHost();
+        App.RegisterSidePanels();
+        var app = global::Avalonia.Application.Current!;
+        var previousTheme = app.RequestedThemeVariant;
+        app.RequestedThemeVariant = dark ? ThemeVariant.Dark : ThemeVariant.Light;
+        var folder = host.CreateJsonProject("shop-app",
+            ("en", """{"checkout.items_count":"You have {{count}} items","checkout.pay_now":"Pay now","checkout.title":"Your order","errors.network":"Check your connection and try again.","nav.home":"Home"}"""),
+            ("fr", """{"checkout.items_count":"Vous avez {count} articles","checkout.pay_now":"Payer maintenant","checkout.title":"Votre commande","errors.network":"Vérifiez votre connexion et réessayez.","nav.home":"Accueil"}"""),
+            ("id", """{"checkout.items_count":"Ada {{count}} barang","checkout.pay_now":"Bayar sekarang","checkout.title":"Pesanan Anda","errors.network":"","nav.home":"Beranda"}"""));
+        var vm = host.CreateViewModel();
+        var status = host.Services.GetRequiredService<StatusBarViewModel>();
+        var previousStatus = Toucan.Avalonia.Services.StatusBarService.Instance.ViewModel;
+        Toucan.Avalonia.Services.StatusBarService.Instance.Register(status);
+        var window = new MainWindow(vm, status) { Width = 1280, Height = 800 };
+        try
+        {
+            window.Show();
+            await vm.OpenProjectAsync(folder);
+            foreach (var item in vm.AllTranslation)
+            {
+                item.IsApproved = item.Language == "en" || item.Namespace == "nav.home" || (item.Language == "id" && item.Namespace == "checkout.items_count");
+                item.LastModifiedUtc = new DateTime(2026, 10, 25, 4, 30, 0, DateTimeKind.Utc);
+                if (item.IsApproved) item.ApprovedAtUtc = item.LastModifiedUtc;
+                if (item.Namespace == "checkout.items_count") item.Comment = "Keep {{count}} unchanged. Shown in the shopping cart.";
+            }
+            vm.SelectedGroup = vm.PagingController.Data.First(g => g.AllItems.Any(i => i.Model.Namespace == "checkout.items_count"));
+            vm.DismissWorkflowGuideCommand.Execute(null);
+            Toucan.Core.Services.SidePanelRegistry.Instance.Activate("inspector");
+            foreach (var mode in new[] { EditorMode.Editor, EditorMode.Review, EditorMode.Audit })
+            {
+                vm.EditorMode = mode;
+                vm.SelectedGroup = vm.PagingController.Data.First(g => g.Namespace == "checkout.items_count");
+                foreach (var node in vm.CurrentTreeItems) node.IsExpanded = true;
+                Pump();
+                if (mode == EditorMode.Audit)
+                    Assert.All(window.GetVisualDescendants().OfType<TextBox>().Where(box =>
+                        box.IsEffectivelyVisible && box.Classes.Contains("translation")), box => Assert.True(box.IsReadOnly));
+                if (mode != EditorMode.Audit)
+                {
+                    var field = window.GetVisualDescendants().OfType<TextBox>().FirstOrDefault(box =>
+                        box.IsEffectivelyVisible && box.Classes.Contains("translation") &&
+                        box.DataContext is TranslationItemViewModel item && item.Language == "fr");
+                    field?.Focus();
+                }
+                Snap(window, "website-" + mode.ToString().ToLowerInvariant());
+            }
+        }
+        finally
+        {
+            window.Close();
+            if (previousStatus != null) Toucan.Avalonia.Services.StatusBarService.Instance.Register(previousStatus);
+            else Toucan.Avalonia.Services.StatusBarService.Instance.Unregister();
+            app.RequestedThemeVariant = previousTheme;
+        }
+    }
+
     private async Task CaptureMainWindowAndPanels()
     {
         if (string.IsNullOrEmpty(OutDir)) return;
