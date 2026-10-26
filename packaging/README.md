@@ -2,7 +2,7 @@
 title: "Toucan Packaging"
 status: active
 updated: 2026-10-26
-summary: "Windows packaging, macOS bundle resources and signing, component-material verification, output layout and build evidence retention."
+summary: "Manual native draft packages, Windows packaging, verified macOS bundle resources and signing, output layout and build evidence retention."
 ---
 # Toucan Packaging
 
@@ -23,6 +23,14 @@ Run Windows packaging through one of these commands (Python 3.9+ and the .NET SD
 `installer` needs Inno Setup 6 or 7 and creates `dist/ToucanSetup-<version>.exe`. Missing packaging tools cause failure rather than a successful-looking skipped package. `all` runs all three targets and requires both Inno Setup and the Windows SDK.
 
 Windows staging folders live in ignored `build/publish/`; final Windows packages live in ignored `dist/`. App and installer versions come from `Directory.Build.props`.
+
+## Build the existing release draft on native runners
+
+Run **CI → Run workflow** on the release-preparation branch and enable **release_packages** (or use `gh workflow run ci.yml --ref <branch> -f release_packages=true`). Normal test dispatches are unchanged. No push, PR or tag automatically runs this workflow.
+
+This explicit mode builds a Windows x64 portable ZIP, Linux x64 self-contained tarball, and macOS ARM64/Intel DMGs on native runners. Each build verifies its spelling-engine materials. Only after all four packages succeed does the attachment job compute `SHA256SUMS.txt`, record the source commit in `build-provenance.json`, and replace matching assets in the existing version's preview draft. It refuses published releases, stable releases and incomplete or unexpected package sets. It never publishes a release or changes its notes.
+
+Run regression CI separately; packaging success is not a native accessibility, install/upgrade or external connector acceptance result. macOS packages are ad-hoc signed and not notarized. The workflow does not attach unsigned MSIX or unaccepted installers. Review package and acceptance results before publishing the draft.
 
 ## MSIX
 
@@ -63,7 +71,7 @@ The app keeps Hunspell's source and license materials in `Contents/Resources/thi
 
 ## Spelling engine materials
 
-The selected engine is WeCantSpell.Hunspell 7.0.1 under its MPL 1.1 alternative. Published output must retain `third-party/WeCantSpell.Hunspell/7.0.1`, including the license texts, notice, provenance and corresponding source archive. These sidecars remain outside single-file bundles; distributing an EXE alone omits required component materials. No dictionary pack is bundled.
+The selected engine is WeCantSpell.Hunspell 7.0.1 under its MPL 1.1 alternative. Published output must retain `third-party/WeCantSpell.Hunspell/7.0.1`, including the license texts, notice, provenance and corresponding source archive. macOS apps keep this directory under `Contents/Resources`; the verifier accepts the app bundle directly or uses `--materials-folder` with the engine assembly under `Contents/MacOS`. This avoids treating the dotted material directory as nested executable code during signing. These sidecars remain outside single-file bundles; distributing an EXE alone omits required component materials. No dictionary pack is bundled.
 
 Python 3.9+ runs `tools/Verify-SpellingArtifacts.py --folder <published-folder>` for a separate-assembly net10.0 build. Use `--bundled` for a source/notice sidecar audit of bundled output; it does not extract a bundled assembly or certify ReadyToRun/AOT transformations. Windows publishing/MSIX and macOS packaging invoke the guard. Keep generated artifact hashes with release evidence. CI checks folder output on its existing OS matrix.
 
