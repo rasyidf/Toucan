@@ -64,6 +64,7 @@ public class ProjectSettings
     public SpellingSettings Spelling { get; set; } = new();
     public FrameworkOptions FrameworkOptions { get; set; } = new();
     public List<TranslationPackage> TranslationPackages { get; set; } = [];
+    public List<string> SourceConnections { get; set; } = [];
 
     // --- Editor preferences (project-scoped, null = inherit from ProjectDefaults) ---
     public bool? SaveEmptyTranslations { get; set; } = true;
