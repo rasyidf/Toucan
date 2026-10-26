@@ -65,6 +65,10 @@ internal sealed class TestHost : IDisposable
         pluginRoot: Path.Combine(Root, "plugins"),
         pluginPolicyPath: Path.Combine(Root, "plugin-policy.json"),
         pluginDataRoot: Path.Combine(Root, "plugin-data"));
+
+        var lifecycle = (ProjectLifecycleService)Services.GetRequiredService<IProjectLifecycleService>();
+        lifecycle.SetUnsavedChangesHandler(new UnsavedChangesHandler(Messages));
+        lifecycle.SetExternalChangeHandler(new ExternalChangeHandler(Messages));
     }
 
     public string Root { get; }

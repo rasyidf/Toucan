@@ -275,7 +275,8 @@ public partial class App : Application
             sp.GetRequiredService<WorkspaceService>(),
             sp.GetRequiredService<WorkspaceDocumentSaveCoordinator>(),
             sp.GetRequiredService<WorkspaceExportPlanner>(),
-            sp.GetRequiredService<WorkspaceDocumentSaveExecutor>()));
+            sp.GetRequiredService<WorkspaceDocumentSaveExecutor>(),
+            sp.GetService<INotificationCenter>()));
 
         // View models
         services.AddSingleton<StatusBarViewModel>();

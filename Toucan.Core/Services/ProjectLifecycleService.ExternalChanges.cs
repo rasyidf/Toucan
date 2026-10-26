@@ -10,7 +10,7 @@ namespace Toucan.Core.Services;
 /// </summary>
 public partial class ProjectLifecycleService
 {
-    private IExternalChangeHandler? _externalChangeHandler;
+    private IExternalChangeHandler? _externalChangeHandler = externalChangeHandler;
 
     /// <summary>
     /// Optional UI-thread marshaling callback. When set, reload/merge operations
@@ -101,7 +101,7 @@ public partial class ProjectLifecycleService
         var settings = _currentProject;
         var session = workspace?.SessionId;
         if (e is FileWatcherChangeEventArgs notification &&
-            (!string.Equals(notification.Root, settings.ProjectPath, StringComparison.Ordinal) || notification.Generation != fileWatcher.WatchGeneration)) return;
+            (!string.Equals(Path.GetFullPath(notification.Root), Path.GetFullPath(settings.ProjectPath), StringComparison.Ordinal) || notification.Generation != fileWatcher.WatchGeneration)) return;
         Task DispatchForSession(Func<Task> action) => DispatchToUiAsync(() =>
             ReferenceEquals(_currentProject, settings) && workspace?.SessionId == session ? action() : Task.CompletedTask);
 
@@ -176,8 +176,22 @@ public partial class ProjectLifecycleService
             if (loadResult.Source is not null && workspace?.Source is not null)
             {
                 var previous = workspace.Source;
-                workspace.ReloadSource(loadResult.Source, discardDirty);
+                var refresh = workspace.ReloadSource(loadResult.Source, discardDirty);
                 AcknowledgeSourceVersions(workspace.Source!, previous);
+                if (!discardDirty && refresh.Conflicts.Count > 0)
+                {
+                    logger.LogWarning("External changes conflict with {Count} dirty documents; local edits and their original versions were retained.", refresh.Conflicts.Count);
+                    var conflictPaths = refresh.Conflicts.Select(id => previous.Documents.Single(d => d.Id == id).RelativePath).ToList();
+                    notificationCenter?.Publish("toucan", new()
+                    {
+                        Title = "External Changes Conflict",
+                        Message = $"External changes conflict with {refresh.Conflicts.Count} dirty document(s). Local edits and original versions were retained.",
+                        Severity = Toucan.Plugins.NotificationSeverity.Warning,
+                        Sticky = true
+                    });
+                    if (_externalChangeHandler is not null)
+                        await _externalChangeHandler.ShowDocumentConflictsAsync(conflictPaths).ConfigureAwait(false);
+                }
                 UpdateLastSavedSnapshot();
                 return;
             }
@@ -232,7 +246,20 @@ public partial class ProjectLifecycleService
                 var previous = workspace.Source;
                 var refresh = workspace.ReloadSource(loadResult.Source);
                 AcknowledgeSourceVersions(workspace.Source!, previous);
-                if (refresh.Conflicts.Count > 0) logger.LogWarning("External changes conflict with {Count} dirty documents; local edits and their original versions were retained.", refresh.Conflicts.Count);
+                if (refresh.Conflicts.Count > 0)
+                {
+                    logger.LogWarning("External changes conflict with {Count} dirty documents; local edits and their original versions were retained.", refresh.Conflicts.Count);
+                    var conflictPaths = refresh.Conflicts.Select(id => previous.Documents.Single(d => d.Id == id).RelativePath).ToList();
+                    notificationCenter?.Publish("toucan", new()
+                    {
+                        Title = "External Changes Conflict",
+                        Message = $"External changes conflict with {refresh.Conflicts.Count} dirty document(s). Local edits and original versions were retained.",
+                        Severity = Toucan.Plugins.NotificationSeverity.Warning,
+                        Sticky = true
+                    });
+                    if (_externalChangeHandler is not null)
+                        await _externalChangeHandler.ShowDocumentConflictsAsync(conflictPaths).ConfigureAwait(false);
+                }
                 UpdateLastSavedSnapshot();
                 return;
             }
