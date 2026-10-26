@@ -1,0 +1,141 @@
+{
+  "date": "2026-10-26",
+  "applicationVersion": "0.24.0",
+  "sourceCommit": "28336f1",
+  "platform": "Linux ARM64 / Ubuntu 24.04.5 container in Colima",
+  "dotnetSdk": "10.0.403",
+  "vcpus": 2,
+  "configuredVmRamGiB": 2,
+  "temporarySwapGiB": 2,
+  "build": {
+    "command": [
+      "dotnet",
+      "build",
+      "Toucan.CrossPlatform.slnx",
+      "-c",
+      "Release",
+      "-t:Rebuild",
+      "--no-restore",
+      "-m:1",
+      "-p:UseSharedCompilation=false",
+      "-nr:false"
+    ],
+    "elapsedSeconds": 82.87,
+    "sampleIntervalSeconds": 0.1,
+    "exitCode": 0,
+    "survivedObservation": false,
+    "peakProcessTreeRssBytes": 1042427904,
+    "primaryProcessName": "",
+    "peakPrimaryRssBytes": 0,
+    "settledPrimaryRssBytes": 0,
+    "note": "Process-tree RSS can double-count shared pages; primary RSS excludes the virtual display server."
+  },
+  "startScreen": {
+    "command": [
+      "xvfb-run",
+      "-a",
+      "/evidence/publish/Toucan"
+    ],
+    "elapsedSeconds": 20.04,
+    "sampleIntervalSeconds": 0.1,
+    "exitCode": -15,
+    "survivedObservation": true,
+    "peakProcessTreeRssBytes": 274522112,
+    "primaryProcessName": "Toucan",
+    "peakPrimaryRssBytes": 252370944,
+    "settledPrimaryRssBytes": 252370944.0,
+    "note": "Process-tree RSS can double-count shared pages; primary RSS excludes the virtual display server."
+  },
+  "project100KeysTwoLanguages": {
+    "command": [
+      "xvfb-run",
+      "-a",
+      "/evidence/publish/Toucan",
+      "/tmp/toucan-runtime-sample"
+    ],
+    "elapsedSeconds": 20.09,
+    "sampleIntervalSeconds": 0.1,
+    "exitCode": -15,
+    "survivedObservation": true,
+    "peakProcessTreeRssBytes": 319107072,
+    "primaryProcessName": "Toucan",
+    "peakPrimaryRssBytes": 296824832,
+    "settledPrimaryRssBytes": 291729408.0,
+    "note": "Process-tree RSS can double-count shared pages; primary RSS excludes the virtual display server."
+  },
+  "linuxTestCounters": [
+    {
+      "total": "343",
+      "executed": "342",
+      "passed": "342",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    {
+      "total": "1088",
+      "executed": "1088",
+      "passed": "1088",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    {
+      "total": "11",
+      "executed": "11",
+      "passed": "11",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    }
+  ],
+  "spellingArtifacts": {
+    "folder": "/evidence/publish",
+    "engine": "WeCantSpell.Hunspell",
+    "version": "7.0.1",
+    "license": "MPL-1.1",
+    "sourceSha256": "feb3486319237e1aee298518e5753019b013a9caee075c4f8ac4d5f6f1f72e71",
+    "noticeSha256": "43d030d1ad8b4eb2c4e143a683e10fc43fdf2745037c5cd64c22fd867bcb638b",
+    "assemblyMode": "separate assembly",
+    "applicationHashes": {
+      "Toucan.dll": "e09b1adcee78c3cafa344016f8cbb68e64615d65d351573c4ec66c2b739a64af"
+    },
+    "verified": true
+  },
+  "limits": [
+    "RSS is sampled every 100 ms; process-tree sums may double-count shared pages.",
+    "Runtime uses Xvfb with a fresh profile; no editing, large projects, translation requests or third-party plugins.",
+    "These observations do not establish minimum system RAM; macOS and Windows RAM were not profiled.",
+    "Earlier 2 GiB/no-swap test attempts encountered OOM with diagnostic processes also resident; no clean minimum-RAM threshold was measured."
+  ]
+}
