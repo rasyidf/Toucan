@@ -23,10 +23,10 @@ dotnet publish "$PROJ" -c Release -r "$RID" --self-contained -o "$OUT/publish"
 
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp -R "$OUT/publish/." "$APP/Contents/MacOS/"
-# License/source data belongs in Resources. A dotted directory below MacOS is
-# interpreted as nested code by codesign, even when it contains only materials.
+# Source and license materials are resources, not nested code bundles. In MacOS,
+# codesign interprets dotted directories such as WeCantSpell.Hunspell as bundles.
 mv "$APP/Contents/MacOS/third-party" "$APP/Contents/Resources/third-party"
-python3 "$ROOT/tools/Verify-SpellingArtifacts.py" --folder "$APP/Contents/MacOS/" --materials-folder "$APP/Contents/Resources/"
+python3 "$ROOT/tools/Verify-SpellingArtifacts.py" --folder "$APP" --output "$OUT/spelling-artifacts.json"
 chmod +x "$APP/Contents/MacOS/Toucan"
 
 # App icon: build AppIcon.icns from the 256px logo (largest slot is 128pt@2x).

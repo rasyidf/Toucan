@@ -158,7 +158,9 @@ public sealed class ConfigForm : UserControl
                 var box = new TextBox { Width = 280 };
                 async void Save()
                 {
-                    if (!suppress) await Commit(field, box.Text ?? string.Empty, error);
+                    if (suppress) return;
+                    var submitted = box.Text ?? string.Empty;
+                    await Commit(field, submitted, error, () => (box.Text ?? string.Empty) == submitted);
                 }
                 box.LostFocus += (_, _) => Save();
                 box.KeyDown += (_, e) => { if (e.Key == Key.Enter) Save(); };
@@ -176,12 +178,13 @@ public sealed class ConfigForm : UserControl
     }
 
     /// <summary>Stores a value; an invalid one shows why under the row and leaves the stored value alone.</summary>
-    private async Task<bool> Commit(ConfigField field, object? value, TextBlock error)
+    private async Task<bool> Commit(ConfigField field, object? value, TextBlock error, Func<bool>? canRefresh = null)
     {
         var result = await _config.SetAsync(field.Key, value, TargetFor(field));
         error.Text = result.Error;
         error.IsVisible = !result.IsValid;
-        if (_refreshers.TryGetValue(field.Key, out var refresh)) refresh();
+        // An async save may complete after the user has started the next draft.
+        if ((canRefresh is null || canRefresh()) && _refreshers.TryGetValue(field.Key, out var refresh)) refresh();
         return result.IsValid;
     }
 }

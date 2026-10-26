@@ -28,7 +28,10 @@ Release draft: packages and notes are being prepared; publication and native acc
 - The `Toucan.Plugins.Abstractions` package is version 1.2.0 to match plugin API 1.2, including additive resource compatibility contracts.
 
 ### Fixed
-- **macOS package signing** — Spelling-engine source and license materials live under the app’s Resources directory, so signing no longer treats them as an invalid nested code bundle. Runtime assembly and material hashes are still verified before packaging.
+- **Settings drafts survive delayed saves** — Finishing an earlier plugin settings save no longer replaces text typed while that save was pending.
+- **Linux startup without GNOME helpers** — Theme selection uses Avalonia platform settings on Linux, avoiding a startup exception when the optional `gsettings` command is absent. Light, Dark and System preferences remain available.
+- **macOS packaging** — Hunspell source and license materials now ship under the app's Resources directory, avoiding a nested-bundle signing failure. Packaging verifies the component materials and app signature, and CI builds the macOS app and DMG.
+- **Linked resource paths** — Internal resource links whose targets contain linked ancestors (including macOS's `/var` alias) resolve to the same physical project path. Links outside the project remain rejected.
 - **Live placeholder context** — Source edits, linked placeholder renames and undo/redo update target warnings immediately, including independent plural variants. A successful rename no longer warns that the old source token is missing.
 - **Unread notification badge** — Reading notification history clears its badge across project/validation refreshes. Retained history and validation counts remain available, while only new notifications increase the badge.
 - **Start-screen sidebar** — The project activity rail and its reserved column disappear on the start screen, return after opening a project and hide again when it closes. Preferences remains available from Settings.

@@ -1,8 +1,8 @@
 ---
 title: "Toucan Packaging"
 status: active
-updated: 2026-10-25
-summary: "Manual native draft-package workflow, local Windows packaging, shared MSIX manifest, output layout, evidence retention and macOS signing."
+updated: 2026-10-26
+summary: "Manual native draft packages, Windows packaging, verified macOS bundle resources and signing, output layout and build evidence retention."
 ---
 # Toucan Packaging
 
@@ -67,9 +67,11 @@ SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" NOTARY_PROFILE=touc
 
 Release the `.dmg` the script writes next to the app. It is the drag-to-Applications installer. Install `create-dmg` (`brew install create-dmg`) for a styled window; without it the script falls back to a plain `hdiutil` image.
 
+The app keeps Hunspell's source and license materials in `Contents/Resources/third-party/`, with the runtime assembly in `Contents/MacOS/`. Keeping materials out of the code directory avoids nested-bundle signing errors. The script verifies the assembled bundle, writes `spelling-artifacts.json` beside it, and checks its signature before creating the DMG. CI runs this ad-hoc packaging check on macOS; Developer ID signing and notarization still require release credentials.
+
 ## Spelling engine materials
 
-The selected engine is WeCantSpell.Hunspell 7.0.1 under its MPL 1.1 alternative. Published output must retain `third-party/WeCantSpell.Hunspell/7.0.1`, including the license texts, notice, provenance and corresponding source archive. macOS apps keep this directory under `Contents/Resources`; the verifier checks it with `--materials-folder` while verifying the engine assembly under `Contents/MacOS`. This avoids treating the dotted material directory as nested executable code during signing. These sidecars remain outside single-file bundles; distributing an EXE alone omits required component materials. No dictionary pack is bundled.
+The selected engine is WeCantSpell.Hunspell 7.0.1 under its MPL 1.1 alternative. Published output must retain `third-party/WeCantSpell.Hunspell/7.0.1`, including the license texts, notice, provenance and corresponding source archive. macOS apps keep this directory under `Contents/Resources`; the verifier accepts the app bundle directly or uses `--materials-folder` with the engine assembly under `Contents/MacOS`. This avoids treating the dotted material directory as nested executable code during signing. These sidecars remain outside single-file bundles; distributing an EXE alone omits required component materials. No dictionary pack is bundled.
 
 Python 3.9+ runs `tools/Verify-SpellingArtifacts.py --folder <published-folder>` for a separate-assembly net10.0 build. Use `--bundled` for a source/notice sidecar audit of bundled output; it does not extract a bundled assembly or certify ReadyToRun/AOT transformations. Windows publishing/MSIX and macOS packaging invoke the guard. Keep generated artifact hashes with release evidence. CI checks folder output on its existing OS matrix.
 
