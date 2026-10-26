@@ -15,7 +15,10 @@ def sha(path):
 
 def verify(folder, bundled=False):
     folder = Path(folder).resolve()
-    base = folder / REL
+    app_bundle = folder.suffix == '.app'
+    code = folder / 'Contents/MacOS' if app_bundle else folder
+    materials = folder / 'Contents/Resources' if app_bundle else folder
+    base = materials / REL
     record = json.loads((base / 'provenance.json').read_text(encoding='utf-8-sig'))
     assert record['id'] == 'WeCantSpell.Hunspell' and record['version'] == '7.0.1'
     assert record['chosenGrant'] == 'MPL-1.1' and record['runtimeTarget'] == 'net10.0'
@@ -31,13 +34,13 @@ def verify(folder, bundled=False):
         assert source.read('license.txt') == (base / 'license.txt').read_bytes()
         assert all(n.startswith('WeCantSpell.Hunspell/') or n in ['license.txt','readme.md','changelog.md','global.json'] for n in source.namelist())
         assert not any(n.lower().endswith(('.aff','.dic','.png','.jpg')) or '..' in Path(n).parts for n in source.namelist())
-    dll = folder / 'WeCantSpell.Hunspell.dll'
+    dll = code / 'WeCantSpell.Hunspell.dll'
     if folder != ROOT and not bundled:
         assert dll.is_file() and sha(dll) == record['assemblySha256'], 'missing/changed net10.0 engine'
     if folder != ROOT:
         assert not any(p.suffix.lower() in ['.aff','.dic','.xcu'] for p in folder.rglob('*')), 'unapproved dictionary in release output'
     return {'folder': str(folder), 'engine': record['id'], 'version':record['version'], 'license':record['chosenGrant'],
-            'sourceSha256':sha(base/'source.zip'), 'noticeSha256':sha(base/'NOTICE.txt'), 'assemblyMode':'bundled; assembly verified from build separately' if bundled else 'separate assembly', 'applicationHashes':{p.name:sha(p) for p in [folder/'Toucan.dll',folder/'Toucan.exe'] if p.is_file()}, 'verified':True}
+            'sourceSha256':sha(base/'source.zip'), 'noticeSha256':sha(base/'NOTICE.txt'), 'assemblyMode':'bundled; assembly verified from build separately' if bundled else 'separate assembly', 'applicationHashes':{p.name:sha(p) for p in [code/'Toucan.dll',code/'Toucan.exe'] if p.is_file()}, 'verified':True}
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--folder',type=Path,default=ROOT);parser.add_argument('--bundled',action='store_true');parser.add_argument('--output',type=Path)

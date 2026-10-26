@@ -19,7 +19,7 @@ public static class ResourceFilePath
         return physical;
     }
 
-    private static string Physical(string path)
+    private static string Physical(string path, int remainingLinks = 64)
     {
         var current = Path.GetPathRoot(path)!;
         foreach (var part in path[current.Length..].Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries))
@@ -30,7 +30,10 @@ public static class ResourceFilePath
             {
                 var target = info.ResolveLinkTarget(returnFinalTarget: true);
                 if (target is null || !target.Exists) throw new ArgumentException("Resource path contains an unresolved link.");
-                current = target.FullName;
+                if (remainingLinks == 0) throw new ArgumentException("Resource path contains too many linked ancestors.");
+                // ResolveLinkTarget resolves the link itself, but its target may still contain
+                // linked ancestors (for example /var -> /private/var on macOS).
+                current = Physical(target.FullName, remainingLinks - 1);
             }
         }
         return Path.GetFullPath(current);

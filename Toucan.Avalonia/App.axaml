@@ -105,7 +105,9 @@
   </Application.Resources>
 
   <Application.Styles>
-    <sty:FluentAvaloniaTheme PreferSystemTheme="True" PreferUserAccentColor="False" CustomAccentColor="#0097A7"/>
+    <!-- Linux follows Avalonia's platform theme through ThemeService instead of
+         FluentAvalonia's optional gsettings command-line helper. -->
+    <sty:FluentAvaloniaTheme PreferSystemTheme="{OnPlatform Default=True, Linux=False}" PreferUserAccentColor="False" CustomAccentColor="#0097A7"/>
     <StyleInclude Source="avares://Toucan/Styles/AppStyles.axaml"/>
   </Application.Styles>
 </Application>

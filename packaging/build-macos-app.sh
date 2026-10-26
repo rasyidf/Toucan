@@ -23,7 +23,10 @@ dotnet publish "$PROJ" -c Release -r "$RID" --self-contained -o "$OUT/publish"
 
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp -R "$OUT/publish/." "$APP/Contents/MacOS/"
-python3 "$ROOT/tools/Verify-SpellingArtifacts.py" --folder "$APP/Contents/MacOS/"
+# Source and license materials are resources, not nested code bundles. In MacOS,
+# codesign interprets dotted directories such as WeCantSpell.Hunspell as bundles.
+mv "$APP/Contents/MacOS/third-party" "$APP/Contents/Resources/third-party"
+python3 "$ROOT/tools/Verify-SpellingArtifacts.py" --folder "$APP" --output "$OUT/spelling-artifacts.json"
 chmod +x "$APP/Contents/MacOS/Toucan"
 
 # App icon: build AppIcon.icns from the 256px logo (largest slot is 128pt@2x).
@@ -91,6 +94,7 @@ make_dmg() {
 
 if [ -z "${SIGN_IDENTITY:-}" ]; then
   codesign --force --deep -s - "$APP"
+  codesign --verify --deep --strict --verbose=2 "$APP"
   echo "Built $APP ($RID), ad-hoc signed (not notarized)."
   echo "On another Mac: System Settings > Privacy & Security > Open Anyway, or run: xattr -dr com.apple.quarantine Toucan.app"
   make_dmg

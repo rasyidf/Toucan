@@ -302,6 +302,57 @@ public sealed class DesktopServicesTests : IDisposable
     }
 
     [AvaloniaFact]
+    public async Task DelayedSettingsSaveDoesNotReplaceANewerDraft()
+    {
+        using var host = HostWithSample();
+        var config = host.Services.GetServices<PluginServicesRegistration>().Single().Services.Configuration;
+        var delayed = new DelayedConfiguration(config);
+        var form = new ConfigForm(delayed, () => null);
+        var window = new Window { Content = form, Width = 700, Height = 600 };
+        window.Show();
+        global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        var greeting = form.GetVisualDescendants().OfType<TextBox>().First(t => t.Text == "Hello");
+        try
+        {
+            greeting.Text = "Hey";
+            greeting.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Enter });
+            await delayed.Persisted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            greeting.Text = "Newer draft";
+            delayed.Resume.TrySetResult();
+            await global::Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { }, global::Avalonia.Threading.DispatcherPriority.SystemIdle);
+            Assert.Equal("Hey", config.GetValue<string>("greeting"));
+            Assert.Equal("Newer draft", greeting.Text);
+        }
+        finally
+        {
+            delayed.Resume.TrySetResult();
+            greeting.Text = "Hey";
+            window.Close();
+        }
+    }
+
+    private sealed class DelayedConfiguration(IPluginConfiguration inner) : IPluginConfiguration
+    {
+        public TaskCompletionSource Persisted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource Resume { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public ConfigSchema? Schema => inner.Schema;
+        public T? GetValue<T>(string key, ConfigTarget? target = null) => inner.GetValue<T>(key, target);
+        public ConfigValidationResult Validate(string key, object? value) => inner.Validate(key, value);
+        public Task<string?> GetSecretAsync(string key, ConfigTarget? target = null, CancellationToken cancellationToken = default) => inner.GetSecretAsync(key, target, cancellationToken);
+        public event EventHandler<ConfigChangedEventArgs>? Changed { add => inner.Changed += value; remove => inner.Changed -= value; }
+        public async Task<ConfigValidationResult> SetAsync(string key, object? value, ConfigTarget? target = null, CancellationToken cancellationToken = default)
+        {
+            var result = await inner.SetAsync(key, value, target, cancellationToken);
+            if (key == "greeting" && value is "Hey")
+            {
+                Persisted.TrySetResult();
+                await Resume.Task.WaitAsync(cancellationToken);
+            }
+            return result;
+        }
+    }
+
+    [AvaloniaFact]
     public void ProjectSettingsAppearWhileAProjectIsOpen()
     {
         using var host = HostWithSample();

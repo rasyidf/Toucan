@@ -29,6 +29,9 @@ jobs:
         run: |
           dotnet publish Toucan.Avalonia/Toucan.Avalonia.csproj --configuration Release --no-restore -p:UseAppHost=false -o build/release-gate -m:1
           python tools/Verify-SpellingArtifacts.py --folder build/release-gate --output build/spelling-artifacts.json
+      - name: Build and verify macOS app and DMG
+        if: runner.os == 'macOS'
+        run: bash packaging/build-macos-app.sh build/macos
       - name: Upload compatibility gate evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -36,6 +39,7 @@ jobs:
           name: compatibility-gate-${{ matrix.os }}
           path: |
             build/spelling-artifacts.json
+            build/macos/spelling-artifacts.json
             TestResults/**/*.trx
           if-no-files-found: ignore
       - name: Upload coverage
