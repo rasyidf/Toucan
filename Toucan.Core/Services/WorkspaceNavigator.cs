@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Security.Cryptography;
+using System.Text;
 using Toucan.Core.Models;
 using Toucan.Plugins;
 
@@ -41,7 +43,8 @@ public sealed class WorkspaceNavigator
 
             Node Child(Node parent, WorkspaceNavigationNodeKind kind, string key, string label)
             {
-                var id = JsonSerializer.Serialize(new[] { parent.Id, kind.ToString(), key });
+                var address = JsonSerializer.Serialize(new[] { parent.Id, kind.ToString(), key });
+                var id = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(address)));
                 if (!parent.Children.TryGetValue(id, out var child)) parent.Children.Add(id, child = new(id, label, kind));
                 AddUnit(child);
                 return child;

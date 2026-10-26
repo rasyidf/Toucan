@@ -109,6 +109,56 @@ public sealed class WorkspaceSourceLifecycleTests : IDisposable
         Assert.Equal(first.Artifacts.Select(t => t.RelativePath), second.Artifacts.Select(t => t.RelativePath));
     }
     [Fact]
+    public async Task DurableCatalogTakesPrecedenceOverRecoveryFallback()
+    {
+        Write("locales/en/common.json", "{\"title\":\"Before\"}"); var source = await Open();
+        await _workspace.ApplyAsync("editor", new WorkspaceEdit().RenameKey("common.title", "common.renamed"));
+        await _services.GetRequiredService<WorkspaceDocumentSaveCoordinator>().SaveAsync(source);
+        var saved = _workspace.Source!;
+        var fallback = new WorkspaceIdentityCheckpoint(_root, saved.IdentityCatalog.Select(e => e with { Id = new(Guid.NewGuid()) }).ToArray());
+        var reloaded = await _loader.LoadAsync(_root, "i18next", fallbackIdentityCheckpoint: fallback);
+        Assert.Equal(saved.Units.Select(u => u.EntryId), reloaded.Units.Select(u => u.EntryId));
+    }
+
+    [Fact]
+    public async Task DraftIdentityFallbackCannotCrossRootsOrOverwriteExternalContent()
+    {
+        Write("locales/en/common.json", "{\"title\":\"Before\"}"); var discovered = await _loader.LoadAsync(_root, "i18next");
+        var checkpoint = new WorkspaceIdentityCheckpoint(_root, discovered.IdentityCatalog.Select(e => e with { Id = new(Guid.NewGuid()) }).ToArray());
+        var source = await _loader.LoadAsync(_root, "i18next", fallbackIdentityCheckpoint: checkpoint);
+        _workspace.Open(new() { ProjectPath = _root }, source);
+        await _workspace.ApplyAsync("editor", new WorkspaceEdit().SetValue("common.title", "en", "Mine"));
+        var draft = _workspace.CaptureRecovery(source); _workspace.Close();
+        Write("locales/en/common.json", "{\"title\":\"External\"}");
+        var incoming = await _loader.LoadAsync(_root, "i18next", fallbackIdentityCheckpoint: draft.IdentityCheckpoint);
+        _workspace.Open(new() { ProjectPath = _root }, incoming);
+        var recovery = _workspace.ApplyRecovery(draft); Assert.Equal(0, recovery.Applied); Assert.Single(recovery.Conflicts);
+        Assert.Equal("External", (await _workspace.SnapshotAsync())!.Find("common.title", "en")!.Value);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _loader.LoadAsync(_root, "i18next", fallbackIdentityCheckpoint: checkpoint with { Root = _root + "-other" }));
+    }
+
+    [Fact]
+    public async Task DeepNavigationPathsHaveBoundedStableNodeIdentities()
+    {
+        Write("locales/en/common.json", "{\"title\":\"Before\"}"); await Open();
+        var snapshot = (await _workspace.SnapshotEntriesAsync())!;
+        var unit = snapshot.Units.Single() with { Namespace = TranslationPath.Empty,
+            KeyPath = new(Enumerable.Range(0, 40).Select(i => "segment" + i.ToString(System.Globalization.CultureInfo.InvariantCulture)).ToArray()) };
+        snapshot = snapshot with { Units = [unit] };
+        var navigator = _services.GetRequiredService<WorkspaceNavigator>();
+        var first = navigator.Build(snapshot, null, WorkspaceNavigationLayout.NamespaceFirst);
+        var second = navigator.Build(snapshot, null, WorkspaceNavigationLayout.NamespaceFirst);
+        var left = Assert.Single(first.Roots); var right = Assert.Single(second.Roots);
+        for (var depth = 0; depth < 40; depth++)
+        {
+            Assert.InRange(left.Id.Length, 1, 128); Assert.Equal(left.Id, right.Id);
+            if (depth == 39) { Assert.Empty(left.Children); Assert.Equal(WorkspaceNavigationNodeKind.Entry, left.Kind); }
+            else { left = Assert.Single(left.Children); right = Assert.Single(right.Children); }
+        }
+        Assert.Equal(unit.EntryId, Assert.Single(left.EntryIds));
+    }
+
+    [Fact]
     public void CapabilityResolutionIsExplicitAndReportsLegacyBulkFormats()
     {
         var resolver = _services.GetRequiredService<WorkspaceCapabilityResolver>();

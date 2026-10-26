@@ -15,7 +15,8 @@ public class ProjectService(
     IEnumerable<IProjectCompatibilityImporter>? compatibilityImporters = null,
     IEnumerable<Toucan.Core.Contracts.IFrameworkProfile>? frameworkProfiles = null,
     WorkspaceCapabilityResolver? capabilities = null,
-    WorkspaceSourceLoader? sourceLoader = null) : IProjectService
+    WorkspaceSourceLoader? sourceLoader = null,
+    IRecoveryDraftService? recoveryDrafts = null) : IProjectService
 {
     public ProjectService(IFileService fileService, IEnumerable<ISaveStrategy> saveStrategies)
         : this(fileService, saveStrategies,
@@ -67,8 +68,13 @@ public class ProjectService(
         {
             var resolved = (capabilities ?? throw new InvalidOperationException("Framework capability resolution is unavailable.")).Resolve(settings.Framework, settings.SaveFormat);
             if (resolved.UsesDocumentPersistence)
+            {
+                var draft = recoveryDrafts?.TryRead(folder)?.Workspace;
+                var fallback = draft is not null && draft.Root == Path.GetFullPath(folder) && draft.FrameworkId == settings.Framework
+                    && FormatIds.Comparer.Equals(draft.FormatId, settings.SaveFormat) ? draft.IdentityCheckpoint : null;
                 source = (sourceLoader ?? throw new InvalidOperationException("Document loading is unavailable.")).LoadAsync(folder, settings.Framework,
-                    settings.SaveFormat, cancellationToken: ct).GetAwaiter().GetResult();
+                    settings.SaveFormat, cancellationToken: ct, fallbackIdentityCheckpoint: fallback).GetAwaiter().GetResult();
+            }
         }
 
         // Load translations using the detected/configured format

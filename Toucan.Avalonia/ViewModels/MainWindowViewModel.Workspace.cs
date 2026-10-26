@@ -48,7 +48,7 @@ public partial class MainWindowViewModel
         if (structureChanged)
         {
             if (SelectedNode is { } node && !AllTranslation.Any(t => MatchesNode(t.Namespace, node.Namespace))) SelectedNode = null;
-            if (SelectedGroup is { } group && !AllTranslation.Any(t => MatchesNode(t.Namespace, group.Namespace))) SelectedGroup = null;
+            if (!HasDocumentNavigation && SelectedGroup is { } group && !AllTranslation.Any(t => MatchesNode(t.Namespace, group.Namespace))) SelectedGroup = null;
             RefreshTree();
             Search(SearchText, true);
         }

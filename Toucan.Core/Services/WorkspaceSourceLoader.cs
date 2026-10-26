@@ -14,7 +14,8 @@ namespace Toucan.Core.Services;
 public sealed class WorkspaceSourceLoader(IEnumerable<IFrameworkProfile> profiles, IEnumerable<ILoadStrategy> loaders, IWorkspaceSourceReader? sourceReader = null)
 {
     public async Task<WorkspaceSource> LoadAsync(string root, string frameworkId, string? formatId = null,
-        WorkspaceIdentityCheckpoint? identityCheckpoint = null, CancellationToken cancellationToken = default)
+        WorkspaceIdentityCheckpoint? identityCheckpoint = null, WorkspaceIdentityCheckpoint? fallbackIdentityCheckpoint = null,
+        CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(root);
         ArgumentException.ThrowIfNullOrWhiteSpace(frameworkId);
@@ -35,6 +36,12 @@ public sealed class WorkspaceSourceLoader(IEnumerable<IFrameworkProfile> profile
         var artifacts = new List<WorkspaceSourceArtifact>();
         var persisted = await access.ReadOptionalAsync(root, WorkspaceMetadataCodec.IdentityPath, cancellationToken).ConfigureAwait(false);
         if (persisted is not null) artifacts.Add(new(WorkspaceMetadataCodec.IdentityPath, persisted.Version, persisted.Content, persisted.TextFormat));
+        if (identityCheckpoint is null && persisted is null && fallbackIdentityCheckpoint is not null)
+        {
+            if (!string.Equals(fallbackIdentityCheckpoint.Root, root, StringComparison.Ordinal))
+                throw new InvalidOperationException("Recovery identity checkpoint belongs to a different source root.");
+            identityCheckpoint = fallbackIdentityCheckpoint;
+        }
         var checkpointEntries = identityCheckpoint?.Entries ?? (persisted is null ? [] : WorkspaceMetadataCodec.ReadIdentities(persisted.Content, frameworkId, format));
         var manifest = await access.ReadOptionalAsync(root, "toucan.tproj", cancellationToken).ConfigureAwait(false);
         if (manifest is not null) artifacts.Add(new("toucan.tproj", manifest.Version, manifest.Content, manifest.TextFormat));

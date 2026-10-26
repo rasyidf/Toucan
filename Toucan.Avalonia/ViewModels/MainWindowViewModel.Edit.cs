@@ -26,6 +26,11 @@ public partial class MainWindowViewModel
     {
         if (!CanChangeKeys) { StatusText = "Resource capabilities forbid changing the generated catalog language set."; return; }
         if (string.IsNullOrWhiteSpace(code)) return;
+        if (HasDocumentNavigation)
+        {
+            await _messageService.ShowMessageAsync("Add language files in the source folder, then reload the project.", "New Language");
+            return;
+        }
         if (AllTranslation.Any(t => string.Equals(t.Language, code, StringComparison.OrdinalIgnoreCase)))
         {
             await _messageService.ShowMessageAsync($"'{code}' is already in this project.", "New Language");
@@ -47,6 +52,11 @@ public partial class MainWindowViewModel
     {
         if (!CanChangeKeys) { StatusText = "Configure generated-catalog resource languages in the project descriptor."; return; }
         if (!HasProject) return;
+        if (HasDocumentNavigation)
+        {
+            await _messageService.ShowMessageAsync("Add or remove language files in the source folder, then reload the project.", "Manage Languages");
+            return;
+        }
         var result = await _dialogService.ShowManageLanguagesAsync(AllTranslation, PrimaryLanguage);
         if (result == null) return;
 
@@ -79,6 +89,11 @@ public partial class MainWindowViewModel
     {
         if (!CanChangeKeys) { StatusText = "Resource capabilities forbid removing generated-catalog languages."; return; }
         if (item == null || string.IsNullOrEmpty(item.Language)) return;
+        if (HasDocumentNavigation)
+        {
+            await _messageService.ShowMessageAsync("Remove language files in the source folder, then reload the project.", "Delete Language");
+            return;
+        }
         if (string.Equals(item.Language, PrimaryLanguage, StringComparison.OrdinalIgnoreCase))
         {
             await _messageService.ShowMessageAsync("The primary language can't be deleted. Make another language primary first.", "Delete Language");
@@ -205,7 +220,22 @@ public partial class MainWindowViewModel
         if (!CanChangeKeys) return "Resource capabilities forbid renaming keys.";
         newName = newName.Trim();
         if (string.IsNullOrWhiteSpace(newName)) return "Name can't be empty.";
-        if (newName.Contains('.', StringComparison.Ordinal)) return "Name can't contain '.'.";
+        if (!HasDocumentNavigation && newName.Contains('.', StringComparison.Ordinal)) return "Name can't contain '.'.";
+
+        if (HasDocumentNavigation)
+        {
+            FlushPendingEdits();
+            var id = ResolveDocumentEntry(node.Namespace);
+            if (id is null) return StatusText;
+            var snapshot = Workspace.SnapshotEntriesAsync().GetAwaiter().GetResult()!;
+            var unit = snapshot.Units.First(u => u.EntryId == id);
+            var path = new TranslationPath(unit.KeyPath.Segments.SkipLast(1).Append(newName).ToArray());
+            var result = Workspace.ApplyEntries("editor", new(snapshot.SessionId, snapshot.Revision,
+                [new Toucan.Plugins.RenameEntry(id.Value, unit.Namespace, path)], "Rename key"));
+            if (!result.Applied) return result.Issues[0].Message;
+            RefreshWorkspaceProjection(true, "Rename key", result.ChangedUnits);
+            return null;
+        }
 
         var oldNs = node.Namespace;
         var newNs = ParentPrefix(oldNs) + newName;
@@ -247,8 +277,11 @@ public partial class MainWindowViewModel
     private async Task RenameKey(string? ns)
     {
         if (string.IsNullOrEmpty(ns)) return;
-        var node = new NsTreeItem { Namespace = ns, Name = ns.Split('.').Last() };
-        var result = await _dialogService.ShowPromptAsync($"Rename “{node.Name}”", "Enter the new name for this segment (no dots).", node.Name);
+        var id = HasDocumentNavigation ? ResolveDocumentEntry(ns) : null;
+        if (HasDocumentNavigation && id is null) return;
+        var name = HasDocumentNavigation ? Workspace.SnapshotEntriesAsync().GetAwaiter().GetResult()!.Units.First(u => u.EntryId == id).KeyPath.Segments.Last() : ns.Split('.').Last();
+        var node = new NsTreeItem { Namespace = ns, Name = name };
+        var result = await _dialogService.ShowPromptAsync($"Rename “{node.Name}”", HasDocumentNavigation ? "Enter the new literal key name." : "Enter the new name for this segment (no dots).", node.Name);
         if (result == null) return;
         var error = RenameItemCore(node, result);
         if (error != null) await _messageService.ShowMessageAsync(error, "Rename");
@@ -279,6 +312,17 @@ public partial class MainWindowViewModel
         if (namespaces.Count == 0) return;
         var before = CaptureStructure();
         FlushPendingEdits();
+        if (HasDocumentNavigation)
+        {
+            var ids = namespaces.Select(ResolveDocumentEntry).ToArray();
+            if (ids.Any(id => id is null)) return;
+            var snapshot = Workspace.SnapshotEntriesAsync().GetAwaiter().GetResult()!;
+            var result = Workspace.ApplyEntries("editor", new(snapshot.SessionId, snapshot.Revision,
+                ids.Select(id => (Toucan.Plugins.EntryOperation)new Toucan.Plugins.DeleteEntry(id!.Value)).ToArray(), "Delete keys"));
+            if (result.Applied) RefreshWorkspaceProjection(true, "Delete keys", result.ChangedUnits);
+            else StatusText = result.Issues[0].Message;
+            return;
+        }
         var removed = AllTranslation.Where(t => namespaces.Any(n => MatchesNode(t.Namespace, n))).Select(t => t.Namespace).Distinct().ToList();
         AllTranslation.RemoveAll(t => namespaces.Any(n => MatchesNode(t.Namespace, n)));
         SelectedNode = null;
@@ -297,13 +341,21 @@ public partial class MainWindowViewModel
         if (!CanChangeKeys) return;
         if (SelectedNode is not { } node) return;
         FlushPendingEdits();
+        var documentId = HasDocumentNavigation ? ResolveDocumentEntry(node.Namespace) : null;
+        if (HasDocumentNavigation && documentId is null) return;
+        if (HasDocumentNavigation && Workspace.SnapshotEntriesAsync().GetAwaiter().GetResult()!.Units
+            .Any(u => u.EntryId == documentId && u.KeyPath.Segments.Any(s => s.Contains('.', StringComparison.Ordinal))))
+        {
+            StatusText = "Duplicating keys containing literal dots requires a structured destination.";
+            return;
+        }
 
         var newNs = node.Namespace + "_copy";
         var n = 2;
         while (AllTranslation.Any(t => t.Namespace == newNs)) newNs = $"{node.Namespace}_copy{n++}";
         var before = CaptureStructure();
 
-        foreach (var item in AllTranslation.Where(t => t.Namespace == node.Namespace).ToList())
+        foreach (var item in AllTranslation.Where(t => t.Namespace == node.Namespace && (!HasDocumentNavigation || Workspace.GetProjectionEntryId(t) == documentId)).ToList())
         {
             var copy = ResourceEntryOperations.Copy(item, duplicate: true);
             copy.Namespace = newNs;
@@ -592,7 +644,7 @@ public partial class MainWindowViewModel
     {
         var ns = SelectedGroup?.Namespace ?? SelectedNode?.Namespace;
         if (string.IsNullOrEmpty(ns)) return;
-        var items = AllTranslation.Where(t => t.Namespace == ns).OrderBy(t => t.Language, StringComparer.Ordinal).ToList();
+        var items = ItemsForEditorKey(ns).OrderBy(t => t.Language, StringComparer.Ordinal).ToList();
         if (items.Count == 0) return;
         await PlatformService.SetClipboardTextAsync(string.Join('\n', items.Select(t => $"{t.Language}={t.Value}")));
         StatusText = $"Copied {items.Count} value(s) of {ns}";
@@ -625,7 +677,7 @@ public partial class MainWindowViewModel
             if (eq <= 0) continue;
             var lang = line[..eq].Trim();
             var val = line[(eq + 1)..].TrimEnd('\r');
-            var existing = AllTranslation.FirstOrDefault(t => t.Namespace == ns && t.Language == lang);
+            var existing = ItemsForEditorKey(ns).FirstOrDefault(t => t.Language == lang);
             if (existing == null || existing.Value == val) continue;
             existing.Value = val;
             changed.Add(existing);
