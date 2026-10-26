@@ -162,6 +162,8 @@
             <TextBlock Text="{loc:Loc 'plural'}"/>
           </Border>
         </Grid>
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SourceOrigins}" IsVisible="{Binding HasSourceOrigins}"
+                   Classes="caption" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding SourceOrigins}"/>
         <StackPanel Classes="keyActions" Orientation="Horizontal" Spacing="1">
           <Button Classes="icon small" Click="OnEditClick" ToolTip.Tip="{loc:Loc 'Edit translations'}"
                   AutomationProperties.Name="{loc:Loc 'Edit translations'}"

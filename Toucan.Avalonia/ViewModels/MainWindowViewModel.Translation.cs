@@ -135,7 +135,7 @@ public partial class MainWindowViewModel
     }
 
     internal Task TranslateKeyAsync(string ns) =>
-        QuickTranslateAsync(AllTranslation.Where(t => t.Namespace == ns || (PluralService.IsPluralKey(t.Namespace) && PluralService.GetBaseKey(t.Namespace) == ns)).ToList(), $"Key {ns}");
+        QuickTranslateAsync((HasDocumentNavigation ? ItemsForEditorKey(ns) : AllTranslation.Where(t => t.Namespace == ns || (PluralService.IsPluralKey(t.Namespace) && PluralService.GetBaseKey(t.Namespace) == ns))).ToList(), $"Key {ns}");
 
     [RelayCommand]
     private Task TranslateSelectedKey()
@@ -286,6 +286,11 @@ public partial class MainWindowViewModel
     private void ApplyFix(ValidationIssueItem? issue)
     {
         if (issue?.SuggestedFix == null || issue.Namespace == null) return;
+        if (HasDocumentNavigation && AllTranslation.Where(t => t.Namespace == issue.Namespace).Select(Workspace.GetProjectionEntryId).Distinct().Count() > 1)
+        {
+            StatusText = "This issue has an ambiguous key; edit the selected entry directly.";
+            return;
+        }
         var target = AllTranslation.FirstOrDefault(t => t.Namespace == issue.Namespace && t.Language == issue.Language);
         if (target == null) return;
 
@@ -519,7 +524,7 @@ public partial class MainWindowViewModel
         if (Toucan.Core.Services.PlaceholderService.NamedDouble(oldToken) is not [var o] || o != oldToken) return 0;
         if (Toucan.Core.Services.PlaceholderService.NamedDouble(newToken) is not [var n] || n != newToken) return 0;
 
-        var items = AllTranslation.Where(t => t.Namespace == key && t.Value.Contains(oldToken, StringComparison.Ordinal)).ToList();
+        var items = ItemsForEditorKey(key).Where(t => t.Value.Contains(oldToken, StringComparison.Ordinal)).ToList();
         if (items.Count == 0) return 0;
 
         FlushPendingEdits();
@@ -571,7 +576,7 @@ public partial class MainWindowViewModel
         var focused = FocusedTranslationItem;
         if (focused is null || IsAuditMode) { StatusText = "Click into a translation field first."; return; }
 
-        var source = AllTranslation.FirstOrDefault(t => t.Namespace == focused.Namespace && t.Language == PrimaryLanguage);
+        var source = ItemsForEditorKey(focused.Namespace).FirstOrDefault(t => t.Language == PrimaryLanguage);
         if (source is null) return;
 
         var sourceTokens = Toucan.Core.Services.PlaceholderService.NamedDouble(source.Value);
@@ -612,7 +617,7 @@ public partial class MainWindowViewModel
         SelectedKeyUsages.Clear();
         SelectedKeyPlaceholders.Clear();
 
-        var items = string.IsNullOrEmpty(ns) ? [] : AllTranslation.Where(t => t.Namespace == ns).ToList();
+        var items = string.IsNullOrEmpty(ns) ? [] : ItemsForEditorKey(ns).ToList();
         HasSelectedKeyDetails = items.Count > 0;
         SelectedKeyNamespace = ns ?? string.Empty;
 
@@ -669,7 +674,7 @@ public partial class MainWindowViewModel
     {
         MemoryMatches.Clear();
         var ns = SelectedGroup?.Namespace ?? SelectedNode?.Namespace;
-        var source = string.IsNullOrEmpty(ns) ? null : AllTranslation.FirstOrDefault(t => t.Namespace == ns && t.Language == PrimaryLanguage && !string.IsNullOrWhiteSpace(t.Value));
+        var source = string.IsNullOrEmpty(ns) ? null : ItemsForEditorKey(ns).FirstOrDefault(t => t.Language == PrimaryLanguage && !string.IsNullOrWhiteSpace(t.Value));
         if (source != null)
         {
             var threshold = AppOptions.TmSimilarityThreshold;
@@ -689,7 +694,9 @@ public partial class MainWindowViewModel
         GhostSuggestion = null;
         if (_ghostTarget != null) { _ghostTarget.GhostText = null; _ghostTarget = null; }
         if (!AppOptions.TmAutoSuggest || item.Language == PrimaryLanguage) return;
-        var source = AllTranslation.FirstOrDefault(t => t.Namespace == item.Namespace && t.Language == PrimaryLanguage);
+        var id = Workspace.GetProjectionEntryId(item.Model);
+        var source = AllTranslation.FirstOrDefault(t => t.Namespace == item.Namespace && t.Language == PrimaryLanguage
+            && (!HasDocumentNavigation || Workspace.GetProjectionEntryId(t) == id));
         if (source == null || string.IsNullOrWhiteSpace(source.Value)) return;
         GhostSuggestion = _translationMemory.Search(source.Value, PrimaryLanguage, item.Language, AppOptions.TmSimilarityThreshold, 1).FirstOrDefault()?.TargetText;
     }

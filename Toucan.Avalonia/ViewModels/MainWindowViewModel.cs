@@ -286,17 +286,20 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     /// <summary>Swaps the editor list, disposing the previous cards (which flushes in-flight edits).</summary>
     private void SetEditorGroups(List<LanguageGroupViewModel> groups, bool isPartial = false)
     {
+        var selectedId = SelectedGroup?.EntryId;
         var old = PagingController.Data.ToList();
         PagingController.SwapData(groups, isPartial);
         foreach (var g in old) g.Dispose();
         MarkDirtyGroups();
         PagedUpdates();
+        if (HasDocumentNavigation) SelectedGroup = groups.FirstOrDefault(g => g.EntryId == selectedId) ?? groups.FirstOrDefault();
     }
 
     // ───────────────────────── Tree & summary ─────────────────────────
 
     internal void RefreshTree()
     {
+        RefreshDocumentNavigation();
         var parsable = AllTranslation.ForParse().Where(t => !IsNamespaceHidden(t.Namespace)).ToList();
         var nodes = AppOptions.PlainTextKeys ? parsable.ToNsTreeFlat() : parsable.ToNsTree();
         CurrentTreeItems = new ObservableCollection<NsTreeItem>(nodes);
@@ -454,11 +457,13 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     private IReadOnlyList<ValidationResult> ValidateInlineItem(TranslationItemViewModel item)
     {
-        var live = PagingController.Data.SelectMany(g => g.AllItems).Where(t => t.Namespace == item.Namespace)
+        var id = Workspace.GetProjectionEntryId(item.Model);
+        bool SameEntry(TranslationItem model) => HasDocumentNavigation ? Workspace.GetProjectionEntryId(model) == id : model.Namespace == item.Namespace;
+        var live = PagingController.Data.SelectMany(g => g.AllItems).Where(t => SameEntry(t.Model))
             .GroupBy(t => t.Language).ToDictionary(g => g.Key, g => g.First().Value, StringComparer.Ordinal);
         live[item.Language] = item.Value;
         if (item.SourceText is not null) live[PrimaryLanguage] = item.SourceText;
-        var snapshots = AllTranslation.Where(t => t.Namespace == item.Namespace).Select(t => new TranslationItem
+        var snapshots = AllTranslation.Where(SameEntry).Select(t => new TranslationItem
         {
             Namespace = t.Namespace, Language = t.Language, Value = live.GetValueOrDefault(t.Language, t.Value),
             Comment = t.Comment, IsApproved = t.IsApproved, FormatData = t.FormatData,
@@ -480,12 +485,20 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private ValidationRuleConfig? InlineRuleConfig(string id) =>
         ProjectSettings?.ValidationRules?.GetValueOrDefault(id) ?? _inlineRuleDefaults.GetValueOrDefault(id);
 
-    internal LanguageGroupViewModel CreateGroup(string ns)
+    internal LanguageGroupViewModel CreateGroup(string ns, Guid? entryId = null, TranslationPath? namespacePath = null, TranslationPath? keyPath = null)
     {
-        var group = new LanguageGroupViewModel(ns, CreateItemViewModel, PrimaryLanguage);
+        var group = new LanguageGroupViewModel(ns, CreateItemViewModel, PrimaryLanguage)
+        {
+            EntryId = entryId,
+            StructuredName = keyPath?.Segments.LastOrDefault(),
+            StructuredParent = namespacePath is null || keyPath is null ? null : string.Join('.', namespacePath.Segments.Concat(keyPath.Segments.SkipLast(1))),
+            SourceOrigins = entryId is null || Workspace.Source is not { } source ? string.Empty : string.Join(", ",
+                source.Units.Where(u => u.EntryId.Value == entryId).Select(u => source.Documents.Single(d => d.Id == u.Binding.DocumentId).RelativePath + "#" + u.Binding.Location.EscapedPath)
+                    .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+        };
         group.TranslateRequested += (s, e) =>
         {
-            if (s is LanguageGroupViewModel g) _ = TranslateKeyAsync(g.Namespace);
+            if (s is LanguageGroupViewModel g) { SelectedGroup = g; _ = TranslateKeyAsync(g.Namespace); }
         };
         return group;
     }

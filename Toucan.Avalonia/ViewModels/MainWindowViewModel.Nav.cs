@@ -35,6 +35,7 @@ public partial class MainWindowViewModel
     /// </summary>
     internal void Search(string? query, bool alwaysPaging = false)
     {
+        if (HasDocumentNavigation) FlushPendingEdits();
         _searchDebounce.Stop();
         query = query?.Trim() ?? string.Empty;
         ActiveLanguageFilter = null;
@@ -82,6 +83,16 @@ public partial class MainWindowViewModel
     /// <summary>Builds editor cards, merging plural variants (key_one, key_other, ...) into one card.</summary>
     private List<LanguageGroupViewModel> BuildLanguageGroups(List<string> namespaces, IEnumerable<TranslationItem> allItems)
     {
+        if (HasDocumentNavigation)
+        {
+            var matched = namespaces.ToHashSet(StringComparer.Ordinal);
+            var identified = Workspace.SnapshotEntriesAsync().GetAwaiter().GetResult()!.Units.GroupBy(u => u.EntryId).ToDictionary(g => g.Key, g => g.First());
+            return allItems.Where(t => matched.Contains(t.Namespace) && !IsNamespaceHidden(t.Namespace))
+                .GroupBy(t => Workspace.GetProjectionEntryId(t) ?? throw new InvalidOperationException("Document editor row has no active entry identity."))
+                .Where(g => _documentSelection is null || _documentSelection.Contains(g.Key))
+                .OrderBy(g => g.First().Namespace, StringComparer.Ordinal).ThenBy(g => g.Key)
+                .Select(g => { var unit = identified[g.Key]; var card = CreateGroup(g.First().Namespace, g.Key, unit.Namespace, unit.KeyPath); card.LoadTranslations(g); return card; }).ToList();
+        }
         var byNamespace = allItems.GroupBy(t => t.Namespace).ToDictionary(g => g.Key, g => g.ToList());
         var groups = new List<LanguageGroupViewModel>();
         var consumed = new HashSet<string>();
@@ -163,6 +174,7 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private void ClearFilter()
     {
+        ClearDocumentSelection();
         FilteredBySourceUsage = null;
         SelectedNode = null;
         if (SearchText.Length == 0) Search(string.Empty, true);
@@ -170,7 +182,7 @@ public partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    private void ShowAll() => Search(SearchText, true);
+    private void ShowAll() { ClearDocumentSelection(); Search(SearchText, true); }
 
     /// <summary>Filters by language and status. Parameter format: "status:language" (translated|empty|needsreview|approved).</summary>
     [RelayCommand]
@@ -231,6 +243,7 @@ public partial class MainWindowViewModel
     private void RevealKey(string? ns)
     {
         if (string.IsNullOrEmpty(ns)) return;
+        ClearDocumentSelection();
         SearchText = ns;
         Search(ns, true);
         SelectedGroup = PagingController.Data.FirstOrDefault(g => g.Namespace == ns || g.PluralVariants.Any(v => v.FullNamespace == ns));
@@ -282,7 +295,12 @@ public partial class MainWindowViewModel
     // ───────────────────────── View mode ─────────────────────────
 
     [RelayCommand]
-    private void ToggleViewMode() => IsTreeView = !IsTreeView;
+    private void ToggleViewMode()
+    {
+        if (HasDocumentNavigation) NavigationLayout = NavigationLayout == WorkspaceNavigationLayout.NamespaceFirst
+            ? WorkspaceNavigationLayout.FileFirst : WorkspaceNavigationLayout.NamespaceFirst;
+        else IsTreeView = !IsTreeView;
+    }
 
     [RelayCommand]
     private void ToggleFullscreen() => FullscreenRequested?.Invoke(this, EventArgs.Empty);

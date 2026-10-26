@@ -25,12 +25,17 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
     }
 
     public string Namespace { get; }
+    public Guid? EntryId { get; init; }
+    public string? StructuredName { get; init; }
+    public string? StructuredParent { get; init; }
+    public string SourceOrigins { get; init; } = string.Empty;
+    public bool HasSourceOrigins => SourceOrigins.Length > 0;
 
     /// <summary>Last segment of the key, shown prominently on the card.</summary>
-    public string ShortName => Namespace.Contains('.', StringComparison.Ordinal) ? Namespace[(Namespace.LastIndexOf('.') + 1)..] : Namespace;
+    public string ShortName => StructuredName ?? (Namespace.Contains('.', StringComparison.Ordinal) ? Namespace[(Namespace.LastIndexOf('.') + 1)..] : Namespace);
 
     /// <summary>Parent path of the key (everything before the last dot), shown dimmed.</summary>
-    public string ParentPath => Namespace.Contains('.', StringComparison.Ordinal) ? Namespace[..Namespace.LastIndexOf('.')] : string.Empty;
+    public string ParentPath => StructuredParent ?? (Namespace.Contains('.', StringComparison.Ordinal) ? Namespace[..Namespace.LastIndexOf('.')] : string.Empty);
 
     /// <summary>Parent path including the trailing dot, for inline display before <see cref="ShortName"/>.</summary>
     public string ParentPrefix => ParentPath.Length > 0 ? ParentPath + "." : string.Empty;

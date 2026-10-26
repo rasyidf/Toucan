@@ -3,7 +3,8 @@
              xmlns:loc="using:Toucan.Avalonia.Locales"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
-             xmlns:conv="using:Toucan.Avalonia.Converters">
+             xmlns:conv="using:Toucan.Avalonia.Converters"
+             xmlns:models="clr-namespace:Toucan.Core.Models;assembly=Toucan.Core">
 
   <DockPanel>
     <!-- Hidden namespaces: collapsible footer -->
@@ -38,39 +39,69 @@
     </Border>
 
     <Panel>
-      <TreeView x:Name="Tree" ItemsSource="{Binding CurrentTreeItems}" SelectedItem="{Binding SelectedNode}"
-                IsVisible="{Binding IsTreeView}" Padding="4">
-        <TreeView.Styles>
-          <Style Selector="TreeViewItem">
-            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
-            <Setter Property="MinHeight" Value="26"/>
-          </Style>
-        </TreeView.Styles>
-        <TreeView.ItemTemplate>
-          <TreeDataTemplate ItemsSource="{Binding Items}">
-            <StackPanel Orientation="Horizontal" Spacing="6">
-              <Panel Width="14">
-                <ui:FASymbolIcon Symbol="Folder" FontSize="13" Foreground="{DynamicResource MutedTextBrush}" IsVisible="{Binding HasItems}"/>
-                <ui:FASymbolIcon Symbol="Tag" FontSize="12" Foreground="{DynamicResource FaintTextBrush}" IsVisible="{Binding !HasItems}"/>
-              </Panel>
-              <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="13"/>
-            </StackPanel>
-          </TreeDataTemplate>
-        </TreeView.ItemTemplate>
-      </TreeView>
+      <DockPanel IsVisible="{Binding HasDocumentNavigation}">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="4" Margin="8,6">
+          <ToggleButton Content="{loc:Loc 'Namespaces'}" IsChecked="{Binding IsNamespaceNavigation, Mode=OneWay}"
+                        Command="{Binding SetNavigationLayoutCommand}" CommandParameter="{x:Static models:WorkspaceNavigationLayout.NamespaceFirst}"/>
+          <ToggleButton Content="{loc:Loc 'Files'}" IsChecked="{Binding IsFileNavigation, Mode=OneWay}"
+                        Command="{Binding SetNavigationLayoutCommand}" CommandParameter="{x:Static models:WorkspaceNavigationLayout.FileFirst}"/>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Bottom" IsVisible="{Binding !DocumentNavigationItems.Count}" Margin="16,24" Spacing="8">
+          <TextBlock Text="{loc:Loc 'This project has no keys yet.'}" Classes="caption" TextWrapping="Wrap"/>
+          <Button Content="{loc:Loc 'Add translation key…'}" Command="{Binding NewItemCommand}"/>
+        </StackPanel>
+        <TreeView x:Name="DocumentTree" ItemsSource="{Binding DocumentNavigationItems}" SelectedItem="{Binding SelectedDocumentNode}" Padding="4">
+          <TreeView.Styles>
+            <Style Selector="TreeViewItem">
+              <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+              <Setter Property="MinHeight" Value="26"/>
+            </Style>
+          </TreeView.Styles>
+          <TreeView.ItemTemplate>
+            <TreeDataTemplate ItemsSource="{Binding Children}">
+              <StackPanel ToolTip.Tip="{Binding OriginsText}">
+                <TextBlock Text="{Binding Label}" FontSize="13"/>
+                <TextBlock Text="{Binding OriginsText}" IsVisible="{Binding IsEntry}" Classes="caption" TextTrimming="CharacterEllipsis"/>
+              </StackPanel>
+            </TreeDataTemplate>
+          </TreeView.ItemTemplate>
+        </TreeView>
+      </DockPanel>
+      <Panel IsVisible="{Binding !HasDocumentNavigation}">
+        <TreeView x:Name="Tree" ItemsSource="{Binding CurrentTreeItems}" SelectedItem="{Binding SelectedNode}"
+                  IsVisible="{Binding IsTreeView}" Padding="4">
+          <TreeView.Styles>
+            <Style Selector="TreeViewItem">
+              <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+              <Setter Property="MinHeight" Value="26"/>
+            </Style>
+          </TreeView.Styles>
+          <TreeView.ItemTemplate>
+            <TreeDataTemplate ItemsSource="{Binding Items}">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Panel Width="14">
+                  <ui:FASymbolIcon Symbol="Folder" FontSize="13" Foreground="{DynamicResource MutedTextBrush}" IsVisible="{Binding HasItems}"/>
+                  <ui:FASymbolIcon Symbol="Tag" FontSize="12" Foreground="{DynamicResource FaintTextBrush}" IsVisible="{Binding !HasItems}"/>
+                </Panel>
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="13"/>
+              </StackPanel>
+            </TreeDataTemplate>
+          </TreeView.ItemTemplate>
+        </TreeView>
 
-      <ListBox x:Name="FlatList" Classes="plain" ItemsSource="{Binding CurrentFlatItems}" IsVisible="{Binding !IsTreeView}">
-        <ListBox.ItemTemplate>
-          <DataTemplate>
-            <TextBlock Text="{Binding DisplayKey}" Classes="mono" FontSize="12" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding FullKey}"/>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
+        <ListBox x:Name="FlatList" Classes="plain" ItemsSource="{Binding CurrentFlatItems}" IsVisible="{Binding !IsTreeView}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding DisplayKey}" Classes="mono" FontSize="12" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding FullKey}"/>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
 
-      <StackPanel IsVisible="{Binding !CurrentTreeItems.Count}" Margin="16,24" Spacing="8">
-        <TextBlock Text="{loc:Loc 'This project has no keys yet.'}" Classes="caption" TextWrapping="Wrap"/>
-        <Button Content="{loc:Loc 'Add translation key…'}" Command="{Binding NewItemCommand}"/>
-      </StackPanel>
+        <StackPanel IsVisible="{Binding !CurrentTreeItems.Count}" Margin="16,24" Spacing="8">
+          <TextBlock Text="{loc:Loc 'This project has no keys yet.'}" Classes="caption" TextWrapping="Wrap"/>
+          <Button Content="{loc:Loc 'Add translation key…'}" Command="{Binding NewItemCommand}"/>
+        </StackPanel>
+      </Panel>
     </Panel>
   </DockPanel>
 </UserControl>

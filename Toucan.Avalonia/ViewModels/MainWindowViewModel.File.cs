@@ -488,6 +488,7 @@ public partial class MainWindowViewModel
 
     private void AfterSuccessfulSave()
     {
+        RefreshDocumentNavigation();
         FeedTranslationMemory(SessionDirtyKeys);
         ClearSessionDirtyState();
         IsDirty = Workspace.IsDirty;
@@ -547,6 +548,7 @@ public partial class MainWindowViewModel
 
     private void ResetUiAfterClose()
     {
+        RefreshDocumentNavigation();
         foreach (var g in PagingController.Data) g.Dispose();
         AllTranslation = [];
         CurrentPath = string.Empty;

@@ -490,6 +490,17 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
         return result.ToImmutable();
     }
 
+    /// <summary>Returns the identity of an active compatibility projection without interpreting its display key.</summary>
+    public Guid? GetProjectionEntryId(TranslationItem item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        lock (_gate)
+        {
+            if (!_identities.TryGetValue(item, out var identity) || !_state.ContainsKey((identity.Id, item.Language))) return null;
+            return _projections.TryGetValue((identity.Id, item.Language), out var active) && ReferenceEquals(active, item) ? identity.Id : null;
+        }
+    }
+
     private TranslationItem Project(Unit unit)
     {
         var item = new TranslationItem { Language = unit.Language };

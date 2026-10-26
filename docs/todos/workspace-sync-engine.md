@@ -1,9 +1,9 @@
 ---
 title: Workspace sync engine tracker
 status: in-progress
-progress: "12 open tasks"
+progress: "9 open tasks"
 updated: 2026-10-17
-summary: "Core engine, desktop document saves/export, metadata, navigation projections, and versioned watching are implemented. 12 tasks remain for UI, recovery, connection lifecycle, and migration."
+summary: "Core engine, document saves/export, metadata, navigator UI, and versioned watching are implemented. 9 tasks remain for destinations, connection lifecycle, conflict presentation, and migration."
 ---
 # Workspace sync engine tracker
 
@@ -22,13 +22,7 @@ These gates apply throughout the phases; resolve ownership and routing contracts
 
 ## Phase 4: Targeted persistence
 
-- [ ] Add app destination choices for ambiguous new entries and moves. Separate create-only Save As/export planning and desktop integration are implemented.
-- [ ] Restore draft identity checkpoints when no durable identity catalog exists, and verify restart recovery with custom IDs. Document/draft identity persistence, desktop recovery, and journal schema 2 are implemented.
-
-## Phase 5: Navigation and presenters
-
-- [ ] Wire the namespace-first and file-first multilevel projections into the app navigator, including source origins for duplicate paths. Core projections and presenter-independent save-target tests are implemented.
-- [ ] Adapt the current editor and preserve pending edits/selection across navigation or presenter changes.
+- [ ] Add app destination choices for ambiguous or structured new entries, moves, and source language creation/removal. Document projects currently refuse the legacy language file writer. Separate create-only Save As/export planning and desktop integration are implemented.
 
 ## Phase 6: Source lifecycle and migration
 
