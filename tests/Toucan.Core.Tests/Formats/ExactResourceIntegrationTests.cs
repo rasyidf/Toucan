@@ -252,7 +252,7 @@ public sealed class ExactResourceIntegrationTests : IDisposable
         {
             Link(Path.Combine(_root, "safe"), inside);
             Link(Path.Combine(_root, "escape"), outside);
-            Assert.Equal(Path.Combine(inside, "new.json"), ResourceFilePath.Resolve(_root, "safe/new.json"));
+            Assert.Equal(ResourceFilePath.Resolve(_root, "inside/new.json"), ResourceFilePath.Resolve(_root, "safe/new.json"));
             Assert.Throws<ArgumentException>(() => ResourceFilePath.Resolve(_root, "escape/new.json"));
             File.WriteAllText(Path.Combine(outside, "catalog.json"), "{}");
             Assert.Throws<ArgumentException>(() => ResourceFilePath.Resolve(_root, "escape/catalog.json"));
@@ -263,6 +263,29 @@ public sealed class ExactResourceIntegrationTests : IDisposable
             Directory.Delete(Path.Combine(_root, "safe"));
             Directory.Delete(outside, recursive: true);
         }
+    }
+
+    [Fact]
+    public void InternalLinkTargetWithLinkedAncestorStaysInsidePhysicalProject()
+    {
+        var project = Directory.CreateDirectory(Path.Combine(_root, "project")).FullName;
+        Directory.CreateDirectory(Path.Combine(project, "inside"));
+        var alias = Path.Combine(_root, "alias");
+        var link = Path.Combine(project, "safe");
+        Link(alias, project);
+        try
+        {
+            Link(link, Path.Combine(alias, "inside"));
+            try
+            {
+                var destination = ResourceFilePath.Resolve(project, "safe/new.json");
+                Assert.Equal(ResourceFilePath.Resolve(project, "inside/new.json"), destination);
+                File.WriteAllText(destination, "{}");
+                Assert.Equal("{}", File.ReadAllText(Path.Combine(project, "inside", "new.json")));
+            }
+            finally { Directory.Delete(link); }
+        }
+        finally { Directory.Delete(alias); }
     }
 
     private static void Link(string path, string target)
