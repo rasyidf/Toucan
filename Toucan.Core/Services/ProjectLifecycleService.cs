@@ -28,8 +28,10 @@ public partial class ProjectLifecycleService(
     IRecoveryDraftService? recoveryDrafts = null,
     Plugins.IPluginActivationService? pluginActivation = null,
     WorkspaceService? workspace = null, WorkspaceDocumentSaveCoordinator? documentSaves = null, WorkspaceExportPlanner? exportPlanner = null, WorkspaceDocumentSaveExecutor? documentExecutor = null,
-    Plugins.INotificationCenter? notificationCenter = null) : IProjectLifecycleService
+    Plugins.INotificationCenter? notificationCenter = null) : IProjectLifecycleService, IDisposable, IAsyncDisposable
 {
+    private readonly SemaphoreSlim _lifecycleGate = new(1, 1);
+    private readonly Dictionary<string, string> _connectionStates = new(StringComparer.Ordinal);
     private ProjectSettings? _currentProject;
 
     /// <inheritdoc />
@@ -39,12 +41,46 @@ public partial class ProjectLifecycleService(
     public ProjectSettings? CurrentProject => _currentProject;
 
     /// <inheritdoc />
+    public IReadOnlyDictionary<string, string> ConnectionStates => _connectionStates;
+
+    /// <inheritdoc />
+    public event EventHandler<ConnectionStateChangedEventArgs>? ConnectionStateChanged;
+
+    private void SetConnectionState(string connectionId, string state)
+    {
+        _connectionStates[connectionId] = state;
+        ConnectionStateChanged?.Invoke(this, new ConnectionStateChangedEventArgs(connectionId, state));
+    }
+
+    /// <inheritdoc />
     public event EventHandler<ProjectChangedEventArgs>? ProjectChanged;
 
     /// <inheritdoc />
-    public Task<ProjectOpenResult> OpenProjectAsync(string folderPath, IProgress<ScanProgress>? progress = null, CancellationToken ct = default) => OpenProjectCoreAsync(folderPath, null, progress, ct);
+    public async Task<ProjectOpenResult> OpenProjectAsync(string folderPath, IProgress<ScanProgress>? progress = null, CancellationToken ct = default)
+    {
+        await _lifecycleGate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            return await OpenProjectCoreAsync(folderPath, null, progress, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            _lifecycleGate.Release();
+        }
+    }
 
-    public Task<ProjectOpenResult> OpenMigrationAsync(string path, MigrationReport report, IProgress<ScanProgress>? progress = null, CancellationToken ct = default) => OpenProjectCoreAsync(path, report, progress, ct);
+    public async Task<ProjectOpenResult> OpenMigrationAsync(string path, MigrationReport report, IProgress<ScanProgress>? progress = null, CancellationToken ct = default)
+    {
+        await _lifecycleGate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            return await OpenProjectCoreAsync(path, report, progress, ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            _lifecycleGate.Release();
+        }
+    }
 
     private async Task<ProjectOpenResult> OpenProjectCoreAsync(string folderPath, MigrationReport? migration, IProgress<ScanProgress>? progress, CancellationToken ct)
     {
@@ -101,7 +137,7 @@ public partial class ProjectLifecycleService(
         // Close the current project after successful target validation.
         if (IsProjectOpen && (translationManagement.IsDirty || workspace?.IsDirty == true))
         {
-            var closeResult = await CloseProjectAsync(ct).ConfigureAwait(false);
+            var closeResult = await CloseProjectCoreAsync(ct).ConfigureAwait(false);
             if (closeResult == CloseResult.Cancelled)
                 return new ProjectOpenResult(ProjectOpenStatus.Cancelled);
         }
@@ -178,6 +214,36 @@ public partial class ProjectLifecycleService(
                 var activations = await pluginActivation.OpenWorkspaceAsync(folderPath, ct).ConfigureAwait(false);
                 foreach (var failed in activations.Where(a => a.Status == Plugins.ActivationStatus.Failed))
                     logger.LogWarning("Plugin {Plugin} could not activate for {FolderPath}: {Error}", failed.PluginId, folderPath, failed.Error);
+
+                // 11d. Activate configured source connections after workspace publication
+                if (_currentProject?.SourceConnections is { Count: > 0 } connections)
+                {
+                    foreach (var connId in connections)
+                    {
+                        SetConnectionState(connId, "Connecting");
+                        try
+                        {
+                            var connResults = await pluginActivation.OpenConnectionAsync(folderPath, connId, ct).ConfigureAwait(false);
+                            var connFailure = connResults.FirstOrDefault(a => a.Status == Plugins.ActivationStatus.Failed);
+                            if (connFailure is not null)
+                            {
+                                logger.LogWarning("Connection {Connection} failed to activate for {FolderPath}: {Error}", connId, folderPath, connFailure.Error);
+                                SetConnectionState(connId, $"Failed: {connFailure.Error}");
+                                await pluginActivation.CloseConnectionAsync(folderPath, connId).ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                SetConnectionState(connId, "Connected");
+                            }
+                        }
+                        catch (Exception ex) when (ex is not OperationCanceledException)
+                        {
+                            logger.LogWarning(ex, "Connection {Connection} threw during activation for {FolderPath}", connId, folderPath);
+                            SetConnectionState(connId, $"Failed: {ex.Message}");
+                            await pluginActivation.CloseConnectionAsync(folderPath, connId).ConfigureAwait(false);
+                        }
+                    }
+                }
             }
             ct.ThrowIfCancellationRequested();
         }
@@ -384,6 +450,7 @@ public partial class ProjectLifecycleService(
                 ExcludedDirectories = _currentProject.ExcludedDirectories is null ? null : [.. _currentProject.ExcludedDirectories],
                 AutoScanOnOpen = _currentProject.AutoScanOnOpen,
                 TranslationPackages = [.. _currentProject.TranslationPackages],
+                SourceConnections = [.. _currentProject.SourceConnections],
                 SaveEmptyTranslations = _currentProject.SaveEmptyTranslations,
                 TranslationOrder = _currentProject.TranslationOrder,
                 CopyTemplates = _currentProject.CopyTemplates != null ? [.. _currentProject.CopyTemplates] : null,
@@ -510,8 +577,24 @@ public partial class ProjectLifecycleService(
     /// <inheritdoc />
     public async Task<CloseResult> CloseProjectAsync(CancellationToken ct = default)
     {
+        await _lifecycleGate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            return await CloseProjectCoreAsync(ct).ConfigureAwait(false);
+        }
+        finally
+        {
+            _lifecycleGate.Release();
+        }
+    }
+
+    private async Task<CloseResult> CloseProjectCoreAsync(CancellationToken ct = default)
+    {
         if (!IsProjectOpen)
             return CloseResult.Closed;
+
+        // Flush pending edits to workspace so unsaved changes check is authoritative
+        workspace?.CommitProjection(translationManagement.Translations);
 
         // If project has unsaved changes, prompt the user
         if (translationManagement.IsDirty || workspace?.IsDirty == true)
@@ -562,6 +645,62 @@ public partial class ProjectLifecycleService(
         return CloseResult.Closed;
     }
 
+    /// <inheritdoc />
+    public async Task<bool> ReplaceConnectionAsync(string oldConnectionId, string newConnectionId, CancellationToken ct = default)
+    {
+        if (!IsProjectOpen || _currentProject is null || pluginActivation is null) return false;
+        await _lifecycleGate.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            ct.ThrowIfCancellationRequested();
+            var projectPath = _currentProject.ProjectPath;
+            // Flush pending edits to workspace so owned dirty entries are reconciled before replacing connection
+            workspace?.CommitProjection(translationManagement.Translations);
+
+            if (!string.IsNullOrWhiteSpace(oldConnectionId))
+            {
+                await pluginActivation.CloseConnectionAsync(projectPath, oldConnectionId).ConfigureAwait(false);
+                _currentProject.SourceConnections.Remove(oldConnectionId);
+                _connectionStates.Remove(oldConnectionId);
+            }
+
+            if (!string.IsNullOrWhiteSpace(newConnectionId))
+            {
+                if (!_currentProject.SourceConnections.Contains(newConnectionId))
+                    _currentProject.SourceConnections.Add(newConnectionId);
+
+                SetConnectionState(newConnectionId, "Connecting");
+                try
+                {
+                    var results = await pluginActivation.OpenConnectionAsync(projectPath, newConnectionId, ct).ConfigureAwait(false);
+                    var failure = results.FirstOrDefault(r => r.Status == Plugins.ActivationStatus.Failed);
+                    if (failure is not null)
+                    {
+                        logger.LogWarning("Replacement connection {Connection} failed: {Error}", newConnectionId, failure.Error);
+                        SetConnectionState(newConnectionId, $"Failed: {failure.Error}");
+                        await pluginActivation.CloseConnectionAsync(projectPath, newConnectionId).ConfigureAwait(false);
+                        _currentProject.SourceConnections.Remove(newConnectionId);
+                        return false;
+                    }
+                    SetConnectionState(newConnectionId, "Connected");
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    logger.LogWarning(ex, "Replacement connection {Connection} threw during activation", newConnectionId);
+                    SetConnectionState(newConnectionId, $"Failed: {ex.Message}");
+                    await pluginActivation.CloseConnectionAsync(projectPath, newConnectionId).ConfigureAwait(false);
+                    _currentProject.SourceConnections.Remove(newConnectionId);
+                    return false;
+                }
+            }
+            return true;
+        }
+        finally
+        {
+            _lifecycleGate.Release();
+        }
+    }
+
     /// <summary>
     /// Cleans up the current project state without prompting for unsaved changes.
     /// Used internally when switching projects where the current one is not dirty.
@@ -578,6 +717,7 @@ public partial class ProjectLifecycleService(
             await pluginActivation.CloseWorkspaceAsync(closing.ProjectPath).ConfigureAwait(false);
 
         workspace?.Close();
+        _connectionStates.Clear();
         _pendingRecovery = null;
         _interruptedSave = null;
         _diskBaseline = [];
@@ -587,5 +727,25 @@ public partial class ProjectLifecycleService(
         _lastSavedSnapshot = [];
         _snapshotIndex = [];
         _currentProject = null;
+    }
+
+    public void Dispose() => Task.Run(() => DisposeAsync().AsTask()).GetAwaiter().GetResult();
+
+    public async ValueTask DisposeAsync()
+    {
+        await _lifecycleGate.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            if (IsProjectOpen)
+            {
+                await CleanupCurrentProjectAsync().ConfigureAwait(false);
+            }
+        }
+        finally
+        {
+            _lifecycleGate.Release();
+            _lifecycleGate.Dispose();
+        }
+        GC.SuppressFinalize(this);
     }
 }

@@ -485,4 +485,283 @@ public sealed class SaveRecoveryTests : IDisposable
         Assert.Contains("Bye from disk", saved);
         Assert.False(s.Store.IsDirty);
     }
+
+    [Fact]
+    public async Task ConfiguredSourceConnectionsActivateAfterWorkspacePublicationAndUnwindOnFailure()
+    {
+        var settings = ProjectSettings.LoadFrom(_project)!;
+        settings.SourceConnections = ["ok-conn", "fail-conn"];
+        settings.Save();
+
+        var events = new List<string>();
+        var workspaceProbe = new LifecycleProbe(async (_, _) =>
+        {
+            events.Add("workspace-active");
+            await Task.CompletedTask;
+        }, lifetime: PluginLifetime.Workspace);
+
+        var okConnProbe = new LifecycleProbe(async (ctx, _) =>
+        {
+            if (ctx.ConnectionId != "ok-conn") return;
+            events.Add("ok-conn-active");
+            await Task.CompletedTask;
+        }, async ctx =>
+        {
+            if (ctx.ConnectionId != "ok-conn") return;
+            events.Add("ok-conn-disposed");
+            await Task.CompletedTask;
+        }, lifetime: PluginLifetime.Connection);
+
+        var failConnProbe = new LifecycleProbe(async (ctx, _) =>
+        {
+            if (ctx.ConnectionId != "fail-conn") return;
+            events.Add("fail-conn-failed");
+            throw new InvalidOperationException("Remote host unreachable");
+        }, async ctx =>
+        {
+            if (ctx.ConnectionId != "fail-conn") return;
+            events.Add("fail-conn-unwound");
+            await Task.CompletedTask;
+        }, lifetime: PluginLifetime.Connection);
+
+        await using var activation = new PluginActivationService([
+            new("p1", "ws", workspaceProbe),
+            new("p2", "ok", okConnProbe),
+            new("p3", "fail", failConnProbe)]);
+
+        var session = await OpenAsync(activation: activation);
+
+        Assert.Contains("workspace-active", events);
+        Assert.Contains("ok-conn-active", events);
+        Assert.Contains("fail-conn-failed", events);
+        Assert.True(session.Lifecycle.IsProjectOpen);
+        Assert.Equal("Connected", session.Lifecycle.ConnectionStates["ok-conn"]);
+        Assert.Contains("Remote host unreachable", session.Lifecycle.ConnectionStates["fail-conn"]);
+
+        await session.Lifecycle.CloseProjectAsync();
+        Assert.Contains("ok-conn-disposed", events);
+    }
+
+    [Fact]
+    public async Task SourceConnectionReplacementPreservesWorkspaceScopeAndReconcilesDirtyEdits()
+    {
+        var settings = ProjectSettings.LoadFrom(_project)!;
+        settings.SourceConnections = ["conn-a"];
+        settings.Save();
+
+        var events = new List<string>();
+        var workspaceProbe = new LifecycleProbe(async (_, _) =>
+        {
+            events.Add("workspace-activated");
+            await Task.CompletedTask;
+        }, async _ =>
+        {
+            events.Add("workspace-disposed");
+            await Task.CompletedTask;
+        }, lifetime: PluginLifetime.Workspace);
+
+        var connAProbe = new LifecycleProbe(async (ctx, _) =>
+        {
+            if (ctx.ConnectionId != "conn-a") return;
+            events.Add("conn-a-active");
+            await Task.CompletedTask;
+        }, async ctx =>
+        {
+            if (ctx.ConnectionId != "conn-a") return;
+            events.Add("conn-a-disposed");
+            await Task.CompletedTask;
+        }, lifetime: PluginLifetime.Connection);
+
+        var connBProbe = new LifecycleProbe(async (ctx, _) =>
+        {
+            if (ctx.ConnectionId != "conn-b") return;
+            events.Add("conn-b-active");
+            await Task.CompletedTask;
+        }, async ctx =>
+        {
+            if (ctx.ConnectionId != "conn-b") return;
+            events.Add("conn-b-disposed");
+            await Task.CompletedTask;
+        }, lifetime: PluginLifetime.Connection);
+
+        await using var activation = new PluginActivationService([
+            new("p1", "ws", workspaceProbe),
+            new("p2", "conn-a", connAProbe),
+            new("p3", "conn-b", connBProbe)]);
+
+        var session = await OpenAsync(activation: activation);
+        Assert.Contains("workspace-activated", events);
+        Assert.Contains("conn-a-active", events);
+
+        // Edit a value to make it dirty
+        session.Store.NotifyValueChanged(Item(session, "en", "app.title"), "Reconciled Edit");
+        Assert.True(session.Store.IsDirty);
+
+        // Replace connection
+        var replaced = await session.Lifecycle.ReplaceConnectionAsync("conn-a", "conn-b");
+        Assert.True(replaced);
+
+        Assert.Contains("conn-a-disposed", events);
+        Assert.Contains("conn-b-active", events);
+        Assert.DoesNotContain("workspace-disposed", events); // Workspace scope was NOT closed!
+        Assert.Equal("Connected", session.Lifecycle.ConnectionStates["conn-b"]);
+        Assert.False(session.Lifecycle.ConnectionStates.ContainsKey("conn-a"));
+
+        // Verify dirty edit survived and was reconciled in workspace
+        var snapshot = await session.Workspace.SnapshotAsync();
+        Assert.Equal("Reconciled Edit", snapshot!.Find("app.title", "en")!.Value);
+
+        await session.Lifecycle.CloseProjectAsync();
+        Assert.Contains("conn-b-disposed", events);
+        Assert.Contains("workspace-disposed", events);
+    }
+
+    [Fact]
+    public async Task HostShutdownOrderingDisposesConnectionsThenWorkspaceThenApplication()
+    {
+        var settings = ProjectSettings.LoadFrom(_project)!;
+        settings.SourceConnections = ["conn"];
+        settings.Save();
+
+        var teardownOrder = new List<string>();
+
+        var appProbe = new LifecycleProbe(async (_, _) => await Task.CompletedTask,
+            async _ => { teardownOrder.Add("app"); await Task.CompletedTask; }, lifetime: PluginLifetime.Application);
+
+        var wsProbe = new LifecycleProbe(async (_, _) => await Task.CompletedTask,
+            async _ => { teardownOrder.Add("workspace"); await Task.CompletedTask; }, lifetime: PluginLifetime.Workspace);
+
+        var connProbe = new LifecycleProbe(async (_, _) => await Task.CompletedTask,
+            async _ => { teardownOrder.Add("connection"); await Task.CompletedTask; }, lifetime: PluginLifetime.Connection);
+
+        await using var activation = new PluginActivationService([
+            new("p1", "app", appProbe),
+            new("p2", "ws", wsProbe),
+            new("p3", "conn", connProbe)]);
+
+        await activation.ActivateApplicationAsync();
+        var session = await OpenAsync(activation: activation);
+
+        // Host shutdown: dispose lifecycle service, then activation service
+        await session.Lifecycle.DisposeAsync();
+        await activation.DisposeAsync();
+
+        Assert.Equal(["connection", "workspace", "app"], teardownOrder);
+    }
+
+    [Fact]
+    public async Task OverlappingProjectOpensSerializeCleanlyWithoutLeakingSessions()
+    {
+        var otherProject = Path.Combine(_root, "project2");
+        Directory.CreateDirectory(otherProject);
+        new ProjectService(new FileService(NullLogger<FileService>.Instance), FormatTestHost.SaveStrategies, FormatTestHost.Factory,
+                new ProjectModeResolver(), NullLogger<ProjectService>.Instance)
+            .CreateProject(otherProject, ["en"], FormatIds.Json);
+        File.WriteAllText(Path.Combine(otherProject, "en.json"), "{\"app\":{\"title\":\"P2\"}}\n");
+
+        var wsOpens = new List<string>();
+        var wsCloses = new List<string>();
+
+        var probe = new LifecycleProbe(async (ctx, _) =>
+        {
+            wsOpens.Add(ctx.WorkspaceId!);
+            await Task.CompletedTask;
+        }, async ctx =>
+        {
+            wsCloses.Add(ctx.WorkspaceId!);
+            await Task.CompletedTask;
+        }, lifetime: PluginLifetime.Workspace);
+
+        await using var activation = new PluginActivationService([new("p1", "ws", probe)]);
+
+        var store = new TranslationManagementService(Substitute.For<IUndoRedoService>());
+        var projects = new ProjectService(new FileService(NullLogger<FileService>.Instance), FormatTestHost.SaveStrategies, FormatTestHost.Factory,
+            new ProjectModeResolver(), NullLogger<ProjectService>.Instance);
+        var watcher = Substitute.For<IFileWatcherService>();
+        var validation = Substitute.For<IValidationPipeline>();
+        validation.RunAll(Arg.Any<ValidationContext>()).Returns(_ => _findings.ToList());
+        var unsaved = Substitute.For<IUnsavedChangesHandler>();
+        unsaved.PromptAsync().Returns(_ => Task.FromResult(UnsavedChangesChoice.Save));
+        var drafts = new RecoveryDraftService(_drafts);
+        var external = Substitute.For<IExternalChangeHandler>();
+        var workspace = new WorkspaceService(store, validation);
+        var lifecycle = new ProjectLifecycleService(projects, store, watcher, validation, Substitute.For<IAutoSaveService>(),
+            Substitute.For<IDiffMergeEngine>(), Substitute.For<IAuditService>(), Substitute.For<IRecentProjectService>(),
+            new CommentPersistenceService(NullLogger<CommentPersistenceService>.Instance, FormatTestHost.Factory),
+            new LanguageManagementService(store, projects, watcher, NullLogger<LanguageManagementService>.Instance),
+            unsaved, external, NullLogger<ProjectLifecycleService>.Instance, drafts, activation, workspace);
+
+        // Run two overlapping opens
+        var open1 = lifecycle.OpenProjectAsync(_project);
+        var open2 = lifecycle.OpenProjectAsync(otherProject);
+
+        var results = await Task.WhenAll(open1, open2);
+
+        Assert.Equal(ProjectOpenStatus.Success, results[0].Status);
+        Assert.Equal(ProjectOpenStatus.Success, results[1].Status);
+        Assert.Equal(otherProject, lifecycle.CurrentProject!.ProjectPath);
+
+        // Verify the first project was closed when second opened
+        Assert.Contains(_project, wsOpens);
+        Assert.Contains(_project, wsCloses);
+        Assert.Contains(otherProject, wsOpens);
+        Assert.DoesNotContain(otherProject, wsCloses);
+
+        await lifecycle.CloseProjectAsync();
+        Assert.Contains(otherProject, wsCloses);
+    }
+
+    [Fact]
+    public async Task SourceSessionSwitchingResolvesPendingEditsAndRejectsLateOldSessionEvents()
+    {
+        var otherProject = Path.Combine(_root, "project-switch");
+        Directory.CreateDirectory(otherProject);
+        new ProjectService(new FileService(NullLogger<FileService>.Instance), FormatTestHost.SaveStrategies, FormatTestHost.Factory,
+                new ProjectModeResolver(), NullLogger<ProjectService>.Instance)
+            .CreateProject(otherProject, ["en"], FormatIds.Json);
+        File.WriteAllText(Path.Combine(otherProject, "en.json"), "{\"app\":{\"title\":\"P2\"}}\n");
+
+        await using var activation = new PluginActivationService([]);
+        var session = await OpenAsync(onClose: UnsavedChangesChoice.Save, activation: activation);
+        var oldSessionId = session.Workspace.SessionId;
+
+        // Subscribe to old session
+        var subscription = (await session.Workspace.SubscribeAsync())!;
+        var receivedChanges = new List<WorkspaceChangeKind>();
+        var subscriptionTask = Task.Run(async () =>
+        {
+            await foreach (var change in subscription.Changes)
+            {
+                receivedChanges.Add(change.Kind);
+            }
+        });
+
+        // Edit pending in projection
+        session.Store.NotifyValueChanged(Item(session, "en", "app.title"), "Pending Before Switch");
+        Assert.True(session.Store.IsDirty);
+
+        // Switch to other project
+        var switchResult = await session.Lifecycle.OpenProjectAsync(otherProject);
+        Assert.Equal(ProjectOpenStatus.Success, switchResult.Status);
+        Assert.Equal(otherProject, session.Lifecycle.CurrentProject!.ProjectPath);
+
+        // Verify pending edit was saved to project 1 on disk
+        Assert.Contains("Pending Before Switch", Read("en.json"));
+
+        // Verify old subscription completed with Closed event
+        await subscriptionTask;
+        Assert.Contains(WorkspaceChangeKind.Closed, receivedChanges);
+
+        // Verify new session has a different session ID
+        var newSessionId = session.Workspace.SessionId;
+        Assert.NotEqual(oldSessionId, newSessionId);
+
+        // Verify late edit using old session ID is rejected
+        var lateResult = await session.Workspace.ApplyEntriesAsync("late-plugin",
+            new(oldSessionId, 0, [new SetEntryValue(Guid.NewGuid(), "en", "Late")]));
+        Assert.False(lateResult.Applied);
+        Assert.Equal(EditIssueKind.Stale, lateResult.Issues.Single().Kind);
+
+        await session.Lifecycle.CloseProjectAsync();
+    }
 }

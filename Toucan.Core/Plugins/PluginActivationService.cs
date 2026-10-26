@@ -82,6 +82,7 @@ public sealed class PluginActivationService : IPluginActivationService, IAsyncDi
     private readonly List<IAsyncDisposable> _applicationSessions = [];
     private readonly Dictionary<string, WorkspaceScope> _workspaces = new(StringComparer.Ordinal);
     private bool _applicationActivated;
+    private bool _disposed;
 
     public PluginActivationService(IEnumerable<RegisteredActivator> activators, ILoggerFactory? loggerFactory = null)
     {
@@ -199,6 +200,8 @@ public sealed class PluginActivationService : IPluginActivationService, IAsyncDi
 
     public async ValueTask DisposeAsync()
     {
+        if (_disposed) return;
+        _disposed = true;
         foreach (var id in _workspaces.Keys.ToList())
             await CloseWorkspaceAsync(id).ConfigureAwait(false);
 
