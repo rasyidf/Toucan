@@ -130,6 +130,9 @@ public sealed class FileWatcherService : IFileWatcherService, IDisposable
         FilesChanged?.Invoke(this, notification);
     }
 
+    internal void RaiseFilesChanged(FileWatcherChangeEventArgs? args = null) =>
+        FilesChanged?.Invoke(this, args ?? new FileWatcherChangeEventArgs(_folder, GetChanges(), WatchGeneration));
+
     private void OnChange(object sender, FileSystemEventArgs e)
     {
         if (IsIgnored(e.FullPath) && (e is not RenamedEventArgs renamed || IsIgnored(renamed.OldFullPath))) return;

@@ -27,7 +27,8 @@ public partial class ProjectLifecycleService(
     ILogger<ProjectLifecycleService> logger,
     IRecoveryDraftService? recoveryDrafts = null,
     Plugins.IPluginActivationService? pluginActivation = null,
-    WorkspaceService? workspace = null, WorkspaceDocumentSaveCoordinator? documentSaves = null, WorkspaceExportPlanner? exportPlanner = null, WorkspaceDocumentSaveExecutor? documentExecutor = null) : IProjectLifecycleService
+    WorkspaceService? workspace = null, WorkspaceDocumentSaveCoordinator? documentSaves = null, WorkspaceExportPlanner? exportPlanner = null, WorkspaceDocumentSaveExecutor? documentExecutor = null,
+    Plugins.INotificationCenter? notificationCenter = null) : IProjectLifecycleService
 {
     private ProjectSettings? _currentProject;
 
@@ -124,7 +125,6 @@ public partial class ProjectLifecycleService(
         // 5. Start IFileWatcherService on the folder
         fileWatcher.Watch(folderPath);
         SubscribeToFileWatcher();
-        _externalChangeHandler = externalChangeHandler;
 
         // 6. Add to recent projects
         recentProjects.Add(folderPath);

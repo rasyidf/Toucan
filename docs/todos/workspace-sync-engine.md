@@ -1,9 +1,9 @@
 ---
 title: Workspace sync engine tracker
 status: in-progress
-progress: "9 open tasks"
-updated: 2026-10-17
-summary: "Core engine, document saves/export, metadata, navigator UI, and versioned watching are implemented. 9 tasks remain for destinations, connection lifecycle, conflict presentation, and migration."
+progress: "8 open tasks"
+updated: 2026-10-27
+summary: "Core engine, document saves/export, metadata, navigator UI, versioned watching, and document-level conflict presentation are implemented. 8 tasks remain for destinations, connection lifecycle, and migration."
 ---
 # Workspace sync engine tracker
 
@@ -26,7 +26,6 @@ These gates apply throughout the phases; resolve ownership and routing contracts
 
 ## Phase 6: Source lifecycle and migration
 
-- [ ] Present document-level dirty reload conflicts in the app. Core reloads clean documents, preserves dirty conflicts and history, and retains their original source versions.
 - [ ] Implement source-session switching with pending-edit resolution and rejection of late old-session events.
 - [ ] Declare legacy adapter save capabilities and migrate built-in formats incrementally with fidelity fixtures.
 - [ ] Verify autosave, plugin edits, approval policy, crash recovery, and headless host integration against the engine.

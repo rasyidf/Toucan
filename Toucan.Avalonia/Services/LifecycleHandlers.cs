@@ -42,4 +42,12 @@ internal sealed class ExternalChangeHandler(IAsyncMessageService messages) : IEx
                 "Merge Conflicts", "Use Disk Version", "Keep Mine"));
         return accept ? conflicts : null;
     }
+
+    public async Task ShowDocumentConflictsAsync(IReadOnlyList<string> conflictDocumentPaths)
+    {
+        var names = string.Join(", ", conflictDocumentPaths.Select(Path.GetFileName));
+        await Dispatcher.UIThread.InvokeAsync(() =>
+            messages.ShowMessageAsync($"External changes conflict with {conflictDocumentPaths.Count} dirty document(s):\n{names}\n\nYour local edits and their original versions were retained. Resolve or save them when ready.",
+                "External Changes Conflict"));
+    }
 }

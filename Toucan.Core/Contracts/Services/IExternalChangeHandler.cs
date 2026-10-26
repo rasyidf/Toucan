@@ -36,4 +36,9 @@ public interface IExternalChangeHandler
     /// <param name="conflicts">The conflicting entries requiring manual resolution.</param>
     /// <returns>Resolved entries with the user's chosen values, or null if cancelled.</returns>
     Task<IReadOnlyList<DiffEntry>?> ShowConflictResolutionAsync(IReadOnlyList<DiffEntry> conflicts);
+
+    /// <summary>
+    /// Presents document-level reload conflicts where local dirty edits were preserved.
+    /// </summary>
+    Task ShowDocumentConflictsAsync(IReadOnlyList<string> conflictDocumentPaths) => Task.CompletedTask;
 }

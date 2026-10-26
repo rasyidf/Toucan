@@ -1,6 +1,7 @@
 using Avalonia.Headless.XUnit;
 using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
+using Toucan.Avalonia.Services;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Services;
@@ -207,5 +208,52 @@ public sealed class DocumentWorkspaceTests
         var lifecycle = host.Services.GetRequiredService<IProjectLifecycleService>();
         Assert.Equal(ProjectOpenStatus.ManifestInvalid, (await lifecycle.OpenProjectAsync(root)).Status);
         Assert.False(host.Services.GetRequiredService<WorkspaceService>().IsOpen);
+    }
+
+    [AvaloniaFact]
+    public async Task DocumentLevelReloadConflictsArePresentedAndPreserveDirtyEdits()
+    {
+        using var host = new TestHost(); var root = Project(host); var vm = host.CreateViewModel(); await vm.OpenProjectAsync(root);
+        var engine = host.Services.GetRequiredService<WorkspaceService>();
+        var entry = (await engine.SnapshotEntriesAsync())!.Units.Single(u => u.Key == "common.title" && u.Language == "en");
+        vm.SelectedDocumentNode = Nodes(vm.DocumentNavigationItems).First(n => n.IsEntry && n.Node.EntryIds.Contains(entry.EntryId));
+        var card = Assert.Single(vm.PagingController.Data);
+        card.Translations.Single(t => t.Language == "en").Value = "Dirty in-memory";
+        vm.FlushPendingEdits();
+        Assert.True(vm.IsDirty);
+
+        // Modify conflicting document (locales/en/common.json) and clean document (locales/en/other.json) on disk
+        Write(root, "locales/en/common.json", "{\"title\":\"External Conflict\",\"onlyEn\":\"English\"}");
+        Write(root, "locales/en/other.json", "{\"title\":\"Reloaded cleanly\"}");
+
+        host.Messages.ChoiceAnswer = ChoiceResult.Primary; // Merge
+        var watcher = (Toucan.Avalonia.Services.FileWatcherService)host.Services.GetRequiredService<IFileWatcherService>();
+        var changes = watcher.GetChanges();
+        Assert.Equal(2, changes.Count);
+        watcher.RaiseFilesChanged(new(root, changes, watcher.WatchGeneration));
+        for (var i = 0; i < 50 && (await engine.SnapshotAsync())!.Find("other.title", "en")!.Value != "Reloaded cleanly"; i++)
+        {
+            await Task.Delay(50);
+            global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        }
+        Assert.NotEmpty(host.Messages.Choices);
+
+        // Dirty document retained in-memory edit and is still dirty
+        Assert.True(vm.IsDirty);
+        Assert.Equal("Dirty in-memory", (await engine.SnapshotAsync())!.Find("common.title", "en")!.Value);
+        // Clean document reloaded from disk
+        Assert.Equal("Reloaded cleanly", (await engine.SnapshotAsync())!.Find("other.title", "en")!.Value);
+
+        // Notification center has conflict notification
+        var notifications = host.Services.GetRequiredService<Toucan.Core.Plugins.INotificationCenter>();
+        Assert.Contains(notifications.History, n => n.Content.Title == "External Changes Conflict");
+
+        // Message was presented to user
+        for (var i = 0; i < 50 && host.Messages.Shown.Count == 0; i++)
+        {
+            await Task.Delay(50);
+            global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        }
+        Assert.Contains(host.Messages.Shown, m => m.Contains("External changes conflict with 1 dirty document(s):", StringComparison.Ordinal));
     }
 }
