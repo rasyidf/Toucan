@@ -73,10 +73,11 @@ public sealed partial class WorkspaceService
     }
 
     /// <summary>
-    /// Adds empty translations for every entry whose family can place <paramref name="language"/>. Entries in families without
-    /// a describable destination are reported, not silently skipped.
+    /// Adds empty translations for every entry (or only <paramref name="entries"/>) whose family can place <paramref name="language"/>.
+    /// Entries in families without a describable destination are reported, not silently skipped.
     /// </summary>
-    public EditResult AddDocumentLanguage(string language, IReadOnlyList<WorkspaceDestinationFamily> families, string originId = "editor")
+    public EditResult AddDocumentLanguage(string language, IReadOnlyList<WorkspaceDestinationFamily> families,
+        IReadOnlyCollection<Guid>? entries = null, string originId = "editor")
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(language);
         ArgumentNullException.ThrowIfNull(families);
@@ -90,7 +91,7 @@ public sealed partial class WorkspaceService
             var added = 0;
             foreach (var entry in _state.Values.GroupBy(u => u.Id))
             {
-                if (entry.Any(u => u.Language == language)) continue;
+                if (entry.Any(u => u.Language == language) || entries is not null && !entries.Contains(entry.Key)) continue;
                 var paths = entry.Select(UnitPathLocked).ToHashSet(StringComparer.Ordinal);
                 var family = families.FirstOrDefault(f => f.Documents.Values.Any(paths.Contains));
                 if (family is null || !family.Documents.TryGetValue(language, out var path)) { unplaced++; continue; }
@@ -129,6 +130,17 @@ public sealed partial class WorkspaceService
         }
         RaiseChanged();
         return result;
+    }
+
+    /// <summary>The family holding an entry's documents, or null when none of the given families contains them.</summary>
+    public WorkspaceDestinationFamily? FamilyOf(Guid entryId, IReadOnlyList<WorkspaceDestinationFamily> families)
+    {
+        ArgumentNullException.ThrowIfNull(families);
+        lock (_gate)
+        {
+            var paths = _state.Values.Where(u => u.Id == entryId).Select(UnitPathLocked).OfType<string>().ToHashSet(StringComparer.Ordinal);
+            return families.FirstOrDefault(f => f.Documents.Values.Any(paths.Contains));
+        }
     }
 
     /// <summary>The pending document chosen for an entry's translation, or null when its binding routes it.</summary>

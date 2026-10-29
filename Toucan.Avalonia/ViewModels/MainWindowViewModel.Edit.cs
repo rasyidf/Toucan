@@ -26,14 +26,15 @@ public partial class MainWindowViewModel
     {
         if (!CanChangeKeys) { StatusText = "Resource capabilities forbid changing the generated catalog language set."; return; }
         if (string.IsNullOrWhiteSpace(code)) return;
-        if (HasDocumentNavigation)
-        {
-            await _messageService.ShowMessageAsync("Add language files in the source folder, then reload the project.", "New Language");
-            return;
-        }
         if (AllTranslation.Any(t => string.Equals(t.Language, code, StringComparison.OrdinalIgnoreCase)))
         {
             await _messageService.ShowMessageAsync($"'{code}' is already in this project.", "New Language");
+            return;
+        }
+        if (HasDocumentNavigation)
+        {
+            if (AddDocumentLanguage(code) is { } problem) await _messageService.ShowMessageAsync(problem, "New Language");
+            if (AllTranslation.Any(t => t.Language == code) || Workspace.IsDirty) AfterDocumentLanguagesChanged($"Added language {code}.");
             return;
         }
 
@@ -52,27 +53,34 @@ public partial class MainWindowViewModel
     {
         if (!CanChangeKeys) { StatusText = "Configure generated-catalog resource languages in the project descriptor."; return; }
         if (!HasProject) return;
-        if (HasDocumentNavigation)
-        {
-            await _messageService.ShowMessageAsync("Add or remove language files in the source folder, then reload the project.", "Manage Languages");
-            return;
-        }
         var result = await _dialogService.ShowManageLanguagesAsync(AllTranslation, PrimaryLanguage);
         if (result == null) return;
 
         foreach (var lang in result.RemovedLanguages)
         {
+            if (HasDocumentNavigation)
+            {
+                if (RemoveDocumentLanguage(lang) is { } problem) await _messageService.ShowMessageAsync(problem, "Manage Languages");
+                continue;
+            }
             var r = await _languageManagement.RemoveLanguageAsync(lang);
             if (!r.Success) await _messageService.ShowMessageAsync(r.ErrorMessage ?? $"Failed to remove {lang}.", "Manage Languages");
         }
         foreach (var lang in result.AddedLanguages)
         {
+            if (HasDocumentNavigation)
+            {
+                if (AddDocumentLanguage(lang) is { } problem) await _messageService.ShowMessageAsync(problem, "Manage Languages");
+                continue;
+            }
             var r = await _languageManagement.AddLanguageAsync(lang);
             if (!r.Success) await _messageService.ShowMessageAsync(r.ErrorMessage ?? $"Failed to add {lang}.", "Manage Languages");
         }
 
         var ordered = result.Languages.Select(l => l.Code).ToList();
-        await _languageManagement.ReorderLanguagesAsync(ordered);
+        if (HasDocumentNavigation && ProjectSettings is { } documentSettings)
+            documentSettings.Languages = ordered.Where(documentSettings.Languages.Contains).Concat(documentSettings.Languages.Where(l => !ordered.Contains(l))).ToList();
+        else await _languageManagement.ReorderLanguagesAsync(ordered);
 
         if (ProjectSettings != null && !string.Equals(ProjectSettings.PrimaryLanguage, result.PrimaryLanguage, StringComparison.Ordinal))
         {
@@ -81,6 +89,7 @@ public partial class MainWindowViewModel
         }
         PrimaryLanguage = result.PrimaryLanguage;
 
+        if (HasDocumentNavigation) { AfterDocumentLanguagesChanged($"Languages updated: +{result.AddedLanguages.Count}, −{result.RemovedLanguages.Count}."); return; }
         AfterLanguagesChanged($"Languages updated: +{result.AddedLanguages.Count}, −{result.RemovedLanguages.Count}.");
     }
 
@@ -89,11 +98,6 @@ public partial class MainWindowViewModel
     {
         if (!CanChangeKeys) { StatusText = "Resource capabilities forbid removing generated-catalog languages."; return; }
         if (item == null || string.IsNullOrEmpty(item.Language)) return;
-        if (HasDocumentNavigation)
-        {
-            await _messageService.ShowMessageAsync("Remove language files in the source folder, then reload the project.", "Delete Language");
-            return;
-        }
         if (string.Equals(item.Language, PrimaryLanguage, StringComparison.OrdinalIgnoreCase))
         {
             await _messageService.ShowMessageAsync("The primary language can't be deleted. Make another language primary first.", "Delete Language");
@@ -101,6 +105,12 @@ public partial class MainWindowViewModel
         }
         if (!await _messageService.ConfirmAsync($"Delete all translations for '{item.Language}'? The language files are removed from disk.", "Delete Language", "Delete", "Cancel"))
             return;
+        if (HasDocumentNavigation)
+        {
+            if (RemoveDocumentLanguage(item.Language) is { } problem) { await _messageService.ShowMessageAsync(problem, "Delete Language"); return; }
+            AfterDocumentLanguagesChanged($"Language '{item.Language}' deleted. Its files are removed when you save.");
+            return;
+        }
 
         var result = await _languageManagement.RemoveLanguageAsync(item.Language);
         if (!result.Success)
@@ -185,6 +195,7 @@ public partial class MainWindowViewModel
             await _messageService.ShowMessageAsync($"'{newNamespace}' is already used as a group of keys.", "New Key");
             return;
         }
+        if (HasDocumentNavigation) { await CreateDocumentEntryAsync(newNamespace); return; }
 
         var languages = ProjectLanguages();
         if (languages.Count == 0) languages.Add(PrimaryLanguage);
@@ -342,11 +353,9 @@ public partial class MainWindowViewModel
         if (SelectedNode is not { } node) return;
         FlushPendingEdits();
         var documentId = HasDocumentNavigation ? ResolveDocumentEntry(node.Namespace) : null;
-        if (HasDocumentNavigation && documentId is null) return;
-        if (HasDocumentNavigation && Workspace.SnapshotEntriesAsync().GetAwaiter().GetResult()!.Units
-            .Any(u => u.EntryId == documentId && u.KeyPath.Segments.Any(s => s.Contains('.', StringComparison.Ordinal))))
+        if (HasDocumentNavigation)
         {
-            StatusText = "Duplicating keys containing literal dots requires a structured destination.";
+            if (documentId is { } id) DuplicateDocumentEntry(id);
             return;
         }
 
