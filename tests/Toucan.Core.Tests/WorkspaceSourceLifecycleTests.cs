@@ -167,5 +167,41 @@ public sealed class WorkspaceSourceLifecycleTests : IDisposable
         Assert.Throws<FormatUnavailableException>(() => resolver.Resolve("i18next", "missing.format"));
         Assert.Equal("LegacyBulk", resolver.Resolve("i18next", FormatIds.Yaml).SaveScope);
     }
+
+    [Fact]
+    public void OnlyVerifiedBuiltInFormatsDeclareTargetedDocumentSaves()
+    {
+        // Adding a format here requires fidelity fixtures for its document reader and writer (see the sync engine tracker).
+        var verified = new[] { FormatIds.Json, FormatIds.Namespaced };
+        foreach (var writer in _services.GetServices<ISaveStrategy>())
+        {
+            var expected = verified.Contains(writer.FormatId, FormatIds.Comparer) ? FormatSaveScope.DeclaredDocuments : FormatSaveScope.Project;
+            Assert.True(expected == writer.SaveScope, $"{writer.FormatId} declares {writer.SaveScope}.");
+        }
+    }
+
+    [Fact]
+    public void DocumentWriterDeclaringABroaderScopeKeepsLegacySaving()
+    {
+        var json = _services.GetServices<ISaveStrategy>().Single(s => s.FormatId == FormatIds.Json);
+        var broad = new BroadDocumentWriter(json);
+        var resolver = new WorkspaceCapabilityResolver(_services.GetServices<Toucan.Core.Contracts.IFrameworkProfile>(),
+            _services.GetServices<ILoadStrategy>(), _services.GetServices<ISaveStrategy>().Where(s => s.FormatId != FormatIds.Json).Append(broad));
+        var resolved = resolver.Resolve("i18next", FormatIds.Json);
+        Assert.False(resolved.UsesDocumentPersistence);
+        Assert.Equal(FormatSaveScope.Project, resolved.WriterScope);
+        Assert.Equal("LegacyBulk", resolved.SaveScope);
+    }
+
+    private sealed class BroadDocumentWriter(ISaveStrategy inner) : IDocumentSaveStrategy
+    {
+        public string FormatId => inner.FormatId;
+        public FormatSaveScope SaveScope => FormatSaveScope.Project;
+        public string DefaultFilePath(string language) => inner.DefaultFilePath(language);
+        public void Save(string path, SaveContext context) => inner.Save(path, context);
+        public Task SaveAsync(string path, SaveContext context) => inner.SaveAsync(path, context);
+        public string SerializeDocument(string originalContent, IReadOnlyList<DocumentTranslationEdit> edits, CancellationToken cancellationToken = default) =>
+            throw new InvalidOperationException("A broad writer must not serialize targeted documents.");
+    }
     public void Dispose() { _workspace.Dispose(); _services.Dispose(); Directory.Delete(_root, true); }
 }

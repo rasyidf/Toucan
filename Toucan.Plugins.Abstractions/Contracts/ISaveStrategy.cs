@@ -43,6 +43,22 @@ public interface ISaveStrategy
     /// </summary>
     IReadOnlyList<string> FindUnsupportedConstructs(string projectRoot) => [];
 
+    /// <summary>
+    /// What one save may rewrite. Legacy writers rewrite every file the format owns; only a verified
+    /// <see cref="IDocumentSaveStrategy"/> may declare <see cref="FormatSaveScope.DeclaredDocuments"/>.
+    /// </summary>
+    FormatSaveScope SaveScope => this is IDocumentSaveStrategy ? FormatSaveScope.DeclaredDocuments : FormatSaveScope.Project;
+
     void Save(string path, SaveContext context);
     Task SaveAsync(string path, SaveContext context);
+}
+
+/// <summary>The files one save of a format may rewrite.</summary>
+public enum FormatSaveScope
+{
+    /// <summary>Every file the format owns in the project, including unchanged languages.</summary>
+    Project,
+
+    /// <summary>Only the documents a save plan declares; unrelated files stay byte-for-byte unchanged.</summary>
+    DeclaredDocuments,
 }
