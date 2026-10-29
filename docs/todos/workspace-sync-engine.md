@@ -1,9 +1,9 @@
 ---
 title: Workspace sync engine tracker
 status: in-progress
-progress: "3 open tasks"
-updated: 2026-10-27
-summary: "Core engine, document saves/export, metadata, navigator UI, versioned watching, conflict presentation, connection lifecycle gates, and session switching are implemented. 3 tasks remain for destinations and migration."
+progress: "2 open tasks"
+updated: 2026-10-29
+summary: "Core engine, targeted saves, destination choices, navigator UI, conflict presentation, lifecycle gates, save-scope declarations, and headless CLI saves are implemented. 2 tasks remain: format migration and integration verification."
 ---
 # Workspace sync engine tracker
 
@@ -11,11 +11,7 @@ Design and acceptance criteria: [Workspace sync engine design](../specs/workspac
 
 This tracker contains open work only. Remove shipped items, recount `progress`, and update `updated` and `summary`. Record shipped behavior in the changelog and completed-features document. Archive the tracker and design when the scope ships.
 
-## Phase 4: Targeted persistence
-
-- [ ] Add app destination choices for ambiguous or structured new entries, moves, and source language creation/removal. Document projects currently refuse the legacy language file writer. Separate create-only Save As/export planning and desktop integration are implemented.
-
 ## Phase 6: Source lifecycle and migration
 
-- [ ] Declare legacy adapter save capabilities and migrate built-in formats incrementally with fidelity fixtures.
-- [ ] Verify autosave, plugin edits, approval policy, crash recovery, and headless host integration against the engine.
+- [ ] Migrate built-in formats beyond JSON and namespaced JSON to document reading and writing, each with fidelity fixtures. Save scopes are declared and a guard test pins the verified formats. ARB is the closest candidate, but document metadata moves comments from `@key.description` into `.toucan` sidecars, so it needs a product decision first. Renames and deletions must carry `@key` metadata with the message.
+- [ ] Add integration coverage for autosave ticks, plugin `AddKey` edits in ambiguous layouts (today the save reports "Select an explicit destination"), and approval policy on destination edits against document projects. Crash recovery of destinations and removed languages, and headless CLI saves, are covered.

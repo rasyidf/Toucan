@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added
+- **Destination choices in document projects** — Adding a key asks which source document should hold it only when more than one fits. Duplicating keeps keys with literal dots intact. Adding, removing, or managing languages now works in document projects: new language files are placed where the framework will discover them, and removed languages' files are deleted on the next save (undo cancels the deletion). Choices survive undo/redo and crash recovery.
+- **Declared save scopes** — Formats state whether a save rewrites every owned file or only the documents it plans. Only verified formats (JSON and namespaced JSON) use targeted saving.
+
+### Fixed
+- **CLI saves of document projects** — `toucan set` and `toucan translate` no longer rewrite every file of a document project with the legacy writer. They save only the affected documents, keep identities and metadata, and add a missing language to an existing key in its own document.
+
 ## [0.24.0] - 2026-10-25
 
 Editor comfort, resource compatibility and a contextual desktop shell.

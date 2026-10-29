@@ -1,9 +1,9 @@
 ---
 title: Workspace sync engine design
 status: in-progress
-progress: "Core engine, desktop persistence/navigation implemented; 9 integration tasks open"
-updated: 2026-10-17
-summary: "Core engine, desktop document saves/recovery, and navigator UI are implemented. Destination choices, source lifecycle, conflict presentation, and migration remain open."
+progress: "Phases 1–5 implemented; format migration and integration coverage open"
+updated: 2026-10-29
+summary: "Core engine, targeted saves, destination choices, navigation, conflict presentation, lifecycle, and headless saves are implemented. Format migration and integration coverage remain."
 ---
 # Workspace sync engine design
 
@@ -45,11 +45,23 @@ Declared-target saves use recovery journal schema 2. Each target records its ori
 
 Coverage includes no-change I/O, untouched hashes/timestamps, creates/updates/deletes, interrupted recovery, partial failures, concurrent saves and edits, close/reopen cancellation, external changes before/during/after mutation, metadata safeguards, raw types, undo/redo rebasing, encoding/BOMs, and legacy journal compatibility.
 
+### Destination choices implemented in Phase 4
+
+`WorkspaceDocumentRouter.DestinationFamilies` groups documents by framework layout family (one `checkout.json` across languages) and places each requested language. It uses an existing document, a sibling path with the language segment or file stem substituted, or the framework default. Every proposed document must pass `DescribeDestination` with the same package and family. Languages the layout cannot place are omitted. It reads no files.
+
+Workspace units carry an optional destination document, captured in `WorkspaceDocumentUnit.Destination`, so undo/redo and recovery drafts keep it with the translation. `AddDocumentEntry`, `MoveDocumentEntry`, `AddDocumentLanguage` (optionally for selected entries), and `RemoveDocumentLanguage` commit native transactions. The planner treats captured destinations as explicit; caller-supplied destinations take precedence. Acknowledgment clears a destination once the captured choice was written. Removing a language records it, and the snapshot then declares that language's source documents as deletions while it has no translations. Undo restoring them cancels the deletion, and recovery drafts carry removed languages.
+
+The desktop asks for a destination only when more than one family can hold a new key. Duplicating keeps literal-dot key paths. Adding, removing, and managing languages edit the workspace; documents are created or deleted by the next save. The CLI `set` and `translate` commands open the workspace for document projects, add missing languages to existing entries, and save through the coordinator instead of the legacy bulk writer.
+
+### Save scopes declared in Phase 6
+
+`ISaveStrategy.SaveScope` declares `Project` (a save rewrites every owned file) or `DeclaredDocuments`. The default is `DeclaredDocuments` only for an `IDocumentSaveStrategy`. Capability resolution uses targeted saving only when the writer declares it, so a document writer can opt out until verified. JSON and namespaced JSON are the verified built-ins, pinned by a guard test.
+
 ### Desktop persistence, navigation projections, and source refresh
 
 `ProjectService` resolves explicit framework/format capabilities before loading; unavailable capabilities fail without fallback. `ProjectLifecycleService` saves captured document plans and acknowledges them on the presentation dispatcher. Save As uses a separate create-only export plan, retains source files, and creates a new workspace/plugin session at the destination. Edits newer than the export capture remain dirty in the new session.
 
-`WorkspaceNavigator` builds namespace-first and file-first trees from immutable identified snapshots and source origins. Selection uses entry IDs; the projections do not route persistence. Navigation node IDs use stable bounded fingerprints, avoiding identifier growth in deeply nested paths. Core tests confirm both layouts produce identical save targets. The desktop Explorer exposes both layouts. Editor cards group by entry ID and display source file/pointer origins. Navigator and editor layout changes flush pending text; entry selection survives layout changes and structural refresh. Document plurals remain separate identified entries; legacy projects retain their existing plural-card grouping. Explorer context menus, rename/delete, and per-key editor actions operate on the selected identity. Card labels and rename inputs retain literal key segments, including dots. Source language creation/removal currently requires editing the source folder and reloading; document projects refuse legacy language file operations until destination UI exists. Duplicating keys containing literal dots also awaits structured destination creation.
+`WorkspaceNavigator` builds namespace-first and file-first trees from immutable identified snapshots and source origins. Selection uses entry IDs; the projections do not route persistence. Navigation node IDs use stable bounded fingerprints, avoiding identifier growth in deeply nested paths. Core tests confirm both layouts produce identical save targets. The desktop Explorer exposes both layouts. Editor cards group by entry ID and display source file/pointer origins. Navigator and editor layout changes flush pending text; entry selection survives layout changes and structural refresh. Document plurals remain separate identified entries; legacy projects retain their existing plural-card grouping. Explorer context menus, rename/delete, and per-key editor actions operate on the selected identity. Card labels and rename inputs retain literal key segments, including dots. Source language creation/removal and literal-dot duplication use destination families (see above).
 
 The desktop watcher reports changed relative paths with byte fingerprints, including owned metadata. Targeted saves acknowledge only committed target versions, preserving unrelated external edits and detecting later changes to saved files. Watch generations and lifecycle root/session checks reject stale work after replacement. Core source refresh replaces clean documents and rebases history while retaining dirty conflicts and their original versions. The app still needs document-level conflict presentation and full connection/shutdown coverage.
 
