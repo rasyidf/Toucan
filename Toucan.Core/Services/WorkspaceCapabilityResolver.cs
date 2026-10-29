@@ -8,6 +8,8 @@ public sealed record WorkspaceCapabilities(string FrameworkId, string FormatId, 
 {
     public bool UsesDocumentPersistence => DocumentRead && DocumentWrite;
     public string SaveScope => UsesDocumentPersistence ? "DeclaredDocuments" : "LegacyBulk";
+    /// <summary>The writer's declared scope. A document writer that declares a broader scope keeps legacy bulk saving.</summary>
+    public FormatSaveScope WriterScope { get; init; } = FormatSaveScope.Project;
 }
 
 /// <summary>Explicit selections are resolved before detection. Missing capabilities never select another framework or format.</summary>
@@ -19,6 +21,7 @@ public sealed class WorkspaceCapabilityResolver(IEnumerable<IFrameworkProfile> p
         var format = formatId ?? profile.DefaultFormatId;
         var reader = readers.SingleOrDefault(r => r is not IManifestLoadStrategy && FormatIds.Comparer.Equals(r.FormatId, format)) ?? throw new FormatUnavailableException(format);
         var writer = writers.SingleOrDefault(w => FormatIds.Comparer.Equals(w.FormatId, format)) ?? throw new FormatUnavailableException(format);
-        return new(frameworkId, format, reader is IDocumentLoadStrategy, writer is IDocumentSaveStrategy);
+        return new(frameworkId, format, reader is IDocumentLoadStrategy,
+            writer is IDocumentSaveStrategy && writer.SaveScope == FormatSaveScope.DeclaredDocuments) { WriterScope = writer.SaveScope };
     }
 }
