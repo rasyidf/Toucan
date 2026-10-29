@@ -63,7 +63,7 @@ public partial class ProjectLifecycleService
                 var baseline = receipt.Source.Units.Select(u => new WorkspaceDocumentUnit(u.EntryId, u.Language, u.Namespace, u.KeyPath, u.Value, u.Binding, u.RawScalar, u.Metadata)).ToArray();
                 var saved = baseline.ToDictionary(u => (u.EntryId, u.Language));
                 var desired = current.Units.Select(u => saved.TryGetValue((u.EntryId, u.Language), out var written)
-                    ? u with { Binding = written.Binding, RawScalar = u.Value == written.Value ? written.RawScalar : u.RawScalar } : u).ToArray();
+                    ? u with { Binding = written.Binding, Destination = null, RawScalar = u.Value == written.Value ? written.RawScalar : u.RawScalar } : u).ToArray();
                 var autoSaving = autoSave.IsEnabled;
                 workspace.BeginClosing(); autoSave.Stop(); StopDraftTimer(); UnsubscribeFromFileWatcher(); fileWatcher.Stop();
                 if (pluginActivation is not null) await pluginActivation.CloseWorkspaceAsync(oldSettings.ProjectPath);

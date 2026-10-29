@@ -23,11 +23,14 @@ public sealed class WorkspaceDocumentSavePlanner(WorkspaceDocumentRouter router,
         var explicitDestinations = (destinations ?? []).ToDictionary(d => (d.EntryId, d.Language));
         if (explicitDestinations.Keys.Any(k => !current.ContainsKey(k)))
             throw new InvalidOperationException("A destination refers to an entry absent from the snapshot.");
+        // Destinations chosen while editing travel with the captured units; caller-supplied destinations win.
+        foreach (var unit in snapshot.Units.Where(u => u.Destination is not null))
+            explicitDestinations.TryAdd((unit.EntryId, unit.Language), new(unit.EntryId, unit.Language, unit.Destination!));
         var documents = source.Documents.ToDictionary(d => d.Id);
         if (source.Documents.Any(d => Path.IsPathRooted(d.RelativePath) || Normalize(source.Root, d.RelativePath) != d.RelativePath))
             throw new InvalidOperationException("Source documents must use canonical workspace-relative paths.");
         var byPath = source.Documents.ToDictionary(d => Normalize(source.Root, d.RelativePath), StringComparer.Ordinal);
-        var deletions = (deletedDocuments ?? []).ToHashSet();
+        var deletions = (deletedDocuments ?? []).Concat(snapshot.DeletedDocuments).ToHashSet();
         if (deletions.Any(id => !documents.ContainsKey(id))) throw new InvalidOperationException("Cannot delete an unknown document.");
         var edits = new Dictionary<DocumentId, List<DocumentTranslationEdit>>();
         var plannedUnits = new List<WorkspaceSourceUnit>();

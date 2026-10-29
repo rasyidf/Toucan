@@ -35,11 +35,11 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
 
     private sealed record Unit(Guid Id, string Language, string Key, TranslationPath Namespace, TranslationPath KeyPath,
         string Value, string Comment, bool Approved, DateTime? Modified, DateTime? ApprovedAt, ChangeType ChangeType,
-        ImmutableDictionary<string, string>? FormatData, SourceBinding? Binding = null);
+        ImmutableDictionary<string, string>? FormatData, SourceBinding? Binding = null, string? Destination = null);
 
     public event EventHandler? Changed;
     public bool IsOpen { get { lock (_gate) return _settings is not null; } }
-    public bool IsDirty { get { lock (_gate) return !Same(_state, _baseline); } }
+    public bool IsDirty { get { lock (_gate) return !Same(_state, _baseline) || RemovedLanguageDocumentsLocked().Count > 0; } }
     public long Revision { get { lock (_gate) return _revision; } }
     public Guid SessionId { get { lock (_gate) return _session; } }
     public string? ProjectPath { get { lock (_gate) return _settings?.ProjectPath; } }
@@ -57,6 +57,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             _source = source;
             _session = Guid.NewGuid();
             _closing = false;
+            _removedLanguages = _removedLanguages.Clear();
             _identities.Clear();
             _projections.Clear();
             _undo.Clear();
@@ -430,7 +431,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
     }
     private bool Dirty(Unit unit) => !_baseline.TryGetValue((unit.Id, unit.Language), out var saved) || !Equivalent(unit, saved);
     private static bool Equivalent(Unit a, Unit b) => a.Id == b.Id && a.Language == b.Language && a.Key == b.Key
-        && a.Namespace.Equals(b.Namespace) && a.KeyPath.Equals(b.KeyPath) && a.Value == b.Value && a.Comment == b.Comment && a.Approved == b.Approved && a.Binding == b.Binding
+        && a.Namespace.Equals(b.Namespace) && a.KeyPath.Equals(b.KeyPath) && a.Value == b.Value && a.Comment == b.Comment && a.Approved == b.Approved && a.Binding == b.Binding && a.Destination == b.Destination
         && a.Modified == b.Modified && a.ApprovedAt == b.ApprovedAt && a.ChangeType == b.ChangeType
         && (a.FormatData is null ? b.FormatData is null : b.FormatData is not null && a.FormatData.Count == b.FormatData.Count
             && a.FormatData.All(p => b.FormatData.TryGetValue(p.Key, out var value) && p.Value == value));
@@ -482,7 +483,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             if (!retained.Add(key)) throw new InvalidOperationException("A projection contains the same entry/language more than once.");
             var unit = new Unit(id, item.Language, item.Namespace, ns, keyPath, item.Value ?? string.Empty,
                 item.Comment ?? string.Empty, item.IsApproved, item.LastModifiedUtc, item.ApprovedAtUtc, item.ChangeType,
-                item.FormatData?.ToImmutableDictionary(StringComparer.Ordinal), previous?.Binding);
+                item.FormatData?.ToImmutableDictionary(StringComparer.Ordinal), previous?.Binding, previous?.Destination);
             if (previous is null || !Equivalent(previous, unit)) result[key] = unit;
             if (adoptProjection) _projections[(id, item.Language)] = item;
         }

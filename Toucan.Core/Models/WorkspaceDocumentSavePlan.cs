@@ -9,9 +9,13 @@ public sealed record SourceTextFormat(string EncodingName, bool HasBom)
 
 public sealed record WorkspaceSourceContent(string Content, string Version, SourceTextFormat TextFormat);
 
-/// <summary>Captured translation content; null binding means a new translation needs a destination.</summary>
+/// <summary>
+/// Captured translation content; null binding means a new translation needs a destination.
+/// Destination is a chosen workspace-relative document for a new or moved translation; null keeps the binding.
+/// </summary>
 public sealed record WorkspaceDocumentUnit(EntryId EntryId, string Language, TranslationPath Namespace,
-    TranslationPath KeyPath, string Value, SourceBinding? Binding, string? RawScalar = null, WorkspaceEntryMetadata? Metadata = null);
+    TranslationPath KeyPath, string Value, SourceBinding? Binding, string? RawScalar = null, WorkspaceEntryMetadata? Metadata = null,
+    string? Destination = null);
 
 /// <summary>Immutable content-only snapshot. Comments/review sidecars are planned separately before save execution.</summary>
 public sealed class WorkspaceDocumentSnapshot(string root, Guid sessionId, long revision, IEnumerable<WorkspaceDocumentUnit> units)
@@ -21,10 +25,19 @@ public sealed class WorkspaceDocumentSnapshot(string root, Guid sessionId, long 
     public long Revision { get; } = revision;
     internal object? Capture { get; init; }
     public string? Manifest { get; init; }
+    /// <summary>Source documents of languages removed from the workspace; saving deletes them.</summary>
+    public IReadOnlyList<DocumentId> DeletedDocuments { get; init; } = [];
     public ReadOnlyCollection<WorkspaceDocumentUnit> Units { get; } = Array.AsReadOnly(units.ToArray());
 }
 
 public sealed record WorkspaceEntryDestination(EntryId EntryId, string Language, string RelativePath);
+
+/// <summary>
+/// Related documents sharing one framework layout family, e.g. every language's <c>checkout.json</c>.
+/// Documents maps language to an existing or framework-described new document; languages the layout cannot place are absent.
+/// </summary>
+public sealed record WorkspaceDestinationFamily(string Id, string Label, TranslationPath Namespace,
+    IReadOnlyDictionary<string, string> Documents, IReadOnlySet<string> ExistingDocuments);
 public enum WorkspaceDocumentSaveOperation { Create, Update, Delete }
 
 /// <summary>Null expected version requires a missing destination. Delete has null content.</summary>

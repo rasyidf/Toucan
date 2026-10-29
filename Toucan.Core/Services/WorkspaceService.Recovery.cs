@@ -13,9 +13,9 @@ public sealed partial class WorkspaceService
         {
             if (_settings is null || _settings.ProjectPath != source.Root) throw new InvalidOperationException("Recovery source is not the active workspace.");
             WorkspaceDocumentUnit Convert(Unit unit) => new(new(unit.Id), unit.Language, unit.Namespace, unit.KeyPath, unit.Value, unit.Binding,
-                unit.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey), Metadata(unit));
+                unit.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey), Metadata(unit), unit.Destination);
             return new(source.Root, source.FrameworkId, source.FormatId, _baseline.Values.Select(Convert).ToArray(), _state.Values.Select(Convert).ToArray(),
-                new(source.Root, source.IdentityCatalog));
+                new(source.Root, source.IdentityCatalog)) { RemovedLanguages = _removedLanguages.Order(StringComparer.Ordinal).ToArray() };
         }
     }
 
@@ -45,11 +45,12 @@ public sealed partial class WorkspaceService
                     var data = after.RawScalar is null ? null : ImmutableDictionary<string, string>.Empty.Add(NestedJsonParser.JsonScalarKey, after.RawScalar);
                     next[key] = new(key.Item1, after.Language, string.Join('.', after.Namespace.Segments.Concat(after.KeyPath.Segments)),
                         after.Namespace, after.KeyPath, after.Value, after.Metadata?.Comment ?? string.Empty, after.Metadata?.Approved ?? false,
-                        after.Metadata?.Modified, after.Metadata?.ApprovedAt, after.Metadata?.ChangeType ?? Contracts.Services.ChangeType.DirectEdit, data, after.Binding);
+                        after.Metadata?.Modified, after.Metadata?.ApprovedAt, after.Metadata?.ChangeType ?? Contracts.Services.ChangeType.DirectEdit, data, after.Binding, after.Destination);
                 }
                 applied++;
             }
             var final = next.ToImmutable();
+            _removedLanguages = _removedLanguages.Union(draft.RemovedLanguages);
             foreach (var pair in final.Where(p => p.Value.Approved && (!_state.TryGetValue(p.Key, out var old) || !old.Approved)))
                 if (ApprovalIssue(final, pair.Value) is not null)
                 {
@@ -64,6 +65,6 @@ public sealed partial class WorkspaceService
 
     private static bool Matches(Unit? unit, WorkspaceDocumentUnit? draft) => unit is null ? draft is null : draft is not null
         && unit.Id == draft.EntryId.Value && unit.Language == draft.Language && unit.Namespace.Equals(draft.Namespace) && unit.KeyPath.Equals(draft.KeyPath)
-        && unit.Value == draft.Value && unit.Binding == draft.Binding && Metadata(unit) == draft.Metadata
+        && unit.Value == draft.Value && unit.Binding == draft.Binding && unit.Destination == draft.Destination && Metadata(unit) == draft.Metadata
         && unit.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey) == draft.RawScalar;
 }
