@@ -6,6 +6,8 @@ using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Plugins;
+using Toucan.Core.Services;
+using Toucan.Plugins;
 
 namespace Toucan.CLI;
 
@@ -189,7 +191,8 @@ internal static class Program
 
     private static int RunCheck(string folder)
     {
-        var (settings, translations) = LoadProject(folder);
+        var loaded = Get<IProjectService>().LoadProject(folder);
+        var (settings, translations) = (loaded.Settings, loaded.Translations);
         if (translations.Count == 0) { Console.Error.WriteLine("No translations found."); return 1; }
 
         var pipeline = Get<IValidationPipeline>();
@@ -208,7 +211,8 @@ internal static class Program
 
     private static int RunStats(string folder)
     {
-        var (settings, translations) = LoadProject(folder);
+        var loaded = Get<IProjectService>().LoadProject(folder);
+        var (settings, translations) = (loaded.Settings, loaded.Translations);
         if (translations.Count == 0) { Console.Error.WriteLine("No translations found."); return 1; }
 
         var primary = settings.PrimaryLanguage;
@@ -316,7 +320,8 @@ internal static class Program
         var lang = args[3];
         var value = args[4];
 
-        var (settings, translations) = LoadProject(folder);
+        var loaded = Get<IProjectService>().LoadProject(folder);
+        var (settings, translations) = (loaded.Settings, loaded.Translations);
         var item = translations.FirstOrDefault(t => t.Namespace == key && t.Language == lang);
         if (item != null && !item.Permissions.EditValues || item == null && (translations.Any(i => !i.Permissions.EditKeys) || settings.ResourceDocuments.Any(d => d.Resource.Ownership == ResourceOwnership.GeneratedSource)))
             return Error("Resource capabilities forbid this edit; generated catalogs must be extracted from source.");
@@ -325,7 +330,7 @@ internal static class Program
         else
             translations.Add(new TranslationItem { Namespace = key, Language = lang, Value = value });
 
-        Get<IProjectService>().Save(settings, translations.ToNsTree().ToList(), translations);
+        if (SaveEdits(loaded, [(key, lang, value)]) is { } error) return Error(error);
         Console.WriteLine($"Set {lang}/{key} = \"{value}\"");
         return 0;
     }
@@ -337,7 +342,8 @@ internal static class Program
         var overwrite = args.Contains("--overwrite");
         var dryRun = args.Contains("--dry-run");
 
-        var (settings, translations) = LoadProject(folder);
+        var loaded = Get<IProjectService>().LoadProject(folder);
+        var (settings, translations) = (loaded.Settings, loaded.Translations);
         if (translations.Count == 0) { Console.Error.WriteLine("No translations found."); return 1; }
 
         var primary = settings.PrimaryLanguage;
@@ -408,6 +414,7 @@ internal static class Program
         }
 
         // Apply results
+        var changes = new List<(string Key, string Language, string Value)>();
         foreach (var r in results.Where(r => r.Succeeded && r.TranslatedValue != null))
         {
             var item = translations.FirstOrDefault(t => t.Language == r.Language && t.Namespace == r.Namespace);
@@ -417,9 +424,10 @@ internal static class Program
                 item.Value = r.TranslatedValue!;
             else
                 translations.Add(new TranslationItem { Namespace = r.Namespace, Language = r.Language, Value = r.TranslatedValue! });
+            changes.Add((r.Namespace, r.Language, r.TranslatedValue!));
         }
 
-        Get<IProjectService>().Save(settings, translations.ToNsTree().ToList(), translations);
+        if (SaveEdits(loaded, changes) is { } error) return Error(error);
         Console.WriteLine($"  Saved to {folder}");
         return failed > 0 ? 1 : 0;
     }
@@ -438,6 +446,50 @@ internal static class Program
     {
         var result = Get<IProjectService>().LoadProject(folder);
         return (result.Settings, result.Translations);
+    }
+
+    /// <summary>
+    /// Legacy projects keep the format's bulk writer. Document projects save through the workspace engine, so only edited
+    /// documents are written and identities, metadata, and unrelated files stay as they are. Returns an error message.
+    /// </summary>
+    private static string? SaveEdits(ProjectLoadResult loaded, IReadOnlyList<(string Key, string Language, string Value)> changes)
+    {
+        if (loaded.Source is not { } source)
+        {
+            Get<IProjectService>().Save(loaded.Settings, loaded.Translations.ToNsTree().ToList(), loaded.Translations);
+            return null;
+        }
+        var workspace = Get<WorkspaceService>();
+        workspace.Open(loaded.Settings, source);
+        var entries = workspace.SnapshotEntriesAsync().GetAwaiter().GetResult()!.Units;
+        // A key present in other languages gains this language in its own family's document.
+        foreach (var language in changes.Select(c => c.Language).Distinct(StringComparer.Ordinal))
+        {
+            var missing = new HashSet<Guid>();
+            foreach (var (key, _, _) in changes.Where(c => c.Language == language))
+            {
+                var ids = entries.Where(u => u.Key == key).Select(u => u.EntryId).Distinct().ToList();
+                if (ids.Count > 1) return $"'{key}' exists in more than one document; edit it in the app to choose one.";
+                if (ids.Count == 1 && !entries.Any(u => u.EntryId == ids[0] && u.Language == language)) missing.Add(ids[0]);
+            }
+            if (missing.Count == 0) continue;
+            var families = Get<WorkspaceDocumentRouter>().DestinationFamilies(workspace.Source!, [language]);
+            var added = workspace.AddDocumentLanguage(language, families, missing, "cli");
+            if (!added.Applied || added.Issues.Count > 0) return added.Issues[0].Message;
+        }
+        var edit = new WorkspaceEdit { Label = "cli" };
+        foreach (var group in changes.GroupBy(c => c.Key, StringComparer.Ordinal))
+        {
+            if (entries.Any(u => u.Key == group.Key))
+                foreach (var change in group) edit.SetValue(change.Key, change.Language, change.Value);
+            else edit.AddKey(group.Key, group.ToDictionary(c => c.Language, c => c.Value, StringComparer.Ordinal));
+        }
+        var result = workspace.Apply("cli", edit);
+        if (!result.Applied) return result.Issues[0].Message;
+        try { Get<WorkspaceDocumentSaveCoordinator>().SaveAsync(workspace.Source!).GetAwaiter().GetResult(); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or NotSupportedException) { return ex.Message; }
+        finally { workspace.Close(); }
+        return null;
     }
 
     private static string? GetArg(string[] args, string flag)
