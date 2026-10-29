@@ -168,6 +168,21 @@ public sealed class WorkspaceDestinationTests : IDisposable
     }
 
     [Fact]
+    public async Task AddingALanguageToSelectedEntriesLeavesOtherEntriesAndDocumentsAlone()
+    {
+        Write("locales/en/checkout.json", "{\"title\":\"Checkout\"}");
+        Write("locales/en/profile.json", "{\"name\":\"Name\"}");
+        Write("locales/fr/profile.json", "{}");
+        await Open("en", "fr");
+        var id = (await Unit("Checkout")).EntryId;
+        var result = _workspace.AddDocumentLanguage("fr", Families("fr"), [id]);
+        Assert.Equal(1, result.ChangedUnits);
+        var saved = await Save();
+        Assert.Equal("locales/fr/checkout.json", Assert.Single(saved.Receipt.Plan.Targets).RelativePath);
+        Assert.Equal("{}", Read("locales/fr/profile.json"));
+    }
+
+    [Fact]
     public async Task RemovingALanguageDeletesOnlyItsDocumentsAndUndoCancelsTheDeletion()
     {
         Write("locales/en/common.json", "{\"title\":\"Hello\"}");
