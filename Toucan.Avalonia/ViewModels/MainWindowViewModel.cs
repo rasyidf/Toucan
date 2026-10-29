@@ -45,7 +45,8 @@ public sealed record MainWindowServices(
     SpellingService? Spelling = null, DictionaryRegistry? Dictionaries = null,
     INotificationCenter? Notifications = null, NotificationHistoryViewModel? History = null,
     IProjectDefaultsService? Defaults = null,
-    WorkspaceService? Workspace = null);
+    WorkspaceService? Workspace = null,
+    WorkspaceDocumentRouter? DocumentRouter = null);
 
 /// <summary>
 /// State and commands for the main editor window. Split across partial files by concern:
@@ -87,6 +88,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly DictionaryRegistry? _dictionaries;
     private SpellingSession? _spellingSession;
     internal WorkspaceService Workspace { get; }
+    private readonly WorkspaceDocumentRouter? _documentRouter;
 
     private readonly DispatcherTimer _searchDebounce;
     /// <summary>Pause between the last keystroke in the Search panel and the search itself.</summary>
@@ -117,6 +119,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _providerRegistry = services.ProviderRegistry;
         _validationPipeline = services.Validation;
         Workspace = services.Workspace ?? new WorkspaceService(_translationStore, _validationPipeline);
+        _documentRouter = services.DocumentRouter;
         _sourceCodeService = services.SourceCode;
         _translationAnalyzer = services.Analyzer;
         _fuzzySearch = services.FuzzySearch;

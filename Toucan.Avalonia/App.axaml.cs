@@ -312,7 +312,8 @@ public partial class App : Application
             sp.GetServices<IProjectCompatibilityImporter>(),
             sp.GetRequiredService<SpellingService>(), sp.GetRequiredService<DictionaryRegistry>(), sp.GetRequiredService<INotificationCenter>(), sp.GetRequiredService<NotificationHistoryViewModel>(),
             sp.GetRequiredService<IProjectDefaultsService>(),
-            sp.GetRequiredService<WorkspaceService>()));
+            sp.GetRequiredService<WorkspaceService>(),
+            sp.GetRequiredService<WorkspaceDocumentRouter>()));
         services.AddSingleton<MainWindowViewModel>();
         // Plugins read and edit the open project through this (see IWorkspaceApi); it resolves the view model on first use.
         services.AddSingleton<global::Toucan.Core.Plugins.IWorkspaceBackend>(sp => new WorkspaceBackend(sp.GetRequiredService<MainWindowViewModel>()));

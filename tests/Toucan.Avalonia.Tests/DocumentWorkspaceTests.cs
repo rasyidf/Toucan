@@ -92,15 +92,67 @@ public sealed class DocumentWorkspaceTests
     }
 
     [AvaloniaFact]
-    public async Task DocumentLanguageChangesCannotRunTheLegacyFileWriter()
+    public async Task DocumentLanguageChangesCreateAndDeleteOnlyDeclaredDocumentsOnSave()
     {
         using var host = new TestHost(); var root = Project(host); var vm = host.CreateViewModel(); await vm.OpenProjectAsync(root);
-        var before = Directory.GetFiles(root, "*", SearchOption.AllDirectories).ToDictionary(p => p, File.ReadAllText);
+        var english = File.ReadAllText(Path.Combine(root, "locales/en/common.json"));
+        var before = Directory.GetFiles(root, "*", SearchOption.AllDirectories).Order(StringComparer.Ordinal).ToArray();
         await vm.AddLanguageAsync("de");
         await vm.DeleteLanguageCommand.ExecuteAsync(new SummaryItem { Language = "fr" });
-        Assert.DoesNotContain(vm.AllTranslation, t => t.Language == "de");
-        Assert.Equal(before.Keys.Order(StringComparer.Ordinal), Directory.GetFiles(root, "*", SearchOption.AllDirectories).Order(StringComparer.Ordinal));
-        foreach (var (path, content) in before) Assert.Equal(content, File.ReadAllText(path));
+        Assert.Contains(vm.AllTranslation, t => t.Language == "de" && t.Namespace == "common.title");
+        Assert.DoesNotContain(vm.AllTranslation, t => t.Language == "fr");
+        Assert.True(vm.IsDirty);
+        // Nothing reaches disk before save; the legacy language writer never runs.
+        Assert.Equal(before, Directory.GetFiles(root, "*", SearchOption.AllDirectories).Order(StringComparer.Ordinal));
+        await vm.SaveCommand.ExecuteAsync(null);
+        Assert.False(vm.IsDirty);
+        Assert.True(File.Exists(Path.Combine(root, "locales/de/common.json")));
+        Assert.True(File.Exists(Path.Combine(root, "locales/de/other.json")));
+        Assert.False(File.Exists(Path.Combine(root, "locales/fr/common.json")));
+        Assert.Equal(english, File.ReadAllText(Path.Combine(root, "locales/en/common.json")));
+    }
+
+    [AvaloniaFact]
+    public async Task NewKeysAskForADestinationOnlyWhenTheLayoutIsAmbiguous()
+    {
+        using var host = new TestHost(); var root = Project(host);
+        Write(root, "src/locales/en/common.json", "{\"src\":\"Src\"}");
+        var vm = host.CreateViewModel(); await vm.OpenProjectAsync(root);
+        var common = File.ReadAllText(Path.Combine(root, "locales/en/common.json"));
+        await vm.CreateNewItemAsync("other.added");
+        Assert.Contains(vm.AllTranslation, t => t.Namespace == "other.added" && t.Language == "fr");
+
+        host.Dialogs.Picks.Enqueue(null);
+        await vm.CreateNewItemAsync("common.cancelled");
+        Assert.Empty(host.Dialogs.Picks);
+        Assert.DoesNotContain(vm.AllTranslation, t => t.Namespace == "common.cancelled");
+
+        host.Dialogs.Picks.Enqueue("common (src/locales/en/common.json)");
+        await vm.CreateNewItemAsync("common.chosen");
+        Assert.Empty(host.Dialogs.Picks);
+        await vm.SaveCommand.ExecuteAsync(null);
+        Assert.False(vm.IsDirty);
+        Assert.Contains("\"added\"", File.ReadAllText(Path.Combine(root, "locales/fr/other.json")), StringComparison.Ordinal);
+        Assert.Contains("\"chosen\"", File.ReadAllText(Path.Combine(root, "src/locales/en/common.json")), StringComparison.Ordinal);
+        Assert.Equal(common, File.ReadAllText(Path.Combine(root, "locales/en/common.json")));
+    }
+
+    [AvaloniaFact]
+    public async Task DuplicatingALiteralDotKeyKeepsItsStructuredPath()
+    {
+        using var host = new TestHost(); var root = Project(host);
+        Write(root, "locales/en/common.json", "{\"a.b\":\"Literal\"}");
+        var vm = host.CreateViewModel(); await vm.OpenProjectAsync(root);
+        var engine = host.Services.GetRequiredService<WorkspaceService>();
+        var literal = (await engine.SnapshotEntriesAsync())!.Units.Single(u => u.Value == "Literal");
+        vm.SelectedDocumentNode = Nodes(vm.DocumentNavigationItems).Single(n => n.IsEntry && n.Node.EntryIds.Contains(literal.EntryId));
+        vm.SelectedNode = new() { Namespace = "common.a.b", Name = "a.b" };
+        vm.DuplicateItemCommand.Execute(null);
+        var copy = (await engine.SnapshotEntriesAsync())!.Units.Single(u => u.EntryId != literal.EntryId && u.Language == "en" && u.Value == "Literal");
+        Assert.Equal(["a.b_copy"], copy.KeyPath.Segments);
+        await vm.SaveCommand.ExecuteAsync(null);
+        using var json = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "locales/en/common.json")));
+        Assert.Equal("Literal", json.RootElement.GetProperty("a.b_copy").GetString());
     }
 
     [AvaloniaFact]
