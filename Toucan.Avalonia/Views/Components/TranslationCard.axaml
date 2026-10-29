@@ -183,7 +183,7 @@
       <!-- Single key: one row per language -->
       <ItemsControl Classes="translationValues" ItemContainerTheme="{StaticResource LanguageCellTheme}" ItemsSource="{Binding Translations}" ItemTemplate="{StaticResource RowTemplate}"
                     IsVisible="{Binding !IsPluralGroup}">
-        <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding .ComparisonColumns}"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding $parent[UserControl].ComparisonColumns}"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
       </ItemsControl>
 
       <!-- Plural key: a section per category -->
@@ -193,7 +193,7 @@
             <StackPanel Margin="0,2,0,6">
               <TextBlock Text="{Binding Category}" Classes="caption" FontWeight="SemiBold" Margin="0,4,0,2"/>
               <ItemsControl Classes="translationValues" ItemContainerTheme="{StaticResource LanguageCellTheme}" ItemsSource="{Binding Translations}" ItemTemplate="{StaticResource RowTemplate}">
-                <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding .ComparisonColumns}"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding $parent[UserControl].ComparisonColumns}"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
               </ItemsControl>
             </StackPanel>
           </DataTemplate>
