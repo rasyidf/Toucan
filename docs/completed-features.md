@@ -1,7 +1,7 @@
 ---
 title: "Shipped Features"
 status: active
-updated: 2026-10-25
+updated: 2026-10-29
 summary: "Implemented capabilities through v0.24.0, grouped by area. The release is a draft; open work is tracked in the roadmap."
 ---
 # Shipped Features
@@ -75,6 +75,8 @@ summary: "Implemented capabilities through v0.24.0, grouped by area. The release
 - [x] Java .properties (ISO-8859-1)
 - [x] Laravel PHP file support
 - [x] Auto-detect framework on folder drop
+- [x] Document projects: new keys, duplicates, and language creation/removal choose a destination document; files are created or deleted only on save
+- [x] Formats declare their save scope; only verified formats write targeted documents
 - [x] File watcher (reload changed files from disk)
 - [x] Skip unchanged files on reload
 
@@ -210,6 +212,7 @@ summary: "Implemented capabilities through v0.24.0, grouped by area. The release
 ## Command Line
 
 - [x] `toucan check` (exits 1 on errors, for CI), `stats`, `translate` (with `--dry-run`), `export`, `list-formats`, `list-keys`, `get`, `set`
+- [x] `set` and `translate` save document projects through the workspace engine (only affected documents are written)
 
 ---
 
