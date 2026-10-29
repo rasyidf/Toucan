@@ -12,6 +12,8 @@ public sealed class WorkspaceRecoveryDraft(string root, string frameworkId, stri
     public IReadOnlyList<WorkspaceDocumentUnit> Baseline { get; } = Array.AsReadOnly(baseline.ToArray());
     public IReadOnlyList<WorkspaceDocumentUnit> Units { get; } = Array.AsReadOnly(units.ToArray());
     public WorkspaceIdentityCheckpoint IdentityCheckpoint { get; } = new(identityCheckpoint.Root, Array.AsReadOnly(identityCheckpoint.Entries.ToArray()));
+    /// <summary>Languages removed but not yet saved; their documents are deleted by the next save. Older drafts omit it.</summary>
+    public IReadOnlyList<string> RemovedLanguages { get; init; } = [];
     public int ChangeCount
     {
         get

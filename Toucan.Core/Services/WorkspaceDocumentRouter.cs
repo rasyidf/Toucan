@@ -60,6 +60,76 @@ public sealed class WorkspaceDocumentRouter(IEnumerable<IFrameworkProfile> profi
         return path;
     }
 
+    /// <summary>
+    /// Groups documents by framework layout family and places each requested language: an existing document, a sibling path
+    /// with the language segment substituted, or the framework default. Every proposed document is checked against the
+    /// framework's discovery description; languages it cannot place are omitted. Reads no files.
+    /// </summary>
+    public IReadOnlyList<WorkspaceDestinationFamily> DestinationFamilies(WorkspaceSource source, IEnumerable<string> languages)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(languages);
+        var wanted = languages.Concat(source.Documents.Select(d => d.Language)).Distinct(StringComparer.Ordinal).ToArray();
+        var profile = profiles.SingleOrDefault(p => p.Id == source.FrameworkId)
+            ?? throw new InvalidOperationException($"Framework '{source.FrameworkId}' is not available.");
+        var layout = profile as IFrameworkDocumentLayout;
+        string FamilyOf(SourceDocument d) => layout?.GetDocumentLayout(new(WithinRoot(source.Root, d.RelativePath), d.RelativePath, d.Language, d.Package)).Family
+            ?? "document:" + d.RelativePath;
+        var result = new List<WorkspaceDestinationFamily>();
+        foreach (var group in source.Documents.GroupBy(FamilyOf, StringComparer.Ordinal).OrderBy(g => g.Key, StringComparer.Ordinal))
+        {
+            var members = group.OrderBy(d => d.RelativePath, StringComparer.Ordinal).ToArray();
+            var ns = DocumentNamespace(source, members[0]);
+            var documents = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var language in wanted)
+            {
+                var existing = members.Where(d => d.Language == language).ToArray();
+                if (existing.Length == 1) { documents[language] = existing[0].RelativePath; continue; }
+                if (existing.Length > 1 || layout is null) continue;
+                if (Propose(members, language) is { } proposed) documents[language] = proposed;
+            }
+            var label = ns.Segments.Count > 0 ? string.Join('.', ns.Segments) : members[0].RelativePath;
+            result.Add(new(group.Key, label, ns, documents, members.Select(d => d.RelativePath).ToHashSet(StringComparer.Ordinal)));
+        }
+        return result;
+
+        string? Propose(SourceDocument[] members, string language)
+        {
+            var package = members[0].Package;
+            var candidates = members.Select(d => Substitute(d.RelativePath, d.Language, language)).OfType<string>().Distinct(StringComparer.Ordinal).ToList();
+            try { candidates.Add(Path.GetRelativePath(source.Root, NewEntryPath(source, language, package)).Replace(Path.DirectorySeparatorChar, '/')); }
+            catch (InvalidOperationException) { }
+            foreach (var candidate in candidates)
+            {
+                try
+                {
+                    if (source.Documents.Any(d => d.RelativePath == candidate)) continue;
+                    var description = DescribeNewDocument(source, candidate, language);
+                    if (description.Package != package || FamilyOf(new(default, candidate, language, package, source.FormatId, string.Empty, string.Empty)) != FamilyOf(members[0])) continue;
+                    return candidate;
+                }
+                catch (Exception ex) when (ex is InvalidOperationException or NotSupportedException) { }
+            }
+            return null;
+        }
+    }
+
+    /// <summary>Replaces path segments or file stems equal to the source language; null when none match.</summary>
+    private static string? Substitute(string relativePath, string from, string to)
+    {
+        var parts = relativePath.Split('/');
+        var changed = false;
+        for (var i = 0; i < parts.Length; i++)
+        {
+            var extension = i == parts.Length - 1 ? Path.GetExtension(parts[i]) : string.Empty;
+            var stem = extension.Length > 0 ? parts[i][..^extension.Length] : parts[i];
+            if (stem != from) continue;
+            parts[i] = to + extension;
+            changed = true;
+        }
+        return changed ? string.Join('/', parts) : null;
+    }
+
     internal IReadOnlyList<WorkspaceEntryIdentity> IdentityCatalog(WorkspaceSource source, IEnumerable<SourceDocument> documents,
         IEnumerable<WorkspaceSourceUnit> units)
     {

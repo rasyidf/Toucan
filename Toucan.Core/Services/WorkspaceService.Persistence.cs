@@ -19,8 +19,8 @@ public sealed partial class WorkspaceService
             RefreshContext();
             return new(_settings.ProjectPath, _session, _revision, _state.Values.Select(u =>
                 new WorkspaceDocumentUnit(new(u.Id), u.Language, u.Namespace, u.KeyPath, u.Value, u.Binding,
-                    u.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey), Metadata(u))))
-            { Manifest = _settings.SerializeForPersistence(), Capture = new DocumentCapture(this, _state, _sessionLifetime?.Token ?? CancellationToken.None) };
+                    u.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey), Metadata(u), u.Destination)))
+            { Manifest = _settings.SerializeForPersistence(), DeletedDocuments = RemovedLanguageDocumentsLocked(), Capture = new DocumentCapture(this, _state, _sessionLifetime?.Token ?? CancellationToken.None) };
         }
     }
 
@@ -80,7 +80,10 @@ public sealed partial class WorkspaceService
                             : data?.Remove(NestedJsonParser.JsonScalarKey);
                         if (data?.Count == 0) data = null;
                     }
-                    var rebased = unit with { Binding = sourceUnit?.Binding, FormatData = data };
+                    // A destination is satisfied once the captured choice was written; a later choice stays pending.
+                    var destination = sourceUnit is not null && capture.State.TryGetValue(key, out var captured)
+                        && captured.Destination == unit.Destination ? null : unit.Destination;
+                    var rebased = unit with { Binding = sourceUnit?.Binding, FormatData = data, Destination = destination };
                     if (!Equivalent(unit, rebased)) result[key] = rebased;
                 }
                 return result.ToImmutable();
