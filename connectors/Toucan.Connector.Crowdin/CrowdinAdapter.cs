@@ -25,9 +25,8 @@ namespace Toucan.Connector.Crowdin;
 /// Checked against Crowdin's API reference: bearer token, <c>GET /files/{id}/download</c> for source files, <c>POST
 /// /translations/builds/files/{id}</c> for a translation, <c>POST /storages</c> with <c>Crowdin-API-FileName</c>, import with
 /// <c>POST /translations/{languageId}</c>, <c>PUT /files/{id}</c> with <c>updateOption</c>, the <c>{"error":{"message","code"}}</c>
-/// body, and 429 above 20 simultaneous requests. Not confirmed there: that a file's <c>exportOptions.exportPattern</c> exists
-/// (export patterns are documented on directories, branches and bundles); without it paths fall back to
-/// <c>{language}/{source path}</c>. The opt-in live test settles it.
+/// body, and 429 above 20 simultaneous requests. A file's <c>exportOptions.exportPattern</c> is real (confirmed against a live
+/// project); without one, paths fall back to <c>{language}/{source path}</c>. Directory and branch patterns are not read.
 /// </remarks>
 public sealed class CrowdinAdapter : IContentSourceAdapter, ISupportsProjectDiscovery
 {
@@ -75,7 +74,7 @@ public sealed class CrowdinAdapter : IContentSourceAdapter, ISupportsProjectDisc
     private sealed record ProjectDto(long Id, string Name, string? Description, string? SourceLanguageId, List<string>? TargetLanguageIds, List<LanguageDto>? TargetLanguages, LanguageDto? SourceLanguage);
     private sealed record LanguageDto(string Id, string? Name, string? Locale, string? TwoLettersCode, string? ThreeLettersCode, string? AndroidCode, string? OsxCode, string? OsxLocale);
     private sealed record ExportOptions(string? ExportPattern);
-    private sealed record FileDto(long Id, string Name, string Path, string? Type, ExportOptions? ExportOptions, string? RevisionId);
+    private sealed record FileDto(long Id, string Name, string Path, string? Type, ExportOptions? ExportOptions);
     private sealed record UrlDto(string Url);
     private sealed record StorageDto(long Id);
     private sealed record ErrorBody(ErrorItem? Error);

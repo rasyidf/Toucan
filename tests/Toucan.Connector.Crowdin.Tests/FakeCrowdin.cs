@@ -107,7 +107,7 @@ internal sealed class FakeCrowdin : HttpMessageHandler
             var limit = int.Parse(query["limit"] ?? "25", CultureInfo.InvariantCulture);
             return Json(HttpStatusCode.OK, new
             {
-                data = Files.Skip(offset).Take(limit).Select(f => new { data = new { id = f.Id, name = System.IO.Path.GetFileName(f.Path), path = "/" + f.Path.TrimStart('/'), type = "json", revisionId = "1",
+                data = Files.Skip(offset).Take(limit).Select(f => new { data = new { id = f.Id, name = System.IO.Path.GetFileName(f.Path), path = "/" + f.Path.TrimStart('/'), type = "json", revisionId = 1,
                     exportOptions = f.ExportPattern is null ? null : new { exportPattern = f.ExportPattern } } }),
                 pagination = new { offset, limit },
             });

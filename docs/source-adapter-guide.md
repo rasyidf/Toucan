@@ -88,4 +88,4 @@ Build, copy the output folder (with `plugin.json`) to the plugins folder, and tr
 - Creating and deleting files stays in Crowdin.
 - Local files outside the project's documents are never sent.
 - A document's version needs one export per file and language, so large projects list slowly. Crowdin allows 20 simultaneous requests per account; the connector uses 2.
-- The stand-in used in the tests follows Crowdin's API reference. Whether a file's own `exportOptions` carries an export pattern was not confirmed there (patterns are documented on directories, branches and bundles).
+- The stand-in used in the tests follows Crowdin's API reference and was checked against a live project for connection, description, listing and reads. A file's own `exportOptions.exportPattern` is used; patterns set on directories, branches or bundles are not read. Live writes are untested.
