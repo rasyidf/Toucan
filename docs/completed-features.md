@@ -50,7 +50,7 @@ Project glossary, CSV exchange, Dictionary matches and explicit insertion, effec
 ## Editor Modes
 
 - [x] Focused Editor mode (single-key form, prev/next navigation)
-- [x] Zen mode (hides toolbar/statusbar/sidepanel, F11)
+- [x] Zen mode (hides toolbar/statusbar/sidepanel, Ctrl/Cmd+Shift+Enter; F11 is fullscreen)
 - [x] PanelService for centralized panel state
 - [x] Focused Editor: language subset selector
 - [x] Zen mode: keyboard-only navigation (j/k)

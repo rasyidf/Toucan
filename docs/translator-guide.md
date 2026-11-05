@@ -1,7 +1,7 @@
 ---
 title: "Toucan for Professional Translators"
 status: active
-updated: 2026-10-25
+updated: 2026-11-05
 summary: "Dedicated guide for professional translators and localization specialists: CAT-style workflows, translation memory, metrics, quality checks, and client exchange."
 ---
 # Toucan for Professional Translators
@@ -47,7 +47,7 @@ Suggestions in the Inspector panel clearly identify their origin:
 - **MT / AI:** Clearly labeled when sourced from an optional machine translation provider.
 
 ### TMX Import & Export
-You are never locked into Toucan. You can import existing industry-standard **Translation Memory eXchange (`.tmx`)** files or export your project's memory to share with other CAT tools (SDL Trados, memoQ, Phrase, Lokalise, etc.). Go to **Tools → Translation Memory** to manage stored units, set matching thresholds, or clear segments.
+You are never locked into Toucan. You can import existing industry-standard **Translation Memory eXchange (`.tmx`)** files or export your project's memory to share with other CAT tools (SDL Trados, memoQ, Phrase, Lokalise, etc.). Use **Tools → Translation Memory** (Learn from This Project, Import TMX…, Export TMX…) and the Translation Memory panel to manage stored units, set matching thresholds, or clear segments.
 
 ---
 
@@ -98,14 +98,14 @@ For formats supporting complex plural forms (i18next, Flutter ARB, ICU MessageFo
 Not every client or subject matter expert has Toucan installed. Toucan makes offline review seamless through round-trip spreadsheet interchange:
 
 ### Exporting for External Review
-1. Choose **File → Export → Excel (.xlsx)…**
+1. Choose **File → Export to Excel…**
 2. Select your dialect:
    - **Toucan Dialect:** Clean layout with Key, Source, Target languages, Comments, and Per-Language Approval columns.
    - **BabelEdit Dialect:** Compatible column layout for teams migrating from or collaborating with BabelEdit users.
 3. Send the `.xlsx` file to clients or proofreaders. They can edit translations, update comments, or check approval checkboxes in Microsoft Excel, Apple Numbers, or Google Sheets.
 
 ### Importing & Reconciling Spreadsheets
-1. Choose **File → Import → Excel (.xlsx)…**
+1. Choose **File → Import from Excel…**
 2. Toucan inspects the workbook and displays an **interactive diff preview**:
    - Lists new strings, modified translations, comment changes, and approval toggles.
    - Diagnoses any header mismatches or unrecognized columns before changing your project.
@@ -136,6 +136,7 @@ Toucan eliminates the need to maintain different editors for different programmi
 | **Flutter / Dart** | Flutter ARB (`intl_*.arb`, `app_*.arb`, `@key` metadata) |
 | **.NET / Windows** | RESX (`Resources.*.resx`) |
 | **GNU / Linux / PHP** | GNU Gettext PO (`.po`), Laravel PHP arrays (`lang/*.php`) |
+| **Config & other** | TOML, INI (export only) |
 | **Cross-Platform / Localization** | XLIFF 1.2 & 2.0 (`.xlf`), CSV, TSV, Java `.properties` |
 | **Migration** | BabelEdit (`.babel`) project folders |
 
