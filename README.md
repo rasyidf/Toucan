@@ -124,7 +124,7 @@ The WPF app was retired after v0.17.3 and remains on the [`legacy/wpf`](https://
 - [Documentation index](docs/INDEX.md), including each document's status
 - [Roadmap](docs/todos/future-roadmap.md) and [completed features](docs/completed-features.md)
 
-The v0.24.0 preview focuses on editor workflows, compatibility and the contextual desktop shell. Upcoming milestones cover glossary and review state, content-source synchronization, release packaging and performance. The roadmap records acceptance gates and planned order; it is not a delivery-date promise.
+The v0.24.0 preview focuses on editor workflows, compatibility and the contextual desktop shell. Unreleased work adds the project glossary and message-aware validation. Upcoming milestones cover review state, content-source synchronization, release packaging and performance. The roadmap records acceptance gates and planned order; it is not a delivery-date promise.
 
 ## Contributing
 

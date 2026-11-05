@@ -1,7 +1,7 @@
 ---
 title: "Toucan User Guide"
 status: active
-updated: 2026-10-25
+updated: 2026-10-30
 summary: "Comprehensive guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving."
 ---
 # Toucan User Guide
@@ -135,3 +135,11 @@ Toucan protects your localization files from corruption and data loss:
 - **Journaled Rollback (`SaveTransaction`):** In multi-file projects, if saving one file fails (e.g. disk full or locked file), all previously written files in that save operation are automatically rolled back.
 - **Crash Recovery Drafts:** Unsaved edits are backed up periodically to a recovery directory. If Toucan closes unexpectedly, reopening the project prompts you to restore your unsaved drafts.
 - **External Change Detection:** If a teammate or Git pull modifies translation files while Toucan is open, Toucan detects the change and provides an interactive merge dialog to resolve any conflicts without overwriting disk contents.
+
+## Project terminology and message checks
+
+Open the Dictionary panel to maintain preferred and forbidden terms, edit per-language translations and descriptions, or import/export a glossary CSV. Matching terms appear for the selected source string; select a preferred match to append it to a target field. Save, undo and redo work through the normal project history.
+
+Settings → Validation controls rule enable/severity defaults; project overrides take precedence per rule. The glossary and ICU message-syntax checks appear alongside existing rules. Issues can focus the affected field. Findings never prevent a normal draft save.
+
+Issues → Analysis strictness sets a per-project confidence threshold. An AI finding's Re-translate action opens a preview with overwrite enabled; accepting it is explicit and undoable. See [terminology, syntax limits and supported provider behavior](specs/v0.25-terminology-validation.md).

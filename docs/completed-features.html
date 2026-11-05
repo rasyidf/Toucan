@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Shipped Features</title>
-<meta name="description" content="Implemented capabilities through v0.24.0, grouped by area. The release is a draft; open work is tracked in the roadmap.">
+<meta name="description" content="Implemented capabilities through v0.24.0 plus unreleased terminology and validation. Publication and candidate acceptance remain tracked separately.">
 <link rel="canonical" href="https://toucan.rasyid.dev/completed-features.html">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,19 +15,19 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Shipped Features">
-<meta property="og:description" content="Implemented capabilities through v0.24.0, grouped by area. The release is a draft; open work is tracked in the roadmap.">
+<meta property="og:description" content="Implemented capabilities through v0.24.0 plus unreleased terminology and validation. Publication and candidate acceptance remain tracked separately.">
 <meta property="og:url" content="https://toucan.rasyid.dev/completed-features.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Shipped Features">
-<meta name="twitter:description" content="Implemented capabilities through v0.24.0, grouped by area. The release is a draft; open work is tracked in the roadmap.">
+<meta name="twitter:description" content="Implemented capabilities through v0.24.0 plus unreleased terminology and validation. Publication and candidate acceptance remain tracked separately.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Toucan \u00b7 Shipped Features",
-  "description": "Implemented capabilities through v0.24.0, grouped by area. The release is a draft; open work is tracked in the roadmap.",
+  "description": "Implemented capabilities through v0.24.0 plus unreleased terminology and validation. Publication and candidate acceptance remain tracked separately.",
   "url": "https://toucan.rasyid.dev/completed-features.html",
   "publisher": {
     "@type": "Organization",
@@ -95,17 +95,19 @@
 <a href="completed-features.html" aria-current="page">Shipped Features</a>
 <a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
       </nav>
-      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#core-editor">Core Editor</a><a class="l2" href="#editor-modes">Editor Modes</a><a class="l2" href="#file-io">File I/O</a><a class="l2" href="#machine-translation">Machine Translation</a><a class="l2" href="#ai-integration-since-v0200">AI Integration (since v0.20.0)</a><a class="l2" href="#ui--ux">UI / UX</a><a class="l2" href="#search-bulk-edits-validation">Search, Bulk Edits, Validation</a><a class="l2" href="#translation-memory">Translation Memory</a><a class="l2" href="#advanced-data-model">Advanced Data Model</a><a class="l2" href="#distribution--platform">Distribution &amp; Platform</a><a class="l2" href="#source-code-integration">Source Code Integration</a><a class="l2" href="#plugins-since-v0180-avalonia-app-and-cli">Plugins (since v0.18.0; Avalonia app and CLI)</a><a class="l2" href="#command-line">Command Line</a><a class="l2" href="#website">Website</a></nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#unreleased-terminology-and-validation">Unreleased terminology and validation</a><a class="l2" href="#core-editor">Core Editor</a><a class="l2" href="#editor-modes">Editor Modes</a><a class="l2" href="#file-io">File I/O</a><a class="l2" href="#machine-translation">Machine Translation</a><a class="l2" href="#ai-integration-since-v0200">AI Integration (since v0.20.0)</a><a class="l2" href="#ui--ux">UI / UX</a><a class="l2" href="#search-bulk-edits-validation">Search, Bulk Edits, Validation</a><a class="l2" href="#translation-memory">Translation Memory</a><a class="l2" href="#advanced-data-model">Advanced Data Model</a><a class="l2" href="#distribution--platform">Distribution &amp; Platform</a><a class="l2" href="#source-code-integration">Source Code Integration</a><a class="l2" href="#plugins-since-v0180-avalonia-app-and-cli">Plugins (since v0.18.0; Avalonia app and CLI)</a><a class="l2" href="#command-line">Command Line</a><a class="l2" href="#website">Website</a></nav>
     </aside>
     <article class="doc">
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Shipped Features</h1>
-        <p class="lead">Implemented capabilities through v0.24.0, grouped by area. The release is a draft; open work is tracked in the roadmap.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/completed-features.md">Edit on GitHub ↗</a></div>
+        <p class="lead">Implemented capabilities through v0.24.0 plus unreleased terminology and validation. Publication and candidate acceptance remain tracked separately.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-30</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/completed-features.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <blockquote><p>Current preview: <strong>v0.24.0</strong>, merged into <code>main</code>; the <a href="release-v0.24.0.html">release draft</a> is prepared for publication. Public downloads remain on v0.23.0 until it is published. Toucan targets Windows, macOS and Linux. The WPF app was retired after v0.17.3. Release notes are in <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md">CHANGELOG.md</a>; open work is in <a href="roadmap.html">todos/future-roadmap.md</a> and open bugs in <a href="known-bugs.html">known-bugs.md</a>. This file lists shipped and implemented features only: when something ships, add it here and delete it from the roadmap. Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform.</p></blockquote>
+<h2 id="unreleased-terminology-and-validation"><a class="anchor" href="#unreleased-terminology-and-validation" aria-label="Link to this section">#</a>Unreleased terminology and validation</h2>
+<p>Project glossary, CSV exchange, Dictionary matches and explicit insertion, effective per-rule validation policy, nested ICU structural checks, AI analysis strictness and finding re-translation are implemented. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/v0.25-terminology-validation.md">behavior and syntax limits</a> and <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/v0.25-readiness.md">candidate verification</a>. These additions are not yet a published release.</p>
 <h2 id="core-editor"><a class="anchor" href="#core-editor" aria-label="Link to this section">#</a>Core Editor</h2>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Load/save JSON (flat + namespaced)</li>
@@ -170,6 +172,8 @@
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Java .properties (ISO-8859-1)</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Laravel PHP file support</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Auto-detect framework on folder drop</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Document projects: new keys, duplicates, and language creation/removal choose a destination document; files are created or deleted only on save</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Formats declare their save scope; only verified formats write targeted documents</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>File watcher (reload changed files from disk)</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Skip unchanged files on reload</li>
 </ul>
@@ -305,6 +309,7 @@
 <h2 id="command-line"><a class="anchor" href="#command-line" aria-label="Link to this section">#</a>Command Line</h2>
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span><code>toucan check</code> (exits 1 on errors, for CI), <code>stats</code>, <code>translate</code> (with <code>--dry-run</code>), <code>export</code>, <code>list-formats</code>, <code>list-keys</code>, <code>get</code>, <code>set</code></li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span><code>set</code> and <code>translate</code> save document projects through the workspace engine (only affected documents are written)</li>
 </ul>
 <hr>
 <p>Effort estimates, unfinished work and the order of upcoming work live in <a href="roadmap.html">todos/future-roadmap.md</a>.</p>

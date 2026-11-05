@@ -1,8 +1,8 @@
 ---
 title: "Known Issues & Unfinished Features"
 status: active
-updated: 2026-10-25
-summary: "Open v0.24.0 preview issues: validation-policy enforcement, release distribution, missing panels, external connector acceptance and native workflow verification."
+updated: 2026-10-30
+summary: "Open v0.24.0 preview issues: release distribution, Source Control, external connector acceptance and native workflow verification."
 ---
 # Known Issues & Unfinished Features
 
@@ -20,9 +20,8 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [REL-02](#rel-02) | Medium | Release | macOS app is ad-hoc signed and not notarized | From docs and script |
 | [REL-03](#rel-03) | Low | Release | Update check is manual only: no check on startup, no download or install | From code |
 | [REL-04](#rel-04) | Low | Release | Windows ships as a portable zip; no installer or MSIX in releases | From docs |
-| [APP-01](#app-01) | Low | App | Source Control and Dictionary panels do not exist | Reproduced |
+| [APP-01](#app-01) | Low | App | Source Control panel does not exist | Reproduced |
 | [APP-05](#app-05) | Medium | Integration | External connector and connection lifecycle acceptance remains unverified | From code and available environment |
-| [APP-06](#app-06) | Medium | Validation | Saved rule enable/severity preferences are not enforced by validation entry points; project custom-rule loading is not wired | From code |
 | [QA-03](#qa-03) | Medium | Release acceptance | Native Windows accessibility/workflow acceptance pending; macOS/Linux assumed passed for this readiness review | Windows native not executed |
 | [QA-02](#qa-02) | Info | Perf | Large-project performance has never been profiled | Not checked |
 
@@ -75,11 +74,9 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 ## App gaps
 
 <a id="app-01"></a>
-### APP-01 — Source Control and Dictionary panels do not exist
+### APP-01 — Source Control panel does not exist
 
-- **Severity:** Low · **Checked:** `App.RegisterSidePanels` registers Explorer, Search, Issues, Source Code, Languages, Inspector, Translation, Memory. No panel for Git or glossary.
-- **Correction:** the old text also listed "Translation" as missing. It exists (`machine-translation`, titled Translation).
-- **Plan:** Git integration is planned after v1.0, and the glossary is planned for v0.25.
+The Dictionary panel is implemented. A Source Control panel and Git workflow remain planned after v1.0. See the [roadmap](todos/future-roadmap.md#git-integration-fg-06).
 
 ---
 
@@ -87,13 +84,6 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 ### APP-05 — External connector acceptance
 
 Toolbar contributions now render and follow registry state. Core connection activation exists, but no desktop/CLI connection-management caller was found. The separate external connector repository is unavailable here, so its package-only desktop/CLI acceptance remains open. Keep the v0.23 integration gate pending; see [v0.24 acceptance](specs/editor-comfort/acceptance.md).
-
-<a id="app-06"></a>
-### APP-06 — Validation settings are not applied at runtime
-
-The Validation settings page lists registered built-in/plugin rules and persists enable/severity preferences. `ValidationPipeline.RunAll` still executes every registered rule with its default severity. Manual validation, save, approval checks and plugin workspace edits call that pipeline without applying effective project/default overrides. `CustomValidationRule` and its definition model exist, but no production project-rule loader/registration path was found. The earlier capability list overstated these foundations as complete configurable project validation. Runtime enforcement and project rule files remain roadmap work, with enforcement tracked in v0.25.
-
-This is a source audit, not a new runtime reproduction. It does not prevent draft saves, but an ignored preference can change approval eligibility. Keep the same policy across all entry points when implementing the fix.
 
 ## Quality
 

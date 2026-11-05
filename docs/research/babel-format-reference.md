@@ -1,8 +1,8 @@
 ---
 title: "`.babel` Format — Reference"
 status: reference
-updated: 2026-07-02
-summary: "Historical reference for the BabelEdit .babel XML format and how it maps to toucan.project, for the babel import."
+updated: 2026-11-05
+summary: "Historical reference for the BabelEdit .babel XML format and how it maps to toucan.tproj, for the babel import."
 ---
 # `.babel` Format — Reference
 
@@ -10,7 +10,7 @@ summary: "Historical reference for the BabelEdit .babel XML format and how it ma
 
 ## Summary
 
-The `.babel` format is an XML-based project file used by BabelEdit. It stores **metadata only** — actual translation texts live in framework-specific files (e.g., JSON, YAML). Toucan's `tools/babel2toucan.py` converts `.babel` → `toucan.project` JSON.
+The `.babel` format is an XML-based project file used by BabelEdit. It stores **metadata only** — actual translation texts live in framework-specific files (e.g., JSON, YAML). Toucan's `tools/babel2toucan.py` converts `.babel` → `toucan.tproj` JSON.
 
 ## Top-level Structure
 
@@ -47,7 +47,7 @@ A `concept_node` contains `<translation>` elements with `<language>` and `<appro
 - `editor_configuration` — preferences (`save_empty_translations`, `translation_order`, `machine_translation_formality`)
 - `configuration` — format info (`format`, `support_arrays`, `indent`)
 
-## Mapping to `toucan.project`
+## Mapping to `toucan.tproj`
 
 ```
 concept_node → concept object
@@ -77,10 +77,10 @@ Example JSON output:
 ## Conversion
 
 ```bash
-python tools/babel2toucan.py path/to/project.babel > toucan.project
+python tools/babel2toucan.py path/to/project.babel > toucan.tproj
 ```
 
 ## FAQ
 
-- **Does `toucan.project` include actual text?** — No, for parity with `.babel`. An optional `text` property is supported by the schema.
+- **Does `toucan.tproj` include actual text?** — No, for parity with `.babel`. An optional `text` property is supported by the schema.
 - **How to validate?** — Use `toucan.project.schema.json` with any JSON Schema validator.

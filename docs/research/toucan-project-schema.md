@@ -1,18 +1,20 @@
 ---
-title: "Toucan Project (`toucan.project`) — JSON schema documentation"
+title: "Toucan Project (`toucan.tproj`) — JSON schema documentation"
 status: reference
-updated: 2026-06-27
-summary: "Field-by-field description of the toucan.project JSON manifest (languages, packages, editor configuration)."
+updated: 2026-11-05
+summary: "Field-by-field description of the toucan.tproj JSON manifest (languages, packages, editor configuration)."
 ---
-# Toucan Project (`toucan.project`) — JSON schema documentation
+# Toucan Project (`toucan.tproj`) — JSON schema documentation
 
-This document describes the `toucan.project` JSON format used by Toucan to store translation metadata, file discovery, and editor preferences. This file is intended to be self-contained; however, it can mirror and import information from `.babel` project files through the `tools/babel2toucan.py` converter.
+> **Naming:** the manifest was called `toucan.project` before it was renamed to `toucan.tproj` (see the changelog). The schema file keeps its original name, `toucan.project.schema.json`, and the BabelEdit converters still write the BabelEdit-shaped layout described here. The current app manifest has more fields; see [ARCHITECTURE.md](../ARCHITECTURE.md) for what `ProjectSettings` persists.
+
+This document describes the `toucan.tproj` JSON format used by Toucan to store translation metadata, file discovery, and editor preferences. This file is intended to be self-contained; however, it can mirror and import information from `.babel` project files through the `tools/babel2toucan.py` converter.
 
 ---
 
 ## 🔎 Purpose
 
-`toucan.project` is a small, human-readable, and machine-validated JSON manifest for translation projects.
+`toucan.tproj` is a small, human-readable, and machine-validated JSON manifest for translation projects.
 It stores metadata for:
 - Languages used in the project
 - The organization of translation keys (packages/files/folders/concepts)
@@ -25,7 +27,7 @@ It aims to be easy to diff and validate in Git workflows.
 
 ## 🧭 High-level structure
 
-Top-level keys in `toucan.project`:
+Top-level keys in `toucan.tproj`:
 - `$schema` (optional, recommended): path or URL to the JSON schema used to validate the file.
 - `schemaVersion` (string): schema version.
 - `projectName` (string): friendly name for the project (ex: "qcash-ui").
@@ -88,7 +90,7 @@ Note: `translations` is a map keyed by language code; each value is an object th
 
 ---
 
-## ✅ Example `toucan.project`
+## ✅ Example `toucan.tproj`
 
 ```json
 {
@@ -130,12 +132,12 @@ Note: `translations` is a map keyed by language code; each value is an object th
 
 ## 🧪 Validation & tooling
 
-- The JSON Schema is at `toucan.project.schema.json` in this repository — use it to validate `toucan.project` files.
+- The JSON Schema is at `toucan.project.schema.json` in this repository — use it to validate `toucan.tproj` files.
 - Quick CLI validation (example using `ajv-cli`):
 
 ```pwsh
 npm i -g ajv-cli
-ajv validate -s ./toucan.project.schema.json -d ./toucan.project
+ajv validate -s ./toucan.project.schema.json -d ./toucan.tproj
 ```
 
 - Alternatively, use Python (`jsonschema`) or other JSON schema validators (integrate into CI to fail the build on invalid files).
@@ -152,7 +154,7 @@ ajv validate -s ./toucan.project.schema.json -d ./toucan.project
 
 ## ⚙️ Recommendations & best practices
 
-- Maintain `languages` as the single source of truth for all language codes. If you use the `.babel` converter, it populates `languages`, but keep them in `toucan.project` for clarity.
+- Maintain `languages` as the single source of truth for all language codes. If you use the `.babel` converter, it populates `languages`, but keep them in `toucan.tproj` for clarity.
 - Use `translationPackages` to point to the actual translation files; prefer relative paths to keep the project portable.
 - Consider using `text` inside `translations` only when you want a single-file snapshot of translations — otherwise use the `translationPackages` to link to translation files.
 - Use `primaryLanguage` for UI ordering and missing-translation fallbacks.
@@ -168,10 +170,10 @@ ajv validate -s ./toucan.project.schema.json -d ./toucan.project
 
 ## 📚 Related tools
 
-- `tools/babel2toucan.py` — converter from `.babel` format to `toucan.project` in this repository.
+- `tools/babel2toucan.py` — converter from `.babel` format to `toucan.tproj` in this repository.
 - `toucan.project.schema.json` — the JSON Schema for validation.
 
 ---
 
-For feedback or special needs (like merging translation text into `toucan.project` automatically), I can add a merging option to the converter and a small test harness that verifies translations across all languages. Would you like that added next?  
+For feedback or special needs (like merging translation text into `toucan.tproj` automatically), I can add a merging option to the converter and a small test harness that verifies translations across all languages. Would you like that added next?  
 

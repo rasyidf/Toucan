@@ -1,8 +1,8 @@
 ---
 title: "AI Integration"
 status: active
-updated: 2026-10-07
-summary: "The app-wide AI switch, AI services (Claude, OpenAI-compatible, Gemini), the open and editable prompts of Translate, Analyze and Clarity, the secret store, and the migration from the old LLM providers."
+updated: 2026-10-30
+summary: "AI settings, backend credentials, editable prompts, glossary context, analysis strictness and explicit finding previews."
 ---
 # AI Integration
 
@@ -71,7 +71,7 @@ Only the feature's own variables are replaced, so placeholders written as exampl
 | `target_language` | Translate | Language code to translate into |
 | `context` | all | Application context from Project Properties, else Settings → Machine translation |
 | `formality` | Translate | Formality from the same places; empty for Default |
-| `glossary` | Translate, Analyze | Approved terms, one `term → lang: translation` per line (empty until the glossary feature ships) |
+| `glossary` | Translate, Analyze | Project terminology from the Dictionary panel (empty when no terms are configured) |
 
 ### The reply contract
 
@@ -117,3 +117,5 @@ Other providers' keys stay readable where they are and move to the secret store 
 | App: Settings → AI, prompt editor, onboarding, commands | `AiSettingsViewModel`, `PromptEditorViewModel`, `OnboardingViewModel`, `MainWindowViewModel.Ai.cs` |
 
 Plugins cannot register AI services or features yet: the contracts exist, but `IPluginContext` has no `AddAiBackend`/`AddAiFeature`. That needs capability and id checks in the plugin host.
+
+Analysis strictness and finding re-translation are described in [terminology and validation](specs/v0.25-terminology-validation.md#ai-review).
