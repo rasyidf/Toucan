@@ -189,7 +189,13 @@ public sealed partial class SourcesViewModel : ObservableObject, IDisposable
         try
         {
             var plan = await _sync.PlanAsync(item.Id, kind);
-            if (!plan.HasChanges && plan.Notices.Count == 0) { await _messages.ShowMessageAsync($"{item.Name} is up to date.", "Sources"); return; }
+            if (!plan.HasChanges && plan.Notices.Count == 0)
+            {
+                // Agreement is still recorded, so the next plan starts from it and rows show as synced.
+                if (plan.HasBookkeeping) await _sync.ApplyAsync(plan);
+                await _messages.ShowMessageAsync($"{item.Name} is up to date.", "Sources");
+                return;
+            }
             var vm = new SyncPlanViewModel(plan, item.Name);
             if (!await _dialogs.ShowSyncPlanAsync(vm)) return;
             var result = await _sync.ApplyAsync(vm.BuildPlan());

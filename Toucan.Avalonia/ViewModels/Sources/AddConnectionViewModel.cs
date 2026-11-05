@@ -255,7 +255,8 @@ public sealed partial class AddConnectionViewModel : ObservableObject
     [RelayCommand]
     private async Task Cancel()
     {
-        if (_added && !IsEditing && !_projectConnections.Contains(_draft)) await _connections.RemoveAsync(_draft.Id);
+        // The connection was added to the project while the wizard asked the service about it; leaving takes it out again.
+        if (_added && !IsEditing) await _connections.RemoveAsync(_draft.Id);
         Saved = null;
         CloseRequested?.Invoke(this, EventArgs.Empty);
     }
@@ -329,7 +330,7 @@ public sealed partial class AddConnectionViewModel : ObservableObject
             Id = id,
             Adapter = service.Descriptor.Id,
             BaseUrl = AllowsCustomAddress && Uri.TryCreate(BaseUrlText, UriKind.Absolute, out var url) ? url : null,
-            RemoteProject = new SourceRemoteProject { Id = string.IsNullOrWhiteSpace(RemoteProjectId) ? id : RemoteProjectId.Trim(), Name = SelectedProject?.Name },
+            RemoteProject = string.IsNullOrWhiteSpace(RemoteProjectId) ? null : new SourceRemoteProject { Id = RemoteProjectId.Trim(), Name = SelectedProject?.Name },
         };
         ApplySettingFields();
         if (RequiresAccount && SelectedAccount is not null) _signIn.Accounts.Bind(_connections.WorkspaceId ?? string.Empty, id, SelectedAccount.Id);

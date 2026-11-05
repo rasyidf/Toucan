@@ -207,6 +207,30 @@ public sealed class SyncPlannerTests
     }
 
     [Fact]
+    public void ALocalDraftNeverOverwritesAnApprovalTheServiceHolds()
+    {
+        // Nothing agreed yet: the service's approval is pulled, not undone.
+        var unknown = Plan([Local("a", "x", status: SourceReviewMeaning.Draft)], [Remote("a", "x", status: SourceReviewMeaning.Approved)], [Base("a", "x")]);
+        Assert.Empty(unknown.Push);
+        Assert.Equal(SourceReviewMeaning.Approved, Assert.Single(unknown.Pull).NewStatus);
+
+        // Agreed as approved, then the project shows Draft again (it starts every translation that way): still not pushed.
+        var agreed = Plan([Local("a", "x", status: SourceReviewMeaning.Draft)], [Remote("a", "x", status: SourceReviewMeaning.Approved)], [Base("a", "x", status: SourceReviewMeaning.Approved)]);
+        Assert.Empty(agreed.Push);
+        Assert.Empty(agreed.Pull);
+        Assert.Empty(agreed.Conflicts);
+    }
+
+    [Fact]
+    public void BookkeepingIsReportedWhenOnlyAgreementChanged()
+    {
+        var plan = Plan([Local("a", "same")], [Remote("a", "same")], [Base("a", "x")]);
+        Assert.False(plan.HasChanges);
+        Assert.True(plan.HasBookkeeping);
+        Assert.False(Plan([Local("a", "x")], [Remote("a", "x")], [Base("a", "x")]).HasBookkeeping);
+    }
+
+    [Fact]
     public void LocalRenameIsPushedOrHeld()
     {
         var supported = Plan([Local("b", "x")], [Remote("a", "x", remoteId: "k1")], [Base("a", "x", remoteId: "k1")]);

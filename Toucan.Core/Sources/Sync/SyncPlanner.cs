@@ -164,7 +164,12 @@ public static class SyncPlanner
             // Status, only when the service has review states and the connection syncs them.
             if (connection.Policy.PushStatuses && caps.HasFlag(SourceCapabilities.ReviewStatus) && remote.Status is { } remoteStatus)
             {
-                switch (Decide(b.Status?.ToString(), local.Status.ToString(), remoteStatus.Meaning.ToString()))
+                // A local Draft is not a decision to push: it is how every translation starts, and pushing it would undo an approval
+                // the service already holds. Only an explicit local state (approved, needs review, rejected) goes out.
+                var undecided = local.Status is SourceReviewMeaning.Draft or SourceReviewMeaning.Untranslated;
+                var localStatus = undecided && b.Status is { } known ? known : local.Status;
+                var baseStatus = b.Status ?? (undecided ? local.Status : remoteStatus.Meaning);
+                switch (Decide(baseStatus.ToString(), localStatus.ToString(), remoteStatus.Meaning.ToString()))
                 {
                     case Decision.Push:
                         push.Add(new() { Kind = PushKind.Status, EntryId = local.EntryId, Language = local.Language, Remote = key, Status = local.Status, ExpectedRevision = ExpectedRevision(caps, remote) });
@@ -175,7 +180,7 @@ public static class SyncPlanner
                         break;
                     case Decision.Conflict:
                         conflicts.Add(new() { Kind = SyncConflictKind.BothChanged, Field = SyncField.Status, EntryId = local.EntryId, Language = local.Language, Remote = key,
-                            Base = b.Status?.ToString(), Local = local.Status.ToString(), RemoteValue = remoteStatus.Meaning.ToString(), RemoteStatus = remoteStatus.Meaning,
+                            Base = baseStatus.ToString(), Local = local.Status.ToString(), RemoteValue = remoteStatus.Meaning.ToString(), RemoteStatus = remoteStatus.Meaning,
                             RemoteRevision = remote.Revision, Namespace = local.Namespace, KeyPath = local.KeyPath });
                         break;
                 }

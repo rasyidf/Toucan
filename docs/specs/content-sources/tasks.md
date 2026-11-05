@@ -1,7 +1,7 @@
 ---
 title: "content-sources — tasks"
 status: planned
-progress: "4/9 phases done; phases 4-6 written and tested except desktop UI and CLI"
+progress: "4/9 phases done; phases 4-6 written and tested; 5.8 review and Save As coverage open"
 updated: 2026-11-05
 summary: "Work order for content sources across v0.27–v0.29 and v0.31 hardening: prerequisites, API 1.3 contracts, accounts and auth, local-folder adapter, sync engine, desktop UI, reference REST adapter and CLI, first online connector."
 ---
@@ -43,7 +43,7 @@ Requirements: [requirements.md](requirements.md). Design: [design.md](design.md)
 - [x] 3.4 Snapshot loading, cached opening and explicit refresh for role `primary`; save-plan previews against a document source. Done as `RemoteWorkspaceSnapshotService`: refresh into a cache folder (only changed files are downloaded; an incomplete or duplicated listing fails and deletes nothing), open from the cache offline, and a preview that lists creates, updates and deletes, flags documents changed at the source and refuses a read-only source. The cache location and role handling arrive with 4.1.
 - [x] 3.5 Contract tests: read-only source, unsupported capabilities refused before execution, duplicate key names across packages, older plugins unaffected. Done in `RemoteDocumentStoreTests` and `LocalFolderSourceTests`.
 
-## Phase 4: Sync engine (v0.28) — written 2026-11-05, core tests done
+## Phase 4: Sync engine (v0.28) — written 2026-11-05, tested
 
 - [x] 4.1 `SyncStateStore`: `baseline.json`, `journal.json`, `cache/` under `.toucan/local/sources/{connectionId}/`, generated `.gitignore`, atomic writes, schema versioning, corrupt-file quarantine. (R6.1, R6.4) Written: `Sources/Sync/SyncState.cs` (`SyncStateStore`, baseline, journal, `.gitignore`, atomic writes, schema check, quarantine of a corrupt or newer file as `*.corrupt-<time>`, unit cache for role `primary`).
 - [x] 4.2 `SyncPlanner`: pure three-way comparison per field following design §7.2, rename matching, deletion rules, first-sync mode, capability and permission checks producing notices. Table-driven tests for every row. (R7) Written: `SyncPlanner` is pure and covers every row of design 7.2 per field (value, status, comment), renames both ways, first sync, partial reads, capability notices and the pull-first hold. The table-driven tests are still to write.
@@ -55,7 +55,7 @@ Requirements: [requirements.md](requirements.md). Design: [design.md](design.md)
 - [x] 4.8 `ISourceSyncApi` on `IPluginServices` (read status, request plan or run; no state writes). Written: `ISourceSyncApi` and `IPluginServices.SourceSync` (a default member, null on hosts without it).
 - [x] 4.9 Done in `SyncExecutorTests`, `SyncCoordinatorTests` and `SyncStateAndPullTests`: restart from InFlight, ambiguous failures (committed and not committed), duplicate prevention for creates, a dropped page during recovery, cancellation mid-batch, token expiry, rate limits, async jobs, batching, undo of a pull, a pull that skips a value typed meanwhile, first sync. Not covered: Save As with connections. Recovery and failure suite against `FakeSourceServer`: restart from every journal state, ambiguous failures, duplicate prevention, dropped pages never inferring deletion, cancellation mid-batch, token expiry mid-run, undo of a pull, Save As with connections. (R12.2)
 
-## Phase 5: Desktop experience (v0.28) — written 2026-11-05, tests and review pending
+## Phase 5: Desktop experience (v0.28) — written and tested 2026-11-05, screen reader and visual review pending
 
 - [x] 5.1 Sources side panel and Settings page with connection states, last pull and push, pending counts and actions. (R9.1) Written: Sources side panel (`SourcesPanel`), `SourcesViewModel`, Sources menu.
 - [x] 5.2 Accounts page: add, sign in again, sign out, usage by project. Written: `AccountsDialog` / `AccountsViewModel`. Usage lists the projects of this machine that chose the account (matched against recent projects).
@@ -66,7 +66,7 @@ Requirements: [requirements.md](requirements.md). Design: [design.md](design.md)
 - [x] 5.7 Built-in `sources.*` commands in palette and menus with reassignable shortcuts; notifications for expired sign-in, partial failure, remote changes available. (R9.2) Written: `toucan.sources.pull|push|sync|show-conflicts|add-connection|accounts` commands (no default shortcuts, so users assign their own), and notifications for expired sign-in, partial failure and remote changes.
 - [ ] 5.8 (not done: only automation names, keyboard-reachable controls and live regions are in place; the screen reader and visual review need a run) Keyboard, screen reader and visual review checks for all new screens. (R9.3)
 
-## Phase 6: Reference REST adapter, sample port and full CLI (v0.28) — written 2026-11-05, core tests done
+## Phase 6: Reference REST adapter, sample port and full CLI (v0.28) — written 2026-11-05, tested
 
 - [x] 6.1 Write the Toucan source protocol: OpenAPI file and prose spec under `docs/` (ETags, cursor pagination, idempotency keys, delta endpoint, error format). Decision D5. Written: [source-protocol.md](../../source-protocol.md) and [source-protocol.openapi.yaml](../../source-protocol.openapi.yaml).
 - [x] 6.2 Reference server in `samples/` and the built-in `toucan.sources.rest` unit adapter; run the conformance suite against it in CI. (R11.2) Written: `samples/Toucan.Sample.SourceServer` and the built-in `toucan.sources.rest` adapter. `RestSourceTests` runs the conformance suite and protocol checks against the server in-process (fault checks are skipped; the server injects none).

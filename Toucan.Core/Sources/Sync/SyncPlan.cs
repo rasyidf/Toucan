@@ -158,6 +158,8 @@ public sealed record SyncPlan(string ConnectionId, Guid PlanId, SyncPlanKind Kin
     public IReadOnlyList<(Guid EntryId, string Language)> Forget { get; init; } = [];
 
     public bool HasChanges => Pull.Any(c => c.Include && c.Kind != PullKind.Converge) || Push.Any(c => c.Include) || Conflicts.Count > 0;
+    /// <summary>Nothing for the user to decide, but the baseline still has to move: both sides agree, or a translation is gone from both.</summary>
+    public bool HasBookkeeping => Forget.Count > 0 || Pull.Any(c => c.Kind == PullKind.Converge);
     public bool HasConflicts => Conflicts.Count > 0;
     public int PullCount => Pull.Count(c => c.Include && c.Kind != PullKind.Converge);
     public int PushCount => Push.Count(c => c.Include);

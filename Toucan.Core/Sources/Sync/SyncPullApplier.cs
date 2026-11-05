@@ -56,6 +56,7 @@ public sealed class SyncPullApplier(WorkspaceService workspace, TimeProvider? ti
         var included = plan.Pull.Where(c => c.Include).ToList();
         var skipped = new List<PullChange>();
         var operations = new List<EntryOperation>();
+        var statusOperations = new List<(EntryOperation Operation, PullChange Change)>();
         var accepted = new List<PullChange>();
         var deleted = new HashSet<Guid>();
         foreach (var change in included.Where(c => c.Kind is PullKind.Update or PullKind.Delete or PullKind.Rename))
@@ -78,8 +79,9 @@ public sealed class SyncPullApplier(WorkspaceService workspace, TimeProvider? ti
                     operations.Add(new SetEntryValue(entry, change.Language, change.NewValue ?? string.Empty, change.LocalValue));
                     break;
                 case (_, SyncField.Status):
-                    if (change.NewStatus is { } status) operations.Add(new SetEntryReview(entry, change.Language, SyncMapping.ToReview(status)));
-                    break;
+                    // Applied apart from the values: the approval policy may refuse an approval, and that must not undo the rest.
+                    if (change.NewStatus is { } status) statusOperations.Add((new SetEntryReview(entry, change.Language, SyncMapping.ToReview(status)), change));
+                    continue;
                 case (_, SyncField.Comment):
                     operations.Add(new SetEntryComment(entry, change.Language, change.NewComment ?? string.Empty));
                     break;
@@ -95,6 +97,14 @@ public sealed class SyncPullApplier(WorkspaceService workspace, TimeProvider? ti
             if (!result.Applied)
                 return new(0, 0, 0, [.. skipped, .. accepted], string.Join(" ", result.Issues.Select(i => i.Message)), result.Revision);
             revision = result.Revision;
+        }
+
+        if (statusOperations.Count > 0)
+        {
+            var latest = await workspace.SnapshotEntriesAsync(cancellationToken).ConfigureAwait(false);
+            var review = workspace.ApplySourceEntries(connection.Id, new EntryEdit(latest!.SessionId, latest.Revision, [.. statusOperations.Select(o => o.Operation)], $"Pulled review states from {connection.Name ?? connection.Id}"), cancellationToken);
+            if (review.Applied) { accepted.AddRange(statusOperations.Select(o => o.Change)); revision = review.Revision; }
+            else skipped.AddRange(statusOperations.Select(o => o.Change));
         }
 
         // New keys are added in a second step; they cannot be expressed as identified edits.

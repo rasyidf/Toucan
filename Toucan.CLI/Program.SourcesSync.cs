@@ -107,6 +107,8 @@ internal static partial class Program
         }
         if (!plan.HasChanges)
         {
+            // Agreement is still recorded, so the next plan starts from it.
+            if (plan.HasBookkeeping) coordinator.ApplyAsync(plan).GetAwaiter().GetResult();
             PrintPlan(plan, connection, json, applied: null);
             return SyncExit.Done;
         }
