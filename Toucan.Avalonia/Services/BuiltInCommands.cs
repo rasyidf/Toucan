@@ -74,6 +74,7 @@ internal static class BuiltInCommands
             B("Review", "Approve and Next", null, vm => vm.ApproveAndNextCommand),
             B("Review", "Next Needing Review", null, vm => vm.FocusedNextNeedingReviewCommand),
             B("Edit", "Sync Placeholder to All Languages", null, vm => vm.SyncPlaceholderToAllLanguagesCommand),
+            B("Sources", "Open From Service", null, vm => vm.OpenFromServiceCommand),
             B("Sources", "Pull", null, vm => vm.PullSourceCommand),
             B("Sources", "Push", null, vm => vm.PushSourceCommand),
             B("Sources", "Sync", null, vm => vm.SyncSourceCommand),

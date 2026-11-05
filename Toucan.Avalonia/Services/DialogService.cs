@@ -156,6 +156,12 @@ public sealed class DialogService(IServiceProvider services) : IDialogService
         return vm.Saved;
     }
 
+    public async Task<Toucan.Core.Sources.RemoteProjectResult?> ShowOpenFromServiceAsync(OpenFromServiceViewModel vm)
+    {
+        await new OpenFromServiceDialog(vm).ShowDialog(Owner);
+        return vm.Result;
+    }
+
     public Task ShowAccountsAsync(AccountsViewModel vm) => new AccountsDialog(vm).ShowDialog(Owner);
 
     public Task ShowStatisticsAsync(IEnumerable<TranslationItem> translations) =>

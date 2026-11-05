@@ -48,6 +48,9 @@ public interface IDialogService
     /// <summary>The add-connection wizard; the saved connection, or null when cancelled.</summary>
     Task<Toucan.Core.Models.SourceConnectionSettings?> ShowAddConnectionAsync(AddConnectionViewModel vm) => Task.FromResult<Toucan.Core.Models.SourceConnectionSettings?>(null);
 
+    /// <summary>"Open from a service": the project made, or null when cancelled.</summary>
+    Task<Toucan.Core.Sources.RemoteProjectResult?> ShowOpenFromServiceAsync(OpenFromServiceViewModel vm) => Task.FromResult<Toucan.Core.Sources.RemoteProjectResult?>(null);
+
     /// <summary>The accounts page: add, sign in again, sign out, and which projects use each.</summary>
     Task ShowAccountsAsync(AccountsViewModel vm) => Task.CompletedTask;
 

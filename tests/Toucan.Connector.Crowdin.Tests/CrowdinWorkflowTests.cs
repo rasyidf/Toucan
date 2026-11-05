@@ -189,6 +189,123 @@ public sealed class CrowdinWorkflowTests : IDisposable
         Assert.True(_file.Remote.Translations.ContainsKey("fr"));
     }
 
+    // ───────────── opening a project from the service ─────────────
+
+    private (RemoteProjectBootstrap Bootstrap, RegisteredSourceAdapter Adapter) Bootstrap()
+    {
+        var baseUrl = new Uri("https://api.crowdin.com/api/v2/");
+        var factory = new SourceHttpClientFactory(new SourceNetworkPolicy(_manifest.Network, baseUrl), new StaticSourceCredentials(FakeCrowdin.Token),
+            new ApiTokenAuth("token", "Token"), _diagnostics, new SourceHttpOptions { PrimaryHandler = () => _crowdin, MaxRetries = 0 });
+        _disposables.Add(factory);
+        return (new RemoteProjectBootstrap((settings, folder, ct) => _adapter.OpenSessionAsync(new SourceTestContext(new SourceConnectionInfo
+        {
+            ConnectionId = settings.Id, AdapterId = settings.Adapter!, BaseUrl = baseUrl, RemoteProjectId = settings.RemoteProject!.Id,
+            Languages = settings.Languages, Role = SourceRole.Primary,
+        }, http: factory, diagnostics: _diagnostics), ct), null), new RegisteredSourceAdapter("crowdin.connector", _adapter));
+    }
+
+    [Fact]
+    public async Task OpeningAProjectFromTheServiceCreatesTheFolderManifestAndFiles()
+    {
+        var (bootstrap, adapter) = Bootstrap();
+        var folder = Path.Combine(_root, "remote", "crowdin", "demo");
+
+        var result = await bootstrap.CreateAsync(adapter, null, new RemoteProjectSummary("7", "Demo"), folder);
+
+        Assert.Equal(("crowdin:Demo", Path.GetFullPath(folder)), (result.Label, result.Folder));
+        Assert.Equal(3, result.Documents); // the source file and its French and German exports
+        Assert.Equal("""{"title":"Welcome"}""", File.ReadAllText(Path.Combine(folder, "locales/en/common.json")));
+        Assert.True(File.Exists(Path.Combine(folder, "locales/fr-FR/common.json")));
+        Assert.True(File.Exists(Path.Combine(folder, "locales/de-DE/common.json")));
+
+        var settings = ProjectSettings.LoadFrom(folder)!;
+        Assert.Equal(("en", "Demo"), (settings.PrimaryLanguage, settings.Name));
+        Assert.Equal(["de", "en", "fr"], settings.Languages.Order());
+        var connection = Assert.Single(settings.Sources);
+        Assert.Equal((CrowdinAdapter.AdapterId, SourceRoles.Primary, "7", "crowdin"), (connection.Adapter, connection.Role, connection.RemoteProject!.Id, connection.Id));
+        Assert.Null(connection.BaseUrl);
+        Assert.Equal(3, new SyncStateStore(folder, "crowdin").LoadBaseline()!.Documents.Count);
+    }
+
+    [Fact]
+    public async Task AFreshlyOpenedProjectHasNothingLeftToSync()
+    {
+        var (bootstrap, adapter) = Bootstrap();
+        var folder = Path.Combine(_root, "fresh");
+        var result = await bootstrap.CreateAsync(adapter, null, new RemoteProjectSummary("7", "Demo"), folder);
+
+        // Opened as a project: the same files, the same connection.
+        var settings = new List<SourceConnectionSettings> { result.Connection };
+        var baseUrl = new Uri("https://api.crowdin.com/api/v2/");
+        var factory = new SourceHttpClientFactory(new SourceNetworkPolicy(_manifest.Network, baseUrl), new StaticSourceCredentials(FakeCrowdin.Token),
+            new ApiTokenAuth("token", "Token"), _diagnostics, new SourceHttpOptions { PrimaryHandler = () => _crowdin, MaxRetries = 0 });
+        _disposables.Add(factory);
+        var connections = Substitute.For<ISourceConnectionService>();
+        connections.GetSessionAsync("crowdin", Arg.Any<CancellationToken>()).Returns(_ => _adapter.OpenSessionAsync(new SourceTestContext(new SourceConnectionInfo
+        {
+            ConnectionId = "crowdin", AdapterId = CrowdinAdapter.AdapterId, BaseUrl = baseUrl, RemoteProjectId = "7", Languages = result.Connection.Languages,
+        }, http: factory), CancellationToken.None));
+        var catalog = Substitute.For<ISourceAdapterCatalog>();
+        catalog.Find(CrowdinAdapter.AdapterId).Returns(new RegisteredSourceAdapter("crowdin.connector", _adapter));
+        using var coordinator = new SyncCoordinator(_workspace, connections, catalog);
+        coordinator.Open(folder, settings);
+
+        var plan = await coordinator.PlanAsync("crowdin", SyncPlanKind.Sync);
+
+        Assert.False(plan.HasChanges);
+        Assert.False(plan.IsFirstSync);
+    }
+
+    [Fact]
+    public async Task AFolderThatIsNotEmptyOrAlreadyAProjectIsRefusedBeforeAnythingIsWritten()
+    {
+        var (bootstrap, adapter) = Bootstrap();
+        var busy = Path.Combine(_root, "busy");
+        Directory.CreateDirectory(busy);
+        File.WriteAllText(Path.Combine(busy, "keep.txt"), "mine");
+        var project = new RemoteProjectSummary("7", "Demo");
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => bootstrap.CreateAsync(adapter, null, project, busy));
+        Assert.Equal("mine", File.ReadAllText(Path.Combine(busy, "keep.txt")));
+        Assert.False(File.Exists(Path.Combine(busy, "toucan.tproj")));
+        Assert.Empty(_crowdin.Requests);
+
+        var existing = Path.Combine(_root, "existing");
+        Directory.CreateDirectory(existing);
+        File.WriteAllText(Path.Combine(existing, "toucan.tproj"), "{}");
+        var failure = await Assert.ThrowsAsync<InvalidOperationException>(() => bootstrap.CreateAsync(adapter, null, project, existing));
+        Assert.Contains("already a Toucan project", failure.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task AServiceThatStoresKeysCannotOpenAProjectThisWay()
+    {
+        var (bootstrap, _) = Bootstrap();
+        var unitAdapter = new RegisteredSourceAdapter("toucan", new UnitOnlyAdapter());
+        var failure = await Assert.ThrowsAsync<NotSupportedException>(() => bootstrap.CreateAsync(unitAdapter, null, new RemoteProjectSummary("1", "P"), Path.Combine(_root, "units")));
+        Assert.Contains("keys, not files", failure.Message, StringComparison.Ordinal);
+        Assert.False(Directory.Exists(Path.Combine(_root, "units")));
+    }
+
+    private sealed class UnitOnlyAdapter : IContentSourceAdapter
+    {
+        public SourceAdapterDescriptor Descriptor { get; } = new()
+        {
+            Id = "toucan.sources.units", DisplayName = "Units", DefaultBaseUrl = new Uri("https://x.test/"), AuthMethods = [new ApiTokenAuth("t", "T")], Capabilities = SourceCapabilities.ReadUnits,
+        };
+        public Task<IContentSourceSession> OpenSessionAsync(ISourceSessionContext context, CancellationToken cancellationToken) => throw new NotSupportedException();
+    }
+
+    [Theory]
+    [InlineData("My Project", "My-Project")]
+    [InlineData("a/b:c", "a-b-c")]
+    [InlineData("  ..  ", "project")]
+    public void FolderNamesAreSafeOnEveryPlatform(string name, string expected) => Assert.Equal(expected, RemoteProjectBootstrap.FolderName(name));
+
+    [Fact]
+    public void TheLabelNamesTheServiceAndTheProject() =>
+        Assert.Equal("crowdin:toucan-connector-test", RemoteProjectBootstrap.LabelFor(new RegisteredSourceAdapter("crowdin.connector", _adapter), "toucan-connector-test"));
+
     [Fact]
     public async Task FilesThatAreNotPartOfTheProjectAreNeverSentToTheService()
     {

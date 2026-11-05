@@ -25,6 +25,25 @@ public class ProjectService(
             Microsoft.Extensions.Logging.Abstractions.NullLogger<ProjectService>.Instance)
     { }
 
+    /// <inheritdoc />
+    public void DetectFramework(ProjectSettings settings, string folder)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+        settings.SaveFormat = new FormatDetector(strategyFactory.SaveStrategies).Detect(folder);
+        var profile = (frameworkProfiles ?? []).Where(p => p is Toucan.Core.Contracts.IFrameworkFeatures && strategyFactory.GetLoadStrategy(p.DefaultFormatId) is IResourceDiscoveryStrategy).OrderByDescending(p => p.DetectionScore(folder)).FirstOrDefault(p => p.DetectionScore(folder) > 0);
+        if (profile is Toucan.Core.Contracts.IFrameworkFeatures features)
+        {
+            var resources = profile.DiscoverFiles(folder).Select(features.Describe).ToList();
+            if (resources.Count > 0 && resources.All(r => strategyFactory.GetResourceLoadStrategy(r.FormatId) != null))
+            {
+                settings.Framework = profile.Id; settings.SaveFormat = profile.DefaultFormatId;
+                settings.ResourceDocuments = resources.Select(r => new ResourceDocumentState { Resource = r }).ToList();
+                settings.PrimaryLanguage = resources.First(r => r.Ownership == ResourceOwnership.GeneratedSource || resources.All(d => d.Ownership != ResourceOwnership.GeneratedSource)).Language;
+                settings.Languages = resources.Select(r => r.Language).Distinct().ToList();
+            }
+        }
+    }
+
     public ProjectLoadResult LoadProject(string folder, IProgress<ScanProgress>? progress = null, CancellationToken ct = default)
     {
         using var _ = ScanContext.Begin(ct, progress);
@@ -43,19 +62,7 @@ public class ProjectService(
             else
             {
                 settings = ProjectSettings.CreateDefault(folder);
-                settings.SaveFormat = new FormatDetector(strategyFactory.SaveStrategies).Detect(folder);
-                var profile = (frameworkProfiles ?? []).Where(p => p is Toucan.Core.Contracts.IFrameworkFeatures && strategyFactory.GetLoadStrategy(p.DefaultFormatId) is IResourceDiscoveryStrategy).OrderByDescending(p => p.DetectionScore(folder)).FirstOrDefault(p => p.DetectionScore(folder) > 0);
-                if (profile is Toucan.Core.Contracts.IFrameworkFeatures features)
-                {
-                    var resources = profile.DiscoverFiles(folder).Select(features.Describe).ToList();
-                    if (resources.Count > 0 && resources.All(r => strategyFactory.GetResourceLoadStrategy(r.FormatId) != null))
-                    {
-                        settings.Framework = profile.Id; settings.SaveFormat = profile.DefaultFormatId;
-                        settings.ResourceDocuments = resources.Select(r => new ResourceDocumentState { Resource = r }).ToList();
-                        settings.PrimaryLanguage = resources.First(r => r.Ownership == ResourceOwnership.GeneratedSource || resources.All(d => d.Ownership != ResourceOwnership.GeneratedSource)).Language;
-                        settings.Languages = resources.Select(r => r.Language).Distinct().ToList();
-                    }
-                }
+                DetectFramework(settings, folder);
             }
         }
         settings.ProjectPath = folder;

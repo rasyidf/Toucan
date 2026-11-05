@@ -215,6 +215,13 @@ internal sealed class FakeDialogService : IDialogService
     }
     public Func<AddConnectionViewModel, Toucan.Core.Models.SourceConnectionSettings?>? OnAddConnection { get; set; }
     public Task<Toucan.Core.Models.SourceConnectionSettings?> ShowAddConnectionAsync(AddConnectionViewModel vm) => Task.FromResult(OnAddConnection?.Invoke(vm));
+    public Func<OpenFromServiceViewModel, Toucan.Core.Sources.RemoteProjectResult?>? OnOpenFromService { get; set; }
+    public List<OpenFromServiceViewModel> OpenFromServiceShown { get; } = [];
+    public Task<Toucan.Core.Sources.RemoteProjectResult?> ShowOpenFromServiceAsync(OpenFromServiceViewModel vm)
+    {
+        OpenFromServiceShown.Add(vm);
+        return Task.FromResult(OnOpenFromService?.Invoke(vm));
+    }
     public List<AccountsViewModel> AccountsShown { get; } = [];
     public Task ShowAccountsAsync(AccountsViewModel vm) { AccountsShown.Add(vm); return Task.CompletedTask; }
     /// <summary>Lets a test act as the user inside the prompt editor.</summary>

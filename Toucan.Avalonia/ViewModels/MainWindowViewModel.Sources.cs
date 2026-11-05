@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.Input;
 using Toucan.Avalonia.Services;
+using Toucan.Core.Models;
 using Toucan.Core.Plugins;
 using Toucan.Core.Sources;
 using Toucan.Plugins;
@@ -28,6 +29,8 @@ public partial class MainWindowViewModel
         if (_syncCoordinator is null || _sourceConnections is null || _sourceAdapters is null) return;
         Sources = new SourcesViewModel(_syncCoordinator, _sourceConnections, _sourceAdapters, _dialogService, _messageService, _notifications,
             () => ProjectSettings, CreateAddConnection, CreateAccounts, () => StatusBarService.Instance.ViewModel?.Sync);
+        // A project that was just opened shows its connections without waiting for the panel to be toggled.
+        PropertyChanged += (_, e) => { if (e.PropertyName == nameof(ProjectSettings)) Sources?.Reload(); };
         _lifecycleService.ProjectChanged += (_, _) => global::Avalonia.Threading.Dispatcher.UIThread.Post(() => Sources.Reload());
         _syncCoordinator.DeliveryChanged += (_, _) => global::Avalonia.Threading.Dispatcher.UIThread.Post(RefreshDeliveryBadges);
     }
@@ -57,6 +60,43 @@ public partial class MainWindowViewModel
     private void RefreshDeliveryBadges()
     {
         foreach (var shown in PagingController.Data.SelectMany(g => g.AllItems)) ApplyDelivery(shown);
+    }
+
+    /// <summary>
+    /// Opens a project that lives at a service: asks which, makes a local folder for it, pulls its files and opens it, listed in the
+    /// recent projects as <c>service:name</c>.
+    /// </summary>
+    [RelayCommand]
+    private async Task OpenFromService()
+    {
+        if (_sourceSignIn is null || _sourceAdapters is null)
+        {
+            await _messageService.ShowMessageAsync("This build has no content-source services.", "Open from a service");
+            return;
+        }
+        var signIn = _sourceSignIn;
+        var catalog = _sourceAdapters;
+        var vm = new OpenFromServiceViewModel(signIn, catalog, _dialogService, _messageService)
+        {
+            Create = async (adapter, account, project, folder, progress, ct) =>
+            {
+                var full = Path.GetFullPath(folder);
+                // The account chosen here is the one the project will use from now on.
+                signIn.Accounts.Bind(full, RemoteProjectBootstrap.ConnectionIdFor(adapter), account.Id);
+                await using var connections = new SourceConnectionService(null, catalog, signIn);
+                var bootstrap = new RemoteProjectBootstrap(async (settings, root, token) =>
+                {
+                    await connections.OpenWorkspaceAsync(root, [settings], token).ConfigureAwait(false);
+                    return await connections.GetSessionAsync(settings.Id, token).ConfigureAwait(false);
+                }, (settings, root) => _projectService.DetectFramework(settings, root));
+                var address = adapter.Descriptor.DefaultBaseUrl is { } known && SourceAccounts.SameInstance(known, account.BaseUrl) ? null : account.BaseUrl;
+                return await bootstrap.CreateAsync(adapter, address, project, full, progress, ct).ConfigureAwait(false);
+            },
+        };
+        if (await _dialogService.ShowOpenFromServiceAsync(vm) is not { } result) return;
+        await OpenProjectAsync(result.Folder);
+        _recentFileService.SetLabel(result.Folder, result.Label);
+        RefreshRecentProjects();
     }
 
     [RelayCommand] private void PullSource() => Sources?.PullCommand.Execute(null);

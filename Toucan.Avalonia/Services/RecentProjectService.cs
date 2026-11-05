@@ -77,6 +77,14 @@ public sealed class RecentProjectService : IRecentProjectService
         Save();
     }
 
+    public void SetLabel(string projectPath, string? label)
+    {
+        var project = _recentProjects.FirstOrDefault(p => p.Path == projectPath);
+        if (project == null || project.Label == label) return;
+        project.Label = string.IsNullOrWhiteSpace(label) ? null : label;
+        Save();
+    }
+
     public void Clear(bool keepPinned)
     {
         _recentProjects = keepPinned ? _recentProjects.Where(p => p.IsPinned).ToList() : [];

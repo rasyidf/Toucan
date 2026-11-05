@@ -334,6 +334,7 @@ internal static class MainMenu
 
         var sources = new List<Item>
         {
+            new("Open from a Service…", vm.OpenFromServiceCommand, Action: "Open From Service"),
             new("Pull…", vm.PullSourceCommand, Action: "Pull", RequiresProject: true),
             new("Push…", vm.PushSourceCommand, Action: "Push", RequiresProject: true),
             new("Sync…", vm.SyncSourceCommand, Action: "Sync", RequiresProject: true),

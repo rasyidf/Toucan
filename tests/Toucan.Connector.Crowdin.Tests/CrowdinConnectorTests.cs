@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using Toucan.Core.Plugins;
 using Toucan.Core.Sources;
 using Toucan.Plugins;
 using Toucan.Plugins.Testing;
@@ -324,6 +325,31 @@ public sealed class CrowdinConnectorTests : IDisposable
     }
 
     // ───────────── live (opt in) ─────────────
+
+    [Fact]
+    public async Task LiveOpenAProjectFromCrowdinIntoANewFolder()
+    {
+        var token = Environment.GetEnvironmentVariable("TOUCAN_CROWDIN_TOKEN");
+        var project = Environment.GetEnvironmentVariable("TOUCAN_CROWDIN_PROJECT");
+        Assert.SkipWhen(string.IsNullOrEmpty(token) || string.IsNullOrEmpty(project), "Set TOUCAN_CROWDIN_TOKEN and TOUCAN_CROWDIN_PROJECT to run against Crowdin. Reads the project and writes only to a temporary folder.");
+
+        var folder = Path.Combine(Directory.CreateTempSubdirectory("toucan-crowdin-live-").FullName, "project");
+        var baseUrl = new Uri("https://api.crowdin.com/api/v2/");
+        using var factory = new SourceHttpClientFactory(new SourceNetworkPolicy(_manifest.Network, baseUrl), new StaticSourceCredentials(token!), new ApiTokenAuth("token", "Token"), new TestDiagnostics());
+        var bootstrap = new RemoteProjectBootstrap((settings, root, ct) => _adapter.OpenSessionAsync(new SourceTestContext(new SourceConnectionInfo
+        {
+            ConnectionId = settings.Id, AdapterId = settings.Adapter!, BaseUrl = baseUrl, RemoteProjectId = settings.RemoteProject!.Id,
+        }, http: factory), ct));
+        var summary = new RemoteProjectSummary(project!, "live-project");
+        var result = await bootstrap.CreateAsync(new RegisteredSourceAdapter("crowdin.connector", _adapter), null, summary, folder, cancellationToken: TestContext.Current.CancellationToken);
+
+        TestContext.Current.TestOutputHelper!.WriteLine($"{result.Label}: {result.Documents} documents in {result.Folder}");
+        foreach (var file in Directory.GetFiles(folder, "*", SearchOption.AllDirectories).Order(StringComparer.Ordinal))
+            TestContext.Current.TestOutputHelper.WriteLine("  " + Path.GetRelativePath(folder, file));
+        Assert.True(result.Documents > 0);
+        Assert.True(File.Exists(Path.Combine(folder, "toucan.tproj")));
+        Directory.Delete(Path.GetDirectoryName(folder)!, recursive: true);
+    }
 
     [Fact]
     public async Task LiveReadOnlyCheckAgainstARealProject()

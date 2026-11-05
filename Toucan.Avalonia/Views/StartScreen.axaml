@@ -60,7 +60,7 @@
               </Border>
             </Grid>
 
-            <Grid x:Name="TranslationsAnchor" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="10">
+            <Grid x:Name="TranslationsAnchor" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="10">
               <Button Classes="startAction primary" Command="{Binding NewFolderCommand}">
                 <Grid ColumnDefinitions="48,* ,Auto" ColumnSpacing="12" VerticalAlignment="Center">
                   <Border Width="42" Height="42" CornerRadius="24" Background="#FFFFFF" VerticalAlignment="Center">
@@ -110,6 +110,18 @@
                   <ui:FASymbolIcon Grid.Column="2" Symbol="ChevronRight" VerticalAlignment="Center"/>
                 </Grid>
               </Button>
+              <Button Grid.Row="2" Classes="startAction" Command="{Binding OpenFromServiceCommand}" IsVisible="{Binding HasSources}">
+                <Grid ColumnDefinitions="42,* ,Auto" ColumnSpacing="12" VerticalAlignment="Center">
+                  <Border Classes="card" Width="40" Height="40" CornerRadius="22" Padding="0" VerticalAlignment="Center">
+                    <ui:FASymbolIcon Symbol="Sync" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  </Border>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
+                    <TextBlock Text="{loc:Loc 'Open from a service'}" FontSize="15" FontWeight="SemiBold"/>
+                    <TextBlock Text="{loc:Loc 'A project on Crowdin or another connected service'}" FontSize="11" Classes="caption" TextWrapping="Wrap"/>
+                  </StackPanel>
+                  <ui:FASymbolIcon Grid.Column="2" Symbol="ChevronRight" VerticalAlignment="Center"/>
+                </Grid>
+              </Button>
             </Grid>
             <CheckBox Content="{loc:Loc 'Reopen the last project on startup'}" IsChecked="{Binding OpenLastProjectOnStartup}"/>
           </StackPanel>
@@ -136,7 +148,7 @@
                             <ui:FASymbolIcon Symbol="Folder" FontSize="18" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
                             <StackPanel>
                               <StackPanel Orientation="Horizontal" Spacing="6">
-                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"/>
                                 <ui:FASymbolIcon Symbol="Pin" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding IsPinned}"
                                                  Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
                               </StackPanel>
