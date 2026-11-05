@@ -44,6 +44,10 @@ public sealed partial class OpenFromServiceViewModel : ObservableObject
     [ObservableProperty] private string problem = string.Empty;
     [ObservableProperty] private bool isBusy;
 
+    /// <summary>How far the pull has got (0 to 100); indeterminate until the first file is counted.</summary>
+    [ObservableProperty] private double progressValue;
+    [ObservableProperty] private bool isProgressIndeterminate = true;
+
     /// <summary>Set when the project was created; the dialog closes after that.</summary>
     public RemoteProjectResult? Result { get; private set; }
 
@@ -57,7 +61,9 @@ public sealed partial class OpenFromServiceViewModel : ObservableObject
     public bool ShowsNoProjects => SelectedAccount is not null && Projects.Count == 0 && !IsLoading;
 
     private bool _loading;
-    private bool IsLoading { get => _loading; set { _loading = value; OnPropertyChanged(nameof(ShowsNoProjects)); } }
+
+    /// <summary>The project list is being read.</summary>
+    public bool IsLoading { get => _loading; private set { _loading = value; OnPropertyChanged(nameof(ShowsNoProjects)); OnPropertyChanged(); } }
     public bool CanOpen => !IsBusy && SelectedAccount is not null && SelectedProject is not null && !string.IsNullOrWhiteSpace(Folder);
 
     public event EventHandler? CloseRequested;
@@ -88,7 +94,14 @@ public sealed partial class OpenFromServiceViewModel : ObservableObject
     }
 
     partial void OnFolderChanged(string value) => OnPropertyChanged(nameof(CanOpen));
-    partial void OnIsBusyChanged(bool value) => OnPropertyChanged(nameof(CanOpen));
+    partial void OnIsBusyChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CanOpen));
+        OnPropertyChanged(nameof(OpenText));
+        if (value) { ProgressValue = 0; IsProgressIndeterminate = true; }
+    }
+
+    public string OpenText => IsBusy ? "Opening…" : "Open project";
     partial void OnProblemChanged(string value) => OnPropertyChanged(nameof(HasProblem));
 
     private void SetFolderFromName(RegisteredSourceAdapter service, string projectName)
@@ -173,7 +186,11 @@ public sealed partial class OpenFromServiceViewModel : ObservableObject
         IsBusy = true;
         try
         {
-            var progress = new Progress<SyncProgress>(p => StatusText = p.Message);
+            var progress = new Progress<SyncProgress>(p =>
+            {
+                StatusText = p.Message;
+                if (p.Total > 0) { IsProgressIndeterminate = false; ProgressValue = 100.0 * p.Done / p.Total; }
+            });
             Result = await Create(service, account, project, Folder.Trim(), progress, CancellationToken.None);
             CloseRequested?.Invoke(this, EventArgs.Empty);
         }

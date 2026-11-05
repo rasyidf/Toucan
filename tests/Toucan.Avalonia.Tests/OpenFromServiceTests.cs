@@ -247,3 +247,25 @@ public sealed class OpenFromServiceTests : IDisposable
         Assert.Equal(["test.files"], _host.Dialogs.OpenFromServiceShown[0].Services.Select(s => s.Descriptor.Id));
     }
 }
+
+/// <summary>How a language reads on a row: its own name, then the code, on one line.</summary>
+public sealed class LanguageLabelTests
+{
+    [Theory]
+    [InlineData("de-DE", "Deutsch (de)")]
+    [InlineData("de", "Deutsch (de)")]
+    [InlineData("fr-FR", "Français (fr)")]
+    [InlineData("en-US", "English (en)")]
+    [InlineData("de-AT", "Deutsch (de-AT)")]
+    [InlineData("en-GB", "English (en-GB)")]
+    [InlineData("pt-PT", "Português (pt-PT)")]
+    [InlineData("de_DE", "Deutsch (de)")]
+    public void ShowsTheLanguagesOwnNameAndTheCode(string code, string expected) =>
+        Assert.Equal(expected, Toucan.Avalonia.Converters.LanguageLabelConverter.Label(code));
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("xx-custom-tag")]
+    public void CustomTagsStayAsTheyAre(string code) =>
+        Assert.Equal(code, Toucan.Avalonia.Converters.LanguageLabelConverter.Label(code));
+}

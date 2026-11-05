@@ -22,8 +22,14 @@
                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
                     <TextBlock Text="{Binding AdapterName}" Classes="caption"/>
                   </StackPanel>
-                  <Border Grid.Column="1" Classes="badge" VerticalAlignment="Top"><TextBlock Text="{Binding StateText}"/></Border>
+                  <Border Grid.Column="1" Classes="badge" VerticalAlignment="Top">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <ui:FAProgressRing IsIndeterminate="True" Width="12" Height="12" VerticalAlignment="Center" IsVisible="{Binding IsBusy}"/>
+                      <TextBlock Text="{Binding StateText}"/>
+                    </StackPanel>
+                  </Border>
                 </Grid>
+                <ProgressBar IsIndeterminate="True" Height="3" MinHeight="0" IsVisible="{Binding IsBusy}" AutomationProperties.Name="{loc:Loc 'Syncing'}"/>
                 <TextBlock Text="{Binding LastPullText}" Classes="caption"/>
                 <TextBlock Text="{Binding LastPushText}" Classes="caption"/>
                 <TextBlock Text="{Binding PendingText}" Classes="caption" Foreground="{DynamicResource WarnBrush}" IsVisible="{Binding PendingCount}"/>

@@ -12,10 +12,12 @@
     <!-- One language row: badge · value editor · row actions -->
     <DataTemplate x:Key="RowTemplate">
       <Grid Classes="translationRow" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,4" IsVisible="{Binding IsLanguageVisible}">
-        <Border Classes="langBadge rowLanguage" MinWidth="36" MinHeight="36" MaxWidth="80" ToolTip.Tip="{Binding Language, Converter={StaticResource LanguageName}}">
-          <StackPanel>
-            <TextBlock Text="{Binding Language}" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Text="{loc:Loc 'Source'}" IsVisible="{Binding IsSource}" FontSize="10"/>
+        <Border Classes="langBadge rowLanguage" MinWidth="36" MinHeight="28" MaxWidth="260" ToolTip.Tip="{Binding Language, Converter={StaticResource LanguageName}}">
+          <!-- One line: "Deutsch (de) · Source" -->
+          <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+            <TextBlock Text="{Binding Language, Converter={StaticResource LanguageLabel}}" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Text="·" IsVisible="{Binding IsSource}" Opacity="0.6"/>
+            <TextBlock Text="{loc:Loc 'Source'}" IsVisible="{Binding IsSource}" FontWeight="Normal" Opacity="0.8"/>
           </StackPanel>
         </Border>
 

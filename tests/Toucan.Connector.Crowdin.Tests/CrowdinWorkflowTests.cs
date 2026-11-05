@@ -50,7 +50,7 @@ public sealed class CrowdinWorkflowTests : IDisposable
         var remote = _crowdin.AddFile("locales/en/common.json", """{"title":"Welcome"}""");
         remote.Translations["fr"] = """{"title":"Bienvenue"}"""u8.ToArray();
         _file = new CrowdinFile(remote);
-        Write("locales/en/common.json", """{"title":"Welcome"}""");
+        Write("locales/en-US/common.json", """{"title":"Welcome"}""");
         Write("locales/fr-FR/common.json", """{"title":"Bienvenue"}""");
     }
 
@@ -114,7 +114,7 @@ public sealed class CrowdinWorkflowTests : IDisposable
         Assert.Equal("""{"title":"Bienvenue !"}""", Read("locales/fr-FR/common.json"));
 
         // 3. Offline: edit the source file here. Then close Toucan.
-        Write("locales/en/common.json", """{"title":"Welcome!"}""");
+        Write("locales/en-US/common.json", """{"title":"Welcome!"}""");
         first.Dispose();
 
         // 4. Reopen. Meanwhile the translator changed the same French file again, and so did we: a conflict nothing resolves silently.
@@ -124,7 +124,7 @@ public sealed class CrowdinWorkflowTests : IDisposable
         var plan = await second.PlanAsync("crowdin", SyncPlanKind.Sync);
         Assert.True(plan.IsDocumentPlan);
         Assert.Equal("locales/fr-FR/common.json", Assert.Single(plan.Conflicts).Remote.Name);
-        Assert.Equal("locales/en/common.json", Assert.Single(plan.Push).Remote.Name);
+        Assert.Equal("locales/en-US/common.json", Assert.Single(plan.Push).Remote.Name);
 
         // 5. The non-conflicting source change goes out; the conflict stays until we choose.
         var partial = await second.ApplyAsync(plan);
@@ -214,7 +214,7 @@ public sealed class CrowdinWorkflowTests : IDisposable
 
         Assert.Equal(("crowdin:Demo", Path.GetFullPath(folder)), (result.Label, result.Folder));
         Assert.Equal(3, result.Documents); // the source file and its French and German exports
-        Assert.Equal("""{"title":"Welcome"}""", File.ReadAllText(Path.Combine(folder, "locales/en/common.json")));
+        Assert.Equal("""{"title":"Welcome"}""", File.ReadAllText(Path.Combine(folder, "locales/en-US/common.json")));
         Assert.True(File.Exists(Path.Combine(folder, "locales/fr-FR/common.json")));
         Assert.True(File.Exists(Path.Combine(folder, "locales/de-DE/common.json")));
 

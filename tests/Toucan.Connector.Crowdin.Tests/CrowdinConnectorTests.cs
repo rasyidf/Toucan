@@ -90,7 +90,7 @@ public sealed class CrowdinConnectorTests : IDisposable
             // Another translator changes the source file in Crowdin.
             var existing = owner._crowdin.Files.FirstOrDefault(f => f.Path == path);
             if (existing is not null) existing.Source = bytes;
-            else owner._crowdin.AddFile(path, Encoding.UTF8.GetString(bytes));
+            else owner._crowdin.AddFile(path, Encoding.UTF8.GetString(bytes), exportPattern: null);
             return Task.CompletedTask;
         }
 
@@ -123,9 +123,24 @@ public sealed class CrowdinConnectorTests : IDisposable
 
         var docs = await ListAsync(session);
 
-        Assert.Equal(["locales/de-DE/common.json", "locales/en/common.json", "locales/fr-FR/common.json"], docs.Select(d => d.Ref.Path).Order(StringComparer.Ordinal));
+        Assert.Equal(["locales/de-DE/common.json", "locales/en-US/common.json", "locales/fr-FR/common.json"], docs.Select(d => d.Ref.Path).Order(StringComparer.Ordinal));
         Assert.All(docs, d => Assert.StartsWith("sha256:", d.Version, StringComparison.Ordinal));
         Assert.Equal("fr", docs.Single(d => d.Ref.Path == "locales/fr-FR/common.json").Ref.Language);
+    }
+
+    [Fact]
+    public async Task ASourceFileAtTheProjectRootSitsBesideItsTranslationsInOneLayout()
+    {
+        // Crowdin's own source path is /common.json, which would otherwise read as a language called "common".
+        _crowdin.AddFile("common.json", "{}");
+        await using var session = await OpenAsync();
+
+        var paths = (await ListAsync(session)).Select(d => d.Ref.Path).Order(StringComparer.Ordinal).ToList();
+
+        Assert.Equal(["locales/de-DE/common.json", "locales/en-US/common.json", "locales/fr-FR/common.json"], paths);
+        Assert.DoesNotContain("common.json", paths);
+        var read = await session.ReadDocumentAsync(new("locales/en-US/common.json"), TestContext.Current.CancellationToken);
+        Assert.Equal("{}", Text(read.Bytes));
     }
 
     [Fact]
@@ -134,7 +149,7 @@ public sealed class CrowdinConnectorTests : IDisposable
         _crowdin.AddFile("common.json", "{}");
         await using var session = await OpenAsync(languages: "fr");
         var paths = (await ListAsync(session)).Select(d => d.Ref.Path).Order(StringComparer.Ordinal).ToList();
-        Assert.Equal(["common.json", "locales/fr-FR/common.json"], paths);
+        Assert.Equal(["locales/en-US/common.json", "locales/fr-FR/common.json"], paths);
     }
 
     [Fact]
@@ -199,7 +214,7 @@ public sealed class CrowdinConnectorTests : IDisposable
         await using var session = await OpenAsync();
         await ListAsync(session);
         _crowdin.AddFile("late.json", "{}");
-        var content = await session.ReadDocumentAsync(new("late.json"), TestContext.Current.CancellationToken);
+        var content = await session.ReadDocumentAsync(new("locales/en-US/late.json"), TestContext.Current.CancellationToken);
         Assert.Equal("{}", Text(content.Bytes));
     }
 
@@ -234,7 +249,7 @@ public sealed class CrowdinConnectorTests : IDisposable
     {
         var file = _crowdin.AddFile("locales/en/common.json", """{"a":"A"}""");
         await using var session = await OpenAsync();
-        var read = await session.ReadDocumentAsync(new("locales/en/common.json"), TestContext.Current.CancellationToken);
+        var read = await session.ReadDocumentAsync(new("locales/en-US/common.json"), TestContext.Current.CancellationToken);
 
         var result = await session.WriteDocumentAsync(new(Guid.NewGuid(), read.Ref, """{"a":"A2"}"""u8.ToArray(), read.Version), TestContext.Current.CancellationToken);
 

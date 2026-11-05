@@ -117,15 +117,16 @@ public sealed class CrowdinAdapter : IContentSourceAdapter, ISupportsProjectDisc
     internal static string Hash(ReadOnlySpan<byte> bytes) => "sha256:" + Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
 
     /// <summary>
-    /// The path of a file in a language, from the file's export pattern (<c>/locales/%locale%/%original_file_name%</c>). Without a
-    /// pattern Crowdin writes every language to the source path; Toucan then puts them under a folder named for the language.
+    /// The path of a file in a language, from the file's export pattern (<c>/locales/%locale%/%original_file_name%</c>), the source
+    /// language included: a source file kept at the project root then sits beside its translations in one layout
+    /// (<c>locales/en-US/common.json</c>) and the framework detection sees languages, not file names. Without a pattern Crowdin
+    /// writes every language to the source path; Toucan keeps the source there and puts the others under a folder named for the language.
     /// </summary>
     internal static string DocumentPath(FileDtoView file, LanguageView language, string sourceLanguage)
     {
         var source = file.Path.TrimStart('/');
-        if (string.Equals(language.Id, sourceLanguage, StringComparison.Ordinal)) return source;
         var pattern = file.ExportPattern;
-        if (string.IsNullOrWhiteSpace(pattern)) return $"{language.Id}/{source}";
+        if (string.IsNullOrWhiteSpace(pattern)) return string.Equals(language.Id, sourceLanguage, StringComparison.Ordinal) ? source : $"{language.Id}/{source}";
         var slash = source.LastIndexOf('/');
         var directory = slash < 0 ? string.Empty : source[..slash];
         var name = slash < 0 ? source : source[(slash + 1)..];
