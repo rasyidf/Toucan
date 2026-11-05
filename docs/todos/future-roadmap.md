@@ -95,6 +95,8 @@ The upstream release records its connector acceptance as passed. Revalidation of
 
 **Outcome:** a shared workspace can load and persist content through source adapters without changing translation engines.
 
+Design and work order for v0.27–v0.29: [content sources spec](../specs/content-sources/design.md).
+
 - [ ] Define content-source contracts separately from `ITranslationProvider` and AI backends; expose optional read, snapshot-write, CRUD, status, revision, and delta capabilities.
 - [ ] Add connection profiles with stable provider and connection IDs, project selection, secret references, permissions, and a connection test; support multiple profiles for one service.
 - [ ] Extend workspace identity and persistence (building on the v0.23 workspace API) for connection, package/resource scope, source/target locales and text, stable unit IDs, remote IDs/revisions, and preserved format metadata.
