@@ -386,7 +386,39 @@ public sealed class SyncCoordinator : IDisposable
         return state;
     }
 
-    private void OnWorkspaceChanged(object? sender, EventArgs e) => RefreshDelivery(publish: true);
+    /// <summary>
+    /// How long edits are batched before delivery states are recomputed. Every edit raises the workspace's change event, and a
+    /// recomputation walks the whole project, so typing must not trigger one per keystroke.
+    /// </summary>
+    public TimeSpan DeliveryDebounce { get; init; } = TimeSpan.FromMilliseconds(250);
+
+    private int _refreshQueued;
+
+    private void OnWorkspaceChanged(object? sender, EventArgs e)
+    {
+        if (Interlocked.Exchange(ref _refreshQueued, 1) == 1) return;
+        _ = Task.Run(async () =>
+        {
+            try { await Task.Delay(DeliveryDebounce, _time).ConfigureAwait(false); }
+            finally { Interlocked.Exchange(ref _refreshQueued, 0); }
+            RefreshDelivery(publish: true);
+        });
+    }
+
+    // The baseline can be tens of megabytes; it is read again only when its file changed.
+    private readonly Dictionary<string, (DateTime Stamp, long Length, object? Value)> _fileCache = new(StringComparer.Ordinal);
+
+    private T? LoadCached<T>(string path, Func<T?> load) where T : class
+    {
+        var info = new FileInfo(path);
+        var stamp = info.Exists ? info.LastWriteTimeUtc : DateTime.MinValue;
+        var length = info.Exists ? info.Length : -1;
+        lock (_gate)
+            if (_fileCache.TryGetValue(path, out var hit) && hit.Stamp == stamp && hit.Length == length) return (T?)hit.Value;
+        var value = load();
+        lock (_gate) _fileCache[path] = (stamp, length, value);
+        return value;
+    }
 
     /// <summary>Recomputes delivery states from the journals, baselines and the project, and tells subscribers what moved.</summary>
     public void RefreshDelivery(bool publish)
@@ -410,7 +442,7 @@ public sealed class SyncCoordinator : IDisposable
             {
                 var store = new SyncStateStore(root, connection.Id, _time);
                 var local = SyncMapping.LocalUnits(snapshot, [.. connection.Languages.Keys]);
-                var next = SyncDelivery.Compute(store.LoadBaseline(), store.LoadJournal(), local);
+                var next = SyncDelivery.Compute(LoadCached(store.BaselinePath, store.LoadBaseline), LoadCached(store.JournalPath, store.LoadJournal) ?? new SyncJournal(), local);
                 lock (_gate)
                 {
                     var before = _delivery.GetValueOrDefault(connection.Id);

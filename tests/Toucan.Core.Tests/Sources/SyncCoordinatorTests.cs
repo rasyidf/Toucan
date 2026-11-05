@@ -56,7 +56,7 @@ public sealed class SyncCoordinatorTests : IDisposable
         _session.Put("hello", "fr", "Bonjour");
         _session.Put("bye", "fr", "Salut");
         _connections.GetSessionAsync("c1", Arg.Any<CancellationToken>()).Returns(_ => Task.FromResult<IContentSourceSession>(_session));
-        _coordinator = new SyncCoordinator(_workspace, _connections, new Catalog());
+        _coordinator = new SyncCoordinator(_workspace, _connections, new Catalog()) { DeliveryDebounce = TimeSpan.FromMilliseconds(5) };
         _coordinator.Open(_root, _settings);
     }
 
@@ -119,6 +119,7 @@ public sealed class SyncCoordinatorTests : IDisposable
         await SettleFirstSyncAsync();
         await EditAsync("hello", "Coucou");
         var hello = (await _workspace.SnapshotEntriesAsync())!.Units.Single(u => u.Key == "hello");
+        _coordinator.RefreshDelivery(publish: false);
         Assert.Equal(SourceDeliveryState.Pending, _coordinator.DeliveryOf(hello.EntryId, "fr"));
 
         var result = await _coordinator.RunAsync("c1", SyncPlanKind.Push);

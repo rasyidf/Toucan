@@ -10,6 +10,7 @@ using Toucan.Avalonia.Views.Dialogs;
 using Toucan.Avalonia.Views.Panels;
 using Toucan.Core.Commands;
 using Toucan.Core.Contracts;
+using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
 using Toucan.Core.Plugins;
 using Toucan.Core.Services;
@@ -338,6 +339,7 @@ public sealed class SourcesUiTests : IDisposable
         Assert.True((await vm.Workspace.ApplyAsync("test", new WorkspaceEdit().SetValue("hello", "fr", "Coucou"))).Applied);
         var coordinator = _host.Services.GetRequiredService<SyncCoordinator>();
         var entry = (await vm.Workspace.SnapshotEntriesAsync())!.Units.Single(u => u.Key == "hello" && u.Language == "fr");
+        coordinator.RefreshDelivery(publish: true);
         Assert.Equal(SourceDeliveryState.Pending, coordinator.DeliveryOf(entry.EntryId, "fr"));
         Assert.Equal("1 not synced", vm.Sources.Connections[0].PendingText);
 
@@ -410,6 +412,38 @@ public sealed class SourcesUiTests : IDisposable
     {
         var method = typeof(SyncCoordinator).GetMethod("Publish", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
         method.Invoke(coordinator, [status]);
+    }
+
+    // ───────────── Save As ─────────────
+
+    [AvaloniaFact]
+    public async Task SaveAsKeepsTheConnectionsButStartsTheCopyAsAFirstSync()
+    {
+        var vm = await OpenProjectAsync();
+        foreach (var (key, lang, value) in new[] { ("hello", "fr", "Bonjour"), ("bye", "fr", "Au revoir"), ("hello", "en", "Hello"), ("bye", "en", "Bye") }) _service.Put(key, lang, value);
+        await ConnectAsync(vm);
+        await vm.Sources!.SyncNowCommand.ExecuteAsync(null);
+        var original = vm.ProjectSettings!.ProjectPath;
+        Assert.True(new SyncStateStore(original, "mem").HasBaseline);
+
+        var copy = Path.Combine(_host.Root, "copy");
+        var lifecycle = _host.Services.GetRequiredService<IProjectLifecycleService>();
+        var saved = await lifecycle.SaveProjectAsAsync(copy);
+        Assert.True(saved.Status == ProjectSaveStatus.Success, saved.ErrorMessage);
+
+        var coordinator = _host.Services.GetRequiredService<SyncCoordinator>();
+        Assert.Equal(Path.GetFullPath(copy), coordinator.ProjectRoot);
+        var settings = ProjectSettings.LoadFrom(copy)!;
+        Assert.Equal("mem", Assert.Single(settings.Sources).Id);
+        Assert.NotSame(settings.Sources[0], _connection);
+        // The copy is a different set of files: it does not inherit what the original last agreed on with the service.
+        Assert.False(new SyncStateStore(copy, "mem").HasBaseline);
+        Assert.True(new SyncStateStore(original, "mem").HasBaseline);
+
+        var plan = await coordinator.PlanAsync("mem", SyncPlanKind.Sync);
+        Assert.True(plan.IsFirstSync);
+        Assert.Empty(plan.Conflicts);
+        Assert.NotEqual(SourceConnectionState.Failed, _host.Services.GetRequiredService<ISourceConnectionService>().Status("mem")!.State);
     }
 
     // ───────────── wizard ─────────────

@@ -57,6 +57,7 @@ public sealed class SyncExecutor(TimeProvider? time = null)
         private readonly IProgress<SyncProgress>? _progress;
         private readonly SyncJournal _journal;
         private readonly SyncBaseline _baseline;
+        private readonly Dictionary<(Guid EntryId, string Language), BaselineUnit> _index;
         private readonly Lock _gate = new();
         private readonly List<SyncConflict> _conflicts = [];
         private readonly List<string> _errors = [];
@@ -70,6 +71,7 @@ public sealed class SyncExecutor(TimeProvider? time = null)
             (_owner, _connection, _session, _caps, _limits, _store, _progress) = (owner, connection, session, caps, limits, store, progress);
             _journal = store.LoadJournal();
             _baseline = store.LoadBaseline() ?? new SyncBaseline();
+            _index = _baseline.Units.GroupBy(u => (u.EntryId, u.Language)).ToDictionary(g => g.Key, g => g.First());
         }
 
         public void Enqueue(SyncPlan plan)
@@ -234,7 +236,7 @@ public sealed class SyncExecutor(TimeProvider? time = null)
                 lock (_gate)
                 {
                     foreach (var e in pending) { e.State = JournalState.InFlight; e.Attempts++; e.LastError = null; }
-                    Save();
+                    SaveJournalOnly();
                 }
                 UnitWriteResult? result = null;
                 TimeSpan? backoff = null;
@@ -387,7 +389,7 @@ public sealed class SyncExecutor(TimeProvider? time = null)
             entry.AssignedRemoteId = assignedRemoteId;
             var now = _owner._time.GetUtcNow();
             var members = entry.Members.Count > 0 ? entry.Members : [new() { EntryId = entry.EntryId, Language = entry.Language }];
-            var byUnit = _baseline.Units.ToDictionary(u => (u.EntryId, u.Language));
+            var byUnit = _index;
             switch (entry.Kind)
             {
                 case JournalKind.PutValue:
@@ -427,8 +429,8 @@ public sealed class SyncExecutor(TimeProvider? time = null)
                     foreach (var m in members) byUnit.Remove((m.EntryId, m.Language));
                     break;
             }
-            _baseline.Units = [.. byUnit.Values];
             _baseline.LastPush = now;
+            _baselineDirty = true;
             Interlocked.Increment(ref _confirmed);
             Interlocked.Increment(ref _done);
             _progress?.Report(new(_done, _total, $"Sent {entry.Target.Name}"));
@@ -449,12 +451,18 @@ public sealed class SyncExecutor(TimeProvider? time = null)
             Interlocked.Increment(ref _done);
         }
 
+        private bool _baselineDirty;
+
         private void Save()
         {
-            // Confirmed entries are done: the baseline holds their result, so the journal drops them.
-            _store.SaveBaseline(_baseline);
-            _store.SaveJournal(new SyncJournal { Entries = [.. _journal.Entries.Where(e => e.State != JournalState.Confirmed)] });
+            // Confirmed entries are done: the baseline holds their result, so the journal drops them. The baseline is large
+            // (tens of megabytes at 100,000 translations), so it is written only when a result changed it.
+            if (_baselineDirty) { _baseline.Units = [.. _index.Values]; _store.SaveBaseline(_baseline); _baselineDirty = false; }
+            SaveJournalOnly();
         }
+
+        private void SaveJournalOnly() =>
+            _store.SaveJournal(new SyncJournal { Entries = [.. _journal.Entries.Where(e => e.State != JournalState.Confirmed)] });
 
         public PushResult Finish()
         {
