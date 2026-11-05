@@ -94,6 +94,7 @@
       <div class="sidebar-title">Jump to a release</div>
       <nav id="release-index" aria-label="Versions">
 <!-- RELEASE INDEX START -->
+<a href="#v0.25.0">v0.25.0</a>
 <a href="#v0.24.0">v0.24.0</a>
 <a href="#v0.23.0">v0.23.0</a>
 <a href="#v0.22.0">v0.22.0</a>
@@ -126,6 +127,30 @@
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div id="releases">
 <!-- RELEASES START -->
+<article class="release" id="v0.25.0" aria-labelledby="heading-v0.25.0">
+<div class="release-heading"><h2 id="heading-v0.25.0"><a href="#v0.25.0">v0.25.0</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-11-05">Nov 05, 2026</time></div>
+<div class="release-lead"><p>Glossary and message-aware validation, plus safer targeted saves for document projects.</p>
+<p>See <a href="release-v0.25.0.html">v0.25.0 release notes</a> for compatibility and known limits.</p></div>
+<div class="release-counts"><span class="added">5 added</span><span class="fixed">6 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for v0.25.0</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li>Project glossary with preferred/forbidden terms, language translations, descriptions, CSV exchange, selected-string matches, and explicit insertion through the Dictionary panel.</li>
+<li>Structural ICU plural/select validation with nested messages, required branches, argument checks and documented syntax limits.</li>
+<li>AI analysis strictness per project and re-translation of findings through the existing explicit preview flow.</li>
+<li><strong>Destination choices in document projects</strong> — Adding a key asks which source document should hold it only when more than one fits. Duplicating keeps keys with literal dots intact. Adding, removing, or managing languages now works in document projects: new language files are placed where the framework will discover them, and removed languages&#x27; files are deleted on the next save (undo cancels the deletion). Choices survive undo/redo and crash recovery.</li>
+<li><strong>Declared save scopes</strong> — Formats state whether a save rewrites every owned file or only the documents it plans. Only verified formats (JSON and namespaced JSON) use targeted saving.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Apply configured validation rule enable/severity settings consistently in desktop, CLI, save, native approval and plugin edits; preserve per-rule inheritance and Save As settings.</li>
+<li>Preserve explicit resource mappings during project loading, exclude JSON comment sidecars from resource discovery, and retain generated-resource permissions and identities in workspace projections.</li>
+<li>Validate pending document edits before strict saves and keep unrelated external file changes visible after targeted autosaves.</li>
+<li>Restore clean dirty baselines and stable entry identities after native structural undo; clear saved configuration changes and avoid false dirty state after filling a missing target.</li>
+<li>Reclaim comparison-column width when a language is hidden.</li>
+<li><strong>CLI saves of document projects</strong> — <code>toucan set</code> and <code>toucan translate</code> no longer rewrite every file of a document project with the legacy writer. They save only the affected documents, keep identities and metadata, and add a missing language to an existing key in its own document.</li>
+</ul></div></details>
+<div class="release-links"><a href="#v0.25.0" aria-label="Permalink to v0.25.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.25.0">Release on GitHub ↗</a></div>
+</article>
 <article class="release" id="v0.24.0" aria-labelledby="heading-v0.24.0">
 <div class="release-heading"><h2 id="heading-v0.24.0"><a href="#v0.24.0">v0.24.0</a></h2><span class="release-badge pending">Release draft</span><time datetime="2026-10-25">Oct 25, 2026</time></div>
 <div class="release-lead"><p>Editor comfort, resource compatibility and a contextual desktop shell.</p>
@@ -187,7 +212,7 @@
 <div class="release-links"><a href="#v0.24.0" aria-label="Permalink to v0.24.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.24.0">Release on GitHub ↗</a></div>
 </article>
 <article class="release" id="v0.23.0" aria-labelledby="heading-v0.23.0">
-<div class="release-heading"><h2 id="heading-v0.23.0"><a href="#v0.23.0">v0.23.0</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-10-13">Oct 13, 2026</time></div>
+<div class="release-heading"><h2 id="heading-v0.23.0"><a href="#v0.23.0">v0.23.0</a></h2><time datetime="2026-10-13">Oct 13, 2026</time></div>
 <div class="release-lead"><p>Extension platform: a connector can be built, installed, configured and used without changing Toucan.</p></div>
 <div class="release-counts"><span class="added">3 added</span><span class="changed">2 changed</span><span class="fixed">1 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.23.0</span></summary><div class="release-notes"><h3>Added</h3>
