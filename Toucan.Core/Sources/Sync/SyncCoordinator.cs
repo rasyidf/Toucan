@@ -187,10 +187,14 @@ public sealed class SyncCoordinator : IDisposable
     {
         lock (_gate)
         {
-            if (_running.TryGetValue(connectionId, out var active)) return active;
-            var task = RunCoreAsync(connectionId, kind, resolutions, requireNoConflicts, progress, cancellationToken);
+            // Only a run that is still going is joined: a finished one would hand back a stale result.
+            if (_running.TryGetValue(connectionId, out var active) && !active.IsCompleted) return active;
+            var task = Task.Run(async () =>
+            {
+                try { return await RunCoreAsync(connectionId, kind, resolutions, requireNoConflicts, progress, cancellationToken).ConfigureAwait(false); }
+                finally { lock (_gate) _running.Remove(connectionId); }
+            }, CancellationToken.None);
             _running[connectionId] = task;
-            _ = task.ContinueWith(_ => { lock (_gate) _running.Remove(connectionId); }, TaskScheduler.Default);
             return task;
         }
     }

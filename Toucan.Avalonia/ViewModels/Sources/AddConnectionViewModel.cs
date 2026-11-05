@@ -20,13 +20,34 @@ public enum ConnectionStep
     Test,
 }
 
-public sealed partial class LanguageMapRowViewModel(string projectLanguage, string? remote, bool isExact) : ObservableObject
+public sealed partial class LanguageMapRowViewModel(string projectLanguage, string? remote, bool isExact, IReadOnlyList<string> options) : ObservableObject
 {
-    public string ProjectLanguage { get; } = projectLanguage;
-    public bool IsExact { get; } = isExact;
-    public string Hint => IsExact ? string.Empty : Remote is null ? "No match" : "Suggested — please check";
+    /// <summary>The choice that leaves a language out of the sync.</summary>
+    public const string NotSynced = "Not synced";
 
-    [ObservableProperty] private string? remote = remote;
+    public string ProjectLanguage { get; } = projectLanguage;
+
+    /// <summary>"Deutsch (de)": the language's own name and code, as on the editor's rows.</summary>
+    public string Label => Toucan.Avalonia.Converters.LanguageLabelConverter.Label(ProjectLanguage);
+    public bool IsExact { get; } = isExact;
+
+    /// <summary>The service's languages, led by "Not synced".</summary>
+    public IReadOnlyList<string> Options { get; } = options;
+
+    public bool IsLeftOut => Remote is null or NotSynced;
+    public bool NeedsCheck => !IsExact && !IsLeftOut;
+    public bool IsMatched => !IsLeftOut && !NeedsCheck;
+    public string Hint => IsLeftOut ? "Not sent to or read from the service" : NeedsCheck ? "A guess: please check it" : "Matches";
+
+    [ObservableProperty] private string? remote = remote ?? NotSynced;
+
+    partial void OnRemoteChanged(string? value)
+    {
+        OnPropertyChanged(nameof(IsLeftOut));
+        OnPropertyChanged(nameof(NeedsCheck));
+        OnPropertyChanged(nameof(IsMatched));
+        OnPropertyChanged(nameof(Hint));
+    }
 }
 
 public sealed partial class ResourceMapRowViewModel(string remoteId, string name) : ObservableObject
@@ -101,11 +122,13 @@ public sealed partial class AddConnectionViewModel : ObservableObject
     [ObservableProperty] private string testResult = string.Empty;
     [ObservableProperty] private bool isBusy;
     [ObservableProperty] private string statusText = string.Empty;
+    [ObservableProperty] private bool testSucceeded;
 
     /// <summary>The saved connection once the wizard finished; null when cancelled.</summary>
     public SourceConnectionSettings? Saved { get; private set; }
 
     public bool RequiresAccount => SelectedService?.Descriptor.AuthMethods.Any(m => m is not NoSignInAuth) == true;
+    public bool HasServiceSettings => AllowsCustomAddress || Settings.Count > 0;
     public bool AllowsCustomAddress => SelectedService?.Descriptor.AllowsCustomBaseUrl == true;
     public bool CanDiscoverProjects => SelectedService?.Adapter is ISupportsProjectDiscovery;
     public bool HasProblems => Problems.Count > 0;
@@ -128,11 +151,17 @@ public sealed partial class AddConnectionViewModel : ObservableObject
     public bool CanGoBack => Step > ConnectionStep.Service && !IsEditing;
     public bool IsLastStep => Step == ConnectionStep.Test;
 
+    /// <summary>Where the user is in the wizard, for the progress line.</summary>
+    public int StepNumber => (int)Step + 1;
+    public int StepCount => RequiresAccount ? 6 : 5;
+    public string StepText => $"Step {StepNumber} of {StepCount}";
+    public double StepProgress => 100.0 * StepNumber / StepCount;
+
     public event EventHandler? CloseRequested;
 
     partial void OnStepChanged(ConnectionStep value)
     {
-        foreach (var name in new[] { nameof(StepTitle), nameof(IsService), nameof(IsAccount), nameof(IsProject), nameof(IsMapping), nameof(IsPolicy), nameof(IsTest), nameof(CanGoBack), nameof(IsLastStep) })
+        foreach (var name in new[] { nameof(StepNumber), nameof(StepText), nameof(StepProgress), nameof(StepTitle), nameof(IsService), nameof(IsAccount), nameof(IsProject), nameof(IsMapping), nameof(IsPolicy), nameof(IsTest), nameof(CanGoBack), nameof(IsLastStep) })
             OnPropertyChanged(name);
     }
 
@@ -141,9 +170,14 @@ public sealed partial class AddConnectionViewModel : ObservableObject
         OnPropertyChanged(nameof(RequiresAccount));
         OnPropertyChanged(nameof(AllowsCustomAddress));
         OnPropertyChanged(nameof(CanDiscoverProjects));
+        OnPropertyChanged(nameof(HasServiceSettings));
+        OnPropertyChanged(nameof(StepCount));
+        OnPropertyChanged(nameof(StepText));
+        OnPropertyChanged(nameof(StepProgress));
         BaseUrlText = value?.Descriptor.DefaultBaseUrl?.AbsoluteUri ?? string.Empty;
         Settings.Clear();
         foreach (var field in value?.Descriptor.ConnectionSettings?.Fields ?? []) Settings.Add(new(field, null));
+        OnPropertyChanged(nameof(HasServiceSettings));
         LoadAccounts();
     }
 
@@ -354,8 +388,9 @@ public sealed partial class AddConnectionViewModel : ObservableObject
             return;
         }
         var suggestions = SourceMapping.SuggestLanguages(_projectLanguages, _remote.Languages);
+        IReadOnlyList<string> options = [LanguageMapRowViewModel.NotSynced, .. _remote.Languages.Select(l => l.Code)];
         foreach (var s in suggestions)
-            Languages.Add(new(s.ProjectLanguage, connection.Languages.GetValueOrDefault(s.ProjectLanguage) ?? s.RemoteLanguage, s.IsExact || connection.Languages.ContainsKey(s.ProjectLanguage)));
+            Languages.Add(new(s.ProjectLanguage, connection.Languages.GetValueOrDefault(s.ProjectLanguage) ?? s.RemoteLanguage, s.IsExact || connection.Languages.ContainsKey(s.ProjectLanguage), options));
         foreach (var r in _remote.Resources)
         {
             var mapped = connection.Resources.FirstOrDefault(m => m.Remote == r.Id);
@@ -366,7 +401,7 @@ public sealed partial class AddConnectionViewModel : ObservableObject
 
     private void ApplyMapping()
     {
-        _draft.Languages = Languages.Where(l => !string.IsNullOrWhiteSpace(l.Remote)).ToDictionary(l => l.ProjectLanguage, l => l.Remote!, StringComparer.Ordinal);
+        _draft.Languages = Languages.Where(l => !l.IsLeftOut && !string.IsNullOrWhiteSpace(l.Remote)).ToDictionary(l => l.ProjectLanguage, l => l.Remote!, StringComparer.Ordinal);
         _draft.Resources = [.. Resources.Where(r => r.Include).Select(r => new SourceResourceMap { Remote = r.RemoteId, Package = string.IsNullOrWhiteSpace(r.Package) ? null : r.Package })];
         if (_draft.Resources.Count == Resources.Count && Resources.All(r => string.IsNullOrWhiteSpace(r.Package))) _draft.Resources = [];
         _draft.Keys.Separator = string.IsNullOrEmpty(Separator) ? "." : Separator;
@@ -399,8 +434,10 @@ public sealed partial class AddConnectionViewModel : ObservableObject
 
     private async Task RunTestAsync()
     {
+        TestSucceeded = false;
         TestResult = "Testing…";
         var result = await _connections.TestAsync(_draft.Id);
+        TestSucceeded = result.Succeeded;
         TestResult = result.Succeeded ? result.Message : "Could not connect: " + result.Message;
     }
 

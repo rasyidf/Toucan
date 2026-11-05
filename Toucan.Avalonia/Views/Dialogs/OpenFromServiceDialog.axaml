@@ -4,6 +4,7 @@
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
                 xmlns:ui="using:FluentAvalonia.UI.Controls"
+                xmlns:c="using:Toucan.Avalonia.Views.Components"
                 Title="{loc:Loc 'Open from a service'}" Width="760" Height="680" MinWidth="620" MinHeight="560">
   <Grid RowDefinitions="Auto,*,Auto">
     <StackPanel Margin="24,22,24,18" Spacing="6">
@@ -18,26 +19,24 @@
           <TextBlock TextWrapping="Wrap" Text="{loc:Loc 'No installed service can open a project this way. Install a connector plugin, such as Crowdin.'}"/>
         </Border>
 
-        <StackPanel Spacing="10" IsVisible="{Binding HasServices}">
-          <TextBlock Text="{loc:Loc 'Service and account'}" FontWeight="SemiBold"/>
-          <Border Classes="card" Padding="16">
-            <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto" RowSpacing="14" ColumnSpacing="16">
-              <TextBlock Text="{loc:Loc 'Service'}" VerticalAlignment="Center"/>
-              <ComboBox Grid.Column="1" ItemsSource="{Binding Services}" SelectedItem="{Binding SelectedService}" HorizontalAlignment="Stretch"
-                        AutomationProperties.Name="{loc:Loc 'Service'}">
+        <c:SettingsGroup Header="{loc:Loc 'Service and account'}" IsVisible="{Binding HasServices}">
+          <StackPanel>
+            <c:SettingsRow Title="{loc:Loc 'Service'}">
+              <ComboBox ItemsSource="{Binding Services}" SelectedItem="{Binding SelectedService}" Width="260" AutomationProperties.Name="{loc:Loc 'Service'}">
                 <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Descriptor.DisplayName}"/></DataTemplate></ComboBox.ItemTemplate>
               </ComboBox>
-              <TextBlock Grid.Row="1" Text="{loc:Loc 'Account'}" VerticalAlignment="Center"/>
-              <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                <ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" HorizontalAlignment="Stretch" PlaceholderText="{loc:Loc 'Not signed in'}"
+            </c:SettingsRow>
+            <c:SettingsRow Title="{loc:Loc 'Account'}" Description="{loc:Loc 'Your sign-in stays on this computer.'}">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" Width="260" PlaceholderText="{loc:Loc 'Not signed in'}"
                           AutomationProperties.Name="{loc:Loc 'Account'}">
                   <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding DisplayName}"/></DataTemplate></ComboBox.ItemTemplate>
                 </ComboBox>
-                <Button Grid.Column="1" Content="{loc:Loc 'Sign in…'}" Command="{Binding SignInCommand}"/>
-              </Grid>
-            </Grid>
-          </Border>
-        </StackPanel>
+                <Button Content="{loc:Loc 'Sign in…'}" Command="{Binding SignInCommand}"/>
+              </StackPanel>
+            </c:SettingsRow>
+          </StackPanel>
+        </c:SettingsGroup>
 
         <StackPanel Spacing="10" IsVisible="{Binding HasServices}">
           <DockPanel>
@@ -70,24 +69,19 @@
           </Border>
         </StackPanel>
 
-        <StackPanel Spacing="10" IsVisible="{Binding HasServices}">
-          <TextBlock Text="{loc:Loc 'Local folder'}" FontWeight="SemiBold"/>
-          <Border Classes="card" Padding="16">
-            <Grid ColumnDefinitions="140,*" ColumnSpacing="16">
-              <TextBlock Text="{loc:Loc 'Location'}" VerticalAlignment="Center"/>
-              <Grid Grid.Column="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                <TextBox x:Name="FolderBox" Text="{Binding Folder, Mode=OneWay}" HorizontalAlignment="Stretch" ToolTip.Tip="{Binding Folder}"
-                         AutomationProperties.Name="{loc:Loc 'Location'}"/>
-                <Button Grid.Column="1" Content="{loc:Loc 'Browse…'}" Command="{Binding BrowseCommand}"/>
-              </Grid>
+        <c:SettingsGroup Header="{loc:Loc 'Local folder'}" IsVisible="{Binding HasServices}"
+                         Footer="{loc:Loc 'Toucan creates this folder and brings the project\'s files in. It must be new or empty.'}">
+          <c:SettingsRow Title="{loc:Loc 'Location'}" Stacked="True">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+              <TextBox x:Name="FolderBox" Text="{Binding Folder, Mode=OneWay}" HorizontalAlignment="Stretch" ToolTip.Tip="{Binding Folder}"
+                       AutomationProperties.Name="{loc:Loc 'Location'}"/>
+              <Button Grid.Column="1" Content="{loc:Loc 'Browse…'}" Command="{Binding BrowseCommand}"/>
             </Grid>
-          </Border>
-          <TextBlock Classes="caption" TextWrapping="Wrap" Text="{loc:Loc 'Toucan creates this folder and brings the project\'s files in. It must be new or empty.'}"/>
-        </StackPanel>
+          </c:SettingsRow>
+        </c:SettingsGroup>
 
-        <Border Classes="card" Padding="12,10" IsVisible="{Binding HasProblem}" BorderBrush="{DynamicResource BadBrush}">
-          <TextBlock Text="{Binding Problem}" Foreground="{DynamicResource BadBrush}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive"/>
-        </Border>
+        <ui:FAInfoBar Severity="Error" IsOpen="{Binding HasProblem}" IsClosable="False" Title="{loc:Loc 'Could not open the project'}" Message="{Binding Problem}"
+                      AutomationProperties.LiveSetting="Assertive"/>
       </StackPanel>
     </ScrollViewer>
 

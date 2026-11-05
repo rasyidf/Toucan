@@ -642,12 +642,14 @@ public sealed class SourcesUiTests : IDisposable
         window.Show();
         Pump();
 
-        var buttons = Visual<Button>(panel).Select(b => b.Content as string).ToList();
-        Assert.Contains("Pull", buttons);
-        Assert.Contains("Push", buttons);
-        Assert.Contains("Sync", buttons);
-        Assert.Contains("Remove", buttons);
+        // Sync is the main button; Pull and Push are icon buttons with names; the rest lives in a menu.
+        var names = Visual<Button>(panel).Select(b => AutomationProperties.GetName(b)).Where(n => !string.IsNullOrEmpty(n)).ToList();
+        Assert.Contains("Sync", names);
+        Assert.Contains("Pull", names);
+        Assert.Contains("Push", names);
+        Assert.Contains("More", names);
         Assert.Contains(Visual<TextBlock>(panel), t => t.Text == "Memory");
+        Assert.Contains(Visual<TextBlock>(panel), t => t.Text == "Ready");
         window.Close();
     }
 }

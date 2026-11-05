@@ -15,6 +15,17 @@ namespace Toucan.Avalonia.ViewModels;
 public sealed partial class SourceConnectionItemViewModel(SourceConnectionSettings settings) : ObservableObject
 {
     public SourceConnectionSettings Settings { get; } = settings;
+
+    /// <summary>The panel's view model, so a card's buttons and menu can bind to its own commands.</summary>
+    public SourcesViewModel? Owner { get; set; }
+    public System.Windows.Input.ICommand? PullCommand => Owner?.PullCommand;
+    public System.Windows.Input.ICommand? PushCommand => Owner?.PushCommand;
+    public System.Windows.Input.ICommand? SyncCommand => Owner?.SyncNowCommand;
+    public System.Windows.Input.ICommand? TestCommand => Owner?.TestCommand;
+    public System.Windows.Input.ICommand? EditCommand => Owner?.EditCommand;
+    public System.Windows.Input.ICommand? RemoveCommand => Owner?.RemoveCommand;
+    public System.Windows.Input.ICommand? ConflictsCommand => Owner?.ShowConflictsCommand;
+    public System.Windows.Input.ICommand? SignInCommand => Owner?.ShowAccountsCommand;
     public string Id => Settings.Id;
     public string Name => Settings.Name ?? Settings.RemoteProject?.Name ?? Settings.Id;
     public string AdapterName { get; set; } = string.Empty;
@@ -34,10 +45,21 @@ public sealed partial class SourceConnectionItemViewModel(SourceConnectionSettin
     public bool HasConflicts => ConflictCount > 0;
     public bool CanSync => !IsBusy && !NeedsSignIn;
 
+    /// <summary>The colour of the status dot: good (ready), warn (needs you), bad (cannot connect).</summary>
+    public bool IsStatusBad => IsFailed;
+    public bool IsStatusWarn => !IsFailed && (NeedsSignIn || HasConflicts || StateText == "Partly failed");
+    public bool IsStatusGood => !IsStatusBad && !IsStatusWarn;
+    public string ConflictsText => ConflictCount == 1 ? "1 conflict needs your decision" : $"{ConflictCount} conflicts need your decision";
+    public string SignInText => $"Sign in to {AdapterName} to keep syncing.";
+
     partial void OnConflictCountChanged(int value) => OnPropertyChanged(nameof(HasConflicts));
     partial void OnIsBusyChanged(bool value) => OnPropertyChanged(nameof(CanSync));
     partial void OnNeedsSignInChanged(bool value) => OnPropertyChanged(nameof(CanSync));
-    partial void OnStateTextChanged(string value) => OnPropertyChanged(nameof(AccessibleName));
+    partial void OnStateTextChanged(string value)
+    {
+        OnPropertyChanged(nameof(AccessibleName));
+        foreach (var name in new[] { nameof(IsStatusBad), nameof(IsStatusWarn), nameof(IsStatusGood), nameof(ConflictsText), nameof(SignInText) }) OnPropertyChanged(name);
+    }
 
     public void Apply(SourceConnectionStatus? connection, SyncStatus? sync)
     {
@@ -113,6 +135,7 @@ public sealed partial class SourcesViewModel : ObservableObject, IDisposable
             foreach (var settings in _project()?.Sources.Where(s => !string.IsNullOrWhiteSpace(s.Adapter)) ?? [])
             {
                 var item = new SourceConnectionItemViewModel(settings) { AdapterName = _adapters.Find(settings.Adapter ?? string.Empty)?.Descriptor.DisplayName ?? settings.Adapter ?? string.Empty };
+                item.Owner = this;
                 item.Apply(_connections.Status(settings.Id), _sync.Status(settings.Id));
                 Connections.Add(item);
             }

@@ -173,6 +173,20 @@ public sealed class SyncCoordinatorTests : IDisposable
     }
 
     [Fact]
+    public async Task ARunRequestedRightAfterAnotherFinishedIsANewRunNotTheOldResult()
+    {
+        await SettleFirstSyncAsync();
+        for (var i = 0; i < 30; i++)
+        {
+            var edited = $"Edited {i}";
+            _session.Put("hello", "fr", edited);
+            var result = await _coordinator.RunAsync("c1", SyncPlanKind.Pull);
+            Assert.Equal(1, result.Pull!.Applied);
+            Assert.Equal(edited, await ValueAsync("hello"));
+        }
+    }
+
+    [Fact]
     public async Task LostSignInIsReportedAsNeedingSignInNotAsAFailure()
     {
         _connections.GetSessionAsync("c1", Arg.Any<CancellationToken>()).Returns(Task.FromException<IContentSourceSession>(

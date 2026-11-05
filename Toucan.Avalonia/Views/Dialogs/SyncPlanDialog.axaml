@@ -3,6 +3,7 @@
                 xmlns:loc="using:Toucan.Avalonia.Locales"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                 xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                xmlns:ui="using:FluentAvalonia.UI.Controls"
                 Title="{loc:Loc 'Sync plan'}" Width="860" Height="660" MinWidth="680" MinHeight="460">
   <DockPanel>
     <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
@@ -20,21 +21,18 @@
       <TextBlock Text="{Binding Title}" Classes="dialogTitle"/>
       <TextBlock Classes="caption" TextWrapping="Wrap"
                  Text="{loc:Loc 'Nothing changes until you apply. Remote services have no transactions: if some changes fail, the others stay applied and the failed ones stay pending.'}"/>
-      <Border Classes="card" Padding="12,8" IsVisible="{Binding IsFirstSync}">
-        <StackPanel Spacing="6">
-          <TextBlock FontWeight="SemiBold" Text="{loc:Loc 'First sync'}"/>
-          <TextBlock Classes="caption" TextWrapping="Wrap"
-                     Text="{loc:Loc 'There is no common version yet, so every difference is a conflict. Choose a side for all of them, or decide one by one in the Conflicts tab.'}"/>
+      <ui:FAInfoBar Severity="Warning" IsOpen="{Binding IsFirstSync}" IsClosable="False" Title="{loc:Loc 'First sync'}"
+                    Message="{loc:Loc 'There is no common version yet, so every difference is a conflict. Choose a side for all of them, or decide one by one in the Conflicts tab.'}">
+        <ui:FAInfoBar.ActionButton>
           <StackPanel Orientation="Horizontal" Spacing="8">
             <Button Content="{loc:Loc 'Use remote for all'}" Command="{Binding UseRemoteForAllCommand}"/>
             <Button Content="{loc:Loc 'Use local for all'}" Command="{Binding UseLocalForAllCommand}"/>
             <Button Content="{loc:Loc 'Review individually'}" Command="{Binding DeferAllCommand}"/>
           </StackPanel>
-        </StackPanel>
-      </Border>
-      <Border Classes="card" Padding="12,8" IsVisible="{Binding IsPartialRead}">
-        <TextBlock TextWrapping="Wrap" Text="{loc:Loc 'The service did not finish listing its content, so nothing is treated as deleted there.'}"/>
-      </Border>
+        </ui:FAInfoBar.ActionButton>
+      </ui:FAInfoBar>
+      <ui:FAInfoBar Severity="Informational" IsOpen="{Binding IsPartialRead}" IsClosable="False"
+                    Message="{loc:Loc 'The service did not finish listing its content, so nothing is treated as deleted there.'}"/>
       <ItemsControl ItemsSource="{Binding Notices}" IsVisible="{Binding HasNotices}">
         <ItemsControl.ItemTemplate>
           <DataTemplate><TextBlock Classes="caption" TextWrapping="Wrap" Text="{Binding}"/></DataTemplate>
