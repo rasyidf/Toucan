@@ -21,14 +21,7 @@ public partial class TranslationCard : UserControl
     public TranslationCard()
     {
         InitializeComponent();
-        SizeChanged += (_, e) =>
-        {
-            var columns = e.NewSize.Width >= 680 ? 2 : 1;
-            SetAndRaise(ComparisonColumnsProperty, ref _comparisonColumns, columns);
-            Classes.Set("comparison", columns == 2);
-            Classes.Set("narrow", e.NewSize.Width < 480 || columns == 2);
-            UpdateColumnLayout();
-        };
+        SizeChanged += (_, _) => UpdateColumnLayout();
         DataContextChanged += (_, _) => ObserveLayoutItems();
         AttachedToVisualTree += (_, _) => ObserveLayoutItems();
         DetachedFromVisualTree += (_, _) => ClearLayoutItems();
@@ -70,6 +63,10 @@ public partial class TranslationCard : UserControl
     private void UpdateColumnLayout()
     {
         var languages = _layoutItems.Where(i => i.IsLanguageVisible).Select(i => i.Language).Distinct(StringComparer.Ordinal).Count();
+        var columns = Bounds.Width >= 680 && languages > 1 ? 2 : 1;
+        SetAndRaise(ComparisonColumnsProperty, ref _comparisonColumns, columns);
+        Classes.Set("comparison", columns == 2);
+        Classes.Set("narrow", Bounds.Width < 480 || columns == 2);
         Classes.Set("columns", Bounds.Width >= Math.Max(480, 180 + languages * 190));
     }
 

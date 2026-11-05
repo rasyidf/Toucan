@@ -1,3 +1,4 @@
+using Toucan.Core.Services.Validation;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -30,12 +31,13 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
     private readonly ConditionalWeakTable<TranslationItem, Identity> _identities = new();
     private sealed record Identity(Guid Id);
     private readonly Dictionary<(Guid, string), TranslationItem> _projections = [];
+    private readonly Dictionary<string, Guid> _resourceIdentities = new(StringComparer.Ordinal);
     private readonly LinkedList<(ImmutableDictionary<(Guid, string), Unit> Before, ImmutableDictionary<(Guid, string), Unit> After)> _undo = [];
     private readonly Stack<(ImmutableDictionary<(Guid, string), Unit> Before, ImmutableDictionary<(Guid, string), Unit> After)> _redo = [];
 
     private sealed record Unit(Guid Id, string Language, string Key, TranslationPath Namespace, TranslationPath KeyPath,
         string Value, string Comment, bool Approved, DateTime? Modified, DateTime? ApprovedAt, ChangeType ChangeType,
-        ImmutableDictionary<string, string>? FormatData, SourceBinding? Binding = null, string? Destination = null);
+        ImmutableDictionary<string, string>? FormatData, SourceBinding? Binding = null, string? Destination = null, ResourcePermissions? Permissions = null, ResourceEntryIdentity? Identity = null);
 
     public event EventHandler? Changed;
     public bool IsOpen { get { lock (_gate) return _settings is not null; } }
@@ -59,6 +61,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             _closing = false;
             _removedLanguages = _removedLanguages.Clear();
             _identities.Clear();
+            _resourceIdentities.Clear();
             _projections.Clear();
             _undo.Clear();
             _redo.Clear();
@@ -91,6 +94,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             _source = null;
             _state = _baseline = ImmutableDictionary<(Guid, string), Unit>.Empty;
             _identities.Clear();
+            _resourceIdentities.Clear();
             _projections.Clear();
             _undo.Clear();
             _redo.Clear();
@@ -167,6 +171,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             var contextChanged = RefreshContext();
             changedUnits = next.Count(p => !_state.TryGetValue(p.Key, out var old) || !Equivalent(old, p.Value)) + _state.Keys.Count(k => !next.ContainsKey(k));
             changed = Commit(next) || contextChanged;
+            if (changed && Same(next, _baseline)) store.MarkSaved(_baseline.Values.Select(Project));
             revision = _revision;
         }
         if (changed) RaiseChanged();
@@ -319,7 +324,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             var items = _state.Values.Select(Project).ToList();
             var plan = WorkspaceEditPlanner.Plan(new(items, Languages(), PrimaryLanguage(), _revision,
                 _settings.RequireValidForApproval == true, validation,
-                _state.Values.GroupBy(u => u.Key).Where(g => g.Select(u => u.Id).Distinct().Count() > 1).Select(g => g.Key).ToHashSet(StringComparer.Ordinal)), edit);
+                _state.Values.GroupBy(u => u.Key).Where(g => g.Select(u => u.Id).Distinct().Count() > 1).Select(g => g.Key).ToHashSet(StringComparer.Ordinal), Settings: _settings), edit);
             if (!plan.CanApply) return new EditResult(false, 0, _revision, plan.Issues, []);
             if (plan.Steps.Count == 0) return new EditResult(true, 0, _revision, plan.Issues, []);
             foreach (var (_, operation) in plan.Steps) ApplyLegacy(items, operation);
@@ -351,6 +356,8 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             {
                 var matching = next.Values.Where(u => u.Id == operation.EntryId).ToList();
                 if (matching.Count == 0) return Refused(EditIssueKind.UnknownKey, "Entry does not exist.");
+                if (operation is DeleteEntry or RenameEntry && matching.Any(u => u.Permissions?.EditKeys == false))
+                    return Refused(EditIssueKind.Conflict, "Resource ownership/capabilities forbid this edit.");
                 switch (operation)
                 {
                     case DeleteEntry:
@@ -374,6 +381,9 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
                             return Refused(EditIssueKind.UnknownLanguage, "Entry has no translation in that language.");
                         if (operation is SetEntryValue { ExpectedValue: { } expected } && current.Value != expected)
                             return Refused(EditIssueKind.Conflict, "Translation changed since it was read.");
+                        if (operation is SetEntryValue && current.Permissions?.EditValues == false ||
+                            operation is SetEntryComment or SetEntryReview && current.Permissions?.EditMetadata == false)
+                            return Refused(EditIssueKind.Conflict, "Resource ownership/capabilities forbid this edit.");
                         var now = DateTime.UtcNow;
                         next[(current.Id, current.Language)] = operation switch
                         {
@@ -406,7 +416,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
 
     private EditResult Refused(EditIssueKind kind, string message) => EditResult.Refused(_revision, new EditIssue(-1, kind, message));
     private string ContextSignature() => _settings is null ? string.Empty : JsonSerializer.Serialize(new
-        { _settings.PrimaryLanguage, _settings.RequireValidForApproval, _settings.Languages, _settings.SaveFormat, _settings.Framework });
+        { _settings.PrimaryLanguage, _settings.RequireValidForApproval, _settings.Languages, _settings.SaveFormat, _settings.Framework, _settings.ValidationRules, _settings.Glossary });
     private bool RefreshContext()
     {
         var signature = ContextSignature();
@@ -432,6 +442,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
     private bool Dirty(Unit unit) => !_baseline.TryGetValue((unit.Id, unit.Language), out var saved) || !Equivalent(unit, saved);
     private static bool Equivalent(Unit a, Unit b) => a.Id == b.Id && a.Language == b.Language && a.Key == b.Key
         && a.Namespace.Equals(b.Namespace) && a.KeyPath.Equals(b.KeyPath) && a.Value == b.Value && a.Comment == b.Comment && a.Approved == b.Approved && a.Binding == b.Binding && a.Destination == b.Destination
+        && (a.Permissions ?? ResourcePermissions.Editable) == (b.Permissions ?? ResourcePermissions.Editable) && a.Identity?.Address == b.Identity?.Address
         && a.Modified == b.Modified && a.ApprovedAt == b.ApprovedAt && a.ChangeType == b.ChangeType
         && (a.FormatData is null ? b.FormatData is null : b.FormatData is not null && a.FormatData.Count == b.FormatData.Count
             && a.FormatData.All(p => b.FormatData.TryGetValue(p.Key, out var value) && p.Value == value));
@@ -462,10 +473,12 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             Guid id;
             if (!_identities.TryGetValue(item, out var identity))
             {
-                if (!entries.TryGetValue(item.Namespace, out id)) entries[item.Namespace] = id = Guid.NewGuid();
+                if (item.Identity is { } resource && _resourceIdentities.TryGetValue(resource.EntryId, out var known)) id = known;
+                else if (!entries.TryGetValue(item.Namespace, out id)) entries[item.Namespace] = id = Guid.NewGuid();
                 _identities.Add(item, new(id));
             }
             else id = identity.Id;
+            if (item.Identity is { } resourceIdentity) _resourceIdentities[resourceIdentity.EntryId] = id;
             _state.TryGetValue((id, item.Language), out var previous);
             var keyPath = previous is not null && previous.Key == item.Namespace ? previous.KeyPath : new TranslationPath(item.Namespace.Split('.'));
             var ns = previous is not null && previous.Key == item.Namespace ? previous.Namespace : TranslationPath.Empty;
@@ -483,7 +496,8 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             if (!retained.Add(key)) throw new InvalidOperationException("A projection contains the same entry/language more than once.");
             var unit = new Unit(id, item.Language, item.Namespace, ns, keyPath, item.Value ?? string.Empty,
                 item.Comment ?? string.Empty, item.IsApproved, item.LastModifiedUtc, item.ApprovedAtUtc, item.ChangeType,
-                item.FormatData?.ToImmutableDictionary(StringComparer.Ordinal), previous?.Binding, previous?.Destination);
+                item.FormatData?.ToImmutableDictionary(StringComparer.Ordinal), previous?.Binding, previous?.Destination, item.Permissions,
+                item.Identity is null ? null : item.Identity with { Path = item.Identity.Path.ToImmutableArray() });
             if (previous is null || !Equivalent(previous, unit)) result[key] = unit;
             if (adoptProjection) _projections[(id, item.Language)] = item;
         }
@@ -512,6 +526,8 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
 
     private static void Copy(Unit unit, TranslationItem item)
     {
+        item.Permissions = ResourcePermissions.Editable;
+        item.Identity = unit.Identity is null ? null : unit.Identity with { Path = unit.Identity.Path.ToArray() };
         item.Namespace = unit.Key;
         item.Language = unit.Language;
         item.Value = unit.Value;
@@ -521,6 +537,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
         item.ApprovedAtUtc = unit.ApprovedAt;
         item.ChangeType = unit.ChangeType;
         item.FormatData = unit.FormatData?.ToDictionary();
+        item.Permissions = unit.Permissions ?? ResourcePermissions.Editable;
     }
 
     private void PublishProjections()
@@ -550,8 +567,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
     private IReadOnlyList<ValidationResult> Validation(ImmutableDictionary<(Guid, string), Unit> state, Guid? target = null)
     {
         var ambiguous = state.Values.GroupBy(u => u.Key).Where(g => g.Select(u => u.Id).Distinct().Count() > 1).Select(g => g.Key).ToHashSet(StringComparer.Ordinal);
-        IReadOnlyList<ValidationResult> Run(IEnumerable<Unit> units) => validation.RunAll(new ValidationContext
-            { Items = units.Select(Project).ToList(), PrimaryLanguage = PrimaryLanguage() }).ToList();
+        IReadOnlyList<ValidationResult> Run(IEnumerable<Unit> units) => validation.RunAll(new ProjectValidationContext { Project = _settings, Items = units.Select(Project).ToList(), PrimaryLanguage = PrimaryLanguage() }).ToList();
         if (ambiguous.Count == 0) return Run(state.Values);
         // Legacy validation rules address dotted keys. Isolate ambiguous entries so no rule merges their values.
         var results = Run(state.Values.Where(u => !ambiguous.Contains(u.Key))).ToList();

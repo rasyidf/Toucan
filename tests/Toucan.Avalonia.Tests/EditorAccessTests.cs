@@ -64,7 +64,7 @@ public class EditorAccessTests
                 window.CaptureRenderedFrame()!.Save(Path.Combine(directory, "active-field.png"));
             }
         }
-        finally { window.Close(); }
+        finally { await vm.TryCloseProjectAsync(); window.Close(); }
     }
 
     [AvaloniaFact]
@@ -98,6 +98,6 @@ public class EditorAccessTests
             Assert.False(card.FocusEditor());
             Assert.All(card.GetVisualDescendants().OfType<TextBox>().Where(b => b.Classes.Contains("translation")), b => Assert.True(b.IsReadOnly));
         }
-        finally { window.Close(); }
+        finally { await vm.TryCloseProjectAsync(); window.Close(); }
     }
 }

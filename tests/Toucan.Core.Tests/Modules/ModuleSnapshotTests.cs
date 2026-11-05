@@ -94,7 +94,7 @@ public class ModuleSnapshotTests
     {
         using var sp = Build();
         Assert.Equal(
-            ["missing-translation", "placeholder-mismatch", "duplicate-key", "untranslated-copy", "empty-value", "whitespace-mismatch"],
+            ["glossary", "missing-translation", "placeholder-mismatch", "duplicate-key", "untranslated-copy", "empty-value", "message-syntax", "whitespace-mismatch"],
             sp.GetServices<IValidationRule>().Select(r => r.Id));
     }
 

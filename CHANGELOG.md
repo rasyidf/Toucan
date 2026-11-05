@@ -3,10 +3,18 @@
 ## [Unreleased]
 
 ### Added
+- Project glossary with preferred/forbidden terms, language translations, descriptions, CSV exchange, selected-string matches, and explicit insertion through the Dictionary panel.
+- Structural ICU plural/select validation with nested messages, required branches, argument checks and documented syntax limits.
+- AI analysis strictness per project and re-translation of findings through the existing explicit preview flow.
 - **Destination choices in document projects** — Adding a key asks which source document should hold it only when more than one fits. Duplicating keeps keys with literal dots intact. Adding, removing, or managing languages now works in document projects: new language files are placed where the framework will discover them, and removed languages' files are deleted on the next save (undo cancels the deletion). Choices survive undo/redo and crash recovery.
 - **Declared save scopes** — Formats state whether a save rewrites every owned file or only the documents it plans. Only verified formats (JSON and namespaced JSON) use targeted saving.
 
 ### Fixed
+- Apply configured validation rule enable/severity settings consistently in desktop, CLI, save, native approval and plugin edits; preserve per-rule inheritance and Save As settings.
+- Preserve explicit resource mappings during project loading, exclude JSON comment sidecars from resource discovery, and retain generated-resource permissions and identities in workspace projections.
+- Validate pending document edits before strict saves and keep unrelated external file changes visible after targeted autosaves.
+- Restore clean dirty baselines and stable entry identities after native structural undo; clear saved configuration changes and avoid false dirty state after filling a missing target.
+- Reclaim comparison-column width when a language is hidden.
 - **CLI saves of document projects** — `toucan set` and `toucan translate` no longer rewrite every file of a document project with the legacy writer. They save only the affected documents, keep identities and metadata, and add a missing language to an existing key in its own document.
 
 ## [0.24.0] - 2026-10-25

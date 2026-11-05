@@ -18,6 +18,7 @@ public static class ValidationModule
             s.AddSingleton<IValidationRule, DuplicateKeyRule>();
             s.AddSingleton<IValidationRule, UntranslatedCopyRule>();
             s.AddSingleton<IValidationRule, EmptyValueRule>();
+            s.AddSingleton<IValidationRule, MessageSyntaxRule>();
             s.AddSingleton<IValidationRule, WhitespaceMismatchRule>();
         });
 }

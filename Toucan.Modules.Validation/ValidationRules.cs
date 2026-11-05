@@ -52,6 +52,7 @@ public class PlaceholderMismatchRule : IValidationRule
         foreach (var item in context.Items.Where(i => i.Language != primary && !string.IsNullOrEmpty(i.Value)))
         {
             if (!sourceMap.TryGetValue(item.Namespace, out var sourceVal)) continue;
+            if (MessageSyntaxService.IsIcu(sourceVal) || MessageSyntaxService.IsIcu(item.Value)) continue;
             var result = PlaceholderService.Validate(sourceVal, item.Value);
             if (!result.IsValid)
             {

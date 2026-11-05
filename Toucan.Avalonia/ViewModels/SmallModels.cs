@@ -50,8 +50,9 @@ public sealed record ValidationIssueItem(
     string? Namespace = null,
     string? Language = null,
     string? SuggestedFix = null,
-    string? RuleId = null)
+    string? RuleId = null, string? ExpectedValue = null, string? ExpectedSource = null)
 {
+    public bool CanRetranslate => RuleId == "ai-analysis";
     public bool HasFix => !string.IsNullOrEmpty(SuggestedFix);
     public string SeverityLabel => Severity.ToString().ToUpperInvariant();
 }

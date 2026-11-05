@@ -1,3 +1,4 @@
+using Toucan.Core.Services.Validation;
 using Toucan.Core.Contracts;
 using Toucan.Core.Models;
 using Toucan.Plugins;
@@ -7,7 +8,7 @@ namespace Toucan.Core.Plugins;
 /// <summary>The project as the planner sees it.</summary>
 /// <param name="Items">Every translation. The planner works on copies and never changes these.</param>
 public sealed record PlanInput(IReadOnlyList<TranslationItem> Items, IReadOnlyList<string> Languages, string PrimaryLanguage, long Revision,
-    bool RequireValidForApproval, IValidationPipeline? Validation, IReadOnlySet<string>? AmbiguousKeys = null, bool AllowKeyChanges = true);
+    bool RequireValidForApproval, IValidationPipeline? Validation, IReadOnlySet<string>? AmbiguousKeys = null, bool AllowKeyChanges = true, ProjectSettings? Settings = null);
 
 /// <summary>What an edit will do, decided before anything is touched.</summary>
 public sealed class EditPlan
@@ -82,7 +83,7 @@ public static class WorkspaceEditPlanner
         // The strict-approval policy judges the project as the edit leaves it, so an edit that fixes a value and approves it works.
         if (input.RequireValidForApproval && input.Validation is not null && approvals.Count > 0)
         {
-            var errors = input.Validation.RunAll(new ValidationContext { Items = sim.Items, PrimaryLanguage = input.PrimaryLanguage })
+            var errors = input.Validation.RunAll(new ProjectValidationContext { Project = input.Settings, Items = sim.Items, PrimaryLanguage = input.PrimaryLanguage })
                 .Where(r => r.Severity == ValidationSeverity.Error)
                 .Select(r => (r.Namespace, r.Language)).ToHashSet();
             foreach (var (index, op, key, language) in approvals)

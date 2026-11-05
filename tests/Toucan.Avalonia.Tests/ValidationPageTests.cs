@@ -40,8 +40,8 @@ public sealed class ValidationPageTests
         var vm = Options(host.Services.GetRequiredService<IValidationPipeline>());
 
         Assert.Equal(
-            ["missing-translation:Missing translation:Warning", "placeholder-mismatch:Placeholder mismatch:Error", "duplicate-key:Duplicate key:Error",
-             "untranslated-copy:Untranslated copy of source:Info", "empty-value:Empty value:Warning", "whitespace-mismatch:Leading/trailing whitespace mismatch:Info"],
+            ["glossary:Project terminology:Warning", "missing-translation:Missing translation:Warning", "placeholder-mismatch:Placeholder mismatch:Error", "duplicate-key:Duplicate key:Error",
+             "untranslated-copy:Untranslated copy of source:Info", "empty-value:Empty value:Warning", "message-syntax:ICU message syntax:Error", "whitespace-mismatch:Leading/trailing whitespace mismatch:Info"],
             vm.ValidationRules.Select(r => $"{r.Id}:{r.Label}:{r.Severity}"));
     }
 

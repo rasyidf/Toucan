@@ -1,3 +1,6 @@
+using NSubstitute;
+using Microsoft.Extensions.Logging.Abstractions;
+using Toucan.Core.Contracts.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Toucan.Core.Models;
 using Toucan.Core.Services;
@@ -236,6 +239,61 @@ public sealed class WorkspaceDestinationTests : IDisposable
         await Save();
         Assert.Equal("{\"title\":\"Checkout\",\"new\":\"New\"}", Read("locales/en/checkout.json"));
         Assert.False(Exists("locales/fr/profile.json"));
+    }
+
+    [Fact]
+    public async Task PluginAddKeyInAmbiguousLayoutNeverWritesAnImplicitDestination()
+    {
+        Write("locales/en/checkout.json", "{\"title\":\"Checkout\"}");
+        Write("locales/en/profile.json", "{\"name\":\"Name\"}");
+        await Open("en");
+        var result = await _workspace.ApplyAsync("plugin", new WorkspaceEdit().AddKey("new", new Dictionary<string, string> { ["en"] = "New" }));
+        if (result.Applied)
+            await Assert.ThrowsAsync<InvalidOperationException>(() => Save());
+        Assert.DoesNotContain("New", Read("locales/en/checkout.json"), StringComparison.Ordinal);
+        Assert.DoesNotContain("New", Read("locales/en/profile.json"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task DestinationEditsUseConfiguredApprovalPolicy()
+    {
+        Write("locales/en/common.json", "{\"a\":\"Hi {name}\"}");
+        Write("locales/fr/common.json", "{\"a\":\"Salut\"}");
+        var source = await _services.GetRequiredService<WorkspaceSourceLoader>().LoadAsync(_root, "i18next");
+        var settings = new ProjectSettings { ProjectPath = _root, PrimaryLanguage = "en", Languages = ["en", "fr"], RequireValidForApproval = true };
+        _workspace.Open(settings, source);
+        var unit = (await _workspace.SnapshotEntriesAsync())!.Units.First(u => u.Language == "fr");
+        var snapshot = (await _workspace.SnapshotEntriesAsync())!;
+        Assert.False((await _workspace.ApplyEntriesAsync("plugin", new(snapshot.SessionId, snapshot.Revision, [new SetEntryReview(unit.EntryId, "fr", ReviewState.Approved)]))).Applied);
+        settings.ValidationRules = new() { ["placeholder-mismatch"] = new(true, "Warning") };
+        snapshot = (await _workspace.SnapshotEntriesAsync())!;
+        Assert.True((await _workspace.ApplyEntriesAsync("plugin", new(snapshot.SessionId, snapshot.Revision, [new SetEntryReview(unit.EntryId, "fr", ReviewState.Approved)]))).Applied);
+        await Save();
+        Assert.Contains("Salut", Read("locales/fr/common.json"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task AutosaveTickPersistsOnlyWorkspaceWritesAndDoesNotResetWatcherBaseline()
+    {
+        Write("locales/en/common.json", "{\"title\":\"Hello\"}");
+        Write("locales/en/unrelated.json", "{\"other\":\"Original\"}");
+        await Open("en");
+        await _workspace.ApplyAsync("editor", new WorkspaceEdit().SetValue("common.title", "en", "Changed"));
+        Write("locales/en/unrelated.json", "{\"other\":\"External\"}");
+        var lifecycle = Substitute.For<IProjectLifecycleService>();
+        var completed = new TaskCompletionSource();
+        lifecycle.SaveProjectAsync(Arg.Any<CancellationToken>()).Returns(async _ =>
+        {
+            await Save(); completed.SetResult(); return new ProjectSaveResult(ProjectSaveStatus.Success);
+        });
+        var watcher = Substitute.For<IFileWatcherService>();
+        using var autosave = new AutoSaveService(new(() => lifecycle), _services.GetRequiredService<ITranslationManagementService>(), watcher, NullLogger<AutoSaveService>.Instance, _workspace);
+        typeof(AutoSaveService).GetMethod("OnTimerTick", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.Invoke(autosave, [null]);
+        await completed.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await Task.Delay(50);
+        Assert.Contains("Changed", Read("locales/en/common.json"), StringComparison.Ordinal);
+        Assert.Contains("External", Read("locales/en/unrelated.json"), StringComparison.Ordinal);
+        watcher.DidNotReceive().TakeSnapshot();
     }
 
     public void Dispose()

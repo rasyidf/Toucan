@@ -51,7 +51,7 @@ public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoad
 
     public IEnumerable<ResourceDescriptor> DiscoverResources(string projectRoot)
     {
-        foreach (var file in FileEnumerator.EnumerateFiles(projectRoot, "*.json", EnumerateOptions.SkipNestedLocaleDirs, s_excludedFiles))
+        foreach (var file in FileEnumerator.EnumerateFiles(projectRoot, "*.json", EnumerateOptions.SkipNestedLocaleDirs | EnumerateOptions.SkipToucanSidecars, s_excludedFiles))
         {
             var (language, prefix) = GetLanguageAndPrefix(projectRoot, file);
             if (!string.IsNullOrEmpty(language)) yield return Describe(projectRoot, file, language, prefix);

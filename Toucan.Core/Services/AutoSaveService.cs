@@ -118,7 +118,8 @@ public sealed class AutoSaveService : IAutoSaveService, IDisposable
 
             if (result.Status == ProjectSaveStatus.Success)
             {
-                _fileWatcher.TakeSnapshot();
+                // Targeted saves acknowledge only their writes through the lifecycle coordinator.
+                if (_workspace?.Source is null) _fileWatcher.TakeSnapshot();
 
                 if (_logger.IsEnabled(LogLevel.Debug))
                     _logger.LogDebug("Auto-save completed successfully");

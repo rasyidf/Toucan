@@ -60,7 +60,7 @@ public class AppSmokeTests
         await vm.SaveCommand.ExecuteAsync(null);
         Pump();
 
-        Assert.False(vm.IsDirty);
+        Assert.False(vm.IsDirty, $"{vm.StatusText}; workspace dirty: {vm.Workspace.IsDirty}");
         Assert.DoesNotContain("●", window.Title, StringComparison.Ordinal);
         Assert.Contains("Annuler", File.ReadAllText(Path.Combine(folder, "fr.json")), StringComparison.Ordinal);
     }

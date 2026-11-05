@@ -197,6 +197,7 @@ public partial class App : Application
             new(FASymbol.SaveAs, "Export TMX", vm.ExportTmxCommand),
             new(FASymbol.Delete, "Clear translation memory", vm.ClearTmCommand),
         ]);
+        Add("dictionary", "Dictionary", "Library", SidePanelSlot.Right, 35, _ => new DictionaryPanel(), onShow: vm => vm.RefreshGlossary());
         PanelService.Instance.RestoreActivePanels();
     }
 

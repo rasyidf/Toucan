@@ -1,3 +1,4 @@
+using Toucan.Core.Services.Validation;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -641,7 +642,7 @@ public partial class MainWindowViewModel
             var preview = SpreadsheetPlanner.Plan(table, before, ProjectSettings?.ResourceDocuments.Select(d => d.Resource));
             if (ProjectSettings?.RequireValidForApproval == true)
             {
-                var errors = _validationPipeline.RunAll(new ValidationContext { Items = preview.Items, PrimaryLanguage = PrimaryLanguage })
+                var errors = _validationPipeline.RunAll(new ProjectValidationContext { Project = ProjectSettings, Items = preview.Items, PrimaryLanguage = PrimaryLanguage })
                     .Where(r => r.Severity == ValidationSeverity.Error).ToList();
                 var changedUnits = preview.Changes.Select(c => (c.Namespace, c.Language)).ToHashSet();
                 var approvals = preview.Items.Where(i => i.IsApproved && changedUnits.Contains((i.Namespace, i.Language)));
@@ -661,7 +662,7 @@ public partial class MainWindowViewModel
             RefreshTree();
             UpdateSummaryInfo();
             Search(SearchText, true);
-            ShowValidationResults(_validationPipeline.RunAll(new ValidationContext { Items = AllTranslation, PrimaryLanguage = PrimaryLanguage }).ToList());
+            ShowValidationResults(_validationPipeline.RunAll(new ProjectValidationContext { Project = ProjectSettings, Items = AllTranslation, PrimaryLanguage = PrimaryLanguage }).ToList());
             StatusText = $"Imported {preview.Changes.Count} change(s) from {Path.GetFileName(file)}. {preview.Summary}";
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or FormatException)

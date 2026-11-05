@@ -550,6 +550,7 @@ public partial class MainWindowViewModel
             if ((undo ? action.BeforeConfiguration : action.AfterConfiguration) is { } configuration && ProjectSettings != null)
             {
                 ProjectConfiguration.Apply(ProjectSettings, configuration);
+                RefreshGlossary();
                 _translationStore.NotifyConfigurationChanged(true);
                 _spellingSession?.Refresh();
                 MarkStructureChanged();
@@ -565,6 +566,7 @@ public partial class MainWindowViewModel
             }
             else if (action.BeforeConfiguration == null) ApplyUndoRedo([(action.Namespace, action.Language, undo ? action.OldValue : action.NewValue)]);
         }
+        if (!Workspace.IsDirty && !_translationStore.IsDirty) ClearSessionDirtyState();
     }
 
     private void ApplyUndoRedo(IReadOnlyList<(string Namespace, string Language, string Value)> edits)

@@ -64,15 +64,16 @@ public class ProjectService(
         if (settings.ResourceSchemaVersion != 1) throw new FormatException($"Resource schema {settings.ResourceSchemaVersion} is not supported.");
 
         WorkspaceSource? source = null;
-        if (!string.IsNullOrWhiteSpace(settings.Framework))
+        // Explicit resource mappings keep exact-file IO; convention discovery must not replace their locales or paths.
+        if (settings.ResourceDocuments.Count == 0 && capabilities is not null && sourceLoader is not null && !string.IsNullOrWhiteSpace(settings.Framework))
         {
-            var resolved = (capabilities ?? throw new InvalidOperationException("Framework capability resolution is unavailable.")).Resolve(settings.Framework, settings.SaveFormat);
+            var resolved = capabilities.Resolve(settings.Framework, settings.SaveFormat);
             if (resolved.UsesDocumentPersistence)
             {
                 var draft = recoveryDrafts?.TryRead(folder)?.Workspace;
                 var fallback = draft is not null && draft.Root == Path.GetFullPath(folder) && draft.FrameworkId == settings.Framework
                     && FormatIds.Comparer.Equals(draft.FormatId, settings.SaveFormat) ? draft.IdentityCheckpoint : null;
-                source = (sourceLoader ?? throw new InvalidOperationException("Document loading is unavailable.")).LoadAsync(folder, settings.Framework,
+                source = sourceLoader.LoadAsync(folder, settings.Framework,
                     settings.SaveFormat, cancellationToken: ct, fallbackIdentityCheckpoint: fallback).GetAwaiter().GetResult();
             }
         }

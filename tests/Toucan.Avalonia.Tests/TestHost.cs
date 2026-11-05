@@ -98,6 +98,7 @@ internal sealed class TestHost : IDisposable
         if (panels.ZenMode) panels.ToggleZenMode();
         panels.EditorMode = EditorMode.Editor;
         panels.StatusBarVisible = true;
+        panels.ShowPlaceholderWarnings = true;
     }
 
     public void Dispose()

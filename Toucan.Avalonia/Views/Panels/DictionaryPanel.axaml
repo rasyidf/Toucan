@@ -1,0 +1,31 @@
+<UserControl x:Class="Toucan.Avalonia.Views.Panels.DictionaryPanel"
+ xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:loc="using:Toucan.Avalonia.Locales">
+ <ScrollViewer>
+  <StackPanel Margin="10" Spacing="8">
+   <TextBlock Text="{loc:Loc 'Terms in selected string'}" Classes="caption"/>
+   <ItemsControl ItemsSource="{Binding GlossaryMatches}">
+    <ItemsControl.ItemTemplate><DataTemplate>
+     <Button Content="{Binding Term}" ToolTip.Tip="{Binding Description}"
+      Command="{Binding $parent[UserControl].DataContext.InsertGlossaryTranslationCommand}" CommandParameter="{Binding}"/>
+    </DataTemplate></ItemsControl.ItemTemplate>
+   </ItemsControl>
+   <TextBlock Text="{loc:Loc 'Select a match to append its preferred translation to a target field.'}" TextWrapping="Wrap" Classes="hint"/>
+   <ListBox ItemsSource="{Binding GlossaryEntries}" SelectedItem="{Binding SelectedGlossaryEntry}" MaxHeight="180">
+    <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Term}"/></DataTemplate></ListBox.ItemTemplate>
+   </ListBox>
+   <TextBox PlaceholderText="{loc:Loc 'Source term'}" Text="{Binding GlossaryTerm}" AutomationProperties.Name="{loc:Loc 'Source term'}"/>
+   <TextBox PlaceholderText="{loc:Loc 'Description'}" Text="{Binding GlossaryDescription}" AutomationProperties.Name="{loc:Loc 'Description'}"/>
+   <CheckBox Content="{loc:Loc 'Forbidden term'}" IsChecked="{Binding GlossaryForbidden}"/>
+   <TextBox PlaceholderText="{loc:Loc 'Target language code'}" Text="{Binding GlossaryLanguage}" AutomationProperties.Name="{loc:Loc 'Target language code'}"/>
+   <TextBox PlaceholderText="{loc:Loc 'Preferred translation'}" Text="{Binding GlossaryTranslation}" AutomationProperties.Name="{loc:Loc 'Preferred translation'}"/>
+   <WrapPanel>
+    <Button Content="{loc:Loc 'New term'}" Command="{Binding NewGlossaryTermCommand}"/>
+    <Button Content="{loc:Loc 'Save term'}" Command="{Binding SaveGlossaryTermCommand}"/>
+    <Button Content="{loc:Loc 'Delete term'}" Command="{Binding DeleteGlossaryTermCommand}"/>
+   </WrapPanel>
+   <Button Content="{loc:Loc 'Import glossary CSV'}" Command="{Binding ImportGlossaryCommand}"/>
+   <Button Content="{loc:Loc 'Export glossary CSV'}" Command="{Binding ExportGlossaryCommand}"/>
+  </StackPanel>
+ </ScrollViewer>
+</UserControl>

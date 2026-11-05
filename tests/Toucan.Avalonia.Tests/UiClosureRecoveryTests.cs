@@ -153,7 +153,7 @@ public sealed class UiClosureRecoveryTests
             correction.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent)); menu.Close();
             Assert.Equal("hello world", vm.AllTranslation.Single().Value); vm.UndoCommand.Execute(null); Assert.Equal("hello wrld", vm.AllTranslation.Single().Value);
         }
-        finally { window.Close(); }
+        finally { await vm.TryCloseProjectAsync(); window.Close(); }
     }
     [AvaloniaFact]
     public async Task ACorrectionFromAnOldProjectCannotAddHistoryOrEditTheNewWorkspace()

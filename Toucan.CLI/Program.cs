@@ -1,3 +1,4 @@
+using Toucan.Core.Services.Validation;
 using Toucan.Modules;
 using Toucan.Extensions;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,6 +41,7 @@ internal static class Program
     {
         var services = new ServiceCollection();
         services.AddLogging();
+        services.AddSingleton<IProjectDefaultsService>(_ => new ProjectDefaultsService());
         services.AddToucanCore();
         services.AddToucanDefaults();
 
@@ -196,7 +198,7 @@ internal static class Program
         if (translations.Count == 0) { Console.Error.WriteLine("No translations found."); return 1; }
 
         var pipeline = Get<IValidationPipeline>();
-        var ctx = new ValidationContext { Items = translations, PrimaryLanguage = settings.PrimaryLanguage };
+        var ctx = new ProjectValidationContext { Project = settings, Items = translations, PrimaryLanguage = settings.PrimaryLanguage };
         var results = pipeline.RunAll(ctx).ToList();
 
         var errors = results.Where(r => r.Severity == ValidationSeverity.Error).ToList();

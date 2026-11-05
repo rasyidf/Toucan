@@ -732,5 +732,19 @@
   "legacy project or detected": "proyek lama atau terdeteksi",
   "project": "proyek",
   "resource": "sumber daya",
-  "words": "kata"
+  "words": "kata",
+  "Terms in selected string": "Istilah dalam teks yang dipilih",
+  "Select a match to append its preferred translation to a target field.": "Pilih istilah untuk menambahkan terjemahan yang disarankan ke kolom tujuan.",
+  "Source term": "Istilah sumber",
+  "Forbidden term": "Istilah terlarang",
+  "Target language code": "Kode bahasa tujuan",
+  "Preferred translation": "Terjemahan yang disarankan",
+  "New term": "Istilah baru",
+  "Save term": "Simpan istilah",
+  "Delete term": "Hapus istilah",
+  "Import glossary CSV": "Impor glosarium CSV",
+  "Export glossary CSV": "Ekspor glosarium CSV",
+  "Analysis strictness": "Ketatnya analisis",
+  "Re-translate…": "Terjemahkan ulang…",
+  "Dictionary": "Kamus"
 }

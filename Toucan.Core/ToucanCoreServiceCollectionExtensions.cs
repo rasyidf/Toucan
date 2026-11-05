@@ -109,6 +109,7 @@ public static class ToucanCoreServiceCollectionExtensions
     /// <summary>The validation pipeline. The built-in rules come from <c>Toucan.Modules.Validation</c>, plugins add more.</summary>
     public static IServiceCollection AddToucanValidation(this IServiceCollection services)
     {
+        services.AddSingleton<IValidationRule, GlossaryRule>();
         services.AddSingleton<IValidationPipeline, ValidationPipeline>();
         return services;
     }
