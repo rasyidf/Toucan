@@ -17,12 +17,12 @@
         <Button Content="{loc:Loc 'Close'}" HorizontalAlignment="Right" x:Name="CloseButton" IsDefault="True"/>
       </DockPanel>
     </Border>
-    <StackPanel DockPanel.Dock="Top" Margin="20,18,20,8" Spacing="4">
+    <StackPanel DockPanel.Dock="Top" Margin="24,22,24,12" Spacing="4">
       <TextBlock Text="{loc:Loc 'Accounts'}" Classes="dialogTitle"/>
       <TextBlock Classes="caption" TextWrapping="Wrap"
                  Text="{loc:Loc 'Sign-ins are kept on this computer, outside your projects. Signing out revokes the stored sign-in where the service allows it.'}"/>
     </StackPanel>
-    <Panel Margin="20,0,20,12">
+    <Panel Margin="24,0,24,20">
       <TextBlock Classes="caption" HorizontalAlignment="Center" Margin="0,24" Text="{loc:Loc 'No accounts yet.'}" IsVisible="{Binding HasNoAccounts}"/>
       <ListBox Classes="plain" ItemsSource="{Binding Accounts}" SelectedItem="{Binding Selected}" IsVisible="{Binding HasAccounts}"
                AutomationProperties.Name="{loc:Loc 'Accounts'}">

@@ -53,6 +53,11 @@ public sealed partial class OpenFromServiceViewModel : ObservableObject
     public bool HasServices => Services.Count > 0;
     public bool HasNoServices => Services.Count == 0;
     public bool HasProblem => Problem.Length > 0;
+    public bool HasNoAccount => SelectedAccount is null;
+    public bool ShowsNoProjects => SelectedAccount is not null && Projects.Count == 0 && !IsLoading;
+
+    private bool _loading;
+    private bool IsLoading { get => _loading; set { _loading = value; OnPropertyChanged(nameof(ShowsNoProjects)); } }
     public bool CanOpen => !IsBusy && SelectedAccount is not null && SelectedProject is not null && !string.IsNullOrWhiteSpace(Folder);
 
     public event EventHandler? CloseRequested;
@@ -61,6 +66,7 @@ public sealed partial class OpenFromServiceViewModel : ObservableObject
     {
         Accounts.Clear();
         Projects.Clear();
+        OnPropertyChanged(nameof(ShowsNoProjects));
         if (value is null) return;
         foreach (var account in _signIn.Accounts.Accounts.Where(a => a.Adapter == value.Descriptor.Id)) Accounts.Add(account);
         SelectedAccount = Accounts.FirstOrDefault();
@@ -69,6 +75,8 @@ public sealed partial class OpenFromServiceViewModel : ObservableObject
     partial void OnSelectedAccountChanged(SourceAccount? value)
     {
         OnPropertyChanged(nameof(CanOpen));
+        OnPropertyChanged(nameof(HasNoAccount));
+        OnPropertyChanged(nameof(ShowsNoProjects));
         if (value is not null) _ = LoadProjectsAsync();
     }
 
@@ -133,17 +141,21 @@ public sealed partial class OpenFromServiceViewModel : ObservableObject
         Problem = string.Empty;
         if (SelectedAccount is not { } account) return;
         StatusText = "Loading projects…";
+        IsLoading = true;
         try
         {
             await foreach (var project in _signIn.ListProjectsAsync(account)) Projects.Add(project);
             SelectedProject = Projects.FirstOrDefault();
-            if (Projects.Count == 0) Problem = "This account has no projects here.";
         }
         catch (SourceException ex)
         {
             Problem = _signIn.DiagnosticsFor(_signIn.Adapter(account.Adapter)).Redact(ex.Error.Message);
         }
-        finally { StatusText = string.Empty; }
+        finally
+        {
+            StatusText = string.Empty;
+            IsLoading = false;
+        }
     }
 
     [RelayCommand]

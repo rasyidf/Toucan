@@ -16,7 +16,7 @@
         </StackPanel>
       </DockPanel>
     </Border>
-    <StackPanel DockPanel.Dock="Top" Margin="20,18,20,8" Spacing="6">
+    <StackPanel DockPanel.Dock="Top" Margin="24,22,24,12" Spacing="6">
       <TextBlock Text="{Binding Title}" Classes="dialogTitle"/>
       <TextBlock Classes="caption" TextWrapping="Wrap"
                  Text="{loc:Loc 'Nothing changes until you apply. Remote services have no transactions: if some changes fail, the others stay applied and the failed ones stay pending.'}"/>
@@ -41,7 +41,7 @@
         </ItemsControl.ItemTemplate>
       </ItemsControl>
     </StackPanel>
-    <TabControl x:Name="Tabs" Margin="20,0,20,12">
+    <TabControl x:Name="Tabs" Margin="24,0,24,20">
       <TabItem Header="{loc:Loc 'Pull'}" AutomationProperties.Name="{loc:Loc 'Changes coming in'}">
         <Panel>
           <TextBlock Classes="caption" HorizontalAlignment="Center" Margin="0,24" Text="{loc:Loc 'Nothing to pull.'}" IsVisible="{Binding !HasPull}"/>

@@ -15,7 +15,7 @@
         </StackPanel>
       </DockPanel>
     </Border>
-    <StackPanel DockPanel.Dock="Top" Margin="20,18,20,8" Spacing="4">
+    <StackPanel DockPanel.Dock="Top" Margin="24,22,24,12" Spacing="4">
       <TextBlock Text="{Binding StepTitle}" Classes="dialogTitle"/>
       <ItemsControl ItemsSource="{Binding Problems}" IsVisible="{Binding HasProblems}">
         <ItemsControl.ItemTemplate>
@@ -24,7 +24,7 @@
       </ItemsControl>
       <TextBlock Text="{Binding StatusText}" Classes="caption"/>
     </StackPanel>
-    <ScrollViewer Margin="20,0,20,12" IsEnabled="{Binding !IsBusy}">
+    <ScrollViewer Margin="24,0,24,20" IsEnabled="{Binding !IsBusy}">
       <Panel>
         <!-- 1. Service -->
         <StackPanel Spacing="8" IsVisible="{Binding IsService}">
@@ -68,7 +68,7 @@
         </StackPanel>
         <!-- 4. Mapping -->
         <StackPanel Spacing="10" IsVisible="{Binding IsMapping}">
-          <TextBlock Text="{loc:Loc 'Languages'}" Classes="groupHeader"/>
+          <TextBlock Text="{loc:Loc 'Languages'}" FontWeight="SemiBold"/>
           <ItemsControl ItemsSource="{Binding Languages}">
             <ItemsControl.ItemTemplate><DataTemplate>
               <Grid ColumnDefinitions="90,*,180" Margin="0,2">
@@ -78,7 +78,7 @@
               </Grid>
             </DataTemplate></ItemsControl.ItemTemplate>
           </ItemsControl>
-          <TextBlock Text="{loc:Loc 'Resources'}" Classes="groupHeader"/>
+          <TextBlock Text="{loc:Loc 'Resources'}" FontWeight="SemiBold"/>
           <ItemsControl ItemsSource="{Binding Resources}">
             <ItemsControl.ItemTemplate><DataTemplate>
               <Grid ColumnDefinitions="Auto,*,180" Margin="0,2">
@@ -88,18 +88,18 @@
               </Grid>
             </DataTemplate></ItemsControl.ItemTemplate>
           </ItemsControl>
-          <TextBlock Text="{loc:Loc 'Key separator'}" Classes="groupHeader"/>
+          <TextBlock Text="{loc:Loc 'Key separator'}" FontWeight="SemiBold"/>
           <TextBox Text="{Binding Separator}" Width="80" HorizontalAlignment="Left" AutomationProperties.Name="{loc:Loc 'Key separator'}"/>
         </StackPanel>
         <!-- 5. Policy -->
         <StackPanel Spacing="10" IsVisible="{Binding IsPolicy}">
-          <TextBlock Text="{loc:Loc 'Name'}" Classes="groupHeader"/>
+          <TextBlock Text="{loc:Loc 'Name'}" FontWeight="SemiBold"/>
           <TextBox Text="{Binding ConnectionName}" AutomationProperties.Name="{loc:Loc 'Connection name'}"/>
-          <TextBlock Text="{loc:Loc 'Role'}" Classes="groupHeader"/>
+          <TextBlock Text="{loc:Loc 'Role'}" FontWeight="SemiBold"/>
           <ComboBox ItemsSource="{Binding Roles}" SelectedItem="{Binding Role}" AutomationProperties.Name="{loc:Loc 'Role'}"/>
           <TextBlock Classes="caption" TextWrapping="Wrap"
                      Text="{loc:Loc 'Mirror: your files are the main copy and the service follows. Primary: the service is the main copy and Toucan keeps a local cache.'}"/>
-          <TextBlock Text="{loc:Loc 'When you delete a key here'}" Classes="groupHeader"/>
+          <TextBlock Text="{loc:Loc 'When you delete a key here'}" FontWeight="SemiBold"/>
           <ComboBox ItemsSource="{Binding DeletePolicies}" SelectedItem="{Binding DeletePolicy}" AutomationProperties.Name="{loc:Loc 'Remote deletion policy'}"/>
           <CheckBox IsChecked="{Binding PushStatuses}" Content="{loc:Loc 'Send review states'}"/>
           <CheckBox IsChecked="{Binding PushComments}" Content="{loc:Loc 'Send comments'}"/>
