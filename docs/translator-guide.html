@@ -102,7 +102,7 @@
         <div class="kicker">Documentation</div>
         <h1>Toucan for Professional Translators</h1>
         <p class="lead">Dedicated guide for professional translators and localization specialists: CAT-style workflows, translation memory, metrics, quality checks, and client exchange.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/translator-guide.md">Edit on GitHub ↗</a></div>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-11-05</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/translator-guide.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <p>Software localization often forces linguists to juggle unfamiliar developer formats (JSON, YAML, PO, RESX, ARB, XLIFF), where accidental syntax errors or broken placeholders can cause application crashes.</p>
@@ -142,7 +142,7 @@
 <li><strong>MT / AI:</strong> Clearly labeled when sourced from an optional machine translation provider.</li>
 </ul>
 <h3 id="tmx-import--export"><a class="anchor" href="#tmx-import--export" aria-label="Link to this section">#</a>TMX Import &amp; Export</h3>
-<p>You are never locked into Toucan. You can import existing industry-standard <strong>Translation Memory eXchange (<code>.tmx</code>)</strong> files or export your project's memory to share with other CAT tools (SDL Trados, memoQ, Phrase, Lokalise, etc.). Go to <strong>Tools → Translation Memory</strong> to manage stored units, set matching thresholds, or clear segments.</p>
+<p>You are never locked into Toucan. You can import existing industry-standard <strong>Translation Memory eXchange (<code>.tmx</code>)</strong> files or export your project's memory to share with other CAT tools (SDL Trados, memoQ, Phrase, Lokalise, etc.). Use <strong>Tools → Translation Memory</strong> (Learn from This Project, Import TMX…, Export TMX…) and the Translation Memory panel to manage stored units, set matching thresholds, or clear segments.</p>
 <hr>
 <h2 id="3-keyboard-driven-review--approval"><a class="anchor" href="#3-keyboard-driven-review--approval" aria-label="Link to this section">#</a>3. Keyboard-Driven Review &amp; Approval</h2>
 <p>Linguists translate fastest when their hands never leave the home row. Toucan’s review workflow is built around continuous typing:</p>
@@ -185,7 +185,7 @@
 <p>Not every client or subject matter expert has Toucan installed. Toucan makes offline review seamless through round-trip spreadsheet interchange:</p>
 <h3 id="exporting-for-external-review"><a class="anchor" href="#exporting-for-external-review" aria-label="Link to this section">#</a>Exporting for External Review</h3>
 <ol>
-<li>Choose <strong>File → Export → Excel (.xlsx)…</strong></li>
+<li>Choose <strong>File → Export to Excel…</strong></li>
 <li>Select your dialect:
 <ul>
 <li><strong>Toucan Dialect:</strong> Clean layout with Key, Source, Target languages, Comments, and Per-Language Approval columns.</li>
@@ -195,7 +195,7 @@
 </ol>
 <h3 id="importing--reconciling-spreadsheets"><a class="anchor" href="#importing--reconciling-spreadsheets" aria-label="Link to this section">#</a>Importing &amp; Reconciling Spreadsheets</h3>
 <ol>
-<li>Choose <strong>File → Import → Excel (.xlsx)…</strong></li>
+<li>Choose <strong>File → Import from Excel…</strong></li>
 <li>Toucan inspects the workbook and displays an <strong>interactive diff preview</strong>:
 <ul>
 <li>Lists new strings, modified translations, comment changes, and approval toggles.</li>
@@ -216,7 +216,7 @@
 <hr>
 <h2 id="7-universal-format-support"><a class="anchor" href="#7-universal-format-support" aria-label="Link to this section">#</a>7. Universal Format Support</h2>
 <p>Toucan eliminates the need to maintain different editors for different programming languages:</p>
-<div class="table-wrap"><table><thead><tr><th>Ecosystem</th><th>Supported File Formats</th></tr></thead><tbody><tr><td><strong>Web &amp; JavaScript</strong></td><td>JSON (flat &amp; namespaced/i18next), FormatJS catalogs, YAML</td></tr><tr><td><strong>Mobile (iOS &amp; Android)</strong></td><td>iOS <code>.strings</code> (UTF-16 &amp; UTF-8), Android <code>strings.xml</code></td></tr><tr><td><strong>Flutter / Dart</strong></td><td>Flutter ARB (<code>intl_*.arb</code>, <code>app_*.arb</code>, <code>@key</code> metadata)</td></tr><tr><td><strong>.NET / Windows</strong></td><td>RESX (<code>Resources.*.resx</code>)</td></tr><tr><td><strong>GNU / Linux / PHP</strong></td><td>GNU Gettext PO (<code>.po</code>), Laravel PHP arrays (<code>lang/*.php</code>)</td></tr><tr><td><strong>Cross-Platform / Localization</strong></td><td>XLIFF 1.2 &amp; 2.0 (<code>.xlf</code>), CSV, TSV, Java <code>.properties</code></td></tr><tr><td><strong>Migration</strong></td><td>BabelEdit (<code>.babel</code>) project folders</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Ecosystem</th><th>Supported File Formats</th></tr></thead><tbody><tr><td><strong>Web &amp; JavaScript</strong></td><td>JSON (flat &amp; namespaced/i18next), FormatJS catalogs, YAML</td></tr><tr><td><strong>Mobile (iOS &amp; Android)</strong></td><td>iOS <code>.strings</code> (UTF-16 &amp; UTF-8), Android <code>strings.xml</code></td></tr><tr><td><strong>Flutter / Dart</strong></td><td>Flutter ARB (<code>intl_*.arb</code>, <code>app_*.arb</code>, <code>@key</code> metadata)</td></tr><tr><td><strong>.NET / Windows</strong></td><td>RESX (<code>Resources.*.resx</code>)</td></tr><tr><td><strong>GNU / Linux / PHP</strong></td><td>GNU Gettext PO (<code>.po</code>), Laravel PHP arrays (<code>lang/*.php</code>)</td></tr><tr><td><strong>Config &amp; other</strong></td><td>TOML, INI (export only)</td></tr><tr><td><strong>Cross-Platform / Localization</strong></td><td>XLIFF 1.2 &amp; 2.0 (<code>.xlf</code>), CSV, TSV, Java <code>.properties</code></td></tr><tr><td><strong>Migration</strong></td><td>BabelEdit (<code>.babel</code>) project folders</td></tr></tbody></table></div>
 <p>Each format loader and saver preserves original file encodings (UTF-8 with or without BOM, ISO-8859-1 Latin-1) and line endings (LF, CRLF), ensuring that commits pass continuous integration and code review without unwanted formatting churn.</p>
       </div>
     </article>
