@@ -58,7 +58,7 @@ public partial class MainWindowViewModel
             if (index < 0 || !items[index].Permissions.EditValues) continue;
             var item = items[index];
             item.Value = staged.Value; item.ChangeType = staged.ChangeType; item.LastModifiedUtc = staged.LastModifiedUtc;
-            item.IsApproved = false; item.ApprovedAtUtc = null; applied.Add(item);
+            Toucan.Core.Services.ReviewTracker.Invalidate(item); applied.Add(item);
         }
         if (RecordEntryChanges(before) == 0) return;
         NotifyBulkValueChanges(applied);
@@ -111,8 +111,7 @@ public partial class MainWindowViewModel
                 item.Value = r.TranslatedValue!;
                 item.ChangeType = ChangeType.Suggestion;
                 item.LastModifiedUtc = DateTime.UtcNow;
-                item.IsApproved = false;
-                item.ApprovedAtUtc = null;
+                Toucan.Core.Services.ReviewTracker.Invalidate(item);
                 applied.Add(item);
             }
 
@@ -203,8 +202,7 @@ public partial class MainWindowViewModel
         var before = CaptureEntries(items);
         foreach (var t in items)
         {
-            t.IsApproved = true;
-            t.ApprovedAtUtc = DateTime.UtcNow;
+            Toucan.Core.Services.ReviewTracker.Approve(t, AllTranslation.FirstOrDefault(s => s.Namespace == t.Namespace && s.Language == PrimaryLanguage)?.Value);
         }
         if (RecordEntryChanges(before) == 0) return;
         NotifyBulkValueChanges(items);
@@ -303,7 +301,7 @@ public partial class MainWindowViewModel
         { StatusText = "The text changed. Run analysis again before applying this finding."; return; }
         var before = CaptureEntries([target]);
         target.Value = issue.SuggestedFix;
-        target.IsApproved = false; target.ApprovedAtUtc = null;
+        Toucan.Core.Services.ReviewTracker.Invalidate(target);
         RecordEntryChanges(before);
         NotifyBulkValueChanges([target]);
         foreach (var t in PagingController.Data.SelectMany(g => g.AllItems).Where(t => ReferenceEquals(t.Model, target))) t.Refresh();

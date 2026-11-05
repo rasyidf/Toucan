@@ -246,7 +246,7 @@ Paths using `Documents` and application data resolve through .NET special folder
 
 | Location | Owner and purpose |
 |---|---|
-| `<project>/toucan.tproj` | `ProjectSettings`: format, languages, aliases, packages, source/editor/provider preferences, auto-save, output encoding and line endings. Legacy `saveStyle` values migrate to a string `saveFormat`. |
+| `<project>/toucan.tproj` | `ProjectSettings`: format, languages, aliases, packages, source/editor/provider preferences, auto-save, output encoding and line endings. Legacy `saveStyle` values migrate to a string `saveFormat`. Translation states also hold per-target review state (`approved`, `needsReview`, `reviewedSourceHash`); `ReviewTracker` withdraws an approval when the source or target changes. |
 | Translation files | Format strategies: serialized translation resources. |
 | Format-relative `*.comments.json` | `CommentPersistenceService`: comments for formats without inline storage. |
 | `<project>/.toucan-metadata.json` | `AuditService`: persisted translation metadata. |

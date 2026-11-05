@@ -440,6 +440,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         if (!string.IsNullOrEmpty(item.Namespace)) SessionDirtyKeys.Add(item.Namespace);
         SessionDirtyCount = SessionDirtyKeys.Count;
         BumpWorkspaceRevision();
+        if (item.IsSource && Toucan.Core.Services.ReviewTracker.Reconcile(AllTranslation.Where(t => t.Namespace == item.Namespace), PrimaryLanguage) > 0)
+            foreach (var shown in PagingController.Data.SelectMany(g => g.AllItems).Where(v => v.Namespace == item.Namespace)) shown.Refresh();
         if (!_translationStore.IsItemDirty(item.Model))
         {
             // Approval-only changes are invisible to the store's baselines.

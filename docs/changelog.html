@@ -94,6 +94,7 @@
       <div class="sidebar-title">Jump to a release</div>
       <nav id="release-index" aria-label="Versions">
 <!-- RELEASE INDEX START -->
+<a href="#unreleased">Unreleased</a>
 <a href="#v0.25.0">v0.25.0</a>
 <a href="#v0.24.0">v0.24.0</a>
 <a href="#v0.23.0">v0.23.0</a>
@@ -127,6 +128,16 @@
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div id="releases">
 <!-- RELEASES START -->
+<article class="release" id="unreleased" aria-labelledby="heading-unreleased">
+<div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
+<div class="release-lead"><p>Changes waiting for the next release.</p></div>
+<div class="release-counts"><span class="added">1 added</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Review state follows the text</strong> — Approvals now record the source text they were given for. When the source or the translation changes, in the editor or in a file edited outside Toucan, the approval is withdrawn and the row shows a Needs review badge. Existing approvals are kept and tracked from the first open. Projects that use document persistence do not keep this across sessions yet.</li>
+</ul></div></details>
+<div class="release-links"><a href="#unreleased" aria-label="Permalink to Unreleased">Permalink</a></div>
+</article>
 <article class="release" id="v0.25.0" aria-labelledby="heading-v0.25.0">
 <div class="release-heading"><h2 id="heading-v0.25.0"><a href="#v0.25.0">v0.25.0</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-11-05">Nov 05, 2026</time></div>
 <div class="release-lead"><p>Glossary and message-aware validation, plus safer targeted saves for document projects.</p>

@@ -139,7 +139,7 @@ public partial class MainWindowViewModel
         _bulkOperations.CopyToLanguage(AllTranslation, keys, primary, target);
         foreach (var pair in before.Where(p => p.Value.Value != p.Key.Value))
         {
-            pair.Key.IsApproved = false; pair.Key.ApprovedAtUtc = null;
+            Toucan.Core.Services.ReviewTracker.Invalidate(pair.Key);
             pair.Key.LastModifiedUtc = DateTime.UtcNow; pair.Key.ChangeType = Toucan.Core.Contracts.Services.ChangeType.DirectEdit;
         }
         var copied = RecordEntryChanges(before);

@@ -91,6 +91,7 @@ public class PackageService(IFileService fileService, IEnumerable<ILoadStrategy>
             settings.TranslationStates = priorStates.Where(s => s.Identity == null || !ids.Contains(s.Identity.ResourceId)).Concat(list.Select(i => new TranslationState
             {
                 Identity = i.Identity, Language = i.Language, Key = i.Namespace, Comment = i.Comment, Approved = i.IsApproved,
+                NeedsReview = i.NeedsReview, ReviewedSourceHash = i.ReviewedSourceHash,
                 Data = i.FormatData?.Where(p => p.Key != NestedJsonParser.JsonScalarKey).ToDictionary(p => p.Key, p => p.Value) ?? []
             })).ToList();
             settings.Save();

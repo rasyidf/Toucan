@@ -215,12 +215,16 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
                 OnPropertyChanged();
                 return;
             }
-            _model.IsApproved = value;
-            _model.ApprovedAtUtc = value ? DateTime.UtcNow : null;
+            if (value) Toucan.Core.Services.ReviewTracker.Approve(_model, SourceText);
+            else Toucan.Core.Services.ReviewTracker.Reset(_model);
             OnPropertyChanged();
+            OnPropertyChanged(nameof(NeedsReview));
             _onChanged?.Invoke(this);
         }
     }
+
+    /// <summary>True when an earlier approval was withdrawn because the source or target changed.</summary>
+    public bool NeedsReview => _model.NeedsReview && !_model.IsApproved;
 
     /// <summary>True when the value came from machine translation and hasn't been edited since.</summary>
     public bool IsMachineTranslated => _model.ChangeType == ChangeType.Suggestion;
@@ -289,6 +293,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
             OnPropertyChanged(nameof(PlaceholderWarning));
         }
         OnPropertyChanged(nameof(IsApproved));
+        OnPropertyChanged(nameof(NeedsReview));
         OnPropertyChanged(nameof(Comment));
         OnPropertyChanged(nameof(HasComment));
         OnPropertyChanged(nameof(PlaceholderMetadata));
@@ -309,6 +314,8 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
             _undoRedoService?.Record(_model.Namespace, _model.Language, _valueBeforeEdit, _value);
             _model.LastModifiedUtc = DateTime.UtcNow;
             _model.ChangeType = ChangeType.DirectEdit;
+            // An approval covers the text that was reviewed; editing a target withdraws it.
+            if (!IsSource && Toucan.Core.Services.ReviewTracker.Invalidate(_model)) { OnPropertyChanged(nameof(IsApproved)); OnPropertyChanged(nameof(NeedsReview)); }
         }
 
         if (_translationManagement != null)

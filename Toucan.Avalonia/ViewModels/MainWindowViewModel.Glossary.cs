@@ -113,7 +113,7 @@ public partial class MainWindowViewModel
         if (!target.Permissions.EditValues) return;
         var before = CaptureEntries([target]);
         target.Value += entry.Translations[language];
-        target.IsApproved = false; target.ApprovedAtUtc = null;
+        Toucan.Core.Services.ReviewTracker.Invalidate(target);
         RecordEntryChanges(before); NotifyBulkValueChanges([target]);
     }
 }

@@ -116,6 +116,8 @@ public class ProjectService(
             if (document != null) item.Permissions = ResourcePermissionsFor(document.Resource);
         }
         if (resourceAware) ResourceJsonCodec.ResolveSelectors(translations);
+        // Approvals follow the source text they were given for: withdraw those whose source changed outside Toucan.
+        if (!string.IsNullOrEmpty(settings.PrimaryLanguage)) ReviewTracker.Reconcile(translations, settings.PrimaryLanguage);
 
         // Backfill settings from loaded data if manifest was missing
         if (settings.Languages.Count == 0)
@@ -177,6 +179,8 @@ public class ProjectService(
                 var authority = metadataAuthority?.Invoke(item);
                 if (authority?.CommentsInResource != true) item.Comment = state.Comment;
                 item.IsApproved = state.Approved;
+                item.NeedsReview = state.NeedsReview && !state.Approved;
+                item.ReviewedSourceHash = state.ReviewedSourceHash;
                 foreach (var entry in state.Data.Where(p => (item.Identity is null || p.Key != NestedJsonParser.JsonScalarKey) && authority?.OwnsMetadata(p.Key) != true))
                     (item.FormatData ??= new())[entry.Key] = entry.Value;
             }
@@ -289,6 +293,7 @@ public class ProjectService(
         foreach (var importer in compatibilityImporters ?? []) importer.CaptureMetadata(project.Compatibility, toSave);
         project.TranslationStates = toSave.GroupBy(i => (i.Language, i.Namespace)).Select(g => g.First())
             .Select(i => new TranslationState { Identity = i.Identity, Language = i.Language, Key = i.Namespace, Comment = i.Comment, Approved = i.IsApproved,
+                NeedsReview = i.NeedsReview, ReviewedSourceHash = i.ReviewedSourceHash,
                 Data = i.FormatData?.Where(p => i.Identity is null || p.Key != NestedJsonParser.JsonScalarKey)
                     .ToDictionary(p => p.Key, p => p.Value) ?? [] }).ToList();
         // Update project manifest with current language list

@@ -1,7 +1,7 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "37 release tasks; 6 stable gates; 26 deferred tasks"
+progress: "36 release tasks; 6 stable gates; 26 deferred tasks"
 updated: 2026-11-05
 summary: "v0.25 terminology and validation shipped as 0.25.0 with one carried-over decision (ARB comments); v0.26 review correctness is next. Later review, content-source and distribution milestones remain planned."
 ---
@@ -82,9 +82,10 @@ The upstream release records its connector acceptance as passed. Revalidation of
 
 **Outcome:** approval reflects the actual source and target that were reviewed.
 
-- [ ] Persist Draft → Needs review → Approved per translation unit and target language, with migration from the existing approval flag.
-- [ ] Record the source revision/hash used for review; mark affected targets Needs review when the source changes, and invalidate approval after target edits.
-- [ ] Add status filters and row badges; extend existing batch approval/rejection with comments and consistent validation policy.
+**Done in the working tree:** folder projects store a Draft / Needs review / Approved state and the source fingerprint per target in the `toucan.tproj` translation states, migrate existing approvals on first open, withdraw approvals when the source or target changes (in the editor and when files change outside Toucan), and show a Needs review badge on the row. See `ReviewTracker`.
+
+- [ ] Persist the same review state and source fingerprint for document-aware projects (the `.toucan/entries` sidecars); today only manifest-backed projects keep them across sessions.
+- [ ] Add status filters (a Needs review filter in Review mode and the Issues panel); extend existing batch approval/rejection with comments and consistent validation policy.
 - [ ] Persist review history with timestamp, action, and available local actor information; do not imply authenticated team identity.
 - [ ] Track delivery separately from review: pending, synchronized, failed, or included in an export, applying the `requireValidForApproval` policy to delivery as well; preserve review meaning when remote platforms have different status models.
 

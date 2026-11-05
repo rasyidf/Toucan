@@ -138,10 +138,10 @@
 <p><strong>Completion gate:</strong> glossary and message fixtures detect meaningful errors without blocking draft saves; accepting a suggestion follows normal undo and dirty tracking.</p>
 <h3 id="v026-review-correctness"><a class="anchor" href="#v026-review-correctness" aria-label="Link to this section">#</a>v0.26: Review correctness</h3>
 <p><strong>Outcome:</strong> approval reflects the actual source and target that were reviewed.</p>
+<p><strong>Done in the working tree:</strong> folder projects store a Draft / Needs review / Approved state and the source fingerprint per target in the <code>toucan.tproj</code> translation states, migrate existing approvals on first open, withdraw approvals when the source or target changes (in the editor and when files change outside Toucan), and show a Needs review badge on the row. See <code>ReviewTracker</code>.</p>
 <ul class="tasks">
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist Draft → Needs review → Approved per translation unit and target language, with migration from the existing approval flag.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Record the source revision/hash used for review; mark affected targets Needs review when the source changes, and invalidate approval after target edits.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add status filters and row badges; extend existing batch approval/rejection with comments and consistent validation policy.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist the same review state and source fingerprint for document-aware projects (the <code>.toucan/entries</code> sidecars); today only manifest-backed projects keep them across sessions.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add status filters (a Needs review filter in Review mode and the Issues panel); extend existing batch approval/rejection with comments and consistent validation policy.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist review history with timestamp, action, and available local actor information; do not imply authenticated team identity.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Track delivery separately from review: pending, synchronized, failed, or included in an export, applying the <code>requireValidForApproval</code> policy to delivery as well; preserve review meaning when remote platforms have different status models.</li>
 </ul>

@@ -247,8 +247,7 @@ public partial class PreTranslateViewModel : ObservableObject
             item.Value = pr.TranslatedValue!;
             item.ChangeType = ChangeType.Suggestion;
             item.LastModifiedUtc = DateTime.UtcNow;
-            item.IsApproved = false;
-            item.ApprovedAtUtc = null;
+            Toucan.Core.Services.ReviewTracker.Invalidate(item);
             AppliedItems.Add(item);
         }
         AppliedCount = AppliedItems.Count;

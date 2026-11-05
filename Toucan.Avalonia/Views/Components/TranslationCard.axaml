@@ -90,6 +90,10 @@
           <ui:FASymbolIcon Symbol="World" FontSize="12" Margin="4,0" VerticalAlignment="Center"
                            Foreground="{DynamicResource InfoBrush}" IsVisible="{Binding IsMachineTranslated}"
                            ToolTip.Tip="{loc:Loc 'Machine translated — not reviewed yet'}"/>
+          <!-- Needs-review marker: an approval was withdrawn because the source or target changed -->
+          <ui:FASymbolIcon Symbol="Important" FontSize="12" Margin="4,0" VerticalAlignment="Center"
+                           Foreground="{DynamicResource WarnBrush}" IsVisible="{Binding NeedsReview}"
+                           ToolTip.Tip="{loc:Loc 'Needs review — the source or translation changed after approval'}"/>
           <Button Classes="icon small hoverOnly" Command="{Binding CopyTranslationCommand}" ToolTip.Tip="{loc:Loc 'Copy value'}">
             <ui:FASymbolIcon Symbol="Copy"/>
           </Button>

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- **Review state follows the text** — Approvals now record the source text they were given for. When the source or the translation changes, in the editor or in a file edited outside Toucan, the approval is withdrawn and the row shows a Needs review badge. Existing approvals are kept and tracked from the first open. Projects that use document persistence do not keep this across sessions yet.
+
 ## [0.25.0] - 2026-11-05
 
 Glossary and message-aware validation, plus safer targeted saves for document projects.
