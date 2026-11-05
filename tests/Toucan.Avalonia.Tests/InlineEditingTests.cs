@@ -22,6 +22,16 @@ public class InlineEditingTests
         ("en", """{"greeting":"Hello {{name}}, {count} items cost %s. Reference {0}."}"""),
         ("fr", """{"greeting":"Bonjour {{name}}, {count} articles coûtent %s. Référence {0}."}"""));
 
+    private static async Task WaitForInline(Func<bool> ready)
+    {
+        var elapsed = System.Diagnostics.Stopwatch.StartNew();
+        while (!ready() && elapsed.Elapsed < TimeSpan.FromSeconds(2))
+        {
+            await Task.Delay(25);
+            Dispatcher.UIThread.RunJobs();
+        }
+    }
+
     [AvaloniaFact]
     public async Task InlineValidationDebouncesAndUsesLiveSourceAndTargetWithoutSaving()
     {
@@ -36,21 +46,18 @@ public class InlineEditingTests
         fr.Value = "Bonjour {{other}}, {count} articles coûtent %s. Référence {0}.";
         Assert.Equal(original, fr.Model.Value);
         Assert.False(fr.HasInlineErrors);
-        await Task.Delay(400);
-        Dispatcher.UIThread.RunJobs();
+        await WaitForInline(() => fr.HasInlineErrors);
         Assert.True(fr.HasInlineErrors);
         var issue = Assert.Single(fr.InlineIssues, i => i.RuleId == "placeholder-mismatch");
         Assert.Contains("{{name}}", issue.Message);
         Assert.Contains("{{other}}", issue.Message);
 
         fr.Value = "Bonjour {{name}}, {count} articles coûtent %s. Référence {0}.";
-        await Task.Delay(400);
-        Dispatcher.UIThread.RunJobs();
+        await WaitForInline(() => !fr.HasInlineErrors);
         Assert.False(fr.HasInlineErrors);
         en.Value = "Hello {{name}} {{new}}, {count} items cost %s. Reference {0}.";
         Assert.Equal(en.Value, fr.SourceText);
-        await Task.Delay(400);
-        Dispatcher.UIThread.RunJobs();
+        await WaitForInline(() => fr.InlineIssues.Any(i => i.Message.Contains("{{new}}", StringComparison.Ordinal)));
         Assert.Contains(fr.InlineIssues, i => i.Message.Contains("{{new}}", StringComparison.Ordinal));
     }
 
@@ -151,6 +158,8 @@ public class InlineEditingTests
         }
         finally
         {
+            // Finish asynchronous close/save before the host synchronously disposes its services.
+            await vm.TryCloseProjectAsync();
             window.Close();
             Application.Current.RequestedThemeVariant = oldTheme;
         }

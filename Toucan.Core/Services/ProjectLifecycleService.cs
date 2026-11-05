@@ -1,3 +1,4 @@
+using Toucan.Core.Services.Validation;
 using System.IO;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
@@ -28,7 +29,7 @@ public partial class ProjectLifecycleService(
     IRecoveryDraftService? recoveryDrafts = null,
     Plugins.IPluginActivationService? pluginActivation = null,
     WorkspaceService? workspace = null, WorkspaceDocumentSaveCoordinator? documentSaves = null, WorkspaceExportPlanner? exportPlanner = null, WorkspaceDocumentSaveExecutor? documentExecutor = null,
-    Plugins.INotificationCenter? notificationCenter = null) : IProjectLifecycleService, IDisposable, IAsyncDisposable
+    Plugins.INotificationCenter? notificationCenter = null, IProjectDefaultsService? projectDefaults = null) : IProjectLifecycleService, IDisposable, IAsyncDisposable
 {
     private readonly SemaphoreSlim _lifecycleGate = new(1, 1);
     private readonly Dictionary<string, string> _connectionStates = new(StringComparer.Ordinal);
@@ -313,10 +314,9 @@ public partial class ProjectLifecycleService(
             workspace?.CommitProjection(translationManagement.Translations);
             var saveItems = workspace?.SaveProjection() ?? translationManagement.Translations;
             // 1. Validate. Findings never stop a draft from being saved; only strict policy (approval, delivery) does.
-            var findings = _currentProject.ValidateOnSave == false && !options.EnforceValidation
+            var findings = !EffectiveSettingsResolver.ResolveBool(_currentProject.ValidateOnSave, projectDefaults?.Load().ValidateOnSave ?? true) && !options.EnforceValidation
                 ? []
-                : validationPipeline.RunAll(new ValidationContext
-                {
+                : validationPipeline.RunAll(new ProjectValidationContext { Project = _currentProject,
                     Items = saveItems,
                     PrimaryLanguage = _currentProject.PrimaryLanguage
                 }).ToList();
@@ -351,7 +351,11 @@ public partial class ProjectLifecycleService(
 
             // 5. Everything is on disk: only now do the unsaved edits count as saved
             if (workspace is null) translationManagement.MarkAllSaved();
-            else translationManagement.MarkSaved(saveItems);
+            else
+            {
+                translationManagement.MarkSaved(workspace.SaveProjection());
+                translationManagement.NotifyConfigurationChanged(false);
+            }
             workspace?.MarkSaved();
             DeleteRecoveryDraft();
             fileWatcher.TakeSnapshot();
@@ -466,6 +470,14 @@ public partial class ProjectLifecycleService(
                 AutoSaveEnabled = _currentProject.AutoSaveEnabled,
                 AutoSaveIntervalSeconds = _currentProject.AutoSaveIntervalSeconds,
                 RequireValidForApproval = _currentProject.RequireValidForApproval,
+                ValidationRules = _currentProject.ValidationRules is null ? null : new(_currentProject.ValidationRules),
+                ValidateOnSave = _currentProject.ValidateOnSave,
+                Glossary = _currentProject.Glossary.Select(e => new GlossaryEntry { Term = e.Term, Description = e.Description, Forbidden = e.Forbidden, Translations = new(e.Translations) }).ToList(),
+                AnalysisConfidenceThreshold = _currentProject.AnalysisConfidenceThreshold,
+                Context = _currentProject.Context,
+                Formality = _currentProject.Formality,
+                PreservePlaceholders = _currentProject.PreservePlaceholders,
+                PreviewBeforeApply = _currentProject.PreviewBeforeApply,
                 ProjectPath = targetFolder
             };
 

@@ -1,17 +1,34 @@
 using Toucan.Core.Contracts;
+using Toucan.Core.Models;
+using Toucan.Core.Options;
 
 namespace Toucan.Core.Services.Validation;
 
-public class ValidationPipeline(IEnumerable<IValidationRule> rules) : IValidationPipeline
+public sealed class ProjectValidationContext : ValidationContext
+{
+    public ProjectSettings? Project { get; init; }
+    public ProjectDefaults? Defaults { get; init; }
+}
+
+public class ValidationPipeline(IEnumerable<IValidationRule> rules, IProjectDefaultsService? defaults = null) : IValidationPipeline
 {
     public IEnumerable<IValidationRule> Rules => rules;
 
-    public IEnumerable<ValidationResult> RunAll(ValidationContext context)
-        => rules.SelectMany(r => r.Validate(context));
+    public IEnumerable<ValidationResult> RunAll(ValidationContext context) => Run(context, rules.Select(r => r.Id));
 
     public IEnumerable<ValidationResult> Run(ValidationContext context, IEnumerable<string> ruleIds)
     {
         var ids = ruleIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        return rules.Where(r => ids.Contains(r.Id)).SelectMany(r => r.Validate(context));
+        var project = context as ProjectValidationContext;
+        var policy = EffectiveSettingsResolver.ResolveValidationRules(project?.Project?.ValidationRules,
+            (project?.Defaults ?? defaults?.Load() ?? new ProjectDefaults()).ValidationRules);
+        foreach (var rule in rules.Where(r => ids.Contains(r.Id)))
+        {
+            var config = policy.GetValueOrDefault(rule.Id);
+            if (config?.Enabled == false) continue;
+            foreach (var finding in rule.Validate(context))
+                yield return config is not null && Enum.TryParse<ValidationSeverity>(config.Severity, true, out var severity)
+                    && Enum.IsDefined(severity) ? finding with { Severity = severity } : finding;
+        }
     }
 }

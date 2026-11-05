@@ -1,3 +1,4 @@
+using Toucan.Core.Services.Validation;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -34,14 +35,15 @@ public partial class MainWindowViewModel
         await RunPreTranslateDialog(AllTranslation.ForParse().ToList());
     }
 
-    private async Task RunPreTranslateDialog(List<TranslationItem> items)
+    private async Task RunPreTranslateDialog(List<TranslationItem> items, bool overwrite = false)
     {
         if (IsAuditMode) return;
         var revision = _workspaceRevision;
         var settings = ProjectSettings;
         var stagedItems = items.Select(i => ResourceEntryOperations.Copy(i)).ToList();
         var vm = new PreTranslateViewModel(OrderedLanguages(), stagedItems, _pretranslationService, _dialogService, _providerSettingsService, CurrentPath, PrimaryLanguage,
-            UsableProviderNames(), ResolveProvider());
+            UsableProviderNames(), ResolveProvider(), settings);
+        vm.OverwriteExisting = overwrite;
         var committed = await _dialogService.ShowPreTranslateAsync(vm);
         RememberProvider(vm.SelectedProvider);
         if (!committed || vm.AppliedCount == 0) return;
@@ -92,7 +94,7 @@ public partial class MainWindowViewModel
                 Options = new PretranslationOptions
                 {
                     PreviewOnly = true,
-                    ProviderOptions = ProviderOptionsBuilder.Build(provider, _providerSettingsService, CurrentPath)
+                    ProviderOptions = ProviderOptionsBuilder.Build(provider, _providerSettingsService, CurrentPath, ProjectSettings, AllTranslation)
                 }
             };
             var result = await Task.Run(() => _pretranslationService.PreTranslateAsync(request));
@@ -236,7 +238,7 @@ public partial class MainWindowViewModel
         settings.PrimaryLanguage = PrimaryLanguage;
         try
         {
-            ShowValidationResults(_validationPipeline.RunAll(new ValidationContext { Items = AllTranslation, PrimaryLanguage = settings.PrimaryLanguage }).ToList());
+            ShowValidationResults(_validationPipeline.RunAll(new ProjectValidationContext { Project = ProjectSettings, Items = AllTranslation, PrimaryLanguage = settings.PrimaryLanguage }).ToList());
         }
         finally
         {
@@ -294,7 +296,15 @@ public partial class MainWindowViewModel
         var target = AllTranslation.FirstOrDefault(t => t.Namespace == issue.Namespace && t.Language == issue.Language);
         if (target == null) return;
 
+        if (IsAuditMode || !target.Permissions.EditValues) return;
+        FlushPendingEdits();
+        if (issue.ExpectedValue is { } expected && target.Value != expected ||
+            issue.ExpectedSource is { } source && AllTranslation.FirstOrDefault(i => i.Namespace == issue.Namespace && i.Language == PrimaryLanguage)?.Value != source)
+        { StatusText = "The text changed. Run analysis again before applying this finding."; return; }
+        var before = CaptureEntries([target]);
         target.Value = issue.SuggestedFix;
+        target.IsApproved = false; target.ApprovedAtUtc = null;
+        RecordEntryChanges(before);
         NotifyBulkValueChanges([target]);
         foreach (var t in PagingController.Data.SelectMany(g => g.AllItems).Where(t => ReferenceEquals(t.Model, target))) t.Refresh();
         ValidationIssues.Remove(issue);
@@ -304,7 +314,10 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private void RevealIssue(ValidationIssueItem? issue)
     {
-        if (issue?.Namespace != null) RevealKey(issue.Namespace);
+        if (issue?.Namespace is not { } key) return;
+        RevealKey(key);
+        var item = PagingController.PageData.SelectMany(g => g.AllItems).FirstOrDefault(i => i.Namespace == key && i.Language == issue.Language);
+        if (item is not null) { FocusedTranslationItem = item; TranslationFocusRequested?.Invoke(this, new(item)); }
     }
 
     // ───────────────────────── Plural & gender forms ─────────────────────────
@@ -611,6 +624,7 @@ public partial class MainWindowViewModel
     /// <summary>Refreshes the inspector for the currently selected key.</summary>
     private void RefreshInspector()
     {
+        RefreshGlossary();
         var ns = SelectedGroup?.Namespace ?? SelectedNode?.Namespace;
         SelectedKeyLanguages.Clear();
         Suggestions.Clear();

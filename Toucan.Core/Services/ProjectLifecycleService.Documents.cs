@@ -10,20 +10,23 @@ public partial class ProjectLifecycleService
     {
         if (workspace?.Source is not { } source || documentSaves is null || _currentProject is null)
             return new(ProjectSaveStatus.FileSystemError, ErrorMessage: "Document persistence is unavailable.");
-        var findings = workspace.Validate();
-        if (options.EnforceValidation && findings.Any(f => f.Severity == ValidationSeverity.Error))
-            return new(ProjectSaveStatus.ValidationErrors, Errors: findings.Where(f => f.Severity == ValidationSeverity.Error).ToArray(), Findings: findings);
+        IReadOnlyList<ValidationResult> findings = [];
         try
         {
             var commit = workspace.CommitProjection(translationManagement.Translations);
             if (!commit.Applied) return new(ProjectSaveStatus.FileSystemError, ErrorMessage: commit.Issues[0].Message);
+            findings = !EffectiveSettingsResolver.ResolveBool(_currentProject.ValidateOnSave, projectDefaults?.Load().ValidateOnSave ?? true) && !options.EnforceValidation ? [] : workspace.Validate();
+            if (options.EnforceValidation && findings.Any(f => f.Severity == ValidationSeverity.Error))
+                return new(ProjectSaveStatus.ValidationErrors, Errors: findings.Where(f => f.Severity == ValidationSeverity.Error).ToArray(), Findings: findings);
             FlushRecoveryDraft();
+            var configuration = ProjectConfiguration.Signature(_currentProject);
             var result = await documentSaves.SaveDispatchedAsync(source, DispatchToUiAsync, ct).ConfigureAwait(false);
             if (!result.Acknowledged) return new(ProjectSaveStatus.Cancelled, ErrorMessage: "The workspace session changed during save.");
             await DispatchToUiAsync(() =>
             {
                 if (workspace.SessionId != result.Receipt.Plan.SessionId) return Task.CompletedTask;
-                _currentProject.IsDirty = workspace.IsDirty;
+                if (ProjectConfiguration.Signature(_currentProject) == configuration) translationManagement.NotifyConfigurationChanged(false);
+                _currentProject.IsDirty = workspace.IsDirty || translationManagement.IsDirty;
                 if (!workspace.IsDirty) DeleteRecoveryDraft(); else FlushRecoveryDraft();
                 var saved = result.Receipt.Source;
                 var writes = result.Receipt.Plan.Targets.Select(target => new FileVersionChange(target.RelativePath, target.ExpectedVersion,

@@ -61,6 +61,8 @@ public class ProjectSettings
     /// <summary>Output newline override: LF or CRLF; null keeps the format default.</summary>
     public string? LineEnding { get; set; }
     public string? Framework { get; set; }
+    public List<GlossaryEntry> Glossary { get; set; } = [];
+    public double AnalysisConfidenceThreshold { get; set; } = 0.6;
     public SpellingSettings Spelling { get; set; } = new();
     public FrameworkOptions FrameworkOptions { get; set; } = new();
     public List<TranslationPackage> TranslationPackages { get; set; } = [];

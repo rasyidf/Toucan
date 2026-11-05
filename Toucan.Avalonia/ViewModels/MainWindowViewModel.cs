@@ -1,3 +1,4 @@
+using Toucan.Core.Services.Validation;
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -476,7 +477,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             .Where(r => InlineRuleConfig(r.Id)?.Enabled != false)
             .Where(r => r.Id != "placeholder-mismatch" || PanelService.Instance.ShowPlaceholderWarnings)
             .Select(r => r.Id).ToArray();
-        var results = _validationPipeline.Run(new ValidationContext { Items = snapshots, PrimaryLanguage = PrimaryLanguage }, enabledRules)
+        var results = _validationPipeline.Run(new ProjectValidationContext { Project = ProjectSettings, Defaults = new ProjectDefaults { ValidationRules = _inlineRuleDefaults }, Items = snapshots, PrimaryLanguage = PrimaryLanguage }, enabledRules)
             .Where(r => r.Language is null || r.Language == item.Language)
             .Select(r => InlineRuleConfig(r.RuleId) is { } config &&
                 Enum.TryParse<ValidationSeverity>(config.Severity, true, out var severity) ? r with { Severity = severity } : r)

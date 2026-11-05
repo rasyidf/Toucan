@@ -87,6 +87,7 @@ public partial class MainWindowViewModel
         var context = await RequireContextAsync("Application Context");
         if (context == null) return;
 
+        FlushPendingEdits();
         var primary = PrimaryLanguage;
         var sourceMap = AllTranslation.Where(i => i.Language == primary && !string.IsNullOrEmpty(i.Value))
             .GroupBy(i => i.Namespace).ToDictionary(g => g.Key, g => g.First().Value);
@@ -100,18 +101,22 @@ public partial class MainWindowViewModel
             return;
         }
 
+        var revision = _workspaceRevision; var settings = ProjectSettings;
         IsLoading = true;
         StatusText = "Analyzing translations…";
         try
         {
-            var request = new AnalysisRequest { Items = items, ApplicationContext = context, SourceLanguage = primary, ProjectPath = HasProject ? CurrentPath : null };
+            var request = new AnalysisRequest { Items = items, ApplicationContext = context, SourceLanguage = primary, Glossary = GlossaryService.ForAi(ProjectSettings?.Glossary ?? []), ProjectPath = HasProject ? CurrentPath : null };
             var progress = new Progress<PretranslationProgress>(p => StatusText = p.Message ?? $"Analyzing {p.Completed}/{p.Total}…");
-            var results = (await Task.Run(() => _translationAnalyzer.AnalyzeAsync(request, progress))).Where(r => r.Confidence >= 0.6).ToList();
+            var results = (await Task.Run(() => _translationAnalyzer.AnalyzeAsync(request, progress))).Where(r => r.Confidence >= Math.Clamp(ProjectSettings?.AnalysisConfidenceThreshold ?? 0.6, 0, 1)).ToList();
 
+            if (revision != _workspaceRevision || !ReferenceEquals(settings, ProjectSettings))
+            { StatusText = "The workspace changed. Run analysis again."; return; }
             AnalysisResults.Clear();
             foreach (var r in results) AnalysisResults.Add(r);
             ReplaceIssues(AnalysisRuleId, results.Select(r =>
-                new ValidationIssueItem(r.Namespace, $"[{r.TargetLanguage}] {r.Issue}", ToValidation(r.Severity), r.Namespace, r.TargetLanguage, r.SuggestedFix, AnalysisRuleId)));
+                new ValidationIssueItem(r.Namespace, $"[{r.TargetLanguage}] {r.Issue}", ToValidation(r.Severity), r.Namespace, r.TargetLanguage, r.SuggestedFix, AnalysisRuleId,
+                    items.First(i => i.Namespace == r.Namespace && i.TargetLanguage == r.TargetLanguage).TranslatedText, sourceMap[r.Namespace])));
             StatusText = results.Count > 0 ? $"Analysis complete: {results.Count} issue(s)." : "Analysis complete: no issues found.";
         }
         catch (Exception ex) when (ex is AiUnavailableException or AiRequestException or HttpRequestException or TaskCanceledException)
@@ -123,6 +128,29 @@ public partial class MainWindowViewModel
         {
             IsLoading = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task RetranslateFinding(ValidationIssueItem? issue)
+    {
+        if (issue is not { CanRetranslate: true, Namespace: { } key, Language: { } language } || IsAuditMode) return;
+        var items = AllTranslation.Where(i => i.Namespace == key && (i.Language == PrimaryLanguage || i.Language == language)).ToList();
+        if (items.Count != 2 || items.Select(Workspace.GetProjectionEntryId).Distinct().Count() > 1 && HasDocumentNavigation)
+        { StatusText = "Select the entry directly to resolve an ambiguous finding."; return; }
+        await RunPreTranslateDialog(items, overwrite: true);
+    }
+
+    [RelayCommand]
+    private async Task ConfigureAnalysisStrictness()
+    {
+        var settings = ProjectSettings;
+        if (settings is null || IsAuditMode) return;
+        var choice = await _dialogService.ShowPickAsync("Analysis strictness", "Choose which AI findings to show", ["Strict (confidence 0.4+)", "Balanced (confidence 0.6+)", "High confidence only (0.8+)"]);
+        if (choice is null || !ReferenceEquals(settings, ProjectSettings)) return;
+        var before = ProjectConfiguration.Copy(settings); var after = ProjectConfiguration.Copy(settings);
+        after.AnalysisConfidenceThreshold = choice.StartsWith("Strict", StringComparison.Ordinal) ? 0.4 : choice.StartsWith("Balanced", StringComparison.Ordinal) ? 0.6 : 0.8;
+        _undoRedoService.RecordConfiguration(before, after); ProjectConfiguration.Apply(settings, after);
+        _translationStore.NotifyConfigurationChanged(true); MarkStructureChanged();
     }
 
     // ───────────────────────── Clarity ─────────────────────────
