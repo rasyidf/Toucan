@@ -33,7 +33,7 @@
   "description": "Open-source desktop editor for translation files",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Windows 10+, macOS, Linux",
-  "softwareVersion": "0.24.0",
+  "softwareVersion": "0.25.0",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "license": "https://opensource.org/licenses/MIT",
   "url": "https://toucan.rasyid.dev/",
@@ -427,7 +427,7 @@ Languages: 4
       <p>No account, no upload, no server. Text leaves your machine only when you run a translation provider or turn AI on. API keys live in one secret store in your user profile, encrypted at rest: DPAPI on Windows, AES-GCM with a per-user key on macOS and Linux.</p>
     </div>
     <div class="preview-note reveal" role="note">
-      <strong>Preview software.</strong> Toucan v0.24.0 is prepared as a release draft for Windows, macOS and Linux, and every build is a preview until 1.0. Settings and project files can change between releases, so keep your locales in version control and <a href="https://github.com/rasyidf/Toucan/issues">report what breaks</a>.
+      <strong>Preview software.</strong> Toucan v0.25.0 targets Windows, macOS and Linux, and every build is a preview until 1.0. Settings and project files can change between releases, so keep your locales in version control and <a href="https://github.com/rasyidf/Toucan/issues">report what breaks</a>.
     </div>
     <div class="platforms">
       <div class="platform reveal">
@@ -456,8 +456,19 @@ Languages: 4
     </div>
     <ol class="timeline reveal">
       <li>
+        <div class="ver">v0.25.0</div>
+        <span class="when">current preview</span>
+        <h3>Terminology and validation</h3>
+        <ul>
+          <li>Project glossary with a Dictionary panel and CSV exchange</li>
+          <li>One validation policy across desktop, CLI, save and approval</li>
+          <li>Nested ICU plural/select checks and AI finding previews</li>
+          <li>Safer targeted saves for document projects</li>
+        </ul>
+      </li>
+      <li>
         <div class="ver">v0.24.0</div>
-        <span class="when">current preview · release draft</span>
+        <span class="when">previous preview</span>
         <h3>Editor comfort and compatibility</h3>
         <ul>
           <li>Source-first editing, keyboard review and grouped bulk undo</li>
@@ -467,11 +478,11 @@ Languages: 4
         </ul>
       </li>
       <li>
-        <div class="ver">v0.25–0.31</div>
+        <div class="ver">v0.26–0.31</div>
         <span class="when">next</span>
         <h3>Next preview milestones</h3>
         <ul>
-          <li>v0.25: glossary and validation (implemented, unreleased); v0.26: review state</li>
+          <li>v0.26: review state that follows source changes</li>
           <li>v0.27–0.29: snapshot sources, CRUD sync and one online connector</li>
           <li>v0.30–0.31: release packages, update notifications and a measured release candidate</li>
         </ul>

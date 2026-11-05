@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-11-05
+
+Glossary and message-aware validation, plus safer targeted saves for document projects.
+
+See [v0.25.0 release notes](docs/release-notes/v0.25.0.md) for compatibility and known limits.
+
 ### Added
 - Project glossary with preferred/forbidden terms, language translations, descriptions, CSV exchange, selected-string matches, and explicit insertion through the Dictionary panel.
 - Structural ICU plural/select validation with nested messages, required branches, argument checks and documented syntax limits.

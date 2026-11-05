@@ -1,12 +1,12 @@
 ---
 title: "Known Issues & Unfinished Features"
 status: active
-updated: 2026-10-30
-summary: "Open v0.24.0 preview issues: release distribution, Source Control, external connector acceptance and native workflow verification."
+updated: 2026-11-05
+summary: "Open v0.25.0 preview issues: release distribution, Source Control, external connector acceptance and recording native Windows evidence."
 ---
 # Known Issues & Unfinished Features
 
-Current preview: **v0.24.0**, merged into `main`; the [release draft](release-notes/v0.24.0.md) is being prepared. Public downloads remain on v0.23.0 until publication. The source was audited **2026-10-25** on `release/v0.24.0`; native Windows release acceptance remains pending. The readiness review treats macOS/Linux testing as passed at the user's request; that assumption is separate from this host's recorded execution evidence.
+Current preview: **v0.25.0**, merged into `main` ([release notes](release-notes/v0.25.0.md)). Public downloads remain on v0.23.0 until a release is published. Native Windows accessibility checks were run on a separate machine on 2026-11-05; that evidence is not stored in this repository. The readiness review treats macOS/Linux testing as passed at the user's request; that assumption is separate from this host's recorded execution evidence.
 
 This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [CHANGELOG.md](../CHANGELOG.md) (see [Where the old fixes went](#where-the-old-fixes-went)). When a bug is fixed, delete its row and section here and add a `### Fixed` line to the changelog `[Unreleased]` section. Planned work for an ID is linked from [the roadmap](todos/future-roadmap.md) (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from `main` (source: branch `legacy/wpf`), so nothing here is about WPF.
 
@@ -22,7 +22,7 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [REL-04](#rel-04) | Low | Release | Windows ships as a portable zip; no installer or MSIX in releases | From docs |
 | [APP-01](#app-01) | Low | App | Source Control panel does not exist | Reproduced |
 | [APP-05](#app-05) | Medium | Integration | External connector and connection lifecycle acceptance remains unverified | From code and available environment |
-| [QA-03](#qa-03) | Medium | Release acceptance | Native Windows accessibility/workflow acceptance pending; macOS/Linux assumed passed for this readiness review | Windows native not executed |
+| [QA-03](#qa-03) | Medium | Release acceptance | Native Windows accessibility checked on another machine; evidence not in repo. macOS/Linux assumed passed | Recorded by maintainer |
 | [QA-02](#qa-02) | Info | Perf | Large-project performance has never been profiled | Not checked |
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
@@ -90,7 +90,7 @@ Toolbar contributions now render and follow registry state. Core connection acti
 <a id="qa-03"></a>
 ### QA-03 — Native and supported-platform acceptance
 
-Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements, operating-system text scaling and the corresponding compatibility M7c rows remain unexecuted. The 2026-10-25 readiness review assumes macOS/Linux testing passed at the user's request; no cross-platform execution artifacts were produced on this Windows host.
+Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements and text scaling were checked on a separate Windows machine; that evidence is not stored in this repository, and the compatibility M7c rows should be updated from it. The 2026-10-25 readiness review assumes macOS/Linux testing passed at the user's request; no cross-platform execution artifacts were produced on this Windows host.
 
 
 <a id="qa-02"></a>
