@@ -1,7 +1,7 @@
 ---
 title: "content-sources — tasks"
 status: planned
-progress: "3/9 phases"
+progress: "4/9 phases"
 updated: 2026-11-05
 summary: "Work order for content sources across v0.27–v0.29 and v0.31 hardening: prerequisites, API 1.3 contracts, accounts and auth, local-folder adapter, sync engine, desktop UI, reference REST adapter and CLI, first online connector."
 ---
@@ -35,13 +35,13 @@ Requirements: [requirements.md](requirements.md). Design: [design.md](design.md)
 - [x] 2.6 Mapping model and validation: language map with suggestions, resource map, key separator and escaping, collision refusal. (R5.1–R5.3)
 - [x] 2.7 CLI: `toucan sources list`, `adapters`, `accounts` (and `accounts remove`), `login` (device code, `--token-stdin`, `--user` with the password on stdin), `test`, and `TOUCAN_SOURCE_TOKEN_<ID>` for CI. (R3.5, R10.1)
 
-## Phase 3: Local-folder adapter and remote document store (v0.27)
+## Phase 3: Local-folder adapter and remote document store (v0.27) — done 2026-11-05
 
-- [ ] 3.1 `RemoteWorkspaceDocumentStore` and `RemoteWorkspaceSourceReader` wrapping an `IDocumentSourceSession`, so `WorkspaceDocumentSavePlanner` and format strategies work over a remote store.
-- [ ] 3.2 Built-in module `Toucan.Modules.Sources` with the local-folder adapter (`toucan.sources.local`) over the existing local reader and store.
-- [ ] 3.3 Open existing fixture projects through the local-folder adapter and compare against the direct path: identical snapshots, identical save bytes, unrelated files untouched. Include the babeledit-parity fixtures. (R11.1)
-- [ ] 3.4 Snapshot loading, cached opening and explicit refresh for role `primary`; save-plan previews against a document source.
-- [ ] 3.5 Contract tests: read-only source, unsupported capabilities refused before execution, duplicate key names across packages, older plugins unaffected.
+- [x] 3.1 `RemoteWorkspaceDocumentStore` and `RemoteWorkspaceSourceReader` wrapping an `IDocumentSourceSession`, so `WorkspaceDocumentSavePlanner` and format strategies work over a remote store. Done: both report content hashes as versions whatever opaque version the service uses, so the save executor runs unchanged; the store sends the service's own version with each conditional write. Operations outside the capabilities passed in are refused before the session is called.
+- [x] 3.2 Built-in module `Toucan.Modules.Sources` with the local-folder adapter (`toucan.sources.local`) over the existing local reader and store. Done: modules may not reference Core, so the adapter reimplements path safety, SHA-256 versions and `AtomicFile` writes itself, and 3.3 proves it matches `LocalWorkspaceDocumentStore`. `SourceAdapterCatalog` moved from Core to Core.Common so modules can register built-in adapters. The adapter declares a `none` sign-in method; connecting it through `SourceConnectionService` (which expects an account and an address) arrives with the wizard in 5.3.
+- [x] 3.3 Open existing fixture projects through the local-folder adapter and compare against the direct path: identical snapshots, identical save bytes, unrelated files untouched. Include the babeledit-parity fixtures. (R11.1) Done for the nine JSON fixtures that have a document-aware loader (the profile named by the fixture, else generic JSON); YAML, properties, PHP, ARB and RESX fixtures have none yet and stay on the legacy path.
+- [x] 3.4 Snapshot loading, cached opening and explicit refresh for role `primary`; save-plan previews against a document source. Done as `RemoteWorkspaceSnapshotService`: refresh into a cache folder (only changed files are downloaded; an incomplete or duplicated listing fails and deletes nothing), open from the cache offline, and a preview that lists creates, updates and deletes, flags documents changed at the source and refuses a read-only source. The cache location and role handling arrive with 4.1.
+- [x] 3.5 Contract tests: read-only source, unsupported capabilities refused before execution, duplicate key names across packages, older plugins unaffected. Done in `RemoteDocumentStoreTests` and `LocalFolderSourceTests`.
 
 ## Phase 4: Sync engine (v0.28)
 

@@ -25,6 +25,7 @@ flowchart TD
     Defaults --> Formats["Formats.Json / Xml / Text / Data"]
     Defaults --> Providers["Modules.Providers"]
     Defaults --> Validation["Modules.Validation"]
+    Defaults --> Sources["Modules.Sources"]
     Defaults --> Frameworks["Modules.Frameworks"]
     Defaults --> Compatibility["Modules.Compatibility.BabelEdit"]
     Core --> Common["Toucan.Core.Common"]
@@ -33,11 +34,13 @@ flowchart TD
     Formats --> Common
     Providers --> Common
     Validation --> Common
+    Sources --> Common
     Frameworks --> Common
     Compatibility --> Common
     Formats --> Contracts
     Providers --> Contracts
     Validation --> Contracts
+    Sources --> Contracts
     Frameworks --> Contracts
     Compatibility --> Contracts
     Common --> Contracts

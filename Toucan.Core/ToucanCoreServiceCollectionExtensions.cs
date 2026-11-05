@@ -46,6 +46,7 @@ public static class ToucanCoreServiceCollectionExtensions
         services.TryAddSingleton<IWorkspaceSourceReader, LocalWorkspaceSourceReader>();
         services.AddSingleton<WorkspaceSourceLoader>();
         services.AddSingleton<WorkspaceDocumentSavePlanner>();
+        services.AddSingleton<Sources.RemoteWorkspaceSnapshotService>();
         services.AddSingleton<WorkspaceNavigator>();
         services.AddSingleton<WorkspaceCapabilityResolver>();
         services.AddSingleton<WorkspaceExportPlanner>();

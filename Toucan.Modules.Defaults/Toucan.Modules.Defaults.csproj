@@ -19,6 +19,7 @@
     <ProjectReference Include="..\Toucan.Modules.Frameworks\Toucan.Modules.Frameworks.csproj" />
     <ProjectReference Include="..\Toucan.Modules.Providers\Toucan.Modules.Providers.csproj" />
     <ProjectReference Include="..\Toucan.Modules.Validation\Toucan.Modules.Validation.csproj" />
+    <ProjectReference Include="..\Toucan.Modules.Sources\Toucan.Modules.Sources.csproj" />
   </ItemGroup>
 
   <ItemGroup>
