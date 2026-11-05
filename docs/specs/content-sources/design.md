@@ -1,7 +1,7 @@
 ---
 title: "content-sources — design"
 status: planned
-progress: "2/9 phases"
+progress: "3/9 phases"
 updated: 2026-11-05
 summary: "Full design for content-source adapters: plugin API 1.3 contracts, host-owned accounts, connections and auth, a Core sync engine with baselines, journals and three-way plans, desktop Sources UI, CLI, and the reference and first online connectors."
 ---

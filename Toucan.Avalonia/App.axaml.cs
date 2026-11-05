@@ -277,7 +277,8 @@ public partial class App : Application
             sp.GetRequiredService<WorkspaceDocumentSaveCoordinator>(),
             sp.GetRequiredService<WorkspaceExportPlanner>(),
             sp.GetRequiredService<WorkspaceDocumentSaveExecutor>(),
-            sp.GetService<INotificationCenter>()));
+            sp.GetService<INotificationCenter>(),
+            sources: sp.GetService<global::Toucan.Core.Sources.ISourceConnectionService>()));
 
         // View models
         services.AddSingleton<StatusBarViewModel>();

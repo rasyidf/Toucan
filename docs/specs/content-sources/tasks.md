@@ -1,7 +1,7 @@
 ---
 title: "content-sources — tasks"
 status: planned
-progress: "2/9 phases"
+progress: "3/9 phases"
 updated: 2026-11-05
 summary: "Work order for content sources across v0.27–v0.29 and v0.31 hardening: prerequisites, API 1.3 contracts, accounts and auth, local-folder adapter, sync engine, desktop UI, reference REST adapter and CLI, first online connector."
 ---
@@ -25,15 +25,15 @@ Requirements: [requirements.md](requirements.md). Design: [design.md](design.md)
 - [x] 1.4 Add the `SourceAdapterConformance` suite (descriptor rules, session interfaces, test and describe, pagination completeness, `IsComplete` honesty, read and write cancellation, ordered results, idempotency, create without duplicates, conflict reporting, ambiguous failures as `Unknown`, expired token, rate limit, documents and document conflicts, traffic through the host client when the fixture observes it, dispose). It passes `FakeSourceAdapter`, including through async jobs, and catches each of its deliberate flaws.
 - [x] 1.5 Public API docs: [plugins.md](../../plugins.md) has a content-source section covering registration rules, session contracts, errors and testing with the kit. The full adapter author guide stays in 7.5.
 
-## Phase 2: Accounts, connections and auth (v0.27)
+## Phase 2: Accounts, connections and auth (v0.27) — done 2026-11-05
 
-- [ ] 2.1 Account store (`accounts.json` in app data) and connection model; add `sources` to `toucan.tproj` and `toucan.project.schema.json` with a schema migration test. Replace `ProjectSettings.SourceConnections` with these records and switch `ProjectLifecycleService` open and replace to the owner-aware `OpenConnectionAsync`, removing its CS0618 suppressions. (R2.1–R2.3, R2.5)
-- [ ] 2.2 `SourceConnectionService`: resolve accounts on open, lazy session opening, `connectOnOpen`, connection-scoped teardown on close, replace and remove; failure isolates one connection. (R2.4, R2.5)
-- [ ] 2.3 `SourceCredentialBroker`: storage under `credentialRef`, refresh with a cross-process lock, redaction registration, sign-out and revocation. (R3.2–R3.4)
-- [ ] 2.4 Auth flows: token, basic, OAuth authorization code with PKCE over a loopback redirect, device code, custom exchange; unit tests against a fake authorization server. (R3.1)
-- [ ] 2.5 `ISourceHttpClientFactory` handler pipeline: host allow-list, HTTPS, auth with one refresh on 401, rate limiting, safe retry, timeouts, redacted logging, proxy and user agent. (R4.1)
-- [ ] 2.6 Mapping model and validation: language map with suggestions, resource map, key separator and escaping, collision refusal. (R5.1–R5.3)
-- [ ] 2.7 CLI: `toucan sources list`, `accounts`, `login` (device code, `--token-stdin`, env var), `test`. (R3.5, R10.1)
+- [x] 2.1 Account store (`accounts.json` in app data) and connection model; add `sources` to `toucan.tproj` and `toucan.project.schema.json` with a schema migration test. Replace `ProjectSettings.SourceConnections` with these records and switch `ProjectLifecycleService` open and replace to the owner-aware `OpenConnectionAsync`, removing its CS0618 suppressions. (R2.1–R2.3, R2.5) Done: legacy `sourceConnections` IDs load as connections without an owner and stay closed; a connection may name an owning `plugin` instead of an adapter for plugin-managed connections.
+- [x] 2.2 `SourceConnectionService`: resolve accounts on open, lazy session opening, `connectOnOpen`, connection-scoped teardown on close, replace and remove; failure isolates one connection. (R2.4, R2.5)
+- [x] 2.3 `SourceCredentialBroker`: storage under `credentialRef`, refresh with a cross-process lock, redaction registration, sign-out and revocation. (R3.2–R3.4)
+- [x] 2.4 Auth flows: token, basic, OAuth authorization code with PKCE over a loopback redirect, device code, custom exchange; unit tests against a fake authorization server. (R3.1) The desktop browser launcher and sign-in screens arrive with phase 5; the CLI offers token, password and device code.
+- [x] 2.5 `ISourceHttpClientFactory` handler pipeline: host allow-list (redirects included), HTTPS, auth with one refresh on 401, concurrency and per-minute limits, safe retry, timeouts, redacted logging, system proxy and user agent. (R4.1)
+- [x] 2.6 Mapping model and validation: language map with suggestions, resource map, key separator and escaping, collision refusal. (R5.1–R5.3)
+- [x] 2.7 CLI: `toucan sources list`, `adapters`, `accounts` (and `accounts remove`), `login` (device code, `--token-stdin`, `--user` with the password on stdin), `test`, and `TOUCAN_SOURCE_TOKEN_<ID>` for CI. (R3.5, R10.1)
 
 ## Phase 3: Local-folder adapter and remote document store (v0.27)
 

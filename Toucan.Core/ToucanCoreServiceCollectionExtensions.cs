@@ -90,6 +90,14 @@ public static class ToucanCoreServiceCollectionExtensions
         services.TryAddSingleton<ISecureStorageService, SecureStorageService>();
         services.TryAddSingleton<ISecretService>(sp => new SecretService(sp.GetRequiredService<ISecureStorageService>()));
         services.AddToucanSourceCatalog();
+        services.TryAddSingleton<Sources.ISourceAccountStore>(_ => new Sources.SourceAccountStore());
+        services.TryAddSingleton(sp => new Sources.SourceCredentialBroker(sp.GetRequiredService<ISecretService>(), sp.GetRequiredService<IDiagnosticsService>()));
+        services.TryAddSingleton(sp => new Sources.SourceSignInService(sp.GetRequiredService<Sources.ISourceAccountStore>(),
+            sp.GetRequiredService<Sources.SourceCredentialBroker>(), sp.GetRequiredService<ISourceAdapterCatalog>(),
+            sp.GetRequiredService<IDiagnosticsService>(), sp.GetService<IPluginCatalog>()));
+        services.TryAddSingleton<Sources.ISourceConnectionService>(sp => new Sources.SourceConnectionService(sp.GetService<IPluginActivationService>(),
+            sp.GetRequiredService<ISourceAdapterCatalog>(), sp.GetRequiredService<Sources.SourceSignInService>(),
+            sp.GetService<ILogger<Sources.SourceConnectionService>>()));
 
         foreach (var feature in BuiltInAiFeatures.All) services.AddSingleton(feature);
         services.TryAddSingleton<IPromptLibrary>(sp => new PromptLibrary(sp.GetServices<AiFeatureDefinition>(), PromptLibrary.DefaultUserFolder));

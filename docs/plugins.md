@@ -183,9 +183,10 @@ or a file store. An adapter only translates between that service and Toucan. The
 connections, the sync baseline, the pending-operation journal, three-way comparison, conflicts, retries and all UI and CLI.
 The full design is in [content sources](specs/content-sources/design.md).
 
-> **Status:** the contracts, registration and the test kit ship in API 1.3. Toucan does not yet open connections to
-> adapters, sign users in or run pull and push through them; that arrives in the following content-sources phases. You can
-> write and test an adapter now against the published contract.
+> **Status:** contracts, registration and the test kit ship in API 1.3. Toucan now keeps accounts, signs users in
+> (token, user and password, device code; browser OAuth and custom forms are implemented for the desktop app, whose
+> Sources UI is still to come), opens connections and hands adapters sessions; `toucan sources list|adapters|accounts|login|test`
+> drives this from the CLI. Pull and push through adapters arrive with the sync engine.
 
 The manifest declares `"capabilities": ["sources"]`, `"apiVersion": "1.3"` and a `network` block naming every host the
 adapter talks to (see [the manifest](#the-manifest-pluginjson)). Registration checks the descriptor and refuses the plugin
@@ -217,6 +218,19 @@ has a matching `SourceCapabilities` flag. Throw `SourceException` with a `Source
 `context.Http` for every request (it enforces your declared hosts and attaches the credential) and `context.Credentials`
 for the current token, calling `RefreshAsync` once after the service rejects it as expired. Keep sync state out of the
 adapter: no local caches of what was pushed, no merge logic.
+
+**Connections in the project file.** A project lists its connections under `sources` in `toucan.tproj`: an `id`, the
+`adapter`, the remote project, a language map, resources, key mapping and a policy. No credentials are stored there; each
+user signs in once per service, and Toucan remembers which account a project's connection uses on that machine. A plugin
+that manages its own connection without an adapter names itself in `plugin`; only that plugin's connection activators run,
+when the project opens. Adapter connections open on first use, or with the project when `policy.connectOnOpen` is set.
+
+**What `context.Http` does.** Requests go only to `network.hosts` and the account's address, over HTTPS (loopback HTTP
+allowed); redirects are followed by Toucan and checked the same way. The credential is attached (the token method's header
+and scheme, `Basic`, or `Bearer`) and renewed once after a 401. GET, HEAD, PUT, DELETE and requests with an
+`Idempotency-Key` header are retried on 429, 502, 503, 504 and network errors with backoff that honours `Retry-After`;
+other requests are not. Requests per account are limited by `SourceLimits` from `DescribeAsync`. With request logging on,
+one line per request (method, host, path, status, time; no query or body) goes to your diagnostics.
 
 **Testing an adapter.** `Toucan.Plugins.Testing` has a `FakeSourceServer` (units with revisions and stable key IDs,
 documents with versions, delta reads, idempotency keys, asynchronous jobs) with injectable faults: rate limits, outages,

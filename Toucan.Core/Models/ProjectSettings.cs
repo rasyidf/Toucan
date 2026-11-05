@@ -66,7 +66,24 @@ public class ProjectSettings
     public SpellingSettings Spelling { get; set; } = new();
     public FrameworkOptions FrameworkOptions { get; set; } = new();
     public List<TranslationPackage> TranslationPackages { get; set; } = [];
-    public List<string> SourceConnections { get; set; } = [];
+    /// <summary>Connections to content sources (see <see cref="SourceConnectionSettings"/>). Never holds credentials.</summary>
+    public List<SourceConnectionSettings> Sources { get; set; } = [];
+
+    /// <summary>
+    /// Reads the bare connection IDs older builds stored as <c>sourceConnections</c>. They name no adapter or plugin, so they
+    /// become connections without an owner that stay closed until one is chosen; the file is then written as <c>sources</c>.
+    /// </summary>
+    [JsonPropertyName("sourceConnections"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public List<string>? LegacySourceConnections { get => null; set => _legacySourceConnections = value; }
+
+    private List<string>? _legacySourceConnections;
+
+    private void MigrateLegacySourceConnections()
+    {
+        foreach (var id in _legacySourceConnections ?? [])
+            if (!string.IsNullOrWhiteSpace(id) && !Sources.Exists(s => s.Id == id)) Sources.Add(new SourceConnectionSettings { Id = id });
+        _legacySourceConnections = null;
+    }
 
     // --- Editor preferences (project-scoped, null = inherit from ProjectDefaults) ---
     public bool? SaveEmptyTranslations { get; set; } = true;
@@ -152,6 +169,7 @@ public class ProjectSettings
             settings.Spelling.Assignments ??= []; settings.Spelling.Fallbacks ??= []; settings.Spelling.Words ??= [];
             settings.ProjectPath = folder;
             settings.MigrateLegacyFormat(json);
+            settings.MigrateLegacySourceConnections();
             if (settings.BabelImport is null && settings.Compatibility.TryGetValue("babeledit", out var envelope) && envelope.Version == 1 && envelope.Data.TryGetValue("project", out var imported))
                 settings.BabelImport = imported.Deserialize<BabelImportData>();
             if (settings.BabelImport is { } legacy && !settings.Compatibility.ContainsKey("babeledit"))
@@ -199,6 +217,7 @@ public class ProjectSettings
     {
         var settings = JsonSerializer.Deserialize<ProjectSettings>(json, s_options) ?? throw new JsonException("Invalid project settings.");
         settings.MigrateLegacyFormat(json);
+        settings.MigrateLegacySourceConnections();
         return settings.SerializeForPersistence();
     }
 
