@@ -171,7 +171,7 @@ public sealed class SourceCredentialAndHttpTests : IDisposable
         using var client = Factory(server, broker.For(_account, refresher: refresher), new OAuthDeviceCodeAuth("oauth", "OAuth", new Uri("https://api.example.com/d"), new Uri("https://api.example.com/t"), "id", [])).Create();
 
         using var content = new StringContent("{\"a\":1}");
-        var response = await client.PostAsync(new Uri("https://api.example.com/keys"), content, Ct);
+        var response = await client.PostAsync(new Uri("https://self.hosted.test/keys"), content, Ct);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal(["Bearer expired", "Bearer fresh"], server.Requests.Select(r => r.Authorization));
@@ -187,10 +187,25 @@ public sealed class SourceCredentialAndHttpTests : IDisposable
         var server = new StubHandler((_, _) => new HttpResponseMessage(HttpStatusCode.OK));
         using var client = Factory(server, broker.For(_account), new ApiTokenAuth("token", "Token", "X-Api-Token", null)).Create();
 
-        await client.GetAsync(new Uri("https://api.example.com/a"), Ct);
+        await client.GetAsync(new Uri("https://self.hosted.test/a"), Ct);
 
         Assert.Equal("raw-token-1234567", server.Requests.Single().Headers["X-Api-Token"]);
         Assert.Null(server.Requests.Single().Authorization);
+    }
+
+    [Fact]
+    public async Task TheCredentialGoesOnlyToTheAccountsOwnHost()
+    {
+        var broker = Broker();
+        broker.Store(_account, new StoredSourceCredential("token", "Bearer", "secret-token-123456"));
+        var server = new StubHandler((_, _) => new HttpResponseMessage(HttpStatusCode.OK));
+        using var client = Factory(server, broker.For(_account), new ApiTokenAuth("token", "Token")).Create();
+
+        await client.GetAsync(new Uri("https://self.hosted.test/api"), Ct);
+        await client.GetAsync(new Uri("https://files.cdn.example.com/export.json"), Ct);
+
+        Assert.Equal("Bearer secret-token-123456", server.Requests[0].Authorization);
+        Assert.Null(server.Requests[1].Authorization);
     }
 
     [Fact]

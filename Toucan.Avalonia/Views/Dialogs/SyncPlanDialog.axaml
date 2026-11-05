@@ -107,7 +107,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="8">
                       <Button Content="{loc:Loc 'Take local'}" Command="{Binding TakeLocalCommand}"/>
                       <Button Content="{loc:Loc 'Take remote'}" Command="{Binding TakeRemoteCommand}"/>
-                      <Button Content="{loc:Loc 'Edit merged'}" Command="{Binding EditMergedCommand}"/>
+                      <Button Content="{loc:Loc 'Edit merged'}" Command="{Binding EditMergedCommand}" IsVisible="{Binding CanMerge}"/>
                       <Button Content="{loc:Loc 'Defer'}" Command="{Binding DeferCommand}"/>
                     </StackPanel>
                   </StackPanel>

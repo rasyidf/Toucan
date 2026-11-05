@@ -34,7 +34,12 @@ public sealed class BaselineUnit
 public sealed class BaselineDocument
 {
     public string Path { get; set; } = string.Empty;
+
+    /// <summary>The service's version of the document when both sides last agreed.</summary>
     public string Version { get; set; } = string.Empty;
+
+    /// <summary>SHA-256 (hex) of the local file when both sides last agreed.</summary>
+    public string LocalHash { get; set; } = string.Empty;
 }
 
 /// <summary>Per connection, per machine. Never committed.</summary>

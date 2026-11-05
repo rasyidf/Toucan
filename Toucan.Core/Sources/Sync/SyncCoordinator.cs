@@ -43,6 +43,7 @@ public sealed class SyncCoordinator : IDisposable
     private readonly ISourceAdapterCatalog _adapters;
     private readonly SyncPullApplier _puller;
     private readonly SyncExecutor _executor;
+    private readonly DocumentSyncService _documents;
     private readonly TimeProvider _time;
     private readonly Lock _gate = new();
     private readonly Dictionary<string, Task<SyncRunResult>> _running = new(StringComparer.Ordinal);
@@ -65,6 +66,7 @@ public sealed class SyncCoordinator : IDisposable
         _time = time ?? TimeProvider.System;
         _puller = puller ?? new SyncPullApplier(workspace, _time);
         _executor = executor ?? new SyncExecutor(_time);
+        _documents = new DocumentSyncService(_time);
         _workspace.Changed += OnWorkspaceChanged;
     }
 
@@ -250,6 +252,25 @@ public sealed class SyncCoordinator : IDisposable
         var store = Store(connection);
         PullResult? pulled = null;
         PushResult? pushed = null;
+        if (plan.IsDocumentPlan)
+        {
+            try
+            {
+                SetState(connection, SyncRunState.Pulling, "Applying changes for " + (connection.Name ?? connection.Id));
+                var files = await _connections.GetSessionAsync(connection.Id, ct).ConfigureAwait(false) as IDocumentSourceSession
+                    ?? throw new SourceException(new SourceError(SourceErrorKind.Unsupported, "This connection no longer stores files."));
+                (pulled, pushed) = await _documents.ApplyAsync(plan, files, store, ProjectRoot!, progress, ct).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                Fail(connection, ex);
+                throw;
+            }
+            var documentsFailed = pushed is { Succeeded: false } || pulled is { Succeeded: false };
+            var summary = documentsFailed ? "Some documents were not applied." : plan.Conflicts.Count > 0 ? $"{plan.Conflicts.Count} conflicts left." : "Done.";
+            SetIdle(connection, summary, remoteChanges: plan.Conflicts.Count > 0, partial: documentsFailed);
+            return new(connection.Id, plan, pulled, pushed, true, summary);
+        }
         try
         {
             if (plan.Kind != SyncPlanKind.Push)
@@ -280,6 +301,16 @@ public sealed class SyncCoordinator : IDisposable
 
     private async Task<(SyncPlan Plan, List<RemoteUnit> Remote)> PlanCoreAsync(SourceConnectionSettings connection, SyncPlanKind kind, CancellationToken ct)
     {
+        if (await _connections.GetSessionAsync(connection.Id, ct).ConfigureAwait(false) is IDocumentSourceSession files and not IUnitSourceSession)
+        {
+            // A service that stores whole files: compared document by document.
+            var (fileCaps, _) = await CapabilitiesAsync(connection, files, ct).ConfigureAwait(false);
+            var folder = ProjectRoot ?? throw new InvalidOperationException("No project is open.");
+            var candidates = _workspace.Source?.Documents.Select(d => d.RelativePath) ?? [];
+            var documentPlan = await _documents.PlanAsync(connection.Id, connection, kind, files, fileCaps, Store(connection), folder, candidates, _workspace.Revision, ct).ConfigureAwait(false);
+            lock (_gate) _lastPlan[connection.Id] = documentPlan;
+            return (documentPlan, []);
+        }
         var session = await UnitSessionAsync(connection.Id, ct).ConfigureAwait(false);
         var (caps, _) = await CapabilitiesAsync(connection, session, ct).ConfigureAwait(false);
         var store = Store(connection);
@@ -317,7 +348,7 @@ public sealed class SyncCoordinator : IDisposable
 
     private async Task<IUnitSourceSession> UnitSessionAsync(string connectionId, CancellationToken ct) =>
         await _connections.GetSessionAsync(connectionId, ct).ConfigureAwait(false) as IUnitSourceSession
-        ?? throw new SourceException(new SourceError(SourceErrorKind.Unsupported, "This connection stores whole files; refresh its files instead of syncing units."));
+        ?? throw new SourceException(new SourceError(SourceErrorKind.Unsupported, "This connection's session reads neither translations nor documents, so there is nothing to sync."));
 
     private async Task<(SourceCapabilities Capabilities, SourceLimits? Limits)> CapabilitiesAsync(SourceConnectionSettings connection, IContentSourceSession session, CancellationToken ct)
     {

@@ -25,10 +25,14 @@ public sealed partial class ConflictRowViewModel : ObservableObject
     public ConflictRowViewModel(SyncConflict conflict)
     {
         Conflict = conflict;
+        CanMerge = conflict.Remote.ResourceId != DocumentSyncService.Resource;
         mergedText = conflict.Local ?? conflict.RemoteValue ?? string.Empty;
     }
 
     public SyncConflict Conflict { get; }
+
+    /// <summary>Text can be merged; a whole document can only be taken from one side.</summary>
+    public bool CanMerge { get; }
     public string Key => Conflict.Remote.Name;
     public string Language => Conflict.Language;
     public string FieldText => Conflict.Field.ToString();

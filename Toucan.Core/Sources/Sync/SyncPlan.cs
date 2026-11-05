@@ -157,6 +157,9 @@ public sealed record SyncPlan(string ConnectionId, Guid PlanId, SyncPlanKind Kin
     /// <summary>Translations no longer on either side; their baseline entries are dropped when the plan applies.</summary>
     public IReadOnlyList<(Guid EntryId, string Language)> Forget { get; init; } = [];
 
+    /// <summary>True for a connection that stores whole files: changes name a document path (<see cref="SyncRemoteKey.Name"/>) and no translation.</summary>
+    public bool IsDocumentPlan { get; init; }
+
     public bool HasChanges => Pull.Any(c => c.Include && c.Kind != PullKind.Converge) || Push.Any(c => c.Include) || Conflicts.Count > 0;
     /// <summary>Nothing for the user to decide, but the baseline still has to move: both sides agree, or a translation is gone from both.</summary>
     public bool HasBookkeeping => Forget.Count > 0 || Pull.Any(c => c.Kind == PullKind.Converge);
@@ -222,6 +225,8 @@ public static class SyncPlanResolver
                     if (TakeLocal(conflict, conflict.Local) is { } local) push.Add(local);
                     break;
                 case SyncChoice.Merged:
+                    if (conflict.Remote.ResourceId == DocumentSyncService.Resource)
+                        throw new ArgumentException("A document conflict cannot be merged as text; take the local or the remote file.", nameof(resolutions));
                     if (resolution.MergedValue is null) throw new ArgumentException("A merged resolution needs the merged value.", nameof(resolutions));
                     // The merged text goes to both sides: the service gets it and the project adopts it.
                     pull.Add(TakeRemote(conflict) with { NewValue = resolution.MergedValue, Field = SyncField.Value, Kind = conflict.EntryId is null ? PullKind.Create : PullKind.Update });
@@ -232,7 +237,18 @@ public static class SyncPlanResolver
         return plan with { Pull = pull, Push = push, Conflicts = remaining };
     }
 
-    private static PullChange TakeRemote(SyncConflict c) => new()
+    private static PullChange TakeRemote(SyncConflict c) => c.Remote.ResourceId == DocumentSyncService.Resource
+        ? new()
+        {
+            Kind = c.Kind switch
+            {
+                SyncConflictKind.EditedLocallyDeletedRemotely => PullKind.Delete,
+                SyncConflictKind.DeletedLocallyEditedRemotely => PullKind.Create,
+                _ => PullKind.Update,
+            },
+            Field = SyncField.Existence, Language = string.Empty, Remote = c.Remote, RemoteRevision = c.RemoteRevision,
+        }
+        : new()
     {
         Kind = c.Kind == SyncConflictKind.EditedLocallyDeletedRemotely ? PullKind.Delete : c.EntryId is null ? PullKind.Create : PullKind.Update,
         Field = c.Field,
@@ -250,6 +266,18 @@ public static class SyncPlanResolver
 
     private static PushChange? TakeLocal(SyncConflict c, string? value)
     {
+        if (c.Remote.ResourceId == DocumentSyncService.Resource)
+            return new()
+            {
+                Kind = c.Kind switch
+                {
+                    SyncConflictKind.EditedLocallyDeletedRemotely => PushKind.Create,
+                    SyncConflictKind.DeletedLocallyEditedRemotely => PushKind.DeleteKey,
+                    _ => PushKind.Value,
+                },
+                Language = string.Empty, Remote = c.Remote,
+                ExpectedRevision = c.Kind == SyncConflictKind.EditedLocallyDeletedRemotely ? null : c.RemoteRevision,
+            };
         if (c.EntryId is not { } entry) return null;
         if (c.Kind == SyncConflictKind.DeletedLocallyEditedRemotely)
             return new() { Kind = PushKind.DeleteTranslation, EntryId = entry, Language = c.Language, Remote = c.Remote, ExpectedRevision = c.RemoteRevision, BaseValue = c.Base };

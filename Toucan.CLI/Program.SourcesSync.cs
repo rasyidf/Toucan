@@ -123,7 +123,8 @@ internal static partial class Program
         }
 
         var result = coordinator.ApplyAsync(plan).GetAwaiter().GetResult();
-        if (result.Pull is { Applied: > 0 } or { Created: > 0 } or { Deleted: > 0 }) SavePulled(workspace, loaded, folder);
+        // A document connection already wrote the files; saving the workspace over them would undo the pull.
+        if (!result.Plan.IsDocumentPlan && result.Pull is { Applied: > 0 } or { Created: > 0 } or { Deleted: > 0 }) SavePulled(workspace, loaded, folder);
         PrintPlan(result.Plan, connection, json, result);
 
         var remainingConflicts = result.Plan.Conflicts.Count + (result.Push?.Conflicts.Count ?? 0);

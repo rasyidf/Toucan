@@ -188,9 +188,9 @@ public sealed class SyncCoordinatorTests : IDisposable
     }
 
     [Fact]
-    public async Task ASessionThatStoresFilesIsRefusedWithAClearMessage()
+    public async Task ASessionThatReadsNeitherUnitsNorDocumentsIsRefusedWithAClearMessage()
     {
-        _connections.GetSessionAsync("c1", Arg.Any<CancellationToken>()).Returns(Task.FromResult<IContentSourceSession>(Substitute.For<IDocumentSourceSession>()));
+        _connections.GetSessionAsync("c1", Arg.Any<CancellationToken>()).Returns(Task.FromResult<IContentSourceSession>(Substitute.For<IContentSourceSession>()));
         var failure = await Assert.ThrowsAsync<SourceException>(() => _coordinator.PlanAsync("c1", SyncPlanKind.Pull));
         Assert.Equal(SourceErrorKind.Unsupported, failure.Error.Kind);
     }

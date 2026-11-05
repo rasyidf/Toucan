@@ -76,7 +76,7 @@ public sealed class SourceHttpClientFactory : ISourceHttpClientFactory, IDisposa
         var clock = time ?? TimeProvider.System;
         HttpMessageHandler inner = _options.PrimaryHandler?.Invoke() ?? new SocketsHttpHandler { AllowAutoRedirect = false };
         inner = new LoggingHandler(diagnostics, _options.LogRequests, clock) { InnerHandler = inner };
-        if (credentials is not null) inner = new AuthHandler(credentials, method) { InnerHandler = inner };
+        if (credentials is not null) inner = new AuthHandler(credentials, method, policy.AccountAddress) { InnerHandler = inner };
         inner = new ThrottleHandler(_options, clock) { InnerHandler = inner };
         inner = new RetryHandler(_options, clock) { InnerHandler = inner };
         inner = new PolicyHandler(policy, _options, diagnostics) { InnerHandler = inner };
@@ -252,10 +252,14 @@ public sealed class SourceHttpClientFactory : ISourceHttpClientFactory, IDisposa
         }
     }
 
-    private sealed class AuthHandler(ISourceCredentials credentials, SourceAuthMethod? method) : DelegatingHandler
+    private sealed class AuthHandler(ISourceCredentials credentials, SourceAuthMethod? method, Uri? accountAddress) : DelegatingHandler
     {
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            // The sign-in belongs to the account's service. A declared host that is not the account's (a file download link on a
+            // storage host, say) gets the request without it, so the token is never sent to a third party.
+            if (accountAddress is not null && request.RequestUri is { } target && !string.Equals(target.Host, accountAddress.Host, StringComparison.OrdinalIgnoreCase))
+                return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
             var credential = await credentials.GetAsync(cancellationToken).ConfigureAwait(false);
             Attach(request, credential);
             var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
