@@ -1,9 +1,9 @@
 ---
 title: Workspace sync engine design
 status: in-progress
-progress: "Phases 1–5 implemented; format migration and integration coverage open"
-updated: 2026-10-29
-summary: "Core engine, targeted saves, destination choices, navigation, conflict presentation, lifecycle, and headless saves are implemented. Format migration and integration coverage remain."
+progress: "Phases 1–5 and integration coverage implemented; broader format migration open"
+updated: 2026-10-30
+summary: "Engine, targeted saves, destinations, desktop/CLI persistence and integration checks are implemented. Broader format migration remains open."
 ---
 # Workspace sync engine design
 
@@ -225,3 +225,7 @@ Implement phases 1–4 for multi-file JSON first; add both navigators next; fini
 Regression fixtures must exercise duplicate keys across files, literal dots, language variants in separate files, rename/delete/move routing, destination ambiguity, no-change saves, edits during saves, external conflicts, failure recovery, plugin ambiguity, and subscriber overflow/cancellation. Include unrelated-file hashes and timestamps, and an unrelated file created while a save fails.
 
 This work elaborates the roadmap's content-source and synchronization milestones. It does not change their release assignments or claim that implementation has shipped.
+
+## Candidate integration follow-up (2026-10-30)
+
+Autosave ticks, ambiguous legacy plugin AddKey and configured approval policy on destination edits are covered by `WorkspaceDestinationTests`. Targeted autosave preserves unrelated watcher versions. Explicit exact-resource mappings continue through resource IO rather than convention discovery. Workspace projections retain resource identities and generated-resource permissions; identified edits enforce those permissions too. See [candidate verification](../v0.25-readiness.md).

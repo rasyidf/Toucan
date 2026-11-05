@@ -95,14 +95,14 @@
 <a href="completed-features.html">Shipped Features</a>
 <a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
       </nav>
-      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#1-getting-started">1. Getting Started</a><a class="l2" href="#2-workspace-overview">2. Workspace Overview</a><a class="l2" href="#3-editing-modes">3. Editing Modes</a><a class="l2" href="#4-keyboard-driven-workflow">4. Keyboard-Driven Workflow</a><a class="l2" href="#5-quality-assurance--validation">5. Quality Assurance &amp; Validation</a><a class="l2" href="#6-pre-translation--machine-translation">6. Pre-Translation &amp; Machine Translation</a><a class="l2" href="#7-bulk-operations">7. Bulk Operations</a><a class="l2" href="#8-safe-saving--recovery">8. Safe Saving &amp; Recovery</a></nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#1-getting-started">1. Getting Started</a><a class="l2" href="#2-workspace-overview">2. Workspace Overview</a><a class="l2" href="#3-editing-modes">3. Editing Modes</a><a class="l2" href="#4-keyboard-driven-workflow">4. Keyboard-Driven Workflow</a><a class="l2" href="#5-quality-assurance--validation">5. Quality Assurance &amp; Validation</a><a class="l2" href="#6-pre-translation--machine-translation">6. Pre-Translation &amp; Machine Translation</a><a class="l2" href="#7-bulk-operations">7. Bulk Operations</a><a class="l2" href="#8-safe-saving--recovery">8. Safe Saving &amp; Recovery</a><a class="l2" href="#project-terminology-and-message-checks">Project terminology and message checks</a></nav>
     </aside>
     <article class="doc">
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Toucan User Guide</h1>
         <p class="lead">Comprehensive guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/user-guide.md">Edit on GitHub ↗</a></div>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-30</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/user-guide.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <p>Toucan is a cross-platform desktop editor designed for software translation and localization files. It runs natively on Windows, macOS, and Linux, providing a unified workspace to translate, review, and validate over 14 resource formats without switching between text editors or risking file corruption.</p>
@@ -198,6 +198,10 @@
 <li><strong>Crash Recovery Drafts:</strong> Unsaved edits are backed up periodically to a recovery directory. If Toucan closes unexpectedly, reopening the project prompts you to restore your unsaved drafts.</li>
 <li><strong>External Change Detection:</strong> If a teammate or Git pull modifies translation files while Toucan is open, Toucan detects the change and provides an interactive merge dialog to resolve any conflicts without overwriting disk contents.</li>
 </ul>
+<h2 id="project-terminology-and-message-checks"><a class="anchor" href="#project-terminology-and-message-checks" aria-label="Link to this section">#</a>Project terminology and message checks</h2>
+<p>Open the Dictionary panel to maintain preferred and forbidden terms, edit per-language translations and descriptions, or import/export a glossary CSV. Matching terms appear for the selected source string; select a preferred match to append it to a target field. Save, undo and redo work through the normal project history.</p>
+<p>Settings → Validation controls rule enable/severity defaults; project overrides take precedence per rule. The glossary and ICU message-syntax checks appear alongside existing rules. Issues can focus the affected field. Findings never prevent a normal draft save.</p>
+<p>Issues → Analysis strictness sets a per-project confidence threshold. An AI finding's Re-translate action opens a preview with overwrite enabled; accepting it is explicit and undoable. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/v0.25-terminology-validation.md">terminology, syntax limits and supported provider behavior</a>.</p>
       </div>
     </article>
   </div>

@@ -1,8 +1,8 @@
 ---
 title: "Shipped Features"
 status: active
-updated: 2026-10-29
-summary: "Implemented capabilities through v0.24.0, grouped by area. The release is a draft; open work is tracked in the roadmap."
+updated: 2026-10-30
+summary: "Implemented capabilities through v0.24.0 plus unreleased terminology and validation. Publication and candidate acceptance remain tracked separately."
 ---
 # Shipped Features
 
@@ -10,6 +10,10 @@ summary: "Implemented capabilities through v0.24.0, grouped by area. The release
 > open work is in [todos/future-roadmap.md](todos/future-roadmap.md) and open bugs in [known-bugs.md](known-bugs.md).
 > This file lists shipped and implemented features only: when something ships, add it here and delete it from the roadmap.
 > Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform.
+
+## Unreleased terminology and validation
+
+Project glossary, CSV exchange, Dictionary matches and explicit insertion, effective per-rule validation policy, nested ICU structural checks, AI analysis strictness and finding re-translation are implemented. See [behavior and syntax limits](specs/v0.25-terminology-validation.md) and [candidate verification](specs/v0.25-readiness.md). These additions are not yet a published release.
 
 ## Core Editor
 
