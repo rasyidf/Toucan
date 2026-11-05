@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Toucan roadmap: v0.21 to v1.0</title>
-<meta name="description" content="Open milestones through v1.0 after the v0.24.0 implementation. Release draft acceptance remains open, along with review, validation and content-source work.">
+<meta name="description" content="v0.25 terminology and validation are closed and archived with two carried-over gates; v0.26 review correctness is next. Later review, content-source and distribution milestones remain planned.">
 <link rel="canonical" href="https://toucan.rasyid.dev/roadmap.html">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,19 +15,19 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Toucan roadmap: v0.21 to v1.0">
-<meta property="og:description" content="Open milestones through v1.0 after the v0.24.0 implementation. Release draft acceptance remains open, along with review, validation and content-source work.">
+<meta property="og:description" content="v0.25 terminology and validation are closed and archived with two carried-over gates; v0.26 review correctness is next. Later review, content-source and distribution milestones remain planned.">
 <meta property="og:url" content="https://toucan.rasyid.dev/roadmap.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Toucan roadmap: v0.21 to v1.0">
-<meta name="twitter:description" content="Open milestones through v1.0 after the v0.24.0 implementation. Release draft acceptance remains open, along with review, validation and content-source work.">
+<meta name="twitter:description" content="v0.25 terminology and validation are closed and archived with two carried-over gates; v0.26 review correctness is next. Later review, content-source and distribution milestones remain planned.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Toucan \u00b7 Toucan roadmap: v0.21 to v1.0",
-  "description": "Open milestones through v1.0 after the v0.24.0 implementation. Release draft acceptance remains open, along with review, validation and content-source work.",
+  "description": "v0.25 terminology and validation are closed and archived with two carried-over gates; v0.26 review correctness is next. Later review, content-source and distribution milestones remain planned.",
   "url": "https://toucan.rasyid.dev/roadmap.html",
   "publisher": {
     "@type": "Organization",
@@ -101,8 +101,8 @@
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Toucan roadmap: v0.21 to v1.0</h1>
-        <p class="lead">Open milestones through v1.0 after the v0.24.0 implementation. Release draft acceptance remains open, along with review, validation and content-source work.</p>
-        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
+        <p class="lead">v0.25 terminology and validation are closed and archived with two carried-over gates; v0.26 review correctness is next. Later review, content-source and distribution milestones remain planned.</p>
+        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-11-05</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <blockquote><p>Current preview: <strong>v0.24.0</strong>, merged into <code>main</code>, with a <a href="release-v0.24.0.html">release draft</a> awaiting publication. v0.23.0 remains the public download until then. Toucan targets Windows, macOS and Linux; every build before v1.0 is a preview.</p></blockquote>
@@ -133,14 +133,10 @@
 <p><strong>Completion gate:</strong> a user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved.</p>
 <h3 id="v025-terminology-and-validation"><a class="anchor" href="#v025-terminology-and-validation" aria-label="Link to this section">#</a>v0.25: Terminology and validation</h3>
 <p><strong>Outcome:</strong> translations follow project vocabulary and preserve executable message syntax.</p>
+<p><strong>Status:</strong> closed for planning. Implementation is complete and its local verification is archived in <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/v0.25-readiness.md">v0.25 readiness</a> (done); supported behavior and limits are in <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/v0.25-terminology-validation.md">terminology and validation</a>. Not a published release. Open items carried forward:</p>
 <ul class="tasks">
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add a project glossary with preferred and forbidden terms, per-language translations, descriptions, and CSV import/export.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Show selected-string glossary matches in a Dictionary panel and suggest glossary terms while editing (APP-01).</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add configurable glossary validation and pass relevant terminology to machine/AI translation requests.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add debounced validation while typing, with clear severity and navigation to affected fields.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Apply configured rule enable/severity policy consistently in manual checks, save, approval and plugin workspace edits; the settings editor already stores the preferences (APP-06).</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Parse and validate supported message syntaxes, including nested ICU plural/select messages, required branches, and placeholders; document syntax/version limits.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Finish AI finding re-translation and configurable analysis strictness, retaining preview and explicit acceptance.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Verify native Windows accessibility for the Dictionary panel and validation findings, and the external connector gate, alongside the v0.24 native checks.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Decide ARB comment handling (<code>@key.description</code> versus <code>.toucan</code> sidecars) before migrating more formats to document writes; tracked in <a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/workspace-sync-engine.md">workspace sync engine</a>.</li>
 </ul>
 <p><strong>Completion gate:</strong> glossary and message fixtures detect meaningful errors without blocking draft saves; accepting a suggestion follows normal undo and dirty tracking.</p>
 <h3 id="v026-review-correctness"><a class="anchor" href="#v026-review-correctness" aria-label="Link to this section">#</a>v0.26: Review correctness</h3>

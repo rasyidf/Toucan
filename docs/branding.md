@@ -149,6 +149,8 @@ All chrome hidden. One translation card, centered. J/K navigation. Follows the c
 | Project settings folder | `<project>/.toucan/` |
 | Provider secrets | `providers.json`; secrets encrypted with DPAPI on Windows, AES-GCM on macOS and Linux |
 
+**Why `.tproj`, not `.toucan`:** `.tproj` is the single project file extension, registered by the Windows installer, the MSIX manifest, the macOS bundle and the Linux MIME type. `.toucan` is reserved for the per-project settings *folder* (`<project>/.toucan/`) and is never used as a file extension, so the two names cannot be confused. The `.toucan` file association from an earlier experimental MSIX manifest is retired.
+
 ## Typography
 
 - UI: system font (Segoe UI Variable on Windows 11)

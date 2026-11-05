@@ -1,9 +1,9 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "44 release tasks; 6 stable gates; 26 deferred tasks"
-updated: 2026-10-25
-summary: "Open milestones through v1.0 after the v0.24.0 implementation. Release draft acceptance remains open, along with review, validation and content-source work."
+progress: "39 release tasks; 6 stable gates; 26 deferred tasks"
+updated: 2026-11-05
+summary: "v0.25 terminology and validation are closed and archived with two carried-over gates; v0.26 review correctness is next. Later review, content-source and distribution milestones remain planned."
 ---
 # Toucan roadmap: v0.21 to v1.0
 
@@ -73,13 +73,10 @@ The upstream release records its connector acceptance as passed. Revalidation of
 
 **Outcome:** translations follow project vocabulary and preserve executable message syntax.
 
-- [ ] Add a project glossary with preferred and forbidden terms, per-language translations, descriptions, and CSV import/export.
-- [ ] Show selected-string glossary matches in a Dictionary panel and suggest glossary terms while editing (APP-01).
-- [ ] Add configurable glossary validation and pass relevant terminology to machine/AI translation requests.
-- [ ] Add debounced validation while typing, with clear severity and navigation to affected fields.
-- [ ] Apply configured rule enable/severity policy consistently in manual checks, save, approval and plugin workspace edits; the settings editor already stores the preferences (APP-06).
-- [ ] Parse and validate supported message syntaxes, including nested ICU plural/select messages, required branches, and placeholders; document syntax/version limits.
-- [ ] Finish AI finding re-translation and configurable analysis strictness, retaining preview and explicit acceptance.
+**Status:** closed for planning. Implementation is complete and its local verification is archived in [v0.25 readiness](../specs/v0.25-readiness.md) (done); supported behavior and limits are in [terminology and validation](../specs/v0.25-terminology-validation.md). Not a published release. Open items carried forward:
+
+- [ ] Verify native Windows accessibility for the Dictionary panel and validation findings, and the external connector gate, alongside the v0.24 native checks.
+- [ ] Decide ARB comment handling (`@key.description` versus `.toucan` sidecars) before migrating more formats to document writes; tracked in [workspace sync engine](workspace-sync-engine.md).
 
 **Completion gate:** glossary and message fixtures detect meaningful errors without blocking draft saves; accepting a suggestion follows normal undo and dirty tracking.
 
