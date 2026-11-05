@@ -54,4 +54,12 @@ public interface IPluginContext
     /// form for them on the Plugins page. Call it once.
     /// </summary>
     void SetConfiguration(ConfigSchema schema);
+
+    /// <summary>
+    /// Adds a content-source adapter (plugin API 1.3). Needs the <c>sources</c> capability and a manifest <c>network</c>
+    /// block; the descriptor's ID must start with the plugin ID and a dot. Hosts older than 1.3 do not load a plugin that
+    /// declares 1.3, so they never reach the default.
+    /// </summary>
+    void AddSourceAdapter(Sources.IContentSourceAdapter adapter) =>
+        throw new NotSupportedException("This host does not support content-source adapters (plugin API 1.3).");
 }

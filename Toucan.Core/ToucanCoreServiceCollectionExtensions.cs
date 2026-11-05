@@ -89,6 +89,7 @@ public static class ToucanCoreServiceCollectionExtensions
     {
         services.TryAddSingleton<ISecureStorageService, SecureStorageService>();
         services.TryAddSingleton<ISecretService>(sp => new SecretService(sp.GetRequiredService<ISecureStorageService>()));
+        services.AddToucanSourceCatalog();
 
         foreach (var feature in BuiltInAiFeatures.All) services.AddSingleton(feature);
         services.TryAddSingleton<IPromptLibrary>(sp => new PromptLibrary(sp.GetServices<AiFeatureDefinition>(), PromptLibrary.DefaultUserFolder));

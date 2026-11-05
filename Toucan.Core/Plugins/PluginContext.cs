@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
 using Toucan.Plugins;
+using Toucan.Plugins.Sources;
 
 namespace Toucan.Core.Plugins;
 
@@ -24,6 +25,7 @@ internal sealed class ReservedIds
     public HashSet<string> Providers { get; } = new(StringComparer.OrdinalIgnoreCase);
     public HashSet<string> Rules { get; } = new(StringComparer.OrdinalIgnoreCase);
     public HashSet<string> Profiles { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public HashSet<string> Sources { get; } = new(StringComparer.OrdinalIgnoreCase);
 }
 
 /// <summary>
@@ -42,6 +44,7 @@ internal sealed partial class PluginContext : IPluginContext
     private readonly HashSet<string> _profiles = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _activators = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _commandIds = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _sources = new(StringComparer.OrdinalIgnoreCase);
 
     public PluginContext(PluginManifest manifest, string pluginDirectory, ILogger logger, ReservedIds reserved, PluginServices? services = null, IDiagnosticsService? diagnostics = null)
     {
@@ -80,6 +83,7 @@ internal sealed partial class PluginContext : IPluginContext
     public List<IFrameworkProfile> Profiles { get; } = [];
     public List<RegisteredActivator> Activators { get; } = [];
     public List<(CommandDefinition Definition, ICommandHandler Handler)> Commands { get; } = [];
+    public List<IContentSourceAdapter> SourceAdapters { get; } = [];
 
     /// <summary>Human-readable list of what was registered, e.g. <c>format:acme-po</c>.</summary>
     public IReadOnlyList<string> Summary =>
@@ -90,6 +94,7 @@ internal sealed partial class PluginContext : IPluginContext
         .. Profiles.Select(p => $"framework:{p.Id}"),
         .. Activators.Select(a => $"activator:{a.Id}"),
         .. Commands.Select(c => $"command:{c.Definition.Id}"),
+        .. SourceAdapters.Select(a => $"source:{a.Descriptor.Id}"),
     ];
 
     public void AddFormat(ISaveStrategy save, ILoadStrategy load)
@@ -180,6 +185,18 @@ internal sealed partial class PluginContext : IPluginContext
         Commands.Add((definition, handler));
     }
 
+    public void AddSourceAdapter(IContentSourceAdapter adapter)
+    {
+        ArgumentNullException.ThrowIfNull(adapter);
+        RequireCapability(PluginCapabilities.Sources);
+
+        var problems = SourceAdapterRules.Check(adapter, _manifest);
+        if (problems.Count > 0) throw new PluginRegistrationException(string.Join(" ", problems));
+        Claim(_reserved.Sources, _sources, adapter.Descriptor.Id, "Source adapter");
+
+        SourceAdapters.Add(adapter);
+    }
+
     /// <summary>Marks this plugin's IDs as taken so later plugins cannot reuse them.</summary>
     public void Commit()
     {
@@ -187,6 +204,7 @@ internal sealed partial class PluginContext : IPluginContext
         _reserved.Providers.UnionWith(_providers);
         _reserved.Rules.UnionWith(_rules);
         _reserved.Profiles.UnionWith(_profiles);
+        _reserved.Sources.UnionWith(_sources);
     }
 
     private void RequireCapability(string capability)

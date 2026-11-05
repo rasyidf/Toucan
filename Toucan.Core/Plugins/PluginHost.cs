@@ -204,6 +204,7 @@ public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? logger
         foreach (var activator in context.Activators) services.AddSingleton(activator);
         if (context.ServicesInternal is { } pluginServices) services.AddSingleton(new PluginServicesRegistration(context.PluginId, pluginServices));
         foreach (var (definition, handler) in context.Commands) services.AddSingleton(new PluginCommandRegistration(context.PluginId, definition, handler));
+        foreach (var adapter in context.SourceAdapters) services.AddSingleton(new RegisteredSourceAdapter(context.PluginId, adapter));
     }
 
     /// <summary>Reads the IDs the built-ins already use from a throwaway container built from the current registrations.</summary>
@@ -216,6 +217,7 @@ public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? logger
         reserved.Providers.UnionWith(probe.GetServices<ITranslationProvider>().Select(p => p.Name));
         reserved.Rules.UnionWith(probe.GetServices<IValidationRule>().Select(r => r.Id));
         reserved.Profiles.UnionWith(probe.GetServices<IFrameworkProfile>().Select(p => p.Id));
+        reserved.Sources.UnionWith(probe.GetServices<RegisteredSourceAdapter>().Select(a => a.Descriptor.Id));
         return reserved;
     }
 

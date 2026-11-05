@@ -1,7 +1,7 @@
 ---
 title: "content-sources — design"
 status: planned
-progress: "1/9 phases"
+progress: "2/9 phases"
 updated: 2026-11-05
 summary: "Full design for content-source adapters: plugin API 1.3 contracts, host-owned accounts, connections and auth, a Core sync engine with baselines, journals and three-way plans, desktop Sources UI, CLI, and the reference and first online connectors."
 ---
@@ -68,6 +68,8 @@ Verified against the code on 2026-11-05.
 | **Role** | `Mirror`: local files are primary, the service is a sync target (developer repo plus TMS). `Primary`: the service is primary and Toucan keeps a local cache (translator without a repo). |
 
 ## 4. Plugin API 1.3 contracts
+
+Implemented in phase 1 under `Toucan.Plugins.Abstractions/Sources/`. Where the code differs from the sketches below (for example `UnitOperationOutcome.None` and `Pending`, `ReadOnlyMemory<byte>` for document bytes, `ISourceAccountContext` as the base of the session context), the code is authoritative.
 
 New public types live in `Toucan.Plugins.Abstractions/Sources/`, namespace `Toucan.Plugins.Sources`. `PluginApi.Current` becomes 1.3. Everything is additive: 1.0–1.2 plugins load unchanged. A plugin that registers an adapter declares `apiVersion: "1.3"` and the new `sources` capability.
 

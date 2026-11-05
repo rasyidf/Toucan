@@ -1,7 +1,7 @@
 ---
 title: "content-sources — tasks"
 status: planned
-progress: "1/9 phases"
+progress: "2/9 phases"
 updated: 2026-11-05
 summary: "Work order for content sources across v0.27–v0.29 and v0.31 hardening: prerequisites, API 1.3 contracts, accounts and auth, local-folder adapter, sync engine, desktop UI, reference REST adapter and CLI, first online connector."
 ---
@@ -17,13 +17,13 @@ Requirements: [requirements.md](requirements.md). Design: [design.md](design.md)
 - [x] 0.4 Move the AES key behind `secrets.json` into the OS store (`IMasterKeyStore`: macOS Keychain via Security.framework, Linux Secret Service via `secret-tool`); Windows keeps DPAPI. Migrate an existing key file on first use, fall back to the file without a store, pin to the store with a marker so a locked store never creates a second key, and allow `TOUCAN_SECRET_KEY_STORE=file`. Real-Keychain test is opt-in (`TOUCAN_TEST_KEYCHAIN=1`); Linux is covered with a fake store only. Decision D2.
 - [x] 0.5 Bump `PluginApi.Current` and the abstractions package to 1.3. Compatibility: the frozen M0 plugin binary (API 1.1) still loads and saves unchanged, the version check accepts 1.0–1.3, and 1.0/1.2 workspace views are covered by the needs-review downgrade tests. No frozen 1.0 or 1.2 binary exists to load.
 
-## Phase 1: Contracts and test kit (v0.27)
+## Phase 1: Contracts and test kit (v0.27) — done 2026-11-05
 
-- [ ] 1.1 Add `Toucan.Plugins.Abstractions/Sources/`: adapter, descriptor, capabilities, value model, session context, `IContentSourceSession`, `IUnitSourceSession`, `IDocumentSourceSession`, the optional interfaces, write operations and results, `SourceError`/`SourceException`. (R1.1–R1.3)
-- [ ] 1.2 Add `IPluginContext.AddSourceAdapter` with validation matching `AddFormat` (ID prefix, reserved IDs, descriptor checks, capability present); registration catalog in Core; list adapters in `toucan plugins list` and Settings → Plugins. (R1.5)
-- [ ] 1.3 Add `FakeSourceServer` to `Toucan.Plugins.Testing` with unit and document modes, revisions, pagination and fault injection (429, 5xx, timeout after commit, dropped page, duplicates, concurrent edits, token expiry, async jobs). (R12.1)
-- [ ] 1.4 Add the `SourceAdapterConformance` suite skeleton (pagination completeness, `IsComplete` honesty, idempotency, conflict reporting, error mapping, cancellation) and run it against a fake adapter.
-- [ ] 1.5 Public API docs: extend [plugins.md](../../plugins.md) with a content-source section and an adapter author guide outline.
+- [x] 1.1 Add `Toucan.Plugins.Abstractions/Sources/`: adapter, descriptor, capabilities, value model, session context, `IContentSourceSession`, `IUnitSourceSession`, `IDocumentSourceSession`, the optional interfaces, write operations and results, `SourceError`/`SourceException`. (R1.1–R1.3)
+- [x] 1.2 Add `IPluginContext.AddSourceAdapter` (a default interface method, so other implementers keep compiling) with validation matching `AddFormat` (ID prefix, reserved IDs, capability present) plus `SourceAdapterRules` (capabilities, sign-in methods, HTTPS endpoints on declared hosts); `ISourceAdapterCatalog` in Core with `AddBuiltInSourceAdapter` for modules; adapters appear as `source:<id>` in `toucan plugins list` and Settings → Plugins. (R1.5)
+- [x] 1.3 Add `FakeSourceServer` to `Toucan.Plugins.Testing` with unit and document modes, revisions, pagination and fault injection (429, 5xx, timeout after commit, dropped page, duplicates, concurrent edits, token expiry, async jobs). (R12.1)
+- [x] 1.4 Add the `SourceAdapterConformance` suite (descriptor rules, session interfaces, test and describe, pagination completeness, `IsComplete` honesty, read and write cancellation, ordered results, idempotency, create without duplicates, conflict reporting, ambiguous failures as `Unknown`, expired token, rate limit, documents and document conflicts, traffic through the host client when the fixture observes it, dispose). It passes `FakeSourceAdapter`, including through async jobs, and catches each of its deliberate flaws.
+- [x] 1.5 Public API docs: [plugins.md](../../plugins.md) has a content-source section covering registration rules, session contracts, errors and testing with the kit. The full adapter author guide stays in 7.5.
 
 ## Phase 2: Accounts, connections and auth (v0.27)
 

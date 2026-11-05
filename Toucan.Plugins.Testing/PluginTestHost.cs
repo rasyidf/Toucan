@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Toucan.Core.Contracts;
 using Toucan.Core.Contracts.Services;
+using Toucan.Plugins.Sources;
 
 namespace Toucan.Plugins.Testing;
 
@@ -31,6 +32,15 @@ public sealed class PluginTestHost : IAsyncDisposable
     public IList<IValidationRule> Rules { get; } = [];
     public IList<IFrameworkProfile> Profiles { get; } = [];
     public IDictionary<string, (CommandDefinition Definition, ICommandHandler Handler)> Commands { get; } = new Dictionary<string, (CommandDefinition, ICommandHandler)>(StringComparer.Ordinal);
+
+    /// <summary>Content-source adapters the plugin registered, by descriptor ID.</summary>
+    public IDictionary<string, IContentSourceAdapter> SourceAdapters { get; } = new Dictionary<string, IContentSourceAdapter>(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// The manifest registrations are checked against, as the host would. Set it to check adapter descriptors with
+    /// <see cref="SourceAdapterRules"/> (prefix, network hosts); null records adapters without checking.
+    /// </summary>
+    public PluginManifest? Manifest { get; set; }
 
     /// <summary>Runs <paramref name="plugin"/>'s registration. Throws what the plugin throws, as the host would report a registration failure.</summary>
     public PluginTestHost Register(IToucanPlugin plugin)
@@ -101,7 +111,7 @@ public sealed class PluginTestHost : IAsyncDisposable
 
     private sealed class TestContext(PluginTestHost host, ILogger logger) : IPluginContext
     {
-        public Version HostApiVersion => new(1, 1);
+        public Version HostApiVersion => PluginApi.Current;
         public string PluginDirectory => host.Services.Storage.DataDirectory;
         public ILogger Logger { get; } = logger;
         public IPluginServices Services => host.Services;
@@ -111,6 +121,15 @@ public sealed class PluginTestHost : IAsyncDisposable
         public void AddFrameworkProfile(IFrameworkProfile profile) => host.Profiles.Add(profile);
         public void AddActivator(string id, IPluginActivator activator) => host._activators.Add(id, activator);
         public void SetConfiguration(ConfigSchema schema) => host.Services.Config.Schema = schema;
+
+        public void AddSourceAdapter(IContentSourceAdapter adapter)
+        {
+            ArgumentNullException.ThrowIfNull(adapter);
+            if (host.Manifest is { } manifest && SourceAdapterRules.Check(adapter, manifest) is { Count: > 0 } problems)
+                throw new InvalidOperationException(string.Join(" ", problems));
+            if (!host.SourceAdapters.TryAdd(adapter.Descriptor.Id, adapter))
+                throw new InvalidOperationException($"Source adapter '{adapter.Descriptor.Id}' is registered twice.");
+        }
 
         public void AddCommand(CommandDefinition definition, ICommandHandler handler)
         {

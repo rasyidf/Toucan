@@ -97,7 +97,7 @@ build output is exercised by the test suite, so what it does is what this guide 
 | `entryAssembly` | yes | File name of your assembly, inside the plugin folder. No paths, must end in `.dll`. |
 | `entryType` | no | Full name of your `IToucanPlugin` class. Required if the assembly has more than one public implementation. |
 | `desktop` | no | The plugin's UI assembly: `{ "entryAssembly": "Acme.Ui.dll", "entryType": "Acme.Ui.Entry", "contractVersion": "1.0" }`. Needs the `desktop` capability. See [Desktop parts](#desktop-parts-ui). |
-| `capabilities` | no | Any of `formats`, `providers`, `validation`, `frameworks`, `activation`, `commands`, `desktop`, `sources`. Registering something you did not declare fails the plugin. `sources` (content-source adapters, API 1.3) also needs `network`; its registration API arrives with the [content-sources](specs/content-sources/design.md) work. |
+| `capabilities` | no | Any of `formats`, `providers`, `validation`, `frameworks`, `activation`, `commands`, `desktop`, `sources`. Registering something you did not declare fails the plugin. `sources` (content-source adapters, API 1.3) also needs `network`; see [Content sources](#content-sources-contextaddsourceadapteradapter-capability-sources-api-13). |
 | `network` | no | Where the plugin connects: `{ "hosts": ["api.example.com", "*.example.com"], "userDefinedHosts": false }`. Host names only, no scheme, port or path; `*.` matches subdomains. `userDefinedHosts` means accounts may point it at a server the user types in. Shown in the trust prompt and `toucan plugins list`; changing it changes the plugin's hash, so the user is asked again. Required with `sources`. |
 | `author`, `description` | no | Shown when the user decides whether to trust you. |
 
@@ -175,6 +175,63 @@ Implement `IFrameworkProfile` (`Id`, `DisplayName`, `DefaultFormatId`, file patt
 `DefaultFormatId` should be a format you or Toucan provide.
 
 API 1.2 also adds optional `IFrameworkDocumentLayout : IFrameworkProfile`. `GetDocumentLayout(DiscoveredFile)` returns a resource family and literal namespace segments. A family explicitly relates language documents; use null to keep document identities separate. Include layout roots in family identifiers so identical filenames in unrelated roots do not collide. Register through the existing `AddFrameworkProfile` call and `frameworks` capability. Profiles provide conventions and keep per-workspace connection state out of their singleton instances. Core retains discovered paths for existing units. `GetFilePath` remains a legacy layout hint; document planning uses a unique existing destination or an explicit path described by the framework. `DescribeDestination(rootFolder, relativePath)` optionally describes a proposed new document with the same language/package metadata as discovery, without filesystem access. Its default null keeps existing implementations compatible and means new document creation cannot be planned safely. Core validates destination language, namespace, and paths before serialization.
+
+### Content sources: `context.AddSourceAdapter(adapter)` (capability `sources`, API 1.3)
+
+A content source is a service outside the project that holds translations: a translation management system, a string API,
+or a file store. An adapter only translates between that service and Toucan. The host owns accounts, sign-in, credentials,
+connections, the sync baseline, the pending-operation journal, three-way comparison, conflicts, retries and all UI and CLI.
+The full design is in [content sources](specs/content-sources/design.md).
+
+> **Status:** the contracts, registration and the test kit ship in API 1.3. Toucan does not yet open connections to
+> adapters, sign users in or run pull and push through them; that arrives in the following content-sources phases. You can
+> write and test an adapter now against the published contract.
+
+The manifest declares `"capabilities": ["sources"]`, `"apiVersion": "1.3"` and a `network` block naming every host the
+adapter talks to (see [the manifest](#the-manifest-pluginjson)). Registration checks the descriptor and refuses the plugin
+when a rule is broken:
+
+| Rule | Why |
+|---|---|
+| `Descriptor.Id` starts with the plugin ID and a dot | IDs are saved in project files and must not collide. |
+| At least `ReadUnits` or `ReadDocuments`; unit writes need `ReadUnits`, `WriteDocuments` needs `ReadDocuments` | The host compares before it writes. |
+| `DefaultBaseUrl` and every OAuth endpoint use HTTPS (loopback HTTP allowed) and a host listed in `network.hosts` | The user trusted those hosts. |
+| `AllowsCustomBaseUrl` needs `network.userDefinedHosts: true`; without it, `DefaultBaseUrl` is required | Self-hosted servers are an explicit permission. |
+| At least one sign-in method with a unique ID; `CustomAuth` needs `ISourceAuthExchange`; `ProjectDiscovery` needs `ISupportsProjectDiscovery` | The host runs the flow you declare. |
+
+`SourceAdapterRules.Check(adapter, manifest)` runs the same rules in your own tests.
+
+`IContentSourceAdapter.OpenSessionAsync` returns a session for one connection. Implement one or both data interfaces:
+
+- **`IUnitSourceSession`** for key/value APIs: `ReadUnitsAsync` yields pages and sets `IsComplete` only on the last page of a
+  read that reached the end. `WriteUnitsAsync` returns one `UnitOperationResult` per operation, in order, with the host's
+  `OperationId` (an idempotency key; send it to the service if it supports one). Report `Conflict` when an
+  `ExpectedRevision` no longer matches, and `Unknown` when a request may or may not have landed (a timeout after sending);
+  never retry such a write yourself.
+- **`IDocumentSourceSession`** for file stores: list, read and conditionally write or delete whole documents with opaque
+  versions. Toucan parses and writes the bytes with its own format strategies.
+
+Optional interfaces add delta reads, asynchronous jobs, a change feed, project discovery and lazily loaded key context; each
+has a matching `SourceCapabilities` flag. Throw `SourceException` with a `SourceErrorKind` (`Authentication`,
+`RateLimited` with `RetryAfter`, `Unavailable`, …) so the host can act: ask the user to sign in, back off, or give up. Use
+`context.Http` for every request (it enforces your declared hosts and attaches the credential) and `context.Credentials`
+for the current token, calling `RefreshAsync` once after the service rejects it as expired. Keep sync state out of the
+adapter: no local caches of what was pushed, no merge logic.
+
+**Testing an adapter.** `Toucan.Plugins.Testing` has a `FakeSourceServer` (units with revisions and stable key IDs,
+documents with versions, delta reads, idempotency keys, asynchronous jobs) with injectable faults: rate limits, outages,
+expired tokens, timeouts before or after commit, dropped and duplicated pages, concurrent edits by another user and latency.
+`FakeSourceAdapter` is a complete adapter over it and a reference to read. `SourceAdapterConformance` checks the promises
+the host relies on (honest completeness, ordered results, conflict detection, `Unknown` for ambiguous failures, error kinds,
+cancellation, documents) against your adapter and a fixture for your sandbox project:
+
+```csharp
+var report = await SourceAdapterConformance.RunAsync(new LokaliseAdapter(), manifest, new LokaliseSandboxFixture());
+report.ThrowIfFailed(); // lists every PASS, FAIL and SKIP
+```
+
+Implement `ISourceConformanceFixture` (and `ISourceFaultInjector` if your fixture can provoke faults, for example through a
+recording proxy). `FakeServerFixture` is the fixture for the fake server.
 
 ## How plugins are loaded
 
