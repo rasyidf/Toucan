@@ -413,7 +413,7 @@ public sealed class LocalFolderSourceTests : IAsyncLifetime
         var plugin = Assert.Single(provider.GetRequiredService<IPluginCatalog>().Plugins);
         Assert.Equal(PluginStatus.Loaded, plugin.Status);
         var adapters = provider.GetRequiredService<ISourceAdapterCatalog>().Adapters;
-        Assert.Equal(["toucan.sources.local"], adapters.Select(a => a.Descriptor.Id));
+        Assert.Equal(["toucan.sources.local", "toucan.sources.rest"], adapters.Select(a => a.Descriptor.Id).Order(StringComparer.Ordinal));
         Assert.DoesNotContain(provider.GetServices<IFrameworkProfile>(), p => p.Id.StartsWith("toucan.sources", StringComparison.Ordinal));
     }
 }
