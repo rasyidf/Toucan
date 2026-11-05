@@ -131,9 +131,10 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="added">1 added</span></div>
+<div class="release-counts"><span class="added">2 added</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
+<li><strong>Direct and pipelined workflows</strong> — View → Workflow chooses Direct Editing (edit and save, no Review or Audit stages, no approval markers) or the Pipelined Edit › Review › Audit workflow, shown as a ribbon-style stage bar in the title bar. A new Next Stage command (<code>Ctrl/Cmd+Alt+M</code>) cycles the three stages. The choice is remembered; existing installs stay pipelined.</li>
 <li><strong>Review state follows the text</strong> — Approvals now record the source text they were given for. When the source or the translation changes, in the editor or in a file edited outside Toucan, the approval is withdrawn and the row shows a Needs review badge. Existing approvals are kept and tracked from the first open. Projects that use document persistence do not keep this across sessions yet.</li>
 </ul></div></details>
 <div class="release-links"><a href="#unreleased" aria-label="Permalink to Unreleased">Permalink</a></div>

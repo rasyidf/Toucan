@@ -143,6 +143,8 @@ Project glossary, CSV exchange, Dictionary matches and explicit insertion, effec
 - [x] Keyboard shortcut sheet (Cmd/Ctrl+/)
 - [x] Compact pagination controls
 - [x] Editor, Review, and Audit modes; Zen mode (J/K navigation)
+- [x] Direct Editing and Pipelined (Edit › Review › Audit) workflows with a Next Stage command (`Ctrl/Cmd+Alt+M`), remembered between sessions
+- [x] Review state follows the text: approvals record their source, are withdrawn when the source or translation changes, and show a Needs review marker (manifest-backed projects)
 - [x] Activity bar with side panels: Explorer, Source Code, Search, Issues, Languages, Inspector, Translation, Memory (Dictionary panel is a placeholder)
 - [x] Panel layout saved between sessions
 

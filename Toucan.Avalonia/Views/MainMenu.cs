@@ -288,6 +288,12 @@ internal static class MainMenu
             new("Editor Mode", vm.SwitchToEditorModeCommand, Action: "Editor Mode", RequiresProject: true),
             new("Review Mode", vm.SwitchToReviewModeCommand, Action: "Review Mode", RequiresProject: true),
             new("Audit Mode", vm.SwitchToAuditModeCommand, Action: "Audit Mode", RequiresProject: true),
+            new("Next Stage", vm.CycleEditorModeCommand, Action: "Next Stage", RequiresProject: true),
+            new("Workflow", Children:
+            [
+                new("Direct Editing", vm.UseDirectWorkflowCommand, Action: "Direct Editing Workflow", RequiresProject: true),
+                new("Pipelined (Edit › Review › Audit)", vm.UsePipelinedWorkflowCommand, Action: "Pipelined Workflow", RequiresProject: true),
+            ]),
             Separator,
             new("Focused Editor", vm.ToggleFocusedEditorCommand, Action: "Focused Editor", RequiresProject: true),
             new("Zen Mode", vm.ToggleZenModeCommand, Action: "Zen Mode", RequiresProject: true),

@@ -54,7 +54,14 @@ The Toucan window consists of three main regions:
 
 ## 3. Editing Modes
 
-Toucan provides dedicated modes in the top navigation bar to match different stages of your localization workflow:
+Choose how a project moves from editing to sign-off under **View → Workflow**:
+
+- **Direct Editing:** edit and save, like any text editor. There are no Review or Audit stages and no approval markers.
+- **Pipelined (Edit › Review › Audit):** work in stages, like the review ribbon in a word processor. The stages appear in the title bar as Editor › Review › Audit. **View → Next Stage** (<kbd>Ctrl/Cmd+Alt+M</kbd>) moves to the next stage and returns to Editor after Audit.
+
+The choice is remembered between sessions. Existing installs start in the pipelined workflow. Switching to Direct Editing returns to Editor mode.
+
+In the pipelined workflow, Toucan provides dedicated modes in the top navigation bar to match each stage:
 
 ### Editor Mode
 Your primary working environment. All translated and untranslated strings are displayed. Focusing an empty target field automatically searches Translation Memory (TM) and displays the best matching suggestion as subtle ghost text. Press <kbd>Tab</kbd> to accept it immediately.
@@ -87,7 +94,8 @@ Toucan is engineered for touch-typists. Routine editing and review require no mo
 | <kbd>F11</kbd> (<kbd>Ctrl+Cmd+F</kbd> on macOS) | **Fullscreen** | Toggle fullscreen. |
 | <kbd>F7</kbd> | **Run Validation** | Validate the whole project. |
 | <kbd>Ctrl/Cmd+Shift+T</kbd> | **Pre-translate** | Open the pre-translate dialog. |
-| <kbd>Ctrl/Cmd+Alt+1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | **Editor / Review / Audit mode** | Switch application mode. |
+| <kbd>Ctrl/Cmd+Alt+1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | **Editor / Review / Audit mode** | Switch application mode (pipelined workflow only). |
+| <kbd>Ctrl/Cmd+Alt+M</kbd> | **Next Stage** | Cycle Editor → Review → Audit (pipelined workflow only). |
 
 Shortcuts can be customized in **Settings → Keyboard Shortcuts**, with automatic conflict detection and one-click reset to defaults.
 

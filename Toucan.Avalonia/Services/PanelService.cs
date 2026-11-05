@@ -23,6 +23,11 @@ public partial class PanelService : ObservableObject
     [ObservableProperty] private bool statusBarVisible = true;
     [ObservableProperty] private bool zenMode;
     [ObservableProperty] private EditorMode editorMode = EditorMode.Editor;
+
+    /// <summary>Direct editing, or the pipelined Edit › Review › Audit workflow. Existing installs keep the pipeline.</summary>
+    [ObservableProperty] private WorkflowMode workflow = WorkflowMode.Pipelined;
+    public bool IsPipelined => Workflow == WorkflowMode.Pipelined;
+    public bool IsDirect => Workflow == WorkflowMode.Direct;
     [ObservableProperty] private double sidebarWidth = 280;
     [ObservableProperty] private double inspectorWidth = 300;
 
@@ -43,6 +48,16 @@ public partial class PanelService : ObservableObject
     {
         LoadLayout();
     }
+
+    partial void OnWorkflowChanged(WorkflowMode value)
+    {
+        OnPropertyChanged(nameof(IsPipelined));
+        OnPropertyChanged(nameof(IsDirect));
+        OnPropertyChanged(nameof(ShowsApprovalState));
+    }
+
+    /// <summary>Approval markers, badges and review controls only exist in the pipelined workflow.</summary>
+    public bool ShowsApprovalState => IsPipelined;
 
     partial void OnEditorModeChanged(EditorMode value)
     {
@@ -91,6 +106,7 @@ public partial class PanelService : ObservableObject
                 SidebarWidth = SidebarWidth,
                 InspectorWidth = InspectorWidth,
                 EditorMode = EditorMode,
+                Workflow = Workflow,
                 ActiveLeftPanelId = SideRegistry.ActiveLeftPanel?.Id ?? "explorer",
                 ActiveRightPanelId = SideRegistry.ActiveRightPanel?.Id ?? "languages"
             };
@@ -116,7 +132,8 @@ public partial class PanelService : ObservableObject
             SideRegistry.RightSlotVisible = state.InspectorVisible;
             SidebarWidth = state.SidebarWidth is > 120 and < 900 ? state.SidebarWidth : 280;
             InspectorWidth = state.InspectorWidth is > 120 and < 900 ? state.InspectorWidth : 300;
-            EditorMode = state.EditorMode;
+            Workflow = Enum.IsDefined(state.Workflow) ? state.Workflow : WorkflowMode.Pipelined;
+            EditorMode = Workflow == WorkflowMode.Direct ? EditorMode.Editor : state.EditorMode;
             _pendingLeftPanel = state.ActiveLeftPanelId;
             _pendingRightPanel = state.ActiveRightPanelId;
         }
@@ -134,6 +151,7 @@ public partial class PanelService : ObservableObject
         public double SidebarWidth { get; set; } = 280;
         public double InspectorWidth { get; set; } = 300;
         public EditorMode EditorMode { get; set; } = EditorMode.Editor;
+        public WorkflowMode Workflow { get; set; } = WorkflowMode.Pipelined;
         public string ActiveLeftPanelId { get; set; } = "explorer";
         public string ActiveRightPanelId { get; set; } = "languages";
     }

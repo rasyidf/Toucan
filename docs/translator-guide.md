@@ -63,6 +63,9 @@ Linguists translate fastest when their hands never leave the home row. Toucan’
 ### Review Mode
 Click **Review** in the top navigation to filter your entire workspace down to unapproved, draft, or flagged items. This strips away completed work and allows you to focus exclusively on quality verification.
 
+### Direct and Pipelined Workflows
+Under **View → Workflow**, choose **Direct Editing** to just edit and save, with no Review or Audit stages, or **Pipelined (Edit › Review › Audit)** to work in stages like the review ribbon in a word processor. In the pipelined workflow, <kbd>Ctrl/Cmd+Alt+M</kbd> (**Next Stage**) moves from Editor to Review to Audit and back. An approval is withdrawn, and the row shows **Needs review**, when its source text or translation changes afterwards.
+
 ### Grouped Bulk Undo
 If you perform a bulk operation (such as accepting pre-translation for a namespace, running Replace All on a terminology change, or approving a batch of strings), Toucan records the entire operation as a **single grouped undo step**. Pressing <kbd>Ctrl/Cmd+Z</kbd> restores all previous values, comments, and review timestamps in one action.
 

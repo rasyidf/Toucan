@@ -92,8 +92,15 @@
                            ToolTip.Tip="{loc:Loc 'Machine translated — not reviewed yet'}"/>
           <!-- Needs-review marker: an approval was withdrawn because the source or target changed -->
           <ui:FASymbolIcon Symbol="Important" FontSize="12" Margin="4,0" VerticalAlignment="Center"
-                           Foreground="{DynamicResource WarnBrush}" IsVisible="{Binding NeedsReview}"
-                           ToolTip.Tip="{loc:Loc 'Needs review — the source or translation changed after approval'}"/>
+                           Foreground="{DynamicResource WarnBrush}"
+                           ToolTip.Tip="{loc:Loc 'Needs review — the source or translation changed after approval'}">
+            <ui:FASymbolIcon.IsVisible>
+              <MultiBinding Converter="{x:Static BoolConverters.And}">
+                <Binding Path="NeedsReview"/>
+                <Binding Source="{x:Static svc:PanelService.Instance}" Path="IsPipelined"/>
+              </MultiBinding>
+            </ui:FASymbolIcon.IsVisible>
+          </ui:FASymbolIcon>
           <Button Classes="icon small hoverOnly" Command="{Binding CopyTranslationCommand}" ToolTip.Tip="{loc:Loc 'Copy value'}">
             <ui:FASymbolIcon Symbol="Copy"/>
           </Button>
@@ -140,6 +147,7 @@
               <MultiBinding Converter="{x:Static BoolConverters.And}">
                 <Binding Path="IsApproved"/>
                 <Binding Source="{x:Static svc:PanelService.Instance}" Path="IsNotReviewMode"/>
+                <Binding Source="{x:Static svc:PanelService.Instance}" Path="IsPipelined"/>
               </MultiBinding>
             </ui:FASymbolIcon.IsVisible>
           </ui:FASymbolIcon>

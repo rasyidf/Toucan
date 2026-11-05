@@ -141,7 +141,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         editorLayout = Enum.TryParse<EditorLayout>(appOptions.EditorLayout, out var savedLayout) && Enum.IsDefined(savedLayout)
             ? savedLayout : EditorLayout.Cards;
         InitAi();
-        editorMode = PanelService.Instance.EditorMode;
+        editorMode = PanelService.Instance.IsPipelined ? PanelService.Instance.EditorMode : EditorMode.Editor;
 
         pagingController = new PaginationViewModel<LanguageGroupViewModel>(EffectivePageSize, [], EffectiveMaxItems);
 
