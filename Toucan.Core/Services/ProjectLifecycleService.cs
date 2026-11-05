@@ -30,7 +30,8 @@ public partial class ProjectLifecycleService(
     Plugins.IPluginActivationService? pluginActivation = null,
     WorkspaceService? workspace = null, WorkspaceDocumentSaveCoordinator? documentSaves = null, WorkspaceExportPlanner? exportPlanner = null, WorkspaceDocumentSaveExecutor? documentExecutor = null,
     Plugins.INotificationCenter? notificationCenter = null, IProjectDefaultsService? projectDefaults = null,
-    Sources.ISourceConnectionService? sources = null) : IProjectLifecycleService, IDisposable, IAsyncDisposable
+    Sources.ISourceConnectionService? sources = null,
+    Sources.SyncCoordinator? sync = null) : IProjectLifecycleService, IDisposable, IAsyncDisposable
 {
     // Without a full connection service (no accounts or adapters), plugin-owned connections still open and close with the project.
     private readonly Sources.ISourceConnectionService? _sources = sources ?? (pluginActivation is null ? null : new Sources.SourceConnectionService(pluginActivation));
@@ -70,10 +71,12 @@ public partial class ProjectLifecycleService(
         if (_sources is null || _currentProject is null) return;
         SubscribeToSources();
         await _sources.OpenWorkspaceAsync(folderPath, _currentProject.Sources, ct).ConfigureAwait(false);
+        sync?.Open(folderPath, _currentProject.Sources);
     }
 
     private async Task CloseSourcesAsync()
     {
+        sync?.Close();
         if (_sources is not null) await _sources.CloseWorkspaceAsync().ConfigureAwait(false);
     }
 

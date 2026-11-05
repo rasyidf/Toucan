@@ -33,6 +33,16 @@
                        IsVisible="{Binding Project.Badge, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
           </StackPanel>
         </Button>
+        <!-- Saving and delivering are separate: files saved here, changes sent to the content sources -->
+        <TextBlock Text="{Binding Sync.SavedText}" VerticalAlignment="Center" Margin="10,0,0,0" FontSize="12"
+                   IsVisible="{Binding $parent[Window].DataContext.HasProject}" AutomationProperties.Name="{Binding Sync.SavedText}"/>
+        <Button Classes="status" x:Name="SyncedButton" ToolTip.Tip="{Binding Sync.SyncedToolTip}" AutomationProperties.Name="{Binding Sync.SyncedText}"
+                IsVisible="{Binding Sync.HasConnections}" Command="{Binding $parent[Window].DataContext.ShowSourceConflictsCommand}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <ui:FASymbolIcon Symbol="Sync"/>
+            <TextBlock Text="{Binding Sync.SyncedText}" VerticalAlignment="Center" FontSize="12"/>
+          </StackPanel>
+        </Button>
         <!-- The mode tabs in the title bar already show the mode; this pill only stays for plugins/tests that address it. -->
         <Button Classes="status" x:Name="ModeButton" ToolTip.Tip="{Binding Mode.ToolTip}" IsVisible="False">
           <Border Background="{DynamicResource BadgeBackgroundBrush}" CornerRadius="3" Padding="6,2">

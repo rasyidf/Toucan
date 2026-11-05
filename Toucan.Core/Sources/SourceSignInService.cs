@@ -100,6 +100,24 @@ public sealed class SourceSignInService
         return _broker.For(account, connectionId, adapter is null ? null : RefresherFor(adapter, account, method), scheme);
     }
 
+    /// <summary>The projects the account can see, for the add-connection wizard (adapters with <c>ProjectDiscovery</c>).</summary>
+    public async IAsyncEnumerable<RemoteProjectSummary> ListProjectsAsync(SourceAccount account, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(account);
+        var adapter = Adapter(account.Adapter);
+        if (adapter.Adapter is not ISupportsProjectDiscovery discovery) yield break;
+        var credentials = CredentialsFor(account);
+        using var http = HttpFor(adapter, account.BaseUrl, credentials, Method(adapter, account.AuthMethod), scope: cancellationToken);
+        var context = new AccountContext(account.Id, account.BaseUrl, credentials, http, DiagnosticsFor(adapter));
+        await foreach (var project in discovery.ListProjectsAsync(context, cancellationToken).ConfigureAwait(false)) yield return project;
+    }
+
+    private sealed record AccountContext(string AccountId, Uri BaseUrl, ISourceCredentials Credentials, ISourceHttpClientFactory Http, IPluginDiagnostics Diagnostics) : ISourceAccountContext
+    {
+        public Microsoft.Extensions.Logging.ILogger Logger => Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance;
+        public TimeProvider Time => TimeProvider.System;
+    }
+
     // ───────────────────────────── sign-in ─────────────────────────────
 
     /// <summary>Stores a pasted access token. <paramref name="existing"/> renews an account instead of adding one.</summary>

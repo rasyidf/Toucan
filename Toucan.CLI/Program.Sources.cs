@@ -27,12 +27,13 @@ internal static partial class Program
             "accounts" => positional.Count > 2 && positional[1] == "remove" ? SignOut(positional[2]) : ListAccounts(),
             "login" when positional.Count > 1 => Login(positional[1], Folder(2), args),
             "test" when positional.Count > 1 => TestConnection(positional[1], Folder(2)),
-            "login" or "test" => Error($"Usage: toucan sources {sub} <connection> [folder]"),
-            _ => Error($"Unknown sources command: {sub}. Use list, adapters, accounts, login or test."),
+            "status" or "pull" or "push" or "sync" when positional.Count > 1 => RunSync(sub, positional[1], Folder(2), args),
+            "login" or "test" or "status" or "pull" or "push" or "sync" => Error($"Usage: toucan sources {sub} <connection> [folder]"),
+            _ => Error($"Unknown sources command: {sub}. Use list, adapters, accounts, login, test, status, pull, push or sync."),
         };
     }
 
-    private static readonly string[] s_valueOptions = ["--method", "--user", "--name", "--allow-plugin"];
+    private static readonly string[] s_valueOptions = ["--method", "--user", "--name", "--allow-plugin", "--take"];
 
     private static bool IsOptionValue(string[] args, int index) => index > 0 && s_valueOptions.Contains(args[index - 1], StringComparer.Ordinal);
 
@@ -71,6 +72,7 @@ internal static partial class Program
         OAuthAuthorizationCodeAuth => "browser, desktop app only",
         OAuthDeviceCodeAuth => "device code",
         CustomAuth => "form, desktop app only",
+        NoSignInAuth => "none",
         _ => method.GetType().Name,
     };
 

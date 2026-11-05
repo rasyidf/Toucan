@@ -315,6 +315,14 @@ public sealed class SourceConnectionService : ISourceConnectionService, IAsyncDi
             try { address = SourceSignInService.ResolveBaseUrl(adapter, settings.BaseUrl); }
             catch (InvalidOperationException ex) { SetStatus(entry, SourceConnectionState.Failed, ex.Message); return; }
 
+            if (adapter.Descriptor.AuthMethods.All(m => m is NoSignInAuth))
+            {
+                // A service that needs no sign-in (a local folder) gets a stand-in account that holds no credential.
+                entry.Account = new SourceAccount { Id = "anonymous-" + settings.Id, Adapter = adapter.Descriptor.Id, BaseUrl = address,
+                    AuthMethod = adapter.Descriptor.AuthMethods[0].Id, DisplayName = "This computer" };
+                SetStatus(entry, SourceConnectionState.Disconnected, string.Empty, entry.Account.Id);
+                return;
+            }
             var match = _signIn.Accounts.Resolve(adapter.Descriptor.Id, address, WorkspaceId!, settings.Id);
             entry.Account = match.Account ?? EnvironmentAccount(adapter, address, settings.Id);
             if (entry.Account is not null)

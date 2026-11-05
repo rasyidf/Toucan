@@ -6,9 +6,6 @@ using Toucan.Plugins.Sources;
 
 namespace Toucan.Modules.Sources;
 
-/// <summary>The local folder needs no sign-in; the host treats this method as already satisfied.</summary>
-public sealed record LocalFolderAccess() : SourceAuthMethod("none", "No sign-in needed");
-
 /// <summary>
 /// The local folder as a document source (<c>toucan.sources.local</c>). It moves bytes with the same rules as the local
 /// project reader and store: versions are the SHA-256 of the file (upper-case hex), writes are staged and replaced
@@ -29,8 +26,9 @@ public sealed class LocalFolderSourceAdapter : IContentSourceAdapter
         Id = AdapterId,
         DisplayName = "Local folder",
         Icon = "Folder",
-        AllowsCustomBaseUrl = true,
-        AuthMethods = [new LocalFolderAccess()],
+        // There is no service address; this loopback placeholder satisfies the address rules and is never contacted.
+        DefaultBaseUrl = new Uri("http://localhost/"),
+        AuthMethods = [new NoSignInAuth()],
         Capabilities = SourceCapabilities.ReadDocuments | SourceCapabilities.WriteDocuments | SourceCapabilities.ConditionalWrites,
         ConnectionSettings = new ConfigSchema
         {
@@ -42,7 +40,11 @@ public sealed class LocalFolderSourceAdapter : IContentSourceAdapter
     {
         ArgumentNullException.ThrowIfNull(context);
         cancellationToken.ThrowIfCancellationRequested();
-        if (!context.Connection.Settings.TryGetValue(FolderSetting, out var value) || value is not string { Length: > 0 } folder)
+        // Settings read from a project file arrive as JSON elements; tests pass plain strings.
+        var folder = context.Connection.Settings.TryGetValue(FolderSetting, out var value)
+            ? value switch { string text => text, System.Text.Json.JsonElement { ValueKind: System.Text.Json.JsonValueKind.String } element => element.GetString(), _ => null }
+            : null;
+        if (string.IsNullOrWhiteSpace(folder))
             throw new SourceException(new SourceError(SourceErrorKind.Validation, "The local-folder connection names no folder."));
         return Task.FromResult<IContentSourceSession>(new Session(Path.GetFullPath(folder)));
     }

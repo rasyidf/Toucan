@@ -40,7 +40,32 @@ public sealed partial class WorkspaceService
 
     private IdentifiedUnitSnapshot ToSnapshot(Unit unit) => new(unit.Id, unit.Language, unit.Key, unit.Namespace, unit.KeyPath,
         unit.Value, unit.Comment, ReviewStateMapping.ToState(unit.Approved, unit.NeedsReview), Dirty(unit),
-        unit.Binding?.DocumentId.Value, unit.Binding?.Location.EscapedPath);
+        unit.Binding?.DocumentId.Value, unit.Binding?.Location.EscapedPath) { Delivery = DeliveryProvider?.Invoke(unit.Id, unit.Language) };
+
+    /// <summary>Says where a translation stands with its content sources. Set by the sync coordinator; null when the project has no connections.</summary>
+    public Func<Guid, string, SourceDeliveryState?>? DeliveryProvider { get; set; }
+
+    /// <summary>
+    /// Tells subscribers that the delivery state of these translations changed. Counts as a revision, so edits prepared on an
+    /// earlier snapshot must be prepared again.
+    /// </summary>
+    public void PublishDeliveryChanged(IEnumerable<(Guid EntryId, string Language)> units)
+    {
+        ArgumentNullException.ThrowIfNull(units);
+        lock (_gate)
+        {
+            if (_settings is null || _subscriptions.Count == 0) return;
+            var changes = units.Distinct().Select(k => _state.TryGetValue(k, out var u) ? new WorkspaceUnitChange(k.EntryId, k.Language, ToSnapshot(u)) : null)
+                .OfType<WorkspaceUnitChange>().ToImmutableArray();
+            if (changes.Length == 0) return;
+            _revision++;
+            var change = new WorkspaceChange(_settings.ProjectPath, _session, _publishedRevision, _revision, WorkspaceChangeKind.DeliveryChanged,
+                WorkspaceChangeOrigin.Source, null, changes, PrimaryLanguage(), Languages(), !Same(_state, _baseline), _closing);
+            foreach (var subscription in _subscriptions.ToArray())
+                if (!subscription.Publish(change)) _subscriptions.Remove(subscription);
+            ResetPublicationLocked();
+        }
+    }
 
     private static bool WasDirty(Unit unit, ImmutableDictionary<(Guid, string), Unit> baseline) =>
         !baseline.TryGetValue((unit.Id, unit.Language), out var saved) || !Equivalent(unit, saved);

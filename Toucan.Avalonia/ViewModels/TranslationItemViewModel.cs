@@ -226,6 +226,28 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     /// <summary>True when an earlier approval was withdrawn because the source or target changed.</summary>
     public bool NeedsReview => _model.NeedsReview && !_model.IsApproved;
 
+    /// <summary>Where this translation stands with the content sources it is bound to; null when it is bound to none.</summary>
+    public Toucan.Plugins.SourceDeliveryState? Delivery { get; private set; }
+
+    public bool HasDeliveryBadge => Delivery is Toucan.Plugins.SourceDeliveryState.Pending or Toucan.Plugins.SourceDeliveryState.Sending
+        or Toucan.Plugins.SourceDeliveryState.Failed or Toucan.Plugins.SourceDeliveryState.Conflict;
+    public bool IsDeliveryPending => Delivery is Toucan.Plugins.SourceDeliveryState.Pending or Toucan.Plugins.SourceDeliveryState.Sending;
+    public bool IsDeliveryFailed => Delivery == Toucan.Plugins.SourceDeliveryState.Failed;
+    public bool IsDeliveryConflict => Delivery == Toucan.Plugins.SourceDeliveryState.Conflict;
+    public string DeliveryToolTip => SyncIndicators.BadgeText(Delivery);
+
+    public void SetDelivery(Toucan.Plugins.SourceDeliveryState? state)
+    {
+        if (Delivery == state) return;
+        Delivery = state;
+        OnPropertyChanged(nameof(Delivery));
+        OnPropertyChanged(nameof(HasDeliveryBadge));
+        OnPropertyChanged(nameof(IsDeliveryPending));
+        OnPropertyChanged(nameof(IsDeliveryFailed));
+        OnPropertyChanged(nameof(IsDeliveryConflict));
+        OnPropertyChanged(nameof(DeliveryToolTip));
+    }
+
     /// <summary>True when the value came from machine translation and hasn't been edited since.</summary>
     public bool IsMachineTranslated => _model.ChangeType == ChangeType.Suggestion;
 

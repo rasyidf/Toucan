@@ -1,0 +1,117 @@
+<d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.AddConnectionDialog"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:loc="using:Toucan.Avalonia.Locales"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                Title="{loc:Loc 'Connection'}" Width="720" Height="640" MinWidth="600" MinHeight="480">
+  <DockPanel>
+    <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
+      <DockPanel>
+        <Button Content="{loc:Loc 'Cancel'}" Command="{Binding CancelCommand}" IsCancel="True"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Content="{loc:Loc 'Back'}" Command="{Binding BackCommand}" IsVisible="{Binding CanGoBack}"/>
+          <Button Content="{loc:Loc 'Next'}" Classes="accent" Command="{Binding NextCommand}" IsDefault="True" IsVisible="{Binding !IsLastStep}"/>
+          <Button Content="{loc:Loc 'Save connection'}" Classes="accent" Command="{Binding FinishCommand}" IsVisible="{Binding IsLastStep}"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+    <StackPanel DockPanel.Dock="Top" Margin="20,18,20,8" Spacing="4">
+      <TextBlock Text="{Binding StepTitle}" Classes="dialogTitle"/>
+      <ItemsControl ItemsSource="{Binding Problems}" IsVisible="{Binding HasProblems}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate><TextBlock Text="{Binding}" Foreground="{DynamicResource BadBrush}" TextWrapping="Wrap"/></DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <TextBlock Text="{Binding StatusText}" Classes="caption"/>
+    </StackPanel>
+    <ScrollViewer Margin="20,0,20,12" IsEnabled="{Binding !IsBusy}">
+      <Panel>
+        <!-- 1. Service -->
+        <StackPanel Spacing="8" IsVisible="{Binding IsService}">
+          <ListBox Classes="plain" ItemsSource="{Binding Services}" SelectedItem="{Binding SelectedService}" AutomationProperties.Name="{loc:Loc 'Services'}">
+            <ListBox.ItemTemplate><DataTemplate>
+              <StackPanel Margin="0,4"><TextBlock Text="{Binding Descriptor.DisplayName}" FontWeight="SemiBold"/><TextBlock Text="{Binding Descriptor.Id}" Classes="caption"/></StackPanel>
+            </DataTemplate></ListBox.ItemTemplate>
+          </ListBox>
+          <TextBox Watermark="https://…" Text="{Binding BaseUrlText}" IsVisible="{Binding AllowsCustomAddress}" AutomationProperties.Name="{loc:Loc 'Server address'}"/>
+          <ItemsControl ItemsSource="{Binding Settings}">
+            <ItemsControl.ItemTemplate><DataTemplate>
+              <StackPanel Spacing="2" Margin="0,4">
+                <TextBlock Text="{Binding Label}" Classes="caption"/>
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBox Text="{Binding Text}" AutomationProperties.Name="{Binding Label}"/>
+                  <Button Grid.Column="1" Content="{loc:Loc 'Browse…'}" IsVisible="{Binding IsPath}" Margin="6,0,0,0"
+                          Command="{Binding $parent[ItemsControl].DataContext.ChooseFolderCommand}" CommandParameter="{Binding}"/>
+                </Grid>
+              </StackPanel>
+            </DataTemplate></ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+        <!-- 2. Account -->
+        <StackPanel Spacing="8" IsVisible="{Binding IsAccount}">
+          <TextBlock Classes="caption" TextWrapping="Wrap" Text="{loc:Loc 'Choose the account to use, or sign in with a new one.'}"/>
+          <ListBox Classes="plain" ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" AutomationProperties.Name="{loc:Loc 'Accounts'}">
+            <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding DisplayName}" Margin="0,4"/></DataTemplate></ListBox.ItemTemplate>
+          </ListBox>
+          <Button Content="{loc:Loc 'Sign in with another account…'}" Command="{Binding SignInCommand}" HorizontalAlignment="Left"/>
+        </StackPanel>
+        <!-- 3. Project -->
+        <StackPanel Spacing="8" IsVisible="{Binding IsProject}">
+          <ListBox Classes="plain" ItemsSource="{Binding Projects}" SelectedItem="{Binding SelectedProject}" IsVisible="{Binding CanDiscoverProjects}"
+                   AutomationProperties.Name="{loc:Loc 'Remote projects'}">
+            <ListBox.ItemTemplate><DataTemplate>
+              <StackPanel Margin="0,4"><TextBlock Text="{Binding Name}" FontWeight="SemiBold"/><TextBlock Text="{Binding Description}" Classes="caption"/></StackPanel>
+            </DataTemplate></ListBox.ItemTemplate>
+          </ListBox>
+          <TextBlock Classes="caption" Text="{loc:Loc 'Project ID'}"/>
+          <TextBox Text="{Binding RemoteProjectId}" AutomationProperties.Name="{loc:Loc 'Remote project ID'}"/>
+        </StackPanel>
+        <!-- 4. Mapping -->
+        <StackPanel Spacing="10" IsVisible="{Binding IsMapping}">
+          <TextBlock Text="{loc:Loc 'Languages'}" Classes="groupHeader"/>
+          <ItemsControl ItemsSource="{Binding Languages}">
+            <ItemsControl.ItemTemplate><DataTemplate>
+              <Grid ColumnDefinitions="90,*,180" Margin="0,2">
+                <TextBlock Text="{Binding ProjectLanguage}" VerticalAlignment="Center" Classes="mono"/>
+                <TextBox Grid.Column="1" Text="{Binding Remote}" Watermark="{loc:Loc 'Not synced'}" AutomationProperties.Name="{Binding ProjectLanguage}"/>
+                <TextBlock Grid.Column="2" Text="{Binding Hint}" Classes="caption" VerticalAlignment="Center" Margin="8,0,0,0"/>
+              </Grid>
+            </DataTemplate></ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Text="{loc:Loc 'Resources'}" Classes="groupHeader"/>
+          <ItemsControl ItemsSource="{Binding Resources}">
+            <ItemsControl.ItemTemplate><DataTemplate>
+              <Grid ColumnDefinitions="Auto,*,180" Margin="0,2">
+                <CheckBox IsChecked="{Binding Include}" AutomationProperties.Name="{Binding Name}"/>
+                <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="2" Text="{Binding Package}" Watermark="{loc:Loc 'Package'}" AutomationProperties.Name="{loc:Loc 'Package for this resource'}"/>
+              </Grid>
+            </DataTemplate></ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Text="{loc:Loc 'Key separator'}" Classes="groupHeader"/>
+          <TextBox Text="{Binding Separator}" Width="80" HorizontalAlignment="Left" AutomationProperties.Name="{loc:Loc 'Key separator'}"/>
+        </StackPanel>
+        <!-- 5. Policy -->
+        <StackPanel Spacing="10" IsVisible="{Binding IsPolicy}">
+          <TextBlock Text="{loc:Loc 'Name'}" Classes="groupHeader"/>
+          <TextBox Text="{Binding ConnectionName}" AutomationProperties.Name="{loc:Loc 'Connection name'}"/>
+          <TextBlock Text="{loc:Loc 'Role'}" Classes="groupHeader"/>
+          <ComboBox ItemsSource="{Binding Roles}" SelectedItem="{Binding Role}" AutomationProperties.Name="{loc:Loc 'Role'}"/>
+          <TextBlock Classes="caption" TextWrapping="Wrap"
+                     Text="{loc:Loc 'Mirror: your files are the main copy and the service follows. Primary: the service is the main copy and Toucan keeps a local cache.'}"/>
+          <TextBlock Text="{loc:Loc 'When you delete a key here'}" Classes="groupHeader"/>
+          <ComboBox ItemsSource="{Binding DeletePolicies}" SelectedItem="{Binding DeletePolicy}" AutomationProperties.Name="{loc:Loc 'Remote deletion policy'}"/>
+          <CheckBox IsChecked="{Binding PushStatuses}" Content="{loc:Loc 'Send review states'}"/>
+          <CheckBox IsChecked="{Binding PushComments}" Content="{loc:Loc 'Send comments'}"/>
+          <CheckBox IsChecked="{Binding ConnectOnOpen}" Content="{loc:Loc 'Connect when the project opens'}"/>
+        </StackPanel>
+        <!-- 6. Test -->
+        <StackPanel Spacing="10" IsVisible="{Binding IsTest}">
+          <TextBlock Text="{Binding TestResult}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"/>
+          <Button Content="{loc:Loc 'Test again'}" Command="{Binding RetryTestCommand}" HorizontalAlignment="Left"/>
+          <CheckBox IsChecked="{Binding PullAfterSaving}" Content="{loc:Loc 'Review a first pull after saving'}"/>
+        </StackPanel>
+      </Panel>
+    </ScrollViewer>
+  </DockPanel>
+</d:DialogWindow>

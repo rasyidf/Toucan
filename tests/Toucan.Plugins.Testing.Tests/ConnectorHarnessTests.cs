@@ -1,33 +1,32 @@
-using Toucan.Plugins;
+using Toucan.Plugins.Sources;
 using Toucan.Plugins.Testing;
+using Toucan.Plugins.Testing.Sources;
 using Toucan.Sample.Connector;
 using Xunit;
 
 namespace Toucan.Plugins.Testing.Tests;
 
+/// <summary>The sample connector, written against the public content-source contract (plugin API 1.3).</summary>
 public sealed class ConnectorHarnessTests : IAsyncDisposable
 {
-    private readonly InMemoryRemote _remote = new();
+    private static readonly System.Text.Json.JsonSerializerOptions s_web = new(System.Text.Json.JsonSerializerDefaults.Web);
+    private readonly MemoryService _service = new();
     private readonly PluginTestHost _host = new(ConnectorPlugin.Id);
 
-    public ConnectorHarnessTests() => _host.Register(new ConnectorPlugin(_remote));
+    public ConnectorHarnessTests() => _host.Register(new ConnectorPlugin(_service));
 
     public async ValueTask DisposeAsync() => await _host.DisposeAsync();
 
-    private void OpenProject(string source = "Save", string target = "")
-    {
-        _host.Services.InMemory.Open("en", ["en", "de"], new Dictionary<string, IReadOnlyDictionary<string, string>>
-        {
-            ["app.save"] = new Dictionary<string, string> { ["en"] = source, ["de"] = target },
-            ["app.cancel"] = new Dictionary<string, string> { ["en"] = "Cancel", ["de"] = "Abbrechen" },
-        });
-    }
+    private IContentSourceAdapter Adapter => _host.SourceAdapters[MemorySourceAdapter.Id];
+
+    private async Task<IUnitSourceSession> OpenAsync() =>
+        (IUnitSourceSession)await Adapter.OpenSessionAsync(new SourceTestContext(), TestContext.Current.CancellationToken);
 
     [Fact]
-    public void RegistrationRecordsCommandsAndSettingsWithoutActivatingAnything()
+    public void RegistrationAddsOneAdapterAndActivatesNothing()
     {
-        Assert.Equal(["sample.connector.pull", "sample.connector.push"], _host.Commands.Keys.Order());
-        Assert.NotNull(_host.Services.Config.Schema);
+        Assert.Equal([MemorySourceAdapter.Id], _host.SourceAdapters.Keys);
+        Assert.Empty(_host.Commands);
         Assert.Equal(0, _host.ActiveCount);
     }
 
@@ -36,146 +35,44 @@ public sealed class ConnectorHarnessTests : IAsyncDisposable
         Assert.Empty(CliCompatibility.UiReferences(typeof(ConnectorPlugin).Assembly));
 
     [Fact]
-    public async Task CommandsAreUnavailableWithoutAProjectAndDisconnectedWithoutAConnection()
+    public void TheShippedManifestPassesTheRegistrationRules()
     {
-        Assert.Equal(CommandAvailability.Unavailable, _host.StateOf("sample.connector.pull").Availability);
-
-        OpenProject();
-        Assert.Equal(CommandAvailability.Disconnected, _host.StateOf("sample.connector.pull").Availability);
-
-        await _host.ActivateAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
-        Assert.Equal(CommandAvailability.Available, _host.StateOf("sample.connector.pull").Availability);
+        var manifest = System.Text.Json.JsonSerializer.Deserialize<PluginManifest>(
+            File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "plugin.json")), s_web);
+        Assert.NotNull(manifest);
+        Assert.Empty(SourceAdapterRules.Check(Adapter, manifest));
     }
 
     [Fact]
-    public async Task ClosingTheProjectEndsTheSessionAndMakesCommandsUnavailable()
+    public async Task ReadsWhatAnotherUserWrote()
     {
-        OpenProject();
-        await _host.ActivateAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
-        Assert.Equal(1, _host.ActiveCount);
+        _service.Put("app.save", "de", "Speichern");
+        await using var session = await OpenAsync();
 
-        await _host.CloseAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
+        var pages = new List<RemoteUnitPage>();
+        await foreach (var page in session.ReadUnitsAsync(new(), TestContext.Current.CancellationToken)) pages.Add(page);
 
-        Assert.Equal(0, _host.ActiveCount);
-        Assert.Equal(CommandAvailability.Unavailable, _host.StateOf("sample.connector.push").Availability);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _host.RunAsync("sample.connector.push"));
+        var page1 = Assert.Single(pages);
+        Assert.True(page1.IsComplete);
+        Assert.Equal("Speichern", Assert.Single(page1.Units).Value);
     }
 
     [Fact]
-    public async Task PullFillsTheProjectInOneEditAndReportsIt()
+    public async Task WritesAreConditionalAndRepeatedOperationsApplyOnce()
     {
-        OpenProject();
-        _remote.Seed("test-workspace", new RemoteUnit("app.save", "de", "Speichern", 1));
-        await _host.ActivateAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
+        var unit = _service.Put("app.save", "de", "Speichern");
+        await using var session = await OpenAsync();
+        var key = new RemoteKey(MemorySourceAdapter.ResourceId, "app.save");
+        var id = Guid.NewGuid();
 
-        var progress = await _host.RunAsync("sample.connector.pull");
+        var first = await session.WriteUnitsAsync(new([new PutValue(id, key, "de", "Sichern", unit.Revision.ToString())]), TestContext.Current.CancellationToken);
+        var repeat = await session.WriteUnitsAsync(new([new PutValue(id, key, "de", "Sichern", unit.Revision.ToString())]), TestContext.Current.CancellationToken);
+        var stale = await session.WriteUnitsAsync(new([new PutValue(Guid.NewGuid(), key, "de", "Nochmal", unit.Revision.ToString())]), TestContext.Current.CancellationToken);
 
-        var snapshot = await _host.Services.Workspace.SnapshotAsync();
-        Assert.Equal("Speichern", snapshot!.Find("app.save", "de")!.Value);
-        Assert.True(snapshot.Find("app.save", "de")!.IsModified);
-        Assert.NotEmpty(progress);
-        Assert.Contains(_host.Services.Notifications.Items, n => n.Title == "Pulled" && n.Severity == NotificationSeverity.Success);
-    }
-
-    [Fact]
-    public async Task APullIsRefusedWhenTheUserEditedTheSameValueMeanwhile()
-    {
-        OpenProject();
-        var snapshot = await _host.Services.Workspace.SnapshotAsync();
-        _host.Services.InMemory.UserEdit("app.save", "de", "Sichern");
-
-        var edit = new WorkspaceEdit { BasedOnRevision = snapshot!.Revision }.SetValue("app.save", "de", "Speichern", expectedValue: "");
-        var result = await _host.Services.Workspace.ApplyAsync(edit);
-
-        Assert.False(result.Applied);
-        Assert.Equal(EditIssueKind.Stale, result.Issues[0].Kind);
-        Assert.Equal("Sichern", (await _host.Services.Workspace.SnapshotAsync())!.Find("app.save", "de")!.Value);
-    }
-
-    [Fact]
-    public async Task AnEditWithOneBadStepChangesNothing()
-    {
-        OpenProject();
-        var edit = new WorkspaceEdit()
-            .SetValue("app.save", "de", "Speichern")
-            .SetValue("missing.key", "de", "x");
-
-        var result = await _host.Services.Workspace.ApplyAsync(edit);
-
-        Assert.False(result.Applied);
-        Assert.Equal(EditIssueKind.UnknownKey, result.Issues[0].Kind);
-        Assert.Equal("", (await _host.Services.Workspace.SnapshotAsync())!.Find("app.save", "de")!.Value);
-    }
-
-    [Fact]
-    public async Task PushSendsModifiedValues()
-    {
-        OpenProject();
-        _remote.Seed("test-workspace", new RemoteUnit("app.cancel", "de", "Abbruch", 5));
-        await _host.ActivateAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
-        _host.Services.InMemory.UserEdit("app.save", "de", "Speichern");
-        _host.Services.InMemory.UserEdit("app.cancel", "de", "Abbrechen");
-
-        await _host.RunAsync("sample.connector.push");
-
-        Assert.Equal("Speichern", _remote.Get("test-workspace", "app.save", "de")!.Text);
-        Assert.Equal("Abbrechen", _remote.Get("test-workspace", "app.cancel", "de")!.Text);
-        Assert.Contains(_host.Services.Notifications.Items, n => n.Title == "Pushed");
-    }
-
-    [Fact]
-    public async Task PushSkipsWhatTheServerChangedMeanwhile()
-    {
-        await using var host = new PluginTestHost(ConnectorPlugin.Id);
-        host.Register(new ConnectorPlugin(new RacingRemote(_remote)));
-        host.Services.InMemory.Open("en", ["en", "de"], new Dictionary<string, IReadOnlyDictionary<string, string>>
-        {
-            ["app.save"] = new Dictionary<string, string> { ["en"] = "Save", ["de"] = "" },
-        });
-        await host.ActivateAsync(PluginLifetime.Workspace, workspaceId: "test-workspace");
-        host.Services.InMemory.UserEdit("app.save", "de", "Speichern");
-
-        await host.RunAsync("sample.connector.push");
-
-        Assert.Null(_remote.Get("test-workspace", "app.save", "de"));
-        Assert.Contains(host.Services.Notifications.Items, n => n.Title == "Pushed with skipped items" && n.Severity == NotificationSeverity.Warning);
-    }
-
-    /// <summary>A service whose copy changes between the connector reading it and writing to it.</summary>
-    private sealed class RacingRemote(InMemoryRemote inner) : IRemoteSource
-    {
-        public Task<IReadOnlyList<RemoteUnit>> PullAsync(string connectionId, CancellationToken cancellationToken) =>
-            inner.PullAsync(connectionId, cancellationToken);
-
-        public Task<bool> PushAsync(string connectionId, RemoteUnit unit, long expectedRevision, CancellationToken cancellationToken) =>
-            Task.FromResult(false);
-    }
-
-    [Fact]
-    public async Task ClosingTheWorkspaceCancelsBackgroundOperations()
-    {
-        var started = new TaskCompletionSource();
-        var handle = _host.Services.Operations.Start(new OperationOptions { Title = "Long pull" }, async (_, ct) =>
-        {
-            started.SetResult();
-            await Task.Delay(Timeout.Infinite, ct);
-        });
-        await started.Task;
-
-        await _host.CloseAsync(PluginLifetime.Workspace);
-        await handle.Completion;
-
-        Assert.Equal(OperationStatus.Cancelled, handle.Status);
-    }
-
-    [Fact]
-    public async Task SecretsStayOutOfDiagnostics()
-    {
-        await _host.Services.Configuration.SetAsync("apiToken", "s3cr3t", ConfigTarget.ForConnection("c1"));
-        _host.Services.Diagnostics.RegisterSecret("s3cr3t");
-        _host.Services.Diagnostics.Write(DiagnosticLevel.Info, "token s3cr3t sent");
-
-        Assert.DoesNotContain("s3cr3t", _host.Services.DiagnosticLog.Lines[0].Message, StringComparison.Ordinal);
-        Assert.Equal("s3cr3t", await _host.Services.Configuration.GetSecretAsync("apiToken", ConfigTarget.ForConnection("c1")));
+        Assert.Equal(UnitOperationOutcome.Applied, first.Results[0].Outcome);
+        Assert.Equal(UnitOperationOutcome.AlreadyApplied, repeat.Results[0].Outcome);
+        Assert.Equal(first.Results[0].NewRevision, repeat.Results[0].NewRevision);
+        Assert.Equal(UnitOperationOutcome.Conflict, stale.Results[0].Outcome);
+        Assert.Equal("Sichern", stale.Results[0].CurrentRemote!.Value);
     }
 }

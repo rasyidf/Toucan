@@ -5,7 +5,30 @@ namespace Toucan.Plugins;
 /// <summary>One immutable translation addressed by stable entry identity and language.</summary>
 public sealed record IdentifiedUnitSnapshot(Guid EntryId, string Language, string Key, TranslationPath Namespace,
     TranslationPath KeyPath, string Value, string Comment, ReviewState Review, bool IsModified,
-    Guid? DocumentId = null, string? SourceLocation = null);
+    Guid? DocumentId = null, string? SourceLocation = null)
+{
+    /// <summary>Whether the translation has reached the content sources it is bound to; null when the project has no connections (plugin API 1.3).</summary>
+    public SourceDeliveryState? Delivery { get; init; }
+}
+
+/// <summary>Where a translation stands with the content sources it is bound to. Saving locally and delivering are separate.</summary>
+public enum SourceDeliveryState
+{
+    /// <summary>The service holds this value.</summary>
+    Synced,
+
+    /// <summary>Changed here and not sent yet.</summary>
+    Pending,
+
+    /// <summary>Sent, or being sent, and not yet confirmed.</summary>
+    Sending,
+
+    /// <summary>The service refused or the send failed; the change is still pending.</summary>
+    Failed,
+
+    /// <summary>Changed here and there; the user must settle it.</summary>
+    Conflict,
+}
 
 public sealed record IdentifiedWorkspaceSnapshot(string WorkspaceId, Guid SessionId, string ProjectPath,
     string PrimaryLanguage, IReadOnlyList<string> Languages, IReadOnlyList<IdentifiedUnitSnapshot> Units, long Revision)

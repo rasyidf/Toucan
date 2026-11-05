@@ -35,6 +35,12 @@ public sealed record OAuthDeviceCodeAuth(string Id, string Label, Uri DeviceAuth
 /// </summary>
 public sealed record CustomAuth(string Id, string Label, ConfigSchema Fields) : SourceAuthMethod(Id, Label);
 
+/// <summary>
+/// The service needs no sign-in (a folder on this computer). The host opens such connections without an account and gives
+/// the session no credential.
+/// </summary>
+public sealed record NoSignInAuth(string Id = "none", string Label = "No sign-in needed") : SourceAuthMethod(Id, Label);
+
 /// <summary>A credential ready to use. <paramref name="Value"/> is secret: the host registers it for redaction.</summary>
 /// <param name="Scheme">How it is sent, e.g. <c>Bearer</c>, <c>Basic</c>, or an adapter-defined name.</param>
 public sealed record SourceCredential(string Scheme, string Value, DateTimeOffset? ExpiresAt = null)

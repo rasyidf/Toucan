@@ -332,6 +332,17 @@ internal static class MainMenu
             new("Translation Providers…", new RelayCommand(() => _ = App.Dialogs.ShowProviderSettingsAsync(vm.HasProject ? vm.CurrentPath : null))),
         };
 
+        var sources = new List<Item>
+        {
+            new("Pull…", vm.PullSourceCommand, Action: "Pull", RequiresProject: true),
+            new("Push…", vm.PushSourceCommand, Action: "Push", RequiresProject: true),
+            new("Sync…", vm.SyncSourceCommand, Action: "Sync", RequiresProject: true),
+            new("Show Conflicts", vm.ShowSourceConflictsCommand, Action: "Show Conflicts", RequiresProject: true),
+            Separator,
+            new("Add Connection…", vm.AddSourceConnectionCommand, Action: "Add Connection", RequiresProject: true),
+            new("Accounts…", vm.ShowSourceAccountsCommand, Action: "Accounts"),
+        };
+
         var settings = new List<Item>
         {
             new("Project Properties…", vm.ShowProjectPropertiesCommand, RequiresProject: true),
@@ -360,6 +371,7 @@ internal static class MainMenu
             new("_View", Children: view),
             new("_Translate", Children: translate),
         };
+        if (vm.HasSources) menus.Add(new("S_ources", Children: sources));
         if (ExtensionsMenu(vm.HasProject) is { } extensions) menus.Add(extensions);
         menus.Add(new(mac ? "Project" : "_Settings", Children: settings));
         menus.Add(new("_Help", Children: help));

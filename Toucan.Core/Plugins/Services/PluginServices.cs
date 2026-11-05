@@ -71,6 +71,7 @@ internal sealed class PluginServices : IPluginServices
         Operations = new PluginOperations(pluginId, host.Operations);
         Diagnostics = new PluginDiagnostics(pluginId, host.Diagnostics);
         Workspace = new PluginWorkspaceApi(pluginId, host.Broker, apiVersion);
+        SourceSync = new Toucan.Core.Sources.PluginSourceSyncApi(host.Broker.Require<Toucan.Core.Sources.SyncCoordinator>);
     }
 
     public IPluginStorage Storage { get; }
@@ -81,6 +82,7 @@ internal sealed class PluginServices : IPluginServices
     public IBackgroundOperations Operations { get; }
     public IPluginDiagnostics Diagnostics { get; }
     public IWorkspaceApi Workspace { get; }
+    public Toucan.Plugins.Sources.ISourceSyncApi? SourceSync { get; }
 }
 
 internal sealed class PluginNotifier(string pluginId, INotificationCenter center) : IPluginNotifier

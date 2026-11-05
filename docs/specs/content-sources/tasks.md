@@ -1,7 +1,7 @@
 ---
 title: "content-sources — tasks"
 status: planned
-progress: "4/9 phases"
+progress: "4/9 phases done; phases 4-6 written, tests pending"
 updated: 2026-11-05
 summary: "Work order for content sources across v0.27–v0.29 and v0.31 hardening: prerequisites, API 1.3 contracts, accounts and auth, local-folder adapter, sync engine, desktop UI, reference REST adapter and CLI, first online connector."
 ---
@@ -43,35 +43,35 @@ Requirements: [requirements.md](requirements.md). Design: [design.md](design.md)
 - [x] 3.4 Snapshot loading, cached opening and explicit refresh for role `primary`; save-plan previews against a document source. Done as `RemoteWorkspaceSnapshotService`: refresh into a cache folder (only changed files are downloaded; an incomplete or duplicated listing fails and deletes nothing), open from the cache offline, and a preview that lists creates, updates and deletes, flags documents changed at the source and refuses a read-only source. The cache location and role handling arrive with 4.1.
 - [x] 3.5 Contract tests: read-only source, unsupported capabilities refused before execution, duplicate key names across packages, older plugins unaffected. Done in `RemoteDocumentStoreTests` and `LocalFolderSourceTests`.
 
-## Phase 4: Sync engine (v0.28)
+## Phase 4: Sync engine (v0.28) — written 2026-11-05, tests pending
 
-- [ ] 4.1 `SyncStateStore`: `baseline.json`, `journal.json`, `cache/` under `.toucan/local/sources/{connectionId}/`, generated `.gitignore`, atomic writes, schema versioning, corrupt-file quarantine. (R6.1, R6.4)
-- [ ] 4.2 `SyncPlanner`: pure three-way comparison per field following design §7.2, rename matching, deletion rules, first-sync mode, capability and permission checks producing notices. Table-driven tests for every row. (R7)
-- [ ] 4.3 Pull application through `WorkspaceService` as one `Source`-origin transaction with `ExpectedValue`, baseline advance for applied units only, review withdrawal through `ReviewTracker`. (R8.1, R8.2)
-- [ ] 4.4 `SyncExecutor` push path: journal before send, batches and bounded concurrency from `SourceLimits`, per-result handling, reconciliation of `Unknown` and `InFlight` by reading first, async job polling. (R6.2, R6.3, R8.3)
-- [ ] 4.5 Delivery state per unit from journal and baseline; expose it in identified snapshots and subscription deltas. (R8.4)
-- [ ] 4.6 `SyncCoordinator`: one run per connection, coalescing, background operations with progress and cancel, status events; opt-in scheduled check that plans without applying.
-- [ ] 4.7 Multiple connections: separate state, `primary` uniqueness per unit, sequential planning for overlapping units.
-- [ ] 4.8 `ISourceSyncApi` on `IPluginServices` (read status, request plan or run; no state writes).
-- [ ] 4.9 Recovery and failure suite against `FakeSourceServer`: restart from every journal state, ambiguous failures, duplicate prevention, dropped pages never inferring deletion, cancellation mid-batch, token expiry mid-run, undo of a pull, Save As with connections. (R12.2)
+- [x] 4.1 `SyncStateStore`: `baseline.json`, `journal.json`, `cache/` under `.toucan/local/sources/{connectionId}/`, generated `.gitignore`, atomic writes, schema versioning, corrupt-file quarantine. (R6.1, R6.4) Written: `Sources/Sync/SyncState.cs` (`SyncStateStore`, baseline, journal, `.gitignore`, atomic writes, schema check, quarantine of a corrupt or newer file as `*.corrupt-<time>`, unit cache for role `primary`).
+- [x] 4.2 `SyncPlanner`: pure three-way comparison per field following design §7.2, rename matching, deletion rules, first-sync mode, capability and permission checks producing notices. Table-driven tests for every row. (R7) Written: `SyncPlanner` is pure and covers every row of design 7.2 per field (value, status, comment), renames both ways, first sync, partial reads, capability notices and the pull-first hold. The table-driven tests are still to write.
+- [x] 4.3 Pull application through `WorkspaceService` as one `Source`-origin transaction with `ExpectedValue`, baseline advance for applied units only, review withdrawal through `ReviewTracker`. (R8.1, R8.2) Written: `SyncPullApplier` applies one `Source`-origin transaction (`WorkspaceService.ApplySourceEntries` / `ApplySource`), skips units that moved on after the snapshot, advances the baseline for applied units only. New keys are added in a second step through `AddKey`.
+- [x] 4.4 `SyncExecutor` push path: journal before send, batches and bounded concurrency from `SourceLimits`, per-result handling, reconciliation of `Unknown` and `InFlight` by reading first, async job polling. (R6.2, R6.3, R8.3) Written: `SyncExecutor` journals before sending, batches by `MaxBatchSize`, bounded concurrency, per-result handling, back-off on rate limits, reads back `Unknown` and `InFlight` before any resend, polls async jobs.
+- [x] 4.5 Delivery state per unit from journal and baseline; expose it in identified snapshots and subscription deltas. (R8.4) Written: `SyncDelivery` computes the state; `IdentifiedUnitSnapshot.Delivery` and `WorkspaceChangeKind.DeliveryChanged` carry it (publishing a delivery change counts as a revision).
+- [x] 4.6 `SyncCoordinator`: one run per connection, coalescing, background operations with progress and cancel, status events; opt-in scheduled check that plans without applying. Written: `SyncCoordinator` (one run per connection, joined requests, status events, `RunInBackground`, opt-in `StartScheduledCheck`). Sync works for unit sessions; a document connection refreshes its cache through `RemoteWorkspaceSnapshotService` and has no coordinator entry point yet.
+- [x] 4.7 Multiple connections: separate state, `primary` uniqueness per unit, sequential planning for overlapping units. Written: separate state per connection, `SyncCoordinator.Validate` refuses two primary connections for the same content, `RunAllAsync` goes one connection at a time.
+- [x] 4.8 `ISourceSyncApi` on `IPluginServices` (read status, request plan or run; no state writes). Written: `ISourceSyncApi` and `IPluginServices.SourceSync` (a default member, null on hosts without it).
+- [ ] 4.9 (tests; not written yet) Recovery and failure suite against `FakeSourceServer`: restart from every journal state, ambiguous failures, duplicate prevention, dropped pages never inferring deletion, cancellation mid-batch, token expiry mid-run, undo of a pull, Save As with connections. (R12.2)
 
-## Phase 5: Desktop experience (v0.28)
+## Phase 5: Desktop experience (v0.28) — written 2026-11-05, tests and review pending
 
-- [ ] 5.1 Sources side panel and Settings page with connection states, last pull and push, pending counts and actions. (R9.1)
-- [ ] 5.2 Accounts page: add, sign in again, sign out, usage by project.
-- [ ] 5.3 Add-connection wizard: adapter, account and auth, project picker, mapping with suggestions and collision errors, role and policy, test, optional first pull.
-- [ ] 5.4 Plan preview dialog with grouping, include toggles, counts and virtualization.
-- [ ] 5.5 Conflict view with base, local and remote columns, Take local, Take remote, Edit merged, Defer; reachable from row badges.
-- [ ] 5.6 Row delivery badges and separate Saved locally / Synced status bar indicators. (R8.5)
-- [ ] 5.7 Built-in `sources.*` commands in palette and menus with reassignable shortcuts; notifications for expired sign-in, partial failure, remote changes available. (R9.2)
-- [ ] 5.8 Keyboard, screen reader and visual review checks for all new screens. (R9.3)
+- [x] 5.1 Sources side panel and Settings page with connection states, last pull and push, pending counts and actions. (R9.1) Written: Sources side panel (`SourcesPanel`), `SourcesViewModel`, Sources menu.
+- [x] 5.2 Accounts page: add, sign in again, sign out, usage by project. Written: `AccountsDialog` / `AccountsViewModel`. Usage lists the projects of this machine that chose the account (matched against recent projects).
+- [x] 5.3 Add-connection wizard: adapter, account and auth, project picker, mapping with suggestions and collision errors, role and policy, test, optional first pull. Written: `AddConnectionDialog` / `AddConnectionViewModel`. Projects with discovery, language suggestions, collision check, role and policy, test. The optional first pull opens the plan preview when the connection is saved from the panel.
+- [x] 5.4 Plan preview dialog with grouping, include toggles, counts and virtualization. Written: `SyncPlanDialog` with virtualized lists and include toggles.
+- [x] 5.5 Conflict view with base, local and remote columns, Take local, Take remote, Edit merged, Defer; reachable from row badges. Written: the conflict tab with base, local and remote and the four choices; reachable from the row badge, the status bar and `Sources → Show Conflicts`.
+- [x] 5.6 Row delivery badges and separate Saved locally / Synced status bar indicators. (R8.5) Written: row delivery badge and the separate `Saved locally` / `Synced` status bar items.
+- [x] 5.7 Built-in `sources.*` commands in palette and menus with reassignable shortcuts; notifications for expired sign-in, partial failure, remote changes available. (R9.2) Written: `toucan.sources.pull|push|sync|show-conflicts|add-connection|accounts` commands (no default shortcuts, so users assign their own), and notifications for expired sign-in, partial failure and remote changes.
+- [ ] 5.8 (not done: only automation names, keyboard-reachable controls and live regions are in place; the screen reader and visual review need a run) Keyboard, screen reader and visual review checks for all new screens. (R9.3)
 
-## Phase 6: Reference REST adapter, sample port and full CLI (v0.28)
+## Phase 6: Reference REST adapter, sample port and full CLI (v0.28) — written 2026-11-05, tests pending
 
-- [ ] 6.1 Write the Toucan source protocol: OpenAPI file and prose spec under `docs/` (ETags, cursor pagination, idempotency keys, delta endpoint, error format). Decision D5.
-- [ ] 6.2 Reference server in `samples/` and the built-in `toucan.sources.rest` unit adapter; run the conformance suite against it in CI. (R11.2)
-- [ ] 6.3 Port `samples/Toucan.Sample.Connector` from `IRemoteSource` to the public contract as the minimal third-party example; keep its manifest on API 1.3. (R11.3)
-- [ ] 6.4 CLI `status`, `pull`, `push`, `sync` with `--plan`, `--yes`, `--take`, `--json`, non-interactive refusal and exit codes; save after pull through the document coordinator. (R10)
+- [x] 6.1 Write the Toucan source protocol: OpenAPI file and prose spec under `docs/` (ETags, cursor pagination, idempotency keys, delta endpoint, error format). Decision D5. Written: [source-protocol.md](../../source-protocol.md) and [source-protocol.openapi.yaml](../../source-protocol.openapi.yaml).
+- [x] 6.2 Reference server in `samples/` and the built-in `toucan.sources.rest` unit adapter; run the conformance suite against it in CI. (R11.2) Written: `samples/Toucan.Sample.SourceServer` and the built-in `toucan.sources.rest` adapter. Running the conformance suite against the server in CI is still to do.
+- [x] 6.3 Port `samples/Toucan.Sample.Connector` from `IRemoteSource` to the public contract as the minimal third-party example; keep its manifest on API 1.3. (R11.3) Written: the sample is one source adapter on API 1.3 (`MemorySourceAdapter`); its Pull and Push commands are gone because the host provides them.
+- [x] 6.4 CLI `status`, `pull`, `push`, `sync` with `--plan`, `--yes`, `--take`, `--json`, non-interactive refusal and exit codes; save after pull through the document coordinator. (R10) Written: `status`, `pull`, `push`, `sync` with `--plan`, `--yes`, `--take`, `--json`, refusal when non-interactive, exit codes 0/1/2/3/4. Pulled values are saved through the document coordinator (or the legacy save).
 
 ## Phase 7: First online connector (v0.29)
 

@@ -311,7 +311,14 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
         }
     }
 
-    public EditResult Apply(string pluginId, WorkspaceEdit edit, Guid? expectedSession = null, CancellationToken cancellationToken = default)
+    public EditResult Apply(string pluginId, WorkspaceEdit edit, Guid? expectedSession = null, CancellationToken cancellationToken = default) =>
+        ApplyCore(pluginId, WorkspaceChangeOrigin.Plugin, edit, expectedSession, cancellationToken);
+
+    /// <summary>Applies key-addressed edits pulled from a content source as one transaction with origin <see cref="WorkspaceChangeOrigin.Source"/>.</summary>
+    public EditResult ApplySource(string connectionId, WorkspaceEdit edit, Guid? expectedSession = null, CancellationToken cancellationToken = default) =>
+        ApplyCore(connectionId, WorkspaceChangeOrigin.Source, edit, expectedSession, cancellationToken);
+
+    private EditResult ApplyCore(string pluginId, WorkspaceChangeOrigin origin, WorkspaceEdit edit, Guid? expectedSession, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(edit);
         cancellationToken.ThrowIfCancellationRequested();
@@ -332,7 +339,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             var next = Capture(items, adoptProjection: false);
             var findings = Findings(next);
             cancellationToken.ThrowIfCancellationRequested();
-            Commit(next, WorkspaceChangeOrigin.Plugin, pluginId);
+            Commit(next, origin, pluginId);
             PublishProjections();
             result = new(true, plan.ChangedUnits, _revision, plan.Issues, findings);
         }
@@ -340,7 +347,14 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
         return result;
     }
 
-    public EditResult ApplyEntries(string pluginId, EntryEdit edit, CancellationToken cancellationToken = default)
+    public EditResult ApplyEntries(string pluginId, EntryEdit edit, CancellationToken cancellationToken = default) =>
+        ApplyEntriesCore(pluginId, WorkspaceChangeOrigin.Plugin, edit, cancellationToken);
+
+    /// <summary>Applies identified edits pulled from a content source as one transaction with origin <see cref="WorkspaceChangeOrigin.Source"/>.</summary>
+    public EditResult ApplySourceEntries(string connectionId, EntryEdit edit, CancellationToken cancellationToken = default) =>
+        ApplyEntriesCore(connectionId, WorkspaceChangeOrigin.Source, edit, cancellationToken);
+
+    private EditResult ApplyEntriesCore(string pluginId, WorkspaceChangeOrigin origin, EntryEdit edit, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(edit);
         cancellationToken.ThrowIfCancellationRequested();
@@ -411,7 +425,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             var changed = final.Count(p => !_state.TryGetValue(p.Key, out var old) || !Equivalent(old, p.Value)) + _state.Keys.Count(k => !final.ContainsKey(k));
             var findings = Findings(final);
             cancellationToken.ThrowIfCancellationRequested();
-            Commit(final, WorkspaceChangeOrigin.Plugin, pluginId);
+            Commit(final, origin, pluginId);
             PublishProjections();
             result = new(true, changed, _revision, [], findings);
         }

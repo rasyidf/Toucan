@@ -11,6 +11,9 @@ public static class SourcesModule
 
     /// <summary>Adds the built-in content-source adapters (the local folder) as the <c>toucan.sources</c> module.</summary>
     public static IServiceCollection AddToucanSourcesModule(this IServiceCollection services) =>
-        services.AddToucanModule(new BuiltInModule(Id, "Built-in content sources", "The local-folder content source", typeof(SourcesModule).Assembly), s =>
-            s.AddBuiltInSourceAdapter(new LocalFolderSourceAdapter()));
+        services.AddToucanModule(new BuiltInModule(Id, "Built-in content sources", "The local-folder content source and the Toucan source protocol", typeof(SourcesModule).Assembly), s =>
+        {
+            s.AddBuiltInSourceAdapter(new LocalFolderSourceAdapter());
+            s.AddBuiltInSourceAdapter(new RestSourceAdapter());
+        });
 }

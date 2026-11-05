@@ -47,7 +47,11 @@ public sealed record MainWindowServices(
     INotificationCenter? Notifications = null, NotificationHistoryViewModel? History = null,
     IProjectDefaultsService? Defaults = null,
     WorkspaceService? Workspace = null,
-    WorkspaceDocumentRouter? DocumentRouter = null);
+    WorkspaceDocumentRouter? DocumentRouter = null,
+    Toucan.Core.Sources.SyncCoordinator? Sync = null,
+    Toucan.Core.Sources.ISourceConnectionService? SourceConnections = null,
+    Toucan.Core.Sources.SourceSignInService? SignIn = null,
+    Toucan.Core.Plugins.ISourceAdapterCatalog? SourceAdapters = null);
 
 /// <summary>
 /// State and commands for the main editor window. Split across partial files by concern:
@@ -133,6 +137,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _diagnostics = services.Diagnostics;
         _pluginCatalog = services.PluginCatalog;
         _defaultsService = services.Defaults;
+        InitializeSources(services);
         _inlineRuleDefaults = _defaultsService?.Load().ValidationRules ?? [];
 
         _translationStore.DirtyStateChanged += OnStoreDirtyStateChanged;
@@ -456,9 +461,11 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     internal TranslationItemViewModel CreateItemViewModel(TranslationItem item)
     {
         var resource = ProjectSettings?.ResourceDocuments.FirstOrDefault(d => d.Resource.Id == item.Identity?.ResourceId)?.Resource;
-        return new(item, _undoRedoService, _translationStore, OnTranslationItemChanged, CanApprove, _spellingSession, ValidateInlineItem)
+        var created = new TranslationItemViewModel(item, _undoRedoService, _translationStore, OnTranslationItemChanged, CanApprove, _spellingSession, ValidateInlineItem)
             { ResourcePath = resource?.RelativePath ?? "", IsArbResource = resource?.FormatId == FormatIds.Arb,
               IsSource = string.Equals(item.Language, PrimaryLanguage, StringComparison.OrdinalIgnoreCase) };
+        ApplyDelivery(created);
+        return created;
     }
 
     private IReadOnlyList<ValidationResult> ValidateInlineItem(TranslationItemViewModel item)

@@ -29,6 +29,7 @@
   <Folder Name="/samples/">
     <Project Path="samples/Toucan.Sample.Plugin/Toucan.Sample.Plugin.csproj" />
     <Project Path="samples/Toucan.Sample.Connector/Toucan.Sample.Connector.csproj" />
+    <Project Path="samples/Toucan.Sample.SourceServer/Toucan.Sample.SourceServer.csproj" />
     <Project Path="samples/Toucan.Sample.Plugin.Desktop/Toucan.Sample.Plugin.Desktop.csproj" />
   </Folder>
 </Solution>

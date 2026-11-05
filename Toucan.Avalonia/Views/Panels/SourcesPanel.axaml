@@ -1,0 +1,55 @@
+<UserControl x:Class="Toucan.Avalonia.Views.Panels.SourcesPanel"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:FluentAvalonia.UI.Controls">
+  <ScrollViewer>
+    <StackPanel Margin="10,8,10,12" Spacing="8">
+      <TextBlock Text="{Binding Sources.Summary}" Classes="caption" AutomationProperties.LiveSetting="Polite"/>
+      <Border Classes="card" Padding="12,10" IsVisible="{Binding Sources.HasNoConnections}">
+        <StackPanel Spacing="6">
+          <TextBlock TextWrapping="Wrap" Text="{loc:Loc 'Connect this project to a translation service or another place its translations live.'}"/>
+          <Button Content="{loc:Loc 'Add connection…'}" Command="{Binding Sources.AddConnectionCommand}"/>
+        </StackPanel>
+      </Border>
+      <ItemsControl ItemsSource="{Binding Sources.Connections}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border Classes="card" Padding="10,8" Margin="0,0,0,6" AutomationProperties.Name="{Binding AccessibleName}">
+              <StackPanel Spacing="4">
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel>
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="{Binding AdapterName}" Classes="caption"/>
+                  </StackPanel>
+                  <Border Grid.Column="1" Classes="badge" VerticalAlignment="Top"><TextBlock Text="{Binding StateText}"/></Border>
+                </Grid>
+                <TextBlock Text="{Binding LastPullText}" Classes="caption"/>
+                <TextBlock Text="{Binding LastPushText}" Classes="caption"/>
+                <TextBlock Text="{Binding PendingText}" Classes="caption" Foreground="{DynamicResource WarnBrush}" IsVisible="{Binding PendingCount}"/>
+                <WrapPanel>
+                  <Button Content="{loc:Loc 'Pull'}" Classes="small" IsEnabled="{Binding CanSync}" Margin="0,0,6,0"
+                          Command="{Binding $parent[UserControl].DataContext.Sources.PullCommand}" CommandParameter="{Binding}"/>
+                  <Button Content="{loc:Loc 'Push'}" Classes="small" IsEnabled="{Binding CanSync}" Margin="0,0,6,0"
+                          Command="{Binding $parent[UserControl].DataContext.Sources.PushCommand}" CommandParameter="{Binding}"/>
+                  <Button Content="{loc:Loc 'Sync'}" Classes="small" IsEnabled="{Binding CanSync}" Margin="0,0,6,0"
+                          Command="{Binding $parent[UserControl].DataContext.Sources.SyncNowCommand}" CommandParameter="{Binding}"/>
+                  <Button Content="{loc:Loc 'Conflicts'}" Classes="small" IsVisible="{Binding HasConflicts}" Margin="0,0,6,0"
+                          Command="{Binding $parent[UserControl].DataContext.Sources.ShowConflictsCommand}" CommandParameter="{Binding}"/>
+                  <Button Content="{loc:Loc 'Sign in'}" Classes="small" IsVisible="{Binding NeedsSignIn}" Margin="0,0,6,0"
+                          Command="{Binding $parent[UserControl].DataContext.Sources.ShowAccountsCommand}"/>
+                  <Button Content="{loc:Loc 'Test'}" Classes="small" Margin="0,0,6,0"
+                          Command="{Binding $parent[UserControl].DataContext.Sources.TestCommand}" CommandParameter="{Binding}"/>
+                  <Button Content="{loc:Loc 'Edit'}" Classes="small" Margin="0,0,6,0"
+                          Command="{Binding $parent[UserControl].DataContext.Sources.EditCommand}" CommandParameter="{Binding}"/>
+                  <Button Content="{loc:Loc 'Remove'}" Classes="small"
+                          Command="{Binding $parent[UserControl].DataContext.Sources.RemoveCommand}" CommandParameter="{Binding}"/>
+                </WrapPanel>
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

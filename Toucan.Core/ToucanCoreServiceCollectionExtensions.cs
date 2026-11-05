@@ -99,6 +99,8 @@ public static class ToucanCoreServiceCollectionExtensions
         services.TryAddSingleton<Sources.ISourceConnectionService>(sp => new Sources.SourceConnectionService(sp.GetService<IPluginActivationService>(),
             sp.GetRequiredService<ISourceAdapterCatalog>(), sp.GetRequiredService<Sources.SourceSignInService>(),
             sp.GetService<ILogger<Sources.SourceConnectionService>>()));
+        services.TryAddSingleton(sp => new Sources.SyncCoordinator(sp.GetRequiredService<WorkspaceService>(), sp.GetRequiredService<Sources.ISourceConnectionService>(),
+            sp.GetRequiredService<ISourceAdapterCatalog>()));
 
         foreach (var feature in BuiltInAiFeatures.All) services.AddSingleton(feature);
         services.TryAddSingleton<IPromptLibrary>(sp => new PromptLibrary(sp.GetServices<AiFeatureDefinition>(), PromptLibrary.DefaultUserFolder));

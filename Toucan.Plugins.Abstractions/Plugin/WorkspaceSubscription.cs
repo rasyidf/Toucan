@@ -11,6 +11,9 @@ public enum WorkspaceChangeKind
     Closing,
     Closed,
     ResnapshotRequired,
+
+    /// <summary>Only the delivery state of some translations changed (plugin API 1.3).</summary>
+    DeliveryChanged,
 }
 
 public enum WorkspaceChangeOrigin

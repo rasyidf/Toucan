@@ -74,6 +74,12 @@ internal static class BuiltInCommands
             B("Review", "Approve and Next", null, vm => vm.ApproveAndNextCommand),
             B("Review", "Next Needing Review", null, vm => vm.FocusedNextNeedingReviewCommand),
             B("Edit", "Sync Placeholder to All Languages", null, vm => vm.SyncPlaceholderToAllLanguagesCommand),
+            B("Sources", "Pull", null, vm => vm.PullSourceCommand),
+            B("Sources", "Push", null, vm => vm.PushSourceCommand),
+            B("Sources", "Sync", null, vm => vm.SyncSourceCommand),
+            B("Sources", "Show Conflicts", null, vm => vm.ShowSourceConflictsCommand),
+            B("Sources", "Add Connection", null, vm => vm.AddSourceConnectionCommand),
+            B("Sources", "Accounts", null, vm => vm.ShowSourceAccountsCommand),
             B("Settings", "Preferences", "Mod+OemComma", vm => vm.ShowPreferencesCommand),
         ];
     }

@@ -53,6 +53,9 @@ public interface ISourceAccountStore
 
     /// <summary>Remembers which account a project's connection uses (only on this machine, for this user).</summary>
     void Bind(string workspaceId, string connectionId, string accountId);
+
+    /// <summary>Connections that chose this account, as the hashed project ID (see <c>SecretKeys.ProjectId</c>) and the connection ID.</summary>
+    IReadOnlyList<(string ProjectId, string ConnectionId)> UsageOf(string accountId) => [];
 }
 
 public static class SourceAccounts
@@ -176,6 +179,19 @@ public sealed class SourceAccountStore : ISourceAccountStore
             if (!_data.Accounts.Exists(a => a.Id == accountId)) throw new InvalidOperationException($"No account {accountId}.");
             _data.Bindings[BindingKey(workspaceId, connectionId)] = accountId;
             Write();
+        }
+    }
+
+    public IReadOnlyList<(string ProjectId, string ConnectionId)> UsageOf(string accountId)
+    {
+        lock (_gate)
+        {
+            Refresh();
+            return [.. _data.Bindings.Where(b => b.Value == accountId).Select(b =>
+            {
+                var cut = b.Key.LastIndexOf('/');
+                return cut < 0 ? (b.Key, string.Empty) : (b.Key[..cut], b.Key[(cut + 1)..]);
+            })];
         }
     }
 

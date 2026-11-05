@@ -539,6 +539,9 @@ internal static partial class Program
               sources accounts            List signed-in accounts; "sources accounts remove <id>" signs out
               sources login <connection> [folder]  Sign in for a connection (device code, or --token-stdin)
               sources test <connection> [folder]   Check that a connection's sign-in and remote project work
+              sources status <connection> [folder] [--json]   Last pull and push, bound translations, unconfirmed operations
+              sources pull|push|sync <connection> [folder] [--plan] [--yes] [--take remote|local] [--json]
+                                          Plan and apply changes; exit 0 done, 2 conflicts, 3 sign-in needed, 4 partly failed
 
             Plugins:
               Plugins live in Documents/Toucan/plugins (override: TOUCAN_PLUGINS_DIR). Only enabled, trusted

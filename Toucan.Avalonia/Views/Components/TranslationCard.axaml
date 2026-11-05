@@ -101,6 +101,16 @@
               </MultiBinding>
             </ui:FASymbolIcon.IsVisible>
           </ui:FASymbolIcon>
+          <!-- Delivery to the content sources: separate from saving and from review -->
+          <Button Classes="icon small" IsVisible="{Binding HasDeliveryBadge}" ToolTip.Tip="{Binding DeliveryToolTip}"
+                  AutomationProperties.Name="{Binding DeliveryToolTip}"
+                  Command="{Binding $parent[Window].DataContext.OpenRowConflictsCommand}" CommandParameter="{Binding}">
+            <Panel>
+              <ui:FASymbolIcon Symbol="Sync" FontSize="12" Foreground="{DynamicResource InfoBrush}" IsVisible="{Binding IsDeliveryPending}"/>
+              <ui:FASymbolIcon Symbol="Important" FontSize="12" Foreground="{DynamicResource WarnBrush}" IsVisible="{Binding IsDeliveryFailed}"/>
+              <ui:FASymbolIcon Symbol="Cancel" FontSize="12" Foreground="{DynamicResource BadBrush}" IsVisible="{Binding IsDeliveryConflict}"/>
+            </Panel>
+          </Button>
           <Button Classes="icon small hoverOnly" Command="{Binding CopyTranslationCommand}" ToolTip.Tip="{loc:Loc 'Copy value'}">
             <ui:FASymbolIcon Symbol="Copy"/>
           </Button>
