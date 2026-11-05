@@ -520,7 +520,15 @@ public partial class OptionsViewModel : ObservableObject, IShortcutEditor
     [RelayCommand]
     private void Save()
     {
-        Ai?.Save();
+        try
+        {
+            Ai?.Save();
+        }
+        catch (Toucan.Core.Services.Secrets.SecretKeyUnavailableException ex)
+        {
+            // Everything else still saves; only the API keys could not be written.
+            _ = _messages.ShowMessageAsync($"Settings were saved, but API keys were not: {ex.Message}", "Secrets unavailable");
+        }
         AppOptions.AppLanguage = AppLanguage;
         AppOptions.OpenLastProjectOnStartup = OpenLastProjectOnStartup;
         AppOptions.RecentProjectsLimit = (int)Math.Clamp(RecentProjectsLimit, 1, 50);

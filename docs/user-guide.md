@@ -127,7 +127,7 @@ Pre-translate single keys, entire namespaces, or all project languages using Goo
 4. **Placeholder Safety:** Formatting tags and variables are shielded before sending and restored after translation.
 5. Click **Apply Preview** to commit the translations into your workspace with full undo support.
 
-API keys are stored securely in your operating system's native encrypted keystore (DPAPI on Windows, AES-GCM on macOS/Linux), never in your project files or version control.
+API keys are stored securely in your operating system's native encrypted keystore (DPAPI on Windows; on macOS and Linux AES-GCM with its key in the Keychain or Secret Service), never in your project files or version control.
 
 ---
 

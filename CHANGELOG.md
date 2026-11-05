@@ -6,6 +6,10 @@
 - **Direct and pipelined workflows** — View → Workflow chooses Direct Editing (edit and save, no Review or Audit stages, no approval markers) or the Pipelined Edit › Review › Audit workflow, shown as a ribbon-style stage bar in the title bar. A new Next Stage command (`Ctrl/Cmd+Alt+M`) cycles the three stages. The choice is remembered; existing installs stay pipelined.
 - **Review state follows the text** — Approvals now record the source text they were given for. When the source or the translation changes, in the editor or in a file edited outside Toucan, the approval is withdrawn and the row shows a Needs review badge. Existing approvals are kept and tracked from the first open. Projects that use document persistence do not keep this across sessions yet.
 
+### Changed
+- **Secrets key in the system keychain** — On macOS and Linux the key that encrypts saved API keys and tokens now lives in the login Keychain or the Secret Service (GNOME Keyring, KWallet) instead of a file next to them. An existing key moves there on first use. Without a usable store it stays in the file as before; `TOUCAN_SECRET_KEY_STORE=file` keeps it there. If the store is locked, saved secrets read as missing and saving one reports it, instead of creating a new key. Windows keeps using DPAPI.
+- **Plugin API 1.3** — Adds `ReviewState.NeedsReview`, the `sources` capability and a manifest `network` block listing the hosts a plugin connects to, shown when trusting it and in `toucan plugins list`. Plugins built for 1.0–1.2 load unchanged and see needs-review translations as Draft. Connections can now be opened for the one plugin that owns them. The `Toucan.Plugins.Abstractions` package is 1.3.0.
+
 ## [0.25.0] - 2026-11-05
 
 Glossary and message-aware validation, plus safer targeted saves for document projects.

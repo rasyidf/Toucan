@@ -176,7 +176,7 @@ public sealed class SaveRecoveryTests : IDisposable
         await using var activation = new PluginActivationService([]);
         var session = await OpenAsync(activation: activation);
         var before = (await session.Workspace.SnapshotEntriesAsync())!;
-        await activation.OpenConnectionAsync(_project, "remote");
+        await activation.OpenConnectionAsync(_project, "remote", "sample.connector");
         var target = Path.Combine(_root, "copy");
         Assert.Equal(ProjectSaveStatus.Success, (await session.Lifecycle.SaveProjectAsAsync(target)).Status);
         var after = (await session.Workspace.SnapshotEntriesAsync())!;

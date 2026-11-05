@@ -58,8 +58,15 @@ public interface IPluginActivationService
     /// <summary>Starts the workspace scope and runs the workspace activators. Re-opening an open workspace is a no-op.</summary>
     Task<IReadOnlyList<ActivationResult>> OpenWorkspaceAsync(string workspaceId, CancellationToken cancellationToken = default);
 
-    /// <summary>Runs the connection activators. The workspace must be open.</summary>
+    /// <summary>Runs every plugin's connection activators. The workspace must be open.</summary>
+    [Obsolete("Runs every plugin's connection activators. Pass the plugin that owns the connection instead.")]
     Task<IReadOnlyList<ActivationResult>> OpenConnectionAsync(string workspaceId, string connectionId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Runs the connection activators of <paramref name="pluginId"/> only, the plugin that owns the connection. The workspace
+    /// must be open. Re-opening an open connection is a no-op; a connection ID already owned by another plugin is refused.
+    /// </summary>
+    Task<IReadOnlyList<ActivationResult>> OpenConnectionAsync(string workspaceId, string connectionId, string pluginId, CancellationToken cancellationToken = default);
 
     Task CloseConnectionAsync(string workspaceId, string connectionId);
 
@@ -135,7 +142,17 @@ public sealed class PluginActivationService : IPluginActivationService, IAsyncDi
         }
     }
 
-    public async Task<IReadOnlyList<ActivationResult>> OpenConnectionAsync(string workspaceId, string connectionId, CancellationToken cancellationToken = default)
+    [Obsolete("Runs every plugin's connection activators. Pass the plugin that owns the connection instead.")]
+    public Task<IReadOnlyList<ActivationResult>> OpenConnectionAsync(string workspaceId, string connectionId, CancellationToken cancellationToken = default) =>
+        OpenConnectionCoreAsync(workspaceId, connectionId, null, cancellationToken);
+
+    public Task<IReadOnlyList<ActivationResult>> OpenConnectionAsync(string workspaceId, string connectionId, string pluginId, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(pluginId);
+        return OpenConnectionCoreAsync(workspaceId, connectionId, pluginId, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<ActivationResult>> OpenConnectionCoreAsync(string workspaceId, string connectionId, string? pluginId, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(workspaceId);
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionId);
@@ -144,11 +161,16 @@ public sealed class PluginActivationService : IPluginActivationService, IAsyncDi
         {
             if (!_workspaces.TryGetValue(workspaceId, out var workspace))
                 throw new InvalidOperationException($"Workspace '{workspaceId}' is not open.");
-            if (workspace.Connections.ContainsKey(connectionId)) return [];
+            if (workspace.Connections.TryGetValue(connectionId, out var existing))
+            {
+                if (!string.Equals(existing.OwnerPluginId, pluginId, StringComparison.Ordinal))
+                    throw new InvalidOperationException($"Connection '{connectionId}' is already open for {existing.OwnerPluginId ?? "every plugin"}.");
+                return [];
+            }
 
-            var scope = new ConnectionScope(CancellationTokenSource.CreateLinkedTokenSource(workspace.Cts.Token));
+            var scope = new ConnectionScope(CancellationTokenSource.CreateLinkedTokenSource(workspace.Cts.Token), pluginId);
             workspace.Connections[connectionId] = scope;
-            return await RunAsync(PluginLifetime.Connection, workspaceId, connectionId, scope.Sessions, scope.Cts.Token, cancellationToken)
+            return await RunAsync(PluginLifetime.Connection, workspaceId, connectionId, scope.Sessions, scope.Cts.Token, cancellationToken, pluginId)
                 .ConfigureAwait(false);
         }
         finally
@@ -220,10 +242,11 @@ public sealed class PluginActivationService : IPluginActivationService, IAsyncDi
     // Plugin code is untrusted: whatever an activator throws fails that activation only.
 #pragma warning disable CA1031
     private async Task<IReadOnlyList<ActivationResult>> RunAsync(PluginLifetime lifetime, string? workspaceId, string? connectionId,
-        List<IAsyncDisposable> sessions, CancellationToken scope, CancellationToken caller)
+        List<IAsyncDisposable> sessions, CancellationToken scope, CancellationToken caller, string? pluginId = null)
     {
         var results = new List<ActivationResult>();
-        foreach (var registered in _activators.Where(a => a.Activator.Lifetime == lifetime))
+        foreach (var registered in _activators.Where(a => a.Activator.Lifetime == lifetime
+                     && (pluginId is null || string.Equals(a.PluginId, pluginId, StringComparison.Ordinal))))
         {
             ActivationResult Result(ActivationStatus status, string? error = null) =>
                 new(registered.PluginId, registered.Id, lifetime, workspaceId, connectionId, status, error);
@@ -314,9 +337,12 @@ public sealed class PluginActivationService : IPluginActivationService, IAsyncDi
         public Dictionary<string, ConnectionScope> Connections { get; } = new(StringComparer.Ordinal);
     }
 
-    private sealed class ConnectionScope(CancellationTokenSource cts)
+    private sealed class ConnectionScope(CancellationTokenSource cts, string? ownerPluginId)
     {
         public CancellationTokenSource Cts { get; } = cts;
+
+        /// <summary>The plugin whose activators run for this connection; null for the legacy every-plugin form.</summary>
+        public string? OwnerPluginId { get; } = ownerPluginId;
         public List<IAsyncDisposable> Sessions { get; } = [];
     }
 

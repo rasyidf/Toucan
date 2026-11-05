@@ -157,6 +157,7 @@ internal static class Program
             Console.WriteLine($"  signature: {(p.Signature == PluginSignatureStatus.NotSigned ? "not signed" : p.Signature.ToString().ToLowerInvariant())}");
             if (p.ContentHash is { Length: > 0 } hash) Console.WriteLine($"  sha256:    {hash}");
             if (p.Registered is { Count: > 0 } reg) Console.WriteLine($"  provides:  {string.Join(", ", reg)}");
+            if (PluginNetworkText.Describe(p.Manifest) is { Length: > 0 } network) Console.WriteLine($"  network:   {network}");
             if (p.Error is { Length: > 0 } err) Console.WriteLine($"  note:      {err}");
             Console.WriteLine($"  folder:    {p.Directory}");
         }

@@ -100,6 +100,75 @@ public class PluginContractTests
         Assert.Contains(errors, e => e.Contains("'desktop':", StringComparison.Ordinal) && e.Contains(expected, StringComparison.Ordinal));
     }
 
+    private static string SourcesManifest(string apiVersion, string network) => $$"""
+        { "id": "acme.lokalise", "name": "Lokalise", "version": "1.0.0", "apiVersion": "{{apiVersion}}",
+          "entryAssembly": "Acme.Lokalise.dll", "capabilities": ["sources", "commands"]{{network}} }
+        """;
+
+    [Fact]
+    public void SourcesPluginDeclaresItsNetworkHosts()
+    {
+        var json = SourcesManifest("1.3", """, "network": { "hosts": ["api.lokalise.com", "*.lokalise.com"] }""");
+        Assert.True(PluginManifest.TryParse(json, out var m, out var errors), string.Join("; ", errors));
+        Assert.Equal(["api.lokalise.com", "*.lokalise.com"], m.Network!.Hosts);
+        Assert.False(m.Network.UserDefinedHosts);
+        Assert.True(m.Network.Allows("api.lokalise.com"));
+        Assert.True(m.Network.Allows("EU.Lokalise.com"));
+        Assert.False(m.Network.Allows("lokalise.com.evil.example"));
+        Assert.False(m.Network.Allows("evil-lokalise.com"));
+    }
+
+    [Theory]
+    [InlineData("1.2", """, "network": { "hosts": ["api.example.com"] }""", "apiVersion' 1.3")]
+    [InlineData("1.3", "", "needs a 'network' block")]
+    [InlineData("1.3", """, "network": { "hosts": [] }""", "needs a 'network' block")]
+    [InlineData("1.3", """, "network": { "hosts": ["https://api.example.com"] }""", "is not a host name")]
+    [InlineData("1.3", """, "network": { "hosts": ["*"] }""", "is not a host name")]
+    [InlineData("1.3", """, "network": { "hosts": ["*.com"] }""", "is not a host name")]
+    [InlineData("1.3", """, "network": { "hosts": ["api.example.com:443"] }""", "is not a host name")]
+    public void SourcesCapabilityRulesAreChecked(string apiVersion, string network, string expected)
+    {
+        Assert.False(PluginManifest.TryParse(SourcesManifest(apiVersion, network), out _, out var errors));
+        Assert.Contains(errors, e => e.Contains(expected, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void UserDefinedHostsAloneSatisfiesSources()
+    {
+        var json = SourcesManifest("1.3", """, "network": { "userDefinedHosts": true }""");
+        Assert.True(PluginManifest.TryParse(json, out var m, out var errors), string.Join("; ", errors));
+        Assert.True(m.Network!.UserDefinedHosts);
+        Assert.False(m.Network.Allows("anything.example.com"));
+    }
+
+    [Fact]
+    public void ChangingTheNetworkBlockChangesTheTrustHash()
+    {
+        var dir = Directory.CreateTempSubdirectory("toucan-hash-").FullName;
+        try
+        {
+            File.WriteAllText(Path.Combine(dir, PluginManifest.FileName), SourcesManifest("1.3", """, "network": { "hosts": ["api.example.com"] }"""));
+            var before = Toucan.Core.Plugins.PluginHasher.Compute(dir);
+            File.WriteAllText(Path.Combine(dir, PluginManifest.FileName), SourcesManifest("1.3", """, "network": { "hosts": ["api.example.com", "evil.example"] }"""));
+            Assert.NotEqual(before, Toucan.Core.Plugins.PluginHasher.Compute(dir));
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    [Theory]
+    [InlineData(null, false, "")]
+    [InlineData("api.example.com", false, "api.example.com")]
+    [InlineData("api.example.com", true, "api.example.com, and servers you enter")]
+    [InlineData(null, true, "servers you enter")]
+    public void NetworkTextDescribesTheBlock(string? host, bool userDefined, string expected)
+    {
+        var manifest = new PluginManifest { Network = new NetworkAccess { Hosts = host is null ? [] : [host], UserDefinedHosts = userDefined } };
+        Assert.Equal(expected, Toucan.Core.Plugins.PluginNetworkText.Describe(manifest));
+    }
+
     [Fact]
     public void AllProblemsAreReportedTogether()
     {
@@ -111,7 +180,8 @@ public class PluginContractTests
     [InlineData("1.0", true)]
     [InlineData("1.1", true)]
     [InlineData("1.2", true)]
-    [InlineData("1.3", false)] // newer minor than the host
+    [InlineData("1.3", true)]
+    [InlineData("1.4", false)] // newer minor than the host
     [InlineData("2.0", false)]
     [InlineData("0.9", false)]
     public void ApiCompatibilityIsSameMajorAndNotNewerMinor(string version, bool expected) =>

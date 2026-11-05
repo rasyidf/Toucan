@@ -79,7 +79,7 @@ The prompt is free text, but Toucan reads the reply in the format in the last co
 
 ## Secret store
 
-`ISecretService` (`Toucan.Core/Services/SecretService.cs`) keeps every secret in `secrets.json` in the per-user application-data folder, next to `secret.key`. That folder is `%APPDATA%\Toucan` on Windows, `~/Library/Application Support/Toucan` on macOS and `~/.config/Toucan` on Linux. Values are encrypted with DPAPI on Windows, or AES-GCM with the per-user key elsewhere. Key names are stored in clear so they can be listed.
+`ISecretService` (`Toucan.Core/Services/SecretService.cs`) keeps every secret in `secrets.json` in the per-user application-data folder, next to `secret.key`. That folder is `%APPDATA%\Toucan` on Windows, `~/Library/Application Support/Toucan` on macOS and `~/.config/Toucan` on Linux. Values are encrypted with DPAPI on Windows, or AES-GCM with a per-user key elsewhere, kept in the macOS Keychain or the Linux Secret Service when available (see [provider settings](provider-settings.md)). Key names are stored in clear so they can be listed.
 
 | Key | Holds |
 |---|---|

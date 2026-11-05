@@ -166,12 +166,16 @@ public partial class AiSettingsViewModel : ObservableObject
         return settings;
     }
 
-    /// <summary>Writes the settings and the API keys typed for each service. Called by the Settings dialog's Save.</summary>
+    /// <summary>
+    /// Writes the settings and the API keys typed for each service. Called by the Settings dialog's Save. The settings are
+    /// written first, so a secret store that cannot be used (a locked Keychain) costs only the keys.
+    /// </summary>
+    /// <exception cref="Toucan.Core.Services.Secrets.SecretKeyUnavailableException">The keys could not be saved.</exception>
     public void Save()
     {
         var settings = Collect();
-        foreach (var (id, draft) in _drafts) _secrets.SetSecret(SecretKeys.Ai(id), Blank(draft.ApiKey));
         _store.Save(settings);
+        foreach (var (id, draft) in _drafts) _secrets.SetSecret(SecretKeys.Ai(id), Blank(draft.ApiKey));
     }
 
     private bool CanTest() => !IsTesting && SelectedBackend != null;

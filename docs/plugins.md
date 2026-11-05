@@ -1,8 +1,8 @@
 ---
 title: "Writing Toucan plugins"
 status: active
-updated: 2026-10-25
-summary: "Plugin author guide: API 1.2 optional resource IO, document persistence, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported."
+updated: 2026-11-05
+summary: "Plugin author guide: API 1.3 network declarations and needs-review state, API 1.2 optional resource IO and document persistence, formats, providers, rules, frameworks, lifecycle, trust and testing. Existing folder plugins remain supported."
 ---
 # Writing Toucan plugins
 
@@ -97,7 +97,8 @@ build output is exercised by the test suite, so what it does is what this guide 
 | `entryAssembly` | yes | File name of your assembly, inside the plugin folder. No paths, must end in `.dll`. |
 | `entryType` | no | Full name of your `IToucanPlugin` class. Required if the assembly has more than one public implementation. |
 | `desktop` | no | The plugin's UI assembly: `{ "entryAssembly": "Acme.Ui.dll", "entryType": "Acme.Ui.Entry", "contractVersion": "1.0" }`. Needs the `desktop` capability. See [Desktop parts](#desktop-parts-ui). |
-| `capabilities` | no | Any of `formats`, `providers`, `validation`, `frameworks`, `activation`, `commands`, `desktop`. Registering something you did not declare fails the plugin. |
+| `capabilities` | no | Any of `formats`, `providers`, `validation`, `frameworks`, `activation`, `commands`, `desktop`, `sources`. Registering something you did not declare fails the plugin. `sources` (content-source adapters, API 1.3) also needs `network`; its registration API arrives with the [content-sources](specs/content-sources/design.md) work. |
+| `network` | no | Where the plugin connects: `{ "hosts": ["api.example.com", "*.example.com"], "userDefinedHosts": false }`. Host names only, no scheme, port or path; `*.` matches subdomains. `userDefinedHosts` means accounts may point it at a server the user types in. Shown in the trust prompt and `toucan plugins list`; changing it changes the plugin's hash, so the user is asked again. Required with `sources`. |
 | `author`, `description` | no | Shown when the user decides whether to trust you. |
 
 Comments and trailing commas are allowed. All problems are reported together, so one load attempt shows everything to fix.
@@ -373,10 +374,12 @@ If the desktop part cannot load, the plugin still loads without its UI and the P
 
 ## Versioning
 
-`PluginApi.Current` is the plugin API version Toucan implements (currently **1.2**). The NuGet package version of
+`PluginApi.Current` is the plugin API version Toucan implements (currently **1.3**). The NuGet package version of
 `Toucan.Plugins.Abstractions` tracks it. A plugin loads when its `apiVersion` has the **same major** version and a
 **minor no newer** than the host's. So a plugin built for `1.0` runs on every `1.x`; one built for `1.3` is rejected
-by a Toucan that implements `1.2` ("built for plugin API 1.3, but this Toucan implements 1.2"). Minor releases only
+by a Toucan that implements `1.2` ("built for plugin API 1.3, but this Toucan implements 1.2").
+
+API 1.3 adds `ReviewState.NeedsReview` (an approval withdrawn because the source or translation changed), the `sources` capability and the manifest `network` block. Plugins that declare an older `apiVersion` keep seeing needs-review translations as `Draft` in snapshots and subscriptions; setting `NeedsReview` withdraws an approval, and `Approved` or `Draft` clears it. Minor releases only
 add members, with defaults wherever an existing implementation would otherwise break; a major release may break.
 
 **What is checked, in order, before any of your code loads:** the manifest; the plugin API version; `minHostVersion`; `platforms`;

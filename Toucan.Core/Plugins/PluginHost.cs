@@ -130,7 +130,7 @@ public sealed class PluginHost(PluginHostOptions options, ILoggerFactory? logger
                 return Reject(log, folder, manifest, PluginStatus.Failed, typeError!);
 
             var plugin = (IToucanPlugin)Activator.CreateInstance(pluginType)!;
-            var pluginServices = HostServices is { } host ? new PluginServices(manifest.Id, host, options.DataRoot) : null;
+            var pluginServices = HostServices is { } host ? new PluginServices(manifest.Id, host, options.DataRoot, manifest.ParsedApiVersion) : null;
             var context = new PluginContext(manifest, folder, _loggerFactory.CreateLogger($"Plugin.{manifest.Id}"), reserved, pluginServices, HostServices?.Diagnostics);
             plugin.Initialize(context);
 

@@ -124,7 +124,7 @@ Confidentiality is a legal requirement for professional translators working unde
 - **Zero Telemetry on Strings:** Your translation content is never uploaded, tracked, or used for model training.
 - **Opt-In Machine Translation & AI:** All machine translation (Google, DeepL, Microsoft, Claude, OpenAI, Gemini) is **strictly off by default**. It only runs when you explicitly configure an API key and trigger a translation request.
 - **Local Private LLM Support:** For sensitive projects under strict NDAs, you can connect Toucan to a local, air-gapped AI server (such as Ollama or LM Studio) running models entirely on your own computer.
-- **Operating-System Key Encryption:** All provider and AI API keys are stored in your operating system's native encrypted credential store (Windows DPAPI, macOS/Linux AES-GCM with protected user key), never in plaintext or in your project folder.
+- **Operating-System Key Encryption:** All provider and AI API keys are stored in your operating system's native encrypted credential store (Windows DPAPI; macOS/Linux AES-GCM with its key in the Keychain or Secret Service), never in plaintext or in your project folder.
 
 ---
 

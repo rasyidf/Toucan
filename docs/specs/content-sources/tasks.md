@@ -1,7 +1,7 @@
 ---
 title: "content-sources — tasks"
 status: planned
-progress: "0/9 phases"
+progress: "1/9 phases"
 updated: 2026-11-05
 summary: "Work order for content sources across v0.27–v0.29 and v0.31 hardening: prerequisites, API 1.3 contracts, accounts and auth, local-folder adapter, sync engine, desktop UI, reference REST adapter and CLI, first online connector."
 ---
@@ -9,13 +9,13 @@ summary: "Work order for content sources across v0.27–v0.29 and v0.31 hardenin
 
 Requirements: [requirements.md](requirements.md). Design: [design.md](design.md). Release scope stays in the [roadmap](../../todos/future-roadmap.md#v027-content-sources-and-snapshot-mode); this file is the order of work. Each phase leaves `dotnet test Toucan.CrossPlatform.slnx` green. Remove nothing from here until the matching roadmap task is removed.
 
-## Phase 0: Prerequisites (v0.27)
+## Phase 0: Prerequisites (v0.27) — done 2026-11-05
 
-- [ ] 0.1 Add an owning plugin ID to `IPluginActivationService.OpenConnectionAsync` so only that plugin's connection activators run; keep the current overload for tests and mark it obsolete. Tests: two plugins, one connection, only the owner activates. (R2.5)
-- [ ] 0.2 Add `NeedsReview` to the plugin-facing `ReviewState` in API 1.3 and map it to Core `ReviewStatus.NeedsReview` in both workspace APIs; 1.2 plugins keep seeing `Draft`. (design §7.9)
-- [ ] 0.3 Add the `sources` capability to `PluginCapabilities` and the optional `network` manifest block (`hosts`, `userDefinedHosts`) with validation; include `network` in the trust hash and the trust prompt. (R4.2)
-- [ ] 0.4 Add OS credential store backends behind `ISecretService` (Keychain, Credential Manager, libsecret), keep the encrypted file as fallback, migrate existing secrets on first run, and cover CLI and desktop sharing one store. Decision D2.
-- [ ] 0.5 Bump `PluginApi.Current` to 1.3; add a compatibility test that loads frozen 1.0, 1.1 and 1.2 plugins.
+- [x] 0.1 Add an owning plugin ID to `IPluginActivationService.OpenConnectionAsync` so only that plugin's connection activators run; keep the current overload and mark it obsolete. A connection ID already open for another owner is refused. Tests: two plugins, one connection, only the owner activates. (R2.5) `ProjectLifecycleService` keeps the legacy call for its bare `SourceConnections` IDs until 2.1.
+- [x] 0.2 Add `NeedsReview` to the plugin-facing `ReviewState` in API 1.3 and map it to Core `ReviewStatus.NeedsReview` in both workspace APIs; 1.2 plugins keep seeing `Draft`. The workspace engine's units now carry the needs-review flag through edits, projections and undo. Document-aware sidecars still do not persist it (roadmap v0.26). (design §7.9)
+- [x] 0.3 Add the `sources` capability to `PluginCapabilities` and the optional `network` manifest block (`hosts`, `userDefinedHosts`) with validation; include `network` in the trust hash and the trust prompt. (R4.2)
+- [x] 0.4 Move the AES key behind `secrets.json` into the OS store (`IMasterKeyStore`: macOS Keychain via Security.framework, Linux Secret Service via `secret-tool`); Windows keeps DPAPI. Migrate an existing key file on first use, fall back to the file without a store, pin to the store with a marker so a locked store never creates a second key, and allow `TOUCAN_SECRET_KEY_STORE=file`. Real-Keychain test is opt-in (`TOUCAN_TEST_KEYCHAIN=1`); Linux is covered with a fake store only. Decision D2.
+- [x] 0.5 Bump `PluginApi.Current` and the abstractions package to 1.3. Compatibility: the frozen M0 plugin binary (API 1.1) still loads and saves unchanged, the version check accepts 1.0–1.3, and 1.0/1.2 workspace views are covered by the needs-review downgrade tests. No frozen 1.0 or 1.2 binary exists to load.
 
 ## Phase 1: Contracts and test kit (v0.27)
 
@@ -27,7 +27,7 @@ Requirements: [requirements.md](requirements.md). Design: [design.md](design.md)
 
 ## Phase 2: Accounts, connections and auth (v0.27)
 
-- [ ] 2.1 Account store (`accounts.json` in app data) and connection model; add `sources` to `toucan.tproj` and `toucan.project.schema.json` with a schema migration test. (R2.1–R2.3)
+- [ ] 2.1 Account store (`accounts.json` in app data) and connection model; add `sources` to `toucan.tproj` and `toucan.project.schema.json` with a schema migration test. Replace `ProjectSettings.SourceConnections` with these records and switch `ProjectLifecycleService` open and replace to the owner-aware `OpenConnectionAsync`, removing its CS0618 suppressions. (R2.1–R2.3, R2.5)
 - [ ] 2.2 `SourceConnectionService`: resolve accounts on open, lazy session opening, `connectOnOpen`, connection-scoped teardown on close, replace and remove; failure isolates one connection. (R2.4, R2.5)
 - [ ] 2.3 `SourceCredentialBroker`: storage under `credentialRef`, refresh with a cross-process lock, redaction registration, sign-out and revocation. (R3.2–R3.4)
 - [ ] 2.4 Auth flows: token, basic, OAuth authorization code with PKCE over a loopback redirect, device code, custom exchange; unit tests against a fake authorization server. (R3.1)

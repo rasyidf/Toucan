@@ -5,6 +5,12 @@ public enum ReviewState
 {
     Draft,
     Approved,
+
+    /// <summary>
+    /// Was approved, but the source or the translation changed since, so it needs another look (plugin API 1.3). Plugins
+    /// built for an older API see these translations as <see cref="Draft"/>.
+    /// </summary>
+    NeedsReview,
 }
 
 /// <summary>One key in one language, as it was when the snapshot was taken. <c>IsModified</c> means changed since the project was opened or last saved.</summary>

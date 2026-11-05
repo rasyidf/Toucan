@@ -37,7 +37,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
 
     private sealed record Unit(Guid Id, string Language, string Key, TranslationPath Namespace, TranslationPath KeyPath,
         string Value, string Comment, bool Approved, DateTime? Modified, DateTime? ApprovedAt, ChangeType ChangeType,
-        ImmutableDictionary<string, string>? FormatData, SourceBinding? Binding = null, string? Destination = null, ResourcePermissions? Permissions = null, ResourceEntryIdentity? Identity = null);
+        ImmutableDictionary<string, string>? FormatData, SourceBinding? Binding = null, string? Destination = null, ResourcePermissions? Permissions = null, ResourceEntryIdentity? Identity = null, bool NeedsReview = false);
 
     public event EventHandler? Changed;
     public bool IsOpen { get { lock (_gate) return _settings is not null; } }
@@ -195,7 +195,8 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
                     if (!_state.TryGetValue(key, out var current)) continue;
                     _baseline.TryGetValue(key, out var previous);
                     _baseline = _baseline.SetItem(key, current with { Value = value, Comment = comment,
-                        Approved = previous?.Approved ?? current.Approved, ApprovedAt = previous?.ApprovedAt });
+                        Approved = previous?.Approved ?? current.Approved, ApprovedAt = previous?.ApprovedAt,
+                        NeedsReview = previous?.NeedsReview ?? current.NeedsReview });
                 }
             }
             _undo.Clear();
@@ -293,7 +294,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             RefreshContext();
             var snapshot = _settings is null ? null : new WorkspaceSnapshot(_settings.ProjectPath, _settings.ProjectPath,
                 PrimaryLanguage(), Languages(), _state.Values.Select(u => new UnitSnapshot(u.Key, u.Language, u.Value,
-                    u.Comment, u.Approved ? ReviewState.Approved : ReviewState.Draft, Dirty(u))).ToImmutableArray(), _revision);
+                    u.Comment, ReviewStateMapping.ToState(u.Approved, u.NeedsReview), Dirty(u))).ToImmutableArray(), _revision);
             return Task.FromResult(snapshot);
         }
     }
@@ -389,8 +390,12 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
                         {
                             SetEntryValue value when value.Value != current.Value => current with { Value = value.Value, Modified = now, ChangeType = ChangeType.External },
                             SetEntryComment comment when comment.Comment != current.Comment => current with { Comment = comment.Comment, Modified = now },
-                            SetEntryReview review when current.Approved != (review.State == ReviewState.Approved) => current with { Approved = review.State == ReviewState.Approved,
-                                ApprovedAt = review.State == ReviewState.Approved ? now : null },
+                            SetEntryReview review when ReviewStateMapping.ToFlags(review.State) != (current.Approved, current.NeedsReview) => current with
+                            {
+                                Approved = review.State == ReviewState.Approved,
+                                NeedsReview = review.State == ReviewState.NeedsReview,
+                                ApprovedAt = review.State == ReviewState.Approved ? now : null,
+                            },
                             _ => current
                         };
                         break;
@@ -441,7 +446,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
     }
     private bool Dirty(Unit unit) => !_baseline.TryGetValue((unit.Id, unit.Language), out var saved) || !Equivalent(unit, saved);
     private static bool Equivalent(Unit a, Unit b) => a.Id == b.Id && a.Language == b.Language && a.Key == b.Key
-        && a.Namespace.Equals(b.Namespace) && a.KeyPath.Equals(b.KeyPath) && a.Value == b.Value && a.Comment == b.Comment && a.Approved == b.Approved && a.Binding == b.Binding && a.Destination == b.Destination
+        && a.Namespace.Equals(b.Namespace) && a.KeyPath.Equals(b.KeyPath) && a.Value == b.Value && a.Comment == b.Comment && a.Approved == b.Approved && a.NeedsReview == b.NeedsReview && a.Binding == b.Binding && a.Destination == b.Destination
         && (a.Permissions ?? ResourcePermissions.Editable) == (b.Permissions ?? ResourcePermissions.Editable) && a.Identity?.Address == b.Identity?.Address
         && a.Modified == b.Modified && a.ApprovedAt == b.ApprovedAt && a.ChangeType == b.ChangeType
         && (a.FormatData is null ? b.FormatData is null : b.FormatData is not null && a.FormatData.Count == b.FormatData.Count
@@ -497,7 +502,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             var unit = new Unit(id, item.Language, item.Namespace, ns, keyPath, item.Value ?? string.Empty,
                 item.Comment ?? string.Empty, item.IsApproved, item.LastModifiedUtc, item.ApprovedAtUtc, item.ChangeType,
                 item.FormatData?.ToImmutableDictionary(StringComparer.Ordinal), previous?.Binding, previous?.Destination, item.Permissions,
-                item.Identity is null ? null : item.Identity with { Path = item.Identity.Path.ToImmutableArray() });
+                item.Identity is null ? null : item.Identity with { Path = item.Identity.Path.ToImmutableArray() }, item.NeedsReview && !item.IsApproved);
             if (previous is null || !Equivalent(previous, unit)) result[key] = unit;
             if (adoptProjection) _projections[(id, item.Language)] = item;
         }
@@ -533,6 +538,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
         item.Value = unit.Value;
         item.Comment = unit.Comment;
         item.IsApproved = unit.Approved;
+        item.NeedsReview = unit.NeedsReview;
         item.LastModifiedUtc = unit.Modified;
         item.ApprovedAtUtc = unit.ApprovedAt;
         item.ChangeType = unit.ChangeType;
@@ -594,7 +600,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             case SetComment comment: Find(comment.Key, comment.Language).Comment = comment.Comment; break;
             case SetReview review:
                 var approved = Find(review.Key, review.Language);
-                approved.IsApproved = review.State == ReviewState.Approved;
+                (approved.IsApproved, approved.NeedsReview) = ReviewStateMapping.ToFlags(review.State);
                 approved.ApprovedAtUtc = approved.IsApproved ? now : null;
                 break;
             case AddKey add:

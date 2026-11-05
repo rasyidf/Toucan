@@ -224,7 +224,11 @@ public partial class ProjectLifecycleService(
                         SetConnectionState(connId, "Connecting");
                         try
                         {
+                            // SourceConnections are bare IDs that name no owning plugin yet, so every plugin's connection activators run.
+                            // Content-source connections (spec content-sources, task 2.1) carry an adapter and open only its plugin.
+#pragma warning disable CS0618
                             var connResults = await pluginActivation.OpenConnectionAsync(folderPath, connId, ct).ConfigureAwait(false);
+#pragma warning restore CS0618
                             var connFailure = connResults.FirstOrDefault(a => a.Status == Plugins.ActivationStatus.Failed);
                             if (connFailure is not null)
                             {
@@ -684,7 +688,11 @@ public partial class ProjectLifecycleService(
                 SetConnectionState(newConnectionId, "Connecting");
                 try
                 {
+                    // SourceConnections are bare IDs that name no owning plugin yet, so every plugin's connection activators run.
+                    // Content-source connections (spec content-sources, task 2.1) carry an adapter and open only its plugin.
+#pragma warning disable CS0618
                     var results = await pluginActivation.OpenConnectionAsync(projectPath, newConnectionId, ct).ConfigureAwait(false);
+#pragma warning restore CS0618
                     var failure = results.FirstOrDefault(r => r.Status == Plugins.ActivationStatus.Failed);
                     if (failure is not null)
                     {

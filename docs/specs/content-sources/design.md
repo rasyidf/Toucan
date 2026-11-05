@@ -1,7 +1,7 @@
 ---
 title: "content-sources — design"
 status: planned
-progress: "0/9 phases"
+progress: "1/9 phases"
 updated: 2026-11-05
 summary: "Full design for content-source adapters: plugin API 1.3 contracts, host-owned accounts, connections and auth, a Core sync engine with baselines, journals and three-way plans, desktop Sources UI, CLI, and the reference and first online connectors."
 ---
@@ -40,7 +40,7 @@ Verified against the code on 2026-11-05.
 | Existing piece | Where | Role in this design |
 |---|---|---|
 | Plugin registration/activation split, `PluginLifetime.Connection` | `Toucan.Plugins.Abstractions/Plugin/PluginActivation.cs` | Adapter sessions open in a connection scope. |
-| `OpenConnectionAsync` / `CloseConnectionAsync` | `Toucan.Core/Plugins/PluginActivationService.cs` | Host calls these per connection. Today they are only called from tests, and `RunAsync` activates **every** plugin's connection activators, not the owning plugin's. Phase 0 fixes this. |
+| `OpenConnectionAsync` / `CloseConnectionAsync`, `ProjectSettings.SourceConnections`, `ProjectLifecycleService.ReplaceConnectionAsync` and `ConnectionStates` | `Toucan.Core/Plugins/PluginActivationService.cs`, `Toucan.Core/Services/ProjectLifecycleService.cs` | The lifecycle already opens each ID in `SourceConnections` after workspace activation, tracks a state string per connection and replaces one connection without touching the others. The IDs are bare strings with no owning plugin and are not in the project schema, so every plugin's connection activators run. Phase 0 adds an owner-aware open; phase 2 replaces `SourceConnections` with the `sources` records and uses it. |
 | Config schema with `ConfigScope.Connection`, `ConfigFieldType.Secret/Url` | `Plugin/Services.cs` | Adapter settings forms and per-connection values. |
 | `IPluginSecrets`, `SecretService` (file of values encrypted through `ISecureStorageService`) | `Toucan.Core/Services/SecretService.cs` | Credential storage, behind a new broker. |
 | `IPluginDiagnostics.Redact/RegisterSecret` | `Plugin/Services.cs` | Redaction of tokens in logs and errors. |
@@ -392,7 +392,7 @@ public sealed record SourceCredential(string Scheme, string Value, DateTimeOffse
 
 The broker (Core, `SourceCredentialBroker`) stores access and refresh tokens under the account's `credentialRef` in `ISecretService`, registers every value with diagnostics redaction, serializes refreshes per account across the desktop app and CLI (file lock next to `secrets.json`), and revokes tokens on sign-out when the method has a revoke URL. Adapters never see refresh tokens.
 
-Secret storage moves from the current encrypted file to the OS store where available (macOS Keychain, Windows Credential Manager/DPAPI, libsecret on Linux), keeping the encrypted file as the fallback and for headless Linux. This is a host improvement behind `ISecretService` and benefits existing plugin secrets too.
+Secret values stay in the encrypted `secrets.json` (so listing, CLI sharing and change detection keep working), and the AES key that encrypts them moves into the OS store: the login Keychain on macOS and the Secret Service through `secret-tool` on Linux. Windows already encrypts each value with DPAPI. Without a usable store the key stays in its file. Once moved, a marker file pins the key to that store, so a locked store makes secrets unavailable instead of silently creating a second key. This is a host improvement behind `ISecureStorageService` and benefits existing plugin secrets too. Implemented in phase 0.
 
 ### 6.3 Custom exchange
 

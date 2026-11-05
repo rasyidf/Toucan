@@ -149,7 +149,12 @@ internal sealed class FakeMessageService : IAsyncMessageService
         Shown.Add(message);
         return Task.CompletedTask;
     }
-    public Task<bool> ConfirmAsync(string message, string title = "Confirm", string yesText = "Yes", string noText = "No") => Task.FromResult(ConfirmAnswer);
+    public List<string> Confirmations { get; } = [];
+    public Task<bool> ConfirmAsync(string message, string title = "Confirm", string yesText = "Yes", string noText = "No")
+    {
+        Confirmations.Add(message);
+        return Task.FromResult(ConfirmAnswer);
+    }
     public Task<ChoiceResult> ChooseAsync(string message, string title, string primaryText, string secondaryText, string cancelText = "Cancel")
     {
         Choices.Add(message);

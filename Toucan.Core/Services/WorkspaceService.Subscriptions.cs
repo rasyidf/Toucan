@@ -1,3 +1,4 @@
+using Toucan.Core.Plugins;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
@@ -38,7 +39,7 @@ public sealed partial class WorkspaceService
             _state.Values.Select(ToSnapshot).ToImmutableArray(), _revision) { IsClosing = _closing };
 
     private IdentifiedUnitSnapshot ToSnapshot(Unit unit) => new(unit.Id, unit.Language, unit.Key, unit.Namespace, unit.KeyPath,
-        unit.Value, unit.Comment, unit.Approved ? ReviewState.Approved : ReviewState.Draft, Dirty(unit),
+        unit.Value, unit.Comment, ReviewStateMapping.ToState(unit.Approved, unit.NeedsReview), Dirty(unit),
         unit.Binding?.DocumentId.Value, unit.Binding?.Location.EscapedPath);
 
     private static bool WasDirty(Unit unit, ImmutableDictionary<(Guid, string), Unit> baseline) =>

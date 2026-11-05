@@ -194,7 +194,9 @@ Project glossary, CSV exchange, Dictionary matches and explicit insertion, effec
 
 - [x] Plugins add file formats, translation providers, validation rules, and framework profiles from `.dll` assemblies
 - [x] Trust model: a plugin loads only when enabled and trusted (SHA-256 of its files)
-- [x] `Toucan.Plugins.Abstractions` contract package (plugin API 1.2) and a sample plugin
+- [x] `Toucan.Plugins.Abstractions` contract package (plugin API 1.3) and a sample plugin
+- [x] Plugin API 1.3: `ReviewState.NeedsReview` (older plugins see Draft), `sources` capability, manifest `network` hosts shown on trust, connection activation for the owning plugin only
+- [x] Secrets key kept in the macOS Keychain or Linux Secret Service, migrated from the key file, with a file fallback
 - [x] Built-in formats, providers, rules and profiles load as compiled-in modules, listed in Settings → Plugins and `toucan plugins list`
 - [x] Extension platform: registration vs activation split (application, workspace, and connection scopes)
 - [x] Command registry (`ICommandRegistry`) with stable IDs, states, async execution, cancellation, progress, and user shortcuts
