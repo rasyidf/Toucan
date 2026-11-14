@@ -7,15 +7,11 @@
 
 Translate, review and validate your project's languages in one place. Toucan runs on **Windows, macOS and Linux**, works with local resource files, and brings source text, target translations, context and quality checks into the same editor.
 
-**v0.25.0 preview:** project glossary, consistent validation policy and ICU message checks are merged into `main`. The [release notes](docs/release-notes/v0.25.0.md) cover compatibility and known limits; [v0.24.0 notes](docs/release-notes/v0.24.0.md) cover the last packaged draft. Until a release is published, **v0.23.0** remains the public download. Settings and project files may change before 1.0. Packaged installation acceptance remains pending.
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshots/editor-dark.png"/>
   <source media="(prefers-color-scheme: light)" srcset="docs/assets/screenshots/editor-light.png"/>
-  <img src="docs/assets/screenshots/editor-light.png" width="1440" alt="Toucan v0.24 editor with English source strings and Indonesian translations side by side, the project explorer, placeholder context and inspector"/>
+  <img src="docs/assets/screenshots/editor-light.png" width="1440" alt="Toucan editor with English source strings and Indonesian translations side by side, the project explorer, placeholder context and inspector"/>
 </picture>
-
-*v0.25.0 preview, rendered with a local sample project. The screenshot follows your light or dark theme.*
 
 ## Get started
 
@@ -25,14 +21,6 @@ Translate, review and validate your project's languages in one place. Toucan run
 4. Select a target field, translate or accept a suggestion, then approve and save. The explorer and project commands appear when a project is open.
 
 Toucan detects frameworks including i18next, Flutter, Android, iOS, .NET, Rails and Gettext. Existing BabelEdit `.babel` projects can be imported into a native Toucan project.
-
-### What's new in v0.24
-
-- Source-first, responsive translation cards with character and word counts, placeholder context and translation-memory provenance.
-- Keyboard approval and next-pending navigation, plus grouped undo for bulk editing workflows.
-- First-run language/theme setup, a dismissible feature tour and actionable notification history.
-- Shared dialog title bars and a start screen that hides project-only menus and navigation until a project opens.
-- Expanded resource compatibility, exact-resource handling and BabelEdit project migration. See the [changelog](CHANGELOG.md) for details and the [acceptance record](docs/specs/editor-comfort/acceptance.md) for outstanding release checks.
 
 <details>
 <summary>Opening the unsigned macOS app</summary>
@@ -49,6 +37,7 @@ Toucan is not signed with an Apple Developer ID. If Gatekeeper blocks the downlo
 | Review by keyboard | Approve and advance through targets, find pending translations, and accept translation-memory suggestions. Editor, Review and read-only Audit modes support different stages of the work. |
 | Work in bulk | Preview search/replace and pre-translation; copy, move, approve or delete selected keys. Grouped undo restores a batch in one step. |
 | Catch mistakes | Missing translations, placeholder mismatches, duplicates, untranslated copies, empty values and whitespace checks. Rename named placeholders across languages. |
+| Check terminology and messages | Project glossary, consistent validation policy and ICU message checks. |
 | Reuse translations | Fuzzy translation memory, match provenance, TMX import/export and inline ghost-text suggestions. |
 | Stay focused | Zen mode, a searchable command palette, customizable shortcuts, light/dark themes, optional onboarding guidance and notification history with actions. |
 | Find code context | Source scanning for translation calls, used/unused key filters and links back to source files. |
@@ -79,7 +68,7 @@ Read the [format support matrix](docs/formats.md) before round-tripping an exist
 
 Pre-translate with **Google Translate, DeepL, Microsoft Translator, a custom webhook or AI**. Review the preview before applying results. Provider configuration can be app-wide or specific to one project.
 
-AI is off until enabled. Connect Claude, OpenAI-compatible services (including local servers), or Gemini for translation, analysis and source-clarity checks. [Prompts](Toucan.Core/Ai/Prompts) are editable globally or per project. API keys are kept outside project folders in the user's encrypted secret store.
+Connect Claude, OpenAI-compatible services (including local servers), or Gemini for translation, analysis and source-clarity checks. [Prompts](Toucan.Core/Ai/Prompts) are editable globally or per project. API keys are kept outside project folders in your encrypted secret store.
 
 Read [provider settings](docs/provider-settings.md), [AI integration](docs/ai-integration.md) and [pre-translation previews](docs/pretranslation-preview.md) for configuration and behavior.
 
@@ -100,7 +89,7 @@ Plugins can add formats, providers, validation rules, framework profiles and des
 Install the **.NET 10 SDK** (SDK selection is in [global.json](global.json)), then run:
 
 ```bash
-git clone --branch release/v0.25.0 https://github.com/rasyidf/Toucan.git
+git clone https://github.com/rasyidf/Toucan.git
 cd Toucan
 dotnet restore Toucan.CrossPlatform.slnx
 dotnet build Toucan.CrossPlatform.slnx --no-restore
@@ -113,7 +102,7 @@ Run the regression suites with:
 dotnet test Toucan.CrossPlatform.slnx
 ```
 
-If the test bridge stalls, the [acceptance record](docs/specs/editor-comfort/acceptance.md) includes direct xUnit runner commands and Windows junction-test requirements. See [architecture](docs/ARCHITECTURE.md) for the Avalonia/MVVM app, core services, format modules and plugin contracts. The version is defined in [Directory.Build.props](Directory.Build.props).
+See [architecture](docs/ARCHITECTURE.md) for the Avalonia/MVVM app, core services, format modules and plugin contracts.
 
 The WPF app was retired after v0.17.3 and remains on the [`legacy/wpf`](https://github.com/rasyidf/Toucan/tree/legacy/wpf) branch.
 
@@ -121,10 +110,10 @@ The WPF app was retired after v0.17.3 and remains on the [`legacy/wpf`](https://
 
 - [User guide](docs/user-guide.md) and [translator guide](docs/translator-guide.md)
 - [Format support](docs/formats.md), [known issues](docs/known-bugs.md) and [changelog](CHANGELOG.md)
-- [Documentation index](docs/INDEX.md), including each document's status
+- [Documentation index](docs/INDEX.md)
 - [Roadmap](docs/todos/future-roadmap.md) and [completed features](docs/completed-features.md)
 
-The v0.25.0 preview adds the project glossary and message-aware validation on top of the v0.24 editor workflows. Upcoming milestones cover review state, content-source synchronization, release packaging and performance. The roadmap records acceptance gates and planned order; it is not a delivery-date promise.
+Upcoming milestones cover review state, content-source synchronization, release packaging and performance.
 
 ## Contributing
 
@@ -132,7 +121,7 @@ Report bugs and request features in [GitHub Issues](https://github.com/rasyidf/T
 
 See [Contributing](CONTRIBUTING.md) for the workflow and [Security](SECURITY.md) for private vulnerability reports.
 
-Maintainers: run [CI](https://github.com/rasyidf/Toucan/actions/workflows/ci.yml) or [Deploy docs](https://github.com/rasyidf/Toucan/actions/workflows/pages.yml) manually from the Actions tab. Pushes and pull requests do not start these workflows. CI’s explicit `release_packages` option builds all four platform packages and fills the existing preview draft without publishing it; see [packaging](packaging/README.md).
+See [packaging](packaging/README.md) for CI and release builds.
 
 ## License
 

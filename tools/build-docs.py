@@ -15,14 +15,14 @@ import re
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from site_links import PAGES, attr, resolve  # noqa: E402
+from site_links import PAGES, RELEASE_PAGES, attr, resolve  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = 'https://toucan.rasyid.dev'
 
 # docs.html sections: (heading, blurb, [repo paths]).
 GROUPS = [
-    ('Release notes', 'Downloads, changes and known limits for the current preview.', ['docs/release-notes/v0.25.0.md', 'docs/release-notes/v0.24.0.md']),
+    ('Release notes', 'Changes, compatibility and known limits by release.', list(RELEASE_PAGES)),
     ('Using Toucan', 'Guides for translators, editors, and localization managers.', [
         'docs/user-guide.md', 'docs/translator-guide.md', 'docs/formats.md', 'docs/ai-integration.md', 'docs/provider-settings.md', 'docs/pretranslation-preview.md']),
     ('Plugin Development & Extensibility', 'Extend Toucan with custom formats, translation providers, validation rules, and desktop UI contributions.', [

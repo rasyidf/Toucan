@@ -27,7 +27,7 @@ See [v0.25.0 release notes](docs/release-notes/v0.25.0.md) for compatibility and
 
 Editor comfort, resource compatibility and a contextual desktop shell.
 
-Release draft: packages and notes are being prepared; publication and native acceptance remain pending. See [v0.24.0 release notes](docs/release-notes/v0.24.0.md) for downloads, compatibility and known limits.
+See [v0.24.0 release notes](docs/release-notes/v0.24.0.md) for downloads, compatibility and known limits.
 
 ### Added
 - **Document-level reload conflict presentation**: External file changes reload clean documents immediately while preserving dirty entries and their editing history. Conflicting documents are presented to the user via notification and dialog, retaining their original source versions for targeted resolution.

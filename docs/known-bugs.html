@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Known Issues &amp; Unfinished Features</title>
-<meta name="description" content="Open v0.25.0 preview issues: release distribution, Source Control, external connector acceptance and recording native Windows evidence.">
+<meta name="description" content="Open issues in release distribution, Source Control, external connectors and platform acceptance.">
 <link rel="canonical" href="https://toucan.rasyid.dev/known-bugs.html">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,19 +15,19 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Known Issues &amp; Unfinished Features">
-<meta property="og:description" content="Open v0.25.0 preview issues: release distribution, Source Control, external connector acceptance and recording native Windows evidence.">
+<meta property="og:description" content="Open issues in release distribution, Source Control, external connectors and platform acceptance.">
 <meta property="og:url" content="https://toucan.rasyid.dev/known-bugs.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Known Issues &amp; Unfinished Features">
-<meta name="twitter:description" content="Open v0.25.0 preview issues: release distribution, Source Control, external connector acceptance and recording native Windows evidence.">
+<meta name="twitter:description" content="Open issues in release distribution, Source Control, external connectors and platform acceptance.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Toucan \u00b7 Known Issues & Unfinished Features",
-  "description": "Open v0.25.0 preview issues: release distribution, Source Control, external connector acceptance and recording native Windows evidence.",
+  "description": "Open issues in release distribution, Source Control, external connectors and platform acceptance.",
   "url": "https://toucan.rasyid.dev/known-bugs.html",
   "publisher": {
     "@type": "Organization",
@@ -102,13 +102,12 @@
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Known Issues &amp; Unfinished Features</h1>
-        <p class="lead">Open v0.25.0 preview issues: release distribution, Source Control, external connector acceptance and recording native Windows evidence.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-11-05</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/known-bugs.md">Edit on GitHub ↗</a></div>
+        <p class="lead">Open issues in release distribution, Source Control, external connectors and platform acceptance.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-11-15</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/known-bugs.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
-<p>Current preview: <strong>v0.25.0</strong>, merged into <code>main</code> (<a href="release-v0.25.0.html">release notes</a>). Public downloads remain on v0.23.0 until a release is published. Native Windows accessibility checks were run on a separate machine on 2026-11-05; that evidence is not stored in this repository. The readiness review treats macOS/Linux testing as passed at the user's request; that assumption is separate from this host's recorded execution evidence.</p>
 <p>This file lists what is wrong <em>now</em>. Fixed bugs are not kept here: they are in <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md">CHANGELOG.md</a> (see <a href="#where-the-old-fixes-went">Where the old fixes went</a>). When a bug is fixed, delete its row and section here and add a <code>### Fixed</code> line to the changelog <code>[Unreleased]</code> section. Planned work for an ID is linked from <a href="roadmap.html">the roadmap</a> (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from <code>main</code> (source: branch <code>legacy/wpf</code>), so nothing here is about WPF.</p>
-<p><strong>How each issue was checked.</strong> "Reproduced" means I ran the case through the real load and save strategies and the output is quoted. "From code" means the cause is visible in the source but I did not run it. Run the same cases again before fixing, and turn each repro into a test in <code>tests/Toucan.Core.Tests/Formats/</code>.</p>
+<p><strong>How each issue was checked.</strong> "Reproduced" means the case was run through the real load and save strategies and the output is quoted. "From code" means the cause was identified in the source without running the case. Run the same cases again before fixing, and turn each repro into a test in <code>tests/Toucan.Core.Tests/Formats/</code>.</p>
 <h2 id="open-issues"><a class="anchor" href="#open-issues" aria-label="Link to this section">#</a>Open issues</h2>
 <div class="table-wrap"><table><thead><tr><th>ID</th><th>Severity</th><th>Area</th><th>Problem</th><th>Checked</th></tr></thead><tbody><tr><td><a href="#rel-01">REL-01</a></td><td>Medium</td><td>Release</td><td>No tag-triggered release pipeline; draft packaging requires manual dispatch</td><td>Reproduced</td></tr><tr><td><a href="#rel-02">REL-02</a></td><td>Medium</td><td>Release</td><td>macOS app is ad-hoc signed and not notarized</td><td>From docs and script</td></tr><tr><td><a href="#rel-03">REL-03</a></td><td>Low</td><td>Release</td><td>Update check is manual only: no check on startup, no download or install</td><td>From code</td></tr><tr><td><a href="#rel-04">REL-04</a></td><td>Low</td><td>Release</td><td>Windows ships as a portable zip; no installer or MSIX in releases</td><td>From docs</td></tr><tr><td><a href="#app-01">APP-01</a></td><td>Low</td><td>App</td><td>Source Control panel does not exist</td><td>Reproduced</td></tr><tr><td><a href="#app-05">APP-05</a></td><td>Medium</td><td>Integration</td><td>External connector and connection lifecycle acceptance remains unverified</td><td>From code and available environment</td></tr><tr><td><a href="#qa-03">QA-03</a></td><td>Medium</td><td>Release acceptance</td><td>Native Windows accessibility checked on another machine; evidence not in repo. macOS/Linux assumed passed</td><td>Recorded by maintainer</td></tr><tr><td><a href="#qa-02">QA-02</a></td><td>Info</td><td>Perf</td><td>Large-project performance has never been profiled</td><td>Not checked</td></tr></tbody></table></div>
 <p>Severity: <strong>High</strong> loses or corrupts user data; <strong>Medium</strong> gives wrong results or blocks a release goal; <strong>Low</strong> is a gap or a cosmetic problem; <strong>Info</strong> is a known unknown.</p>
@@ -138,7 +137,7 @@
 <h3 id="rel-03-no-auto-updater-the-update-check-is-manual"><a class="anchor" href="#rel-03-no-auto-updater-the-update-check-is-manual" aria-label="Link to this section">#</a>REL-03: No auto-updater; the update check is manual</h3>
 <ul>
 <li><strong>Severity:</strong> Low · <strong>Checked:</strong> since v0.20.0, Settings → About has a release channel (Stable or Preview) and a Check for updates button (<code>UpdateService</code>, GitHub Releases API). Nothing checks on startup, and nothing downloads or installs.</li>
-<li><strong>Impact:</strong> users who never open About stay on old builds, which matters while the formats above lose data.</li>
+<li><strong>Impact:</strong> users who never open About may miss updates.</li>
 <li><strong>Fix direction:</strong> FG-02, planned for v0.30: check on startup (off / notify / auto-install), then download and apply. Depends on REL-01 and signing (REL-02).</li>
 </ul>
 <a id="rel-04"></a>
@@ -156,11 +155,11 @@
 <hr>
 <a id="app-05"></a>
 <h3 id="app-05-external-connector-acceptance"><a class="anchor" href="#app-05-external-connector-acceptance" aria-label="Link to this section">#</a>APP-05: External connector acceptance</h3>
-<p>Toolbar contributions now render and follow registry state. Core connection activation exists, but no desktop/CLI connection-management caller was found. The separate external connector repository is unavailable here, so its package-only desktop/CLI acceptance remains open. Keep the v0.23 integration gate pending; see <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/editor-comfort/acceptance.md">v0.24 acceptance</a>.</p>
+<p>Toolbar contributions now render and follow registry state. Core connection activation exists, but no desktop/CLI connection-management caller was found. Package-only desktop/CLI acceptance still requires testing with the external connector. See the <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/editor-comfort/acceptance.md">acceptance record</a>.</p>
 <h2 id="quality"><a class="anchor" href="#quality" aria-label="Link to this section">#</a>Quality</h2>
 <a id="qa-03"></a>
 <h3 id="qa-03-native-and-supported-platform-acceptance"><a class="anchor" href="#qa-03-native-and-supported-platform-acceptance" aria-label="Link to this section">#</a>QA-03: Native and supported-platform acceptance</h3>
-<p>Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements and text scaling were checked on a separate Windows machine; that evidence is not stored in this repository, and the compatibility M7c rows should be updated from it. The 2026-10-25 readiness review assumes macOS/Linux testing passed at the user's request; no cross-platform execution artifacts were produced on this Windows host.</p>
+<p>Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements and text scaling were checked on a separate Windows machine; that evidence is not stored in this repository, and the compatibility M7c rows should be updated from it. The 2026-10-25 readiness review records macOS/Linux testing as assumed passed, without execution artifacts. See the <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/editor-comfort/acceptance.md">acceptance record</a>.</p>
 <a id="qa-02"></a>
 <h3 id="qa-02-performance-not-profiled"><a class="anchor" href="#qa-02-performance-not-profiled" aria-label="Link to this section">#</a>QA-02: Performance not profiled</h3>
 <ul>

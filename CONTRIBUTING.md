@@ -21,7 +21,7 @@ Follow nearby code. Keep UI code in `Toucan.Avalonia`, shared logic in Core and 
 
 ## Pull Requests
 
-Branch from the active development branch named in the README and target that same branch. Keep each PR focused; describe the change, link related issues and report what you tested. Include screenshots for visible UI changes.
+Branch from `main` and target `main`. Keep each PR focused; describe the change, link related issues and report what you tested. Include screenshots for visible UI changes.
 
 Do not commit build outputs, credentials or private project data. Run CI manually before merging; pushes and pull requests do not start checks.
 
@@ -32,3 +32,16 @@ Open [CI](https://github.com/rasyidf/Toucan/actions/workflows/ci.yml) or [Deploy
 CI defaults to Linux without coverage. Choose `all` for the full Windows/macOS/Linux release matrix; enable coverage only when needed. Test artifacts expire after three days, and a new CI run cancels an older run on the same branch.
 
 Deploy docs runs only from `main`, regenerates the HTML and publishes `docs/` without building the app. Pages must use **GitHub Actions** as its publishing source so pushes do not trigger branch-based deployments. Both workflows are manual-only.
+
+## Documentation
+
+Link general download guidance to [GitHub Releases](https://github.com/rasyidf/Toucan/releases). Keep release-specific versions and package names in release notes and the changelog; avoid repeating current-version, public-download or draft-status blurbs across guides. Roadmap milestones and compatibility requirements can name versions.
+
+Add release notes under `docs/release-notes/`; the website discovers them automatically. After editing docs, run:
+
+```sh
+python .agents/skills/doc-status/scripts/docs_status.py check
+python .agents/skills/doc-status/scripts/docs_status.py index
+python tools/build-docs.py
+python tools/generate-changelog.py
+```

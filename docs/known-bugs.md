@@ -1,16 +1,14 @@
 ---
 title: "Known Issues & Unfinished Features"
 status: active
-updated: 2026-11-05
-summary: "Open v0.25.0 preview issues: release distribution, Source Control, external connector acceptance and recording native Windows evidence."
+updated: 2026-11-15
+summary: "Open issues in release distribution, Source Control, external connectors and platform acceptance."
 ---
 # Known Issues & Unfinished Features
 
-Current preview: **v0.25.0**, merged into `main` ([release notes](release-notes/v0.25.0.md)). Public downloads remain on v0.23.0 until a release is published. Native Windows accessibility checks were run on a separate machine on 2026-11-05; that evidence is not stored in this repository. The readiness review treats macOS/Linux testing as passed at the user's request; that assumption is separate from this host's recorded execution evidence.
-
 This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [CHANGELOG.md](../CHANGELOG.md) (see [Where the old fixes went](#where-the-old-fixes-went)). When a bug is fixed, delete its row and section here and add a `### Fixed` line to the changelog `[Unreleased]` section. Planned work for an ID is linked from [the roadmap](todos/future-roadmap.md) (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from `main` (source: branch `legacy/wpf`), so nothing here is about WPF.
 
-**How each issue was checked.** "Reproduced" means I ran the case through the real load and save strategies and the output is quoted. "From code" means the cause is visible in the source but I did not run it. Run the same cases again before fixing, and turn each repro into a test in `tests/Toucan.Core.Tests/Formats/`.
+**How each issue was checked.** "Reproduced" means the case was run through the real load and save strategies and the output is quoted. "From code" means the cause was identified in the source without running the case. Run the same cases again before fixing, and turn each repro into a test in `tests/Toucan.Core.Tests/Formats/`.
 
 ## Open issues
 
@@ -59,7 +57,7 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 ### REL-03: No auto-updater; the update check is manual
 
 - **Severity:** Low · **Checked:** since v0.20.0, Settings → About has a release channel (Stable or Preview) and a Check for updates button (`UpdateService`, GitHub Releases API). Nothing checks on startup, and nothing downloads or installs.
-- **Impact:** users who never open About stay on old builds, which matters while the formats above lose data.
+- **Impact:** users who never open About may miss updates.
 - **Fix direction:** FG-02, planned for v0.30: check on startup (off / notify / auto-install), then download and apply. Depends on REL-01 and signing (REL-02).
 
 <a id="rel-04"></a>
@@ -83,14 +81,14 @@ The Dictionary panel is implemented. A Source Control panel and Git workflow rem
 <a id="app-05"></a>
 ### APP-05: External connector acceptance
 
-Toolbar contributions now render and follow registry state. Core connection activation exists, but no desktop/CLI connection-management caller was found. The separate external connector repository is unavailable here, so its package-only desktop/CLI acceptance remains open. Keep the v0.23 integration gate pending; see [v0.24 acceptance](specs/editor-comfort/acceptance.md).
+Toolbar contributions now render and follow registry state. Core connection activation exists, but no desktop/CLI connection-management caller was found. Package-only desktop/CLI acceptance still requires testing with the external connector. See the [acceptance record](specs/editor-comfort/acceptance.md).
 
 ## Quality
 
 <a id="qa-03"></a>
 ### QA-03: Native and supported-platform acceptance
 
-Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements and text scaling were checked on a separate Windows machine; that evidence is not stored in this repository, and the compatibility M7c rows should be updated from it. The 2026-10-25 readiness review assumes macOS/Linux testing passed at the user's request; no cross-platform execution artifacts were produced on this Windows host.
+Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements and text scaling were checked on a separate Windows machine; that evidence is not stored in this repository, and the compatibility M7c rows should be updated from it. The 2026-10-25 readiness review records macOS/Linux testing as assumed passed, without execution artifacts. See the [acceptance record](specs/editor-comfort/acceptance.md).
 
 
 <a id="qa-02"></a>

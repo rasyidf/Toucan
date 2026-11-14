@@ -2,12 +2,10 @@
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
 progress: "37 release tasks; 6 stable gates; 26 deferred tasks"
-updated: 2026-11-05
+updated: 2026-11-15
 summary: "v0.25 terminology and validation shipped as 0.25.0 with one carried-over decision (ARB comments); v0.26 review correctness is next. Later review, content-source and distribution milestones remain planned."
 ---
 # Toucan roadmap: v0.21 to v1.0
-
-> Current preview: **v0.25.0**, merged into `main` ([release notes](../release-notes/v0.25.0.md)). v0.23.0 remains the public download until a release is published. Toucan targets Windows, macOS and Linux; every build before v1.0 is a preview.
 
 ## Product goal
 
