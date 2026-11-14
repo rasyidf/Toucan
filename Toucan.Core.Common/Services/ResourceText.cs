@@ -1,5 +1,7 @@
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Toucan.Core.Models;
 
 namespace Toucan.Core.Services;
@@ -65,8 +67,51 @@ public static class ResourceText
     {
         WriteIndented = options.Indent != ResourceIndent.None,
         IndentCharacter = options.Indent == ResourceIndent.Tab ? '\t' : ' ',
-        IndentSize = options.Indent == ResourceIndent.Space4 ? 4 : options.Indent == ResourceIndent.Tab ? 1 : 2
+        IndentSize = options.Indent == ResourceIndent.Space4 ? 4 : options.Indent == ResourceIndent.Tab ? 1 : 2,
+        Encoder = options.UnicodeEscapes == ResourceUnicodeEscapes.Minimal ? JavaScriptEncoder.UnsafeRelaxedJsonEscaping : null
     };
+
+    /// <summary>Serializes with <see cref="JsonOptions"/>. Minimal writes every character raw except what JSON
+    /// requires escaped (quote, backslash, control characters) and U+2028/U+2029.</summary>
+    public static string ToJsonString(JsonNode node, ResourceOptions options)
+    {
+        var text = node.ToJsonString(JsonOptions(options));
+        return options.UnicodeEscapes == ResourceUnicodeEscapes.Minimal ? UnescapeOptional(text) : text;
+    }
+
+    /// <summary>Always when the document escapes a character that Minimal would write raw; otherwise Minimal.</summary>
+    public static ResourceUnicodeEscapes DetectJsonEscapes(string json)
+    {
+        for (var i = 0; i < json.Length - 1; i++)
+        {
+            if (json[i] != '\\') continue;
+            if (json[++i] == 'u' && HexAt(json, i + 1) is { } code && (char.IsSurrogate(code) || !MustEscape(code))) return ResourceUnicodeEscapes.Always;
+        }
+        return ResourceUnicodeEscapes.Minimal;
+    }
+
+    // The relaxed encoder still escapes non-BMP characters, NBSP and other blocklisted code points.
+    private static string UnescapeOptional(string json)
+    {
+        if (!json.Contains("\\u", StringComparison.Ordinal)) return json;
+        var result = new StringBuilder(json.Length);
+        for (var i = 0; i < json.Length; i++)
+        {
+            if (json[i] != '\\' || i + 1 == json.Length) { result.Append(json[i]); continue; }
+            if (json[i + 1] != 'u' || HexAt(json, i + 2) is not { } code) { result.Append(json, i, 2); i++; continue; }
+            if (char.IsHighSurrogate(code) && i + 12 <= json.Length && json.AsSpan(i + 6).StartsWith("\\u") && HexAt(json, i + 8) is { } low && char.IsLowSurrogate(low))
+            { result.Append(code).Append(low); i += 11; }
+            else if (MustEscape(code)) { result.Append(json, i, 6); i += 5; }
+            else { result.Append(code); i += 5; }
+        }
+        return result.ToString();
+    }
+
+    private static bool MustEscape(char code) => code < ' ' || code is '"' or '\\' or '\u2028' or '\u2029' || char.IsSurrogate(code);
+
+    private static char? HexAt(string text, int start) =>
+        start + 4 <= text.Length && ushort.TryParse(text.AsSpan(start, 4), System.Globalization.NumberStyles.AllowHexSpecifier,
+            System.Globalization.CultureInfo.InvariantCulture, out var code) ? (char)code : null;
 
     public static void Write(ResourceWriteRequest request, string content, bool latin = false)
     {

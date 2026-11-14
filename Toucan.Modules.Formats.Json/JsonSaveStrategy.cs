@@ -8,14 +8,18 @@ namespace Toucan.Core.Services.SaveStrategies;
 public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy, IResourceOptionsProvider, IResourceDialectProvider
 {
     public IReadOnlyList<ResourceDialectChoice> Dialects => [new(null, "Generic JSON"), new("formatjs-target", "FormatJS target")];
-    public IReadOnlySet<string> SupportedOptions(ResourceDescriptor resource) => resource.Dialect == "formatjs-target" ? ResourceOptionFields.With("Indent") : ResourceOptionFields.With("Layout", "Delimiter", "Arrays", "Indent");
+    public IReadOnlySet<string> SupportedOptions(ResourceDescriptor resource) => resource.Dialect == "formatjs-target" ? ResourceOptionFields.With("Indent") : ResourceOptionFields.With("Layout", "Delimiter", "Arrays", "Indent", "UnicodeEscapes");
+
+    /// <summary>Generic JSON detects its Unicode escapes so Preserve can keep them; FormatJS targets keep the Always default.</summary>
+    internal static ResourceOptions Detect(string content, string? encoding, ResourceDescriptor resource) =>
+        ResourceText.Detect(content, encoding) with { UnicodeEscapes = resource.Dialect == "formatjs-target" ? null : ResourceText.DetectJsonEscapes(content) };
 
     public string FormatId => FormatIds.Json;
 
     public FormatSupport Support { get; } = new(
         FormatEditing.Full,
         "Any JSON object; nested objects and arrays",
-        ["Nested keys", "arrays", "multiline text", "escapes", "numbers and booleans left unedited", "placeholders", "typed exact-resource paths and null/empty document nodes", "selected indentation and ordering"],
+        ["Nested keys", "arrays", "multiline text", "escapes", "numbers and booleans left unedited", "placeholders", "typed exact-resource paths and null/empty document nodes", "selected indentation, ordering and Unicode escape policy"],
         ["Comments (JSON has none)", "Folder-only APIs do not retain opaque document state"]);
     public string DisplayName => "JSON (flat)";
     public IReadOnlyList<string> FileExtensions => [".json"];
@@ -71,6 +75,8 @@ public class JsonSaveStrategy(IFileService fileService) : ISaveStrategy, IResour
         FormatJsTarget.Validate(content, request.Document.Resource);
         request.CancellationToken.ThrowIfCancellationRequested();
         ResourceText.Write(request, content);
+        if (request.Document.Resource.Dialect != "formatjs-target")
+            request.Document.DetectedOptions = request.Document.DetectedOptions with { UnicodeEscapes = ResourceText.DetectJsonEscapes(content) };
         ResourceJsonCodec.AcceptWrite(request.Document, request.Entries, content);
         return new ResourceWriteResult([]);
     }
