@@ -73,9 +73,13 @@ public static class ResourceText
 
     /// <summary>Serializes with <see cref="JsonOptions"/>. Minimal writes every character raw except what JSON
     /// requires escaped (quote, backslash, control characters) and U+2028/U+2029.</summary>
-    public static string ToJsonString(JsonNode node, ResourceOptions options)
+    public static string ToJsonString(JsonNode node, ResourceOptions options) => ToJsonString(node, options, null);
+
+    public static string ToJsonString(JsonNode node, ResourceOptions options, JsonSerializerOptions? serializerOptions)
     {
-        var text = node.ToJsonString(JsonOptions(options));
+        var jsonOptions = serializerOptions is null ? JsonOptions(options) : new JsonSerializerOptions(serializerOptions)
+        { Encoder = options.UnicodeEscapes == ResourceUnicodeEscapes.Minimal ? JavaScriptEncoder.UnsafeRelaxedJsonEscaping : null };
+        var text = node.ToJsonString(jsonOptions);
         return options.UnicodeEscapes == ResourceUnicodeEscapes.Minimal ? UnescapeOptional(text) : text;
     }
 

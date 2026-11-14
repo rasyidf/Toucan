@@ -57,7 +57,7 @@ public sealed class WorkspaceMetadataTests : IDisposable
         var next = await _save.SaveAsync(saved.Receipt.Source);
         Assert.Empty(next.Receipt.Plan.Targets); Assert.Single(next.Receipt.Plan.Artifacts);
         Assert.Equal(timestamp, File.GetLastWriteTimeUtc(Path.Combine(_root, untouched.RelativePath)));
-        Assert.Equal(untouched.Version, SaveTransaction.Fingerprint([Path.Combine(_root, untouched.RelativePath)])[Path.Combine(_root, untouched.RelativePath)]);
+        Assert.Equal(untouched.Version, SaveTransaction.Fingerprint([Path.GetFullPath(Path.Combine(_root, untouched.RelativePath))])[Path.GetFullPath(Path.Combine(_root, untouched.RelativePath))]);
         var noop = await _save.SaveAsync(next.Receipt.Source); Assert.Empty(noop.Receipt.Plan.Targets); Assert.Empty(noop.Receipt.Plan.Artifacts);
     }
     [Fact]

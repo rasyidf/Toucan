@@ -10,4 +10,9 @@ public interface IDocumentSaveStrategy : ISaveStrategy
 {
     string SerializeDocument(string originalContent, IReadOnlyList<DocumentTranslationEdit> edits,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Serializes with captured project options. Existing document writers retain their default behavior.</summary>
+    string SerializeDocument(string originalContent, IReadOnlyList<DocumentTranslationEdit> edits,
+        ResourceOptions options, CancellationToken cancellationToken = default) =>
+        SerializeDocument(originalContent, edits, cancellationToken);
 }

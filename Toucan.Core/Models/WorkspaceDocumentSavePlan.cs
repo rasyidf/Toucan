@@ -25,6 +25,7 @@ public sealed class WorkspaceDocumentSnapshot(string root, Guid sessionId, long 
     public long Revision { get; } = revision;
     internal object? Capture { get; init; }
     public string? Manifest { get; init; }
+    public ResourceOptions Options { get; init; } = new();
     /// <summary>Source documents of languages removed from the workspace; saving deletes them.</summary>
     public IReadOnlyList<DocumentId> DeletedDocuments { get; init; } = [];
     public ReadOnlyCollection<WorkspaceDocumentUnit> Units { get; } = Array.AsReadOnly(units.ToArray());

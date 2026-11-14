@@ -9,8 +9,18 @@ namespace Toucan.Core.Services.Frameworks;
 /// Pattern: {lang}.json (e.g., en.json, fr-FR.json)
 /// This is the fallback when no specific framework is detected.
 /// </summary>
-public class GenericJsonProfile : IFrameworkProfile
+public class GenericJsonProfile : IFrameworkDocumentLayout
 {
+    public FrameworkDocumentLayout GetDocumentLayout(DiscoveredFile file) => new("@language-file", TranslationPath.Empty);
+
+    public DiscoveredFile? DescribeDestination(string rootFolder, string relativePath)
+    {
+        var normalized = relativePath.Replace('\\', '/');
+        if (normalized.Contains('/') || !normalized.EndsWith(".json", StringComparison.Ordinal)) return null;
+        var language = ExtractLanguage(normalized);
+        return string.IsNullOrWhiteSpace(language) ? null : new(Path.Combine(rootFolder, normalized), normalized, language);
+    }
+
     public string Id => "generic-json";
     public string DisplayName => "Generic JSON";
     public string DefaultFormatId => FormatIds.Json;

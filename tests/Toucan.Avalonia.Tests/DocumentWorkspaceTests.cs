@@ -296,16 +296,15 @@ public sealed class DocumentWorkspaceTests
         // Clean document reloaded from disk
         Assert.Equal("Reloaded cleanly", (await engine.SnapshotAsync())!.Find("other.title", "en")!.Value);
 
-        // Notification center has conflict notification
-        var notifications = host.Services.GetRequiredService<Toucan.Core.Plugins.INotificationCenter>();
-        Assert.Contains(notifications.History, n => n.Content.Title == "External Changes Conflict");
-
-        // Message was presented to user
-        for (var i = 0; i < 50 && host.Messages.Shown.Count == 0; i++)
+        // The source changes before the async handler publishes and presents its conflict message.
+        const string conflictMessage = "External changes conflict with 1 dirty document(s):";
+        for (var i = 0; i < 50 && !host.Messages.Shown.Any(m => m.Contains(conflictMessage, StringComparison.Ordinal)); i++)
         {
             await Task.Delay(50);
             global::Avalonia.Threading.Dispatcher.UIThread.RunJobs();
         }
-        Assert.Contains(host.Messages.Shown, m => m.Contains("External changes conflict with 1 dirty document(s):", StringComparison.Ordinal));
+        var notifications = host.Services.GetRequiredService<Toucan.Core.Plugins.INotificationCenter>();
+        Assert.Contains(notifications.History, n => n.Content.Title == "External Changes Conflict");
+        Assert.Contains(host.Messages.Shown, m => m.Contains(conflictMessage, StringComparison.Ordinal));
     }
 }

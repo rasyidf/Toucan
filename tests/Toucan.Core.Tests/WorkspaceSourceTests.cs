@@ -121,7 +121,7 @@ public sealed class WorkspaceSourceTests : IDisposable
         var router = _services.GetRequiredService<WorkspaceDocumentRouter>();
         Assert.Throws<InvalidOperationException>(() => router.NewEntryPath(source, "en", "common"));
         Assert.Throws<InvalidOperationException>(() => router.NewEntryPath(source, "de", "common"));
-        Assert.Equal(Path.Combine(_root, "public/locales/de/common.json"),
+        Assert.Equal(Path.GetFullPath(Path.Combine(_root, "public/locales/de/common.json")),
             router.NewEntryPath(source, "de", "common", "public/locales/de/common.json"));
     }
 
@@ -133,7 +133,7 @@ public sealed class WorkspaceSourceTests : IDisposable
         var source = await Load();
         var unit = source.Units.Single(u => u.Value == "Public") with { KeyPath = new(["new.name"]) };
         var router = _services.GetRequiredService<WorkspaceDocumentRouter>();
-        Assert.Equal(Path.Combine(_root, "public/locales/en/checkout.json"), router.ExistingPath(source, unit));
+        Assert.Equal(Path.GetFullPath(Path.Combine(_root, "public/locales/en/checkout.json")), router.ExistingPath(source, unit));
         Assert.Equal(router.ExistingPath(source, unit), router.NewEntryPath(source, "en", "checkout"));
         Assert.Throws<InvalidOperationException>(() => router.NewEntryPath(source, "de", "checkout"));
         Assert.Throws<InvalidOperationException>(() => router.NewEntryPath(source, "en", "new-package"));
@@ -142,7 +142,7 @@ public sealed class WorkspaceSourceTests : IDisposable
     [Theory]
     [InlineData("{bad")]
     [InlineData("{\"title\":\"first\",\"title\":\"second\"}")]
-    [InlineData("[]")]
+    [InlineData("null")]
     public async Task InvalidDocumentFailsInsteadOfReturningPartialState(string content)
     {
         Write("locales/en/common.json", content);

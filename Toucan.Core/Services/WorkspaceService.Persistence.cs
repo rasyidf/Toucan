@@ -20,7 +20,7 @@ public sealed partial class WorkspaceService
             return new(_settings.ProjectPath, _session, _revision, _state.Values.Select(u =>
                 new WorkspaceDocumentUnit(new(u.Id), u.Language, u.Namespace, u.KeyPath, u.Value, u.Binding,
                     u.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey), Metadata(u), u.Destination)))
-            { Manifest = _settings.SerializeForPersistence(), DeletedDocuments = RemovedLanguageDocumentsLocked(), Capture = new DocumentCapture(this, _state, _sessionLifetime?.Token ?? CancellationToken.None) };
+            { Manifest = _settings.SerializeForPersistence(), Options = _settings.ResourceOptions with { }, DeletedDocuments = RemovedLanguageDocumentsLocked(), Capture = new DocumentCapture(this, _state, _sessionLifetime?.Token ?? CancellationToken.None) };
         }
     }
 
