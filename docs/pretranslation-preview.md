@@ -1,15 +1,15 @@
 ---
-title: "Pretranslation — Preview & Progress"
+title: "Pretranslation: Preview & Progress"
 status: active
 updated: 2026-07-02
 summary: "How pre-translation previews, reports progress, cancels and commits with Apply Preview; includes a provider privacy note."
 ---
-# Pretranslation — Preview & Progress
+# Pretranslation: Preview & Progress
 
 Toucan's pretranslation engine now supports safe preview runs with progress reporting and an explicit commit step.
 
 Key behaviors:
-- PreviewOnly mode: Providers can be asked to perform a dry-run (PreviewOnly) — the result is returned as a list of proposed translations but the project files are not modified.
+- PreviewOnly mode: Providers can be asked to perform a dry-run (PreviewOnly); the result is returned as a list of proposed translations but the project files are not modified.
 - Progress reporting: Pretranslation providers implement progress/reporting via IProgress&lt;PretranslationProgress&gt; so the UI can show completed/total counts and a progress-bar.
 - Cancellation: Long-running preview runs or provider calls can be cancelled via a CancellationToken.
 - Commit step: After previewing translations, the UI shows a summarized list and lets the user Apply Preview (commit) to update the local translations.

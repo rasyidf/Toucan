@@ -48,7 +48,7 @@ Their presence is not a passing result. M0 must establish which gaps remain repr
 
 Execution order: M0 → M1 → M2 → M3. M4 follows M2; M5 follows M1; M6 follows M5. M7 can proceed after M0 and the metadata/editing contracts it needs are stable. Land small reviewed changes in that order; independent readiness does not require separate agents.
 
-## M0 — Establish the compatibility baseline
+## M0: Establish the compatibility baseline
 
 - [x] Record the current commit and relevant working-tree changes; preserve all existing work. Inventory original fixtures and separate them from vendor-owned examples/assets.
 - [x] Run the existing import, format, encoding, exchange and recovery tests and reproduce unresolved report findings in temporary project copies. Record commands/results and classify each risk as open, fixed with evidence, unsupported with diagnostic, or not reproduced.
@@ -59,7 +59,7 @@ Execution order: M0 → M1 → M2 → M3. M4 follows M2; M5 follows M1; M6 follo
 
 **Accepted 2026-10-22:** see [M0 acceptance matrix and evidence](acceptance.md). Baseline `ea3d255` was clean; all 1,139 tests and 19 CLI cases pass. Ten isolated probes reconcile remaining risks. Existing compiled sample-plugin artifacts were frozen for future contract checks; a separately published historical plugin binary remains an explicit M1 verification limitation. M1–M7 are not accepted by these results.
 
-## M1 — Add neutral resource and document contracts
+## M1: Add neutral resource and document contracts
 
 Primary touchpoints: `Toucan.Plugins.Abstractions`, `TranslationItem`, `SaveContext`, `ProjectSettings`, `TranslationStrategyFactory`, tree/search/edit services and native project serialization.
 
@@ -75,7 +75,7 @@ Primary touchpoints: `Toucan.Plugins.Abstractions`, `TranslationItem`, `SaveCont
 
 **Accepted 2026-10-22:** [M1 implementation and evidence](m1.md). API 1.2 adds optional resource IO; JSON is the first document-aware adapter. Typed identity, document state, native migration, structural undo/recovery and the unchanged compiled M0 sample are covered by acceptance tests. Non-JSON adapters/importer separation remain M2; full format-option behavior remains M3.
 
-## M2 — Isolate migration and use exact resource IO
+## M2: Isolate migration and use exact resource IO
 
 Primary touchpoints: `BabelProjectReader`, `ProjectService`, `PackageService`, `ProjectLifecycleService`, composition roots and format modules.
 
@@ -90,7 +90,7 @@ Primary touchpoints: `BabelProjectReader`, `ProjectService`, `PackageService`, `
 
 **Accepted 2026-10-22:** [M2 implementation and evidence](m2.md). All 1,201 tests pass; 19 corpus and six exact-resource CLI scenarios pass. The six supported format families preserve declared files/locales/packages through GUI and native reopen. Invalid migrations preserve the active workspace; physical path boundaries and journal ownership are verified. The two existing documentation-header errors and the matrix generator are repaired. M3–M7 remain open.
 
-## M3 — Close document fidelity and settings gaps
+## M3: Close document fidelity and settings gaps
 
 Primary touchpoints: JSON/Data/Text format modules, ARB metadata editing, `ProjectTextFormat`, package saves and `SaveTransaction`.
 
@@ -105,7 +105,7 @@ Primary touchpoints: JSON/Data/Text format modules, ARB metadata editing, `Proje
 
 **Accepted 2026-10-22:** [M3 implementation and evidence](m3.md). All 1,245 tests pass, alongside 19 corpus, six exact-resource and four fidelity CLI scenarios. Exact-resource settings, JSON structure, restricted YAML dialects/guards, ARB metadata, Java properties, package review state and GUI Save As are verified. Supported subsets and legacy folder limits are explicit; later milestones are tracked below.
 
-## M4 — Finish spreadsheet compatibility without vendor coupling
+## M4: Finish spreadsheet compatibility without vendor coupling
 
 Primary touchpoints: `ExcelService`, compatibility module, import preview/application flow and `BabelExcelTests`/`BabelImportFlowTests`.
 
@@ -119,7 +119,7 @@ Primary touchpoints: `ExcelService`, compatibility module, import preview/applic
 
 **Accepted 2026-10-22:** [M4 spreadsheet exchange and evidence](m4.md). Native typed-path/presence and optional compatibility exports, strict bounded readers, package-aware previews, one-step undo/redo, approval validation and crash recovery are verified by 1,279 passing tests. Legacy workbooks and the frozen plugin remain covered. Later milestones are tracked below.
 
-## M5 — Add framework settings and capability enforcement
+## M5: Add framework settings and capability enforcement
 
 Primary touchpoints: `IFrameworkProfile`, framework module, command registry, project settings UI and CLI handlers.
 
@@ -132,7 +132,7 @@ Primary touchpoints: `IFrameworkProfile`, framework module, command registry, pr
 
 **Accepted 2026-10-22:** [M5/M6 implementation and evidence](m5-m6.md). Optional framework/settings and provider-capability contracts, protected FormatJS extraction catalogs, exact profile import, target editing and save/reopen/Save As are verified. Legacy writable formats and compiled plugins retain coverage.
 
-## M6 — Replace the fixed scanner with framework-selected extraction
+## M6: Replace the fixed scanner with framework-selected extraction
 
 Primary touchpoints: `SourceCodeService`, framework profiles, source-reference UI and scanner contracts in plugin abstractions.
 
@@ -145,7 +145,7 @@ Primary touchpoints: `SourceCodeService`, framework profiles, source-reference U
 
 **Accepted 2026-10-22:** [M5/M6 implementation and evidence](m5-m6.md). Registered framework scanners, package-aware locations, bounded IO/parsing, cancellation, incomplete-scan safeguards and original positive/negative fixtures pass. A 200-file/10,000-reference CLI corpus was measured before defining any performance budget. The full run passes 1,342 tests plus the CLI acceptance/regression scenarios. M7 remains open.
 
-## M7 — Add spelling and complete the release gate
+## M7: Add spelling and complete the release gate
 
 Primary touchpoints: new dictionary registry/spelling service, Avalonia editor correction UI, validation integration, packaging and component provenance inventory.
 

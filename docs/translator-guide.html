@@ -81,14 +81,14 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="release-v0.25.0.html">Toucan v0.25.0 — Terminology and message-aware validation</a>
-<a href="release-v0.24.0.html">Toucan v0.24.0 — Editor comfort and resource compatibility</a>
+<a href="release-v0.25.0.html">Toucan v0.25.0: Terminology and message-aware validation</a>
+<a href="release-v0.24.0.html">Toucan v0.24.0: Editor comfort and resource compatibility</a>
 <a href="user-guide.html">Toucan User Guide</a>
 <a href="translator-guide.html" aria-current="page">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
 <a href="ai-integration.html">AI Integration</a>
 <a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
-<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="pretranslation-preview.html">Pretranslation: Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
 <a href="architecture.html">Toucan architecture</a>
 <a href="core-architecture.html">Toucan.Core interop architecture</a>
@@ -96,7 +96,7 @@
 <a href="completed-features.html">Shipped Features</a>
 <a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
       </nav>
-      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#1-source-first-workspace--productivity-metrics">1. Source-First Workspace &amp; Productivity Metrics</a><a class="l2" href="#2-translation-memory-tm--segment-reuse">2. Translation Memory (TM) &amp; Segment Reuse</a><a class="l2" href="#3-keyboard-driven-review--approval">3. Keyboard-Driven Review &amp; Approval</a><a class="l2" href="#4-linguistic-qa--syntax-protection">4. Linguistic QA &amp; Syntax Protection</a><a class="l2" href="#5-client--team-review-via-excel-spreadsheets">5. Client &amp; Team Review via Excel Spreadsheets</a><a class="l2" href="#6-complete-data-privacy--security">6. Complete Data Privacy &amp; Security</a><a class="l2" href="#7-universal-format-support">7. Universal Format Support</a></nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#1-source-first-workspace--productivity-metrics">1. Source-First Workspace &amp; Productivity Metrics</a><a class="l2" href="#2-translation-memory-tm--segment-reuse">2. Translation Memory (TM) &amp; Segment Reuse</a><a class="l2" href="#3-keyboard-driven-review--approval">3. Keyboard-Driven Review &amp; Approval</a><a class="l2" href="#4-linguistic-qa--syntax-protection">4. Linguistic QA &amp; Syntax Protection</a><a class="l2" href="#5-client--team-review-via-excel-spreadsheets">5. Client &amp; Team Review via Excel Spreadsheets</a><a class="l2" href="#6-complete-data-privacy--security">6. Complete Data Privacy &amp; Security</a><a class="l2" href="#7-supported-formats">7. Supported Formats</a></nav>
     </aside>
     <article class="doc">
       <header class="doc-head">
@@ -107,7 +107,7 @@
       </header>
       <div class="prose">
 <p>Software localization often forces linguists to juggle unfamiliar developer formats (JSON, YAML, PO, RESX, ARB, XLIFF), where accidental syntax errors or broken placeholders can cause application crashes.</p>
-<p><strong>Toucan</strong> bridges the gap between software engineering and professional Computer-Assisted Translation (CAT). It provides a familiar, distraction-free environment with Translation Memory, quality assurance, live metrics, and keyboard-driven efficiency—while handling file formatting, encodings, and persistence under the hood.</p>
+<p><strong>Toucan</strong> provides Computer-Assisted Translation (CAT) workflows for software localization, with Translation Memory, quality assurance, live metrics, and keyboard shortcuts. It handles file formatting, encodings, and saving.</p>
 <hr>
 <h2 id="1-source-first-workspace--productivity-metrics"><a class="anchor" href="#1-source-first-workspace--productivity-metrics" aria-label="Link to this section">#</a>1. Source-First Workspace &amp; Productivity Metrics</h2>
 <h3 id="two-column-segment-layout"><a class="anchor" href="#two-column-segment-layout" aria-label="Link to this section">#</a>Two-Column Segment Layout</h3>
@@ -117,7 +117,7 @@
 <li><strong>Right Column:</strong> Active target language input field.</li>
 <li><strong>Above:</strong> Clean key path, developer comments, and context notes.</li>
 </ul>
-<p>In compact or split-screen windows, cards smoothly stack vertically while maintaining clear visual distinction between source and target text.</p>
+<p>In compact or split-screen windows, cards stack vertically with distinct source and target fields.</p>
 <h3 id="live-character-and-word-counts"><a class="anchor" href="#live-character-and-word-counts" aria-label="Link to this section">#</a>Live Character and Word Counts</h3>
 <p>Accurate metrics are critical for software UI constraints (e.g. character limits on buttons, banners, or mobile screens) as well as translation billing:</p>
 <ul>
@@ -126,7 +126,7 @@
 </ul>
 <hr>
 <h2 id="2-translation-memory-tm--segment-reuse"><a class="anchor" href="#2-translation-memory-tm--segment-reuse" aria-label="Link to this section">#</a>2. Translation Memory (TM) &amp; Segment Reuse</h2>
-<p>Toucan incorporates a local, high-performance Translation Memory powered by a trigram fuzzy-matching engine.</p>
+<p>Toucan uses local Translation Memory with trigram fuzzy matching.</p>
 <h3 id="inline-ghost-suggestions"><a class="anchor" href="#inline-ghost-suggestions" aria-label="Link to this section">#</a>Inline Ghost Suggestions</h3>
 <p>When you navigate to an empty target segment:</p>
 <ol>
@@ -146,7 +146,7 @@
 <p>You are never locked into Toucan. You can import existing industry-standard <strong>Translation Memory eXchange (<code>.tmx</code>)</strong> files or export your project's memory to share with other CAT tools (SDL Trados, memoQ, Phrase, Lokalise, etc.). Use <strong>Tools → Translation Memory</strong> (Learn from This Project, Import TMX…, Export TMX…) and the Translation Memory panel to manage stored units, set matching thresholds, or clear segments.</p>
 <hr>
 <h2 id="3-keyboard-driven-review--approval"><a class="anchor" href="#3-keyboard-driven-review--approval" aria-label="Link to this section">#</a>3. Keyboard-Driven Review &amp; Approval</h2>
-<p>Linguists translate fastest when their hands never leave the home row. Toucan’s review workflow is built around continuous typing:</p>
+<p>Use these shortcuts to review translations while keeping focus in the target field:</p>
 <h3 id="rapid-review-cycle"><a class="anchor" href="#rapid-review-cycle" aria-label="Link to this section">#</a>Rapid Review Cycle</h3>
 <ul>
 <li>Press &lt;kbd&gt;Ctrl/Cmd+Enter&lt;/kbd&gt; (<strong>Approve and Next</strong>): Marks the current segment as <strong>Approved</strong>, saves the translation, and immediately advances focus to the next target field.</li>
@@ -176,14 +176,14 @@
 </ul>
 <h3 id="integrated-spell-checking"><a class="anchor" href="#integrated-spell-checking" aria-label="Link to this section">#</a>Integrated Spell Checking</h3>
 <ul>
-<li>Built-in spell checking runs completely offline using the trusted <strong>Hunspell</strong> engine.</li>
+<li>Built-in spell checking runs completely offline using the <strong>Hunspell</strong> engine.</li>
 <li>Misspelled words are indicated with squiggly red underlines.</li>
 <li>Right-click or press the context menu key to choose suggestions, ignore the term, or add it to your project-specific or personal dictionary.</li>
 <li>Placeholders, code markup, and technical tokens are automatically excluded from spell checking.</li>
 </ul>
 <hr>
 <h2 id="5-client--team-review-via-excel-spreadsheets"><a class="anchor" href="#5-client--team-review-via-excel-spreadsheets" aria-label="Link to this section">#</a>5. Client &amp; Team Review via Excel Spreadsheets</h2>
-<p>Not every client or subject matter expert has Toucan installed. Toucan makes offline review seamless through round-trip spreadsheet interchange:</p>
+<p>Not every client or subject matter expert has Toucan installed. Toucan supports offline review by exporting and importing spreadsheets:</p>
 <h3 id="exporting-for-external-review"><a class="anchor" href="#exporting-for-external-review" aria-label="Link to this section">#</a>Exporting for External Review</h3>
 <ol>
 <li>Choose <strong>File → Export to Excel…</strong></li>
@@ -215,10 +215,10 @@
 <li><strong>Operating-System Key Encryption:</strong> All provider and AI API keys are stored in your operating system's native encrypted credential store (Windows DPAPI, macOS/Linux AES-GCM with protected user key), never in plaintext or in your project folder.</li>
 </ul>
 <hr>
-<h2 id="7-universal-format-support"><a class="anchor" href="#7-universal-format-support" aria-label="Link to this section">#</a>7. Universal Format Support</h2>
+<h2 id="7-supported-formats"><a class="anchor" href="#7-supported-formats" aria-label="Link to this section">#</a>7. Supported Formats</h2>
 <p>Toucan eliminates the need to maintain different editors for different programming languages:</p>
 <div class="table-wrap"><table><thead><tr><th>Ecosystem</th><th>Supported File Formats</th></tr></thead><tbody><tr><td><strong>Web &amp; JavaScript</strong></td><td>JSON (flat &amp; namespaced/i18next), FormatJS catalogs, YAML</td></tr><tr><td><strong>Mobile (iOS &amp; Android)</strong></td><td>iOS <code>.strings</code> (UTF-16 &amp; UTF-8), Android <code>strings.xml</code></td></tr><tr><td><strong>Flutter / Dart</strong></td><td>Flutter ARB (<code>intl_*.arb</code>, <code>app_*.arb</code>, <code>@key</code> metadata)</td></tr><tr><td><strong>.NET / Windows</strong></td><td>RESX (<code>Resources.*.resx</code>)</td></tr><tr><td><strong>GNU / Linux / PHP</strong></td><td>GNU Gettext PO (<code>.po</code>), Laravel PHP arrays (<code>lang/*.php</code>)</td></tr><tr><td><strong>Config &amp; other</strong></td><td>TOML, INI (export only)</td></tr><tr><td><strong>Cross-Platform / Localization</strong></td><td>XLIFF 1.2 &amp; 2.0 (<code>.xlf</code>), CSV, TSV, Java <code>.properties</code></td></tr><tr><td><strong>Migration</strong></td><td>BabelEdit (<code>.babel</code>) project folders</td></tr></tbody></table></div>
-<p>Each format loader and saver preserves original file encodings (UTF-8 with or without BOM, ISO-8859-1 Latin-1) and line endings (LF, CRLF), ensuring that commits pass continuous integration and code review without unwanted formatting churn.</p>
+<p>Each format loader and saver preserves original file encodings (UTF-8 with or without BOM, ISO-8859-1 Latin-1) and line endings (LF, CRLF) to avoid unwanted formatting changes in commits.</p>
       </div>
     </article>
   </div>

@@ -1,5 +1,5 @@
 ---
-title: "rc-phase1-code-health — requirements"
+title: "rc-phase1-code-health: requirements"
 status: done
 progress: "36/40 tasks"
 updated: 2026-06-27
@@ -11,7 +11,7 @@ reason: "Required tasks complete; the remaining four are optional tests"
 
 ## Introduction
 
-This document specifies the requirements for RC Phase 1 — Code Health of the Toucan application. The goal is to stabilize the existing codebase for release-candidate quality by eliminating analyzer warnings, removing unnecessary dependencies, decomposing monolithic components, centralizing contracts, and replacing service locator patterns with proper dependency injection. No new features are introduced — only restructuring, cleanup, and hardening of existing functionality.
+This document specifies the requirements for RC Phase 1: Code Health of the Toucan application. The goal is to stabilize the existing codebase for release-candidate quality by eliminating analyzer warnings, removing unnecessary dependencies, decomposing monolithic components, centralizing contracts, and replacing service locator patterns with proper dependency injection. No new features are introduced; work is limited to restructuring, cleanup, and hardening of existing functionality.
 
 ## Glossary
 

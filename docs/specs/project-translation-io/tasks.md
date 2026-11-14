@@ -1,5 +1,5 @@
 ---
-title: "project-translation-io — tasks"
+title: "project-translation-io: tasks"
 status: done
 progress: "45/64 tasks"
 updated: 2026-06-28

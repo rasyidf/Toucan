@@ -1,5 +1,5 @@
 ---
-title: "plugin-modularization — requirements"
+title: "plugin-modularization: requirements"
 status: done
 progress: "9/9 steps"
 updated: 2026-10-07

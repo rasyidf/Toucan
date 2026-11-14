@@ -40,7 +40,7 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 ## Release and distribution
 
 <a id="rel-01"></a>
-### REL-01 — No tag-triggered release pipeline
+### REL-01: No tag-triggered release pipeline
 
 - **Severity:** Medium · **Checked:** `.github/workflows/ci.yml` builds and tests on manual dispatch only. Linux is the default; select `all` for Windows, macOS and Linux. Documentation deployment is a separate manual workflow. Its explicit `release_packages` mode builds native packages and attaches a complete set to an existing preview draft.
 - **State:** CI has an opt-in manual packaging mode using `publish.ps1`, `packaging/build-macos-app.sh` and Linux `dotnet publish`. All four packages must succeed before draft attachment; the release stays unpublished. Tag-triggered release automation remains planned for v0.30.
@@ -48,7 +48,7 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 - **Fix direction:** FG-01 and FG-16 in [docs/todos/future-roadmap.md](todos/future-roadmap.md): CI is complete; the remaining work is the v0.30 tag-triggered release workflow that builds all packages and attaches them to the GitHub release.
 
 <a id="rel-02"></a>
-### REL-02 — macOS app is not notarized
+### REL-02: macOS app is not notarized
 
 - **Severity:** Medium · **Checked:** README and `packaging/build-macos-app.sh`.
 - **State:** the build is ad-hoc signed. The script already signs with a Developer ID and notarizes when `SIGN_IDENTITY` and `NOTARY_PROFILE` are set, but no such identity is configured.
@@ -56,14 +56,14 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 - **Fix direction:** an Apple Developer ID and a notary profile stored as CI secrets (needs REL-01).
 
 <a id="rel-03"></a>
-### REL-03 — No auto-updater; the update check is manual
+### REL-03: No auto-updater; the update check is manual
 
 - **Severity:** Low · **Checked:** since v0.20.0, Settings → About has a release channel (Stable or Preview) and a Check for updates button (`UpdateService`, GitHub Releases API). Nothing checks on startup, and nothing downloads or installs.
 - **Impact:** users who never open About stay on old builds, which matters while the formats above lose data.
 - **Fix direction:** FG-02, planned for v0.30: check on startup (off / notify / auto-install), then download and apply. Depends on REL-01 and signing (REL-02).
 
 <a id="rel-04"></a>
-### REL-04 — Windows has no installer
+### REL-04: Windows has no installer
 
 - **Severity:** Low · **Checked:** v0.24.0 packaging scripts and local ZIP/MSIX output; GitHub draft asset preparation.
 - **State:** Windows portable ZIP and unsigned MSIX packaging output exist for v0.24.0. The portable ZIP is the distributable package; MSIX signing/trusted installation and the Inno Setup installer still need acceptance. See [packaging](../packaging/README.md).
@@ -74,27 +74,27 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 ## App gaps
 
 <a id="app-01"></a>
-### APP-01 — Source Control panel does not exist
+### APP-01: Source Control panel does not exist
 
 The Dictionary panel is implemented. A Source Control panel and Git workflow remain planned after v1.0. See the [roadmap](todos/future-roadmap.md#git-integration-fg-06).
 
 ---
 
 <a id="app-05"></a>
-### APP-05 — External connector acceptance
+### APP-05: External connector acceptance
 
 Toolbar contributions now render and follow registry state. Core connection activation exists, but no desktop/CLI connection-management caller was found. The separate external connector repository is unavailable here, so its package-only desktop/CLI acceptance remains open. Keep the v0.23 integration gate pending; see [v0.24 acceptance](specs/editor-comfort/acceptance.md).
 
 ## Quality
 
 <a id="qa-03"></a>
-### QA-03 — Native and supported-platform acceptance
+### QA-03: Native and supported-platform acceptance
 
 Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements and text scaling were checked on a separate Windows machine; that evidence is not stored in this repository, and the compatibility M7c rows should be updated from it. The 2026-10-25 readiness review assumes macOS/Linux testing passed at the user's request; no cross-platform execution artifacts were produced on this Windows host.
 
 
 <a id="qa-02"></a>
-### QA-02 — Performance not profiled
+### QA-02: Performance not profiled
 
 - **Severity:** Info · **Checked:** no. Loading depth, paging and `MaxItems` exist as mitigations, but there are no measurements for projects with tens of thousands of keys. Profile open, search and save before 1.0.
 

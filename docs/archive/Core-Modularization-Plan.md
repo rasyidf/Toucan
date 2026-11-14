@@ -1,12 +1,12 @@
 ---
-title: "Toucan.Core — Modularization & Framework Standardization Plan"
+title: "Toucan.Core: Modularization & Framework Standardization Plan"
 status: done
 updated: 2026-06-27
 summary: "Plan to split file format from framework profile (IFrameworkProfile) in Toucan.Core. Implemented; profiles ship in Core and plugins."
 archived: 2026-10-07
 reason: "Implemented: IFrameworkProfile and the format/profile split are in Toucan.Core"
 ---
-# Toucan.Core — Modularization & Framework Standardization Plan
+# Toucan.Core: Modularization & Framework Standardization Plan
 
 ## Problem Statement
 
@@ -20,9 +20,9 @@ Currently, a "framework" (i18next, Android, Flutter, .NET, etc.) is mapped direc
 - **Paraglide** = compiled i18n with `messages/{lang}.js` + type-safe codegen manifest
 
 Each framework has three independent concerns:
-1. **File Format** — how to read/write the translation file (JSON, XML, YAML, etc.)
-2. **Project Layout** — folder conventions, file naming, language detection from paths
-3. **Metadata** — plural rules, context markers, approval state, description, max-length, platform-specific annotations
+1. **File Format**: how to read/write the translation file (JSON, XML, YAML, etc.)
+2. **Project Layout**: folder conventions, file naming, language detection from paths
+3. **Metadata**: plural rules, context markers, approval state, description, max-length, platform-specific annotations
 
 ---
 
@@ -36,7 +36,7 @@ ILoadStrategy / ISaveStrategy
 
 Pure format parsers. They know how to turn bytes into `TranslationItem[]` and back. **No framework knowledge.** This layer is done and correct.
 
-### Layer 2: Framework Profile (NEW — the missing abstraction)
+### Layer 2: Framework Profile (NEW: the missing abstraction)
 
 ```csharp
 public interface IFrameworkProfile
@@ -140,7 +140,7 @@ Implemented via `git` CLI subprocess calls (no libgit2 dependency needed).
 
 ---
 
-## Framework Profiles — What's Different Per Framework
+## Framework Profiles: What's Different Per Framework
 
 | Framework | Format | File Discovery Pattern | Language Extraction | Special Metadata |
 |-----------|--------|----------------------|--------------------|--------------------|
@@ -199,11 +199,11 @@ On Save:
 
 1. **Define `IFrameworkProfile` interface** in `Toucan.Core/Contracts/`
 2. **Create profile implementations** (start with 5 most-used):
-   - `I18nextProfile` — nested JSON, folder-based language, plural suffixes
-   - `AndroidProfile` — XML, `values-{lang}` folders
-   - `FlutterArbProfile` — ARB with `@` metadata, `l10n.yaml` detection
-   - `DotNetResxProfile` — RESX, `Name.{lang}.resx` convention
-   - `GenericJsonProfile` — flat JSON fallback (current behavior)
+   - `I18nextProfile`: nested JSON, folder-based language, plural suffixes
+   - `AndroidProfile`: XML, `values-{lang}` folders
+   - `FlutterArbProfile`: ARB with `@` metadata, `l10n.yaml` detection
+   - `DotNetResxProfile`: RESX, `Name.{lang}.resx` convention
+   - `GenericJsonProfile`: flat JSON fallback (current behavior)
 3. **Refactor `ProjectModeResolver`** → use `IFrameworkProfile.DiscoverFiles()` for detection
 4. **Refactor `ProjectService.LoadProject`** → delegate to profile for discovery + metadata
 5. **Map `FrameworkTile.Style` → `IFrameworkProfile`** instead of raw `SaveStyles`
@@ -213,13 +213,13 @@ On Save:
 1. **Define contracts** (`IValidationRule`, `IValidationPipeline`, `ValidationContext`)
 2. **Built-in rules**: MissingTranslation, PlaceholderMismatch, DuplicateKey, EmptyValue, MaxLength
 3. **Framework-contributed rules** via `IFrameworkProfile.GetValidationRules()`
-4. **Wire into save flow** — run validation before write, surface warnings in UI
-5. **Wire into pre-translate flow** — validate results before committing
+4. **Wire into save flow**: run validation before write, surface warnings in UI
+5. **Wire into pre-translate flow**: validate results before committing
 
 ### Phase C: Source Control
 
 1. **Define `ISourceControlService`** interface
-2. **Implement `GitSourceControlService`** — wraps `git` CLI
+2. **Implement `GitSourceControlService`**: wraps `git` CLI
 3. **UI integration**: status bar shows branch, dirty indicator shows git diff count
 4. **Save hook**: optionally auto-stage changed translation files
 
@@ -264,7 +264,7 @@ framework-aware discovery, path generation, and metadata round-tripping.
 
 1. `FrameworkTile` gains an `IFrameworkProfile` property (alongside existing `SaveStyles`)
 2. `ProjectSettings` gains a `Framework` string field (persisted in `toucan.project`)
-3. Existing `ILoadStrategy`/`ISaveStrategy` remain unchanged — profiles compose them
+3. Existing `ILoadStrategy`/`ISaveStrategy` remain unchanged; profiles compose them
 4. Old projects without `Framework` field fall back to `GenericJsonProfile` (current behavior)
 5. New projects get proper framework detection
 
@@ -273,10 +273,10 @@ framework-aware discovery, path generation, and metadata round-tripping.
 ## Answer: Format vs Framework
 
 **Format is just the serialization.** Framework adds:
-- **Discovery** — where are the files and how to find them
-- **Language extraction** — how to determine locale from path
-- **Metadata** — descriptions, plural forms, max-length, translatable flags
-- **Validation** — framework-specific correctness checks
-- **Path generation** — where to write output files on save
+- **Discovery**: where are the files and how to find them
+- **Language extraction**: how to determine locale from path
+- **Metadata**: descriptions, plural forms, max-length, translatable flags
+- **Validation**: framework-specific correctness checks
+- **Path generation**: where to write output files on save
 
 The current code treats frameworks as a format selector. The fix is the `IFrameworkProfile` abstraction that sits *above* formats and composes them.

@@ -1,5 +1,5 @@
 ---
-title: "editor-ux-improvements — tasks"
+title: "editor-ux-improvements: tasks"
 status: deprecated
 progress: "0/21 tasks"
 updated: 2026-07-06
@@ -11,26 +11,26 @@ reason: "Never started; targeted WPF views and the WPF app was removed"
 
 ## Overview
 
-Five localized UI-layer changes to the WPF translation editor. No new services or dependencies — all work touches existing ViewModels, XAML views, and code-behind. Tasks are ordered so foundational ViewModel changes land first, then XAML consumes them.
+Five localized UI-layer changes to the WPF translation editor. No new services or dependencies are needed; all work touches existing ViewModels, XAML views, and code-behind. Tasks are ordered so foundational ViewModel changes land first, then XAML consumes them.
 
 ## Tasks
 
-- [ ] 1. Mode Selector Bar — active pill elevation and MinWidth
+- [ ] 1. Mode Selector Bar: active pill elevation and MinWidth
   - [ ] 1.1 Add DropShadowEffect + BorderBrush accent on IsChecked=True trigger in ModeSelectorBar.xaml
     - In the `SegmentedPill` style, add `Effect` (DropShadowEffect ShadowDepth=1, BlurRadius=3, Opacity=0.15) and `BorderBrush=ControlElevationBorderBrush` with `BorderThickness=1` to the IsChecked=True trigger setters targeting `Bd`
     - Add `MinWidth="56"` to the base RadioButton setters
     - _Requirements: 1.3, 1.4_
-  - **Verification:** `dotnet build Toucan\Toucan.csproj` — no errors/warnings. Visual: active pill has subtle shadow and border.
+  - **Verification:** `dotnet build Toucan\Toucan.csproj`: no errors/warnings. Visual: active pill has subtle shadow and border.
 
 - [ ] 2. Multi-line TextBox height cap
   - [ ] 2.1 Add MaxHeight and vertical scroll to value TextBox in TranslationItemView.xaml
     - On the existing `ui:TextBox` that already has `AcceptsReturn="True"` and `TextWrapping="Wrap"`, add `MaxHeight="200"` and `VerticalScrollBarVisibility="Auto"`
     - _Requirements: 2.3_
-  - **Verification:** `dotnet build Toucan\Toucan.csproj` — no errors/warnings.
+  - **Verification:** `dotnet build Toucan\Toucan.csproj`: no errors/warnings.
 
-- [ ] 3. Review/Audit action buttons — ViewModel commands
+- [ ] 3. Review/Audit action buttons: ViewModel commands
   - [ ] 3.1 Add ViewCommentCommand and ClearApprovedCommand to TranslationItemViewModel.cs
-    - Add `[RelayCommand] private void ViewComment()` — copies `Comment` to clipboard if non-empty
+    - Add `[RelayCommand] private void ViewComment()`: copies `Comment` to clipboard if non-empty
     - Add `[RelayCommand] private void ClearApproved() => IsApproved = false;`
     - _Requirements: 3.1, 3.2, 3.4_
   - [ ] 3.2 Add comment button and needs-review button XAML to TranslationItemView.xaml
@@ -39,14 +39,14 @@ Five localized UI-layer changes to the WPF translation editor. No new services o
     - Needs-review button: `Command="{Binding ClearApprovedCommand}"`, SymbolIcon DismissCircle16
     - Use DataTrigger on `PanelService.Instance.EditorMode` to control Visibility
     - _Requirements: 3.1, 3.2, 3.4, 3.5, 3.6_
-  - **Verification:** `dotnet build Toucan\Toucan.csproj` — no errors/warnings.
+  - **Verification:** `dotnet build Toucan\Toucan.csproj`: no errors/warnings.
 
-- [ ] 4. Checkpoint — build and test
+- [ ] 4. Checkpoint: build and test
   - Ensure `dotnet build Toucan\Toucan.csproj` succeeds with zero warnings.
-  - Run `dotnet test tests\Toucan.Tests` — all existing tests pass.
+  - Run `dotnet test tests\Toucan.Tests`: all existing tests pass.
   - Ask the user if questions arise.
 
-- [ ] 5. Language visibility filtering — ViewModel layer
+- [ ] 5. Language visibility filtering: ViewModel layer
   - [ ] 5.1 Create LanguageVisibilityItem class
     - New file `Toucan/ViewModels/LanguageVisibilityItem.cs`
     - `public partial class LanguageVisibilityItem : ObservableObject` with `[ObservableProperty] private string language` and `[ObservableProperty] private bool isVisible = true`
@@ -76,7 +76,7 @@ Five localized UI-layer changes to the WPF translation editor. No new services o
 - [ ] 6. Inspector panel suggestion insertion
   - [ ] 6.1 Add FocusedTranslationItem and InsertSuggestionCommand to MainWindowViewModel
     - Add `[ObservableProperty] private TranslationItemViewModel? focusedTranslationItem;` in the Nav partial
-    - Add `[RelayCommand] private void InsertSuggestion(string? suggestion)` — sets `FocusedTranslationItem.Value = suggestion` if focused, else shows status bar message
+    - Add `[RelayCommand] private void InsertSuggestion(string? suggestion)`: sets `FocusedTranslationItem.Value = suggestion` if focused, else shows status bar message
     - _Requirements: 5.2, 5.3, 5.4_
   - [ ] 6.2 Track focused translation item from TranslationItemView.xaml.cs
     - Handle `GotFocus` on the value TextBox in code-behind
@@ -94,14 +94,14 @@ Five localized UI-layer changes to the WPF translation editor. No new services o
   - **Verification:** `dotnet build Toucan\Toucan.csproj` && `dotnet test tests\Toucan.Tests`
 
 - [ ] 7. Final checkpoint
-  - `dotnet build Toucan\Toucan.csproj` — zero warnings
-  - `dotnet test tests\Toucan.Core.Tests` — all pass
-  - `dotnet test tests\Toucan.Tests` — all pass
+  - `dotnet build Toucan\Toucan.csproj`: zero warnings
+  - `dotnet test tests\Toucan.Core.Tests`: all pass
+  - `dotnet test tests\Toucan.Tests`: all pass
   - Ask the user if questions arise.
 
 ## Notes
 
 - Tasks marked with `*` are optional property-based tests (can be skipped for faster MVP).
-- Requirements 1.1, 1.2, 2.1, 2.2, 2.4, 2.5, 3.3, 3.5, 3.6 are already satisfied by the existing codebase — no implementation needed.
+- Requirements 1.1, 1.2, 2.1, 2.2, 2.4, 2.5, 3.3, 3.5, 3.6 are already satisfied by the existing codebase: no implementation needed.
 - All changes are session-scoped (no persistent settings added).
 - No new NuGet dependencies required.

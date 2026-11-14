@@ -1,5 +1,5 @@
 ---
-title: "Panel Extension System — v0.16 Plan"
+title: "Panel Extension System: v0.16 Plan"
 status: done
 progress: "shipped in v0.16.0"
 updated: 2026-10-01
@@ -7,7 +7,7 @@ summary: "Activity bar and extensible side-panel and status-bar system (ISidePan
 archived: 2026-10-07
 reason: "Shipped in v0.16.0"
 ---
-# Panel Extension System — v0.16 Plan
+# Panel Extension System: v0.16 Plan
 
 > VS Code-style activity bar + extensible panel slots for sidebar and footer.
 > Unifies side panels and status bar under the same Register → Render → Persist pattern.
@@ -120,12 +120,12 @@ public class SidePanelRegistry : ObservableObject
 ## StatusBar Enhancements (Future, no code changes needed)
 
 The StatusBar is already extensible. Future panels to add:
-- `ProgressPanel` — download/upload progress for MT batch jobs
-- `DiagnosticsPanel` — validation error/warning count (clickable → opens inspector validation tab)
-- `SelectionPanel` — shows selected key count during multi-selection
-- `SyncPanel` — sync status when git integration lands
+- `ProgressPanel`: download/upload progress for MT batch jobs
+- `DiagnosticsPanel`: validation error/warning count (clickable → opens inspector validation tab)
+- `SelectionPanel`: shows selected key count during multi-selection
+- `SyncPanel`: sync status when git integration lands
 
-Each is just `Registry.Register(new XPanel())` — zero XAML changes.
+Each is just `Registry.Register(new XPanel())`, with no XAML changes.
 
 ---
 
@@ -213,18 +213,18 @@ Each is just `Registry.Register(new XPanel())` — zero XAML changes.
 
 ## What NOT to Change
 
-- Center editor (TranslationDetailsView) — stays as-is
-- Footer action bar — stays as-is (already extensible)
-- Toolbar — stays as-is
-- Zen mode — still hides everything
-- Keyboard shortcuts — Ctrl+B toggles left slot, Ctrl+Shift+I toggles right slot
+- Center editor (TranslationDetailsView): stays as-is
+- Footer action bar: stays as-is (already extensible)
+- Toolbar: stays as-is
+- Zen mode: still hides everything
+- Keyboard shortcuts: Ctrl+B toggles left slot, Ctrl+Shift+I toggles right slot
 
 ---
 
 ## Migration Notes
 
-- ResourcesView stays intact — ExplorerPanel just wraps it
-- InspectorView stays intact — InspectorPanel just wraps it
+- ResourcesView stays intact; ExplorerPanel wraps it
+- InspectorView stays intact; InspectorPanel wraps it
 - Existing PanelService visibility booleans become computed from SidePanelRegistry state
 - `SidePanelVisible` = left slot has any active panel
 - `InspectorVisible` = right slot has any active panel
@@ -250,7 +250,7 @@ public class MyPlugin : IToucanPlugin
 }
 ```
 
-Zero XAML changes needed — panels self-register and render via templates.
+Panels self-register and render via templates, with no XAML changes needed.
 
 ## Status: COMPLETE ✅
 
