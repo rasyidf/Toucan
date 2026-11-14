@@ -1,0 +1,54 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:c="using:Toucan.Avalonia.Views.Components"
+        xmlns:views="using:Toucan.Avalonia.Views"
+        xmlns:loc="using:Toucan.Avalonia.Locales"
+        xmlns:conv="using:Toucan.Avalonia.Converters">
+
+  <!-- Existing late overrides. Keep this file last during migration; add new rules to their owning module. -->
+  <Style Selector="c|SettingsGroup.compact">
+    <Setter Property="CornerRadius" Value="6"/>
+  </Style>
+  <Style Selector="c|SettingsGroup.compact /template/ TextBlock#GroupFooter">
+    <Setter Property="FontSize" Value="11"/>
+    <Setter Property="Margin" Value="10,6,10,0"/>
+  </Style>
+  <Style Selector="c|TranslationCard Button.icon, c|TranslationCard ToggleButton.icon">
+    <Setter Property="Width" Value="24"/>
+    <Setter Property="Height" Value="24"/>
+    <Setter Property="Padding" Value="4"/>
+  </Style>
+  <Style Selector="views|TranslationEditorView StackPanel.filterActions">
+    <Setter Property="Grid.Column" Value="1"/>
+    <Setter Property="Margin" Value="8,0,0,0"/>
+  </Style>
+  <Style Selector="Button.settingsAction, ToggleButton.settingsAction">
+    <Setter Property="Width" Value="28"/>
+    <Setter Property="Height" Value="28"/>
+    <Setter Property="Padding" Value="6"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="views|TranslationEditorView.narrow TextBox.filterInput">
+    <Setter Property="Grid.ColumnSpan" Value="2"/>
+  </Style>
+  <Style Selector="views|TranslationEditorView.narrow StackPanel.filterActions">
+    <Setter Property="Grid.Row" Value="1"/>
+    <Setter Property="Grid.Column" Value="0"/>
+    <Setter Property="Grid.ColumnSpan" Value="2"/>
+    <Setter Property="HorizontalAlignment" Value="Right"/>
+    <Setter Property="Margin" Value="0,6,0,0"/>
+  </Style>
+  <Style Selector="ToggleSwitch.settingsToggle">
+    <Style.Resources>
+      <Thickness x:Key="ToggleSwitchTopHeaderMargin">0</Thickness>
+      <GridLength x:Key="ToggleSwitchPreContentMargin">2</GridLength>
+      <GridLength x:Key="ToggleSwitchPostContentMargin">2</GridLength>
+    </Style.Resources>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="MinWidth" Value="0"/>
+  </Style>
+  <Style Selector="TextBox.mono">
+    <Setter Property="FontFamily" Value="Menlo, Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', monospace"/>
+  </Style>
+</Styles>

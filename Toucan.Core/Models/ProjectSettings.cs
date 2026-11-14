@@ -61,9 +61,12 @@ public class ProjectSettings
     /// <summary>Output newline override: LF or CRLF; null keeps the format default.</summary>
     public string? LineEnding { get; set; }
     public string? Framework { get; set; }
+    public List<GlossaryEntry> Glossary { get; set; } = [];
+    public double AnalysisConfidenceThreshold { get; set; } = 0.6;
     public SpellingSettings Spelling { get; set; } = new();
     public FrameworkOptions FrameworkOptions { get; set; } = new();
     public List<TranslationPackage> TranslationPackages { get; set; } = [];
+    public List<string> SourceConnections { get; set; } = [];
 
     // --- Editor preferences (project-scoped, null = inherit from ProjectDefaults) ---
     public bool? SaveEmptyTranslations { get; set; } = true;
@@ -184,6 +187,19 @@ public class ProjectSettings
             PrimaryLanguage = "en-US",
             Languages = ["en-US"]
         };
+    }
+
+    internal ProjectSettings CloneForRoot(string root)
+    {
+        var clone = JsonSerializer.Deserialize<ProjectSettings>(SerializeForPersistence(), s_options)!;
+        clone.ProjectPath = root; clone.DefaultPathResolver = DefaultPathResolver; return clone;
+    }
+    internal string SerializeForPersistence() => JsonSerializer.Serialize(this, s_options);
+    internal static string NormalizeManifest(string json)
+    {
+        var settings = JsonSerializer.Deserialize<ProjectSettings>(json, s_options) ?? throw new JsonException("Invalid project settings.");
+        settings.MigrateLegacyFormat(json);
+        return settings.SerializeForPersistence();
     }
 
     public void Save()

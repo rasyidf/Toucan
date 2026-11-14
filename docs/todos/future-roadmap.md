@@ -1,13 +1,13 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "44 release tasks; 6 stable gates; 26 deferred tasks"
-updated: 2026-10-25
-summary: "Open milestones through v1.0 after the v0.24.0 implementation. Release draft acceptance remains open, along with review, validation and content-source work."
+progress: "37 release tasks; 6 stable gates; 26 deferred tasks"
+updated: 2026-11-05
+summary: "v0.25 terminology and validation shipped as 0.25.0 with one carried-over decision (ARB comments); v0.26 review correctness is next. Later review, content-source and distribution milestones remain planned."
 ---
 # Toucan roadmap: v0.21 to v1.0
 
-> Current preview: **v0.24.0**, merged into `main`, with a [release draft](../release-notes/v0.24.0.md) awaiting publication. v0.23.0 remains the public download until then. Toucan targets Windows, macOS and Linux; every build before v1.0 is a preview.
+> Current preview: **v0.25.0**, merged into `main` ([release notes](../release-notes/v0.25.0.md)). v0.23.0 remains the public download until a release is published. Toucan targets Windows, macOS and Linux; every build before v1.0 is a preview.
 
 ## Product goal
 
@@ -64,7 +64,6 @@ The upstream release records its connector acceptance as passed. Revalidation of
 
 **Outcome:** a new user can open a project and complete a keyboard-driven translation session comfortably. **References:** QA-03. Implementation and Windows automated evidence are in [editor-comfort acceptance](../specs/editor-comfort/acceptance.md).
 
-- [ ] Verify native Windows light/dark themes, narrow windows, text scaling, keyboard focus, screen-reader announcements, and RTL content. The current readiness review assumes macOS/Linux have passed at the user's request; retain the distinction between that assumption and this host's automated evidence.
 
 **Completion gate:** a user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved.
 
@@ -73,13 +72,9 @@ The upstream release records its connector acceptance as passed. Revalidation of
 
 **Outcome:** translations follow project vocabulary and preserve executable message syntax.
 
-- [ ] Add a project glossary with preferred and forbidden terms, per-language translations, descriptions, and CSV import/export.
-- [ ] Show selected-string glossary matches in a Dictionary panel and suggest glossary terms while editing (APP-01).
-- [ ] Add configurable glossary validation and pass relevant terminology to machine/AI translation requests.
-- [ ] Add debounced validation while typing, with clear severity and navigation to affected fields.
-- [ ] Apply configured rule enable/severity policy consistently in manual checks, save, approval and plugin workspace edits; the settings editor already stores the preferences (APP-06).
-- [ ] Parse and validate supported message syntaxes, including nested ICU plural/select messages, required branches, and placeholders; document syntax/version limits.
-- [ ] Finish AI finding re-translation and configurable analysis strictness, retaining preview and explicit acceptance.
+**Status:** shipped as app version 0.25.0. Local verification is archived in [v0.25 readiness](../specs/v0.25-readiness.md); native Windows accessibility checks were run on a separate machine. Supported behavior and limits are in [terminology and validation](../specs/v0.25-terminology-validation.md). Open item carried forward:
+
+- [ ] Decide ARB comment handling (`@key.description` versus `.toucan` sidecars) before migrating more formats to document writes; tracked in [workspace sync engine](workspace-sync-engine.md).
 
 **Completion gate:** glossary and message fixtures detect meaningful errors without blocking draft saves; accepting a suggestion follows normal undo and dirty tracking.
 

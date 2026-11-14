@@ -31,6 +31,12 @@ public partial class MainWindowViewModel
             await _messageService.ShowMessageAsync($"'{code}' is already in this project.", "New Language");
             return;
         }
+        if (HasDocumentNavigation)
+        {
+            if (AddDocumentLanguage(code) is { } problem) await _messageService.ShowMessageAsync(problem, "New Language");
+            if (AllTranslation.Any(t => t.Language == code) || Workspace.IsDirty) AfterDocumentLanguagesChanged($"Added language {code}.");
+            return;
+        }
 
         var result = await _languageManagement.AddLanguageAsync(code);
         if (!result.Success)
@@ -52,17 +58,29 @@ public partial class MainWindowViewModel
 
         foreach (var lang in result.RemovedLanguages)
         {
+            if (HasDocumentNavigation)
+            {
+                if (RemoveDocumentLanguage(lang) is { } problem) await _messageService.ShowMessageAsync(problem, "Manage Languages");
+                continue;
+            }
             var r = await _languageManagement.RemoveLanguageAsync(lang);
             if (!r.Success) await _messageService.ShowMessageAsync(r.ErrorMessage ?? $"Failed to remove {lang}.", "Manage Languages");
         }
         foreach (var lang in result.AddedLanguages)
         {
+            if (HasDocumentNavigation)
+            {
+                if (AddDocumentLanguage(lang) is { } problem) await _messageService.ShowMessageAsync(problem, "Manage Languages");
+                continue;
+            }
             var r = await _languageManagement.AddLanguageAsync(lang);
             if (!r.Success) await _messageService.ShowMessageAsync(r.ErrorMessage ?? $"Failed to add {lang}.", "Manage Languages");
         }
 
         var ordered = result.Languages.Select(l => l.Code).ToList();
-        await _languageManagement.ReorderLanguagesAsync(ordered);
+        if (HasDocumentNavigation && ProjectSettings is { } documentSettings)
+            documentSettings.Languages = ordered.Where(documentSettings.Languages.Contains).Concat(documentSettings.Languages.Where(l => !ordered.Contains(l))).ToList();
+        else await _languageManagement.ReorderLanguagesAsync(ordered);
 
         if (ProjectSettings != null && !string.Equals(ProjectSettings.PrimaryLanguage, result.PrimaryLanguage, StringComparison.Ordinal))
         {
@@ -71,6 +89,7 @@ public partial class MainWindowViewModel
         }
         PrimaryLanguage = result.PrimaryLanguage;
 
+        if (HasDocumentNavigation) { AfterDocumentLanguagesChanged($"Languages updated: +{result.AddedLanguages.Count}, −{result.RemovedLanguages.Count}."); return; }
         AfterLanguagesChanged($"Languages updated: +{result.AddedLanguages.Count}, −{result.RemovedLanguages.Count}.");
     }
 
@@ -86,6 +105,12 @@ public partial class MainWindowViewModel
         }
         if (!await _messageService.ConfirmAsync($"Delete all translations for '{item.Language}'? The language files are removed from disk.", "Delete Language", "Delete", "Cancel"))
             return;
+        if (HasDocumentNavigation)
+        {
+            if (RemoveDocumentLanguage(item.Language) is { } problem) { await _messageService.ShowMessageAsync(problem, "Delete Language"); return; }
+            AfterDocumentLanguagesChanged($"Language '{item.Language}' deleted. Its files are removed when you save.");
+            return;
+        }
 
         var result = await _languageManagement.RemoveLanguageAsync(item.Language);
         if (!result.Success)
@@ -115,6 +140,7 @@ public partial class MainWindowViewModel
         UpdateSummaryInfo();
         Search(SearchText, true);
         StatusText = status;
+        BumpWorkspaceRevision();
     }
 
     /// <summary>Makes <paramref name="language"/> the project's primary (source) language.</summary>
@@ -127,6 +153,7 @@ public partial class MainWindowViewModel
             ProjectSettings.Save();
         }
         PrimaryLanguage = language;
+        BumpWorkspaceRevision();
         InitLanguageVisibilityFilter(OrderedLanguages());
         UpdateSummaryInfo();
         Search(SearchText, true);
@@ -168,6 +195,7 @@ public partial class MainWindowViewModel
             await _messageService.ShowMessageAsync($"'{newNamespace}' is already used as a group of keys.", "New Key");
             return;
         }
+        if (HasDocumentNavigation) { await CreateDocumentEntryAsync(newNamespace); return; }
 
         var languages = ProjectLanguages();
         if (languages.Count == 0) languages.Add(PrimaryLanguage);
@@ -203,7 +231,22 @@ public partial class MainWindowViewModel
         if (!CanChangeKeys) return "Resource capabilities forbid renaming keys.";
         newName = newName.Trim();
         if (string.IsNullOrWhiteSpace(newName)) return "Name can't be empty.";
-        if (newName.Contains('.', StringComparison.Ordinal)) return "Name can't contain '.'.";
+        if (!HasDocumentNavigation && newName.Contains('.', StringComparison.Ordinal)) return "Name can't contain '.'.";
+
+        if (HasDocumentNavigation)
+        {
+            FlushPendingEdits();
+            var id = ResolveDocumentEntry(node.Namespace);
+            if (id is null) return StatusText;
+            var snapshot = Workspace.SnapshotEntriesAsync().GetAwaiter().GetResult()!;
+            var unit = snapshot.Units.First(u => u.EntryId == id);
+            var path = new TranslationPath(unit.KeyPath.Segments.SkipLast(1).Append(newName).ToArray());
+            var result = Workspace.ApplyEntries("editor", new(snapshot.SessionId, snapshot.Revision,
+                [new Toucan.Plugins.RenameEntry(id.Value, unit.Namespace, path)], "Rename key"));
+            if (!result.Applied) return result.Issues[0].Message;
+            RefreshWorkspaceProjection(true, "Rename key", result.ChangedUnits);
+            return null;
+        }
 
         var oldNs = node.Namespace;
         var newNs = ParentPrefix(oldNs) + newName;
@@ -245,8 +288,11 @@ public partial class MainWindowViewModel
     private async Task RenameKey(string? ns)
     {
         if (string.IsNullOrEmpty(ns)) return;
-        var node = new NsTreeItem { Namespace = ns, Name = ns.Split('.').Last() };
-        var result = await _dialogService.ShowPromptAsync($"Rename “{node.Name}”", "Enter the new name for this segment (no dots).", node.Name);
+        var id = HasDocumentNavigation ? ResolveDocumentEntry(ns) : null;
+        if (HasDocumentNavigation && id is null) return;
+        var name = HasDocumentNavigation ? Workspace.SnapshotEntriesAsync().GetAwaiter().GetResult()!.Units.First(u => u.EntryId == id).KeyPath.Segments.Last() : ns.Split('.').Last();
+        var node = new NsTreeItem { Namespace = ns, Name = name };
+        var result = await _dialogService.ShowPromptAsync($"Rename “{node.Name}”", HasDocumentNavigation ? "Enter the new literal key name." : "Enter the new name for this segment (no dots).", node.Name);
         if (result == null) return;
         var error = RenameItemCore(node, result);
         if (error != null) await _messageService.ShowMessageAsync(error, "Rename");
@@ -277,6 +323,17 @@ public partial class MainWindowViewModel
         if (namespaces.Count == 0) return;
         var before = CaptureStructure();
         FlushPendingEdits();
+        if (HasDocumentNavigation)
+        {
+            var ids = namespaces.Select(ResolveDocumentEntry).ToArray();
+            if (ids.Any(id => id is null)) return;
+            var snapshot = Workspace.SnapshotEntriesAsync().GetAwaiter().GetResult()!;
+            var result = Workspace.ApplyEntries("editor", new(snapshot.SessionId, snapshot.Revision,
+                ids.Select(id => (Toucan.Plugins.EntryOperation)new Toucan.Plugins.DeleteEntry(id!.Value)).ToArray(), "Delete keys"));
+            if (result.Applied) RefreshWorkspaceProjection(true, "Delete keys", result.ChangedUnits);
+            else StatusText = result.Issues[0].Message;
+            return;
+        }
         var removed = AllTranslation.Where(t => namespaces.Any(n => MatchesNode(t.Namespace, n))).Select(t => t.Namespace).Distinct().ToList();
         AllTranslation.RemoveAll(t => namespaces.Any(n => MatchesNode(t.Namespace, n)));
         SelectedNode = null;
@@ -295,13 +352,19 @@ public partial class MainWindowViewModel
         if (!CanChangeKeys) return;
         if (SelectedNode is not { } node) return;
         FlushPendingEdits();
+        var documentId = HasDocumentNavigation ? ResolveDocumentEntry(node.Namespace) : null;
+        if (HasDocumentNavigation)
+        {
+            if (documentId is { } id) DuplicateDocumentEntry(id);
+            return;
+        }
 
         var newNs = node.Namespace + "_copy";
         var n = 2;
         while (AllTranslation.Any(t => t.Namespace == newNs)) newNs = $"{node.Namespace}_copy{n++}";
         var before = CaptureStructure();
 
-        foreach (var item in AllTranslation.Where(t => t.Namespace == node.Namespace).ToList())
+        foreach (var item in AllTranslation.Where(t => t.Namespace == node.Namespace && (!HasDocumentNavigation || Workspace.GetProjectionEntryId(t) == documentId)).ToList())
         {
             var copy = ResourceEntryOperations.Copy(item, duplicate: true);
             copy.Namespace = newNs;
@@ -411,14 +474,26 @@ public partial class MainWindowViewModel
     {
         FlushPendingEdits();
         // A step may hold several edits (a bulk operation); undo them last to first.
-        if (_undoRedoService.Undo() is { } step) ApplyHistory(step.Reverse(), undo: true);
+        if (_undoRedoService.Undo() is { } step)
+        {
+            ApplyHistory(step.Reverse(), undo: true);
+            return;
+        }
+        var keys = AllTranslation.Select(t => (t.Namespace, t.Language)).ToHashSet();
+        if (Workspace.Undo()) RefreshWorkspaceProjection(!keys.SetEquals(_translationStore.Translations.Select(t => (t.Namespace, t.Language))), "Undo");
     }
 
     [RelayCommand]
     private void Redo()
     {
         FlushPendingEdits();
-        if (_undoRedoService.Redo() is { } step) ApplyHistory(step, undo: false);
+                if (_undoRedoService.Redo() is { } step)
+        {
+            ApplyHistory(step, undo: false);
+            return;
+        }
+        var keys = AllTranslation.Select(t => (t.Namespace, t.Language)).ToHashSet();
+        if (Workspace.Redo()) RefreshWorkspaceProjection(!keys.SetEquals(_translationStore.Translations.Select(t => (t.Namespace, t.Language))), "Redo");
     }
 
     private List<TranslationItem> CaptureStructure() => AllTranslation.Select(i => ResourceEntryOperations.Copy(i)).ToList();
@@ -475,6 +550,7 @@ public partial class MainWindowViewModel
             if ((undo ? action.BeforeConfiguration : action.AfterConfiguration) is { } configuration && ProjectSettings != null)
             {
                 ProjectConfiguration.Apply(ProjectSettings, configuration);
+                RefreshGlossary();
                 _translationStore.NotifyConfigurationChanged(true);
                 _spellingSession?.Refresh();
                 MarkStructureChanged();
@@ -490,6 +566,7 @@ public partial class MainWindowViewModel
             }
             else if (action.BeforeConfiguration == null) ApplyUndoRedo([(action.Namespace, action.Language, undo ? action.OldValue : action.NewValue)]);
         }
+        if (!Workspace.IsDirty && !_translationStore.IsDirty) ClearSessionDirtyState();
     }
 
     private void ApplyUndoRedo(IReadOnlyList<(string Namespace, string Language, string Value)> edits)
@@ -519,9 +596,8 @@ public partial class MainWindowViewModel
     }
 
     /// <summary>
-    /// Runs a value-changing bulk operation so it undoes and redoes as one step. Snapshots the given items' values,
-    /// runs <paramref name="mutate"/>, then records every value that changed inside one undo group. Returns the items
-    /// that changed. A no-op records nothing (an empty group is no step).
+    /// Changes an editor projection and returns affected items. NotifyBulkValueChanges commits the result
+    /// to Core as one transaction, where history is recorded.
     /// </summary>
     private IReadOnlyList<TranslationItem> RecordBulkEdit(IEnumerable<TranslationItem> items, Action mutate)
     {
@@ -529,20 +605,8 @@ public partial class MainWindowViewModel
         var before = new Dictionary<TranslationItem, string>(ReferenceEqualityComparer.Instance);
         foreach (var item in tracked) before[item] = item.Value;
 
-        using (_undoRedoService.BeginGroup())
-        {
-            mutate();
-            var changed = new List<TranslationItem>();
-            foreach (var item in tracked)
-            {
-                if (before.TryGetValue(item, out var old) && old != item.Value)
-                {
-                    _undoRedoService.Record(item.Namespace, item.Language, old, item.Value);
-                    changed.Add(item);
-                }
-            }
-            return changed;
-        }
+        mutate();
+        return tracked.Where(item => before.TryGetValue(item, out var old) && old != item.Value).ToList();
     }
 
     // ───────────────────────── Text transforms ─────────────────────────
@@ -565,14 +629,7 @@ public partial class MainWindowViewModel
         if (planned.Count > 50 && !await _messageService.ConfirmAsync($"{label} will change {planned.Count} values in the current view. Continue?", label))
             return;
 
-        using (_undoRedoService.BeginGroup())
-        {
-            foreach (var (item, next) in planned)
-            {
-                _undoRedoService.Record(item.Namespace, item.Language, item.Value, next);
-                item.Value = next;
-            }
-        }
+        foreach (var (item, next) in planned) item.Value = next;
         var changed = planned.Select(p => p.Item).ToList();
 
         NotifyBulkValueChanges(changed);
@@ -598,7 +655,7 @@ public partial class MainWindowViewModel
     {
         var ns = SelectedGroup?.Namespace ?? SelectedNode?.Namespace;
         if (string.IsNullOrEmpty(ns)) return;
-        var items = AllTranslation.Where(t => t.Namespace == ns).OrderBy(t => t.Language, StringComparer.Ordinal).ToList();
+        var items = ItemsForEditorKey(ns).OrderBy(t => t.Language, StringComparer.Ordinal).ToList();
         if (items.Count == 0) return;
         await PlatformService.SetClipboardTextAsync(string.Join('\n', items.Select(t => $"{t.Language}={t.Value}")));
         StatusText = $"Copied {items.Count} value(s) of {ns}";
@@ -631,9 +688,8 @@ public partial class MainWindowViewModel
             if (eq <= 0) continue;
             var lang = line[..eq].Trim();
             var val = line[(eq + 1)..].TrimEnd('\r');
-            var existing = AllTranslation.FirstOrDefault(t => t.Namespace == ns && t.Language == lang);
+            var existing = ItemsForEditorKey(ns).FirstOrDefault(t => t.Language == lang);
             if (existing == null || existing.Value == val) continue;
-            _undoRedoService.Record(ns, lang, existing.Value, val);
             existing.Value = val;
             changed.Add(existing);
         }

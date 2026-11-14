@@ -31,6 +31,7 @@ public interface IProjectService
 /// <summary>Result of loading a project — contains both settings and translations.</summary>
 public class ProjectLoadResult
 {
+    public WorkspaceSource? Source { get; init; }
     public required ProjectSettings Settings { get; init; }
     public required List<TranslationItem> Translations { get; init; }
 

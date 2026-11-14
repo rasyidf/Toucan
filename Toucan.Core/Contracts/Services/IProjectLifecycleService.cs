@@ -57,8 +57,23 @@ public interface IProjectLifecycleService
     /// <summary>Current project settings (null when no project open).</summary>
     ProjectSettings? CurrentProject { get; }
 
+    /// <summary>Active connection states by connection ID (e.g. "Connected", "Connecting", "Failed: ...").</summary>
+    IReadOnlyDictionary<string, string> ConnectionStates { get; }
+
+    /// <summary>Raised when a connection's state changes.</summary>
+    event EventHandler<ConnectionStateChangedEventArgs>? ConnectionStateChanged;
+
+    /// <summary>Replaces a configured source connection within the open workspace, closing its connection scope and activating the replacement without restarting the workspace.</summary>
+    Task<bool> ReplaceConnectionAsync(string oldConnectionId, string newConnectionId, CancellationToken ct = default);
+
     /// <summary>Raised when the project changes (open/close/save).</summary>
     event EventHandler<ProjectChangedEventArgs>? ProjectChanged;
+}
+
+public class ConnectionStateChangedEventArgs(string connectionId, string state) : EventArgs
+{
+    public string ConnectionId { get; } = connectionId;
+    public string State { get; } = state;
 }
 
 /// <summary>Status codes for project open operations.</summary>

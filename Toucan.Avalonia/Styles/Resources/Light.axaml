@@ -1,0 +1,33 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <SolidColorBrush x:Key="ChromeBackgroundBrush" Color="#F3F3F3"/>
+  <SolidColorBrush x:Key="EditorBackgroundBrush" Color="#FAFAFA"/>
+  <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="CardBorderBrush" Color="#E5E5E5"/>
+  <SolidColorBrush x:Key="SubtleBorderBrush" Color="#E0E0E0"/>
+  <SolidColorBrush x:Key="MutedTextBrush" Color="#6B6B6B"/>
+  <SolidColorBrush x:Key="FaintTextBrush" Color="#8F8F8F"/>
+  <SolidColorBrush x:Key="HoverBackgroundBrush" Color="#0F000000"/>
+  <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="#1A0097A7"/>
+  <SolidColorBrush x:Key="SubtleHoverBrush" Color="#0F000000"/>
+  <SolidColorBrush x:Key="StatusBarBackgroundBrush" Color="#F3F3F3"/>
+  <SolidColorBrush x:Key="StatusBarForegroundBrush" Color="#6B6B6B"/>
+  <SolidColorBrush x:Key="BadgeBackgroundBrush" Color="#EDEDED"/>
+  <SolidColorBrush x:Key="DirtyBrush" Color="#D9822B"/>
+  <SolidColorBrush x:Key="GoodBrush" Color="#2E8B57"/>
+  <SolidColorBrush x:Key="WarnBrush" Color="#C28A00"/>
+  <SolidColorBrush x:Key="BadBrush" Color="#D13438"/>
+  <SolidColorBrush x:Key="InfoBrush" Color="#2F6FDB"/>
+  <SolidColorBrush x:Key="PlaceholderHighlightBrush" Color="#303B82F6"/>
+  <SolidColorBrush x:Key="SearchMatchBrush" Color="#66FFD54F"/>
+  <SolidColorBrush x:Key="SearchRemovedBrush" Color="#33D13438"/>
+  <SolidColorBrush x:Key="SearchAddedBrush" Color="#402E8B57"/>
+  <SolidColorBrush x:Key="SettingsCardBackgroundBrush" Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="SettingsCardBorderBrush" Color="#E5E5E5"/>
+  <SolidColorBrush x:Key="SettingsDividerBrush" Color="#E0E0E0"/>
+  <SolidColorBrush x:Key="SettingsToolbarBackgroundBrush" Color="#FAFAFA"/>
+  <SolidColorBrush x:Key="SettingsHeaderForegroundBrush" Color="#6B6B6B"/>
+  <SolidColorBrush x:Key="SettingsFooterForegroundBrush" Color="#8F8F8F"/>
+  <SolidColorBrush x:Key="SettingsRowHoverBrush" Color="#08000000"/>
+</ResourceDictionary>

@@ -8,6 +8,7 @@ public partial class MainWindowViewModel
 {
     partial void OnProjectSettingsChanged(ProjectSettings? value)
     {
+        RefreshGlossary();
         _spellingValidation?.Cancel();
         _spellingSession?.Dispose(); _spellingSession = null;
         if (value == null || _spellingService == null || _dictionaries == null) return;

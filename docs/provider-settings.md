@@ -1,7 +1,7 @@
 ---
 title: "Provider Settings (App-level and Project-level)"
 status: active
-updated: 2026-10-07
+updated: 2026-11-05
 summary: "Where provider settings and keys live (keys in the secret store), built-in provider defaults (Google, DeepL, Microsoft, AI, Custom), encryption model and the settings dialog."
 ---
 # Provider Settings (App-level and Project-level)
@@ -28,6 +28,8 @@ All built-in providers are pre-populated with sensible default values when no sa
 | Microsoft | endpoint, region | api_key | endpoint=https://api.cognitive.microsofttranslator.com |
 | AI | — (Settings → AI) | — (secret store `ai/<service>/api_key`) | — |
 | Custom | endpoint, header_name | api_key | — |
+
+The Custom provider falls back to the `TOUCAN_CUSTOM_ENDPOINT` environment variable when no `endpoint` option is set, which suits CI runs of the CLI.
 
 Each provider declares its own schema through `ITranslationProvider.Definition`; `TranslationProviderRegistry` collects the definitions of all registered providers and exposes them via `ITranslationProviderRegistry`. Plugin providers appear in the same list (they are not marked built-in). Providers without a definition, such as the mock provider, work but are not listed.
 

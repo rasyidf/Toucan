@@ -63,6 +63,7 @@ public sealed class AiTranslationProvider(IAiService ai) : ITranslationProvider
                     ["target_language"] = chunk[0].TargetLanguage,
                     ["context"] = Get("context"),
                     ["formality"] = Get("formality"),
+                    ["glossary"] = Get("glossary"),
                 },
             };
 

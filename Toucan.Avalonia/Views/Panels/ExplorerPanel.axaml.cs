@@ -22,6 +22,7 @@ public partial class ExplorerPanel : UserControl
                 vm.SelectedNode = flat.Source;
         };
         Tree.AddHandler(ContextRequestedEvent, OnTreeContextRequested, RoutingStrategies.Tunnel);
+        DocumentTree.AddHandler(ContextRequestedEvent, OnTreeContextRequested, RoutingStrategies.Tunnel);
         FlatList.AddHandler(ContextRequestedEvent, OnTreeContextRequested, RoutingStrategies.Tunnel);
         Tree.SelectionChanged += (_, _) =>
         {
@@ -41,10 +42,14 @@ public partial class ExplorerPanel : UserControl
     {
         if (DataContext is not MainWindowViewModel vm || sender is not Control host || e.Source is not Visual source) return;
         var row = (Visual?)source.FindAncestorOfType<TreeViewItem>(includeSelf: true) ?? source.FindAncestorOfType<ListBoxItem>(includeSelf: true);
-        var ns = (row as StyledElement)?.DataContext switch
+        var selected = (row as StyledElement)?.DataContext;
+        if (selected is WorkspaceNavigationItemViewModel { IsEntry: true } entry)
+            vm.SelectedDocumentNode = entry;
+        var ns = selected switch
         {
             NsTreeItem node => node.Namespace,
             NsFlatItem flat => flat.FullKey,
+            WorkspaceNavigationItemViewModel { IsEntry: true } => vm.SelectedGroup?.Namespace,
             _ => null
         };
 

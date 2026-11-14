@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-30",
+  "platform": "macOS ARM64",
+  "baseCommit": "f6e0e6574b755c49b72a6e5355531c6a512712d5",
+  "sourceVersion": "0.24.0",
+  "status": "local-validation-passed-release-acceptance-open",
+  "tests": {
+    "core": {
+      "total": 1259,
+      "passed": 1259,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "90e679675df338e73e4d5920f098356bf429ace4e0fa8c1cf53d88ab880d4e98"
+    },
+    "ui": {
+      "total": 389,
+      "passed": 388,
+      "failed": 0,
+      "skipped": 1,
+      "sha256": "4648bcf7a0f8b4428e2d170e25792cec2018dc0021fb775c2f5737e8d96f91a8"
+    },
+    "sdk": {
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "8264646843a95e92f2eb2e7d3794bd6f9cf76c4b4dcc8306b0a77666c9d2962d"
+    }
+  },
+  "passed": 1658,
+  "skipped": 1,
+  "build": {
+    "result": "passed",
+    "command": "dotnet build Toucan.CrossPlatform.slnx --no-restore -m:1 -nr:false -p:UseSharedCompilation=false -p:UsedAvaloniaProducts=",
+    "notes": "Local package-cache restore; Avalonia build telemetry suppressed because its external log path is not writable. Existing full-build warning AVLN3001 remains."
+  },
+  "cli": {
+    "babelFixtures": 19,
+    "exactResourceFormats": 6,
+    "result": "passed"
+  },
+  "documentation": {
+    "statusCheck": "passed",
+    "index": "regenerated",
+    "site": "regenerated"
+  },
+  "screenshots": {
+    "dictionaryLight": "build/v0.25-readiness/ui/dictionary-light.png",
+    "dictionaryDark": "build/v0.25-readiness/ui/dictionary-dark.png",
+    "mode": "headless",
+    "size": "340x760"
+  },
+  "remaining": [
+    "Broader document-format migration beyond JSON/namespaced JSON",
+    "Native Windows workflow/accessibility and compatibility M7c",
+    "External connector acceptance: TOUCAN_EXTERNAL_CONNECTOR_DIST unavailable",
+    "New native packages, installation/upgrade, signing/notarization and live service-backed acceptance",
+    "Version promotion, release tagging and publication"
+  ],
+  "implementationFilesSha256": {
+    "Toucan.Avalonia/App.axaml.cs": "5f6d66a00c80767f74a3cc554eae2557ad59ce5e8067723addaaa65b02774219",
+    "Toucan.Avalonia/Locales/Strings.id-ID.json": "eb0c7861ce97199088a0071a470b1912f5c07e34123ae1b551b9bd950500d80e",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Ai.cs": "ddb957c4dcc270b917ae2a8242b7f966004c3a1166e9fd7d780ef23e2a56f72b",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Edit.cs": "9ce7c4b834078cf19774384d32b44df3f0ac1b3c7fc1321ede690a1d067253cf",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.File.cs": "0d06eb08054f5b56a3f3825b36279c0b217f82e67e6f9fa7aabb7e133a198681",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Glossary.cs": "f10310146d79b3ca60de1777e79d72c8e945f7519285b10111810f7a667bdf38",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Spelling.cs": "065b7372bd6fd34484e6481bc8a10934b16b0bbe9dc4101ce4de2eeb30306448",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.Translation.cs": "61db2fafa09088dea4438d94158229f9aa5972dc368d6dc994c4b0b15bf5101b",
+    "Toucan.Avalonia/ViewModels/MainWindowViewModel.cs": "2582820b66f9dbf6642174050ab7b891bd8c0aaddacc530c7740f0b3492f2a55",
+    "Toucan.Avalonia/ViewModels/PreTranslateViewModel.cs": "4e896b2efc76e7c40d710a4d9e86e526f95189d4f6104756f3953f248da66878",
+    "Toucan.Avalonia/ViewModels/SmallModels.cs": "5c44fcb3f36a9462d4222a4d0aaf2f023ad633124d2f7df54a5386824aca8cb6",
+    "Toucan.Avalonia/Views/Components/TranslationCard.axaml.cs": "2748f4fe048fd557f546cc845eb5024bb0caa6991486e4404a70b16acfffa99d",
+    "Toucan.Avalonia/Views/Panels/DictionaryPanel.axaml": "42a2ca361a9831a1462db5c8bba2f2f5cff04baf36bcfedbb25351125fe03fe3",
+    "Toucan.Avalonia/Views/Panels/DictionaryPanel.axaml.cs": "8cb0c511b6b8a9b7a1ec21cb56d72e96e039b04c9501db4c6a73c6823ecb47b2",
+    "Toucan.Avalonia/Views/Panels/IssuesPanel.axaml": "062615787e0c3510ea2317514aa01b861e7023f28f4fb3da6301fb7ee52db428",
+    "Toucan.CLI/Program.cs": "1139e40bd107c965d69e06b983d4f107858a7fad303d33eced721dac82185670",
+    "Toucan.Core.Common/Services/MessageSyntaxService.cs": "57e67bbed61634b38c80e2d910b9cd34a71dd86586ca419f9e2b86aa2d4f9df7",
+    "Toucan.Core/Models/GlossaryEntry.cs": "3365d365b3eab38148a67b82019215252bd687f0ece1f815b391c05177054ca5",
+    "Toucan.Core/Models/ProjectSettings.cs": "ea21829fc33b8cbdeb5b6b7930211ddc28b674658ae827d23fd9ee1c3a3ad118",
+    "Toucan.Core/Plugins/Services/WorkspaceEditPlanner.cs": "616ee9a512df630a8b7986c66c7e33c4d8f6a720e9c66d7235d528a804d4ca05",
+    "Toucan.Core/Services/AutoSaveService.cs": "1c9f4cc0038b1a423e933d3c800d3127c2dc9c53d8a35db499029aae440dcb6a",
+    "Toucan.Core/Services/EffectiveSettingsResolver.cs": "48f8128f59affaddf42d18549615ccfd7412dec3456348158e1def62be690437",
+    "Toucan.Core/Services/GlossaryService.cs": "3f3a6890dcdbdf15c96a2259b16944a697ac20217dfc0501adb6f27c23eac512",
+    "Toucan.Core/Services/ProjectLifecycleService.Documents.cs": "4ccb1fc6a76f8f7b8c72221d8ae1b3e271db9ee4b3c122bf496d574ee19f5aca",
+    "Toucan.Core/Services/ProjectLifecycleService.cs": "08ea88fc8ca8cd9422de81c956e168a22a99fbdc0cdc0bd8462959e2ac2050d5",
+    "Toucan.Core/Services/ProjectService.cs": "fdc06d6ec47f2d779a5bcbefdc5ec4e18e1fde882e318576956df2e980d0a363",
+    "Toucan.Core/Services/Validation/GlossaryRule.cs": "7f395921e383834693b40535187b21fa53c199faaf63b834eb22eb33341f305c",
+    "Toucan.Core/Services/Validation/ValidationPipeline.cs": "d81b39eb250ef7019ff380001aa499b0984f482c42a93162b1ec1684db6756d4",
+    "Toucan.Core/Services/WorkspaceService.cs": "fae70c19f46c10a9a8582d4415753b4e0c29d5efbccae7a2b0740d9ad89e8c14",
+    "Toucan.Core/ToucanCoreServiceCollectionExtensions.cs": "7b4d092ea02503b0a28c1fea5c75c0f3b055349e1be79b9a5a8f0bb76ff53ed3",
+    "Toucan.Modules.Formats.Json/JsonLoadStrategy.cs": "eed41b00c8ddda50728206581a2d6b645635371ea013ecce3f04aa68ae9336b8",
+    "Toucan.Modules.Providers/AiTranslationProvider.cs": "29edc70d40e32ed4396d01c61a1e4db5a6173d4d6c09b1ed3078e5992ea741ff",
+    "Toucan.Modules.Validation/MessageSyntaxRule.cs": "545c25bdba1513f427478eff372800693a421129c243efbecb21986fbc18e620",
+    "Toucan.Modules.Validation/ValidationModule.cs": "a2e0afb699146211fa49be15d5d2597f262f540a67fb2025ccf80c9cce7009d5",
+    "Toucan.Modules.Validation/ValidationRules.cs": "04cdb0344ac199620ba143cb78f9489c7e95daa90f54b31a59663d542b35db5a",
+    "tests/Toucan.Avalonia.Tests/AppSmokeTests.cs": "c63d891ae0149dffdf7acecf5a2ef7f115d5522cc78294ed7b62087120296ee2",
+    "tests/Toucan.Avalonia.Tests/EditorAccessTests.cs": "018d9f2fdbfb9540802e05174ff7c46088447fd4c4cf2b5a13f6d55dd046cc15",
+    "tests/Toucan.Avalonia.Tests/InlineEditingTests.cs": "2b9e40a99f4c794218a60a3062b531b2f484bcad69d13623e37a1300d2ea27e9",
+    "tests/Toucan.Avalonia.Tests/TerminologyWorkflowTests.cs": "fd8014940d2bdc1e150a23c19288ae3476e40656c2a1e7ec5dfc80041fd84749",
+    "tests/Toucan.Avalonia.Tests/TestHost.cs": "460db414379c141ff69cea330f79fa7fc84e108d4115820cc877a50b4fcc49da",
+    "tests/Toucan.Avalonia.Tests/UiClosureRecoveryTests.cs": "5b7e2f89f94ba62c68b48875bc79848012d875efa747c29c5d810038a0d39f77",
+    "tests/Toucan.Avalonia.Tests/ValidationPageTests.cs": "bc2ad251092088b1b21f9cd94352aefef82076f5e31ad3498a2693c6963f1711",
+    "tests/Toucan.Core.Tests/Modules/BuiltInModuleTests.cs": "c7d060891a7b4d9e55d03cd4fb1c965e319d06b4bf466867795e8daf4f66304b",
+    "tests/Toucan.Core.Tests/Modules/ModuleSnapshotTests.cs": "a7aecc13f4b89292644309a528627f10a8566e9964f99d36ac0763e2badd53a8",
+    "tests/Toucan.Core.Tests/TerminologyAndMessageTests.cs": "e205ef0d761deecd279da050a42ab2ce9a685c0cdb81132dcd08a92697195ddc",
+    "tests/Toucan.Core.Tests/ValidationPolicyTests.cs": "36132cc5dafb2d7d120e756b76fb85e93cb38898cf37c3beb2e60f4b137f5155",
+    "tests/Toucan.Core.Tests/WorkspaceDestinationTests.cs": "46986a3283b030600db28330d56c958179a169b5be83dd8ca418612f24a8eeb4"
+  }
+}

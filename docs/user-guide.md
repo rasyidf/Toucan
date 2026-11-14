@@ -1,12 +1,12 @@
 ---
 title: "Toucan User Guide"
 status: active
-updated: 2026-10-25
+updated: 2026-11-05
 summary: "Comprehensive guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving."
 ---
 # Toucan User Guide
 
-Toucan is a cross-platform desktop editor designed for software translation and localization files. It runs natively on Windows, macOS, and Linux, providing a unified workspace to translate, review, and validate over 14 resource formats without switching between text editors or risking file corruption.
+Toucan is a cross-platform desktop editor designed for software translation and localization files. It runs natively on Windows, macOS, and Linux, providing a unified workspace to translate, review, and validate 15 resource formats without switching between text editors or risking file corruption.
 
 ---
 
@@ -45,7 +45,7 @@ The Toucan window consists of three main regions:
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Activity Bar & Sidebar:** Switch between the **Explorer** (file/namespace hierarchy), **Search** (full regex search & replace), **Issues** (real-time validation findings), **Source Code** (code reference scanner), and **Languages** (manage project locales).
+- **Activity Bar & Sidebar:** Switch between the **Explorer** (file/namespace hierarchy), **Search** (full regex search & replace), **Issues** (real-time validation findings), **Source Code** (code reference scanner), and **Languages** (manage project locales). Further panels cover **Translation Memory**, **Machine Translation** and the **Dictionary** (project glossary).
 - **Translation Editor:** View strings either in a paged grid or infinite scroll. In wide windows, translation cards present a comfortable **two-column layout** with source on the left and target on the right. In narrower windows, cards automatically stack.
 - **Inspector Panel:** Displays metadata for the focused translation segment, including character/word counts, developer comments, translation memory suggestions, and validation warnings.
 - **Status Bar:** Shows current project information, encoding (UTF-8, BOM, Latin-1), line endings (LF, CRLF), and a **Notification History** flyout.
@@ -65,7 +65,7 @@ Designed for quality assurance and verification. Review Mode filters your view t
 ### Audit Mode
 A strictly read-only inspection mode. All editing fields, buttons, and mutation shortcuts are disabled to prevent accidental modifications while inspecting translation history, author metadata, and approval timestamps.
 
-### Zen Mode (<kbd>F11</kbd>)
+### Zen Mode (<kbd>Ctrl/Cmd+Shift+Enter</kbd>)
 Hides the sidebar, inspector, toolbar, and status bar, leaving only your translation cards in a focused view. Navigate smoothly between strings using <kbd>J</kbd> / <kbd>K</kbd> or <kbd>Ctrl/Cmd+Enter</kbd>.
 
 ---
@@ -78,12 +78,16 @@ Toucan is engineered for touch-typists. Routine editing and review require no mo
 |---|---|---|
 | <kbd>Ctrl/Cmd+Enter</kbd> | **Approve and Next** | Marks current translation approved and moves focus to the next target field. |
 | <kbd>Ctrl/Cmd+Alt+→</kbd> | **Next Pending** | Jumps focus to the next untranslated or unapproved field. |
-| <kbd>Tab</kbd> | **Accept Suggestion** | Accepts the ghost-text translation memory suggestion into an empty field. |
+| <kbd>Tab</kbd> (or <kbd>Ctrl/Cmd+Alt+Enter</kbd>) | **Accept Suggestion** | Accepts the ghost-text translation memory suggestion into an empty field. |
 | <kbd>Ctrl/Cmd+Shift+P</kbd> | **Command Palette** | Search and run any menu item, command, or plugin action. |
 | <kbd>Ctrl/Cmd+/</kbd> | **Shortcut Sheet** | Displays a searchable reference of all keyboard shortcuts. |
 | <kbd>Ctrl/Cmd+S</kbd> | **Save Project** | Saves all modified files atomically. |
-| <kbd>Ctrl/Cmd+Z</kbd> / <kbd>Y</kbd> | **Undo / Redo** | Full history navigation. Bulk actions undo as a single step. |
-| <kbd>F11</kbd> | **Zen Mode** | Toggle distraction-free full-window editing. |
+| <kbd>Ctrl/Cmd+Z</kbd> / <kbd>Ctrl+Y</kbd> (<kbd>Cmd+Shift+Z</kbd> on macOS) | **Undo / Redo** | Full history navigation. Bulk actions undo as a single step. |
+| <kbd>Ctrl/Cmd+Shift+Enter</kbd> | **Zen Mode** | Toggle distraction-free editing. |
+| <kbd>F11</kbd> (<kbd>Ctrl+Cmd+F</kbd> on macOS) | **Fullscreen** | Toggle fullscreen. |
+| <kbd>F7</kbd> | **Run Validation** | Validate the whole project. |
+| <kbd>Ctrl/Cmd+Shift+T</kbd> | **Pre-translate** | Open the pre-translate dialog. |
+| <kbd>Ctrl/Cmd+Alt+1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | **Editor / Review / Audit mode** | Switch application mode. |
 
 Shortcuts can be customized in **Settings → Keyboard Shortcuts**, with automatic conflict detection and one-click reset to defaults.
 
@@ -135,3 +139,11 @@ Toucan protects your localization files from corruption and data loss:
 - **Journaled Rollback (`SaveTransaction`):** In multi-file projects, if saving one file fails (e.g. disk full or locked file), all previously written files in that save operation are automatically rolled back.
 - **Crash Recovery Drafts:** Unsaved edits are backed up periodically to a recovery directory. If Toucan closes unexpectedly, reopening the project prompts you to restore your unsaved drafts.
 - **External Change Detection:** If a teammate or Git pull modifies translation files while Toucan is open, Toucan detects the change and provides an interactive merge dialog to resolve any conflicts without overwriting disk contents.
+
+## Project terminology and message checks
+
+Open the Dictionary panel to maintain preferred and forbidden terms, edit per-language translations and descriptions, or import/export a glossary CSV. Matching terms appear for the selected source string; select a preferred match to append it to a target field. Save, undo and redo work through the normal project history.
+
+Settings → Validation controls rule enable/severity defaults; project overrides take precedence per rule. The glossary and ICU message-syntax checks appear alongside existing rules. Issues can focus the affected field. Findings never prevent a normal draft save.
+
+Issues → Analysis strictness sets a per-project confidence threshold. An AI finding's Re-translate action opens a preview with overwrite enabled; accepting it is explicit and undoable. See [terminology, syntax limits and supported provider behavior](specs/v0.25-terminology-validation.md).

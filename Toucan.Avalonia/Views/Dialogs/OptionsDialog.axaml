@@ -210,7 +210,7 @@
               <c:SettingsRow Title="{loc:Loc 'Treat keys as plain text (don\'t split on dots)'}">
                 <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding PlainTextKeys}"/>
               </c:SettingsRow>
-              <c:SettingsRow Title="{loc:Loc 'Warn when a translation is missing a placeholder'}" Description="{loc:Loc 'Shows an inline warning on a value that drops a {{ }} placeholder its source has.'}">
+              <c:SettingsRow Title="{loc:Loc 'Warn when a translation is missing a placeholder'}" Description="{loc:Loc 'Shows missing, unexpected, or repeated-placeholder mismatches while editing.'}">
                 <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding ShowPlaceholderWarnings}"/>
               </c:SettingsRow>
             </StackPanel>

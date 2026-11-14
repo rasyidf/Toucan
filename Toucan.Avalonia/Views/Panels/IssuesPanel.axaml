@@ -11,6 +11,7 @@
         <Button Content="{loc:Loc 'Check spelling locally'}" Command="{Binding CheckProjectSpellingCommand}"/>
         <Button Content="{loc:Loc 'Cancel spelling check'}" Command="{Binding CancelSpellingValidationCommand}" IsVisible="{Binding IsCheckingProjectSpelling}"/>
         <Button Content="{loc:Loc 'Analyze with AI…'}" Command="{Binding AnalyzeTranslationsCommand}" IsVisible="{Binding IsAiEnabled}"/>
+        <Button Content="{loc:Loc 'Analysis strictness'}" Command="{Binding ConfigureAnalysisStrictnessCommand}" IsVisible="{Binding IsAiEnabled}"/>
         <Button Content="{loc:Loc 'Check source clarity with AI…'}" Command="{Binding CheckSourceClarityCommand}" IsVisible="{Binding IsAiEnabled}"/>
       </StackPanel>
     </StackPanel>
@@ -28,6 +29,8 @@
               </StackPanel>
             </Button>
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
+              <Button Content="{loc:Loc 'Re-translate…'}" IsVisible="{Binding CanRetranslate}"
+                      Command="{Binding $parent[UserControl].DataContext.RetranslateFindingCommand}" CommandParameter="{Binding}"/>
               <Button Classes="icon small" ToolTip.Tip="{loc:Loc 'Apply suggested fix'}" IsVisible="{Binding HasFix}"
                       Command="{Binding $parent[UserControl].DataContext.ApplyFixCommand}" CommandParameter="{Binding}">
                 <ui:FASymbolIcon Symbol="Repair"/>

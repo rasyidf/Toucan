@@ -18,7 +18,7 @@ public partial class LanguageItem(string name, bool isSelected = false) : Observ
 /// <summary>Builds provider option dictionaries (API keys, endpoints, context, formality).</summary>
 internal static class ProviderOptionsBuilder
 {
-    public static Dictionary<string, string> Build(string provider, IProviderSettingsService? settingsService, string? projectPath)
+    public static Dictionary<string, string> Build(string provider, IProviderSettingsService? settingsService, string? projectPath, ProjectSettings? currentProject = null, IEnumerable<TranslationItem>? items = null)
     {
         var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -41,10 +41,22 @@ internal static class ProviderOptionsBuilder
         if (!string.IsNullOrEmpty(projectPath) && string.Equals(provider, AiFeatureIds.TranslationProviderName, StringComparison.OrdinalIgnoreCase))
             dict["project_path"] = projectPath;
 
-        var project = string.IsNullOrEmpty(projectPath) ? null : ProjectSettings.LoadFrom(projectPath);
+        var project = currentProject ?? (string.IsNullOrEmpty(projectPath) ? null : ProjectSettings.LoadFrom(projectPath));
         var opts = AppOptions.LoadFromDisk();
         var context = project?.Context ?? opts.Context;
         var formality = project?.Formality ?? opts.Formality;
+        var terms = project?.Glossary ?? [];
+        if (items is not null)
+        {
+            var sources = items.Where(i => i.Language == project?.PrimaryLanguage).Select(i => i.Value).ToList();
+            terms = terms.Where(e => e.Forbidden || sources.Any(text => Toucan.Core.Services.GlossaryService.ContainsTerm(text, e.Term))).ToList();
+        }
+        var glossary = Toucan.Core.Services.GlossaryService.Prompt(terms);
+        if (!string.IsNullOrWhiteSpace(glossary))
+        {
+            dict["glossary"] = glossary;
+            context = string.Join("\n", new[] { context, "Project terminology:\n" + glossary }.Where(s => !string.IsNullOrWhiteSpace(s)));
+        }
         if (!string.IsNullOrWhiteSpace(context)) dict["context"] = context;
         if (!string.IsNullOrWhiteSpace(formality) && formality != "Default") dict["formality"] = formality.ToLowerInvariant();
         return dict;
@@ -62,6 +74,7 @@ public partial class PreTranslateViewModel : ObservableObject
     private readonly IDialogService? _dialogService;
     private readonly IProviderSettingsService? _providerSettingsService;
     private readonly string? _projectPath;
+    private readonly ProjectSettings? _project;
     private CancellationTokenSource? _cts;
 
     public PreTranslateViewModel(
@@ -73,7 +86,7 @@ public partial class PreTranslateViewModel : ObservableObject
         string? projectPath = null,
         string? primaryLanguage = null,
         IEnumerable<string>? providers = null,
-        string? initialProvider = null)
+        string? initialProvider = null, ProjectSettings? project = null)
     {
         ProviderNames = providers?.ToList() is { Count: > 0 } given ? given : [.. Providers];
         _pretranslationService = pretranslation;
@@ -81,6 +94,7 @@ public partial class PreTranslateViewModel : ObservableObject
         _dialogService = dialogService;
         _providerSettingsService = providerSettingsService;
         _projectPath = projectPath;
+        _project = project is null ? null : Toucan.Core.Services.ProjectConfiguration.Copy(project);
 
         foreach (var l in languages)
         {
@@ -157,7 +171,7 @@ public partial class PreTranslateViewModel : ObservableObject
             {
                 Overwrite = OverwriteExisting,
                 PreviewOnly = true,
-                ProviderOptions = ProviderOptionsBuilder.Build(SelectedProvider, _providerSettingsService, _projectPath)
+                ProviderOptions = ProviderOptionsBuilder.Build(SelectedProvider, _providerSettingsService, _projectPath, _project, _sourceItems)
             }
         };
 

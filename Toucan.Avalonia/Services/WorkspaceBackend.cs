@@ -5,15 +5,15 @@ using Toucan.Plugins;
 
 namespace Toucan.Avalonia.Services;
 
-/// <summary>Lets plugins read and change the project the main window shows. The view model is UI-thread bound, so every call hops there.</summary>
-internal sealed class WorkspaceBackend : IWorkspaceBackend
+/// <summary>Flushes pending desktop text and refreshes projections around the UI-independent Core workspace API.</summary>
+internal sealed class WorkspaceBackend : IWorkspaceSubscriptionBackend
 {
     private readonly MainWindowViewModel _vm;
 
     public WorkspaceBackend(MainWindowViewModel vm)
     {
         _vm = vm;
-        vm.WorkspaceChanged += (_, e) => Changed?.Invoke(this, e);
+        vm.Workspace.Changed += (_, e) => Changed?.Invoke(this, e);
     }
 
     public event EventHandler? Changed;
@@ -22,8 +22,34 @@ internal sealed class WorkspaceBackend : IWorkspaceBackend
 
     public Task<WorkspaceSnapshot?> SnapshotAsync(CancellationToken cancellationToken = default) => OnUi(_vm.BuildWorkspaceSnapshot, cancellationToken);
 
-    public Task<EditResult> ApplyAsync(string pluginId, WorkspaceEdit edit, CancellationToken cancellationToken = default) =>
-        OnUi(() => _vm.ApplyWorkspaceEdit(pluginId, edit), cancellationToken);
+    public Task<EditResult> ApplyAsync(string pluginId, WorkspaceEdit edit, CancellationToken cancellationToken = default)
+    {
+        var session = _vm.Workspace.SessionId;
+        return OnUi(() => _vm.ApplyWorkspaceEdit(pluginId, edit, session, cancellationToken), cancellationToken);
+    }
+
+    public Task<IdentifiedWorkspaceSnapshot?> SnapshotEntriesAsync(CancellationToken cancellationToken = default) =>
+        OnUi(() =>
+        {
+            _vm.FlushPendingEdits();
+            return _vm.Workspace.SnapshotEntriesAsync(cancellationToken).GetAwaiter().GetResult();
+        }, cancellationToken);
+
+    public Task<EditResult> ApplyEntriesAsync(string pluginId, EntryEdit edit, CancellationToken cancellationToken = default) =>
+        OnUi(() =>
+        {
+            _vm.FlushPendingEdits();
+            var result = _vm.Workspace.ApplyEntries(pluginId, edit, cancellationToken);
+            if (result.Applied && result.ChangedUnits > 0)
+                _vm.RefreshWorkspaceProjection(edit.Operations.Any(op => op is RenameEntry or DeleteEntry), edit.Label ?? pluginId, result.ChangedUnits);
+            return result;
+        }, cancellationToken);
+
+    public async Task<IWorkspaceSubscription?> SubscribeAsync(int capacity = 128, CancellationToken cancellationToken = default)
+    {
+        await OnUi(() => { _vm.FlushPendingEdits(); return true; }, cancellationToken).ConfigureAwait(false);
+        return await _vm.Workspace.SubscribeAsync(capacity, cancellationToken).ConfigureAwait(false);
+    }
 
     private static Task<T> OnUi<T>(Func<T> work, CancellationToken cancellationToken)
     {

@@ -1,3 +1,4 @@
+using Toucan.Core.Services.Validation;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -34,14 +35,15 @@ public partial class MainWindowViewModel
         await RunPreTranslateDialog(AllTranslation.ForParse().ToList());
     }
 
-    private async Task RunPreTranslateDialog(List<TranslationItem> items)
+    private async Task RunPreTranslateDialog(List<TranslationItem> items, bool overwrite = false)
     {
         if (IsAuditMode) return;
         var revision = _workspaceRevision;
         var settings = ProjectSettings;
         var stagedItems = items.Select(i => ResourceEntryOperations.Copy(i)).ToList();
         var vm = new PreTranslateViewModel(OrderedLanguages(), stagedItems, _pretranslationService, _dialogService, _providerSettingsService, CurrentPath, PrimaryLanguage,
-            UsableProviderNames(), ResolveProvider());
+            UsableProviderNames(), ResolveProvider(), settings);
+        vm.OverwriteExisting = overwrite;
         var committed = await _dialogService.ShowPreTranslateAsync(vm);
         RememberProvider(vm.SelectedProvider);
         if (!committed || vm.AppliedCount == 0) return;
@@ -92,7 +94,7 @@ public partial class MainWindowViewModel
                 Options = new PretranslationOptions
                 {
                     PreviewOnly = true,
-                    ProviderOptions = ProviderOptionsBuilder.Build(provider, _providerSettingsService, CurrentPath)
+                    ProviderOptions = ProviderOptionsBuilder.Build(provider, _providerSettingsService, CurrentPath, ProjectSettings, AllTranslation)
                 }
             };
             var result = await Task.Run(() => _pretranslationService.PreTranslateAsync(request));
@@ -135,7 +137,7 @@ public partial class MainWindowViewModel
     }
 
     internal Task TranslateKeyAsync(string ns) =>
-        QuickTranslateAsync(AllTranslation.Where(t => t.Namespace == ns || (PluralService.IsPluralKey(t.Namespace) && PluralService.GetBaseKey(t.Namespace) == ns)).ToList(), $"Key {ns}");
+        QuickTranslateAsync((HasDocumentNavigation ? ItemsForEditorKey(ns) : AllTranslation.Where(t => t.Namespace == ns || (PluralService.IsPluralKey(t.Namespace) && PluralService.GetBaseKey(t.Namespace) == ns))).ToList(), $"Key {ns}");
 
     [RelayCommand]
     private Task TranslateSelectedKey()
@@ -178,11 +180,8 @@ public partial class MainWindowViewModel
 
     private List<TranslationItem> ApprovalBlockers(IReadOnlyCollection<TranslationItem> items)
     {
-        if (ProjectSettings?.RequireValidForApproval != true || items.Count == 0) return [];
-        var errors = _validationPipeline.RunAll(new ValidationContext { Items = AllTranslation, PrimaryLanguage = ProjectSettings.PrimaryLanguage })
-            .Where(r => r.Severity == ValidationSeverity.Error)
-            .Select(r => (r.Namespace, r.Language)).ToHashSet();
-        var blocked = items.Where(t => errors.Contains((t.Namespace, t.Language)) || errors.Contains((t.Namespace, null))).ToList();
+        if (items.Count == 0) return [];
+        var blocked = Workspace.ApprovalBlockers(items).ToList();
         if (blocked.Count > 0)
             StatusText = blocked.Count == 1
                 ? $"Not approved: {blocked[0].Namespace} [{blocked[0].Language}] has validation errors."
@@ -239,7 +238,7 @@ public partial class MainWindowViewModel
         settings.PrimaryLanguage = PrimaryLanguage;
         try
         {
-            ShowValidationResults(_validationPipeline.RunAll(new ValidationContext { Items = AllTranslation, PrimaryLanguage = settings.PrimaryLanguage }).ToList());
+            ShowValidationResults(_validationPipeline.RunAll(new ProjectValidationContext { Project = ProjectSettings, Items = AllTranslation, PrimaryLanguage = settings.PrimaryLanguage }).ToList());
         }
         finally
         {
@@ -289,11 +288,23 @@ public partial class MainWindowViewModel
     private void ApplyFix(ValidationIssueItem? issue)
     {
         if (issue?.SuggestedFix == null || issue.Namespace == null) return;
+        if (HasDocumentNavigation && AllTranslation.Where(t => t.Namespace == issue.Namespace).Select(Workspace.GetProjectionEntryId).Distinct().Count() > 1)
+        {
+            StatusText = "This issue has an ambiguous key; edit the selected entry directly.";
+            return;
+        }
         var target = AllTranslation.FirstOrDefault(t => t.Namespace == issue.Namespace && t.Language == issue.Language);
         if (target == null) return;
 
-        _undoRedoService.Record(target.Namespace, target.Language, target.Value, issue.SuggestedFix);
+        if (IsAuditMode || !target.Permissions.EditValues) return;
+        FlushPendingEdits();
+        if (issue.ExpectedValue is { } expected && target.Value != expected ||
+            issue.ExpectedSource is { } source && AllTranslation.FirstOrDefault(i => i.Namespace == issue.Namespace && i.Language == PrimaryLanguage)?.Value != source)
+        { StatusText = "The text changed. Run analysis again before applying this finding."; return; }
+        var before = CaptureEntries([target]);
         target.Value = issue.SuggestedFix;
+        target.IsApproved = false; target.ApprovedAtUtc = null;
+        RecordEntryChanges(before);
         NotifyBulkValueChanges([target]);
         foreach (var t in PagingController.Data.SelectMany(g => g.AllItems).Where(t => ReferenceEquals(t.Model, target))) t.Refresh();
         ValidationIssues.Remove(issue);
@@ -303,7 +314,10 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private void RevealIssue(ValidationIssueItem? issue)
     {
-        if (issue?.Namespace != null) RevealKey(issue.Namespace);
+        if (issue?.Namespace is not { } key) return;
+        RevealKey(key);
+        var item = PagingController.PageData.SelectMany(g => g.AllItems).FirstOrDefault(i => i.Namespace == key && i.Language == issue.Language);
+        if (item is not null) { FocusedTranslationItem = item; TranslationFocusRequested?.Invoke(this, new(item)); }
     }
 
     // ───────────────────────── Plural & gender forms ─────────────────────────
@@ -523,7 +537,7 @@ public partial class MainWindowViewModel
         if (Toucan.Core.Services.PlaceholderService.NamedDouble(oldToken) is not [var o] || o != oldToken) return 0;
         if (Toucan.Core.Services.PlaceholderService.NamedDouble(newToken) is not [var n] || n != newToken) return 0;
 
-        var items = AllTranslation.Where(t => t.Namespace == key && t.Value.Contains(oldToken, StringComparison.Ordinal)).ToList();
+        var items = ItemsForEditorKey(key).Where(t => t.Value.Contains(oldToken, StringComparison.Ordinal)).ToList();
         if (items.Count == 0) return 0;
 
         FlushPendingEdits();
@@ -575,7 +589,7 @@ public partial class MainWindowViewModel
         var focused = FocusedTranslationItem;
         if (focused is null || IsAuditMode) { StatusText = "Click into a translation field first."; return; }
 
-        var source = AllTranslation.FirstOrDefault(t => t.Namespace == focused.Namespace && t.Language == PrimaryLanguage);
+        var source = ItemsForEditorKey(focused.Namespace).FirstOrDefault(t => t.Language == PrimaryLanguage);
         if (source is null) return;
 
         var sourceTokens = Toucan.Core.Services.PlaceholderService.NamedDouble(source.Value);
@@ -610,13 +624,14 @@ public partial class MainWindowViewModel
     /// <summary>Refreshes the inspector for the currently selected key.</summary>
     private void RefreshInspector()
     {
+        RefreshGlossary();
         var ns = SelectedGroup?.Namespace ?? SelectedNode?.Namespace;
         SelectedKeyLanguages.Clear();
         Suggestions.Clear();
         SelectedKeyUsages.Clear();
         SelectedKeyPlaceholders.Clear();
 
-        var items = string.IsNullOrEmpty(ns) ? [] : AllTranslation.Where(t => t.Namespace == ns).ToList();
+        var items = string.IsNullOrEmpty(ns) ? [] : ItemsForEditorKey(ns).ToList();
         HasSelectedKeyDetails = items.Count > 0;
         SelectedKeyNamespace = ns ?? string.Empty;
 
@@ -673,7 +688,7 @@ public partial class MainWindowViewModel
     {
         MemoryMatches.Clear();
         var ns = SelectedGroup?.Namespace ?? SelectedNode?.Namespace;
-        var source = string.IsNullOrEmpty(ns) ? null : AllTranslation.FirstOrDefault(t => t.Namespace == ns && t.Language == PrimaryLanguage && !string.IsNullOrWhiteSpace(t.Value));
+        var source = string.IsNullOrEmpty(ns) ? null : ItemsForEditorKey(ns).FirstOrDefault(t => t.Language == PrimaryLanguage && !string.IsNullOrWhiteSpace(t.Value));
         if (source != null)
         {
             var threshold = AppOptions.TmSimilarityThreshold;
@@ -693,7 +708,9 @@ public partial class MainWindowViewModel
         GhostSuggestion = null;
         if (_ghostTarget != null) { _ghostTarget.GhostText = null; _ghostTarget = null; }
         if (!AppOptions.TmAutoSuggest || item.Language == PrimaryLanguage) return;
-        var source = AllTranslation.FirstOrDefault(t => t.Namespace == item.Namespace && t.Language == PrimaryLanguage);
+        var id = Workspace.GetProjectionEntryId(item.Model);
+        var source = AllTranslation.FirstOrDefault(t => t.Namespace == item.Namespace && t.Language == PrimaryLanguage
+            && (!HasDocumentNavigation || Workspace.GetProjectionEntryId(t) == id));
         if (source == null || string.IsNullOrWhiteSpace(source.Value)) return;
         GhostSuggestion = _translationMemory.Search(source.Value, PrimaryLanguage, item.Language, AppOptions.TmSimilarityThreshold, 1).FirstOrDefault()?.TargetText;
     }

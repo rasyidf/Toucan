@@ -7,7 +7,7 @@
 
 Translate, review and validate your project's languages in one place. Toucan runs on **Windows, macOS and Linux**, works with local resource files, and brings source text, target translations, context and quality checks into the same editor.
 
-**v0.24.0 preview:** editor comfort and resource compatibility are merged into `main`. The [release notes](docs/release-notes/v0.24.0.md) cover the prepared GitHub draft, packages and known limits. Until that draft is published, **v0.23.0** remains the public download. Settings and project files may change before 1.0. Native accessibility and packaged platform acceptance remain pending; see the [acceptance record](docs/specs/editor-comfort/acceptance.md).
+**v0.25.0 preview:** project glossary, consistent validation policy and ICU message checks are merged into `main`. The [release notes](docs/release-notes/v0.25.0.md) cover compatibility and known limits; [v0.24.0 notes](docs/release-notes/v0.24.0.md) cover the last packaged draft. Until a release is published, **v0.23.0** remains the public download. Settings and project files may change before 1.0. Packaged installation acceptance remains pending.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshots/editor-dark.png"/>
@@ -15,7 +15,7 @@ Translate, review and validate your project's languages in one place. Toucan run
   <img src="docs/assets/screenshots/editor-light.png" width="1440" alt="Toucan v0.24 editor with English source strings and Indonesian translations side by side, the project explorer, placeholder context and inspector"/>
 </picture>
 
-*v0.24.0 preview, rendered with a local sample project. The screenshot follows your light or dark theme.*
+*v0.25.0 preview, rendered with a local sample project. The screenshot follows your light or dark theme.*
 
 ## Get started
 
@@ -100,7 +100,7 @@ Plugins can add formats, providers, validation rules, framework profiles and des
 Install the **.NET 10 SDK** (SDK selection is in [global.json](global.json)), then run:
 
 ```bash
-git clone --branch release/v0.24.0 https://github.com/rasyidf/Toucan.git
+git clone --branch release/v0.25.0 https://github.com/rasyidf/Toucan.git
 cd Toucan
 dotnet restore Toucan.CrossPlatform.slnx
 dotnet build Toucan.CrossPlatform.slnx --no-restore
@@ -124,7 +124,7 @@ The WPF app was retired after v0.17.3 and remains on the [`legacy/wpf`](https://
 - [Documentation index](docs/INDEX.md), including each document's status
 - [Roadmap](docs/todos/future-roadmap.md) and [completed features](docs/completed-features.md)
 
-The v0.24.0 preview focuses on editor workflows, compatibility and the contextual desktop shell. Upcoming milestones cover glossary and review state, content-source synchronization, release packaging and performance. The roadmap records acceptance gates and planned order; it is not a delivery-date promise.
+The v0.25.0 preview adds the project glossary and message-aware validation on top of the v0.24 editor workflows. Upcoming milestones cover review state, content-source synchronization, release packaging and performance. The roadmap records acceptance gates and planned order; it is not a delivery-date promise.
 
 ## Contributing
 

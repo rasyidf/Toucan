@@ -1,3 +1,4 @@
+using Toucan.Core.Services.Validation;
 using Toucan.Core.Contracts;
 using Toucan.Core.Models;
 using Toucan.Plugins;
@@ -7,7 +8,7 @@ namespace Toucan.Core.Plugins;
 /// <summary>The project as the planner sees it.</summary>
 /// <param name="Items">Every translation. The planner works on copies and never changes these.</param>
 public sealed record PlanInput(IReadOnlyList<TranslationItem> Items, IReadOnlyList<string> Languages, string PrimaryLanguage, long Revision,
-    bool RequireValidForApproval, IValidationPipeline? Validation, bool AllowKeyChanges = true);
+    bool RequireValidForApproval, IValidationPipeline? Validation, IReadOnlySet<string>? AmbiguousKeys = null, bool AllowKeyChanges = true, ProjectSettings? Settings = null);
 
 /// <summary>What an edit will do, decided before anything is touched.</summary>
 public sealed class EditPlan
@@ -45,6 +46,8 @@ public static class WorkspaceEditPlanner
         }
 
         var sim = new Simulation(input);
+        var ambiguous = input.Items.GroupBy(i => (i.Namespace, i.Language)).Where(g => g.Count() > 1)
+            .Select(g => g.Key.Namespace).Concat(input.AmbiguousKeys ?? Enumerable.Empty<string>()).ToHashSet(StringComparer.Ordinal);
         var steps = new List<(int, EditOperation)>();
         var units = 0;
         var approvals = new List<(int Index, EditOperation Op, string Key, string Language)>();
@@ -52,6 +55,13 @@ public static class WorkspaceEditPlanner
         for (var i = 0; i < edit.Operations.Count; i++)
         {
             var op = edit.Operations[i];
+            var target = op switch { SetValue v => v.Key, SetComment c => c.Key, SetReview r => r.Key,
+                RenameKey r => r.Key, DeleteKey d => d.Key, _ => null };
+            if (target is not null && ambiguous.Any(k => k == target || (op is RenameKey or DeleteKey && k.StartsWith(target + ".", StringComparison.Ordinal))))
+            {
+                issues.Add(new(i, EditIssueKind.Ambiguous, "The key matches several entries. Use the identified workspace API."));
+                continue;
+            }
             var before = issues.Count;
             var blocked = op switch
             {
@@ -73,7 +83,7 @@ public static class WorkspaceEditPlanner
         // The strict-approval policy judges the project as the edit leaves it, so an edit that fixes a value and approves it works.
         if (input.RequireValidForApproval && input.Validation is not null && approvals.Count > 0)
         {
-            var errors = input.Validation.RunAll(new ValidationContext { Items = sim.Items, PrimaryLanguage = input.PrimaryLanguage })
+            var errors = input.Validation.RunAll(new ProjectValidationContext { Project = input.Settings, Items = sim.Items, PrimaryLanguage = input.PrimaryLanguage })
                 .Where(r => r.Severity == ValidationSeverity.Error)
                 .Select(r => (r.Namespace, r.Language)).ToHashSet();
             foreach (var (index, op, key, language) in approvals)

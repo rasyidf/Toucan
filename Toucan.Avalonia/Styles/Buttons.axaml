@@ -1,0 +1,96 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:c="using:Toucan.Avalonia.Views.Components"
+        xmlns:views="using:Toucan.Avalonia.Views"
+        xmlns:loc="using:Toucan.Avalonia.Locales"
+        xmlns:conv="using:Toucan.Avalonia.Converters">
+
+  <!-- ═══ Icon buttons: expose the tooltip as the accessible name for screen readers ═══ -->
+  <Style Selector="Button.icon, ToggleButton.icon, Button.activity">
+    <Setter Property="AutomationProperties.Name" Value="{Binding $self.(ToolTip.Tip)}"/>
+  </Style>
+
+  <Style Selector="Button.icon">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="6"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Button.icon ui|FASymbolIcon">
+    <Setter Property="FontSize" Value="16"/>
+  </Style>
+  <Style Selector="TextBlock.unavailable">
+    <Setter Property="Foreground" Value="{DynamicResource MutedTextBrush}"/>
+  </Style>
+  <Style Selector="Button.small">
+    <Setter Property="Padding" Value="4"/>
+  </Style>
+  <Style Selector="Button.small ui|FASymbolIcon">
+    <Setter Property="FontSize" Value="13"/>
+  </Style>
+  <Style Selector="ToggleButton.icon">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="6"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+  </Style>
+  <Style Selector="ToggleButton.icon ui|FASymbolIcon">
+    <Setter Property="FontSize" Value="16"/>
+  </Style>
+  <Style Selector="ToggleButton.small">
+    <Setter Property="Padding" Value="4"/>
+  </Style>
+  <Style Selector="ToggleButton.small ui|FASymbolIcon">
+    <Setter Property="FontSize" Value="13"/>
+  </Style>
+
+  <!-- Flat text buttons (links in the start screen, inspector actions) -->
+  <Style Selector="Button.link">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="4,2"/>
+    <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+  </Style>
+
+  <!-- Small on/off chips inside a text box (match case, whole word, regex) -->
+  <Style Selector="ToggleButton.option">
+    <Setter Property="Width" Value="24"/>
+    <Setter Property="Height" Value="22"/>
+    <Setter Property="MinWidth" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+  <Style Selector="ToggleButton.option:checked /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.option.active /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+  </Style>
+  <Style Selector="Button.row.match">
+    <Setter Property="Padding" Value="22,3,6,3"/>
+  </Style>
+  <Style Selector="Button.row.match.selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+  </Style>
+
+  <!-- Borderless button used as a clickable row -->
+  <Style Selector="Button.row">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="Padding" Value="8,6"/>
+    <Setter Property="CornerRadius" Value="4"/>
+  </Style>
+</Styles>

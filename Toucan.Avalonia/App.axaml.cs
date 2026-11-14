@@ -197,6 +197,7 @@ public partial class App : Application
             new(FASymbol.SaveAs, "Export TMX", vm.ExportTmxCommand),
             new(FASymbol.Delete, "Clear translation memory", vm.ClearTmCommand),
         ]);
+        Add("dictionary", "Dictionary", "Library", SidePanelSlot.Right, 35, _ => new DictionaryPanel(), onShow: vm => vm.RefreshGlossary());
         PanelService.Instance.RestoreActivePanels();
     }
 
@@ -246,7 +247,6 @@ public partial class App : Application
 
 
         // Project model
-        services.AddSingleton<ITranslationManagementService, TranslationManagementService>();
         services.AddSingleton<IAuditService, AuditService>();
         services.AddSingleton<LanguageManagementService>();
         services.AddSingleton<ILanguageManagementService>(sp => sp.GetRequiredService<LanguageManagementService>());
@@ -255,7 +255,8 @@ public partial class App : Application
             new Lazy<IProjectLifecycleService>(sp.GetRequiredService<IProjectLifecycleService>),
             sp.GetRequiredService<ITranslationManagementService>(),
             sp.GetRequiredService<IFileWatcherService>(),
-            sp.GetRequiredService<ILogger<AutoSaveService>>()));
+            sp.GetRequiredService<ILogger<AutoSaveService>>(),
+            sp.GetRequiredService<WorkspaceService>()));
         services.AddSingleton<IProjectLifecycleService>(sp => new ProjectLifecycleService(
             sp.GetRequiredService<IProjectService>(),
             sp.GetRequiredService<ITranslationManagementService>(),
@@ -271,7 +272,12 @@ public partial class App : Application
             null,
             sp.GetRequiredService<ILogger<ProjectLifecycleService>>(),
             sp.GetRequiredService<IRecoveryDraftService>(),
-            sp.GetService<IPluginActivationService>()));
+            sp.GetService<IPluginActivationService>(),
+            sp.GetRequiredService<WorkspaceService>(),
+            sp.GetRequiredService<WorkspaceDocumentSaveCoordinator>(),
+            sp.GetRequiredService<WorkspaceExportPlanner>(),
+            sp.GetRequiredService<WorkspaceDocumentSaveExecutor>(),
+            sp.GetService<INotificationCenter>()));
 
         // View models
         services.AddSingleton<StatusBarViewModel>();
@@ -305,7 +311,10 @@ public partial class App : Application
             sp.GetService<IPluginCatalog>(),
             sp.GetServices<SpreadsheetDialect>(),
             sp.GetServices<IProjectCompatibilityImporter>(),
-            sp.GetRequiredService<SpellingService>(), sp.GetRequiredService<DictionaryRegistry>(), sp.GetRequiredService<INotificationCenter>(), sp.GetRequiredService<NotificationHistoryViewModel>()));
+            sp.GetRequiredService<SpellingService>(), sp.GetRequiredService<DictionaryRegistry>(), sp.GetRequiredService<INotificationCenter>(), sp.GetRequiredService<NotificationHistoryViewModel>(),
+            sp.GetRequiredService<IProjectDefaultsService>(),
+            sp.GetRequiredService<WorkspaceService>(),
+            sp.GetRequiredService<WorkspaceDocumentRouter>()));
         services.AddSingleton<MainWindowViewModel>();
         // Plugins read and edit the open project through this (see IWorkspaceApi); it resolves the view model on first use.
         services.AddSingleton<global::Toucan.Core.Plugins.IWorkspaceBackend>(sp => new WorkspaceBackend(sp.GetRequiredService<MainWindowViewModel>()));

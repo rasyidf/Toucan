@@ -35,6 +35,7 @@ public partial class MainWindowViewModel
     /// </summary>
     internal void Search(string? query, bool alwaysPaging = false)
     {
+        if (HasDocumentNavigation) FlushPendingEdits();
         _searchDebounce.Stop();
         query = query?.Trim() ?? string.Empty;
         ActiveLanguageFilter = null;
@@ -82,6 +83,16 @@ public partial class MainWindowViewModel
     /// <summary>Builds editor cards, merging plural variants (key_one, key_other, ...) into one card.</summary>
     private List<LanguageGroupViewModel> BuildLanguageGroups(List<string> namespaces, IEnumerable<TranslationItem> allItems)
     {
+        if (HasDocumentNavigation)
+        {
+            var matched = namespaces.ToHashSet(StringComparer.Ordinal);
+            var identified = Workspace.SnapshotEntriesAsync().GetAwaiter().GetResult()!.Units.GroupBy(u => u.EntryId).ToDictionary(g => g.Key, g => g.First());
+            return allItems.Where(t => matched.Contains(t.Namespace) && !IsNamespaceHidden(t.Namespace))
+                .GroupBy(t => Workspace.GetProjectionEntryId(t) ?? throw new InvalidOperationException("Document editor row has no active entry identity."))
+                .Where(g => _documentSelection is null || _documentSelection.Contains(g.Key))
+                .OrderBy(g => g.First().Namespace, StringComparer.Ordinal).ThenBy(g => g.Key)
+                .Select(g => { var unit = identified[g.Key]; var card = CreateGroup(g.First().Namespace, g.Key, unit.Namespace, unit.KeyPath); card.LoadTranslations(g); return card; }).ToList();
+        }
         var byNamespace = allItems.GroupBy(t => t.Namespace).ToDictionary(g => g.Key, g => g.ToList());
         var groups = new List<LanguageGroupViewModel>();
         var consumed = new HashSet<string>();
@@ -163,6 +174,7 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private void ClearFilter()
     {
+        ClearDocumentSelection();
         FilteredBySourceUsage = null;
         SelectedNode = null;
         if (SearchText.Length == 0) Search(string.Empty, true);
@@ -170,7 +182,7 @@ public partial class MainWindowViewModel
     }
 
     [RelayCommand]
-    private void ShowAll() => Search(SearchText, true);
+    private void ShowAll() { ClearDocumentSelection(); Search(SearchText, true); }
 
     /// <summary>Filters by language and status. Parameter format: "status:language" (translated|empty|needsreview|approved).</summary>
     [RelayCommand]
@@ -231,6 +243,7 @@ public partial class MainWindowViewModel
     private void RevealKey(string? ns)
     {
         if (string.IsNullOrEmpty(ns)) return;
+        ClearDocumentSelection();
         SearchText = ns;
         Search(ns, true);
         SelectedGroup = PagingController.Data.FirstOrDefault(g => g.Namespace == ns || g.PluralVariants.Any(v => v.FullNamespace == ns));
@@ -282,7 +295,12 @@ public partial class MainWindowViewModel
     // ───────────────────────── View mode ─────────────────────────
 
     [RelayCommand]
-    private void ToggleViewMode() => IsTreeView = !IsTreeView;
+    private void ToggleViewMode()
+    {
+        if (HasDocumentNavigation) NavigationLayout = NavigationLayout == WorkspaceNavigationLayout.NamespaceFirst
+            ? WorkspaceNavigationLayout.FileFirst : WorkspaceNavigationLayout.NamespaceFirst;
+        else IsTreeView = !IsTreeView;
+    }
 
     [RelayCommand]
     private void ToggleFullscreen() => FullscreenRequested?.Invoke(this, EventArgs.Empty);
@@ -379,7 +397,45 @@ public partial class MainWindowViewModel
 
     // ───────────────────────── Zen / focused editor ─────────────────────────
 
-    [ObservableProperty] private bool focusedEditorMode;
+    private EditorLayout _lastListLayout = EditorLayout.Cards;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FocusedEditorMode), nameof(IsCardLayout), nameof(IsRowLayout), nameof(EditorLayoutLabel))]
+    private EditorLayout editorLayout;
+
+    public bool FocusedEditorMode => EditorLayout == EditorLayout.Focused;
+    public bool IsCardLayout => EditorLayout == EditorLayout.Cards;
+    public bool IsRowLayout => EditorLayout == EditorLayout.Rows;
+    public string EditorLayoutLabel => Locales.Loc.T(EditorLayout switch
+    {
+        EditorLayout.Rows => "Line by line",
+        EditorLayout.Focused => "Focused",
+        _ => "Cards"
+    });
+
+    [RelayCommand]
+    private void SetEditorLayout(EditorLayout layout) => EditorLayout = layout;
+
+    partial void OnEditorLayoutChanging(EditorLayout value) => FlushPendingEdits();
+
+    partial void OnEditorLayoutChanged(EditorLayout oldValue, EditorLayout newValue)
+    {
+        if (newValue == EditorLayout.Focused)
+        {
+            _lastListLayout = oldValue;
+            var selectedIndex = SelectedGroup == null ? -1 : PagingController.Data.IndexOf(SelectedGroup);
+            FocusedIndex = Math.Max(0, selectedIndex);
+            SelectedGroup = ZenCurrentItem;
+        }
+        else if (oldValue == EditorLayout.Focused)
+        {
+            SelectedGroup = ZenCurrentItem;
+            PagingController.GoTo(FocusedIndex / Math.Max(1, PagingController.PageSize) + 1);
+            PagedUpdates();
+        }
+        AppOptions.EditorLayout = newValue.ToString();
+        _preferenceService.Save(AppOptions);
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ZenCurrentItem), nameof(FocusedPositionText))]
@@ -423,20 +479,7 @@ public partial class MainWindowViewModel
     [RelayCommand]
     private void ToggleFocusedEditor()
     {
-        FlushPendingEdits();
-        FocusedEditorMode = !FocusedEditorMode;
-        if (FocusedEditorMode)
-        {
-            var selectedIndex = SelectedGroup == null ? -1 : PagingController.Data.IndexOf(SelectedGroup);
-            FocusedIndex = Math.Max(0, selectedIndex);
-            SelectedGroup = ZenCurrentItem;
-        }
-        else
-        {
-            SelectedGroup = ZenCurrentItem;
-            PagingController.GoTo(FocusedIndex / Math.Max(1, PagingController.PageSize) + 1);
-            PagedUpdates();
-        }
+        EditorLayout = FocusedEditorMode ? _lastListLayout : EditorLayout.Focused;
     }
 
     private bool CanFocusedNext() => FocusedIndex < PagingController.Data.Count - 1;
@@ -556,15 +599,19 @@ public partial class MainWindowViewModel
 
     partial void OnFocusedTranslationItemChanged(TranslationItemViewModel? oldValue, TranslationItemViewModel? newValue)
     {
-        var value = newValue;
-        if (oldValue != null) oldValue.PropertyChanged -= OnFocusedItemPropertyChanged;
+        if (oldValue is not null)
+        {
+            oldValue.IsFocused = false;
+            oldValue.PropertyChanged -= OnFocusedItemPropertyChanged;
+        }
         RefreshFocusedActions();
-        if (value == null) return;
-        var group = PagingController.PageData.FirstOrDefault(g => g.AllItems.Contains(value));
+        if (newValue == null) return;
+        newValue.IsFocused = true;
+        var group = PagingController.PageData.FirstOrDefault(g => g.AllItems.Contains(newValue));
         if (group != null && !ReferenceEquals(group, SelectedGroup)) SelectedGroup = group;
-        UpdateGhostSuggestion(value);
-        value.PropertyChanged -= OnFocusedItemPropertyChanged;
-        value.PropertyChanged += OnFocusedItemPropertyChanged;
+        UpdateGhostSuggestion(newValue);
+        newValue.PropertyChanged -= OnFocusedItemPropertyChanged;
+        newValue.PropertyChanged += OnFocusedItemPropertyChanged;
     }
 
     [RelayCommand]

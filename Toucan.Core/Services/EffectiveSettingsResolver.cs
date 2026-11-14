@@ -27,7 +27,8 @@ public static class EffectiveSettingsResolver
     public static Dictionary<string, ValidationRuleConfig> ResolveValidationRules(
         Dictionary<string, ValidationRuleConfig>? projectRules,
         Dictionary<string, ValidationRuleConfig> defaultRules) =>
-        projectRules ?? defaultRules;
+        new(defaultRules.Concat(projectRules ?? []).GroupBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.Last().Value), StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Builds an effective settings snapshot by merging project with defaults.

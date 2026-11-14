@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · AI Integration</title>
-<meta name="description" content="The app-wide AI switch, AI services (Claude, OpenAI-compatible, Gemini), the open and editable prompts of Translate, Analyze and Clarity, the secret store, and the migration from the old LLM providers.">
+<meta name="description" content="AI settings, backend credentials, editable prompts, glossary context, analysis strictness and explicit finding previews.">
 <link rel="canonical" href="https://toucan.rasyid.dev/ai-integration.html">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,19 +15,19 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · AI Integration">
-<meta property="og:description" content="The app-wide AI switch, AI services (Claude, OpenAI-compatible, Gemini), the open and editable prompts of Translate, Analyze and Clarity, the secret store, and the migration from the old LLM providers.">
+<meta property="og:description" content="AI settings, backend credentials, editable prompts, glossary context, analysis strictness and explicit finding previews.">
 <meta property="og:url" content="https://toucan.rasyid.dev/ai-integration.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · AI Integration">
-<meta name="twitter:description" content="The app-wide AI switch, AI services (Claude, OpenAI-compatible, Gemini), the open and editable prompts of Translate, Analyze and Clarity, the secret store, and the migration from the old LLM providers.">
+<meta name="twitter:description" content="AI settings, backend credentials, editable prompts, glossary context, analysis strictness and explicit finding previews.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Toucan \u00b7 AI Integration",
-  "description": "The app-wide AI switch, AI services (Claude, OpenAI-compatible, Gemini), the open and editable prompts of Translate, Analyze and Clarity, the secret store, and the migration from the old LLM providers.",
+  "description": "AI settings, backend credentials, editable prompts, glossary context, analysis strictness and explicit finding previews.",
   "url": "https://toucan.rasyid.dev/ai-integration.html",
   "publisher": {
     "@type": "Organization",
@@ -81,6 +81,7 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
+<a href="release-v0.25.0.html">Toucan v0.25.0 — Terminology and message-aware validation</a>
 <a href="release-v0.24.0.html">Toucan v0.24.0 — Editor comfort and resource compatibility</a>
 <a href="user-guide.html">Toucan User Guide</a>
 <a href="translator-guide.html">Toucan for Professional Translators</a>
@@ -101,8 +102,8 @@
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>AI Integration</h1>
-        <p class="lead">The app-wide AI switch, AI services (Claude, OpenAI-compatible, Gemini), the open and editable prompts of Translate, Analyze and Clarity, the secret store, and the migration from the old LLM providers.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-07</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/ai-integration.md">Edit on GitHub ↗</a></div>
+        <p class="lead">AI settings, backend credentials, editable prompts, glossary context, analysis strictness and explicit finding previews.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-30</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/ai-integration.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <p>AI in Toucan is one integration with one switch, separate from machine translation providers.</p>
@@ -138,7 +139,7 @@
 <h3 id="template-syntax"><a class="anchor" href="#template-syntax" aria-label="Link to this section">#</a>Template syntax</h3>
 <div class="table-wrap"><table><thead><tr><th>Write</th><th>Becomes</th></tr></thead><tbody><tr><td><code>{{target_language}}</code></td><td>The value</td></tr><tr><td><code>{{#context}}…{{/context}}</code></td><td>The text in between, only when <code>context</code> has a value</td></tr><tr><td><code>{{^glossary}}…{{/glossary}}</code></td><td>The text in between, only when <code>glossary</code> is empty</td></tr></tbody></table></div>
 <p>Only the feature's own variables are replaced, so placeholders written as examples (<code>{{name}}</code>, <code>{0}</code>) are sent as written.</p>
-<div class="table-wrap"><table><thead><tr><th>Variable</th><th>Features</th><th>Value</th></tr></thead><tbody><tr><td><code>source_language</code></td><td>all</td><td>Language code of the source text, e.g. <code>en-US</code></td></tr><tr><td><code>target_language</code></td><td>Translate</td><td>Language code to translate into</td></tr><tr><td><code>context</code></td><td>all</td><td>Application context from Project Properties, else Settings → Machine translation</td></tr><tr><td><code>formality</code></td><td>Translate</td><td>Formality from the same places; empty for Default</td></tr><tr><td><code>glossary</code></td><td>Translate, Analyze</td><td>Approved terms, one <code>term → lang: translation</code> per line (empty until the glossary feature ships)</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Variable</th><th>Features</th><th>Value</th></tr></thead><tbody><tr><td><code>source_language</code></td><td>all</td><td>Language code of the source text, e.g. <code>en-US</code></td></tr><tr><td><code>target_language</code></td><td>Translate</td><td>Language code to translate into</td></tr><tr><td><code>context</code></td><td>all</td><td>Application context from Project Properties, else Settings → Machine translation</td></tr><tr><td><code>formality</code></td><td>Translate</td><td>Formality from the same places; empty for Default</td></tr><tr><td><code>glossary</code></td><td>Translate, Analyze</td><td>Project terminology from the Dictionary panel (empty when no terms are configured)</td></tr></tbody></table></div>
 <h3 id="the-reply-contract"><a class="anchor" href="#the-reply-contract" aria-label="Link to this section">#</a>The reply contract</h3>
 <p>The prompt is free text, but Toucan reads the reply in the format in the last column of the Features table. The built-in prompts end with those format instructions. If you rewrite a prompt, keep them, or results come back empty ("No translation returned", no findings). Replies wrapped in a Markdown code fence, or with a sentence before the JSON, are still read.</p>
 <h2 id="secret-store"><a class="anchor" href="#secret-store" aria-label="Link to this section">#</a>Secret store</h2>
@@ -159,6 +160,7 @@
 <h2 id="code-map"><a class="anchor" href="#code-map" aria-label="Link to this section">#</a>Code map</h2>
 <div class="table-wrap"><table><thead><tr><th>Piece</th><th>Where</th></tr></thead><tbody><tr><td>Contracts for modules and plugins: <code>IAiService</code>, <code>IAiBackend</code>, <code>AiFeatureDefinition</code>, <code>AiRequest</code></td><td><code>Toucan.Plugins.Abstractions</code></td></tr><tr><td><code>AiService</code>, <code>PromptLibrary</code>, <code>PromptTemplate</code>, <code>AiSettingsStore</code>, <code>LegacyAiMigration</code>, built-in features</td><td><code>Toucan.Core/Services/Ai</code></td></tr><tr><td><code>SecretService</code>, <code>SecureStorageService</code>, <code>SecretKeys</code></td><td><code>Toucan.Core/Services</code>, <code>Toucan.Core/Contracts/ISecretService.cs</code></td></tr><tr><td>Analyze, Clarity</td><td><code>TranslationAnalyzerService</code>, <code>SourceClarityService</code></td></tr><tr><td>Services and the AI translation provider</td><td><code>Toucan.Modules.Providers/Ai</code>, <code>AiTranslationProvider.cs</code></td></tr><tr><td>Registration</td><td><code>AddToucanAi()</code> in <code>ToucanCoreServiceCollectionExtensions</code></td></tr><tr><td>App: Settings → AI, prompt editor, onboarding, commands</td><td><code>AiSettingsViewModel</code>, <code>PromptEditorViewModel</code>, <code>OnboardingViewModel</code>, <code>MainWindowViewModel.Ai.cs</code></td></tr></tbody></table></div>
 <p>Plugins cannot register AI services or features yet: the contracts exist, but <code>IPluginContext</code> has no <code>AddAiBackend</code>/<code>AddAiFeature</code>. That needs capability and id checks in the plugin host.</p>
+<p>Analysis strictness and finding re-translation are described in <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/v0.25-terminology-validation.md#ai-review">terminology and validation</a>.</p>
       </div>
     </article>
   </div>

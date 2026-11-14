@@ -1,3 +1,4 @@
+using Toucan.Core.Services.Validation;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -342,19 +343,20 @@ public partial class MainWindowViewModel
     {
         AllTranslation = _translationStore.Translations.ToList();
         ProjectSettings = _lifecycleService.CurrentProject ?? ProjectSettings.LoadFrom(path);
+        if (!Workspace.IsOpen && ProjectSettings is not null) Workspace.Open(ProjectSettings);
         RefreshFileFormatStatus();
         RefreshProviderChoices();
-        _undoRedoService.Clear();
 
         HiddenNamespaces = new ObservableCollection<string>(ProjectSettings?.HiddenNamespaces ?? []);
 
         // Missing (language, key) pairs are materialized as empty values so every card shows every language.
         // They start out "saved" so opening a project doesn't mark it dirty.
-        var added = AddMissingTranslationsCore();
+        var added = Workspace.Source is null ? AddMissingTranslationsCore() : [];
         if (added.Count > 0)
         {
             _translationStore.AddItems(added);
             _translationStore.MarkSaved(added);
+            Workspace.MaterializeMissing(added);
         }
 
         PrimaryLanguage = ResolvePrimaryLanguage();
@@ -367,7 +369,7 @@ public partial class MainWindowViewModel
         }
 
         ClearSessionDirtyState();
-        IsDirty = false;
+        IsDirty = Workspace.IsDirty;
         ValidationIssues.Clear();
         ValidationLastChecked = null;
         OnPropertyChanged(nameof(ValidationSummary));
@@ -487,9 +489,10 @@ public partial class MainWindowViewModel
 
     private void AfterSuccessfulSave()
     {
+        RefreshDocumentNavigation();
         FeedTranslationMemory(SessionDirtyKeys);
         ClearSessionDirtyState();
-        IsDirty = false;
+        IsDirty = Workspace.IsDirty;
         StatusText = $"Saved {DateTime.Now:t}";
         NotifyOutcome(Locales.Loc.T("Project saved"), ProjectName, Toucan.Plugins.NotificationSeverity.Success);
     }
@@ -546,6 +549,7 @@ public partial class MainWindowViewModel
 
     private void ResetUiAfterClose()
     {
+        RefreshDocumentNavigation();
         foreach (var g in PagingController.Data) g.Dispose();
         AllTranslation = [];
         CurrentPath = string.Empty;
@@ -569,7 +573,6 @@ public partial class MainWindowViewModel
         (_sourceCodeService as IProjectSourceCodeService)?.Reset();
         SourceScanDiagnostics.Clear();
         SourceCodeUsages.Clear();
-        _undoRedoService.Clear();
         CurrentTreeItems.Clear();
         CurrentFlatItems.Clear();
         LanguageVisibilityFilter.Clear();
@@ -639,7 +642,7 @@ public partial class MainWindowViewModel
             var preview = SpreadsheetPlanner.Plan(table, before, ProjectSettings?.ResourceDocuments.Select(d => d.Resource));
             if (ProjectSettings?.RequireValidForApproval == true)
             {
-                var errors = _validationPipeline.RunAll(new ValidationContext { Items = preview.Items, PrimaryLanguage = PrimaryLanguage })
+                var errors = _validationPipeline.RunAll(new ProjectValidationContext { Project = ProjectSettings, Items = preview.Items, PrimaryLanguage = PrimaryLanguage })
                     .Where(r => r.Severity == ValidationSeverity.Error).ToList();
                 var changedUnits = preview.Changes.Select(c => (c.Namespace, c.Language)).ToHashSet();
                 var approvals = preview.Items.Where(i => i.IsApproved && changedUnits.Contains((i.Namespace, i.Language)));
@@ -659,7 +662,7 @@ public partial class MainWindowViewModel
             RefreshTree();
             UpdateSummaryInfo();
             Search(SearchText, true);
-            ShowValidationResults(_validationPipeline.RunAll(new ValidationContext { Items = AllTranslation, PrimaryLanguage = PrimaryLanguage }).ToList());
+            ShowValidationResults(_validationPipeline.RunAll(new ProjectValidationContext { Project = ProjectSettings, Items = AllTranslation, PrimaryLanguage = PrimaryLanguage }).ToList());
             StatusText = $"Imported {preview.Changes.Count} change(s) from {Path.GetFileName(file)}. {preview.Summary}";
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or FormatException)
@@ -708,7 +711,7 @@ public partial class MainWindowViewModel
             }
         }
 
-        var added = AddMissingTranslationsCore();
+        var added = Workspace.Source is null ? AddMissingTranslationsCore() : [];
         MarkStructureChanged(changed.Select(c => c.Namespace));
         NotifyBulkValueChanges(changed.Concat(added));
         RefreshTree();

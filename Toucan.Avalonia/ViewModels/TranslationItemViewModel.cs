@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using Toucan.Avalonia.Services;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
+using Toucan.Core.Contracts;
 
 namespace Toucan.Avalonia.ViewModels;
 
@@ -21,20 +22,24 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     private readonly ITranslationManagementService? _translationManagement;
     private readonly Action<TranslationItemViewModel>? _onChanged;
     private readonly Func<TranslationItem, bool>? _canApprove;
+    private readonly Func<TranslationItemViewModel, IReadOnlyList<ValidationResult>>? _validateInline;
 
     private string _value;
     private string _valueBeforeEdit;
     private DispatcherTimer? _debounceTimer;
+    private DispatcherTimer? _validationTimer;
 
     public TranslationItemViewModel(
         TranslationItem model,
         IUndoRedoService? undoRedoService = null,
         ITranslationManagementService? translationManagement = null,
         Action<TranslationItemViewModel>? onChanged = null,
-        Func<TranslationItem, bool>? canApprove = null, SpellingSession? spelling = null)
+        Func<TranslationItem, bool>? canApprove = null, SpellingSession? spelling = null,
+        Func<TranslationItemViewModel, IReadOnlyList<ValidationResult>>? validateInline = null)
     {
         _spelling = spelling;
         if (_spelling != null) _spelling.Changed += OnSpellingChanged;
+        _validateInline = validateInline;
         _canApprove = canApprove;
         _model = model;
         _undoRedoService = undoRedoService;
@@ -94,11 +99,13 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
             if (!_debounceTimer.IsEnabled) _valueBeforeEdit = _value;
             _value = value;
             QueueSpelling();
+            QueueInlineValidation();
             OnPropertyChanged();
             OnPropertyChanged(nameof(IsEmpty));
             OnPropertyChanged(nameof(CharacterCount));
             OnPropertyChanged(nameof(WordCount));
             OnPropertyChanged(nameof(CountSummary));
+            OnPropertyChanged(nameof(ShowCount));
             OnPropertyChanged(nameof(MissingPlaceholders));
             OnPropertyChanged(nameof(HasPlaceholderWarning));
             OnPropertyChanged(nameof(PlaceholderWarning));
@@ -112,6 +119,14 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     /// <summary>"12 chars · 3 words", for the counter shown under the field.</summary>
     public string CountSummary => $"{CharacterCount} {(CharacterCount == 1 ? "char" : "chars")} · {WordCount} {(WordCount == 1 ? "word" : "words")}";
 
+    /// <summary>True while this field has keyboard focus; the owning card sets it. Drives <see cref="ShowCount"/>.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowCount))]
+    private bool isFocused;
+
+    /// <summary>The character/word count shows only for the field being edited, so it is not repeated on every row.</summary>
+    public bool ShowCount => IsFocused && !IsEmpty;
+
     /// <summary>
     /// The primary-language value of the same key, for the side-by-side source column. Set by the owning group;
     /// null for the primary-language row itself (it is the source).
@@ -121,6 +136,35 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     private string? sourceText;
 
     public bool HasSource => SourceText is not null;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasInlineIssues), nameof(HasInlineErrors))]
+    private IReadOnlyList<ValidationResult> inlineIssues = [];
+
+    public bool HasInlineIssues => InlineIssues.Count > 0;
+    public bool HasInlineErrors => InlineIssues.Any(i => i.Severity == ValidationSeverity.Error);
+
+    partial void OnSourceTextChanged(string? value) => QueueInlineValidation();
+
+    private void QueueInlineValidation()
+    {
+        if (_validateInline is null) return;
+        if (_validationTimer is null)
+        {
+            _validationTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+            _validationTimer.Tick += OnValidationTick;
+        }
+        _validationTimer.Stop();
+        _validationTimer.Start();
+    }
+
+    private void OnValidationTick(object? sender, EventArgs e) => RefreshInlineValidation();
+
+    public void RefreshInlineValidation()
+    {
+        _validationTimer?.Stop();
+        InlineIssues = _validateInline?.Invoke(this) ?? [];
+    }
 
     /// <summary>
     /// The <c>{{ }}</c> placeholders present in the source but missing from this value. Empty for the source row,
@@ -164,6 +208,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         set
         {
             if (!_model.Permissions.EditMetadata || _model.IsApproved == value) return;
+            Flush();
             if (value && _canApprove?.Invoke(_model) == false)
             {
                 // Policy refused: tell bound controls to show the unchanged state again.
@@ -232,11 +277,13 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         // does not reset the caret of a field the user is typing in.
         if (valueChanged)
         {
+            QueueInlineValidation();
             OnPropertyChanged(nameof(Value));
             OnPropertyChanged(nameof(IsEmpty));
             OnPropertyChanged(nameof(CharacterCount));
             OnPropertyChanged(nameof(WordCount));
             OnPropertyChanged(nameof(CountSummary));
+            OnPropertyChanged(nameof(ShowCount));
             OnPropertyChanged(nameof(MissingPlaceholders));
             OnPropertyChanged(nameof(HasPlaceholderWarning));
             OnPropertyChanged(nameof(PlaceholderWarning));
@@ -249,7 +296,11 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Re-evaluates the inline placeholder warning (e.g. after the global toggle changed).</summary>
-    public void RefreshPlaceholderWarning() => OnPropertyChanged(nameof(HasPlaceholderWarning));
+    public void RefreshPlaceholderWarning()
+    {
+        OnPropertyChanged(nameof(HasPlaceholderWarning));
+        RefreshInlineValidation();
+    }
 
     private void Commit()
     {
@@ -289,6 +340,9 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         _spellingCancellation?.Cancel();
         _spellingCancellation = null;
         if (_spelling != null) _spelling.Changed -= OnSpellingChanged;
+        _validationTimer?.Stop();
+        if (_validationTimer is not null) _validationTimer.Tick -= OnValidationTick;
+        _validationTimer = null;
         _debounceTimer = null;
         GC.SuppressFinalize(this);
     }

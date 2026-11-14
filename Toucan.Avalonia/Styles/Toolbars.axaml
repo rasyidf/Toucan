@@ -1,0 +1,67 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        xmlns:c="using:Toucan.Avalonia.Views.Components"
+        xmlns:views="using:Toucan.Avalonia.Views"
+        xmlns:loc="using:Toucan.Avalonia.Locales"
+        xmlns:conv="using:Toucan.Avalonia.Converters">
+
+  <!-- Toolbar and panel-header icon buttons: small, rounded, with a soft hover and checked state -->
+  <Style Selector="Border.toolbar Button.icon, Border.toolbar ToggleButton.icon, Border.panelHeader Button.icon, Border.panelHeader ToggleButton.icon">
+    <Setter Property="Width" Value="26"/>
+    <Setter Property="Height" Value="26"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Margin" Value="1,0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+  <Style Selector="Border.toolbar Button.icon ui|FASymbolIcon, Border.toolbar ToggleButton.icon ui|FASymbolIcon, Border.panelHeader Button.icon ui|FASymbolIcon, Border.panelHeader ToggleButton.icon ui|FASymbolIcon">
+    <Setter Property="FontSize" Value="14"/>
+  </Style>
+  <Style Selector="Border.toolbar Button.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter, Border.toolbar ToggleButton.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter, Border.panelHeader Button.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter, Border.panelHeader ToggleButton.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+  <Style Selector="Border.toolbar Button.icon:pressed /template/ ContentPresenter#PART_ContentPresenter, Border.panelHeader Button.icon:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+  </Style>
+  <Style Selector="Border.toolbar ToggleButton.icon:checked /template/ ContentPresenter#PART_ContentPresenter, Border.toolbar ToggleButton.icon:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+  </Style>
+  <Style Selector="Border.toolbar TextBox">
+    <Setter Property="MinHeight" Value="28"/>
+    <Setter Property="Padding" Value="10,3,6,3"/>
+    <Setter Property="CornerRadius" Value="8"/>
+  </Style>
+  <Style Selector="Rectangle.toolbarSeparator">
+    <Setter Property="Width" Value="1"/>
+    <Setter Property="Height" Value="16"/>
+    <Setter Property="Margin" Value="6,0"/>
+    <Setter Property="Fill" Value="{DynamicResource SubtleBorderBrush}"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+
+  <Style Selector="Border.filterToolbar">
+    <Setter Property="Height" Value="NaN"/>
+    <Setter Property="MinHeight" Value="36"/>
+  </Style>
+
+  <!-- Bulk-action bar buttons -->
+  <Style Selector="Button.bulk">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="8,3"/>
+    <Setter Property="MinHeight" Value="26"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Margin" Value="0,0,2,0"/>
+  </Style>
+  <Style Selector="Button.bulk.accent">
+    <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+    <Setter Property="Foreground" Value="{DynamicResource TextOnAccentFillColorPrimaryBrush}"/>
+  </Style>
+  <Style Selector="Button.bulk:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource SubtleHoverBrush}"/>
+  </Style>
+</Styles>
