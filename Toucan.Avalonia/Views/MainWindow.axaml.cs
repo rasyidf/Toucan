@@ -6,6 +6,7 @@ using Avalonia.Controls.Chrome;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.VisualTree;
 using Avalonia.Platform.Storage;
 using FluentAvalonia.UI.Controls;
 using Toucan.Avalonia.Services;
@@ -155,7 +156,11 @@ public partial class MainWindow : Window
     /// </summary>
     private void UseOwnWindowButtons()
     {
-        WindowDecorations = global::Avalonia.Controls.WindowDecorations.BorderOnly;
+        // WSLg's compositor wraps a bordered X11 window in a second frame and an offset shadow, so there the window draws no border.
+        WindowDecorations = PlatformService.IsWslg
+            ? global::Avalonia.Controls.WindowDecorations.None
+            : global::Avalonia.Controls.WindowDecorations.BorderOnly;
+        if (PlatformService.IsWslg) UseManualMoveAndResize();
         CaptionButtons.IsVisible = true;
         MinimizeButton.Click += (_, _) => WindowState = WindowState.Minimized;
         MaximizeButton.Click += (_, _) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
@@ -171,6 +176,120 @@ public partial class MainWindow : Window
         }
         Sync();
         PropertyChanged += (_, e) => { if (e.Property == WindowStateProperty) Sync(); };
+    }
+
+    /// <summary>
+    /// Without a window border the window manager offers no edges to resize and no title bar to drag, so the window does both
+    /// itself: a press near an edge resizes, a press on an empty part of the top bar moves, and a double click there maximizes.
+    /// </summary>
+    private void UseManualMoveAndResize()
+    {
+        const double grip = 6;
+
+        WindowEdge? EdgeAt(Point p)
+        {
+            if (WindowState != WindowState.Normal) return null;
+            bool l = p.X < grip, r = p.X > Bounds.Width - grip, t = p.Y < grip, b = p.Y > Bounds.Height - grip;
+            return (t, b, l, r) switch
+            {
+                (true, _, true, _) => WindowEdge.NorthWest,
+                (true, _, _, true) => WindowEdge.NorthEast,
+                (_, true, true, _) => WindowEdge.SouthWest,
+                (_, true, _, true) => WindowEdge.SouthEast,
+                (true, _, _, _) => WindowEdge.North,
+                (_, true, _, _) => WindowEdge.South,
+                (_, _, true, _) => WindowEdge.West,
+                (_, _, _, true) => WindowEdge.East,
+                _ => null,
+            };
+        }
+
+        static StandardCursorType CursorFor(WindowEdge? edge) => edge switch
+        {
+            WindowEdge.NorthWest => StandardCursorType.TopLeftCorner,
+            WindowEdge.NorthEast => StandardCursorType.TopRightCorner,
+            WindowEdge.SouthWest => StandardCursorType.BottomLeftCorner,
+            WindowEdge.SouthEast => StandardCursorType.BottomRightCorner,
+            WindowEdge.North => StandardCursorType.TopSide,
+            WindowEdge.South => StandardCursorType.BottomSide,
+            WindowEdge.West => StandardCursorType.LeftSide,
+            WindowEdge.East => StandardCursorType.RightSide,
+            _ => StandardCursorType.Arrow,
+        };
+
+        // Only the bar itself and its layout panels count as empty space; anything else on it is a control.
+        bool OnEmptyTopBar(object? source) =>
+            source == TopBar || source == TitleBarLayout || source == TitleBarLeading || source == TitleBarTrailing || source == TitleBarBrand
+            || (source is Visual v && v.GetVisualParent() == TitleBarBrand);
+
+        // The window manager's own resize (BeginResizeDrag) only grows the bottom edge under WSLg, so resizing is done here:
+        // the pointer is captured and every move sets the size, and the position for the top and left edges, from where the
+        // drag started in screen pixels.
+        WindowEdge? resizing = null;
+        PixelPoint startPointer = default, startPosition = default;
+        Size startSize = default;
+
+        AddHandler(PointerMovedEvent, (_, e) =>
+        {
+            if (resizing is { } edge)
+            {
+                var scale = RenderScaling;
+                var now = this.PointToScreen(e.GetPosition(this));
+                double dx = (now.X - startPointer.X) / scale, dy = (now.Y - startPointer.Y) / scale;
+                bool west = edge is WindowEdge.West or WindowEdge.NorthWest or WindowEdge.SouthWest;
+                bool east = edge is WindowEdge.East or WindowEdge.NorthEast or WindowEdge.SouthEast;
+                bool north = edge is WindowEdge.North or WindowEdge.NorthWest or WindowEdge.NorthEast;
+                bool south = edge is WindowEdge.South or WindowEdge.SouthWest or WindowEdge.SouthEast;
+
+                var width = west ? startSize.Width - dx : east ? startSize.Width + dx : startSize.Width;
+                var height = north ? startSize.Height - dy : south ? startSize.Height + dy : startSize.Height;
+                width = Math.Max(MinWidth, width);
+                height = Math.Max(MinHeight, height);
+                // Anchor the opposite edge: the top or left edge moves by however much the size actually changed.
+                var x = west ? startPosition.X + (int)Math.Round((startSize.Width - width) * scale) : startPosition.X;
+                var y = north ? startPosition.Y + (int)Math.Round((startSize.Height - height) * scale) : startPosition.Y;
+
+                if (west || north) Position = new PixelPoint(x, y);
+                Width = width;
+                Height = height;
+                e.Handled = true;
+                return;
+            }
+            var hover = EdgeAt(e.GetPosition(this));
+            Cursor = hover is null ? null : new Cursor(CursorFor(hover));
+        }, RoutingStrategies.Tunnel, handledEventsToo: true);
+
+        AddHandler(PointerPressedEvent, (_, e) =>
+        {
+            if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
+            if (EdgeAt(e.GetPosition(this)) is { } edge)
+            {
+                resizing = edge;
+                startPointer = this.PointToScreen(e.GetPosition(this));
+                startPosition = Position;
+                startSize = ClientSize;
+                e.Pointer.Capture(this);
+                e.Handled = true;
+            }
+            else if (OnEmptyTopBar(e.Source))
+            {
+                if (e.ClickCount == 2)
+                    WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                else
+                    BeginMoveDrag(e);
+                e.Handled = true;
+            }
+        }, RoutingStrategies.Tunnel);
+
+        void EndResize(PointerEventArgs e)
+        {
+            if (resizing is null) return;
+            resizing = null;
+            e.Pointer.Capture(null);
+            e.Handled = true;
+        }
+        AddHandler(PointerReleasedEvent, (_, e) => EndResize(e), RoutingStrategies.Tunnel, handledEventsToo: true);
+        PointerCaptureLost += (_, _) => resizing = null;
     }
 
     private void UpdateTitleBarLayout()
