@@ -1,5 +1,5 @@
 ---
-title: "extension-platform — tasks"
+title: "extension-platform: tasks"
 status: in-progress
 progress: "8/8 steps done"
 updated: 2026-10-09

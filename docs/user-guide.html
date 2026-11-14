@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Toucan User Guide</title>
-<meta name="description" content="Comprehensive guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving.">
+<meta name="description" content="Guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving.">
 <link rel="canonical" href="https://toucan.rasyid.dev/user-guide.html">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,19 +15,19 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Toucan User Guide">
-<meta property="og:description" content="Comprehensive guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving.">
+<meta property="og:description" content="Guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving.">
 <meta property="og:url" content="https://toucan.rasyid.dev/user-guide.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Toucan User Guide">
-<meta name="twitter:description" content="Comprehensive guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving.">
+<meta name="twitter:description" content="Guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Toucan \u00b7 Toucan User Guide",
-  "description": "Comprehensive guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving.",
+  "description": "Guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving.",
   "url": "https://toucan.rasyid.dev/user-guide.html",
   "publisher": {
     "@type": "Organization",
@@ -81,14 +81,14 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="release-v0.25.0.html">Toucan v0.25.0 — Terminology and message-aware validation</a>
-<a href="release-v0.24.0.html">Toucan v0.24.0 — Editor comfort and resource compatibility</a>
+<a href="release-v0.25.0.html">Toucan v0.25.0: Terminology and message-aware validation</a>
+<a href="release-v0.24.0.html">Toucan v0.24.0: Editor comfort and resource compatibility</a>
 <a href="user-guide.html" aria-current="page">Toucan User Guide</a>
 <a href="translator-guide.html">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
 <a href="ai-integration.html">AI Integration</a>
 <a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
-<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="pretranslation-preview.html">Pretranslation: Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
 <a href="architecture.html">Toucan architecture</a>
 <a href="core-architecture.html">Toucan.Core interop architecture</a>
@@ -102,7 +102,7 @@
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Toucan User Guide</h1>
-        <p class="lead">Comprehensive guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving.</p>
+        <p class="lead">Guide to using Toucan: opening projects, editor modes, keyboard workflows, validation, machine translation, and safe saving.</p>
         <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-11-05</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/user-guide.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
@@ -117,7 +117,7 @@
 <li><strong>BabelEdit import:</strong> If your folder contains a <code>.babel</code> project, Toucan detects it and offers to import its configuration, package mappings, descriptions, comments, and approval states into a native <code>toucan.tproj</code> manifest without altering the original <code>.babel</code> file.</li>
 </ol>
 <h3 id="first-run-setup--guide"><a class="anchor" href="#first-run-setup--guide" aria-label="Link to this section">#</a>First-Run Setup &amp; Guide</h3>
-<p>On first launch, Toucan presents a lightweight onboarding dialog where you can set your preferred source language (such as <code>en</code> or <code>en-US</code>), select your interface theme (System, Light, Dark, or custom accent colors), and optionally configure AI translation assistance. You can reopen the editing guide at any time from <strong>Help → Editing Guide</strong>.</p>
+<p>On first launch, Toucan presents a setup dialog where you can set your preferred source language (such as <code>en</code> or <code>en-US</code>), select your interface theme (System, Light, Dark, or custom accent colors), and optionally configure AI translation assistance. You can reopen the editing guide at any time from <strong>Help → Editing Guide</strong>.</p>
 <hr>
 <h2 id="2-workspace-overview"><a class="anchor" href="#2-workspace-overview" aria-label="Link to this section">#</a>2. Workspace Overview</h2>
 <p>The Toucan window consists of three main regions:</p>
@@ -138,7 +138,7 @@
 └────────────────────────────────────────────────────────────────────────┘</code></pre>
 <ul>
 <li><strong>Activity Bar &amp; Sidebar:</strong> Switch between the <strong>Explorer</strong> (file/namespace hierarchy), <strong>Search</strong> (full regex search &amp; replace), <strong>Issues</strong> (real-time validation findings), <strong>Source Code</strong> (code reference scanner), and <strong>Languages</strong> (manage project locales). Further panels cover <strong>Translation Memory</strong>, <strong>Machine Translation</strong> and the <strong>Dictionary</strong> (project glossary).</li>
-<li><strong>Translation Editor:</strong> View strings either in a paged grid or infinite scroll. In wide windows, translation cards present a comfortable <strong>two-column layout</strong> with source on the left and target on the right. In narrower windows, cards automatically stack.</li>
+<li><strong>Translation Editor:</strong> View strings either in a paged grid or infinite scroll. In wide windows, translation cards use a <strong>two-column layout</strong> with source on the left and target on the right. In narrower windows, cards automatically stack.</li>
 <li><strong>Inspector Panel:</strong> Displays metadata for the focused translation segment, including character/word counts, developer comments, translation memory suggestions, and validation warnings.</li>
 <li><strong>Status Bar:</strong> Shows current project information, encoding (UTF-8, BOM, Latin-1), line endings (LF, CRLF), and a <strong>Notification History</strong> flyout.</li>
 </ul>
@@ -152,15 +152,15 @@
 <h3 id="audit-mode"><a class="anchor" href="#audit-mode" aria-label="Link to this section">#</a>Audit Mode</h3>
 <p>A strictly read-only inspection mode. All editing fields, buttons, and mutation shortcuts are disabled to prevent accidental modifications while inspecting translation history, author metadata, and approval timestamps.</p>
 <h3 id="zen-mode-ctrlcmdshiftenter"><a class="anchor" href="#zen-mode-ctrlcmdshiftenter" aria-label="Link to this section">#</a>Zen Mode (&lt;kbd&gt;Ctrl/Cmd+Shift+Enter&lt;/kbd&gt;)</h3>
-<p>Hides the sidebar, inspector, toolbar, and status bar, leaving only your translation cards in a focused view. Navigate smoothly between strings using &lt;kbd&gt;J&lt;/kbd&gt; / &lt;kbd&gt;K&lt;/kbd&gt; or &lt;kbd&gt;Ctrl/Cmd+Enter&lt;/kbd&gt;.</p>
+<p>Hides the sidebar, inspector, toolbar, and status bar, leaving only your translation cards in a focused view. Navigate between strings using &lt;kbd&gt;J&lt;/kbd&gt; / &lt;kbd&gt;K&lt;/kbd&gt; or &lt;kbd&gt;Ctrl/Cmd+Enter&lt;/kbd&gt;.</p>
 <hr>
 <h2 id="4-keyboard-driven-workflow"><a class="anchor" href="#4-keyboard-driven-workflow" aria-label="Link to this section">#</a>4. Keyboard-Driven Workflow</h2>
-<p>Toucan is engineered for touch-typists. Routine editing and review require no mouse interaction:</p>
+<p>Routine editing and review require no mouse interaction:</p>
 <div class="table-wrap"><table><thead><tr><th>Shortcut</th><th>Action</th><th>Description</th></tr></thead><tbody><tr><td>&lt;kbd&gt;Ctrl/Cmd+Enter&lt;/kbd&gt;</td><td><strong>Approve and Next</strong></td><td>Marks current translation approved and moves focus to the next target field.</td></tr><tr><td>&lt;kbd&gt;Ctrl/Cmd+Alt+→&lt;/kbd&gt;</td><td><strong>Next Pending</strong></td><td>Jumps focus to the next untranslated or unapproved field.</td></tr><tr><td>&lt;kbd&gt;Tab&lt;/kbd&gt; (or &lt;kbd&gt;Ctrl/Cmd+Alt+Enter&lt;/kbd&gt;)</td><td><strong>Accept Suggestion</strong></td><td>Accepts the ghost-text translation memory suggestion into an empty field.</td></tr><tr><td>&lt;kbd&gt;Ctrl/Cmd+Shift+P&lt;/kbd&gt;</td><td><strong>Command Palette</strong></td><td>Search and run any menu item, command, or plugin action.</td></tr><tr><td>&lt;kbd&gt;Ctrl/Cmd+/&lt;/kbd&gt;</td><td><strong>Shortcut Sheet</strong></td><td>Displays a searchable reference of all keyboard shortcuts.</td></tr><tr><td>&lt;kbd&gt;Ctrl/Cmd+S&lt;/kbd&gt;</td><td><strong>Save Project</strong></td><td>Saves all modified files atomically.</td></tr><tr><td>&lt;kbd&gt;Ctrl/Cmd+Z&lt;/kbd&gt; / &lt;kbd&gt;Ctrl+Y&lt;/kbd&gt; (&lt;kbd&gt;Cmd+Shift+Z&lt;/kbd&gt; on macOS)</td><td><strong>Undo / Redo</strong></td><td>Full history navigation. Bulk actions undo as a single step.</td></tr><tr><td>&lt;kbd&gt;Ctrl/Cmd+Shift+Enter&lt;/kbd&gt;</td><td><strong>Zen Mode</strong></td><td>Toggle distraction-free editing.</td></tr><tr><td>&lt;kbd&gt;F11&lt;/kbd&gt; (&lt;kbd&gt;Ctrl+Cmd+F&lt;/kbd&gt; on macOS)</td><td><strong>Fullscreen</strong></td><td>Toggle fullscreen.</td></tr><tr><td>&lt;kbd&gt;F7&lt;/kbd&gt;</td><td><strong>Run Validation</strong></td><td>Validate the whole project.</td></tr><tr><td>&lt;kbd&gt;Ctrl/Cmd+Shift+T&lt;/kbd&gt;</td><td><strong>Pre-translate</strong></td><td>Open the pre-translate dialog.</td></tr><tr><td>&lt;kbd&gt;Ctrl/Cmd+Alt+1&lt;/kbd&gt; / &lt;kbd&gt;2&lt;/kbd&gt; / &lt;kbd&gt;3&lt;/kbd&gt;</td><td><strong>Editor / Review / Audit mode</strong></td><td>Switch application mode.</td></tr></tbody></table></div>
 <p>Shortcuts can be customized in <strong>Settings → Keyboard Shortcuts</strong>, with automatic conflict detection and one-click reset to defaults.</p>
 <hr>
 <h2 id="5-quality-assurance--validation"><a class="anchor" href="#5-quality-assurance--validation" aria-label="Link to this section">#</a>5. Quality Assurance &amp; Validation</h2>
-<p>Toucan continuously checks your work as you type to prevent broken software releases:</p>
+<p>Toucan checks your work as you type for the following issues:</p>
 <ul>
 <li><strong>Placeholder Protection:</strong> Detects mismatches in interpolation variables, including <code>{{var}}</code>, <code>{0}</code>, <code>%s</code>, <code>:param</code>, and ICU syntax.</li>
 <li><strong>Missing &amp; Empty Translations:</strong> Flags untranslated keys, intentional empty strings, or untranslated copies (where target equals source text).</li>
@@ -192,7 +192,7 @@
 </ul>
 <hr>
 <h2 id="8-safe-saving--recovery"><a class="anchor" href="#8-safe-saving--recovery" aria-label="Link to this section">#</a>8. Safe Saving &amp; Recovery</h2>
-<p>Toucan protects your localization files from corruption and data loss:</p>
+<p>Toucan uses the following saving and recovery mechanisms:</p>
 <ul>
 <li><strong>Atomic File Replacement:</strong> Files are written to temporary files, flushed, and swapped in atomically. A sudden crash or power outage never leaves a half-written file.</li>
 <li><strong>Journaled Rollback (<code>SaveTransaction</code>):</strong> In multi-file projects, if saving one file fails (e.g. disk full or locked file), all previously written files in that save operation are automatically rolled back.</li>

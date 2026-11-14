@@ -1,5 +1,5 @@
 ---
-title: "project-translation-io — design"
+title: "project-translation-io: design"
 status: done
 progress: "45/64 tasks"
 updated: 2026-06-28
@@ -93,7 +93,7 @@ graph TD
 
 4. **Auto-save as a separate service**: `IAutoSaveService` owns its own `System.Threading.Timer` and delegates actual persistence to `IProjectLifecycleService.SaveProjectAsync()`. This keeps the timer lifecycle isolated from save logic.
 
-5. **Three-way merge on composite key**: The diff engine matches items by `(Language, Namespace)` — the natural composite key already used throughout Toucan. The "base" is the last-saved snapshot maintained by `ITranslationManagementService`.
+5. **Three-way merge on composite key**: The diff engine matches items by `(Language, Namespace)`, the natural composite key already used throughout Toucan. The "base" is the last-saved snapshot maintained by `ITranslationManagementService`.
 
 6. **Sidecar files for format-agnostic metadata**: Comments (for formats without inline support) and audit metadata are stored in JSON sidecar files alongside translation files. This avoids format-specific serialization complexity.
 
@@ -424,7 +424,7 @@ public int AutoSaveIntervalSeconds { get; set; } = 60; // Clamped to 10-600
 
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+*A property states a behavior that should hold across all valid executions of a system. The properties below express the specification as conditions that tests can verify.*
 
 ### Property 1: Translation Save Round-Trip
 
@@ -553,11 +553,11 @@ public int AutoSaveIntervalSeconds { get; set; } = 60; // Clamped to 10-600
 1. **No silent data loss**: Any failure that could lose user edits must retain the dirty state and in-memory values.
 2. **Partial success is acceptable for cleanup operations**: Language removal can succeed in memory even if some disk deletions fail.
 3. **Graceful degradation for metadata**: Missing audit or comment sidecars don't prevent project loading.
-4. **User always has final say**: Validation errors don't block save — the user can force-save after acknowledging.
+4. **User always has final say**: Validation errors don't block save; the user can force-save after acknowledging.
 
 ### Exception Handling Pattern
 
-All service methods that perform I/O return result objects (e.g., `ProjectSaveResult`, `LanguageOperationResult`) rather than throwing exceptions. Internal I/O exceptions are caught, logged, and converted to result objects. This keeps ViewModel code simple — it checks `result.Success` rather than wrapping calls in try/catch.
+All service methods that perform I/O return result objects (e.g., `ProjectSaveResult`, `LanguageOperationResult`) rather than throwing exceptions. Internal I/O exceptions are caught, logged, and converted to result objects. ViewModel code checks `result.Success` rather than wrapping calls in try/catch.
 
 ```csharp
 public async Task<ProjectSaveResult> SaveProjectAsync(CancellationToken ct)

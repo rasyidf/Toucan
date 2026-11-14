@@ -23,11 +23,11 @@ All built-in providers are pre-populated with sensible default values when no sa
 
 | Provider | Options | Secrets | Default Values |
 |----------|---------|---------|----------------|
-| Google | — | api_key | — |
+| Google | None | api_key | None |
 | DeepL | endpoint | api_key | endpoint=https://api.deepl.com/v2/translate |
 | Microsoft | endpoint, region | api_key | endpoint=https://api.cognitive.microsofttranslator.com |
-| AI | — (Settings → AI) | — (secret store `ai/<service>/api_key`) | — |
-| Custom | endpoint, header_name | api_key | — |
+| AI | Configure in Settings → AI | Secret store `ai/<service>/api_key` | None |
+| Custom | endpoint, header_name | api_key | None |
 
 The Custom provider falls back to the `TOUCAN_CUSTOM_ENDPOINT` environment variable when no `endpoint` option is set, which suits CI runs of the CLI.
 

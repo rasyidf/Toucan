@@ -81,14 +81,14 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="release-v0.25.0.html">Toucan v0.25.0 — Terminology and message-aware validation</a>
-<a href="release-v0.24.0.html">Toucan v0.24.0 — Editor comfort and resource compatibility</a>
+<a href="release-v0.25.0.html">Toucan v0.25.0: Terminology and message-aware validation</a>
+<a href="release-v0.24.0.html">Toucan v0.24.0: Editor comfort and resource compatibility</a>
 <a href="user-guide.html">Toucan User Guide</a>
 <a href="translator-guide.html">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
 <a href="ai-integration.html">AI Integration</a>
 <a href="provider-settings.html" aria-current="page">Provider Settings (App-level and Project-level)</a>
-<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="pretranslation-preview.html">Pretranslation: Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
 <a href="architecture.html">Toucan architecture</a>
 <a href="core-architecture.html">Toucan.Core interop architecture</a>
@@ -116,7 +116,7 @@
 <p>Files written by 0.19 and earlier have encrypted keys inline. Those are still read, and they move to the secret store the next time the provider settings are saved. Removing a provider (or a secret field) in the dialog removes its stored secret too.</p>
 <h2 id="built-in-providers"><a class="anchor" href="#built-in-providers" aria-label="Link to this section">#</a>Built-in providers</h2>
 <p>All built-in providers are pre-populated with sensible default values when no saved settings exist:</p>
-<div class="table-wrap"><table><thead><tr><th>Provider</th><th>Options</th><th>Secrets</th><th>Default Values</th></tr></thead><tbody><tr><td>Google</td><td>—</td><td>api_key</td><td>—</td></tr><tr><td>DeepL</td><td>endpoint</td><td>api_key</td><td>endpoint=https://api.deepl.com/v2/translate</td></tr><tr><td>Microsoft</td><td>endpoint, region</td><td>api_key</td><td>endpoint=https://api.cognitive.microsofttranslator.com</td></tr><tr><td>AI</td><td>— (Settings → AI)</td><td>— (secret store <code>ai/&lt;service&gt;/api_key</code>)</td><td>—</td></tr><tr><td>Custom</td><td>endpoint, header_name</td><td>api_key</td><td>—</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Provider</th><th>Options</th><th>Secrets</th><th>Default Values</th></tr></thead><tbody><tr><td>Google</td><td>None</td><td>api_key</td><td>None</td></tr><tr><td>DeepL</td><td>endpoint</td><td>api_key</td><td>endpoint=https://api.deepl.com/v2/translate</td></tr><tr><td>Microsoft</td><td>endpoint, region</td><td>api_key</td><td>endpoint=https://api.cognitive.microsofttranslator.com</td></tr><tr><td>AI</td><td>Configure in Settings → AI</td><td>Secret store <code>ai/&lt;service&gt;/api_key</code></td><td>None</td></tr><tr><td>Custom</td><td>endpoint, header_name</td><td>api_key</td><td>None</td></tr></tbody></table></div>
 <p>The Custom provider falls back to the <code>TOUCAN_CUSTOM_ENDPOINT</code> environment variable when no <code>endpoint</code> option is set, which suits CI runs of the CLI.</p>
 <p>Each provider declares its own schema through <code>ITranslationProvider.Definition</code>; <code>TranslationProviderRegistry</code> collects the definitions of all registered providers and exposes them via <code>ITranslationProviderRegistry</code>. Plugin providers appear in the same list (they are not marked built-in). Providers without a definition, such as the mock provider, work but are not listed.</p>
 <h3 id="deepl"><a class="anchor" href="#deepl" aria-label="Link to this section">#</a>DeepL</h3>

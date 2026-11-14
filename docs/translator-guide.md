@@ -8,7 +8,7 @@ summary: "Dedicated guide for professional translators and localization speciali
 
 Software localization often forces linguists to juggle unfamiliar developer formats (JSON, YAML, PO, RESX, ARB, XLIFF), where accidental syntax errors or broken placeholders can cause application crashes.
 
-**Toucan** bridges the gap between software engineering and professional Computer-Assisted Translation (CAT). It provides a familiar, distraction-free environment with Translation Memory, quality assurance, live metrics, and keyboard-driven efficiency—while handling file formatting, encodings, and persistence under the hood.
+**Toucan** provides Computer-Assisted Translation (CAT) workflows for software localization, with Translation Memory, quality assurance, live metrics, and keyboard shortcuts. It handles file formatting, encodings, and saving.
 
 ---
 
@@ -20,7 +20,7 @@ In wide windows, Toucan formats translation cards with a dedicated **source-firs
 - **Right Column:** Active target language input field.
 - **Above:** Clean key path, developer comments, and context notes.
 
-In compact or split-screen windows, cards smoothly stack vertically while maintaining clear visual distinction between source and target text.
+In compact or split-screen windows, cards stack vertically with distinct source and target fields.
 
 ### Live Character and Word Counts
 Accurate metrics are critical for software UI constraints (e.g. character limits on buttons, banners, or mobile screens) as well as translation billing:
@@ -31,7 +31,7 @@ Accurate metrics are critical for software UI constraints (e.g. character limits
 
 ## 2. Translation Memory (TM) & Segment Reuse
 
-Toucan incorporates a local, high-performance Translation Memory powered by a trigram fuzzy-matching engine.
+Toucan uses local Translation Memory with trigram fuzzy matching.
 
 ### Inline Ghost Suggestions
 When you navigate to an empty target segment:
@@ -53,7 +53,7 @@ You are never locked into Toucan. You can import existing industry-standard **Tr
 
 ## 3. Keyboard-Driven Review & Approval
 
-Linguists translate fastest when their hands never leave the home row. Toucan’s review workflow is built around continuous typing:
+Use these shortcuts to review translations while keeping focus in the target field:
 
 ### Rapid Review Cycle
 - Press <kbd>Ctrl/Cmd+Enter</kbd> (**Approve and Next**): Marks the current segment as **Approved**, saves the translation, and immediately advances focus to the next target field.
@@ -86,7 +86,7 @@ For formats supporting complex plural forms (i18next, Flutter ARB, ICU MessageFo
 - Complex ICU expressions (`{count, plural, one {# day} other {# days}}`) can be edited as whole strings. Full nested ICU syntax and required-branch validation remain planned for v0.25; preserve the message syntax when editing.
 
 ### Integrated Spell Checking
-- Built-in spell checking runs completely offline using the trusted **Hunspell** engine.
+- Built-in spell checking runs completely offline using the **Hunspell** engine.
 - Misspelled words are indicated with squiggly red underlines.
 - Right-click or press the context menu key to choose suggestions, ignore the term, or add it to your project-specific or personal dictionary.
 - Placeholders, code markup, and technical tokens are automatically excluded from spell checking.
@@ -95,7 +95,7 @@ For formats supporting complex plural forms (i18next, Flutter ARB, ICU MessageFo
 
 ## 5. Client & Team Review via Excel Spreadsheets
 
-Not every client or subject matter expert has Toucan installed. Toucan makes offline review seamless through round-trip spreadsheet interchange:
+Not every client or subject matter expert has Toucan installed. Toucan supports offline review by exporting and importing spreadsheets:
 
 ### Exporting for External Review
 1. Choose **File → Export to Excel…**
@@ -125,7 +125,7 @@ Confidentiality is a legal requirement for professional translators working unde
 
 ---
 
-## 7. Universal Format Support
+## 7. Supported Formats
 
 Toucan eliminates the need to maintain different editors for different programming languages:
 
@@ -140,4 +140,4 @@ Toucan eliminates the need to maintain different editors for different programmi
 | **Cross-Platform / Localization** | XLIFF 1.2 & 2.0 (`.xlf`), CSV, TSV, Java `.properties` |
 | **Migration** | BabelEdit (`.babel`) project folders |
 
-Each format loader and saver preserves original file encodings (UTF-8 with or without BOM, ISO-8859-1 Latin-1) and line endings (LF, CRLF), ensuring that commits pass continuous integration and code review without unwanted formatting churn.
+Each format loader and saver preserves original file encodings (UTF-8 with or without BOM, ISO-8859-1 Latin-1) and line endings (LF, CRLF) to avoid unwanted formatting changes in commits.

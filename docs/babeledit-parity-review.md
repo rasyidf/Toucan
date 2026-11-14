@@ -1,11 +1,11 @@
 ---
-title: "BabelEdit compatibility review — Windows, 2026-10-21"
+title: "BabelEdit compatibility review: Windows, 2026-10-21"
 status: reference
 updated: 2026-10-22
 summary: "Historical Windows compatibility review from 2026-10-21. Current implementation and executed acceptance evidence are tracked in the resource-compatibility specification."
 ---
 
-# BabelEdit compatibility review — Windows, 2026-10-21
+# BabelEdit compatibility review: Windows, 2026-10-21
 
 The six compatibility failures reproduced in the original audit have been fixed
 in this working tree. Broader 100% BabelEdit parity is still not certified; the

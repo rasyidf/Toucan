@@ -1,5 +1,5 @@
 ---
-title: "plugin-modularization — design"
+title: "plugin-modularization: design"
 status: done
 progress: "9/9 steps"
 updated: 2026-10-07

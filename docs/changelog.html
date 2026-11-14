@@ -137,8 +137,8 @@
 <li>Project glossary with preferred/forbidden terms, language translations, descriptions, CSV exchange, selected-string matches, and explicit insertion through the Dictionary panel.</li>
 <li>Structural ICU plural/select validation with nested messages, required branches, argument checks and documented syntax limits.</li>
 <li>AI analysis strictness per project and re-translation of findings through the existing explicit preview flow.</li>
-<li><strong>Destination choices in document projects</strong> — Adding a key asks which source document should hold it only when more than one fits. Duplicating keeps keys with literal dots intact. Adding, removing, or managing languages now works in document projects: new language files are placed where the framework will discover them, and removed languages&#x27; files are deleted on the next save (undo cancels the deletion). Choices survive undo/redo and crash recovery.</li>
-<li><strong>Declared save scopes</strong> — Formats state whether a save rewrites every owned file or only the documents it plans. Only verified formats (JSON and namespaced JSON) use targeted saving.</li>
+<li><strong>Destination choices in document projects</strong>: Adding a key asks which source document should hold it only when more than one fits. Duplicating keeps keys with literal dots intact. Adding, removing, or managing languages now works in document projects: new language files are placed where the framework will discover them, and removed languages&#x27; files are deleted on the next save (undo cancels the deletion). Choices survive undo/redo and crash recovery.</li>
+<li><strong>Declared save scopes</strong>: Formats state whether a save rewrites every owned file or only the documents it plans. Only verified formats (JSON and namespaced JSON) use targeted saving.</li>
 </ul>
 <h3>Fixed</h3>
 <ul>
@@ -147,7 +147,7 @@
 <li>Validate pending document edits before strict saves and keep unrelated external file changes visible after targeted autosaves.</li>
 <li>Restore clean dirty baselines and stable entry identities after native structural undo; clear saved configuration changes and avoid false dirty state after filling a missing target.</li>
 <li>Reclaim comparison-column width when a language is hidden.</li>
-<li><strong>CLI saves of document projects</strong> — <code>toucan set</code> and <code>toucan translate</code> no longer rewrite every file of a document project with the legacy writer. They save only the affected documents, keep identities and metadata, and add a missing language to an existing key in its own document.</li>
+<li><strong>CLI saves of document projects</strong>: <code>toucan set</code> and <code>toucan translate</code> no longer rewrite every file of a document project with the legacy writer. They save only the affected documents, keep identities and metadata, and add a missing language to an existing key in its own document.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.25.0" aria-label="Permalink to v0.25.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.25.0">Release on GitHub ↗</a></div>
 </article>
@@ -158,56 +158,56 @@
 <div class="release-counts"><span class="added">15 added</span><span class="changed">5 changed</span><span class="fixed">22 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.24.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Document-level reload conflict presentation</strong> — External file changes reload clean documents immediately while preserving dirty entries and their editing history. Conflicting documents are presented to the user via notification and dialog, retaining their original source versions for targeted resolution.</li>
-<li><strong>Restart recovery retains custom entry identities</strong> — When a document project has no durable identity catalog, loading uses its matching structured recovery draft checkpoint. Existing catalogs take precedence, external content changes remain conflicts, and a later save persists the recovered IDs with the documents.</li>
-<li><strong>Versioned document watching and navigation projections</strong> — Watch notifications carry changed paths and content fingerprints. Targeted saves acknowledge only committed file versions, so unrelated external edits remain visible. Old-workspace events are rejected. Core supports clean-document reload with dirty-conflict retention and namespace-first/file-first navigation projections; the desktop Explorer exposes both layouts with entry-ID selection and source origins. Node identifiers stay bounded for deeply nested paths. Editor cards keep duplicate display keys separate and retain literal key names, including dots. Layout/selection changes flush pending edits; Explorer context menus and rename/delete act on the selected structured entry.</li>
-<li><strong>Recoverable targeted document saves</strong> — The opt-in Core coordinator checks source versions, writes only declared documents, retains encoding/BOMs, and acknowledges the captured revision while preserving newer edits. Undo/redo bindings follow saved renames and deletions. Journal schema 2 restores only writes owned by the save and preserves unrelated files or later external changes; legacy journals remain supported. Affected comment/review sidecars, identity catalogs, and changed manifests participate in the same transaction. Explicit document-capable framework projects use this path in the desktop, with create-only Save As/export and structured recovery drafts.</li>
-<li><strong>Targeted JSON document planning</strong> — Core separates source reads, framework routing, and optional document serialization. Immutable plans declare only changed document creates, updates, and deletes with source versions and captured workspace revisions. JSON scalar edits preserve surrounding source text; structural edits retain unedited nulls, empty containers, and raw scalars. New files require framework-valid destinations. Explicit document-capable framework projects activate planning and execution; legacy formats retain their existing bulk-save behavior.</li>
-<li><strong>Async workspace commands and subscriptions</strong> — Core queues plugin commands with bounded waiting, immutable inputs, and cancellation before commit. API 1.2 adds atomic snapshot subscriptions with revisioned deltas, session/origin metadata, isolated subscriber buffers, and explicit resnapshot requests on overflow. Close, reopen, Save As, and disposal end old-session streams; the desktop adapter flushes pending edits before subscribing.</li>
-<li><strong>Core workspace state and history</strong> — Native and plugin edits now share a UI-independent workspace service with immutable snapshots, revisions, approval policy, dirty baselines, and undo/redo for values, comments, review, and key structure. Plugin API 1.2 adds entry-ID edits with session/revision checks and ambiguity rejection for legacy keys. Workspace state is available during plugin activation and remains readable through teardown; cancelled close preserves history, and Save As changes plugin scope and session identity.</li>
-<li><strong>Workspace source foundations</strong> — Core now offers opt-in document-aware JSON loading with stable identities, structured key paths, source fingerprints, identity checkpoints, and framework-based destination routing. i18next language variants can share entry identity without merging identical keys from unrelated files. Plugin API 1.2 adds optional document-loading and framework-layout capabilities through existing registration; older plugins remain compatible.</li>
-<li><strong>Placeholder highlights and live validation</strong> — Placeholders are highlighted inside the native source and target fields across Cards, Line by line, and Focused layouts. Validation appears under the field after a 300 ms typing pause, with severity colors and readable messages. Checks use current source and target text, respect rule enable/severity settings, and never block draft saves. Placeholder checks now identify missing, unexpected, and repeated tokens even when the total count matches.</li>
-<li><strong>Selectable editor layouts</strong> — Choose Cards, Line by line (keys and visible languages in columns), or Focused (one key at a time) from the editor toolbar. The choice is remembered between sessions; switching preserves edits and selection. Line by line stacks when the window cannot fit readable columns and supports plurals, language filters, review, and audit.</li>
-<li><strong>Easier access to translation editing</strong> — Cards highlight on hover and selection, with a clearer outline and language badge for the focused field. Use the card’s pencil button, click a language badge, or press Enter/F2 on a selected card to start editing. Keyboard entry keeps the previous editing language when available, otherwise starts with a visible target. Fields have larger click targets and top-aligned multiline text; counters and placeholder warnings stay below the field in narrow layouts. Audit mode remains read-only.</li>
-<li><strong>Placeholder help in the editor</strong> — A translation value that drops a <code>{{ }}</code> placeholder its source has now shows an inline warning naming the missing placeholder (toggle it under Settings → Editor). Right-click a key → Placeholders → &quot;Rename … in all languages&quot; renames a <code>{{token}}</code> across every language of that key as a single undo step; the same is available as a command, and a &quot;Sync Placeholder to All Languages&quot; command applies a rename you typed in one field to the rest. No modifier keys, so it works the same on macOS, Windows and Linux.</li>
-<li><strong>Accessibility pass</strong> — Right-to-left target languages lay out right-to-left in the editor, interactive icon-only controls carry accessible names for screen readers (guarded by a test), and the window and panels lay out at a narrow width with large text without clipping.</li>
-<li><strong>First-run setup and a feature tour</strong> — The first-run dialog now also sets the default source language and theme, and a one-time, dismissible tour points out editing, keyboard review and the command palette. The empty start screen and the &quot;no keys match&quot; state already offer the actions to open, create or import a project and to add a key.</li>
-<li><strong>Placeholders in the inspector</strong> — Selecting a key lists the placeholders parsed from its source value (<code>{name}</code>, <code>{{count}}</code>, <code>%s</code>, <code>:param</code>, <code>${expr}</code>, ICU), so a translator can see at a glance what every translation must keep. The inspector already shows the per-language values with their state (empty, machine, translated, approved), translation-memory matches, source-code references and history.</li>
+<li><strong>Document-level reload conflict presentation</strong>: External file changes reload clean documents immediately while preserving dirty entries and their editing history. Conflicting documents are presented to the user via notification and dialog, retaining their original source versions for targeted resolution.</li>
+<li><strong>Restart recovery retains custom entry identities</strong>: When a document project has no durable identity catalog, loading uses its matching structured recovery draft checkpoint. Existing catalogs take precedence, external content changes remain conflicts, and a later save persists the recovered IDs with the documents.</li>
+<li><strong>Versioned document watching and navigation projections</strong>: Watch notifications carry changed paths and content fingerprints. Targeted saves acknowledge only committed file versions, so unrelated external edits remain visible. Old-workspace events are rejected. Core supports clean-document reload with dirty-conflict retention and namespace-first/file-first navigation projections; the desktop Explorer exposes both layouts with entry-ID selection and source origins. Node identifiers stay bounded for deeply nested paths. Editor cards keep duplicate display keys separate and retain literal key names, including dots. Layout/selection changes flush pending edits; Explorer context menus and rename/delete act on the selected structured entry.</li>
+<li><strong>Recoverable targeted document saves</strong>: The opt-in Core coordinator checks source versions, writes only declared documents, retains encoding/BOMs, and acknowledges the captured revision while preserving newer edits. Undo/redo bindings follow saved renames and deletions. Journal schema 2 restores only writes owned by the save and preserves unrelated files or later external changes; legacy journals remain supported. Affected comment/review sidecars, identity catalogs, and changed manifests participate in the same transaction. Explicit document-capable framework projects use this path in the desktop, with create-only Save As/export and structured recovery drafts.</li>
+<li><strong>Targeted JSON document planning</strong>: Core separates source reads, framework routing, and optional document serialization. Immutable plans declare only changed document creates, updates, and deletes with source versions and captured workspace revisions. JSON scalar edits preserve surrounding source text; structural edits retain unedited nulls, empty containers, and raw scalars. New files require framework-valid destinations. Explicit document-capable framework projects activate planning and execution; legacy formats retain their existing bulk-save behavior.</li>
+<li><strong>Async workspace commands and subscriptions</strong>: Core queues plugin commands with bounded waiting, immutable inputs, and cancellation before commit. API 1.2 adds atomic snapshot subscriptions with revisioned deltas, session/origin metadata, isolated subscriber buffers, and explicit resnapshot requests on overflow. Close, reopen, Save As, and disposal end old-session streams; the desktop adapter flushes pending edits before subscribing.</li>
+<li><strong>Core workspace state and history</strong>: Native and plugin edits now share a UI-independent workspace service with immutable snapshots, revisions, approval policy, dirty baselines, and undo/redo for values, comments, review, and key structure. Plugin API 1.2 adds entry-ID edits with session/revision checks and ambiguity rejection for legacy keys. Workspace state is available during plugin activation and remains readable through teardown; cancelled close preserves history, and Save As changes plugin scope and session identity.</li>
+<li><strong>Workspace source foundations</strong>: Core now offers opt-in document-aware JSON loading with stable identities, structured key paths, source fingerprints, identity checkpoints, and framework-based destination routing. i18next language variants can share entry identity without merging identical keys from unrelated files. Plugin API 1.2 adds optional document-loading and framework-layout capabilities through existing registration; older plugins remain compatible.</li>
+<li><strong>Placeholder highlights and live validation</strong>: Placeholders are highlighted inside the native source and target fields across Cards, Line by line, and Focused layouts. Validation appears under the field after a 300 ms typing pause, with severity colors and readable messages. Checks use current source and target text, respect rule enable/severity settings, and never block draft saves. Placeholder checks now identify missing, unexpected, and repeated tokens even when the total count matches.</li>
+<li><strong>Selectable editor layouts</strong>: Choose Cards, Line by line (keys and visible languages in columns), or Focused (one key at a time) from the editor toolbar. The choice is remembered between sessions; switching preserves edits and selection. Line by line stacks when the window cannot fit readable columns and supports plurals, language filters, review, and audit.</li>
+<li><strong>Easier access to translation editing</strong>: Cards highlight on hover and selection, with a clearer outline and language badge for the focused field. Use the card’s pencil button, click a language badge, or press Enter/F2 on a selected card to start editing. Keyboard entry keeps the previous editing language when available, otherwise starts with a visible target. Fields have larger click targets and top-aligned multiline text; counters and placeholder warnings stay below the field in narrow layouts. Audit mode remains read-only.</li>
+<li><strong>Placeholder help in the editor</strong>: A translation value that drops a <code>{{ }}</code> placeholder its source has now shows an inline warning naming the missing placeholder (toggle it under Settings → Editor). Right-click a key → Placeholders → &quot;Rename … in all languages&quot; renames a <code>{{token}}</code> across every language of that key as a single undo step; the same is available as a command, and a &quot;Sync Placeholder to All Languages&quot; command applies a rename you typed in one field to the rest. No modifier keys, so it works the same on macOS, Windows and Linux.</li>
+<li><strong>Accessibility pass</strong>: Right-to-left target languages lay out right-to-left in the editor, interactive icon-only controls carry accessible names for screen readers (guarded by a test), and the window and panels lay out at a narrow width with large text without clipping.</li>
+<li><strong>First-run setup and a feature tour</strong>: The first-run dialog now also sets the default source language and theme, and a one-time, dismissible tour points out editing, keyboard review and the command palette. The empty start screen and the &quot;no keys match&quot; state already offer the actions to open, create or import a project and to add a key.</li>
+<li><strong>Placeholders in the inspector</strong>: Selecting a key lists the placeholders parsed from its source value (<code>{name}</code>, <code>{{count}}</code>, <code>%s</code>, <code>:param</code>, <code>${expr}</code>, ICU), so a translator can see at a glance what every translation must keep. The inspector already shows the per-language values with their state (empty, machine, translated, approved), translation-memory matches, source-code references and history.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
-<li><strong>Repository and packaging cleanup</strong> — One maintained solution and one MSIX implementation/manifest; Windows packages go to <code>dist/</code> with staging under <code>build/publish/</code>. MSIX assets are generated at their declared sizes, and local build probes and retired WPF agent configuration are removed.</li>
-<li><strong>Plugin toolbar contributions</strong> — Commands with toolbar placement now render in the editor and follow registry availability and registration changes.</li>
-<li><strong>Preview version</strong> — Toucan identifies itself as 0.24.0, with plugin API 1.2. The named release draft collects this version’s changes; remaining acceptance checks are recorded in the editor-comfort spec.</li>
-<li><strong>Welcome screen and project setup</strong> — Theme-aware artwork, responsive welcome sections, shared framework cards with consistent sizing, and template shortcuts that preselect their framework. The project wizard places aligned project details above its framework selector and scrolls the body above a fixed footer. Redundant welcome navigation was removed.</li>
+<li><strong>Repository and packaging cleanup</strong>: One maintained solution and one MSIX implementation/manifest; Windows packages go to <code>dist/</code> with staging under <code>build/publish/</code>. MSIX assets are generated at their declared sizes, and local build probes and retired WPF agent configuration are removed.</li>
+<li><strong>Plugin toolbar contributions</strong>: Commands with toolbar placement now render in the editor and follow registry availability and registration changes.</li>
+<li><strong>Preview version</strong>: Toucan identifies itself as 0.24.0, with plugin API 1.2. The named release draft collects this version’s changes; remaining acceptance checks are recorded in the editor-comfort spec.</li>
+<li><strong>Welcome screen and project setup</strong>: Theme-aware artwork, responsive welcome sections, shared framework cards with consistent sizing, and template shortcuts that preselect their framework. The project wizard places aligned project details above its framework selector and scrolls the body above a fixed footer. Redundant welcome navigation was removed.</li>
 <li>The <code>Toucan.Plugins.Abstractions</code> package is version 1.2.0 to match plugin API 1.2, including additive resource compatibility contracts.</li>
 </ul>
 <h3>Fixed</h3>
 <ul>
-<li><strong>Settings drafts survive delayed saves</strong> — Finishing an earlier plugin settings save no longer replaces text typed while that save was pending.</li>
-<li><strong>Linux startup without GNOME helpers</strong> — Theme selection uses Avalonia platform settings on Linux, avoiding a startup exception when the optional <code>gsettings</code> command is absent. Light, Dark and System preferences remain available.</li>
-<li><strong>macOS packaging</strong> — Hunspell source and license materials now ship under the app&#x27;s Resources directory, avoiding a nested-bundle signing failure. Packaging verifies the component materials and app signature, and CI builds the macOS app and DMG.</li>
-<li><strong>Linked resource paths</strong> — Internal resource links whose targets contain linked ancestors (including macOS&#x27;s <code>/var</code> alias) resolve to the same physical project path. Links outside the project remain rejected.</li>
-<li><strong>Live placeholder context</strong> — Source edits, linked placeholder renames and undo/redo update target warnings immediately, including independent plural variants. A successful rename no longer warns that the old source token is missing.</li>
-<li><strong>Unread notification badge</strong> — Reading notification history clears its badge across project/validation refreshes. Retained history and validation counts remain available, while only new notifications increase the badge.</li>
-<li><strong>Start-screen sidebar</strong> — The project activity rail and its reserved column disappear on the start screen, return after opening a project and hide again when it closes. Preferences remains available from Settings.</li>
-<li><strong>Menus without a project</strong> — Project editing, save/export, validation, statistics and project properties are hidden until a project opens. Native menus, overflow menus and the command palette use the same rule, including workspace-only plugin commands; global tools remain available.</li>
-<li><strong>Dialog title bars</strong> — App-owned settings, provider, message and plugin dialogs share themed custom chrome with the main window&#x27;s caption-button styling. Translation Providers uses its scope switch without a duplicate &quot;Editing:&quot; label.</li>
-<li><strong>Bulk history (APP-04)</strong> — Copy, namespace move, Replace All, accepted pre-translation and approval batches each undo as one step, restoring review metadata as well as values. Stale translation previews and namespace collisions leave the workspace unchanged. Existing grouped delete history remains supported.</li>
-<li><strong>Notification access (APP-03)</strong> — The notification badge opens retained history even with no untranslated strings. Validation distinguishes an unchecked project from a clean result.</li>
-<li><strong>Shortcut customization (APP-02)</strong> — The existing settings editor supports persisted reassignment, conflicts and reset; this issue no longer describes current code.</li>
-<li><strong>Responsive editor and dialogs</strong> — Editor toolbars grow when controls wrap; resource explanations occupy a separate row. Dialog footers retain their spacing and onboarding content scrolls above its actions.</li>
-<li><strong>Windows dialog surfaces</strong> — Dialog windows and their backplates use the active theme&#x27;s opaque background, including dialogs with a Border content root, and follow theme changes while open. Shared color swatches use immutable brushes to avoid UI-thread ownership errors.</li>
-<li><strong>Empty translations</strong> — Format writers retain intentional empty values by default and honor the project&#x27;s save-empty setting through GUI, CLI and package saves. Excluding empty values also rewrites a file when its final translation becomes empty, instead of leaving old text on disk.</li>
-<li><strong>Java properties encoding</strong> — UTF-8 and Latin-1 text load correctly, imported encoding declarations take precedence over detection, and saves retain original filenames. Explicit newline conversion preserves existing UTF-8 text.</li>
-<li><strong>Rails YAML and sequences</strong> — Locale wrappers no longer become translation key prefixes. Scalar and mapping sequences load and save, existing <code>.yml</code>/<code>.yaml</code> paths are retained, and new keys join the existing language file.</li>
-<li><strong>BabelEdit metadata conversion</strong> — Both converters retain concepts directly inside package folders and preserve typed settings and copy templates. Native project saves retain comments and approvals across reopening, language aliases and Save As.</li>
-<li><strong>Excel interchange</strong> — Import recognizes BabelEdit package, translation ID and per-language approval columns as well as older Toucan workbooks. Export preserves approval per language. Comment and approval changes apply even when translation text is unchanged, and invalid headers are rejected before merging.</li>
-<li><strong>Document language changes preserve source layout</strong> — Document-aware projects refuse legacy language file creation/deletion until explicit destination planning is available; source language files can be changed in the folder and reloaded.</li>
-<li><strong>Metadata no longer appears as translations</strong> — JSON and namespaced projects skip <code>.toucan-metadata.json</code> and <code>*.comments.json</code> during language discovery, keeping sidecar <code>schemaVersion</code> and comment/audit entries out of the editor. Comments and audit metadata still load through their dedicated services and remain included in save recovery.</li>
+<li><strong>Settings drafts survive delayed saves</strong>: Finishing an earlier plugin settings save no longer replaces text typed while that save was pending.</li>
+<li><strong>Linux startup without GNOME helpers</strong>: Theme selection uses Avalonia platform settings on Linux, avoiding a startup exception when the optional <code>gsettings</code> command is absent. Light, Dark and System preferences remain available.</li>
+<li><strong>macOS packaging</strong>: Hunspell source and license materials now ship under the app&#x27;s Resources directory, avoiding a nested-bundle signing failure. Packaging verifies the component materials and app signature, and CI builds the macOS app and DMG.</li>
+<li><strong>Linked resource paths</strong>: Internal resource links whose targets contain linked ancestors (including macOS&#x27;s <code>/var</code> alias) resolve to the same physical project path. Links outside the project remain rejected.</li>
+<li><strong>Live placeholder context</strong>: Source edits, linked placeholder renames and undo/redo update target warnings immediately, including independent plural variants. A successful rename no longer warns that the old source token is missing.</li>
+<li><strong>Unread notification badge</strong>: Reading notification history clears its badge across project/validation refreshes. Retained history and validation counts remain available, while only new notifications increase the badge.</li>
+<li><strong>Start-screen sidebar</strong>: The project activity rail and its reserved column disappear on the start screen, return after opening a project and hide again when it closes. Preferences remains available from Settings.</li>
+<li><strong>Menus without a project</strong>: Project editing, save/export, validation, statistics and project properties are hidden until a project opens. Native menus, overflow menus and the command palette use the same rule, including workspace-only plugin commands; global tools remain available.</li>
+<li><strong>Dialog title bars</strong>: App-owned settings, provider, message and plugin dialogs share themed custom chrome with the main window&#x27;s caption-button styling. Translation Providers uses its scope switch without a duplicate &quot;Editing:&quot; label.</li>
+<li><strong>Bulk history (APP-04)</strong>: Copy, namespace move, Replace All, accepted pre-translation and approval batches each undo as one step, restoring review metadata as well as values. Stale translation previews and namespace collisions leave the workspace unchanged. Existing grouped delete history remains supported.</li>
+<li><strong>Notification access (APP-03)</strong>: The notification badge opens retained history even with no untranslated strings. Validation distinguishes an unchecked project from a clean result.</li>
+<li><strong>Shortcut customization (APP-02)</strong>: The existing settings editor supports persisted reassignment, conflicts and reset; this issue no longer describes current code.</li>
+<li><strong>Responsive editor and dialogs</strong>: Editor toolbars grow when controls wrap; resource explanations occupy a separate row. Dialog footers retain their spacing and onboarding content scrolls above its actions.</li>
+<li><strong>Windows dialog surfaces</strong>: Dialog windows and their backplates use the active theme&#x27;s opaque background, including dialogs with a Border content root, and follow theme changes while open. Shared color swatches use immutable brushes to avoid UI-thread ownership errors.</li>
+<li><strong>Empty translations</strong>: Format writers retain intentional empty values by default and honor the project&#x27;s save-empty setting through GUI, CLI and package saves. Excluding empty values also rewrites a file when its final translation becomes empty, instead of leaving old text on disk.</li>
+<li><strong>Java properties encoding</strong>: UTF-8 and Latin-1 text load correctly, imported encoding declarations take precedence over detection, and saves retain original filenames. Explicit newline conversion preserves existing UTF-8 text.</li>
+<li><strong>Rails YAML and sequences</strong>: Locale wrappers no longer become translation key prefixes. Scalar and mapping sequences load and save, existing <code>.yml</code>/<code>.yaml</code> paths are retained, and new keys join the existing language file.</li>
+<li><strong>BabelEdit metadata conversion</strong>: Both converters retain concepts directly inside package folders and preserve typed settings and copy templates. Native project saves retain comments and approvals across reopening, language aliases and Save As.</li>
+<li><strong>Excel interchange</strong>: Import recognizes BabelEdit package, translation ID and per-language approval columns as well as older Toucan workbooks. Export preserves approval per language. Comment and approval changes apply even when translation text is unchanged, and invalid headers are rejected before merging.</li>
+<li><strong>Document language changes preserve source layout</strong>: Document-aware projects refuse legacy language file creation/deletion until explicit destination planning is available; source language files can be changed in the folder and reloaded.</li>
+<li><strong>Metadata no longer appears as translations</strong>: JSON and namespaced projects skip <code>.toucan-metadata.json</code> and <code>*.comments.json</code> during language discovery, keeping sidecar <code>schemaVersion</code> and comment/audit entries out of the editor. Comments and audit metadata still load through their dedicated services and remain included in save recovery.</li>
 </ul>
 <ul>
-<li><strong>Editing keeps focus</strong> — Refreshing a row after an unrelated edit (undo, redo or a bulk operation elsewhere) no longer resets the field you are typing in; the caret stays put.</li>
+<li><strong>Editing keeps focus</strong>: Refreshing a row after an unrelated edit (undo, redo or a bulk operation elsewhere) no longer resets the field you are typing in; the caret stays put.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.24.0" aria-label="Permalink to v0.24.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.24.0">Release on GitHub ↗</a></div>
 </article>
@@ -217,18 +217,18 @@
 <div class="release-counts"><span class="added">3 added</span><span class="changed">2 changed</span><span class="fixed">1 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.23.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Compatibility checks</strong> — A plugin manifest can declare <code>minHostVersion</code> and <code>platforms</code>. A plugin that needs a newer Toucan, or is not built for this operating system, is not loaded, and the Plugins page and <code>toucan plugins list</code> say what to do about it. API and desktop-contract mismatches now say whether to update Toucan or ask the author for a new build. Settings saved by a newer version of a plugin are kept and reported instead of being overwritten, and a settings migration that could never run is refused when the schema is registered.</li>
-<li><strong>SDK test harness</strong> — <code>Toucan.Plugins.Testing</code> runs a plugin&#x27;s registration and activation without Toucan, with in-memory settings, secrets, notifications and workspace, command states, cancellation on close, and a check that the plugin references no UI assembly.</li>
-<li><strong>Sample connector</strong> — <code>samples/Toucan.Sample.Connector</code> (in-memory service) and, in the separate <code>toucan-plugins</code> repository, a REST connector built only from the published SDK packages: a settings form, a Server panel, Pull and Push commands that edit the project through the workspace API and never overwrite what you typed or what the server changed.</li>
+<li><strong>Compatibility checks</strong>: A plugin manifest can declare <code>minHostVersion</code> and <code>platforms</code>. A plugin that needs a newer Toucan, or is not built for this operating system, is not loaded, and the Plugins page and <code>toucan plugins list</code> say what to do about it. API and desktop-contract mismatches now say whether to update Toucan or ask the author for a new build. Settings saved by a newer version of a plugin are kept and reported instead of being overwritten, and a settings migration that could never run is refused when the schema is registered.</li>
+<li><strong>SDK test harness</strong>: <code>Toucan.Plugins.Testing</code> runs a plugin&#x27;s registration and activation without Toucan, with in-memory settings, secrets, notifications and workspace, command states, cancellation on close, and a check that the plugin references no UI assembly.</li>
+<li><strong>Sample connector</strong>: <code>samples/Toucan.Sample.Connector</code> (in-memory service) and, in the separate <code>toucan-plugins</code> repository, a REST connector built only from the published SDK packages: a settings form, a Server panel, Pull and Push commands that edit the project through the workspace API and never overwrite what you typed or what the server changed.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
-<li><strong>Toolbar buttons use the command registry</strong> — Save, the command palette, the Editor/Review/Audit tabs, the panel toggles and Settings now run the same registered commands as the menus and shortcuts, so they follow reassigned shortcuts and command availability.</li>
+<li><strong>Toolbar buttons use the command registry</strong>: Save, the command palette, the Editor/Review/Audit tabs, the panel toggles and Settings now run the same registered commands as the menus and shortcuts, so they follow reassigned shortcuts and command availability.</li>
 <li>The <code>Toucan.Plugins.Abstractions</code> package is version 1.1.0 to match plugin API 1.1.</li>
 </ul>
 <h3>Fixed</h3>
 <ul>
-<li><strong>Keyboard shortcuts can be reassigned</strong> — Settings → Shortcuts now edits shortcuts with conflict detection and a reset to default, and the overrides are stored per user. Previously the page only listed the fixed shortcuts.</li>
+<li><strong>Keyboard shortcuts can be reassigned</strong>: Settings → Shortcuts now edits shortcuts with conflict detection and a reset to default, and the overrides are stored per user. Previously the page only listed the fixed shortcuts.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.23.0" aria-label="Permalink to v0.23.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.23.0">Release on GitHub ↗</a></div>
 </article>
@@ -238,24 +238,24 @@
 <div class="release-counts"><span class="added">4 added</span><span class="changed">4 changed</span><span class="fixed">2 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.22.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Recovery after a crash</strong> — Toucan writes your unsaved edits to a recovery draft every few seconds (in <code>Documents/Toucan/recovery</code>, outside the project). When you reopen the project it offers to recover them. Edits to a value that was changed on disk in the meantime are skipped and listed, never overwritten. Discarding changes on close deletes the draft. Drafts include deleted and renamed keys and approval changes, not only edited values; a deleted key is only removed again if its value on disk is unchanged.</li>
-<li><strong>Interrupted saves are detected</strong> — Before a save, Toucan copies every file it may touch (language files, comment and audit sidecars, the manifest) to <code>.toucan/recovery</code>. If Toucan stops mid-save, the next open offers to restore those files or keep what is on disk. After a successful save the copies stay as the previous version.</li>
-<li><strong>Files changed outside Toucan</strong> — Saving no longer overwrites a language file that was edited outside Toucan since it was opened or last saved. You are asked first, and nothing is written until you confirm.</li>
-<li><strong>Strict approval policy</strong> — Project Properties → Saving has a new &quot;Require valid translations to approve&quot; switch. When on, a translation with validation errors cannot be approved, and bulk approval skips those items and says how many. It is stored as <code>requireValidForApproval</code> in <code>toucan.tproj</code>.</li>
+<li><strong>Recovery after a crash</strong>: Toucan writes your unsaved edits to a recovery draft every few seconds (in <code>Documents/Toucan/recovery</code>, outside the project). When you reopen the project it offers to recover them. Edits to a value that was changed on disk in the meantime are skipped and listed, never overwritten. Discarding changes on close deletes the draft. Drafts include deleted and renamed keys and approval changes, not only edited values; a deleted key is only removed again if its value on disk is unchanged.</li>
+<li><strong>Interrupted saves are detected</strong>: Before a save, Toucan copies every file it may touch (language files, comment and audit sidecars, the manifest) to <code>.toucan/recovery</code>. If Toucan stops mid-save, the next open offers to restore those files or keep what is on disk. After a successful save the copies stay as the previous version.</li>
+<li><strong>Files changed outside Toucan</strong>: Saving no longer overwrites a language file that was edited outside Toucan since it was opened or last saved. You are asked first, and nothing is written until you confirm.</li>
+<li><strong>Strict approval policy</strong>: Project Properties → Saving has a new &quot;Require valid translations to approve&quot; switch. When on, a translation with validation errors cannot be approved, and bulk approval skips those items and says how many. It is stored as <code>requireValidForApproval</code> in <code>toucan.tproj</code>.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
-<li><strong>Atomic saves</strong> — Files are written to a temporary file in the same folder, flushed to disk and then swapped in, so a crash or write error no longer leaves a half-written file. This covers translation files, the project manifest, comment and audit sidecars, and encoding or line-ending rewrites.</li>
-<li><strong>Drafts can be saved with validation errors</strong> — Saving no longer asks &quot;Save anyway?&quot;. The file is saved and the findings appear in the Issues panel, with the count in the status bar. Automatic saves also go through.</li>
-<li><strong>Failed saves roll back</strong> — If one file of a save fails (permissions, a full disk, a locked file), the files already written are restored, the edits stay unsaved, and the message says what happened. Permission errors are reported instead of ending the save with an unhandled error.</li>
+<li><strong>Atomic saves</strong>: Files are written to a temporary file in the same folder, flushed to disk and then swapped in, so a crash or write error no longer leaves a half-written file. This covers translation files, the project manifest, comment and audit sidecars, and encoding or line-ending rewrites.</li>
+<li><strong>Drafts can be saved with validation errors</strong>: Saving no longer asks &quot;Save anyway?&quot;. The file is saved and the findings appear in the Issues panel, with the count in the status bar. Automatic saves also go through.</li>
+<li><strong>Failed saves roll back</strong>: If one file of a save fails (permissions, a full disk, a locked file), the files already written are restored, the edits stay unsaved, and the message says what happened. Permission errors are reported instead of ending the save with an unhandled error.</li>
 </ul>
 <ul>
-<li><strong>&quot;Check for issues when saving&quot;</strong> — The old &quot;Validate before saving&quot; setting did nothing; it now controls whether the check runs on save. Findings are listed in the Issues panel and never stop a save. The Options text no longer claims errors block the save.</li>
+<li><strong>&quot;Check for issues when saving&quot;</strong>: The old &quot;Validate before saving&quot; setting did nothing; it now controls whether the check runs on save. Findings are listed in the Issues panel and never stop a save. The Options text no longer claims errors block the save.</li>
 </ul>
 <h3>Fixed</h3>
 <ul>
-<li><strong>Files left behind by a failed save</strong> — If a save created a file the project did not have before (for example a new namespace file) and then failed, the new file is removed again when the other files are restored.</li>
-<li><strong>Language codes after a failed save</strong> — With language aliases configured, a save that failed halfway left items under their file code instead of their display code.</li>
+<li><strong>Files left behind by a failed save</strong>: If a save created a file the project did not have before (for example a new namespace file) and then failed, the new file is removed again when the other files are restored.</li>
+<li><strong>Language codes after a failed save</strong>: With language aliases configured, a save that failed halfway left items under their file code instead of their display code.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.22.0" aria-label="Permalink to v0.22.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.22.0">Release on GitHub ↗</a></div>
 </article>
@@ -265,33 +265,33 @@
 <div class="release-counts"><span class="added">6 added</span><span class="changed">4 changed</span><span class="fixed">11 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.21.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Continuous integration</strong> — Pull requests and pushes to <code>main</code> and <code>release/**</code> build <code>Toucan.CrossPlatform.slnx</code> and run the Core and Avalonia tests on Windows, macOS and Linux, and upload coverage reports.</li>
-<li><strong>Format support matrix</strong> — <a href="formats.html">docs/formats.md</a> lists, for every built-in format, the versions that work, what survives a save and what does not. It is generated from the code and checked by a test.</li>
-<li><strong>Unsafe saves are blocked</strong> — Android XML projects that contain <code>&lt;plurals&gt;</code>, other resource types or <code>translatable=&quot;false&quot;</code>, and RESX projects with non-string resources, <code>&lt;metadata&gt;</code> or files not named <code>Resources*.resx</code>, open with a warning, and saving them in place is refused, because Toucan would rewrite the files without that content. Save As still writes a copy.</li>
-<li><strong>Stability checks</strong> — For every loadable format, saving the same data twice gives identical files, save → load → save changes nothing and creates no new files, and locale variants (<code>pt-BR</code>, <code>zh-Hans</code>) keep their identity.</li>
-<li><strong>Regression tests for 0.17.1 fixes</strong> — Merged items stay clean after an external merge, <code>DirtyStateChanged</code> fires once per transition under concurrent checks, auto-save survives disposal mid-save, and iOS <code>.strings</code> escapes and Java <code>.properties</code> line continuations round-trip.</li>
-<li><strong>Round-trip fixtures</strong> — Every loadable format is checked for multiline text, CRLF, quotes, backslashes, unicode, placeholders, markup, separators, leading spaces, tabs, percent signs, <code>$</code>, and YAML-looking words and numbers.</li>
+<li><strong>Continuous integration</strong>: Pull requests and pushes to <code>main</code> and <code>release/**</code> build <code>Toucan.CrossPlatform.slnx</code> and run the Core and Avalonia tests on Windows, macOS and Linux, and upload coverage reports.</li>
+<li><strong>Format support matrix</strong>: <a href="formats.html">docs/formats.md</a> lists, for every built-in format, the versions that work, what survives a save and what does not. It is generated from the code and checked by a test.</li>
+<li><strong>Unsafe saves are blocked</strong>: Android XML projects that contain <code>&lt;plurals&gt;</code>, other resource types or <code>translatable=&quot;false&quot;</code>, and RESX projects with non-string resources, <code>&lt;metadata&gt;</code> or files not named <code>Resources*.resx</code>, open with a warning, and saving them in place is refused, because Toucan would rewrite the files without that content. Save As still writes a copy.</li>
+<li><strong>Stability checks</strong>: For every loadable format, saving the same data twice gives identical files, save → load → save changes nothing and creates no new files, and locale variants (<code>pt-BR</code>, <code>zh-Hans</code>) keep their identity.</li>
+<li><strong>Regression tests for 0.17.1 fixes</strong>: Merged items stay clean after an external merge, <code>DirtyStateChanged</code> fires once per transition under concurrent checks, auto-save survives disposal mid-save, and iOS <code>.strings</code> escapes and Java <code>.properties</code> line continuations round-trip.</li>
+<li><strong>Round-trip fixtures</strong>: Every loadable format is checked for multiline text, CRLF, quotes, backslashes, unicode, placeholders, markup, separators, leading spaces, tabs, percent signs, <code>$</code>, and YAML-looking words and numbers.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
-<li><strong>Unified title bar on Windows and Linux</strong> — The top bar now extends into the title bar like on macOS: the menu, command palette and mode tabs share one row with Toucan&#x27;s own minimize, maximize and close buttons, the empty area drags the window, and the Toucan name shows on every platform. When the window is too narrow for the whole menu, the items that do not fit fold into a “…” menu instead of overlapping the search box.</li>
-<li><strong>Editable tables</strong> — Provider options and secrets, and the copy templates in Settings and Project Properties, now use one table control: column titles, borderless cells that show an outline on hover and focus, a divider between key and value, and a remove button on each row. Provider schema keys stay read-only and cannot be removed.</li>
-<li><strong>Machine translation provider list</strong> — &quot;Needs API key&quot; shows only on the selected provider. Providers without a key are shown in gray instead of each carrying a badge.</li>
-<li><strong>Project Properties</strong> — The General page has a Files group with the project folder, the file format and its support level (Full or Limited), and what the format does not keep when saving (see <a href="formats.html">docs/formats.md</a>). Languages are split into Source language and Project languages (with a Manage button), so the labels no longer wrap. The description box has a placeholder, and the sidebar shows the format&#x27;s name instead of its ID.</li>
+<li><strong>Unified title bar on Windows and Linux</strong>: The top bar now extends into the title bar like on macOS: the menu, command palette and mode tabs share one row with Toucan&#x27;s own minimize, maximize and close buttons, the empty area drags the window, and the Toucan name shows on every platform. When the window is too narrow for the whole menu, the items that do not fit fold into a “…” menu instead of overlapping the search box.</li>
+<li><strong>Editable tables</strong>: Provider options and secrets, and the copy templates in Settings and Project Properties, now use one table control: column titles, borderless cells that show an outline on hover and focus, a divider between key and value, and a remove button on each row. Provider schema keys stay read-only and cannot be removed.</li>
+<li><strong>Machine translation provider list</strong>: &quot;Needs API key&quot; shows only on the selected provider. Providers without a key are shown in gray instead of each carrying a badge.</li>
+<li><strong>Project Properties</strong>: The General page has a Files group with the project folder, the file format and its support level (Full or Limited), and what the format does not keep when saving (see <a href="formats.html">docs/formats.md</a>). Languages are split into Source language and Project languages (with a Manage button), so the labels no longer wrap. The description box has a placeholder, and the sidebar shows the format&#x27;s name instead of its ID.</li>
 </ul>
 <h3>Fixed</h3>
 <ul>
-<li><strong>Borderless text boxes everywhere</strong> — The borderless look of table cells leaked to every text box in the app. It now applies only inside editable tables.</li>
-<li><strong>Multi-line inputs</strong> — Comment, description and context boxes start the text at the top instead of the vertical center.</li>
-<li><strong>Compact toolbar and panel headers</strong> — Icon buttons in the panel headers and the editor toolbar are smaller (26 px) with rounded corners and a hover state, and the headers and toolbar are 36 px tall instead of 44 px. The Explorer and Inspector headers match the editor&#x27;s filter toolbar height, so the divider lines up across the three columns.</li>
-<li><strong>Mode tab hover</strong> — Hovering Editor, Review or Audit no longer draws a second, lighter box inside the tab.</li>
-<li><strong>Laravel PHP</strong> — Multiline values were lost on load, and <code>\\</code> was read as two backslashes. The loader now reads single- and double-quoted strings, <code>array()</code> syntax, comments and nested arrays properly, and skips computed values.</li>
-<li><strong>TOML</strong> — Backslashes, carriage returns, <code>\uXXXX</code> escapes and trailing comments are read correctly; literal <code>&#x27;strings&#x27;</code> are no longer unescaped.</li>
-<li><strong>Java properties</strong> — A value with leading spaces keeps them, and <code>\r</code> and <code>\f</code> are escaped.</li>
-<li><strong>XML formats</strong> — Carriage returns in Android XML, RESX and XLIFF values survive a save.</li>
-<li><strong>JSON numbers and booleans</strong> — <code>10</code> and <code>true</code> are written back as a number and a boolean unless you edit them, instead of becoming <code>&quot;10&quot;</code> and <code>&quot;True&quot;</code>.</li>
-<li><strong>YAML flat keys</strong> — A file that uses flat dotted keys (<code>&quot;a.b.c&quot;: x</code>) is saved flat instead of being rewritten as nested maps, and quoted keys load without their quotes. A key that is also a parent (<code>app</code> and <code>app.title</code>) is written as flat keys instead of an invented <code>__self</code> entry.</li>
-<li><strong>YAML scalars</strong> — <code>on</code>, <code>off</code>, <code>y</code>, <code>n</code>, <code>~</code>, numbers such as <code>1.0</code> and <code>007</code>, and hex-like text are quoted so YAML 1.1 readers keep them as text. Backslashes and carriage returns in quoted values load correctly.</li>
+<li><strong>Borderless text boxes everywhere</strong>: The borderless look of table cells leaked to every text box in the app. It now applies only inside editable tables.</li>
+<li><strong>Multi-line inputs</strong>: Comment, description and context boxes start the text at the top instead of the vertical center.</li>
+<li><strong>Compact toolbar and panel headers</strong>: Icon buttons in the panel headers and the editor toolbar are smaller (26 px) with rounded corners and a hover state, and the headers and toolbar are 36 px tall instead of 44 px. The Explorer and Inspector headers match the editor&#x27;s filter toolbar height, so the divider lines up across the three columns.</li>
+<li><strong>Mode tab hover</strong>: Hovering Editor, Review or Audit no longer draws a second, lighter box inside the tab.</li>
+<li><strong>Laravel PHP</strong>: Multiline values were lost on load, and <code>\\</code> was read as two backslashes. The loader now reads single- and double-quoted strings, <code>array()</code> syntax, comments and nested arrays properly, and skips computed values.</li>
+<li><strong>TOML</strong>: Backslashes, carriage returns, <code>\uXXXX</code> escapes and trailing comments are read correctly; literal <code>&#x27;strings&#x27;</code> are no longer unescaped.</li>
+<li><strong>Java properties</strong>: A value with leading spaces keeps them, and <code>\r</code> and <code>\f</code> are escaped.</li>
+<li><strong>XML formats</strong>: Carriage returns in Android XML, RESX and XLIFF values survive a save.</li>
+<li><strong>JSON numbers and booleans</strong>: <code>10</code> and <code>true</code> are written back as a number and a boolean unless you edit them, instead of becoming <code>&quot;10&quot;</code> and <code>&quot;True&quot;</code>.</li>
+<li><strong>YAML flat keys</strong>: A file that uses flat dotted keys (<code>&quot;a.b.c&quot;: x</code>) is saved flat instead of being rewritten as nested maps, and quoted keys load without their quotes. A key that is also a parent (<code>app</code> and <code>app.title</code>) is written as flat keys instead of an invented <code>__self</code> entry.</li>
+<li><strong>YAML scalars</strong>: <code>on</code>, <code>off</code>, <code>y</code>, <code>n</code>, <code>~</code>, numbers such as <code>1.0</code> and <code>007</code>, and hex-like text are quoted so YAML 1.1 readers keep them as text. Backslashes and carriage returns in quoted values load correctly.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.21.0" aria-label="Permalink to v0.21.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.21.0">Release on GitHub ↗</a></div>
 </article>
@@ -301,20 +301,20 @@
 <div class="release-counts"><span class="added">2 added</span><span class="changed">2 changed</span><span class="fixed">4 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.20.2</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Website documentation</strong> — The plugin guide, AI Integration, provider settings, architecture, roadmap, known issues and the other guides are now pages on the website, behind a new Docs index, instead of links to GitHub. <code>python3 tools/build-docs.py</code> builds them from <code>docs/*.md</code>.</li>
-<li><strong>Web manifest</strong> — The website has a <code>site.webmanifest</code> and the full icon set, including maskable icons.</li>
+<li><strong>Website documentation</strong>: The plugin guide, AI Integration, provider settings, architecture, roadmap, known issues and the other guides are now pages on the website, behind a new Docs index, instead of links to GitHub. <code>python3 tools/build-docs.py</code> builds them from <code>docs/*.md</code>.</li>
+<li><strong>Web manifest</strong>: The website has a <code>site.webmanifest</code> and the full icon set, including maskable icons.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
-<li><strong>App and website icon</strong> — A new toucan icon on a rounded black square replaces the old logo in the app (window, title bar, macOS and MSIX packages) and on the website.</li>
-<li><strong>Website styles</strong> — <code>site.css</code> is split into <code>base.css</code> (shared by every page), <code>home.css</code>, <code>changelog.css</code> and <code>doc.css</code>, and the theme toggle moves to a shared <code>site.js</code>.</li>
+<li><strong>App and website icon</strong>: A new toucan icon on a rounded black square replaces the old logo in the app (window, title bar, macOS and MSIX packages) and on the website.</li>
+<li><strong>Website styles</strong>: <code>site.css</code> is split into <code>base.css</code> (shared by every page), <code>home.css</code>, <code>changelog.css</code> and <code>doc.css</code>, and the theme toggle moves to a shared <code>site.js</code>.</li>
 </ul>
 <h3>Fixed</h3>
 <ul>
-<li><strong>XLIFF save no longer loses data</strong> — Saving wrote the key as <code>&lt;source&gt;</code> and the first language as <code>source-language</code>, and dropped notes, state, <code>datatype</code>, <code>original</code> and other elements. The source text is now loaded and written back with the unit&#x27;s notes, attributes and extra elements (such as Angular&#x27;s <code>context-group</code>). Units go back to the file they came from instead of a new <code>&lt;language&gt;.xlf</code>, untranslated units keep their source, a unit gets <code>state=&quot;translated&quot;</code> once it has a translation, and XLIFF 2.0 files stay 2.0. An untranslated unit now shows an empty value instead of its source text.</li>
-<li><strong>RESX language detection</strong> — Only a real culture name counts as a language. <code>Views.Home.Index.resx</code> and <code>Resources.Designer.resx</code> are no longer read as languages <code>Index</code> and <code>Designer</code>.</li>
-<li><strong>ARB metadata</strong> — <code>@key</code> objects (description, placeholders) and other <code>@@</code> header entries such as <code>@@last_modified</code> survive a save, so Flutter&#x27;s <code>gen-l10n</code> keeps building.</li>
-<li><strong>ARB region locales</strong> — <code>app_en_US.arb</code> loads as <code>en_US</code> (and <code>intl_zh_Hans_CN.arb</code> as <code>zh_Hans_CN</code>) instead of <code>US</code>, and saves back to the same file. <code>@@locale</code> still wins over the file name.</li>
+<li><strong>XLIFF save no longer loses data</strong>: Saving wrote the key as <code>&lt;source&gt;</code> and the first language as <code>source-language</code>, and dropped notes, state, <code>datatype</code>, <code>original</code> and other elements. The source text is now loaded and written back with the unit&#x27;s notes, attributes and extra elements (such as Angular&#x27;s <code>context-group</code>). Units go back to the file they came from instead of a new <code>&lt;language&gt;.xlf</code>, untranslated units keep their source, a unit gets <code>state=&quot;translated&quot;</code> once it has a translation, and XLIFF 2.0 files stay 2.0. An untranslated unit now shows an empty value instead of its source text.</li>
+<li><strong>RESX language detection</strong>: Only a real culture name counts as a language. <code>Views.Home.Index.resx</code> and <code>Resources.Designer.resx</code> are no longer read as languages <code>Index</code> and <code>Designer</code>.</li>
+<li><strong>ARB metadata</strong>: <code>@key</code> objects (description, placeholders) and other <code>@@</code> header entries such as <code>@@last_modified</code> survive a save, so Flutter&#x27;s <code>gen-l10n</code> keeps building.</li>
+<li><strong>ARB region locales</strong>: <code>app_en_US.arb</code> loads as <code>en_US</code> (and <code>intl_zh_Hans_CN.arb</code> as <code>zh_Hans_CN</code>) instead of <code>US</code>, and saves back to the same file. <code>@@locale</code> still wins over the file name.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.20.2" aria-label="Permalink to v0.20.2">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.20.2">Release on GitHub ↗</a></div>
 </article>
@@ -324,13 +324,13 @@
 <div class="release-counts"><span class="added">1 added</span><span class="changed">3 changed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.20.1</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Website changelog</strong> — A searchable release history with expandable notes, version permalinks, and the website’s shared light/dark theme, linked from the homepage and roadmap.</li>
+<li><strong>Website changelog</strong>: A searchable release history with expandable notes, version permalinks, and the website’s shared light/dark theme, linked from the homepage and roadmap.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
-<li><strong>Roadmap</strong> — Split the path to v1.0 into ten focused releases, v0.21–v0.30, with completion gates and separate milestones for snapshot sources, CRUD synchronization, and the first online connector.</li>
-<li><strong>Documentation</strong> — Refresh application and Core architecture, branding guidance, and the docs index; align the README and website roadmap.</li>
-<li><strong>Website theme</strong> — Share the homepage and changelog styles and adjust responsive navigation for the new page.</li>
+<li><strong>Roadmap</strong>: Split the path to v1.0 into ten focused releases, v0.21–v0.30, with completion gates and separate milestones for snapshot sources, CRUD synchronization, and the first online connector.</li>
+<li><strong>Documentation</strong>: Refresh application and Core architecture, branding guidance, and the docs index; align the README and website roadmap.</li>
+<li><strong>Website theme</strong>: Share the homepage and changelog styles and adjust responsive navigation for the new page.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.20.1" aria-label="Permalink to v0.20.1">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.20.1">Release on GitHub ↗</a></div>
 </article>
@@ -340,32 +340,32 @@
 <div class="release-counts"><span class="added">13 added</span><span class="changed">6 changed</span><span class="removed">1 removed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.20.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>AI Integration</strong> — AI is now its own integration under Settings → AI, separate from machine translation. One switch turns every AI feature on or off for the whole app. It is <strong>off</strong> by default, and a first-run onboarding step asks whether to use it. Pick the service (Claude, OpenAI or a compatible server such as Ollama, or Gemini), the model, endpoint and key, and test the connection before saving. See <a href="ai-integration.html">docs/ai-integration.md</a>.</li>
-<li><strong>Open, editable prompts</strong> — Every AI feature&#x27;s system prompt is a plain file. The defaults ship in <a href="https://github.com/rasyidf/Toucan/tree/main/Toucan.Core/Ai/Prompts"><code>Toucan.Core/Ai/Prompts</code></a>. Edit them under Settings → AI → Edit prompt… for all projects (<code>Documents/Toucan/prompts</code>) or for one project (<code>.toucan/prompts</code>, safe to commit). Prompts take <code>{{variables}}</code> and <code>{{#sections}}</code>, and a variables panel lists what each prompt can use.</li>
-<li><strong>Clarity AI</strong> — Translate → AI → Check Source Clarity… reviews source strings for ambiguous words, strings too short to translate without context, concatenation, idioms and unclear placeholders. It suggests a clearer source string and a note for translators. Findings go to the Issues panel.</li>
-<li><strong>Secret store</strong> — Every API key and token, for providers and AI services, is kept in one encrypted store in your user profile (<code>secrets.json</code> next to <code>secret.key</code>), never in <code>providers.json</code> or a project folder. Settings → Data &amp; privacy lists stored secret names and removes them.</li>
-<li><strong>Pin recent projects</strong> — Pin a project from the Start screen or from Settings → General → Recent projects. Pinned projects stay at the top of the list (Start screen and Open Recent), and they do not count toward the list limit. The old WPF pin button never saved anything; this one does.</li>
-<li><strong>Recent projects settings</strong> — Choose how many projects to remember (1–50), whether Clear keeps pinned projects, and manage the list (pin, unpin, remove) from Settings → General.</li>
-<li><strong>Preferred language from recent projects</strong> — With &quot;Detect preferred language from recent projects&quot; on, the source language for new projects, and for projects that name none, comes from the most recently opened project instead of the Default language setting. Off by default.</li>
-<li><strong>Ghost-text suggestions</strong> — When you focus an empty translation field, the best translation-memory match for its source text appears inside the field in faint italics. Press Tab to accept it; type to ignore it. Follows Settings → Translation memory → auto-suggest and the similarity threshold.</li>
-<li><strong>Keyboard shortcut sheet</strong> — Cmd/Ctrl+/ (or Help → Keyboard Shortcuts) shows every shortcut grouped by menu. Esc or a click outside closes it.</li>
-<li><strong>Color schemes</strong> — Settings → Appearance offers accent presets (Toucan, Ocean, Forest, Sunset, Rose, Violet, Graphite) or a custom accent and per-color edits, separately for light and dark. Colors preview live; Save keeps them, Cancel undoes them.</li>
-<li><strong>Update check</strong> — Settings → About → Check for updates looks at GitHub Releases and says whether a newer version exists. The release channel (Stable or Preview) decides whether pre-releases count. It never downloads or installs anything.</li>
-<li><strong>Search options</strong> — The Search panel has match case, whole word and regex toggles, highlights matches in the results, and Replace uses the same options.</li>
-<li><strong>Encoding and line endings per project</strong> — Click the encoding or line-ending item in the status bar to choose UTF-8 or UTF-8 with BOM, and LF or CRLF, for the project&#x27;s translation files. Applied on the next save. Java <code>.properties</code> keeps ISO-8859-1.</li>
+<li><strong>AI Integration</strong>: AI is now its own integration under Settings → AI, separate from machine translation. One switch turns every AI feature on or off for the whole app. It is <strong>off</strong> by default, and a first-run onboarding step asks whether to use it. Pick the service (Claude, OpenAI or a compatible server such as Ollama, or Gemini), the model, endpoint and key, and test the connection before saving. See <a href="ai-integration.html">docs/ai-integration.md</a>.</li>
+<li><strong>Open, editable prompts</strong>: Every AI feature&#x27;s system prompt is a plain file. The defaults ship in <a href="https://github.com/rasyidf/Toucan/tree/main/Toucan.Core/Ai/Prompts"><code>Toucan.Core/Ai/Prompts</code></a>. Edit them under Settings → AI → Edit prompt… for all projects (<code>Documents/Toucan/prompts</code>) or for one project (<code>.toucan/prompts</code>, safe to commit). Prompts take <code>{{variables}}</code> and <code>{{#sections}}</code>, and a variables panel lists what each prompt can use.</li>
+<li><strong>Clarity AI</strong>: Translate → AI → Check Source Clarity… reviews source strings for ambiguous words, strings too short to translate without context, concatenation, idioms and unclear placeholders. It suggests a clearer source string and a note for translators. Findings go to the Issues panel.</li>
+<li><strong>Secret store</strong>: Every API key and token, for providers and AI services, is kept in one encrypted store in your user profile (<code>secrets.json</code> next to <code>secret.key</code>), never in <code>providers.json</code> or a project folder. Settings → Data &amp; privacy lists stored secret names and removes them.</li>
+<li><strong>Pin recent projects</strong>: Pin a project from the Start screen or from Settings → General → Recent projects. Pinned projects stay at the top of the list (Start screen and Open Recent), and they do not count toward the list limit. The old WPF pin button never saved anything; this one does.</li>
+<li><strong>Recent projects settings</strong>: Choose how many projects to remember (1–50), whether Clear keeps pinned projects, and manage the list (pin, unpin, remove) from Settings → General.</li>
+<li><strong>Preferred language from recent projects</strong>: With &quot;Detect preferred language from recent projects&quot; on, the source language for new projects, and for projects that name none, comes from the most recently opened project instead of the Default language setting. Off by default.</li>
+<li><strong>Ghost-text suggestions</strong>: When you focus an empty translation field, the best translation-memory match for its source text appears inside the field in faint italics. Press Tab to accept it; type to ignore it. Follows Settings → Translation memory → auto-suggest and the similarity threshold.</li>
+<li><strong>Keyboard shortcut sheet</strong>: Cmd/Ctrl+/ (or Help → Keyboard Shortcuts) shows every shortcut grouped by menu. Esc or a click outside closes it.</li>
+<li><strong>Color schemes</strong>: Settings → Appearance offers accent presets (Toucan, Ocean, Forest, Sunset, Rose, Violet, Graphite) or a custom accent and per-color edits, separately for light and dark. Colors preview live; Save keeps them, Cancel undoes them.</li>
+<li><strong>Update check</strong>: Settings → About → Check for updates looks at GitHub Releases and says whether a newer version exists. The release channel (Stable or Preview) decides whether pre-releases count. It never downloads or installs anything.</li>
+<li><strong>Search options</strong>: The Search panel has match case, whole word and regex toggles, highlights matches in the results, and Replace uses the same options.</li>
+<li><strong>Encoding and line endings per project</strong>: Click the encoding or line-ending item in the status bar to choose UTF-8 or UTF-8 with BOM, and LF or CRLF, for the project&#x27;s translation files. Applied on the next save. Java <code>.properties</code> keeps ISO-8859-1.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
-<li><strong>Claude, OpenAI and Gemini are AI services, not translation providers</strong> — Machine translation lists one <strong>AI</strong> provider instead. It uses the AI service and the editable Translate prompt from Settings → AI, and is only offered while AI is on. On first run, the old providers&#x27; endpoint, model, key and custom prompt move to AI Integration, and a project or preference that names one of them gets the AI provider. The CLI still accepts <code>-p claude</code>, <code>-p openai</code> and <code>-p gemini</code> as <code>-p ai</code>, and <code>TOUCAN_AI_BACKEND</code> turns AI on for one CI run.</li>
-<li><strong>Analyze with AI</strong> — Uses AI Integration and its editable Analyze prompt instead of the OpenAI provider&#x27;s settings, so it works with Claude and Gemini too. It replaces only earlier AI findings in the Issues panel, not validation results.</li>
-<li><strong>Provider keys</strong> — <code>providers.json</code> (app-wide and per project) no longer stores keys; values move to the secret store the next time provider settings are saved. Keys written by older versions are still read.</li>
-<li><strong>CLI</strong> — <code>toucan translate</code> prints why items failed, and passes the project&#x27;s context and prompts to the provider.</li>
-<li><strong>Built-in modules</strong> — The built-in formats, providers, validation rules and framework profiles now load as compiled-in modules, the same way plugins do. Settings → Plugins lists them (read-only, with versions) after your plugins, and <code>toucan plugins list</code> shows them too. Settings → Validation lists every registered rule, plugin rules included. Plugin API stays 1.0.</li>
-<li><strong>Settings lists</strong> — Lists in Settings, Project Properties and Provider Settings (recent projects, colors, copy templates, AI features, rules, secrets, built-in modules) share one style, with search on longer lists and a message when a list is empty.</li>
+<li><strong>Claude, OpenAI and Gemini are AI services, not translation providers</strong>: Machine translation lists one <strong>AI</strong> provider instead. It uses the AI service and the editable Translate prompt from Settings → AI, and is only offered while AI is on. On first run, the old providers&#x27; endpoint, model, key and custom prompt move to AI Integration, and a project or preference that names one of them gets the AI provider. The CLI still accepts <code>-p claude</code>, <code>-p openai</code> and <code>-p gemini</code> as <code>-p ai</code>, and <code>TOUCAN_AI_BACKEND</code> turns AI on for one CI run.</li>
+<li><strong>Analyze with AI</strong>: Uses AI Integration and its editable Analyze prompt instead of the OpenAI provider&#x27;s settings, so it works with Claude and Gemini too. It replaces only earlier AI findings in the Issues panel, not validation results.</li>
+<li><strong>Provider keys</strong>: <code>providers.json</code> (app-wide and per project) no longer stores keys; values move to the secret store the next time provider settings are saved. Keys written by older versions are still read.</li>
+<li><strong>CLI</strong>: <code>toucan translate</code> prints why items failed, and passes the project&#x27;s context and prompts to the provider.</li>
+<li><strong>Built-in modules</strong>: The built-in formats, providers, validation rules and framework profiles now load as compiled-in modules, the same way plugins do. Settings → Plugins lists them (read-only, with versions) after your plugins, and <code>toucan plugins list</code> shows them too. Settings → Validation lists every registered rule, plugin rules included. Plugin API stays 1.0.</li>
+<li><strong>Settings lists</strong>: Lists in Settings, Project Properties and Provider Settings (recent projects, colors, copy templates, AI features, rules, secrets, built-in modules) share one style, with search on longer lists and a message when a list is empty.</li>
 </ul>
 <h3>Removed</h3>
 <ul>
-<li><strong>WPF app source</strong> — The WPF app is no longer in <code>main</code>; its source is on the <a href="https://github.com/rasyidf/Toucan/tree/legacy/wpf"><code>legacy/wpf</code></a> branch. Its last release was 0.17.3.</li>
+<li><strong>WPF app source</strong>: The WPF app is no longer in <code>main</code>; its source is on the <a href="https://github.com/rasyidf/Toucan/tree/legacy/wpf"><code>legacy/wpf</code></a> branch. Its last release was 0.17.3.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.20.0" aria-label="Permalink to v0.20.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.20.0">Release on GitHub ↗</a></div>
 </article>
@@ -375,30 +375,30 @@
 <div class="release-counts"><span class="added">5 added</span><span class="changed">2 changed</span><span class="fixed">7 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.19.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Claude and Gemini translation providers</strong> — Pre-translate with Anthropic Claude (Messages API) or Google Gemini (a free AI Studio key works). Both appear in the Machine Translation panel, the Pre-translate dialog and Provider Settings, send up to 20 texts per request, add the app context and formality to the prompt, and report the provider&#x27;s error message. See <a href="provider-settings.html">docs/provider-settings.md</a>.</li>
+<li><strong>Claude and Gemini translation providers</strong>: Pre-translate with Anthropic Claude (Messages API) or Google Gemini (a free AI Studio key works). Both appear in the Machine Translation panel, the Pre-translate dialog and Provider Settings, send up to 20 texts per request, add the app context and formality to the prompt, and report the provider&#x27;s error message. See <a href="provider-settings.html">docs/provider-settings.md</a>.</li>
 </ul>
 <ul>
-<li><strong>Command palette (Avalonia app)</strong> — Cmd/Ctrl+Shift+P (or the pill in the title bar) opens a searchable list of every menu command with its shortcut. Type words in any order, Up/Down and Enter to run, Esc to close; commands that cannot run right now sink to the bottom. It reads the menu definitions, so new menu items appear in it automatically.</li>
-<li><strong>Title bar</strong> — Logo and name, a save-state chip (<code>Unsaved</code> / <code>Saved</code>, click to save) and the palette pill centered in the bar. On macOS the Zen-mode header now clears the window controls.</li>
-<li><strong>Settings search</strong> — A search box above the Settings sidebar filters individual settings across all pages.</li>
-<li><strong>Screenshot harness</strong> — <code>TOUCAN_TEST_SCREENSHOTS</code> renders every window, panel and dialog headlessly; see <a href="visual-review.html">docs/visual-review.md</a>.</li>
+<li><strong>Command palette (Avalonia app)</strong>: Cmd/Ctrl+Shift+P (or the pill in the title bar) opens a searchable list of every menu command with its shortcut. Type words in any order, Up/Down and Enter to run, Esc to close; commands that cannot run right now sink to the bottom. It reads the menu definitions, so new menu items appear in it automatically.</li>
+<li><strong>Title bar</strong>: Logo and name, a save-state chip (<code>Unsaved</code> / <code>Saved</code>, click to save) and the palette pill centered in the bar. On macOS the Zen-mode header now clears the window controls.</li>
+<li><strong>Settings search</strong>: A search box above the Settings sidebar filters individual settings across all pages.</li>
+<li><strong>Screenshot harness</strong>: <code>TOUCAN_TEST_SCREENSHOTS</code> renders every window, panel and dialog headlessly; see <a href="visual-review.html">docs/visual-review.md</a>.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
-<li><strong>Windows</strong> — The Avalonia app (tested on Windows) is the supported app on Windows, macOS and Linux. The WPF app is deprecated; its last release is 0.17.3. Windows builds ship as a portable x64 zip for now.</li>
-<li><strong>UI polish (Avalonia app)</strong> — Settings and Project Properties use a left page list with grouped rows; Settings has a search box that filters individual settings; plugin cards show status, details and actions; New Project, Provider Settings, Statistics, Import and Pre-translate use the same grouped style; the side panels, pager and hidden-namespaces footer are tidied.</li>
+<li><strong>Windows</strong>: The Avalonia app (tested on Windows) is the supported app on Windows, macOS and Linux. The WPF app is deprecated; its last release is 0.17.3. Windows builds ship as a portable x64 zip for now.</li>
+<li><strong>UI polish (Avalonia app)</strong>: Settings and Project Properties use a left page list with grouped rows; Settings has a search box that filters individual settings; plugin cards show status, details and actions; New Project, Provider Settings, Statistics, Import and Pre-translate use the same grouped style; the side panels, pager and hidden-namespaces footer are tidied.</li>
 </ul>
 <h3>Fixed</h3>
 <ul>
-<li><strong>PO round trip (FMT-01 save, FMT-02, FMT-03)</strong> — plural entries (<code>msgid_plural</code>, <code>msgstr[N]</code>) are kept, <code>msgctxt</code> is kept apart from <code>msgid</code> (key is <code>msgctxt</code> + U+0004 + <code>msgid</code>, as gettext does), and <code>#,</code> flags, <code>#:</code> references, translator comments and the header survive a save. <code>#, fuzzy</code> maps to &quot;not approved&quot;. Entries are written back to the file they came from (for example <code>fr/LC_MESSAGES/messages.po</code>) instead of a new <code>&lt;language&gt;.po</code> at the root.</li>
+<li><strong>PO round trip (FMT-01 save, FMT-02, FMT-03)</strong>: plural entries (<code>msgid_plural</code>, <code>msgstr[N]</code>) are kept, <code>msgctxt</code> is kept apart from <code>msgid</code> (key is <code>msgctxt</code> + U+0004 + <code>msgid</code>, as gettext does), and <code>#,</code> flags, <code>#:</code> references, translator comments and the header survive a save. <code>#, fuzzy</code> maps to &quot;not approved&quot;. Entries are written back to the file they came from (for example <code>fr/LC_MESSAGES/messages.po</code>) instead of a new <code>&lt;language&gt;.po</code> at the root.</li>
 </ul>
 <ul>
-<li><strong>PO language detection (FMT-01)</strong> — <code>&lt;lang&gt;/LC_MESSAGES/&lt;domain&gt;.po</code> projects now load one language per folder; the language comes from the <code>Language:</code> header, then the folder, then the file name.</li>
-<li><strong>CSV multi-line values (FMT-04)</strong> — the loader parses RFC 4180 records, so quoted values with line breaks are no longer cut off; the saver now quotes values containing a lone <code>\r</code>.</li>
-<li><strong>Right-click menus</strong> — The editor cards&#x27; menu is now a flyout like the Explorer&#x27;s, with icons and Indonesian labels (the old menu type never appeared on macOS).</li>
-<li><strong>Pre-translate</strong> — The source language is no longer offered as a target language; the preview text is selectable; empty language lists show a message.</li>
-<li><strong>DeepL requests</strong> — Free-plan keys (ending in <code>:fx</code>) now use <code>api-free.deepl.com</code> automatically; the key is sent in the <code>Authorization</code> header instead of the request body; <code>en-US</code> sources and <code>fr-FR</code> targets are sent as DeepL expects (<code>EN</code>, <code>FR</code>); More/Less formality is now applied (as <code>prefer_more</code>/<code>prefer_less</code>); errors include DeepL&#x27;s message.</li>
-<li><strong>Explorer right-click menu on macOS</strong> — The key menu (Add Key, Rename, Delete, …) did not appear; it is now a flyout like the app&#x27;s other menus.</li>
+<li><strong>PO language detection (FMT-01)</strong>: <code>&lt;lang&gt;/LC_MESSAGES/&lt;domain&gt;.po</code> projects now load one language per folder; the language comes from the <code>Language:</code> header, then the folder, then the file name.</li>
+<li><strong>CSV multi-line values (FMT-04)</strong>: the loader parses RFC 4180 records, so quoted values with line breaks are no longer cut off; the saver now quotes values containing a lone <code>\r</code>.</li>
+<li><strong>Right-click menus</strong>: The editor cards&#x27; menu is now a flyout like the Explorer&#x27;s, with icons and Indonesian labels (the old menu type never appeared on macOS).</li>
+<li><strong>Pre-translate</strong>: The source language is no longer offered as a target language; the preview text is selectable; empty language lists show a message.</li>
+<li><strong>DeepL requests</strong>: Free-plan keys (ending in <code>:fx</code>) now use <code>api-free.deepl.com</code> automatically; the key is sent in the <code>Authorization</code> header instead of the request body; <code>en-US</code> sources and <code>fr-FR</code> targets are sent as DeepL expects (<code>EN</code>, <code>FR</code>); More/Less formality is now applied (as <code>prefer_more</code>/<code>prefer_less</code>); errors include DeepL&#x27;s message.</li>
+<li><strong>Explorer right-click menu on macOS</strong>: The key menu (Add Key, Rename, Delete, …) did not appear; it is now a flyout like the app&#x27;s other menus.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.19.0" aria-label="Permalink to v0.19.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.19.0">Release on GitHub ↗</a></div>
 </article>
@@ -408,17 +408,17 @@
 <div class="release-counts"><span class="added">7 added</span><span class="fixed">1 fixed</span><span class="docs">1 docs</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.18.1</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Localization (Avalonia app)</strong> — Menus, panels, dialogs, settings, tooltips, pagination and the status bar are translated to Indonesian (id-ID); choose it under Settings → General → Interface language and restart. Translations are embedded JSON maps keyed by the English text (<code>Locales/Strings.{culture}.json</code>), so a missing entry falls back to English, and a test fails when a UI string has no translation. Messages built at run time are still English.</li>
-<li><strong>Edit menu</strong> — Cut Key Values and Trim Line by Line; copy-template shortcuts now cover all five templates.</li>
-<li><strong>WPF parity record</strong> — <a href="https://github.com/rasyidf/Toucan/blob/main/docs/archive/wpf-parity.md">docs/archive/wpf-parity.md</a> lists what the Windows app had, what moved, and what was deliberately left behind, so the WPF app can be retired.</li>
-<li><strong>Machine Translation panel (Avalonia app)</strong> — Right-hand panel with a provider picker built from the registered providers (plugin providers included, with a &quot;Needs API key&quot; badge), quick actions (translate selected key, fill empty values in view, Pre-translate, provider settings), and the last run&#x27;s results. The Pre-translate dialog now lists the same registered providers, and the provider chosen there carries over to the panel.</li>
-<li><strong><code>.tproj</code> file association (Avalonia app)</strong> — Settings → Integration registers Toucan for <code>.tproj</code> files: per-user registry keys on Windows, a <code>.desktop</code> file and MIME type on Linux. On Windows it also manages the &quot;Open with Toucan&quot; folder menu entry. <code>Toucan.app</code> now declares the type in its Info.plist, and the app opens files that Finder passes to it.</li>
-<li><strong>macOS DMG installer</strong> — Releases ship <code>Toucan-&lt;version&gt;-osx-&lt;arch&gt;.dmg</code> with the usual drag-to-Applications window, next to the zip. <code>packaging/build-macos-app.sh</code> writes it (styled when <code>create-dmg</code> is installed, plain <code>hdiutil</code> otherwise).</li>
-<li><strong>macOS signing and notarization (optional)</strong> — <code>packaging/build-macos-app.sh</code> signs with a Developer ID and the hardened runtime when <code>SIGN_IDENTITY</code> is set, and notarizes when <code>NOTARY_PROFILE</code> is also set. Without them the build is ad-hoc signed as before.</li>
+<li><strong>Localization (Avalonia app)</strong>: Menus, panels, dialogs, settings, tooltips, pagination and the status bar are translated to Indonesian (id-ID); choose it under Settings → General → Interface language and restart. Translations are embedded JSON maps keyed by the English text (<code>Locales/Strings.{culture}.json</code>), so a missing entry falls back to English, and a test fails when a UI string has no translation. Messages built at run time are still English.</li>
+<li><strong>Edit menu</strong>: Cut Key Values and Trim Line by Line; copy-template shortcuts now cover all five templates.</li>
+<li><strong>WPF parity record</strong>: <a href="https://github.com/rasyidf/Toucan/blob/main/docs/archive/wpf-parity.md">docs/archive/wpf-parity.md</a> lists what the Windows app had, what moved, and what was deliberately left behind, so the WPF app can be retired.</li>
+<li><strong>Machine Translation panel (Avalonia app)</strong>: Right-hand panel with a provider picker built from the registered providers (plugin providers included, with a &quot;Needs API key&quot; badge), quick actions (translate selected key, fill empty values in view, Pre-translate, provider settings), and the last run&#x27;s results. The Pre-translate dialog now lists the same registered providers, and the provider chosen there carries over to the panel.</li>
+<li><strong><code>.tproj</code> file association (Avalonia app)</strong>: Settings → Integration registers Toucan for <code>.tproj</code> files: per-user registry keys on Windows, a <code>.desktop</code> file and MIME type on Linux. On Windows it also manages the &quot;Open with Toucan&quot; folder menu entry. <code>Toucan.app</code> now declares the type in its Info.plist, and the app opens files that Finder passes to it.</li>
+<li><strong>macOS DMG installer</strong>: Releases ship <code>Toucan-&lt;version&gt;-osx-&lt;arch&gt;.dmg</code> with the usual drag-to-Applications window, next to the zip. <code>packaging/build-macos-app.sh</code> writes it (styled when <code>create-dmg</code> is installed, plain <code>hdiutil</code> otherwise).</li>
+<li><strong>macOS signing and notarization (optional)</strong>: <code>packaging/build-macos-app.sh</code> signs with a Developer ID and the hardened runtime when <code>SIGN_IDENTITY</code> is set, and notarizes when <code>NOTARY_PROFILE</code> is also set. Without them the build is ad-hoc signed as before.</li>
 </ul>
 <h3>Fixed</h3>
 <ul>
-<li><strong>macOS app icon</strong> — <code>Toucan.app</code> had no icon and showed as a blank gray item in Finder and the Dock; the build now generates <code>AppIcon.icns</code> from the logo.</li>
+<li><strong>macOS app icon</strong>: <code>Toucan.app</code> had no icon and showed as a blank gray item in Finder and the Dock; the build now generates <code>AppIcon.icns</code> from the logo.</li>
 </ul>
 <h3>Docs</h3>
 <ul>
@@ -432,29 +432,29 @@
 <div class="release-counts"><span class="added">12 added</span><span class="changed">9 changed</span><span class="breaking">6 breaking changes (for code built on `toucan.core`; the wpf projects still need updating)</span><span class="fixed">3 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.18.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Plugin system (preview, Avalonia app and CLI)</strong> — Plugins are .NET assemblies in <code>Documents/Toucan/plugins/&lt;id&gt;/</code> with a <code>plugin.json</code> manifest. They can add file formats, translation providers, validation rules and framework profiles. See <a href="plugins.html">docs/plugins.md</a> and <code>samples/Toucan.Sample.Plugin</code>.</li>
-<li><strong><code>Toucan.Plugins.Abstractions</code></strong> — Small contract assembly and NuGet package (plugin API 1.0) that plugin authors reference; Toucan supplies it at run time so types match.</li>
-<li><strong>Trust model</strong> — Plugins load only when enabled and when you have trusted their exact files (SHA-256 of the plugin folder); changed plugins ask again. Settings → Plugins page, a startup prompt for untrusted plugins, and a signature seam (plugins show &quot;Not signed&quot;; signing becomes mandatory later).</li>
-<li><strong>CLI</strong> — <code>toucan plugins list|trust|revoke|enable|disable</code>, <code>--allow-plugin &lt;id&gt;</code> for a single run, <code>TOUCAN_PLUGINS_DIR</code> and <code>TOUCAN_PLUGIN_POLICY</code>.</li>
-<li><strong>Plugin guide and sample</strong> — <a href="plugins.html">docs/plugins.md</a> and <code>samples/Toucan.Sample.Plugin</code> (tab-separated-values format plus a TODO/FIXME rule). The sample is built and exercised by the test suite, and verified to build against the packed NuGet package alone.</li>
-<li><strong>Plugins page and menu entry</strong> — Settings → Plugins lists every installed plugin with status, what it provides, signature, hash and folder, with enable, Trust… and Revoke actions; Settings menu → Plugins… opens it.</li>
-<li><strong>Manifest <code>entryType</code></strong> — Optional, for assemblies that contain more than one plugin class.</li>
-<li><strong>Cross-platform solution</strong> — <code>Toucan.CrossPlatform.slnx</code> builds and tests everything except the Windows-only WPF projects.</li>
-<li><strong>macOS and Linux builds</strong> — <code>Toucan.app</code> for Apple silicon and Intel, and self-contained tarballs for Linux x64 and arm64.</li>
-<li><strong>Avalonia app (macOS and Linux)</strong> — Zen mode, Editor/Review/Audit modes, and side panels (Explorer, Search, Issues, Source Code, Translation Memory, Languages, Inspector).</li>
-<li><strong>macOS app bundle</strong> — <code>packaging/build-macos-app.sh</code> builds a self-contained, ad-hoc-signed <code>Toucan.app</code>.</li>
-<li><strong>Tests</strong> — 275 Core tests (format round trips and conventions, composition root, plugin host, trust policy, sample plugin) and 48 Avalonia tests (plugin prompt and page, headless render).</li>
+<li><strong>Plugin system (preview, Avalonia app and CLI)</strong>: Plugins are .NET assemblies in <code>Documents/Toucan/plugins/&lt;id&gt;/</code> with a <code>plugin.json</code> manifest. They can add file formats, translation providers, validation rules and framework profiles. See <a href="plugins.html">docs/plugins.md</a> and <code>samples/Toucan.Sample.Plugin</code>.</li>
+<li><strong><code>Toucan.Plugins.Abstractions</code></strong>: Small contract assembly and NuGet package (plugin API 1.0) that plugin authors reference; Toucan supplies it at run time so types match.</li>
+<li><strong>Trust model</strong>: Plugins load only when enabled and when you have trusted their exact files (SHA-256 of the plugin folder); changed plugins ask again. Settings → Plugins page, a startup prompt for untrusted plugins, and a signature seam (plugins show &quot;Not signed&quot;; signing becomes mandatory later).</li>
+<li><strong>CLI</strong>: <code>toucan plugins list|trust|revoke|enable|disable</code>, <code>--allow-plugin &lt;id&gt;</code> for a single run, <code>TOUCAN_PLUGINS_DIR</code> and <code>TOUCAN_PLUGIN_POLICY</code>.</li>
+<li><strong>Plugin guide and sample</strong>: <a href="plugins.html">docs/plugins.md</a> and <code>samples/Toucan.Sample.Plugin</code> (tab-separated-values format plus a TODO/FIXME rule). The sample is built and exercised by the test suite, and verified to build against the packed NuGet package alone.</li>
+<li><strong>Plugins page and menu entry</strong>: Settings → Plugins lists every installed plugin with status, what it provides, signature, hash and folder, with enable, Trust… and Revoke actions; Settings menu → Plugins… opens it.</li>
+<li><strong>Manifest <code>entryType</code></strong>: Optional, for assemblies that contain more than one plugin class.</li>
+<li><strong>Cross-platform solution</strong>: <code>Toucan.CrossPlatform.slnx</code> builds and tests everything except the Windows-only WPF projects.</li>
+<li><strong>macOS and Linux builds</strong>: <code>Toucan.app</code> for Apple silicon and Intel, and self-contained tarballs for Linux x64 and arm64.</li>
+<li><strong>Avalonia app (macOS and Linux)</strong>: Zen mode, Editor/Review/Audit modes, and side panels (Explorer, Search, Issues, Source Code, Translation Memory, Languages, Inspector).</li>
+<li><strong>macOS app bundle</strong>: <code>packaging/build-macos-app.sh</code> builds a self-contained, ad-hoc-signed <code>Toucan.app</code>.</li>
+<li><strong>Tests</strong>: 275 Core tests (format round trips and conventions, composition root, plugin host, trust policy, sample plugin) and 48 Avalonia tests (plugin prompt and page, headless render).</li>
 </ul>
 <h3>Changed</h3>
 <ul>
 <li><strong>Formats are identified by string IDs</strong> (<code>json</code>, <code>android-xml</code>, <code>po</code>, …) instead of the <code>SaveStyles</code> enum. Project files now store <code>&quot;saveFormat&quot;</code>; old <code>&quot;saveStyle&quot;</code> values are migrated on load and not written back. A project whose format is not installed now fails to open with a &quot;format unavailable&quot; message instead of being read as JSON.</li>
-<li><strong>Format conventions live on the format</strong> — default file path, language files, comment storage and detection rules come from each save strategy, replacing four duplicated tables. The export and import pickers list whatever formats are registered.</li>
-<li><strong>Shared composition root</strong> — <code>AddToucanCore()</code> is used by the app and the CLI. The CLI now supports every format, including Java <code>.properties</code> and Laravel PHP, and takes providers from the same container.</li>
+<li><strong>Format conventions live on the format</strong>: default file path, language files, comment storage and detection rules come from each save strategy, replacing four duplicated tables. The export and import pickers list whatever formats are registered.</li>
+<li><strong>Shared composition root</strong>: <code>AddToucanCore()</code> is used by the app and the CLI. The CLI now supports every format, including Java <code>.properties</code> and Laravel PHP, and takes providers from the same container.</li>
 <li><strong>Translation provider settings</strong> are built from the registered providers, so plugin providers appear alongside the built-ins.</li>
 <li><code>ValidationContext.Settings</code> became <code>ValidationContext.PrimaryLanguage</code> (rules only ever read the primary language).</li>
-<li><strong>CLI</strong> — <code>export -f</code> accepts a format ID (<code>android-xml</code>) or the old enum name (<code>AndroidXml</code>); <code>list-formats</code> prints IDs with display names. The export picker in the app lists formats in registration order rather than a hand-written order.</li>
-<li><strong>One version number</strong> — The app version is set once, in <code>Directory.Build.props</code>. <code>publish.ps1</code>, the Inno Setup script, <code>packaging/Build-Msix.ps1</code> and <code>packaging/build-macos-app.sh</code> read it. The v0.17.3 builds reported assembly version 0.17.2, and the CLI reported 1.0.0.</li>
-<li><strong>Docs and website</strong> — The website (<code>docs/index.html</code>), README, roadmap, and shipped-feature list now agree on versions (0.18.0 for macOS and Linux, 0.17.3 for Windows), platform status, and the road to 1.0 from <code>docs/todos/future-roadmap.md</code>.</li>
+<li><strong>CLI</strong>: <code>export -f</code> accepts a format ID (<code>android-xml</code>) or the old enum name (<code>AndroidXml</code>); <code>list-formats</code> prints IDs with display names. The export picker in the app lists formats in registration order rather than a hand-written order.</li>
+<li><strong>One version number</strong>: The app version is set once, in <code>Directory.Build.props</code>. <code>publish.ps1</code>, the Inno Setup script, <code>packaging/Build-Msix.ps1</code> and <code>packaging/build-macos-app.sh</code> read it. The v0.17.3 builds reported assembly version 0.17.2, and the CLI reported 1.0.0.</li>
+<li><strong>Docs and website</strong>: The website (<code>docs/index.html</code>), README, roadmap, and shipped-feature list now agree on versions (0.18.0 for macOS and Linux, 0.17.3 for Windows), platform status, and the road to 1.0 from <code>docs/todos/future-roadmap.md</code>.</li>
 <li><strong>Core test project</strong> targets plain <code>net10.0</code> and references the test SDK, so <code>dotnet test</code> works on macOS and Linux.</li>
 </ul>
 <h3>Breaking changes (for code built on <code>Toucan.Core</code>; the WPF projects still need updating)</h3>
@@ -468,7 +468,7 @@
 </ul>
 <h3>Fixed</h3>
 <ul>
-<li><strong>API keys on macOS and Linux</strong> — Provider API keys are encrypted with AES-GCM and a per-user key file (owner-only permissions), because DPAPI only exists on Windows. Before this change the Avalonia app fell back to base64 when DPAPI was unavailable.</li>
+<li><strong>API keys on macOS and Linux</strong>: Provider API keys are encrypted with AES-GCM and a per-user key file (owner-only permissions), because DPAPI only exists on Windows. Before this change the Avalonia app fell back to base64 when DPAPI was unavailable.</li>
 <li>New projects in Gettext PO, INI, Java <code>.properties</code> and Laravel PHP formats no longer default to <code>en.json</code>.</li>
 <li>Save As on a project no longer resets its format to JSON when the format came from a plugin.</li>
 </ul></div></details>
@@ -480,36 +480,36 @@
 <div class="release-counts"><span class="added">11 added</span><span class="changed">16 changed</span><span class="added">1 added (appoptions model)</span><span class="added">1 added (projectsettings model)</span><span class="removed">1 removed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.17.3</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Two-tier settings architecture</strong> — New <code>ProjectDefaults</code> template (<code>project-defaults.json</code>) provides default values for new projects and acts as fallback when a project doesn&#x27;t override a field.</li>
-<li><strong>&quot;Manage Project Defaults&quot; window</strong> — 5-page master-detail editor (Editor, Translation, Validation, Source Code, Features) accessible from Settings → Editor.</li>
-<li><strong>Validation settings page</strong> — Per-rule enable/disable toggles with severity selection (Error/Warning/Info) for all 6 built-in rules.</li>
-<li><strong>Translation Memory settings page</strong> — Similarity threshold slider, scope selector (Global/Project), auto-suggest toggle, max suggestions, clear/import/export buttons.</li>
-<li><strong>Source Code settings page</strong> — Framework presets dropdown (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, Generic JSON) that auto-populates scan extensions, excluded dirs, locale folder pattern, and key matcher regex.</li>
-<li><strong>Data &amp; Privacy settings page</strong> — Clear filter history, recent projects, TM data; export/import settings backup; reset to factory defaults.</li>
-<li><strong>Update panel in About</strong> — &quot;Check for updates&quot; and &quot;Update channel&quot; (Stable/Preview) UI shell for future auto-updater.</li>
-<li><strong>Copy templates CRUD</strong> — Dynamic 1–5 template list with add/remove (replaces fixed 3 textboxes) across app settings, project defaults, and project properties.</li>
-<li><strong>Reusable <code>LanguageListEditor</code> component</strong> — Shared WinUI-style card list for language management, used by both Manage Languages dialog and Suggested Languages settings.</li>
-<li><strong><code>EffectiveSettingsResolver</code></strong> — Static helper that merges nullable project fields with defaults for consumption by the engine.</li>
-<li><strong>Framework-connected source code config</strong> — Locale folder pattern and key matcher regex fields, auto-populated from framework presets.</li>
+<li><strong>Two-tier settings architecture</strong>: New <code>ProjectDefaults</code> template (<code>project-defaults.json</code>) provides default values for new projects and acts as fallback when a project doesn&#x27;t override a field.</li>
+<li><strong>&quot;Manage Project Defaults&quot; window</strong>: 5-page master-detail editor (Editor, Translation, Validation, Source Code, Features) accessible from Settings → Editor.</li>
+<li><strong>Validation settings page</strong>: Per-rule enable/disable toggles with severity selection (Error/Warning/Info) for all 6 built-in rules.</li>
+<li><strong>Translation Memory settings page</strong>: Similarity threshold slider, scope selector (Global/Project), auto-suggest toggle, max suggestions, clear/import/export buttons.</li>
+<li><strong>Source Code settings page</strong>: Framework presets dropdown (i18next, Android, Flutter, .NET, iOS, Rails, Gettext, Generic JSON) that auto-populates scan extensions, excluded dirs, locale folder pattern, and key matcher regex.</li>
+<li><strong>Data &amp; Privacy settings page</strong>: Clear filter history, recent projects, TM data; export/import settings backup; reset to factory defaults.</li>
+<li><strong>Update panel in About</strong>: &quot;Check for updates&quot; and &quot;Update channel&quot; (Stable/Preview) UI shell for future auto-updater.</li>
+<li><strong>Copy templates CRUD</strong>: Dynamic 1–5 template list with add/remove (replaces fixed 3 textboxes) across app settings, project defaults, and project properties.</li>
+<li><strong>Reusable <code>LanguageListEditor</code> component</strong>: Shared WinUI-style card list for language management, used by both Manage Languages dialog and Suggested Languages settings.</li>
+<li><strong><code>EffectiveSettingsResolver</code></strong>: Static helper that merges nullable project fields with defaults for consumption by the engine.</li>
+<li><strong>Framework-connected source code config</strong>: Locale folder pattern and key matcher regex fields, auto-populated from framework presets.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
-<li><strong>Settings dialog expanded to 12 pages</strong> — General, Appearance, Editor, Translation, Validation, Translation Memory, Source Code, Keyboard Shortcuts, Languages, Integration, Data &amp; Privacy, About.</li>
-<li><strong>Settings sidebar</strong> — VS Code-style left accent border indicator on selected item with proper card background; no rounded corners, flush left edge.</li>
-<li><strong>Activity bar</strong> — 3px left accent border on active panel with card background; properties moved into Style triggers for proper WPF precedence.</li>
-<li><strong>&quot;Add ID&quot; → &quot;Add Translation Key&quot;</strong> — Renamed in menu, toolbar, keybinding list, and dialog title.</li>
-<li><strong>PromptDialog redesigned</strong> — Mica backdrop, <code>ui:TextBox</code> with icon and placeholder, validation (won&#x27;t dismiss on empty), &quot;Add&quot; button instead of &quot;OK&quot;.</li>
-<li><strong>Mode selector bar</strong> — Increased height (26→30px), font size (11→12px), adjusted padding to prevent text cropping.</li>
-<li><strong>About menu</strong> — Now opens unified Settings dialog at the About tab instead of a standalone window.</li>
-<li><strong>Plain text keys</strong> — Changed from CheckBox to ToggleSwitch control.</li>
-<li><strong>Validation severity ComboBox</strong> — Widened from 100→120px to prevent &quot;Warning&quot; truncation.</li>
-<li><strong>TM Scope ComboBox</strong> — Widened from 140→200px.</li>
-<li><strong>Copy templates</strong> — Upgraded from raw Border+TextBox to proper <code>ui:CardControl</code> list items.</li>
-<li><strong>Project Languages list</strong> — Upgraded from plain text list to <code>ui:CardControl</code> card items.</li>
-<li><strong>Suggested Languages</strong> — Now uses shared <code>LanguageListEditor</code> component with proper WinUI card styling.</li>
-<li><strong>Settings dialog alignment</strong> — Sidebar and content top padding aligned (4px) across all 3 settings dialogs.</li>
-<li><strong>Startup toggle</strong> — Moved from Integration page to General page.</li>
-<li><strong>App language list</strong> — Expanded from 2 to 8 languages.</li>
+<li><strong>Settings dialog expanded to 12 pages</strong>: General, Appearance, Editor, Translation, Validation, Translation Memory, Source Code, Keyboard Shortcuts, Languages, Integration, Data &amp; Privacy, About.</li>
+<li><strong>Settings sidebar</strong>: VS Code-style left accent border indicator on selected item with proper card background; no rounded corners, flush left edge.</li>
+<li><strong>Activity bar</strong>: 3px left accent border on active panel with card background; properties moved into Style triggers for proper WPF precedence.</li>
+<li><strong>&quot;Add ID&quot; → &quot;Add Translation Key&quot;</strong>: Renamed in menu, toolbar, keybinding list, and dialog title.</li>
+<li><strong>PromptDialog redesigned</strong>: Mica backdrop, <code>ui:TextBox</code> with icon and placeholder, validation (won&#x27;t dismiss on empty), &quot;Add&quot; button instead of &quot;OK&quot;.</li>
+<li><strong>Mode selector bar</strong>: Increased height (26→30px), font size (11→12px), adjusted padding to prevent text cropping.</li>
+<li><strong>About menu</strong>: Now opens unified Settings dialog at the About tab instead of a standalone window.</li>
+<li><strong>Plain text keys</strong>: Changed from CheckBox to ToggleSwitch control.</li>
+<li><strong>Validation severity ComboBox</strong>: Widened from 100→120px to prevent &quot;Warning&quot; truncation.</li>
+<li><strong>TM Scope ComboBox</strong>: Widened from 140→200px.</li>
+<li><strong>Copy templates</strong>: Upgraded from raw Border+TextBox to proper <code>ui:CardControl</code> list items.</li>
+<li><strong>Project Languages list</strong>: Upgraded from plain text list to <code>ui:CardControl</code> card items.</li>
+<li><strong>Suggested Languages</strong>: Now uses shared <code>LanguageListEditor</code> component with proper WinUI card styling.</li>
+<li><strong>Settings dialog alignment</strong>: Sidebar and content top padding aligned (4px) across all 3 settings dialogs.</li>
+<li><strong>Startup toggle</strong>: Moved from Integration page to General page.</li>
+<li><strong>App language list</strong>: Expanded from 2 to 8 languages.</li>
 </ul>
 <h3>Added (AppOptions model)</h3>
 <ul>
@@ -521,7 +521,7 @@
 </ul>
 <h3>Removed</h3>
 <ul>
-<li><strong>Standalone <code>AboutDialog</code></strong> — Replaced by About page in Settings. <code>AboutViewModel</code> and DI registration removed.</li>
+<li><strong>Standalone <code>AboutDialog</code></strong>: Replaced by About page in Settings. <code>AboutViewModel</code> and DI registration removed.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.17.3" aria-label="Permalink to v0.17.3">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.3">Release on GitHub ↗</a></div>
 </article>
@@ -531,11 +531,11 @@
 <div class="release-counts"><span class="fixed">5 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.17.2</span></summary><div class="release-notes"><h3>Fixed</h3>
 <ul>
-<li><strong>Issues panel grouping</strong> — Validation issues now grouped by rule type with headers showing counts. Right-click context menu to dismiss one, dismiss all of a type, or dismiss all.</li>
-<li><strong>Search panel sizing</strong> — Regex/chevron buttons and Search button now align properly with TextBox and ComboBox heights.</li>
-<li><strong>Source Code panel</strong> — Removed excess top padding on filter. &quot;Open Settings&quot; now opens project settings (not app preferences). Post-scan empty state shows &quot;No key usages found&quot; instead of the configure buttons.</li>
-<li><strong>Explorer list view foreground</strong> — Removed hardcoded gray text; items now use theme-aware text brush matching the tree view.</li>
-<li><strong>Status bar click actions</strong> — Mode badge cycles Editor→Review→Audit. Translation stats runs validation and opens Issues panel. Git status focuses the Source Control panel.</li>
+<li><strong>Issues panel grouping</strong>: Validation issues now grouped by rule type with headers showing counts. Right-click context menu to dismiss one, dismiss all of a type, or dismiss all.</li>
+<li><strong>Search panel sizing</strong>: Regex/chevron buttons and Search button now align properly with TextBox and ComboBox heights.</li>
+<li><strong>Source Code panel</strong>: Removed excess top padding on filter. &quot;Open Settings&quot; now opens project settings (not app preferences). Post-scan empty state shows &quot;No key usages found&quot; instead of the configure buttons.</li>
+<li><strong>Explorer list view foreground</strong>: Removed hardcoded gray text; items now use theme-aware text brush matching the tree view.</li>
+<li><strong>Status bar click actions</strong>: Mode badge cycles Editor→Review→Audit. Translation stats runs validation and opens Issues panel. Git status focuses the Source Control panel.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.17.2" aria-label="Permalink to v0.17.2">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.2">Release on GitHub ↗</a></div>
 </article>
@@ -545,12 +545,12 @@
 <div class="release-counts"><span class="fixed">6 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.17.1</span></summary><div class="release-notes"><h3>Fixed</h3>
 <ul>
-<li><strong>DiffMergeEngine dirty tracking</strong> — Merged items (added/modified from disk) now update their baselines via <code>MarkSaved</code>, preventing perpetually-dirty state after non-conflicting merges.</li>
-<li><strong>AutoSaveService dispose crash</strong> — Guarded semaphore release against <code>ObjectDisposedException</code> when <code>Dispose()</code> is called during an in-flight save; marked <code>_disposed</code> volatile for cross-thread visibility.</li>
-<li><strong>TranslationManagementService double-fire</strong> — Eliminated TOCTOU race in <code>RaiseDirtyStateChangedIfNeeded</code> by computing dirty state inside the lock, preventing duplicate <code>DirtyStateChanged</code> events.</li>
-<li><strong>External reload threading</strong> — Auto-reload and merge paths now dispatch through a UI-thread marshaler (<code>SetUiDispatcher</code>), preventing cross-thread updates to UI-bound collections.</li>
-<li><strong>iOS .strings escape corruption</strong> — Replaced chained <code>string.Replace</code> with single-pass character scanner; <code>\\n</code> in .strings files now correctly produces literal backslash+n instead of a newline.</li>
-<li><strong>Java .properties line continuations</strong> — Added <code>JoinContinuationLines</code> that handles trailing-backslash multi-line values per the spec; multi-line values are no longer truncated to the first line.</li>
+<li><strong>DiffMergeEngine dirty tracking</strong>: Merged items (added/modified from disk) now update their baselines via <code>MarkSaved</code>, preventing perpetually-dirty state after non-conflicting merges.</li>
+<li><strong>AutoSaveService dispose crash</strong>: Guarded semaphore release against <code>ObjectDisposedException</code> when <code>Dispose()</code> is called during an in-flight save; marked <code>_disposed</code> volatile for cross-thread visibility.</li>
+<li><strong>TranslationManagementService double-fire</strong>: Eliminated TOCTOU race in <code>RaiseDirtyStateChangedIfNeeded</code> by computing dirty state inside the lock, preventing duplicate <code>DirtyStateChanged</code> events.</li>
+<li><strong>External reload threading</strong>: Auto-reload and merge paths now dispatch through a UI-thread marshaler (<code>SetUiDispatcher</code>), preventing cross-thread updates to UI-bound collections.</li>
+<li><strong>iOS .strings escape corruption</strong>: Replaced chained <code>string.Replace</code> with single-pass character scanner; <code>\\n</code> in .strings files now correctly produces literal backslash+n instead of a newline.</li>
+<li><strong>Java .properties line continuations</strong>: Added <code>JoinContinuationLines</code> that handles trailing-backslash multi-line values per the spec; multi-line values are no longer truncated to the first line.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.17.1" aria-label="Permalink to v0.17.1">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.1">Release on GitHub ↗</a></div>
 </article>
@@ -560,10 +560,10 @@
 <div class="release-counts"><span class="added">4 added</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.17.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Search &amp; Replace (FG-07)</strong> — global search across all keys/values/languages with regex support, scope filtering, replace preview, and search history.</li>
-<li><strong>Bulk Operations (FG-08)</strong> — multi-select mode with bulk delete, move to namespace, pre-translate, approve, and copy source→target language.</li>
-<li><strong>Custom Validation Rules (FG-09)</strong> — configurable per-project rules (max length, forbidden words, regex patterns) with severity levels and auto-fix suggestions.</li>
-<li><strong>TM Enhancements (FG-03)</strong> — TMX import/export, TM entry management (view/delete/clear), ghost text suggestion property, configurable similarity threshold and scope.</li>
+<li><strong>Search &amp; Replace (FG-07)</strong>: global search across all keys/values/languages with regex support, scope filtering, replace preview, and search history.</li>
+<li><strong>Bulk Operations (FG-08)</strong>: multi-select mode with bulk delete, move to namespace, pre-translate, approve, and copy source→target language.</li>
+<li><strong>Custom Validation Rules (FG-09)</strong>: configurable per-project rules (max length, forbidden words, regex patterns) with severity levels and auto-fix suggestions.</li>
+<li><strong>TM Enhancements (FG-03)</strong>: TMX import/export, TM entry management (view/delete/clear), ghost text suggestion property, configurable similarity threshold and scope.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.17.0" aria-label="Permalink to v0.17.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.17.0">Release on GitHub ↗</a></div>
 </article>
@@ -573,17 +573,17 @@
 <div class="release-counts"><span class="improved">6 improved</span><span class="fixed">2 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.16.1</span></summary><div class="release-notes"><h3>Improved</h3>
 <ul>
-<li><strong>Toolbar removed</strong> — ModeSelectorBar and panel toggles moved into TitleBar.TrailingContent for a cleaner layout.</li>
-<li><strong>Inspector split</strong> — Languages panel separated from Inspector; each is now its own right-side panel in the activity bar.</li>
-<li><strong>Inspector redesign</strong> — Details and Suggestions tabs use Fluent bordered cards with contextual icons instead of plain text.</li>
-<li><strong>PanelHost actions slot</strong> — panel-specific action buttons (add, refresh, settings) now render beside the ellipsis menu in the panel header.</li>
-<li><strong>ActivityBar context menu</strong> — right-click to show/hide individual panels with checkmarks.</li>
-<li><strong>Duplicate headers removed</strong> — ResourcesView, LanguagesView, IssuesPanel, and TranslationMemoryPanel no longer have redundant internal headers; PanelHost provides the unified header.</li>
+<li><strong>Toolbar removed</strong>: ModeSelectorBar and panel toggles moved into TitleBar.TrailingContent for a cleaner layout.</li>
+<li><strong>Inspector split</strong>: Languages panel separated from Inspector; each is now its own right-side panel in the activity bar.</li>
+<li><strong>Inspector redesign</strong>: Details and Suggestions tabs use Fluent bordered cards with contextual icons instead of plain text.</li>
+<li><strong>PanelHost actions slot</strong>: panel-specific action buttons (add, refresh, settings) now render beside the ellipsis menu in the panel header.</li>
+<li><strong>ActivityBar context menu</strong>: right-click to show/hide individual panels with checkmarks.</li>
+<li><strong>Duplicate headers removed</strong>: ResourcesView, LanguagesView, IssuesPanel, and TranslationMemoryPanel no longer have redundant internal headers; PanelHost provides the unified header.</li>
 </ul>
 <h3>Fixed</h3>
 <ul>
-<li><strong>ManifestLoadStrategy fallback</strong> — projects with empty <code>translationPackages</code> now fall through to format-based file scanning instead of returning nothing.</li>
-<li><strong>ProjectSettings.Save() backfill</strong> — saving the manifest auto-populates <code>translationPackages</code> from <code>Languages</code> when empty, preventing the &quot;no translations&quot; bug after adding a language via Manage Languages.</li>
+<li><strong>ManifestLoadStrategy fallback</strong>: projects with empty <code>translationPackages</code> now fall through to format-based file scanning instead of returning nothing.</li>
+<li><strong>ProjectSettings.Save() backfill</strong>: saving the manifest auto-populates <code>translationPackages</code> from <code>Languages</code> when empty, preventing the &quot;no translations&quot; bug after adding a language via Manage Languages.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.16.1" aria-label="Permalink to v0.16.1">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.16.1">Release on GitHub ↗</a></div>
 </article>
@@ -626,7 +626,7 @@
 <h3>Bug Fixes (U1–U5)</h3>
 <ul>
 <li>U1: OptionsViewModel BrowseSourceRoot/BrowseSourceEditor/ConfigureLanguageCodes now functional</li>
-<li>U2: IUnsavedChangesHandler wired — prompts save/discard/cancel on close</li>
+<li>U2: IUnsavedChangesHandler wired: prompts save/discard/cancel on close</li>
 <li>U3: FilterUsedKeys/FilterUnusedKeys now actually filters based on source scan</li>
 <li>U4: ShowMachineTranslations toggle filters to unapproved+filled items</li>
 <li>U5: Shortcuts page shows info banner about read-only status</li>
@@ -653,7 +653,7 @@
 <h3>Additional Fixes</h3>
 <ul>
 <li>TitleBar icon: fixed crash by using <code>ui:ImageIcon</code> (correct <code>IconElement</code> type for WPF UI 4.x)</li>
-<li>Window Title property set — taskbar now shows &quot;Toucan&quot;</li>
+<li>Window Title property set: taskbar now shows &quot;Toucan&quot;</li>
 <li>Menu toggle states: checkable items show current state (tree/list, zen, panels, etc.)</li>
 <li>Menu disabled states: Edit/Tools/Find/Save/Close/Reveal/Properties disabled when no project loaded</li>
 <li>Start screen: recent projects now clickable with hover state and delete button</li>
@@ -672,17 +672,17 @@
 <div class="release-counts"><span class="added">6 added</span><span class="changed">2 changed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.14.3</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Modular StatusBar architecture</strong> — Status bar is now composed of independent panels (<code>IStatusBarPanel</code>) managed by a <code>StatusBarPanelRegistry</code>. Each panel can be shown/hidden, reordered, and clicked.</li>
+<li><strong>Modular StatusBar architecture</strong>: Status bar is now composed of independent panels (<code>IStatusBarPanel</code>) managed by a <code>StatusBarPanelRegistry</code>. Each panel can be shown/hidden, reordered, and clicked.</li>
 <li><strong>10 built-in panels</strong>: VCS (branch + changes + sync), Translation Stats (progress + per-language breakdown), Mode (EDITOR/REVIEW/AUDIT badge), Project (name + dirty count), Status (ephemeral text), Language (primary + switcher), Encoding (UTF-8), Line Endings (LF/CRLF toggle), Notifications (badge), Loading (spinner).</li>
-<li><strong>Dynamic panel rendering</strong> — StatusBarView uses <code>ItemsControl</code> with implicit <code>DataTemplate</code> per panel type. Left/Center/Right alignment groups rendered independently.</li>
-<li><strong>Panel click actions</strong> — Each panel has a <code>ClickCommand</code>: VCS opens summary, Stats opens statistics dialog, Language opens switcher, Line Endings toggles LF↔CRLF, etc.</li>
-<li><strong>Panel registry API</strong> — <code>StatusBarPanelRegistry.Register()</code>, <code>.Unregister()</code>, <code>.SetVisibility()</code>, <code>.Reorder()</code> — external services can add custom panels at runtime.</li>
-<li><strong>Rich tooltips</strong> — VCS shows branch + change summary, Stats shows per-language progress bars, all panels have contextual tooltips.</li>
+<li><strong>Dynamic panel rendering</strong>: StatusBarView uses <code>ItemsControl</code> with implicit <code>DataTemplate</code> per panel type. Left/Center/Right alignment groups rendered independently.</li>
+<li><strong>Panel click actions</strong>: Each panel has a <code>ClickCommand</code>: VCS opens summary, Stats opens statistics dialog, Language opens switcher, Line Endings toggles LF↔CRLF, etc.</li>
+<li><strong>Panel registry API</strong>: External services can add custom panels at runtime using <code>StatusBarPanelRegistry.Register()</code>, <code>.Unregister()</code>, <code>.SetVisibility()</code>, and <code>.Reorder()</code>.</li>
+<li><strong>Rich tooltips</strong>: VCS shows branch + change summary, Stats shows per-language progress bars, all panels have contextual tooltips.</li>
 </ul>
 <h3>Changed</h3>
 <ul>
-<li><strong>StatusBarViewModel</strong> — Collapsed from 4 partial files into a single file backed by panel instances. Backward-compatible: existing callers (<code>StatusBarService.UpdateStatus()</code>, <code>.UpdateDefaultLanguage()</code>, etc.) still work unchanged.</li>
-<li><strong>StatusBarView.xaml</strong> — Replaced hardcoded 8-column Grid with 3-column layout (Left/Center/Right) using <code>ItemsControl</code> bound to registry collections.</li>
+<li><strong>StatusBarViewModel</strong>: Collapsed from 4 partial files into a single file backed by panel instances. Backward-compatible: existing callers (<code>StatusBarService.UpdateStatus()</code>, <code>.UpdateDefaultLanguage()</code>, etc.) still work unchanged.</li>
+<li><strong>StatusBarView.xaml</strong>: Replaced hardcoded 8-column Grid with 3-column layout (Left/Center/Right) using <code>ItemsControl</code> bound to registry collections.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.14.3" aria-label="Permalink to v0.14.3">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.14.3">Release on GitHub ↗</a></div>
 </article>
@@ -692,10 +692,10 @@
 <div class="release-counts"><span class="improved">4 improved</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.14.2</span></summary><div class="release-notes"><h3>Improved</h3>
 <ul>
-<li><strong>Centralized FileEnumerator</strong> — Extracted <code>Toucan.Core\Services\FileEnumerator.cs</code> with flags-based <code>EnumerateOptions</code>. All load strategies (JSON, CSV, YAML, PHP) now use a single file crawler with shared directory exclusion list. <code>SkipNestedLocaleDirs</code> flag auto-detects when root has language-code subdirs and skips nested <code>locales/</code>, <code>i18n/</code>, <code>translations/</code>, <code>lang/</code> directories to prevent duplicates.</li>
-<li><strong>UpdateSummaryInfo per-keystroke</strong> — <code>TranslationDetailsView</code> now debounces the update event (300ms idle) instead of firing on every KeyUp.</li>
-<li><strong>JSON key order instability</strong> — <code>JsonSaveStrategy</code> now sorts items by namespace before writing, producing stable key order across saves (reduces VCS noise).</li>
-<li><strong>Placeholder count validation</strong> — <code>PlaceholderService.Validate</code> now uses count-aware comparison instead of set-based <code>Except</code>. Detects when a placeholder appears more times in source than target.</li>
+<li><strong>Centralized FileEnumerator</strong>: Extracted <code>Toucan.Core\Services\FileEnumerator.cs</code> with flags-based <code>EnumerateOptions</code>. All load strategies (JSON, CSV, YAML, PHP) now use a single file crawler with shared directory exclusion list. <code>SkipNestedLocaleDirs</code> flag auto-detects when root has language-code subdirs and skips nested <code>locales/</code>, <code>i18n/</code>, <code>translations/</code>, <code>lang/</code> directories to prevent duplicates.</li>
+<li><strong>UpdateSummaryInfo per-keystroke</strong>: <code>TranslationDetailsView</code> now debounces the update event (300ms idle) instead of firing on every KeyUp.</li>
+<li><strong>JSON key order instability</strong>: <code>JsonSaveStrategy</code> now sorts items by namespace before writing, producing stable key order across saves (reduces VCS noise).</li>
+<li><strong>Placeholder count validation</strong>: <code>PlaceholderService.Validate</code> now uses count-aware comparison instead of set-based <code>Except</code>. Detects when a placeholder appears more times in source than target.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.14.2" aria-label="Permalink to v0.14.2">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.14.2">Release on GitHub ↗</a></div>
 </article>
@@ -705,25 +705,25 @@
 <div class="release-counts"><span class="fixed">19 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.14.1</span></summary><div class="release-notes"><h3>Fixed</h3>
 <ul>
-<li><strong>Tree corruption on rename</strong> — <code>RenameItem</code> used <code>string.Replace</code> which corrupted unrelated keys sharing a substring (e.g., renaming &quot;app&quot; mangled &quot;application&quot;). Now uses exact prefix + dot delimiter matching.</li>
-<li><strong>Tree corruption on delete</strong> — <code>DeleteItem</code> used bare <code>StartsWith</code> which deleted sibling keys (e.g., deleting &quot;app&quot; also deleted &quot;appSettings&quot;). Now requires exact match or dot-separated child.</li>
-<li><strong>NsTreeItem lazy-load flattening</strong> — The <code>Items</code> getter was flattening grandchildren into the current node via <code>AddRange(child.Items)</code>. Children now retain their subtree structure.</li>
-<li><strong>YAML round-trip data loss</strong> — Save strategy now properly escapes <code>\n</code>/<code>\r</code>/<code>\t</code> in double-quoted values, quotes YAML reserved words (<code>true</code>, <code>false</code>, <code>yes</code>, <code>no</code>, <code>null</code>), and preserves keys that are both parents and leaf values. Load strategy now supports multi-line block scalars (<code>|</code> and <code>&gt;</code>).</li>
-<li><strong>Undo history corruption</strong> — After 200 edits, the undo stack cap logic reversed item order (newest ended up at bottom). Now iterates in reverse when repopulating.</li>
-<li><strong>Dirty tracking bypass</strong> — <code>TranslationItemViewModel.SaveTranslation()</code> now calls <code>ITranslationManagementService.NotifyValueChanged()</code> so the project correctly shows unsaved state.</li>
-<li><strong>Silent data loss on close</strong> — <code>Window_Closing</code> now prompts Save/Discard/Cancel when unsaved changes exist, instead of silently discarding edits.</li>
-<li><strong>Source code scan thread-safety</strong> — Replaced <code>List&lt;KeyUsage&gt;</code> with <code>ConcurrentBag&lt;KeyUsage&gt;</code> in parallel scan. Fixed case-sensitive directory exclusion on Windows (now uses <code>StringComparer.OrdinalIgnoreCase</code>).</li>
-<li><strong>Provider mock fallback</strong> — All providers (OpenAI, Google, DeepL, Microsoft) now report <code>Succeeded = false</code> with &quot;No API key configured&quot; instead of silently injecting fake <code>[provider/lang]</code> translations.</li>
-<li><strong>Provider language code truncation</strong> — Removed <code>Split(&#x27;-&#x27;)[0]</code> that stripped regional variants. Full BCP-47 codes (e.g., <code>zh-CN</code>, <code>pt-BR</code>, <code>EN-US</code>) are now passed to translation APIs.</li>
-<li><strong>Google Translate HTML entities</strong> — Response text is now decoded via <code>WebUtility.HtmlDecode()</code> to fix garbled apostrophes and ampersands.</li>
-<li><strong>Statusbar language selector empty</strong> — <code>AvailableLanguages</code> collection is now populated from project languages after load, so the inline language switcher works.</li>
-<li><strong>Duplicate FileWatcherService</strong> — MainWindow now uses the DI-registered singleton <code>IFileWatcherService</code> instead of creating its own instance. External-change detection is consistent with the lifecycle service.</li>
-<li><strong>CreateNewItem false duplicate</strong> — Replaced <code>Namespace.Contains(newNamespace)</code> with exact <code>==</code> match. Creating &quot;app&quot; is no longer blocked by &quot;wrapper.app.title&quot;.</li>
-<li><strong>Delete/F2/Escape in TextBox</strong> — <code>HandleZenKeys</code> now guards these keys when a TextBox has focus, preventing accidental item deletion or rename while typing.</li>
-<li><strong>FileWatcherService race condition</strong> — Replaced <code>bool _pending</code> with <code>Interlocked.CompareExchange</code> to prevent missed/double-fired change events from concurrent threads.</li>
-<li><strong>PreTranslateViewModel CTS leak</strong> — Previous <code>CancellationTokenSource</code> is now disposed before creating a new one on each Start().</li>
-<li><strong>Provider settings lost on switch</strong> — <code>RebuildFieldItems</code> now flushes field edits to the *previous* selection before clearing, so switching providers no longer discards unsaved config.</li>
-<li><strong>NewProjectViewModel deadlock</strong> — Converted <code>NextStep()</code> from sync (<code>GetAwaiter().GetResult()</code>) to <code>async Task</code>, eliminating potential UI thread deadlock on the existing-project dialog.</li>
+<li><strong>Tree corruption on rename</strong>: <code>RenameItem</code> used <code>string.Replace</code> which corrupted unrelated keys sharing a substring (e.g., renaming &quot;app&quot; mangled &quot;application&quot;). Now uses exact prefix + dot delimiter matching.</li>
+<li><strong>Tree corruption on delete</strong>: <code>DeleteItem</code> used bare <code>StartsWith</code> which deleted sibling keys (e.g., deleting &quot;app&quot; also deleted &quot;appSettings&quot;). Now requires exact match or dot-separated child.</li>
+<li><strong>NsTreeItem lazy-load flattening</strong>: The <code>Items</code> getter was flattening grandchildren into the current node via <code>AddRange(child.Items)</code>. Children now retain their subtree structure.</li>
+<li><strong>YAML round-trip data loss</strong>: Save strategy now properly escapes <code>\n</code>/<code>\r</code>/<code>\t</code> in double-quoted values, quotes YAML reserved words (<code>true</code>, <code>false</code>, <code>yes</code>, <code>no</code>, <code>null</code>), and preserves keys that are both parents and leaf values. Load strategy now supports multi-line block scalars (<code>|</code> and <code>&gt;</code>).</li>
+<li><strong>Undo history corruption</strong>: After 200 edits, the undo stack cap logic reversed item order (newest ended up at bottom). Now iterates in reverse when repopulating.</li>
+<li><strong>Dirty tracking bypass</strong>: <code>TranslationItemViewModel.SaveTranslation()</code> now calls <code>ITranslationManagementService.NotifyValueChanged()</code> so the project correctly shows unsaved state.</li>
+<li><strong>Silent data loss on close</strong>: <code>Window_Closing</code> now prompts Save/Discard/Cancel when unsaved changes exist, instead of silently discarding edits.</li>
+<li><strong>Source code scan thread-safety</strong>: Replaced <code>List&lt;KeyUsage&gt;</code> with <code>ConcurrentBag&lt;KeyUsage&gt;</code> in parallel scan. Fixed case-sensitive directory exclusion on Windows (now uses <code>StringComparer.OrdinalIgnoreCase</code>).</li>
+<li><strong>Provider mock fallback</strong>: All providers (OpenAI, Google, DeepL, Microsoft) now report <code>Succeeded = false</code> with &quot;No API key configured&quot; instead of silently injecting fake <code>[provider/lang]</code> translations.</li>
+<li><strong>Provider language code truncation</strong>: Removed <code>Split(&#x27;-&#x27;)[0]</code> that stripped regional variants. Full BCP-47 codes (e.g., <code>zh-CN</code>, <code>pt-BR</code>, <code>EN-US</code>) are now passed to translation APIs.</li>
+<li><strong>Google Translate HTML entities</strong>: Response text is now decoded via <code>WebUtility.HtmlDecode()</code> to fix garbled apostrophes and ampersands.</li>
+<li><strong>Statusbar language selector empty</strong>: <code>AvailableLanguages</code> collection is now populated from project languages after load, so the inline language switcher works.</li>
+<li><strong>Duplicate FileWatcherService</strong>: MainWindow now uses the DI-registered singleton <code>IFileWatcherService</code> instead of creating its own instance. External-change detection is consistent with the lifecycle service.</li>
+<li><strong>CreateNewItem false duplicate</strong>: Replaced <code>Namespace.Contains(newNamespace)</code> with exact <code>==</code> match. Creating &quot;app&quot; is no longer blocked by &quot;wrapper.app.title&quot;.</li>
+<li><strong>Delete/F2/Escape in TextBox</strong>: <code>HandleZenKeys</code> now guards these keys when a TextBox has focus, preventing accidental item deletion or rename while typing.</li>
+<li><strong>FileWatcherService race condition</strong>: Replaced <code>bool _pending</code> with <code>Interlocked.CompareExchange</code> to prevent missed/double-fired change events from concurrent threads.</li>
+<li><strong>PreTranslateViewModel CTS leak</strong>: Previous <code>CancellationTokenSource</code> is now disposed before creating a new one on each Start().</li>
+<li><strong>Provider settings lost on switch</strong>: <code>RebuildFieldItems</code> now flushes field edits to the *previous* selection before clearing, so switching providers no longer discards unsaved config.</li>
+<li><strong>NewProjectViewModel deadlock</strong>: Converted <code>NextStep()</code> from sync (<code>GetAwaiter().GetResult()</code>) to <code>async Task</code>, eliminating potential UI thread deadlock on the existing-project dialog.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.14.1" aria-label="Permalink to v0.14.1">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.14.1">Release on GitHub ↗</a></div>
 </article>
@@ -733,37 +733,37 @@
 <div class="release-counts"><span class="added">10 added</span><span class="changed">10 changed</span><span class="fixed">5 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for v0.14.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
-<li><strong>Provider Settings integration</strong> — Providers (Google, DeepL, Microsoft, OpenAI, Custom Webhook) now have proper schema definitions with default values. API keys are stored encrypted via DPAPI. Pre-translation works out of the box once an API key is saved.</li>
-<li><strong>Project Properties dialog</strong> — Standalone dialog (File → Project Properties, or toolbar button) with 5 pages: Identity, Translation, Editor, Features, Source Code. Separated from the global Options dialog.</li>
-<li><strong>Namespace hiding</strong> — Right-click any namespace in the tree to hide it from the editor and statistics. Manage hidden namespaces in Project Properties → Editor. Persisted in <code>toucan.project</code>.</li>
-<li><strong>Session dirty tracking</strong> — Modified keys show a caution-colored left indicator bar. Statusbar displays a dirty count badge. Cleared on save.</li>
-<li><strong>BreadcrumbBar</strong> — Added WPF-UI BreadcrumbBar to the Resources panel showing the selected namespace path.</li>
-<li><strong>Fluent MessageBox</strong> — All user-facing message dialogs now use <code>Wpf.Ui.Controls.MessageBox</code> instead of native Win32 MessageBox.</li>
-<li><strong>Default project folder</strong> — New Project dialog defaults to <code>Documents/Toucan/{project-name}</code>, auto-updating as you type.</li>
-<li><strong>Existing project detection</strong> — New Project wizard detects existing <code>toucan.project</code> and offers to open or overwrite.</li>
-<li><strong>Statusbar language selector</strong> — Click the language code in the statusbar to switch the active language via popup menu.</li>
-<li><strong>Provider management tests</strong> — 11 new tests covering provider settings (defaults, add/remove, save flush, schema fields).</li>
+<li><strong>Provider Settings integration</strong>: Providers (Google, DeepL, Microsoft, OpenAI, Custom Webhook) now have proper schema definitions with default values. API keys are stored encrypted via DPAPI. Pre-translation works out of the box once an API key is saved.</li>
+<li><strong>Project Properties dialog</strong>: Standalone dialog (File → Project Properties, or toolbar button) with 5 pages: Identity, Translation, Editor, Features, Source Code. Separated from the global Options dialog.</li>
+<li><strong>Namespace hiding</strong>: Right-click any namespace in the tree to hide it from the editor and statistics. Manage hidden namespaces in Project Properties → Editor. Persisted in <code>toucan.project</code>.</li>
+<li><strong>Session dirty tracking</strong>: Modified keys show a caution-colored left indicator bar. Statusbar displays a dirty count badge. Cleared on save.</li>
+<li><strong>BreadcrumbBar</strong>: Added WPF-UI BreadcrumbBar to the Resources panel showing the selected namespace path.</li>
+<li><strong>Fluent MessageBox</strong>: All user-facing message dialogs now use <code>Wpf.Ui.Controls.MessageBox</code> instead of native Win32 MessageBox.</li>
+<li><strong>Default project folder</strong>: New Project dialog defaults to <code>Documents/Toucan/{project-name}</code>, auto-updating as you type.</li>
+<li><strong>Existing project detection</strong>: New Project wizard detects existing <code>toucan.project</code> and offers to open or overwrite.</li>
+<li><strong>Statusbar language selector</strong>: Click the language code in the statusbar to switch the active language via popup menu.</li>
+<li><strong>Provider management tests</strong>: 11 new tests covering provider settings (defaults, add/remove, save flush, schema fields).</li>
 </ul>
 <h3>Changed</h3>
 <ul>
-<li><strong>Pre-Translate dialog</strong> — Redesigned with dual-panel layout (config left, preview right), dropdown provider selector, compact options, Fluent-styled table (no more Vista GridView).</li>
-<li><strong>Inspector panel</strong> — Tabs now use custom Fluent-styled underline indicator (accent-colored bottom border on selected tab). Removed native TabControl chrome.</li>
-<li><strong>About page</strong> — Redesigned to match Files App style: app card with Copy button, Help &amp; support links, Open source section.</li>
-<li><strong>New Project dialog</strong> — Framework tiles reduced (80×60), project name/folder moved to top, Step 2 made compact with inline add buttons.</li>
-<li><strong>Suggested Languages</strong> — Redesigned with card-style items (Globe icon, Fluent Add button).</li>
-<li><strong>Mode selector</strong> — Made more compact (26px height, 11px font, reduced padding).</li>
-<li><strong>Zen mode</strong> — Card now has <code>MinWidth=&quot;500&quot;</code>, <code>MaxWidth=&quot;900&quot;</code>, proper card styling with rounded corners.</li>
-<li><strong>Focused Editor mode</strong> — Now functional: shows single item with navigation bar (↑/↓/exit) when activated.</li>
-<li><strong>Pagination buttons</strong> — Disabled state uses opacity instead of opaque background (dark mode fix).</li>
-<li><strong>Language Prompt dialog</strong> — Width set to 400px (was stretching full screen).</li>
+<li><strong>Pre-Translate dialog</strong>: Redesigned with dual-panel layout (config left, preview right), dropdown provider selector, compact options, Fluent-styled table (no more Vista GridView).</li>
+<li><strong>Inspector panel</strong>: Tabs now use custom Fluent-styled underline indicator (accent-colored bottom border on selected tab). Removed native TabControl chrome.</li>
+<li><strong>About page</strong>: Redesigned to match Files App style: app card with Copy button, Help &amp; support links, Open source section.</li>
+<li><strong>New Project dialog</strong>: Framework tiles reduced (80×60), project name/folder moved to top, Step 2 made compact with inline add buttons.</li>
+<li><strong>Suggested Languages</strong>: Redesigned with card-style items (Globe icon, Fluent Add button).</li>
+<li><strong>Mode selector</strong>: Made more compact (26px height, 11px font, reduced padding).</li>
+<li><strong>Zen mode</strong>: Card now has <code>MinWidth=&quot;500&quot;</code>, <code>MaxWidth=&quot;900&quot;</code>, proper card styling with rounded corners.</li>
+<li><strong>Focused Editor mode</strong>: Now functional: shows single item with navigation bar (↑/↓/exit) when activated.</li>
+<li><strong>Pagination buttons</strong>: Disabled state uses opacity instead of opaque background (dark mode fix).</li>
+<li><strong>Language Prompt dialog</strong>: Width set to 400px (was stretching full screen).</li>
 </ul>
 <h3>Fixed</h3>
 <ul>
-<li><strong>Pretranslation mock output</strong> (<code>[provider/lang]</code>) — Root cause: <code>IProviderSettingsService</code> was not being passed to <code>PreTranslateViewModel</code>. Empty API keys were being encrypted/stored. Fixed both the DI wiring and the save/load logic to skip empty secrets.</li>
-<li><strong>Duplicate translations</strong> — When root folder has both <code>en/</code> dirs and a nested <code>locales/en/</code> dir, the loader now skips the nested <code>locales/</code> to prevent duplicates.</li>
-<li><strong>&quot;Showing N of M items&quot;</strong> — Removed redundant text from statusbar (pagination already shows this).</li>
-<li><strong>Provider settings button cropped</strong> — Replaced narrow <code>Width=&quot;30&quot;</code> button with proper <code>ui:Button</code> + SymbolIcon.</li>
-<li><strong>Project Languages showing only 1</strong> — Now loads discovered languages from actual files, not just manifest.</li>
+<li><strong>Pretranslation mock output</strong> (<code>[provider/lang]</code>): Root cause: <code>IProviderSettingsService</code> was not being passed to <code>PreTranslateViewModel</code>. Empty API keys were being encrypted/stored. Fixed both the DI wiring and the save/load logic to skip empty secrets.</li>
+<li><strong>Duplicate translations</strong>: When root folder has both <code>en/</code> dirs and a nested <code>locales/en/</code> dir, the loader now skips the nested <code>locales/</code> to prevent duplicates.</li>
+<li><strong>&quot;Showing N of M items&quot;</strong>: Removed redundant text from statusbar (pagination already shows this).</li>
+<li><strong>Provider settings button cropped</strong>: Replaced narrow <code>Width=&quot;30&quot;</code> button with proper <code>ui:Button</code> + SymbolIcon.</li>
+<li><strong>Project Languages showing only 1</strong>: Now loads discovered languages from actual files, not just manifest.</li>
 </ul></div></details>
 <div class="release-links"><a href="#v0.14.0" aria-label="Permalink to v0.14.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.14.0">Release on GitHub ↗</a></div>
 </article>

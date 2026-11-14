@@ -28,10 +28,10 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
   - [x] 4.2 The loop reuses the Focused editor index/selection; Next Needing Review skips already-done cards. (Landing the OS text-caret on the next field is handled by the view binding to the advanced card.)
 - [ ] 5. Inspector: source, target and provenance (R5, A5)
   - [x] 5.1 Inspector shows the source placeholders (parsed via `PlaceholderService`), per-language source/target values with state, description (comment) and source-code references
-  - [x] 5.2 Provenance is surfaced where tracked: the Translation Memory section (TM origin) and the "machine" per-language state (`ChangeType.Suggestion`). Distinguishing machine from AI per value needs provenance on the model (`ChangeType` only has Suggestion/DirectEdit today) — tracked for v0.25's suggestion work.
+  - [x] 5.2 Provenance is surfaced where tracked: the Translation Memory section (TM origin) and the "machine" per-language state (`ChangeType.Suggestion`). Distinguishing machine from AI per value needs provenance on the model (`ChangeType` only has Suggestion/DirectEdit today); this is tracked for v0.25's suggestion work.
 - [ ] 6. First-run setup and empty states (R1, A1)
   - [x] 6.1 Default-language and theme steps added to onboarding (persisted via `IPreferenceService`); gated on `AppOptions.OnboardingVersion` (bumped to 2 so existing users see the new steps once)
-  - [x] 6.2 Actionable empty states already present: the start screen (open/create/import/open-file + recents) and the editor "no keys match" state (clear filter / add key), both bound to existing commands — confirmed
+  - [x] 6.2 Actionable empty states already present: the start screen (open/create/import/open-file + recents) and the editor "no keys match" state (clear filter / add key), both confirmed and bound to existing commands
   - [x] 6.3 Dismissible one-time feature tour (`FeatureTourViewModel`, overlay in `MainWindow`), gated by `AppOptions.FeatureTourSeen`, shown after first-run setup
 - [ ] 7. Accessibility and layout pass (R7, A7)
   - [x] 7.1 `AutomationProperties.Name` coverage guard: a headless test fails if any app-authored icon-only button/toggle in the main window lacks an accessible name (framework `PART_*` internals excluded). RTL target content verified (`FlowDirection.RightToLeft` for RTL languages).
