@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Toucan v0.24.0: Editor comfort and resource compatibility</title>
-<meta name="description" content="v0.24.0 preview release notes, download guidance, compatibility changes and outstanding acceptance checks. The GitHub release is a draft.">
+<meta name="description" content="Editor comfort, resource compatibility, download guidance and known limits for v0.24.0.">
 <link rel="canonical" href="https://toucan.rasyid.dev/release-v0.24.0.html">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,19 +15,19 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Toucan v0.24.0: Editor comfort and resource compatibility">
-<meta property="og:description" content="v0.24.0 preview release notes, download guidance, compatibility changes and outstanding acceptance checks. The GitHub release is a draft.">
+<meta property="og:description" content="Editor comfort, resource compatibility, download guidance and known limits for v0.24.0.">
 <meta property="og:url" content="https://toucan.rasyid.dev/release-v0.24.0.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Toucan v0.24.0: Editor comfort and resource compatibility">
-<meta name="twitter:description" content="v0.24.0 preview release notes, download guidance, compatibility changes and outstanding acceptance checks. The GitHub release is a draft.">
+<meta name="twitter:description" content="Editor comfort, resource compatibility, download guidance and known limits for v0.24.0.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Toucan \u00b7 Toucan v0.24.0: Editor comfort and resource compatibility",
-  "description": "v0.24.0 preview release notes, download guidance, compatibility changes and outstanding acceptance checks. The GitHub release is a draft.",
+  "description": "Editor comfort, resource compatibility, download guidance and known limits for v0.24.0.",
   "url": "https://toucan.rasyid.dev/release-v0.24.0.html",
   "publisher": {
     "@type": "Organization",
@@ -102,12 +102,11 @@
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Toucan v0.24.0: Editor comfort and resource compatibility</h1>
-        <p class="lead">v0.24.0 preview release notes, download guidance, compatibility changes and outstanding acceptance checks. The GitHub release is a draft.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-10-25</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/release-notes/v0.24.0.md">Edit on GitHub ↗</a></div>
+        <p class="lead">Editor comfort, resource compatibility, download guidance and known limits for v0.24.0.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-11-15</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/release-notes/v0.24.0.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <p>Toucan v0.24.0 makes translation sessions easier to navigate and expands resource compatibility and BabelEdit migration. This is preview software; keep translation files in version control.</p>
-<p><strong>Release status:</strong> draft, prepared on 2026-10-25. Downloads attached to the draft become public when it is published. Until then, v0.23.0 remains the public download. Packaging checks do not replace the <a href="https://github.com/rasyidf/Toucan/blob/main/docs/specs/editor-comfort/acceptance.md">remaining native acceptance checks</a>.</p>
 <h2 id="highlights"><a class="anchor" href="#highlights" aria-label="Link to this section">#</a>Highlights</h2>
 <ul>
 <li><strong>Translate with context.</strong> Source-first language cards use two columns in wide editors and stack in narrow windows. Focused fields show character and word counts, placeholder warnings and translation-memory provenance.</li>
@@ -122,7 +121,7 @@
 <p>Source edits, linked placeholder renames and undo/redo immediately refresh target warnings, including plural variants. Unrelated row refreshes preserve the caret. Dialogs share themed title bars and opaque Windows surfaces; narrow layouts keep their actions visible. Plugin toolbar commands now follow command availability. macOS source/license materials live in <code>Contents/Resources</code>, fixing a signing failure caused by treating their dotted directory as nested code.</p>
 <p>Format fixes cover intentional empty translations, Java properties encoding and filenames, Rails YAML locale wrappers and sequences, BabelEdit metadata conversion, and Excel comments and per-language approvals. See the <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md#0240---2026-10-25">full changelog</a> and <a href="formats.html">format support matrix</a> before round-tripping existing files.</p>
 <h2 id="downloads-and-installation"><a class="anchor" href="#downloads-and-installation" aria-label="Link to this section">#</a>Downloads and installation</h2>
-<p>Open the <a href="https://github.com/rasyidf/Toucan/releases/tag/v0.24.0">GitHub release</a> after publication. The draft is visible only to repository collaborators.</p>
+<p>Find available downloads on <a href="https://github.com/rasyidf/Toucan/releases">GitHub Releases</a>. The package names below refer to this release.</p>
 <div class="table-wrap"><table><thead><tr><th>Asset</th><th>Use</th></tr></thead><tbody><tr><td><code>Toucan-0.24.0-portable-x64.zip</code></td><td>Windows x64: extract the complete archive into a writable folder and run <code>Toucan.exe</code>. No separate .NET installation is required. Keep the <code>third-party</code> folder beside the executable.</td></tr><tr><td><code>Toucan-0.24.0-linux-x64.tar.gz</code></td><td>Linux x64: extract the archive, then run <code>./Toucan</code> from a graphical desktop. Keep the extracted files together; .NET is included.</td></tr><tr><td><code>Toucan-0.24.0-osx-arm64.dmg</code></td><td>macOS on Apple Silicon: open the disk image and drag Toucan into Applications.</td></tr><tr><td><code>Toucan-0.24.0-osx-x64.dmg</code></td><td>macOS on Intel: open the disk image and drag Toucan into Applications.</td></tr><tr><td><code>build-provenance.json</code></td><td>Source commit and SHA-256 hashes for the four native packages.</td></tr><tr><td><code>SHA256SUMS.txt</code></td><td>SHA-256 checksums for the attached packages. On Windows, compare with <code>Get-FileHash &lt;download&gt; -Algorithm SHA256</code>.</td></tr></tbody></table></div>
 <p>All four native packages are attached to the release draft. Local unsigned MSIX output is for packaging inspection and is not an installable release asset without a trusted signing certificate.</p>
 <p>For macOS builds, the current packaging script uses an ad-hoc signature unless a Developer ID is configured. If Gatekeeper blocks the app, use System Settings → Privacy &amp; Security → Open Anyway after attempting to open it. Notarization remains open.</p>
