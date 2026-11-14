@@ -138,8 +138,6 @@ def set_keys(text, updates):
 def dest_for(rel, status):
     if rel.startswith(SPECS_DIR + "/"):
         dst = Path(rel)
-    elif rel.startswith(".kiro/specs/"):
-        dst = Path(SPECS_DIR) / rel[len(".kiro/specs/"):]
     else:
         dst = Path(ARCHIVE_DIR) / Path(rel).name
     if status == "deprecated" and not dst.stem.endswith("-deprecated"):

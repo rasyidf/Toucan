@@ -1,6 +1,6 @@
 ---
 name: doc-status
-description: "Keep Toucan docs skimmable: every doc carries a YAML status header (status, progress, summary), and finished or obsolete docs move to docs/archive/ instead of being deleted. USE FOR: adding or editing any doc under docs/ (including docs/specs), packaging/ or Toucan.Core/; finishing a plan or spec; retiring a doc; auditing what is current. DO NOT USE FOR: README.md, CHANGELOG.md, CODE_OF_CONDUCT.md, the NuGet package README, .agents/ or .kiro/skills/ files."
+description: "Keep Toucan docs skimmable: every doc carries a YAML status header (status, progress, summary), and finished or obsolete docs move to docs/archive/ instead of being deleted. USE FOR: adding or editing any doc under docs/ (including docs/specs), packaging/ or Toucan.Core/; finishing a plan or spec; retiring a doc; auditing what is current. DO NOT USE FOR: README.md, CHANGELOG.md, CODE_OF_CONDUCT.md, the NuGet package README, .agents/ files."
 ---
 
 # Doc status headers and archive
@@ -49,7 +49,7 @@ summary: One or two sentences. What it covers and what state it is in, in plain 
    ```bash
    python3 .agents/skills/doc-status/scripts/docs_status.py archive docs/todos/some-plan.md --reason "Shipped in v0.20.0"
    ```
-   The script stamps `archived` and `reason`, then `git mv`s the file into `docs/archive/`. Specs (`.kiro/specs/<name>`) go to `docs/specs/<name>/` and stay there whatever their status. A `deprecated` doc is renamed with a `-deprecated` suffix (`foo.md` becomes `foo-deprecated.md`).
+   The script stamps `archived` and `reason`, then `git mv`s the file into `docs/archive/`. Specs in `docs/specs/<name>/` stay there whatever their status. A `deprecated` doc is renamed with a `-deprecated` suffix (`foo.md` becomes `foo-deprecated.md`).
 4. **Fix links** to the moved file: `grep -rn "some-plan.md" --include='*.md' --include='*.html' --include='*.cs' .`. Point live docs at `docs/archive/...`, or drop the link if the target no longer matters. Leave CHANGELOG entries that describe history, but fix links a reader would click.
 5. **Verify and refresh the index**:
    ```bash

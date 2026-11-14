@@ -1,7 +1,8 @@
 ---
-title: Parallel file changes workflow
-inclusion: always
+name: parallel-workflow
+description: "Order multi-file changes: make independent edits in parallel, then wire them together, then build once. USE FOR: any change touching several files. DO NOT USE FOR: single-file edits."
 ---
+
 
 # Parallel File Changes Workflow
 
