@@ -75,7 +75,7 @@ public class ArchitectureTests
     private static string RepoRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Toucan.CrossPlatform.slnx"))) dir = dir.Parent;
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Toucan.slnx"))) dir = dir.Parent;
         return dir?.FullName ?? throw new InvalidOperationException("Repository root not found.");
     }
 }

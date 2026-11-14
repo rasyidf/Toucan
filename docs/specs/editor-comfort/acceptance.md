@@ -22,7 +22,7 @@ The following evidence describes historical verification snapshots for the v0.24
 
 | Check | Result / evidence |
 |---|---|
-| Solution build | `dotnet build Toucan.CrossPlatform.slnx --no-restore -m:1` passes. A clean rebuild may emit the existing AVLN3001 runtime-loader warning for the injected MainWindow constructor. |
+| Solution build | `dotnet build Toucan.slnx --no-restore -m:1` passes. A clean rebuild may emit the existing AVLN3001 runtime-loader warning for the injected MainWindow constructor. |
 | Core suite | 1,087 passed, zero skipped. `build/v0.24-readiness/full-core-accepted.xml`. |
 | Avalonia suite | 298 passed, zero skipped, including the 100-target keyboard session and shared notification composition. `build/v0.24-readiness/full-avalonia-accepted.xml`. |
 | SDK harness | 11 passed, zero skipped. `build/v0.24-readiness/full-harness-accepted.xml`. |
@@ -40,7 +40,7 @@ The standard VSTest bridge stalled without a result in this environment. Direct 
 $env:MSBuildEnableWorkloadResolver='false'
 $env:TEMP="$PWD/build/v0.24-readiness/temp"
 $env:TMP=$env:TEMP
-dotnet build Toucan.CrossPlatform.slnx --no-restore -m:1
+dotnet build Toucan.slnx --no-restore -m:1
 dotnet build/Toucan.Core.Tests/Debug/net10.0/Toucan.Core.Tests.dll -xml build/v0.24-readiness/full-core-accepted.xml
 dotnet build/Toucan.Avalonia.Tests/Debug/net10.0/Toucan.Avalonia.Tests.dll -xml build/v0.24-readiness/full-avalonia-accepted.xml
 dotnet build/Toucan.Plugins.Testing.Tests/Debug/net10.0/Toucan.Plugins.Testing.Tests.dll -xml build/v0.24-readiness/full-harness-accepted.xml
@@ -69,7 +69,7 @@ Shared dialog chrome and project-aware menu/palette visibility were added after 
 
 On 2026-10-25, the documentation commit `2c2c7f6` and local editor/compatibility changes were reconciled with upstream `6204332`, preserving both histories. The merged implementation includes placeholder rename and warnings, inspector context, the feature tour and accessibility improvements alongside the local shell and metadata-preserving undo workflows.
 
-Every project listed in `Toucan.CrossPlatform.slnx` builds individually with `--no-restore -m:1 -c Review`; the solution itself only defines its default configurations. Direct xUnit execution passed 1,087 Core tests, 337 UI tests and 11 SDK harness tests (1,435 passed total). The UI suite's external connector test was skipped because `TOUCAN_EXTERNAL_CONNECTOR_DIST` is not configured. Evidence: `build/v0.24-readiness/merged-full-core.xml`, `merged-full-ui.xml` and `merged-full-harness.xml`. Documentation status validation also passes. These checks retain all remaining native/platform and external connector release gates above.
+Every project listed in `Toucan.slnx` builds individually with `--no-restore -m:1 -c Review`; the solution itself only defines its default configurations. Direct xUnit execution passed 1,087 Core tests, 337 UI tests and 11 SDK harness tests (1,435 passed total). The UI suite's external connector test was skipped because `TOUCAN_EXTERNAL_CONNECTOR_DIST` is not configured. Evidence: `build/v0.24-readiness/merged-full-core.xml`, `merged-full-ui.xml` and `merged-full-harness.xml`. Documentation status validation also passes. These checks retain all remaining native/platform and external connector release gates above.
 
 ## v0.24 branch regression follow-up
 

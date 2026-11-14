@@ -121,7 +121,7 @@
 <h3 id="rel-01-no-tag-triggered-release-pipeline"><a class="anchor" href="#rel-01-no-tag-triggered-release-pipeline" aria-label="Link to this section">#</a>REL-01: No tag-triggered release pipeline</h3>
 <ul>
 <li><strong>Severity:</strong> Medium · <strong>Checked:</strong> <code>.github/workflows/ci.yml</code> builds and tests on manual dispatch only. Linux is the default; select <code>all</code> for Windows, macOS and Linux. Documentation deployment is a separate manual workflow. Its explicit <code>release_packages</code> mode builds native packages and attaches a complete set to an existing preview draft.</li>
-<li><strong>State:</strong> CI has an opt-in manual packaging mode using <code>publish.ps1</code>, <code>packaging/build-macos-app.sh</code> and Linux <code>dotnet publish</code>. All four packages must succeed before draft attachment; the release stays unpublished. Tag-triggered release automation remains planned for v0.30.</li>
+<li><strong>State:</strong> CI has an opt-in manual packaging mode using <code>packaging/publish.ps1</code>, <code>packaging/build-macos-app.sh</code> and Linux <code>dotnet publish</code>. All four packages must succeed before draft attachment; the release stays unpublished. Tag-triggered release automation remains planned for v0.30.</li>
 <li><strong>Impact:</strong> maintainers must dispatch packaging, run regression CI separately, and review acceptance evidence before publishing. No tag automatically prepares or publishes a release.</li>
 <li><strong>Fix direction:</strong> FG-01 and FG-16 in <a href="roadmap.html">docs/todos/future-roadmap.md</a>: CI is complete; the remaining work is the v0.30 tag-triggered release workflow that builds all packages and attaches them to the GitHub release.</li>
 </ul>

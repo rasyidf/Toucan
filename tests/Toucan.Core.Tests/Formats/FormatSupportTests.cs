@@ -50,7 +50,7 @@ public sealed class FormatSupportTests : IDisposable
     public void MatrixDocumentIsUpToDate()
     {
         var root = AppContext.BaseDirectory;
-        while (root != null && !File.Exists(Path.Combine(root, "Toucan.CrossPlatform.slnx"))) root = Path.GetDirectoryName(root);
+        while (root != null && !File.Exists(Path.Combine(root, "Toucan.slnx"))) root = Path.GetDirectoryName(root);
         Assert.NotNull(root);
         var path = Path.Combine(root!, "docs", "formats.md");
         var expected = BuildMatrix();

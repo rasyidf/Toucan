@@ -22,7 +22,7 @@ public sealed class BabelParityRegressionTests : IDisposable
         get
         {
             var path = AppContext.BaseDirectory;
-            while (!File.Exists(Path.Combine(path, "Toucan.CrossPlatform.slnx")))
+            while (!File.Exists(Path.Combine(path, "Toucan.slnx")))
                 path = Path.GetDirectoryName(path) ?? throw new InvalidOperationException("Repository root not found.");
             return path;
         }

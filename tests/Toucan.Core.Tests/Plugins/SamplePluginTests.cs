@@ -35,7 +35,7 @@ public sealed class SamplePluginTests : IDisposable
     public void FrozenM0PluginLoadsAndSavesWithoutRecompilation()
     {
         var root = AppContext.BaseDirectory;
-        while (!File.Exists(Path.Combine(root, "Toucan.CrossPlatform.slnx"))) root = Path.GetDirectoryName(root)!;
+        while (!File.Exists(Path.Combine(root, "Toucan.slnx"))) root = Path.GetDirectoryName(root)!;
         var evidence = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "docs/specs/resource-compatibility/evidence/m0-baseline.json")));
         using (evidence)
         {

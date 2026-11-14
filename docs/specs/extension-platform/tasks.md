@@ -7,7 +7,7 @@ summary: "v0.23 work order: registration/activation split, command registry, des
 ---
 # Tasks: extension platform (v0.23)
 
-Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v023-extension-platform). Each step leaves `dotnet test Toucan.CrossPlatform.slnx` green. Built-in commands and panels move onto the new paths as each piece lands (step 8 is a sweep, not a final rewrite).
+Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v023-extension-platform). Each step leaves `dotnet test Toucan.slnx` green. Built-in commands and panels move onto the new paths as each piece lands (step 8 is a sweep, not a final rewrite).
 
 - [x] 1. Registration vs activation
   - [x] 1.1 Registration without network access; activation per project or connection with its own session

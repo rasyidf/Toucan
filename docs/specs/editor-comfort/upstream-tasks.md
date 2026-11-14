@@ -8,7 +8,7 @@ summary: "Historical task record from upstream 6204332, retained during branch i
 
 Captured from upstream commit `6204332` before integration. The current state is recorded in [tasks.md](tasks.md) and [acceptance.md](acceptance.md).
 
-Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v024-editor-comfort-and-onboarding); design is [design.md](design.md). Each step leaves `dotnet test Toucan.CrossPlatform.slnx` green and adds its own tests. Ordered lowest-risk-highest-value first: the bulk-undo step reuses v0.23 plumbing and clears a tracked bug, so it leads.
+Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v024-editor-comfort-and-onboarding); design is [design.md](design.md). Each step leaves `dotnet test Toucan.slnx` green and adds its own tests. Ordered lowest-risk-highest-value first: the bulk-undo step reuses v0.23 plumbing and clears a tracked bug, so it leads.
 
 - [ ] 1. Bulk operations undo as one step (R3, A3)
   - [x] 1.1 Route the value bulk operations (copy to language, replace all, pre-translate, text transforms) through the undo stack: snapshot values, mutate, record the diffs

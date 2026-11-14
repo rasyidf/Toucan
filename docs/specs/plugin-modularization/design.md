@@ -68,7 +68,7 @@ public static IServiceCollection AddToucanModule(this IServiceCollection service
 
 - `ModuleSnapshotTests` records IDs and order of formats, providers, rules and profiles, plus provider definitions, and must match before and after each step.
 - `ArchitectureTests` checks assembly references (R1).
-- The full `dotnet test Toucan.CrossPlatform.slnx` runs at every step.
+- The full `dotnet test Toucan.slnx` runs at every step.
 
 ## Risks
 
@@ -76,5 +76,5 @@ public static IServiceCollection AddToucanModule(this IServiceCollection service
 |---|---|
 | Hidden order dependence | Snapshot test before the first move; explicit contracts above |
 | Many tests construct concrete strategies | `FormatTestHost` becomes the single place; other tests use it |
-| Packaging misses new assemblies | Check `installer.iss`, `Build-Msix.ps1`, `build-macos-app.sh`; the apps reference Defaults so MSBuild copies them |
+| Packaging misses new assemblies | Check `packaging/installer.iss`, `Build-Msix.ps1`, `build-macos-app.sh`; the apps reference Defaults so MSBuild copies them |
 | Analyzer friction (`latest-all`, warnings as errors) in new projects | New projects inherit `Directory.Build.props`; fix, never suppress |

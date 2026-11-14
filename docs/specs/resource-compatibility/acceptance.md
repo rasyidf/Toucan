@@ -19,7 +19,7 @@ The checked-in [machine-readable baseline](evidence/m0-baseline.json) contains t
 
 | Execution | Result | Scope |
 |---|---|---|
-| `dotnet test Toucan.CrossPlatform.slnx --no-restore -m:1 --logger 'trx;LogFilePrefix=m0-complete' --results-directory build/resource-compatibility/m0/test-results --verbosity minimal` | **1,139 passed; 0 failed; 0 skipped** | Avalonia 245; Core 883; plugin testing harness 11 |
+| `dotnet test Toucan.slnx --no-restore -m:1 --logger 'trx;LogFilePrefix=m0-complete' --results-directory build/resource-compatibility/m0/test-results --verbosity minimal` | **1,139 passed; 0 failed; 0 skipped** | Avalonia 245; Core 883; plugin testing harness 11 |
 | `dotnet build Toucan.CLI/Toucan.CLI.csproj --no-restore -m:1 --verbosity minimal` | Pass; zero warnings/errors | Builds the current CLI before running its audit |
 | `python tools/Test-BabelParityFixtures.py` | **19/19** cases pass recorded checks | Key count, Unicode, greeting, no keys added/lost and unchanged Unicode after an isolated CLI save/reload |
 | `dotnet build tools/CompatibilityBaseline/CompatibilityBaseline.csproj --no-restore -m:1 --verbosity quiet` | Pass; zero warnings/errors | Builds independent observation tool |
@@ -134,8 +134,8 @@ Run from the repository root in PowerShell. `MSBuildEnableWorkloadResolver=false
 ```powershell
 $env:MSBuildEnableWorkloadResolver = 'false'
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
-dotnet restore Toucan.CrossPlatform.slnx --source "$env:USERPROFILE\.nuget\packages" --ignore-failed-sources -p:NuGetAudit=false -m:1 --verbosity minimal
-dotnet test Toucan.CrossPlatform.slnx --no-restore -m:1 --logger 'trx;LogFilePrefix=m0-complete' --results-directory build/resource-compatibility/m0/test-results --verbosity minimal
+dotnet restore Toucan.slnx --source "$env:USERPROFILE\.nuget\packages" --ignore-failed-sources -p:NuGetAudit=false -m:1 --verbosity minimal
+dotnet test Toucan.slnx --no-restore -m:1 --logger 'trx;LogFilePrefix=m0-complete' --results-directory build/resource-compatibility/m0/test-results --verbosity minimal
 dotnet build Toucan.CLI/Toucan.CLI.csproj --no-restore -m:1 --verbosity minimal
 python tools/Test-BabelParityFixtures.py
 dotnet restore tools/CompatibilityBaseline/CompatibilityBaseline.csproj --source "$env:USERPROFILE\.nuget\packages" --ignore-failed-sources -p:NuGetAudit=false -m:1 --verbosity minimal

@@ -169,7 +169,7 @@ Project glossary, CSV exchange, Dictionary matches and explicit insertion, effec
 ## Distribution & Platform
 
 - [x] Avalonia app for macOS (`Toucan.app`) and Linux (tarball), preview since v0.18.0
-- [x] Windows packaging scripts: portable EXE, Inno Setup installer, MSIX (`publish.ps1`)
+- [x] Windows packaging scripts: portable EXE, Inno Setup installer, MSIX (`packaging/publish.ps1`)
 - [x] File association (`.tproj` → open app)
 - [x] macOS native menu bar with registry commands, project-aware visibility and native shortcut ownership
 - [x] Translation file locations configurable per language

@@ -57,10 +57,10 @@ Focus: Quick fixes without version/commit ceremony. Skip steps 4-8.
   - Fix root cause, not symptoms — grep all callers
 
 ### 3. Build & Verify
-- Run: `dotnet build Toucan.CrossPlatform.slnx`
+- Run: `dotnet build Toucan.slnx`
 - Must be 0 errors, 0 warnings before proceeding
 - Fix any errors immediately
-- Run tests: `dotnet test Toucan.CrossPlatform.slnx` (Core and Avalonia tests)
+- Run tests: `dotnet test Toucan.slnx` (Core and Avalonia tests)
 - **Important**: Quit a running Toucan app first if the build fails with file-lock errors
 
 ### 4. Update Known Bugs

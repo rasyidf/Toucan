@@ -60,7 +60,7 @@ Source of truth for scope is [future-roadmap.md](../../todos/future-roadmap.md#v
 
 ## Completion gate
 
-A user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved. Each requirement leaves `dotnet test Toucan.CrossPlatform.slnx` green.
+A user can work through 100 strings without losing their place or needing a mouse for routine actions; accessibility and layout issues found in that flow are resolved. Each requirement leaves `dotnet test Toucan.slnx` green.
 
 ## Out of scope
 

@@ -91,15 +91,15 @@ Install the **.NET 10 SDK** (SDK selection is in [global.json](global.json)), th
 ```bash
 git clone https://github.com/rasyidf/Toucan.git
 cd Toucan
-dotnet restore Toucan.CrossPlatform.slnx
-dotnet build Toucan.CrossPlatform.slnx --no-restore
+dotnet restore Toucan.slnx
+dotnet build Toucan.slnx --no-restore
 dotnet run --project Toucan.Avalonia
 ```
 
 Run the regression suites with:
 
 ```bash
-dotnet test Toucan.CrossPlatform.slnx
+dotnet test Toucan.slnx
 ```
 
 See [architecture](docs/ARCHITECTURE.md) for the Avalonia/MVVM app, core services, format modules and plugin contracts.

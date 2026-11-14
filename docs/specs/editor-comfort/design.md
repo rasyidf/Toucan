@@ -9,7 +9,7 @@ summary: "Implemented v0.24 editor comfort design. Native workflow and accessibi
 This document preserves the implemented editor-comfort scope; [acceptance.md](acceptance.md) records executed checks and remaining gates.
 
 
-Requirements: [requirements.md](requirements.md). This design maps each requirement to the existing code it extends, so the work is wiring and UI rather than new subsystems. Every change keeps `dotnet test Toucan.CrossPlatform.slnx` green.
+Requirements: [requirements.md](requirements.md). This design maps each requirement to the existing code it extends, so the work is wiring and UI rather than new subsystems. Every change keeps `dotnet test Toucan.slnx` green.
 
 ## Principles
 

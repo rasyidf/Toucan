@@ -9,7 +9,7 @@ reason: "Shipped in v0.20.0"
 ---
 # Tasks: plugin modularization
 
-Each step leaves `dotnet test Toucan.CrossPlatform.slnx` green. `WpfParityTests.CutKeyValues_RemovesTheKeyAfterConfirming` fails intermittently, including on the baseline run before any change (2 of 4 full runs); it is unrelated to this work.
+Each step leaves `dotnet test Toucan.slnx` green. `WpfParityTests.CutKeyValues_RemovesTheKeyAfterConfirming` fails intermittently, including on the baseline run before any change (2 of 4 full runs); it is unrelated to this work.
 
 Notes from steps 1-3: `ScanContext` and `ScanProgress` moved to Common with `FileEnumerator` (it depends on them). Built-in modules are listed in `IPluginCatalog.BuiltInModules`, not `Plugins`, so the trust and enable UI is untouched. `AddToucanCore` already wraps formats, frameworks, providers and validation as four modules (`toucan.*`); steps 4-7 move each into its own assembly.
 

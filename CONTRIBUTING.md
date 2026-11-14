@@ -13,8 +13,8 @@ Discuss larger changes in an issue before implementing them. Report vulnerabilit
 Install the .NET SDK selected by `global.json`, then run:
 
 ```sh
-dotnet build Toucan.CrossPlatform.slnx -c Release
-dotnet test Toucan.CrossPlatform.slnx -c Release --no-build
+dotnet build Toucan.slnx -c Release
+dotnet test Toucan.slnx -c Release --no-build
 ```
 
 Follow nearby code. Keep UI code in `Toucan.Avalonia`, shared logic in Core and format/provider integrations in the relevant module. Add regression tests for behavior changes and update documentation when needed. Packaging instructions are in [packaging/README.md](packaging/README.md).
