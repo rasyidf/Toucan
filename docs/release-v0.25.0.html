@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Toucan v0.25.0: Terminology and message-aware validation</title>
-<meta name="description" content="v0.25.0 preview release notes: project glossary, consistent validation policy, ICU message checks, AI finding previews and safer document saves, with compatibility and known limits.">
+<meta name="description" content="v0.25.0 preview: glossary, consistent validation, ICU checks, AI finding previews and safer document saves. Connector and live-AI acceptance stay open.">
 <link rel="canonical" href="https://toucan.rasyid.dev/release-v0.25.0.html">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,19 +15,19 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Toucan v0.25.0: Terminology and message-aware validation">
-<meta property="og:description" content="v0.25.0 preview release notes: project glossary, consistent validation policy, ICU message checks, AI finding previews and safer document saves, with compatibility and known limits.">
+<meta property="og:description" content="v0.25.0 preview: glossary, consistent validation, ICU checks, AI finding previews and safer document saves. Connector and live-AI acceptance stay open.">
 <meta property="og:url" content="https://toucan.rasyid.dev/release-v0.25.0.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Toucan v0.25.0: Terminology and message-aware validation">
-<meta name="twitter:description" content="v0.25.0 preview release notes: project glossary, consistent validation policy, ICU message checks, AI finding previews and safer document saves, with compatibility and known limits.">
+<meta name="twitter:description" content="v0.25.0 preview: glossary, consistent validation, ICU checks, AI finding previews and safer document saves. Connector and live-AI acceptance stay open.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Toucan \u00b7 Toucan v0.25.0: Terminology and message-aware validation",
-  "description": "v0.25.0 preview release notes: project glossary, consistent validation policy, ICU message checks, AI finding previews and safer document saves, with compatibility and known limits.",
+  "description": "v0.25.0 preview: glossary, consistent validation, ICU checks, AI finding previews and safer document saves. Connector and live-AI acceptance stay open.",
   "url": "https://toucan.rasyid.dev/release-v0.25.0.html",
   "publisher": {
     "@type": "Organization",
@@ -102,7 +102,7 @@
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Toucan v0.25.0: Terminology and message-aware validation</h1>
-        <p class="lead">v0.25.0 preview release notes: project glossary, consistent validation policy, ICU message checks, AI finding previews and safer document saves, with compatibility and known limits.</p>
+        <p class="lead">v0.25.0 preview: glossary, consistent validation, ICU checks, AI finding previews and safer document saves. Connector and live-AI acceptance stay open.</p>
         <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-11-15</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/release-notes/v0.25.0.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
@@ -121,7 +121,15 @@
 <p>Explicit resource mappings survive project loading, JSON comment sidecars no longer appear as languages, pending document edits are validated before strict saves, and external changes stay visible after targeted autosaves. Native structural undo restores clean dirty state and stable entry identities, and hiding a language gives its width back to the comparison columns. See the <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md#0250---2026-11-05">full changelog</a>.</p>
 <h2 id="compatibility-and-known-limits"><a class="anchor" href="#compatibility-and-known-limits" aria-label="Link to this section">#</a>Compatibility and known limits</h2>
 <p>The app version is <strong>0.25.0</strong>. <code>Toucan.Plugins.Abstractions</code> stays at <strong>1.2.0</strong>; existing folder plugins remain supported. Projects and settings can change before v1.0. Back up existing projects before migration.</p>
-<p>Other formats keep their safe whole-project saves until each has fidelity fixtures. ARB is next, but needs a decision on where field comments live first. Release pipeline, signing, installer acceptance and external connector revalidation remain open; see <a href="known-bugs.html">known issues</a>.</p>
+<p>Other formats keep their safe whole-project saves until each has fidelity fixtures. ARB is next, but needs a decision on where field comments live first.</p>
+<h3 id="not-verified-for-this-release"><a class="anchor" href="#not-verified-for-this-release" aria-label="Link to this section">#</a>Not verified for this release</h3>
+<p>Two gates have no acceptance evidence. Neither blocks the workflows this release supports, so they stay open as known issues instead of release blockers:</p>
+<ul>
+<li><strong>External connectors (<a href="known-bugs.html#app-05">APP-05</a>).</strong> The separate connector repository was not available, so its desktop and CLI gate test was skipped, and there is no desktop or CLI caller for connection management yet. v0.25 does not claim external connector or online-sync support. Folder plugins built against <code>Toucan.Plugins.Abstractions</code> 1.2.0 load as before.</li>
+<li><strong>AI against live services (<a href="known-bugs.html#qa-04">QA-04</a>).</strong> AI translation, analysis and re-translation are tested against stubbed HTTP responses only, not against Anthropic, OpenAI or Gemini. AI is optional and needs your own key. Every AI result opens in a preview, is applied only when you accept it, and can be undone. Treat AI features as preview and review each suggestion.</li>
+</ul>
+<h3 id="follow-up-work"><a class="anchor" href="#follow-up-work" aria-label="Link to this section">#</a>Follow-up work</h3>
+<p>Not part of this preview: a tag-triggered release pipeline (<a href="known-bugs.html#rel-01">REL-01</a>), macOS notarization (<a href="known-bugs.html#rel-02">REL-02</a>), automatic updates (<a href="known-bugs.html#rel-03">REL-03</a>), a Windows installer (<a href="known-bugs.html#rel-04">REL-04</a>) and targeted saves for formats other than JSON. See <a href="known-bugs.html">known issues</a>.</p>
 <h2 id="documentation"><a class="anchor" href="#documentation" aria-label="Link to this section">#</a>Documentation</h2>
 <p><a href="user-guide.html">User guide</a> · <a href="translator-guide.html">Translator guide</a> · <a href="plugins.html">Plugin guide</a> · <a href="roadmap.html">Roadmap</a></p>
 <p><strong>Full comparison:</strong> <a href="https://github.com/rasyidf/Toucan/compare/v0.24.0...v0.25.0">v0.24.0…v0.25.0</a></p>

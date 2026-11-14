@@ -21,6 +21,7 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [APP-01](#app-01) | Low | App | Source Control panel does not exist | Reproduced |
 | [APP-05](#app-05) | Medium | Integration | External connector and connection lifecycle acceptance remains unverified | From code and available environment |
 | [QA-03](#qa-03) | Medium | Release acceptance | Native Windows accessibility checked on another machine; evidence not in repo. macOS/Linux assumed passed | Recorded by maintainer |
+| [QA-04](#qa-04) | Low | Release acceptance | AI providers tested against stubbed HTTP only; no live-service run recorded | From tests |
 | [QA-02](#qa-02) | Info | Perf | Large-project performance has never been profiled | Not checked |
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
@@ -81,6 +82,8 @@ The Dictionary panel is implemented. A Source Control panel and Git workflow rem
 <a id="app-05"></a>
 ### APP-05: External connector acceptance
 
+**Release decision (v0.25):** not a blocker. No v0.25 workflow depends on an external connector, and the release notes make no connector or online-sync claim.
+
 Toolbar contributions now render and follow registry state. Core connection activation exists, but no desktop/CLI connection-management caller was found. Package-only desktop/CLI acceptance still requires testing with the external connector. See the [acceptance record](specs/editor-comfort/acceptance.md).
 
 ## Quality
@@ -90,6 +93,14 @@ Toolbar contributions now render and follow registry state. Core connection acti
 
 Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements and text scaling were checked on a separate Windows machine; that evidence is not stored in this repository, and the compatibility M7c rows should be updated from it. The 2026-10-25 readiness review records macOS/Linux testing as assumed passed, without execution artifacts. See the [acceptance record](specs/editor-comfort/acceptance.md).
 
+
+<a id="qa-04"></a>
+### QA-04: AI not tested against live services
+
+- **Severity:** Low · **Checked:** `AiIntegrationTests` and `DeepLProviderTests` use a stub `HttpMessageHandler` and clear `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` and `GEMINI_API_KEY`. No run against a real provider is recorded for v0.25.
+- **Impact:** a provider API change, such as a renamed model or a new response shape, would show up only for users. No data is at risk: AI is optional, every result opens in a preview, is applied only when accepted, and can be undone.
+- **Release decision (v0.25):** not a blocker. The release notes label AI features preview.
+- **Fix direction:** an opt-in test run with real keys from CI secrets, recording one translation, one analysis and one re-translation per provider.
 
 <a id="qa-02"></a>
 ### QA-02: Performance not profiled
