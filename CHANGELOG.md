@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- **Strict validation covers whole-file connectors** — With Require valid for approval on, a sync with a service that stores whole files, such as Crowdin, no longer uploads a file whose saved values have validation errors. The plan lists each held file and the values to fix; other files and deletions still go out. The check follows the saved file, so fix and save before pushing again.
+
 ## [0.26.0] - 2026-11-25
 
 Review state that follows the text, and content sources: accounts, a sync engine with plans and conflicts, the Sources panel, `toucan sources` commands and a Crowdin connector (preview).

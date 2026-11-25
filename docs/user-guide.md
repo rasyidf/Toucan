@@ -115,7 +115,7 @@ Approvals track what was reviewed. If the source text or a translation changes a
 
 To send translations back, turn on multi-select, select keys and choose **Reject…**: their approvals are withdrawn and they show Needs review. **Approve with comment…** approves with a note. Both comments go into the review history, which is saved to `.toucan/review-history.jsonl` with the project and shown in the inspector with the time and local user name.
 
-Validation findings never block you from saving drafts, but strict policies (such as "Require valid translations to approve") can be enabled in **Project Properties → Saving**.
+Validation findings never block you from saving drafts, but strict policies (such as "Require valid translations to approve") can be enabled in **Project Properties → Saving**. With "Require valid translations to approve" on, a push to a content source also leaves out values with validation errors; for services that store whole files, such as Crowdin, the whole file waits until its saved values are valid.
 
 ---
 

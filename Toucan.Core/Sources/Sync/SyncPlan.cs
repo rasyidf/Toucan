@@ -170,6 +170,32 @@ public static class SyncDeliveryPolicy
             $"{g.First().Remote.Name} [{g.Key.Language}] has validation errors and is not sent while strict validation is on.", g.Key.EntryId, g.Key.Language));
         return plan with { Push = [.. plan.Push.Where(c => !Held(c))], Notices = [.. plan.Notices, .. notices] };
     }
+
+    /// <summary>
+    /// For a plan that sends whole files: a file cannot go out without its invalid values, so every upload of a file in
+    /// <paramref name="blocked"/> is taken out with a notice naming the values. When some blocked values cannot be placed in a
+    /// file, every upload is held. Deletions still go out.
+    /// </summary>
+    public static SyncPlan HoldBackInvalidDocuments(SyncPlan plan, Services.PolicyBlockedFiles blocked)
+    {
+        ArgumentNullException.ThrowIfNull(plan);
+        ArgumentNullException.ThrowIfNull(blocked);
+        if (blocked.IsEmpty) return plan;
+        static bool Upload(PushChange c) => c.Kind is not (PushKind.DeleteKey or PushKind.DeleteTranslation);
+        bool Held(PushChange c) => Upload(c) && (blocked.Unplaced.Count > 0 || blocked.ByPath.ContainsKey(c.Remote.Name));
+        var held = plan.Push.Where(Held).ToList();
+        if (held.Count == 0) return plan;
+        var notices = held.Select(c =>
+        {
+            var values = blocked.ByPath.GetValueOrDefault(c.Remote.Name) ?? blocked.Unplaced;
+            return new SyncNotice(SyncNoticeKind.HeldBackInvalid,
+                $"{c.Remote.Name} is not sent while strict validation is on: {Describe(values)} {(values.Count == 1 ? "has" : "have")} validation errors. Fix and save, then push again.");
+        });
+        return plan with { Push = [.. plan.Push.Where(c => !Held(c))], Notices = [.. plan.Notices, .. notices] };
+    }
+
+    private static string Describe(IReadOnlyList<string> values) =>
+        values.Count <= 3 ? string.Join(", ", values) : $"{string.Join(", ", values.Take(3))} and {values.Count - 3} more";
 }
 
 /// <summary>An immutable proposal, made from a captured workspace snapshot and a completed remote read.</summary>

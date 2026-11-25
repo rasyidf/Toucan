@@ -78,7 +78,7 @@ The upstream release records its connector acceptance as passed. Revalidation of
 
 Shipped together in the v0.26.0 pre-release (2026-11-25): review state, Needs review filters, reject and approve with comment, review history, the strict-validation push hold-back for key/value services, plugin API 1.3, accounts, the local-folder source, the sync engine, the Sources panel, `toucan sources` commands, the Crowdin connector (preview) and Open from a service. Details are in [CHANGELOG.md](../../CHANGELOG.md) and [content-sources tasks](../specs/content-sources/tasks.md).
 
-Open items moved to the [v1 checklist](#v1-checklist): the hold-back for whole-file connectors (V1-13), live Crowdin writes and failure cases (V1-15, V1-16), the Sources accessibility pass (V1-52) and packaged keyring checks (V1-45, V1-60). Staged plugin installation, publisher signatures and entitlement checks from the v0.29 plan did not ship and move to 1.x with the plugin feed.
+Open items moved to the [v1 checklist](#v1-checklist): live Crowdin writes and failure cases (V1-15, V1-16), the Sources accessibility pass (V1-52) and packaged keyring checks (V1-45, V1-60). Staged plugin installation, publisher signatures and entitlement checks from the v0.29 plan did not ship and move to 1.x with the plugin feed.
 
 ### v0.30: Distribution and updates
 
@@ -125,7 +125,7 @@ Items marked **(you)** need the maintainer: a product decision, an account, mone
 - [ ] V1-10 **(you)** Decide ARB comment handling: keep `@key.description` in the `.arb` file, or move comments to `.toucan` sidecars under document saving. Blocks V1-11 for ARB.
 - [ ] V1-11 For each of the 14 formats in [formats.md](../formats.md), either migrate it to document saving with fidelity fixtures (extend the verified list in `OnlyVerifiedBuiltInFormatsDeclareTargetedDocumentSaves`), or label it **Basic** or **Full rewrite** in the UI and in formats.md. Today only `json` and `namespaced` use document saving. Bring the per-format proposal before migrating.
 - [ ] V1-12 Fix or label the namespaced JSON save that writes both `<lang>.json` and `locales/<lang>/<ns>.json` so a reload sees each key twice (listed as a limitation in formats.md; it breaks G1 for an editable format).
-- [ ] V1-13 Extend the strict-validation hold-back (`requireValidForApproval`) to whole-file connectors: `DocumentSyncService` must not push a document carrying values with validation errors, and the plan must list what was held back. Remove the limit from the changelog and the v0.26 note.
+- [x] V1-13 Extend the strict-validation hold-back (`requireValidForApproval`) to whole-file connectors. Done: `SyncDeliveryPolicy.HoldBackInvalidDocuments` holds every upload of a file whose saved values fail validation (all uploads when a blocked value has no known file) and adds a notice per file; deletions still go out. Covered by `DocumentHoldBackTests` and `SyncDeliveryPolicyTests`.
 - [ ] V1-14 Find and fix the intermittent `EditorLayoutTests` failure at width 1280, dark theme. Record the cause, not a retry.
 - [ ] V1-15 Crowdin interrupted and partial sync: first add faults to `FakeCrowdin` (crash mid-push, timeout after commit, 403 permission error, partial success across files) and make the connector pass; then **(you)** approve and supply a throwaway Crowdin project for the same cases live. Live writes have never run.
 - [ ] V1-16 **(you)** Decide whether Crowdin ships stable or as clearly labelled preview, using V1-15 results. Covers APP-05.

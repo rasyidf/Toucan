@@ -312,6 +312,7 @@ public sealed class SyncCoordinator : IDisposable
             var folder = ProjectRoot ?? throw new InvalidOperationException("No project is open.");
             var candidates = _workspace.Source?.Documents.Select(d => d.RelativePath) ?? [];
             var documentPlan = await _documents.PlanAsync(connection.Id, connection, kind, files, fileCaps, Store(connection), folder, candidates, _workspace.Revision, ct).ConfigureAwait(false);
+            documentPlan = SyncDeliveryPolicy.HoldBackInvalidDocuments(documentPlan, _workspace.PolicyBlockedDocuments());
             lock (_gate) _lastPlan[connection.Id] = documentPlan;
             return (documentPlan, []);
         }

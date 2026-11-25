@@ -252,11 +252,42 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
         lock (_gate)
         {
             if (_settings is null || _closing || _settings.RequireValidForApproval != true) return new HashSet<(Guid, string)>();
-            var errors = Validation(_state).Where(r => r.Severity == ValidationSeverity.Error && r.Namespace is not null)
-                .Select(r => (r.Namespace!, r.Language)).ToHashSet();
-            return _state.Values.Where(u => errors.Contains((u.Key, u.Language)) || errors.Contains((u.Key, null)))
-                .Select(u => (u.Id, u.Language)).ToHashSet();
+            return BlockedLocked(_state).Select(u => (u.Id, u.Language)).ToHashSet();
         }
+    }
+
+    /// <summary>
+    /// The saved files that hold values the strict validation policy keeps from delivery, keyed by project-relative path
+    /// with the blocked <c>key [language]</c> labels. Checked against the last saved state, because a whole-file push
+    /// sends the file on disk. Blocked values whose file is unknown are listed under <see cref="PolicyBlockedFiles.Unplaced"/>.
+    /// </summary>
+    public PolicyBlockedFiles PolicyBlockedDocuments()
+    {
+        lock (_gate)
+        {
+            if (_settings is null || _closing || _settings.RequireValidForApproval != true) return PolicyBlockedFiles.None;
+            var byPath = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+            var unplaced = new List<string>();
+            foreach (var unit in BlockedLocked(_baseline).OrderBy(u => u.Key, StringComparer.Ordinal).ThenBy(u => u.Language, StringComparer.Ordinal))
+            {
+                var label = $"{unit.Key} [{unit.Language}]";
+                if (UnitPathLocked(unit) is { } path)
+                {
+                    path = path.Replace('\\', '/').TrimStart('/');
+                    if (!byPath.TryGetValue(path, out var list)) byPath[path] = list = [];
+                    list.Add(label);
+                }
+                else unplaced.Add(label);
+            }
+            return new(byPath.ToDictionary(p => p.Key, p => (IReadOnlyList<string>)p.Value, StringComparer.Ordinal), unplaced);
+        }
+    }
+
+    private IEnumerable<Unit> BlockedLocked(ImmutableDictionary<(Guid, string), Unit> state)
+    {
+        var errors = Validation(state).Where(r => r.Severity == ValidationSeverity.Error && r.Namespace is not null)
+            .Select(r => (r.Namespace!, r.Language)).ToHashSet();
+        return state.Values.Where(u => errors.Contains((u.Key, u.Language)) || errors.Contains((u.Key, null)));
     }
 
     public IReadOnlyList<TranslationItem> ApprovalBlockers(IReadOnlyCollection<TranslationItem> items)
@@ -666,4 +697,11 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             case DeleteKey delete: items.RemoveAll(i => Matches(i.Namespace, delete.Key)); break;
         }
     }
+}
+
+/// <summary>Saved files holding values that strict validation keeps from delivery. See <see cref="WorkspaceService.PolicyBlockedDocuments"/>.</summary>
+public sealed record PolicyBlockedFiles(IReadOnlyDictionary<string, IReadOnlyList<string>> ByPath, IReadOnlyList<string> Unplaced)
+{
+    public static PolicyBlockedFiles None { get; } = new(new Dictionary<string, IReadOnlyList<string>>(), []);
+    public bool IsEmpty => ByPath.Count == 0 && Unplaced.Count == 0;
 }

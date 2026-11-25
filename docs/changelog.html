@@ -94,6 +94,7 @@
       <div class="sidebar-title">Jump to a release</div>
       <nav id="release-index" aria-label="Versions">
 <!-- RELEASE INDEX START -->
+<a href="#unreleased">Unreleased</a>
 <a href="#v0.26.0">v0.26.0</a>
 <a href="#v0.25.0">v0.25.0</a>
 <a href="#v0.24.0">v0.24.0</a>
@@ -128,6 +129,16 @@
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div id="releases">
 <!-- RELEASES START -->
+<article class="release" id="unreleased" aria-labelledby="heading-unreleased">
+<div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
+<div class="release-lead"><p>Changes waiting for the next release.</p></div>
+<div class="release-counts"><span class="changed">1 changed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Changed</h3>
+<ul>
+<li><strong>Strict validation covers whole-file connectors</strong> — With Require valid for approval on, a sync with a service that stores whole files, such as Crowdin, no longer uploads a file whose saved values have validation errors. The plan lists each held file and the values to fix; other files and deletions still go out. The check follows the saved file, so fix and save before pushing again.</li>
+</ul></div></details>
+<div class="release-links"><a href="#unreleased" aria-label="Permalink to Unreleased">Permalink</a></div>
+</article>
 <article class="release" id="v0.26.0" aria-labelledby="heading-v0.26.0">
 <div class="release-heading"><h2 id="heading-v0.26.0"><a href="#v0.26.0">v0.26.0</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-11-25">Nov 25, 2026</time></div>
 <div class="release-lead"><p>Review state that follows the text, and content sources: accounts, a sync engine with plans and conflicts, the Sources panel, <code>toucan sources</code> commands and a Crowdin connector (preview).</p></div>
