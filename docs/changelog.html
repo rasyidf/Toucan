@@ -132,14 +132,14 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="fixed">1 fixed</span><span class="changed">1 changed</span></div>
-<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Fixed</h3>
-<ul>
-<li><strong>Finished commands no longer look busy</strong> — A progress update that arrived after a command finished could be shown after its completion, leaving the command reported as running. Late updates are now dropped.</li>
-</ul>
-<h3>Changed</h3>
+<div class="release-counts"><span class="changed">1 changed</span><span class="fixed">1 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Changed</h3>
 <ul>
 <li><strong>Strict validation covers whole-file connectors</strong> — With Require valid for approval on, a sync with a service that stores whole files, such as Crowdin, no longer uploads a file whose saved values have validation errors. The plan lists each held file and the values to fix; other files and deletions still go out. The check follows the saved file, so fix and save before pushing again.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li><strong>Finished commands no longer look busy</strong> — A progress update that arrived after a command finished could be shown after its completion, leaving the command reported as running. Late updates are now dropped.</li>
 </ul></div></details>
 <div class="release-links"><a href="#unreleased" aria-label="Permalink to Unreleased">Permalink</a></div>
 </article>
