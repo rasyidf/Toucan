@@ -6,6 +6,9 @@ public interface IProjectService
 {
     /// <summary>Load a project: reads toucan.project manifest + translations from folder.</summary>
     /// <remarks>Scans the folder on the calling thread; pass <paramref name="ct"/> to abort (throws <see cref="OperationCanceledException"/>).</remarks>
+    /// <summary>Works out the framework and format from the files in <paramref name="folder"/> and sets them, with the languages found, on <paramref name="settings"/>.</summary>
+    void DetectFramework(ProjectSettings settings, string folder) { }
+
     ProjectLoadResult LoadProject(string folder, IProgress<ScanProgress>? progress = null, CancellationToken ct = default);
 
     /// <summary>Create a new project with manifest and language files.</summary>

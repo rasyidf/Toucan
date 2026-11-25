@@ -33,6 +33,9 @@ public partial class PluginItemViewModel : ObservableObject
     public string Author => _result.Manifest?.Author ?? string.Empty;
     public string Description => _result.Manifest?.Description ?? string.Empty;
     public string Folder => _result.Directory;
+
+    /// <summary>Where the plugin says it connects, for the trust decision; empty when its manifest has no <c>network</c> block.</summary>
+    public string NetworkText => PluginNetworkText.Describe(_result.Manifest);
     public string Hash => _result.ContentHash ?? string.Empty;
     public string ShortHash => Hash.Length >= 12 ? Hash[..12] + "…" : Hash;
     public string ProvidesText => _result.Registered is { Count: > 0 } r ? string.Join(", ", r) : string.Empty;
@@ -79,6 +82,7 @@ public partial class PluginItemViewModel : ObservableObject
         var by = Author.Length > 0 ? $" by {Author}" : string.Empty;
         var message = $"Trust “{Name}” {Version}{by}?\n\nA plugin runs code with your permissions, like any program you install. " +
                       $"Toucan will load exactly these files (SHA-256 {ShortHash}) and will ask again if they change.\n\n" +
+                      (NetworkText.Length > 0 ? $"Network: {NetworkText}.\n" : string.Empty) +
                       $"Signature: {SignatureText}.\nFolder: {Folder}";
         if (!await _messages.ConfirmAsync(message, "Trust plugin", "Trust", "Cancel")) return;
 

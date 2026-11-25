@@ -80,11 +80,11 @@ The upstream release records its connector acceptance as passed. Revalidation of
 
 **Outcome:** approval reflects the actual source and target that were reviewed.
 
-- [ ] Persist Draft → Needs review → Approved per translation unit and target language, with migration from the existing approval flag.
-- [ ] Record the source revision/hash used for review; mark affected targets Needs review when the source changes, and invalidate approval after target edits.
-- [ ] Add status filters and row badges; extend existing batch approval/rejection with comments and consistent validation policy.
-- [ ] Persist review history with timestamp, action, and available local actor information; do not imply authenticated team identity.
-- [ ] Track delivery separately from review: pending, synchronized, failed, or included in an export, applying the `requireValidForApproval` policy to delivery as well; preserve review meaning when remote platforms have different status models.
+- [x] Persist Draft → Needs review → Approved per translation unit and target language, with migration from the existing approval flag. Manifest projects keep it in `toucan.tproj`, document projects in `.toucan/entries` sidecars.
+- [x] Record the source hash used for review; mark affected targets Needs review when the source changes, and invalidate approval after target edits. This holds across sessions and for files edited outside Toucan in both project kinds. See `ReviewTracker`.
+- [x] Add status filters and row badges; extend existing batch approval/rejection with comments and consistent validation policy. Quick filters separate Needs review from Not approved; the Issues panel links to Needs review; multi-select has Approve with comment and Reject.
+- [x] Persist review history with timestamp, action, and available local actor information; do not imply authenticated team identity. Saved to `.toucan/review-history.jsonl` and shown in the inspector. See `ReviewHistory`.
+- [x] Track delivery separately from review: pending, sending, synchronized, failed or in conflict per row, apart from review state. With `requireValidForApproval` on, pushes leave out values with validation errors and the sync plan lists each one; remote review meanings map to local states, and a refused pulled approval no longer drops the others. Limits: the hold-back covers key/value services, not connectors that sync whole files (Crowdin); exports do not count as delivery (after v1.0).
 
 **Completion gate:** source and target changes cannot leave stale approvals, and review state survives save/reopen and project migration.
 
@@ -217,6 +217,7 @@ These remain visible backlog items, not prerequisites for the first stable relea
 - [ ] Add glossary TBX import/export.
 - [ ] Export translation-progress reports as HTML/PDF and missing/unused-key reports per language.
 - [ ] Export changes since a selected date and add a statistics dashboard with trends.
+- [ ] Track exports as delivery: remember which export last included each translation's current value and show it beside the delivery state.
 
 ### Custom webhook translation engine (FG-14)
 

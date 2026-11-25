@@ -18,8 +18,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Toucan.Plugins.Testing\Toucan.Plugins.Testing.csproj" />
     <ProjectReference Include="..\..\samples\Toucan.Sample.Connector\Toucan.Sample.Connector.csproj" />
+    <ProjectReference Include="..\..\samples\Toucan.Sample.SourceServer\Toucan.Sample.SourceServer.csproj" />
+    <ProjectReference Include="..\..\Toucan.Modules.Sources\Toucan.Modules.Sources.csproj" />
+    <!-- Built so the CLI tests can run it as a process; nothing in it is referenced. -->
+    <ProjectReference Include="..\..\Toucan.CLI\Toucan.CLI.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

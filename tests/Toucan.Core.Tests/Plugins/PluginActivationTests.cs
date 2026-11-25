@@ -60,7 +60,7 @@ public class PluginActivationTests
         Assert.Single(workspace.Contexts);
         Assert.Empty(connection.Contexts);
 
-        await service.OpenConnectionAsync("w", "c1");
+        await service.OpenConnectionAsync("w", "c1", "b");
         Assert.Equal("c1", connection.Contexts.Single().ConnectionId);
     }
 
@@ -72,7 +72,7 @@ public class PluginActivationTests
         var connection = new Probe(PluginLifetime.Connection);
         await using var service = Create(("a", workspace), ("b", connection));
         await service.OpenWorkspaceAsync("w");
-        await service.OpenConnectionAsync("w", "c");
+        await service.OpenConnectionAsync("w", "c", "b");
         var workspaceScope = workspace.Contexts.Single().Scope;
         var connectionScope = connection.Contexts.Single().Scope;
 
@@ -92,8 +92,8 @@ public class PluginActivationTests
         var connection = new Probe(PluginLifetime.Connection);
         await using var service = Create(("a", connection));
         await service.OpenWorkspaceAsync("w");
-        await service.OpenConnectionAsync("w", "c1");
-        await service.OpenConnectionAsync("w", "c2");
+        await service.OpenConnectionAsync("w", "c1", "a");
+        await service.OpenConnectionAsync("w", "c2", "a");
 
         await service.CloseConnectionAsync("w", "c1");
 
@@ -116,10 +116,47 @@ public class PluginActivationTests
     }
 
     [Fact]
+    public async Task ConnectionActivatesOnlyTheOwningPlugin()
+    {
+        var owner = new Probe(PluginLifetime.Connection);
+        var other = new Probe(PluginLifetime.Connection);
+        await using var service = Create(("acme.lokalise", owner), ("acme.other", other));
+        await service.OpenWorkspaceAsync("w");
+
+        var results = await service.OpenConnectionAsync("w", "con_1", "acme.lokalise");
+
+        Assert.Equal("acme.lokalise", Assert.Single(results).PluginId);
+        Assert.Equal("con_1", owner.Contexts.Single().ConnectionId);
+        Assert.Empty(other.Contexts);
+        Assert.Empty(await service.OpenConnectionAsync("w", "con_1", "acme.lokalise"));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.OpenConnectionAsync("w", "con_1", "acme.other"));
+
+        await service.CloseConnectionAsync("w", "con_1");
+        Assert.Equal(["activate", "dispose-after-cancel"], owner.Events);
+    }
+
+    [Fact]
+    public async Task LegacyConnectionOpenStillActivatesEveryPlugin()
+    {
+        var first = new Probe(PluginLifetime.Connection);
+        var second = new Probe(PluginLifetime.Connection);
+        await using var service = Create(("a", first), ("b", second));
+        await service.OpenWorkspaceAsync("w");
+
+#pragma warning disable CS0618 // the legacy form stays supported for existing hosts
+        var results = await service.OpenConnectionAsync("w", "c");
+#pragma warning restore CS0618
+
+        Assert.Equal(2, results.Count);
+        Assert.Single(first.Contexts);
+        Assert.Single(second.Contexts);
+    }
+
+    [Fact]
     public async Task ConnectionNeedsAnOpenWorkspace()
     {
         await using var service = Create(("a", new Probe(PluginLifetime.Connection)));
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.OpenConnectionAsync("missing", "c"));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.OpenConnectionAsync("missing", "c", "a"));
     }
 
     [Fact]

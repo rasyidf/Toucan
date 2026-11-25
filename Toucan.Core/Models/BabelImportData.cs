@@ -30,5 +30,9 @@ public sealed class TranslationState
     public string Key { get; set; } = string.Empty;
     public string Comment { get; set; } = string.Empty;
     public bool Approved { get; set; }
+    /// <summary>An earlier approval was withdrawn because the source or target changed.</summary>
+    public bool NeedsReview { get; set; }
+    /// <summary>Fingerprint of the source text the approval was given for; absent in projects saved before v0.26.</summary>
+    public string? ReviewedSourceHash { get; set; }
     public Dictionary<string, string> Data { get; set; } = [];
 }

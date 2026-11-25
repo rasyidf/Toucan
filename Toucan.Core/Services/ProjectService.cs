@@ -25,6 +25,25 @@ public class ProjectService(
             Microsoft.Extensions.Logging.Abstractions.NullLogger<ProjectService>.Instance)
     { }
 
+    /// <inheritdoc />
+    public void DetectFramework(ProjectSettings settings, string folder)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+        settings.SaveFormat = new FormatDetector(strategyFactory.SaveStrategies).Detect(folder);
+        var profile = (frameworkProfiles ?? []).Where(p => p is Toucan.Core.Contracts.IFrameworkFeatures && strategyFactory.GetLoadStrategy(p.DefaultFormatId) is IResourceDiscoveryStrategy).OrderByDescending(p => p.DetectionScore(folder)).FirstOrDefault(p => p.DetectionScore(folder) > 0);
+        if (profile is Toucan.Core.Contracts.IFrameworkFeatures features)
+        {
+            var resources = profile.DiscoverFiles(folder).Select(features.Describe).ToList();
+            if (resources.Count > 0 && resources.All(r => strategyFactory.GetResourceLoadStrategy(r.FormatId) != null))
+            {
+                settings.Framework = profile.Id; settings.SaveFormat = profile.DefaultFormatId;
+                settings.ResourceDocuments = resources.Select(r => new ResourceDocumentState { Resource = r }).ToList();
+                settings.PrimaryLanguage = resources.First(r => r.Ownership == ResourceOwnership.GeneratedSource || resources.All(d => d.Ownership != ResourceOwnership.GeneratedSource)).Language;
+                settings.Languages = resources.Select(r => r.Language).Distinct().ToList();
+            }
+        }
+    }
+
     public ProjectLoadResult LoadProject(string folder, IProgress<ScanProgress>? progress = null, CancellationToken ct = default)
     {
         using var _ = ScanContext.Begin(ct, progress);
@@ -43,19 +62,7 @@ public class ProjectService(
             else
             {
                 settings = ProjectSettings.CreateDefault(folder);
-                settings.SaveFormat = new FormatDetector(strategyFactory.SaveStrategies).Detect(folder);
-                var profile = (frameworkProfiles ?? []).Where(p => p is Toucan.Core.Contracts.IFrameworkFeatures && strategyFactory.GetLoadStrategy(p.DefaultFormatId) is IResourceDiscoveryStrategy).OrderByDescending(p => p.DetectionScore(folder)).FirstOrDefault(p => p.DetectionScore(folder) > 0);
-                if (profile is Toucan.Core.Contracts.IFrameworkFeatures features)
-                {
-                    var resources = profile.DiscoverFiles(folder).Select(features.Describe).ToList();
-                    if (resources.Count > 0 && resources.All(r => strategyFactory.GetResourceLoadStrategy(r.FormatId) != null))
-                    {
-                        settings.Framework = profile.Id; settings.SaveFormat = profile.DefaultFormatId;
-                        settings.ResourceDocuments = resources.Select(r => new ResourceDocumentState { Resource = r }).ToList();
-                        settings.PrimaryLanguage = resources.First(r => r.Ownership == ResourceOwnership.GeneratedSource || resources.All(d => d.Ownership != ResourceOwnership.GeneratedSource)).Language;
-                        settings.Languages = resources.Select(r => r.Language).Distinct().ToList();
-                    }
-                }
+                DetectFramework(settings, folder);
             }
         }
         settings.ProjectPath = folder;
@@ -86,6 +93,7 @@ public class ProjectService(
             Namespace = string.Join('.', u.Namespace.Segments.Concat(u.KeyPath.Segments)), Language = u.Language, Value = u.Value,
             Comment = u.Metadata?.Comment ?? string.Empty, IsApproved = u.Metadata?.Approved ?? false, LastModifiedUtc = u.Metadata?.Modified,
             ApprovedAtUtc = u.Metadata?.ApprovedAt, ChangeType = u.Metadata?.ChangeType ?? ChangeType.DirectEdit,
+            NeedsReview = (u.Metadata?.NeedsReview ?? false) && !(u.Metadata?.Approved ?? false), ReviewedSourceHash = u.Metadata?.ReviewedSourceHash,
             FormatData = u.RawScalar is null ? null : new Dictionary<string, string> { [NestedJsonParser.JsonScalarKey] = u.RawScalar }
         }).ToList() : (resourceAware ? LoadResources(settings, ct) : Load(folder, settings.SaveFormat, true, settings.InputEncoding));
 
@@ -116,6 +124,10 @@ public class ProjectService(
             if (document != null) item.Permissions = ResourcePermissionsFor(document.Resource);
         }
         if (resourceAware) ResourceJsonCodec.ResolveSelectors(translations);
+        // Approvals follow the source text they were given for: withdraw those whose source changed outside Toucan.
+        if (!string.IsNullOrEmpty(settings.PrimaryLanguage)) ReviewTracker.Reconcile(translations, settings.PrimaryLanguage);
+        // Document projects open the workspace from source units, so carry the reconciled review state back to them.
+        if (source is not null) source = WithReviewState(source, translations);
 
         // Backfill settings from loaded data if manifest was missing
         if (settings.Languages.Count == 0)
@@ -130,6 +142,31 @@ public class ProjectService(
                 + "You can edit and review, but saving is blocked to protect your files. Use Save As to write a copy.");
 
         return new ProjectLoadResult { Settings = settings, Translations = translations, Warnings = warnings, Source = source };
+    }
+
+    /// <summary>
+    /// Copies review flags from <paramref name="translations"/> (built from <paramref name="source"/>'s units, in the same
+    /// order) onto the units' metadata. Comments, timestamps and change types stay as the source recorded them.
+    /// </summary>
+    internal static WorkspaceSource WithReviewState(WorkspaceSource source, IReadOnlyList<TranslationItem> translations)
+    {
+        if (source.Units.Count != translations.Count)
+            throw new InvalidOperationException("Loaded translations no longer match the document units they were read from.");
+        var changed = false;
+        var units = source.Units.Select((unit, i) =>
+        {
+            var item = translations[i];
+            var current = unit.Metadata ?? new WorkspaceEntryMetadata(unit.EntryId, unit.Language, string.Empty, false, null, null, ChangeType.DirectEdit);
+            var next = current with
+            {
+                Approved = item.IsApproved, ApprovedAt = item.IsApproved ? current.ApprovedAt : null,
+                NeedsReview = item.NeedsReview && !item.IsApproved, ReviewedSourceHash = item.ReviewedSourceHash
+            };
+            if (next == current) return unit;
+            changed = true;
+            return unit with { Metadata = next.IsEmpty ? null : next };
+        }).ToArray();
+        return changed ? new(source.Root, source.FrameworkId, source.FormatId, source.Documents, units, source.IdentityCatalog, source.Artifacts) : source;
     }
 
     private WorkspaceSource ImportLegacyAnnotations(WorkspaceSource source, List<TranslationItem> translations)
@@ -177,6 +214,8 @@ public class ProjectService(
                 var authority = metadataAuthority?.Invoke(item);
                 if (authority?.CommentsInResource != true) item.Comment = state.Comment;
                 item.IsApproved = state.Approved;
+                item.NeedsReview = state.NeedsReview && !state.Approved;
+                item.ReviewedSourceHash = state.ReviewedSourceHash;
                 foreach (var entry in state.Data.Where(p => (item.Identity is null || p.Key != NestedJsonParser.JsonScalarKey) && authority?.OwnsMetadata(p.Key) != true))
                     (item.FormatData ??= new())[entry.Key] = entry.Value;
             }
@@ -289,6 +328,7 @@ public class ProjectService(
         foreach (var importer in compatibilityImporters ?? []) importer.CaptureMetadata(project.Compatibility, toSave);
         project.TranslationStates = toSave.GroupBy(i => (i.Language, i.Namespace)).Select(g => g.First())
             .Select(i => new TranslationState { Identity = i.Identity, Language = i.Language, Key = i.Namespace, Comment = i.Comment, Approved = i.IsApproved,
+                NeedsReview = i.NeedsReview, ReviewedSourceHash = i.ReviewedSourceHash,
                 Data = i.FormatData?.Where(p => i.Identity is null || p.Key != NestedJsonParser.JsonScalarKey)
                     .ToDictionary(p => p.Key, p => p.Value) ?? [] }).ToList();
         // Update project manifest with current language list

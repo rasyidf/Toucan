@@ -34,7 +34,8 @@ public static class TestAppBuilder
 internal sealed class TestHost : IDisposable
 {
     /// <param name="root">Reuse another host's folders, to model a restart of the app on the same files.</param>
-    public TestHost(string? root = null)
+    /// <param name="configure">Extra registrations, applied last (a test content-source adapter, for example).</param>
+    public TestHost(string? root = null, Action<IServiceCollection>? configure = null)
     {
         ResetProcessWideState();
         Root = root ?? Directory.CreateTempSubdirectory("toucan-tests-").FullName;
@@ -60,6 +61,9 @@ internal sealed class TestHost : IDisposable
             s.AddSingleton<IAiSettingsStore>(new AiSettingsStore(Path.Combine(Root, "ai.json")));
             s.AddSingleton<IPromptLibrary>(sp => new PromptLibrary(sp.GetServices<AiFeatureDefinition>(), Path.Combine(Root, "prompts")));
             s.AddSingleton<IProviderSettingsService>(new ProviderSettingsService(secrets, protector, Path.Combine(Root, "providers.json")));
+            // Content-source accounts never touch the developer's accounts.json.
+            s.AddSingleton<Toucan.Core.Sources.ISourceAccountStore>(new Toucan.Core.Sources.SourceAccountStore(Path.Combine(Root, "accounts.json")));
+            configure?.Invoke(s);
         },
         // Never read or write the real Documents/Toucan plugin folder or trust file from tests.
         pluginRoot: Path.Combine(Root, "plugins"),
@@ -149,7 +153,12 @@ internal sealed class FakeMessageService : IAsyncMessageService
         Shown.Add(message);
         return Task.CompletedTask;
     }
-    public Task<bool> ConfirmAsync(string message, string title = "Confirm", string yesText = "Yes", string noText = "No") => Task.FromResult(ConfirmAnswer);
+    public List<string> Confirmations { get; } = [];
+    public Task<bool> ConfirmAsync(string message, string title = "Confirm", string yesText = "Yes", string noText = "No")
+    {
+        Confirmations.Add(message);
+        return Task.FromResult(ConfirmAnswer);
+    }
     public Task<ChoiceResult> ChooseAsync(string message, string title, string primaryText, string secondaryText, string cancelText = "Cancel")
     {
         Choices.Add(message);
@@ -196,6 +205,25 @@ internal sealed class FakeDialogService : IDialogService
         return Task.FromResult(vm.AppliedCount > 0);
     }
     public Task ShowProviderSettingsAsync(string? projectPath = null) => Task.CompletedTask;
+    /// <summary>Lets a test act as the user in the sync plan dialog; the default applies the plan as shown.</summary>
+    public Func<SyncPlanViewModel, bool>? OnSyncPlan { get; set; }
+    public List<SyncPlanViewModel> SyncPlans { get; } = [];
+    public Task<bool> ShowSyncPlanAsync(SyncPlanViewModel vm)
+    {
+        SyncPlans.Add(vm);
+        return Task.FromResult(OnSyncPlan?.Invoke(vm) ?? true);
+    }
+    public Func<AddConnectionViewModel, Toucan.Core.Models.SourceConnectionSettings?>? OnAddConnection { get; set; }
+    public Task<Toucan.Core.Models.SourceConnectionSettings?> ShowAddConnectionAsync(AddConnectionViewModel vm) => Task.FromResult(OnAddConnection?.Invoke(vm));
+    public Func<OpenFromServiceViewModel, Toucan.Core.Sources.RemoteProjectResult?>? OnOpenFromService { get; set; }
+    public List<OpenFromServiceViewModel> OpenFromServiceShown { get; } = [];
+    public Task<Toucan.Core.Sources.RemoteProjectResult?> ShowOpenFromServiceAsync(OpenFromServiceViewModel vm)
+    {
+        OpenFromServiceShown.Add(vm);
+        return Task.FromResult(OnOpenFromService?.Invoke(vm));
+    }
+    public List<AccountsViewModel> AccountsShown { get; } = [];
+    public Task ShowAccountsAsync(AccountsViewModel vm) { AccountsShown.Add(vm); return Task.CompletedTask; }
     /// <summary>Lets a test act as the user inside the prompt editor.</summary>
     public Action<PromptEditorViewModel>? OnPromptEditor { get; set; }
     public Task<bool> ShowPromptEditorAsync(PromptEditorViewModel vm)

@@ -1,0 +1,167 @@
+openapi: 3.0.3
+info:
+  title: Toucan source protocol
+  version: "1.0"
+  description: >-
+    The REST contract behind Toucan's built-in `toucan.sources.rest` adapter. See source-protocol.md for the rules that
+    do not fit a schema: revisions are opaque, `complete` must be honest, operation ids are idempotency keys.
+servers:
+  - url: https://strings.example.com
+security:
+  - bearer: []
+paths:
+  /v1/projects:
+    get:
+      summary: Projects the token can see
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: object, properties: { items: { type: array, items: { $ref: "#/components/schemas/ProjectSummary" } } } } } } }
+        default: { $ref: "#/components/responses/Error" }
+  /v1/projects/{project}:
+    get:
+      summary: Describe a project
+      parameters: [ { $ref: "#/components/parameters/project" } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Project" } } } }
+        default: { $ref: "#/components/responses/Error" }
+  /v1/projects/{project}/units:
+    get:
+      summary: Read units, one page at a time
+      parameters:
+        - { $ref: "#/components/parameters/project" }
+        - { name: resource, in: query, schema: { type: array, items: { type: string } }, style: form, explode: true }
+        - { name: language, in: query, schema: { type: array, items: { type: string } }, style: form, explode: true }
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 1000, default: 200 } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/UnitPage" } } } }
+        default: { $ref: "#/components/responses/Error" }
+  /v1/projects/{project}/changes:
+    get:
+      summary: Units changed and deleted since a cursor
+      parameters:
+        - { $ref: "#/components/parameters/project" }
+        - { name: cursor, in: query, required: true, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 1000, default: 200 } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/ChangePage" } } } }
+        default: { $ref: "#/components/responses/Error" }
+  /v1/projects/{project}/operations:
+    post:
+      summary: Apply a batch of writes; one result per operation, in order
+      parameters: [ { $ref: "#/components/parameters/project" } ]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [operations], properties: { operations: { type: array, items: { $ref: "#/components/schemas/Operation" } } } } } }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: object, properties: { results: { type: array, items: { $ref: "#/components/schemas/OperationResult" } } } } } } }
+        default: { $ref: "#/components/responses/Error" }
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer }
+  parameters:
+    project: { name: project, in: path, required: true, schema: { type: string } }
+  responses:
+    Error:
+      description: Request-level failure
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string, enum: [unauthenticated, forbidden, not_found, conflict, invalid, rate_limited, unavailable] }
+            message: { type: string }
+            retryAfterSeconds: { type: number }
+    ProjectSummary:
+      type: object
+      required: [id, name]
+      properties: { id: { type: string }, name: { type: string }, description: { type: string } }
+    Project:
+      type: object
+      required: [id, name, languages, resources]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        sourceLanguage: { type: string }
+        languages: { type: array, items: { type: object, required: [code], properties: { code: { type: string }, name: { type: string }, isSource: { type: boolean } } } }
+        resources: { type: array, items: { type: object, required: [id, name], properties: { id: { type: string }, name: { type: string }, path: { type: string } } } }
+        permissions:
+          type: object
+          properties:
+            writeValues: { type: boolean }
+            createKeys: { type: boolean }
+            renameKeys: { type: boolean }
+            deleteKeys: { type: boolean }
+            deleteTranslations: { type: boolean }
+            status: { type: boolean }
+            comments: { type: boolean }
+            conditionalWrites: { type: boolean }
+            changes: { type: boolean }
+        limits:
+          type: object
+          properties: { maxBatchSize: { type: integer }, maxConcurrency: { type: integer }, requestsPerMinute: { type: integer } }
+    Key:
+      type: object
+      required: [resource, name]
+      properties: { resource: { type: string }, name: { type: string }, id: { type: string } }
+    Status:
+      type: object
+      required: [value, meaning]
+      properties:
+        value: { type: string }
+        meaning: { type: string, enum: [untranslated, draft, needsReview, reviewed, approved, rejected] }
+    Unit:
+      type: object
+      required: [key, language, value, revision]
+      properties:
+        key: { $ref: "#/components/schemas/Key" }
+        language: { type: string }
+        value: { type: string }
+        revision: { type: string }
+        status: { $ref: "#/components/schemas/Status" }
+        comment: { type: string }
+    UnitPage:
+      type: object
+      required: [items, complete]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Unit" } }
+        nextCursor: { type: string, nullable: true }
+        complete: { type: boolean }
+        deltaCursor: { type: string, nullable: true }
+    ChangePage:
+      type: object
+      required: [changed, deleted, complete]
+      properties:
+        changed: { type: array, items: { $ref: "#/components/schemas/Unit" } }
+        deleted: { type: array, items: { type: object, required: [key], properties: { key: { $ref: "#/components/schemas/Key" }, language: { type: string, nullable: true } } } }
+        nextCursor: { type: string, nullable: true }
+        complete: { type: boolean }
+        cursor: { type: string, nullable: true }
+        authoritativeDeletes: { type: boolean }
+    Operation:
+      type: object
+      required: [id, type]
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string, enum: [putValue, putStatus, putComment, createKey, renameKey, deleteKey, deleteTranslation] }
+        key: { $ref: "#/components/schemas/Key" }
+        language: { type: string }
+        value: { type: string }
+        status: { type: string, enum: [untranslated, draft, needsReview, reviewed, approved, rejected] }
+        comment: { type: string }
+        values: { type: object, additionalProperties: { type: string } }
+        newName: { type: string }
+        expectedRevision: { type: string, nullable: true }
+    OperationResult:
+      type: object
+      required: [id, outcome]
+      properties:
+        id: { type: string, format: uuid }
+        outcome: { type: string, enum: [applied, alreadyApplied, conflict, notFound, refused, rateLimited, failed] }
+        revision: { type: string, nullable: true }
+        remoteId: { type: string, nullable: true }
+        current: { allOf: [ { $ref: "#/components/schemas/Unit" } ], nullable: true }
+        error: { type: object, nullable: true, properties: { code: { type: string }, message: { type: string } } }

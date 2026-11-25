@@ -194,6 +194,33 @@ public sealed class PluginsUiTests : IDisposable
     }
 
     [AvaloniaFact]
+    public async Task TrustPromptNamesTheHostsASourcesPluginConnectsTo()
+    {
+        var manifest = Manifest("a") with
+        {
+            ApiVersion = "1.3", Capabilities = ["sources"],
+            Network = new NetworkAccess { Hosts = ["api.lokalise.com"], UserDefinedHosts = true },
+        };
+        var vm = Options(new PluginLoadResult(Path.Combine(_dir, "a"), PluginStatus.NeedsTrust, manifest, ContentHash: Hash, Trust: PluginTrustState.Untrusted));
+        _messages.ConfirmAnswer = false;
+
+        await vm.Plugins[0].TrustCommand.ExecuteAsync(null);
+
+        Assert.Contains("Network: api.lokalise.com, and servers you enter.", Assert.Single(_messages.Confirmations), StringComparison.Ordinal);
+    }
+
+    [AvaloniaFact]
+    public async Task TrustPromptOmitsNetworkWhenThePluginDeclaresNone()
+    {
+        var vm = Options(Result("a", PluginStatus.NeedsTrust, PluginTrustState.Untrusted));
+        _messages.ConfirmAnswer = false;
+
+        await vm.Plugins[0].TrustCommand.ExecuteAsync(null);
+
+        Assert.DoesNotContain("Network:", Assert.Single(_messages.Confirmations), StringComparison.Ordinal);
+    }
+
+    [AvaloniaFact]
     public void RevokeRemovesTrust()
     {
         _policy.Trust("a", Hash);

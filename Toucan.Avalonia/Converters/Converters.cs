@@ -20,6 +20,43 @@ public sealed class LanguageNameConverter : IValueConverter
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotSupportedException();
 }
 
+/// <summary>
+/// "de-DE" → "Deutsch (de)", "pt-PT" → "Português (pt-PT)". The language's own name, then the code the project uses; the region is
+/// left out when it is the language's usual one, and kept when it tells two variants apart. Custom tags show as they are.
+/// </summary>
+public sealed class LanguageLabelConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value is string code ? Label(code) : value;
+
+    // .NET makes up a culture for any tag ("xx-custom-tag"), so only the ones the system really knows are named.
+    private static readonly Lazy<HashSet<string>> s_known = new(() =>
+        new(CultureInfo.GetCultures(CultureTypes.AllCultures).Select(c => c.Name).Where(n => n.Length > 0), StringComparer.OrdinalIgnoreCase));
+
+    public static string Label(string code)
+    {
+        if (string.IsNullOrWhiteSpace(code)) return code;
+        try
+        {
+            var tag = code.Replace('_', '-');
+            if (!s_known.Value.Contains(tag)) return code;
+            var language = CultureInfo.GetCultureInfo(tag);
+            var neutral = language.IsNeutralCulture ? language : language.Parent;
+            if (neutral.Name.Length == 0) return code;
+            var name = neutral.NativeName;
+            name = char.ToUpper(name[0], neutral) + name[1..];
+            // Keep the region only when it is not what the plain language code means (de-AT, pt-PT, en-GB).
+            var usual = language.IsNeutralCulture || string.Equals(CultureInfo.CreateSpecificCulture(neutral.Name).Name, language.Name, StringComparison.OrdinalIgnoreCase);
+            return $"{name} ({(usual ? neutral.Name : tag)})";
+        }
+        catch (CultureNotFoundException)
+        {
+            return code;
+        }
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotSupportedException();
+}
+
 /// <summary>Icon name string → <see cref="FASymbol"/>.</summary>
 public sealed class SymbolConverter : IValueConverter
 {

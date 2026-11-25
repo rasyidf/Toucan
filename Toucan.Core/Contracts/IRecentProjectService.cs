@@ -14,6 +14,9 @@ public interface IRecentProjectService
     void SetPinned(string projectPath, bool pinned);
     void SetPrimaryLanguage(string projectPath, string language);
 
+    /// <summary>Shows <paramref name="label"/> in the recent list instead of the folder name; null clears it.</summary>
+    void SetLabel(string projectPath, string? label) { }
+
     /// <summary>Empties the list; with <paramref name="keepPinned"/> the pinned projects stay.</summary>
     void Clear(bool keepPinned);
     void Save();

@@ -1,0 +1,120 @@
+<d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.SyncPlanDialog"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:loc="using:Toucan.Avalonia.Locales"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                xmlns:ui="using:FluentAvalonia.UI.Controls"
+                Title="{loc:Loc 'Sync plan'}" Width="860" Height="660" MinWidth="680" MinHeight="460">
+  <DockPanel>
+    <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
+      <DockPanel>
+        <TextBlock Classes="caption" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="480" Text="{Binding Summary}"
+                   AutomationProperties.Name="{Binding Summary}"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Content="{loc:Loc 'Cancel'}" Command="{Binding CancelCommand}" IsCancel="True"/>
+          <Button Content="{loc:Loc 'Apply'}" Classes="accent" Command="{Binding ApplyCommand}" IsDefault="True"
+                  AutomationProperties.Name="{loc:Loc 'Apply the included changes'}"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+    <StackPanel DockPanel.Dock="Top" Margin="24,22,24,12" Spacing="6">
+      <TextBlock Text="{Binding Title}" Classes="dialogTitle"/>
+      <TextBlock Classes="caption" TextWrapping="Wrap"
+                 Text="{loc:Loc 'Nothing changes until you apply. Remote services have no transactions: if some changes fail, the others stay applied and the failed ones stay pending.'}"/>
+      <ui:FAInfoBar Severity="Warning" IsOpen="{Binding IsFirstSync}" IsClosable="False" Title="{loc:Loc 'First sync'}"
+                    Message="{loc:Loc 'There is no common version yet, so every difference is a conflict. Choose a side for all of them, or decide one by one in the Conflicts tab.'}">
+        <ui:FAInfoBar.ActionButton>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Content="{loc:Loc 'Use remote for all'}" Command="{Binding UseRemoteForAllCommand}"/>
+            <Button Content="{loc:Loc 'Use local for all'}" Command="{Binding UseLocalForAllCommand}"/>
+            <Button Content="{loc:Loc 'Review individually'}" Command="{Binding DeferAllCommand}"/>
+          </StackPanel>
+        </ui:FAInfoBar.ActionButton>
+      </ui:FAInfoBar>
+      <ui:FAInfoBar Severity="Informational" IsOpen="{Binding IsPartialRead}" IsClosable="False"
+                    Message="{loc:Loc 'The service did not finish listing its content, so nothing is treated as deleted there.'}"/>
+      <ItemsControl ItemsSource="{Binding Notices}" IsVisible="{Binding HasNotices}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate><TextBlock Classes="caption" TextWrapping="Wrap" Text="{Binding}"/></DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+    <TabControl x:Name="Tabs" Margin="24,0,24,20">
+      <TabItem Header="{loc:Loc 'Pull'}" AutomationProperties.Name="{loc:Loc 'Changes coming in'}">
+        <Panel>
+          <TextBlock Classes="caption" HorizontalAlignment="Center" Margin="0,24" Text="{loc:Loc 'Nothing to pull.'}" IsVisible="{Binding !HasPull}"/>
+          <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding PullRows}">
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><VirtualizingStackPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate><DataTemplate>
+                <Grid ColumnDefinitions="Auto,90,*,60,2*" Margin="0,2" MinHeight="32">
+                  <CheckBox IsChecked="{Binding Include}" AutomationProperties.Name="{Binding AccessibleName}"/>
+                  <TextBlock Grid.Column="1" Text="{Binding Action}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                  <TextBlock Grid.Column="2" Text="{Binding Key}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Classes="mono"/>
+                  <TextBlock Grid.Column="3" Text="{Binding Language}" VerticalAlignment="Center" Classes="caption"/>
+                  <TextBlock Grid.Column="4" Text="{Binding Detail}" VerticalAlignment="Center" Classes="caption" TextTrimming="CharacterEllipsis"/>
+                </Grid>
+              </DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Panel>
+      </TabItem>
+      <TabItem Header="{loc:Loc 'Push'}" AutomationProperties.Name="{loc:Loc 'Changes going out'}">
+        <Panel>
+          <TextBlock Classes="caption" HorizontalAlignment="Center" Margin="0,24" Text="{loc:Loc 'Nothing to push.'}" IsVisible="{Binding !HasPush}"/>
+          <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding PushRows}">
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><VirtualizingStackPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate><DataTemplate>
+                <Grid ColumnDefinitions="Auto,90,*,60,2*" Margin="0,2" MinHeight="32">
+                  <CheckBox IsChecked="{Binding Include}" AutomationProperties.Name="{Binding AccessibleName}"/>
+                  <TextBlock Grid.Column="1" Text="{Binding Action}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                  <TextBlock Grid.Column="2" Text="{Binding Key}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Classes="mono"/>
+                  <TextBlock Grid.Column="3" Text="{Binding Language}" VerticalAlignment="Center" Classes="caption"/>
+                  <TextBlock Grid.Column="4" Text="{Binding Detail}" VerticalAlignment="Center" Classes="caption" TextTrimming="CharacterEllipsis"/>
+                </Grid>
+              </DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Panel>
+      </TabItem>
+      <TabItem Header="{loc:Loc 'Conflicts'}" AutomationProperties.Name="{loc:Loc 'Conflicts to settle'}">
+        <Panel>
+          <TextBlock Classes="caption" HorizontalAlignment="Center" Margin="0,24" Text="{loc:Loc 'No conflicts.'}" IsVisible="{Binding !HasConflicts}"/>
+          <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Conflicts}">
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><VirtualizingStackPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate><DataTemplate>
+                <Border Classes="card" Padding="12,10" Margin="0,0,0,8" AutomationProperties.Name="{Binding AccessibleName}">
+                  <StackPanel Spacing="6">
+                    <DockPanel>
+                      <TextBlock DockPanel.Dock="Right" Text="{Binding ChoiceText}" Classes="caption" VerticalAlignment="Center"/>
+                      <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding Key}" FontWeight="SemiBold" Classes="mono"/>
+                        <TextBlock Text="{Binding Language}" Classes="caption" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding KindText}" Classes="caption" VerticalAlignment="Center"/>
+                      </StackPanel>
+                    </DockPanel>
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                      <StackPanel><TextBlock Classes="caption" Text="{loc:Loc 'Base'}"/><TextBlock Text="{Binding BaseText}" TextWrapping="Wrap"/></StackPanel>
+                      <StackPanel Grid.Column="1"><TextBlock Classes="caption" Text="{loc:Loc 'Local'}"/><TextBlock Text="{Binding LocalText}" TextWrapping="Wrap"/></StackPanel>
+                      <StackPanel Grid.Column="2"><TextBlock Classes="caption" Text="{loc:Loc 'Remote'}"/><TextBlock Text="{Binding RemoteText}" TextWrapping="Wrap"/></StackPanel>
+                    </Grid>
+                    <TextBox Text="{Binding MergedText}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="48" IsVisible="{Binding IsMerged}"
+                             AutomationProperties.Name="{loc:Loc 'Merged text'}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <Button Content="{loc:Loc 'Take local'}" Command="{Binding TakeLocalCommand}"/>
+                      <Button Content="{loc:Loc 'Take remote'}" Command="{Binding TakeRemoteCommand}"/>
+                      <Button Content="{loc:Loc 'Edit merged'}" Command="{Binding EditMergedCommand}" IsVisible="{Binding CanMerge}"/>
+                      <Button Content="{loc:Loc 'Defer'}" Command="{Binding DeferCommand}"/>
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+              </DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Panel>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</d:DialogWindow>

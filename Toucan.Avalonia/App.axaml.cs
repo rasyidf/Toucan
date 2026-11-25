@@ -198,6 +198,11 @@ public partial class App : Application
             new(FASymbol.Delete, "Clear translation memory", vm.ClearTmCommand),
         ]);
         Add("dictionary", "Dictionary", "Library", SidePanelSlot.Right, 35, _ => new DictionaryPanel(), onShow: vm => vm.RefreshGlossary());
+        Add("sources", "Sources", "Cloud", SidePanelSlot.Left, 50, _ => new SourcesPanel(), vm =>
+        [
+            new(FASymbol.Add, "Add connection", vm.AddSourceConnectionCommand),
+            new(FASymbol.Contact, "Accounts", vm.ShowSourceAccountsCommand),
+        ], vm => vm.Sources?.Reload());
         PanelService.Instance.RestoreActivePanels();
     }
 
@@ -277,7 +282,9 @@ public partial class App : Application
             sp.GetRequiredService<WorkspaceDocumentSaveCoordinator>(),
             sp.GetRequiredService<WorkspaceExportPlanner>(),
             sp.GetRequiredService<WorkspaceDocumentSaveExecutor>(),
-            sp.GetService<INotificationCenter>()));
+            sp.GetService<INotificationCenter>(),
+            sources: sp.GetService<global::Toucan.Core.Sources.ISourceConnectionService>(),
+            sync: sp.GetService<global::Toucan.Core.Sources.SyncCoordinator>()));
 
         // View models
         services.AddSingleton<StatusBarViewModel>();
@@ -314,7 +321,11 @@ public partial class App : Application
             sp.GetRequiredService<SpellingService>(), sp.GetRequiredService<DictionaryRegistry>(), sp.GetRequiredService<INotificationCenter>(), sp.GetRequiredService<NotificationHistoryViewModel>(),
             sp.GetRequiredService<IProjectDefaultsService>(),
             sp.GetRequiredService<WorkspaceService>(),
-            sp.GetRequiredService<WorkspaceDocumentRouter>()));
+            sp.GetRequiredService<WorkspaceDocumentRouter>(),
+            sp.GetService<global::Toucan.Core.Sources.SyncCoordinator>(),
+            sp.GetService<global::Toucan.Core.Sources.ISourceConnectionService>(),
+            sp.GetService<global::Toucan.Core.Sources.SourceSignInService>(),
+            sp.GetService<global::Toucan.Core.Plugins.ISourceAdapterCatalog>()));
         services.AddSingleton<MainWindowViewModel>();
         // Plugins read and edit the open project through this (see IWorkspaceApi); it resolves the view model on first use.
         services.AddSingleton<global::Toucan.Core.Plugins.IWorkspaceBackend>(sp => new WorkspaceBackend(sp.GetRequiredService<MainWindowViewModel>()));

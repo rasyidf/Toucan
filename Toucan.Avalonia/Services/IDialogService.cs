@@ -22,6 +22,8 @@ public interface IDialogService
     Task<string?> SaveFileAsync(string? initialPath, string suggestedName, string title = "Save As", IReadOnlyList<FileFilter>? filters = null);
 
     Task<string?> ShowPromptAsync(string title, string message, string defaultValue = "");
+    /// <summary>Like <see cref="ShowPromptAsync"/> but masks what is typed (passwords, tokens).</summary>
+    Task<string?> ShowSecretPromptAsync(string title, string message) => ShowPromptAsync(title, message);
     Task<string?> ShowPickAsync(string title, string message, IReadOnlyList<string> options, string? selected = null);
     Task<string?> ShowLanguagePromptAsync(string title, string message, IEnumerable<TranslationItem>? existingTranslations);
 
@@ -39,6 +41,18 @@ public interface IDialogService
     Task<ProjectPropertiesViewModel?> ShowProjectPropertiesAsync(ProjectSettings settings, IEnumerable<string>? discoveredLanguages = null);
     Task<LanguageManagerViewModel?> ShowManageLanguagesAsync(IEnumerable<TranslationItem> allTranslations, string? primaryLanguage = null);
     Task ShowStatisticsAsync(IEnumerable<TranslationItem> translations);
+
+    /// <summary>The sync plan preview and conflict view; true when the user chose Apply.</summary>
+    Task<bool> ShowSyncPlanAsync(SyncPlanViewModel vm) => Task.FromResult(false);
+
+    /// <summary>The add-connection wizard; the saved connection, or null when cancelled.</summary>
+    Task<Toucan.Core.Models.SourceConnectionSettings?> ShowAddConnectionAsync(AddConnectionViewModel vm) => Task.FromResult<Toucan.Core.Models.SourceConnectionSettings?>(null);
+
+    /// <summary>"Open from a service": the project made, or null when cancelled.</summary>
+    Task<Toucan.Core.Sources.RemoteProjectResult?> ShowOpenFromServiceAsync(OpenFromServiceViewModel vm) => Task.FromResult<Toucan.Core.Sources.RemoteProjectResult?>(null);
+
+    /// <summary>The accounts page: add, sign in again, sign out, and which projects use each.</summary>
+    Task ShowAccountsAsync(AccountsViewModel vm) => Task.CompletedTask;
 
     void Shutdown();
 }

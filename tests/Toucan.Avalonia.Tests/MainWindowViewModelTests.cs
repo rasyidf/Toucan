@@ -301,6 +301,58 @@ public class MainWindowViewModelTests
     }
 
     [AvaloniaFact]
+    public async Task NeedsReviewFilter_ShowsOnlyWithdrawnApprovals_AndNotApprovedShowsEveryUnapprovedTranslation()
+    {
+        using var host = new TestHost();
+        var folder = host.CreateJsonProject("needs-review", ("en", En), ("fr", Fr));
+        var vm = host.CreateViewModel();
+        await vm.OpenProjectAsync(folder);
+        vm.SelectedKeys.Add("app.title"); vm.SelectedKeys.Add("buttons.save");
+        vm.BulkApproveCommand.Execute(null);
+        vm.SelectedKeys.Clear();
+
+        var source = vm.AllTranslation.Single(t => t.Namespace == "app.title" && t.Language == "en");
+        source.Value = "My Application";
+        Toucan.Core.Services.ReviewTracker.OnSourceChanged(vm.AllTranslation, "en", "app.title");
+        vm.UpdateSummaryInfo();
+
+        Assert.Equal(1, vm.NeedsReviewCount);
+        Assert.True(vm.HasNeedsReview);
+        vm.ShowNeedsReviewCommand.Execute(null);
+        Assert.Equal(["app.title"], vm.PagingController.Data.Select(g => g.Namespace));
+        vm.ShowNotApprovedCommand.Execute(null);
+        Assert.Equal(["app.title", "buttons.cancel"], vm.PagingController.Data.Select(g => g.Namespace).Order());
+    }
+
+    [AvaloniaFact]
+    public async Task RejectWithComment_NeedsReview_IsUndoable_AndSavesTheReviewHistory()
+    {
+        using var host = new TestHost();
+        var folder = host.CreateJsonProject("reject", ("en", En), ("fr", Fr));
+        var vm = host.CreateViewModel();
+        await vm.OpenProjectAsync(folder);
+        vm.SelectedKeys.Add("app.title");
+        vm.BulkApproveCommand.Execute(null);
+        var fr = vm.AllTranslation.Single(t => t.Namespace == "app.title" && t.Language == "fr");
+
+        vm.RejectItems([fr], "Use the product name");
+
+        Assert.False(fr.IsApproved);
+        Assert.True(fr.NeedsReview);
+        Assert.Equal(1, vm.NeedsReviewCount);
+        vm.UndoCommand.Execute(null);
+        Assert.True(fr.IsApproved);
+        vm.RedoCommand.Execute(null);
+        Assert.True(fr.NeedsReview);
+
+        await vm.SaveCommand.ExecuteAsync(null);
+        var history = File.ReadAllLines(Path.Combine(folder, Toucan.Core.Services.ReviewHistory.RelativePath));
+        Assert.Contains(history, l => l.Contains("\"rejected\"", StringComparison.OrdinalIgnoreCase) && l.Contains("Use the product name"));
+        Assert.Contains(history, l => l.Contains("\"approved\"", StringComparison.OrdinalIgnoreCase) && l.Contains("\"language\":\"en\""));
+        Assert.Contains(history, l => l.Contains("\"approved\"", StringComparison.OrdinalIgnoreCase) && l.Contains("\"language\":\"fr\""));
+    }
+
+    [AvaloniaFact]
     public async Task BulkApprove_MarksDirty_IsKeptInTheRecoveryDraft_AndSaves()
     {
         using var host = new TestHost();

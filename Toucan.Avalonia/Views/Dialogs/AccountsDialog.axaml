@@ -1,0 +1,47 @@
+<d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.AccountsDialog"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:loc="using:Toucan.Avalonia.Locales"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                Title="{loc:Loc 'Accounts'}" Width="640" Height="520" MinWidth="520" MinHeight="380">
+  <DockPanel>
+    <Border DockPanel.Dock="Bottom" Classes="dialogFooter">
+      <DockPanel>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <ComboBox ItemsSource="{Binding Services}" SelectedItem="{Binding NewAccountService}" MinWidth="180" PlaceholderText="{loc:Loc 'Service'}"
+                    AutomationProperties.Name="{loc:Loc 'Service for the new account'}">
+            <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Descriptor.DisplayName}"/></DataTemplate></ComboBox.ItemTemplate>
+          </ComboBox>
+          <Button Content="{loc:Loc 'Add account…'}" Command="{Binding AddCommand}"/>
+        </StackPanel>
+        <Button Content="{loc:Loc 'Close'}" HorizontalAlignment="Right" x:Name="CloseButton" IsDefault="True"/>
+      </DockPanel>
+    </Border>
+    <StackPanel DockPanel.Dock="Top" Margin="24,22,24,12" Spacing="4">
+      <TextBlock Text="{loc:Loc 'Accounts'}" Classes="dialogTitle"/>
+      <TextBlock Classes="caption" TextWrapping="Wrap"
+                 Text="{loc:Loc 'Sign-ins are kept on this computer, outside your projects. Signing out revokes the stored sign-in where the service allows it.'}"/>
+    </StackPanel>
+    <Panel Margin="24,0,24,20">
+      <TextBlock Classes="caption" HorizontalAlignment="Center" Margin="0,24" Text="{loc:Loc 'No accounts yet.'}" IsVisible="{Binding HasNoAccounts}"/>
+      <ListBox Classes="plain" ItemsSource="{Binding Accounts}" SelectedItem="{Binding Selected}" IsVisible="{Binding HasAccounts}"
+               AutomationProperties.Name="{loc:Loc 'Accounts'}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <Grid ColumnDefinitions="*,Auto" AutomationProperties.Name="{Binding AccessibleName}">
+              <StackPanel>
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Service}" Classes="caption"/>
+                <TextBlock Text="{Binding UsageText}" Classes="caption" TextWrapping="Wrap"/>
+              </StackPanel>
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                <Button Content="{loc:Loc 'Sign in again'}" Command="{Binding $parent[ListBox].DataContext.SignInAgainCommand}" CommandParameter="{Binding}"/>
+                <Button Content="{loc:Loc 'Sign out'}" Command="{Binding $parent[ListBox].DataContext.SignOutCommand}" CommandParameter="{Binding}"/>
+              </StackPanel>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Panel>
+  </DockPanel>
+</d:DialogWindow>

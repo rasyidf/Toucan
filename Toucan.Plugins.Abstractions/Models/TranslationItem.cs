@@ -26,6 +26,16 @@ public class TranslationItem
     private bool _approved;
     public bool IsApproved { get => _approved; set { if (Permissions.EditMetadata) _approved = value; } }
 
+    private bool _needsReview;
+    /// <summary>True when an earlier approval was withdrawn because the source or target changed.</summary>
+    public bool NeedsReview { get => _needsReview; set { if (Permissions.EditMetadata) _needsReview = value; } }
+    private string? _reviewedSourceHash;
+    /// <summary>Fingerprint of the source text this translation was approved against; null if never approved or unknown.</summary>
+    public string? ReviewedSourceHash { get => _reviewedSourceHash; set { if (Permissions.EditMetadata) _reviewedSourceHash = value; } }
+
+    /// <summary>Draft, needs review or approved. Approval wins over a stale needs-review flag.</summary>
+    public ReviewStatus Review => IsApproved ? ReviewStatus.Approved : NeedsReview ? ReviewStatus.NeedsReview : ReviewStatus.Draft;
+
     /// <summary>
     /// Format-specific data a load strategy keeps so its save strategy can write the entry back
     /// unchanged (for PO: context, plural forms, flags, references, header, source file).

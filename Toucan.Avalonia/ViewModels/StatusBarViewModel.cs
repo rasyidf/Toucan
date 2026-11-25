@@ -32,6 +32,9 @@ public partial class StatusBarViewModel : ObservableObject
     /// <summary>Background work, with the means to cancel it.</summary>
     public OperationsViewModel Operations { get; }
 
+    /// <summary>"Saved locally" and "Synced", kept apart on purpose.</summary>
+    public SyncIndicators Sync { get; } = new();
+
     /// <summary>Host and plugin notification history, with the unseen count for the badge.</summary>
     public NotificationHistoryViewModel NotificationHistory { get; }
 

@@ -1,12 +1,12 @@
 {
   "id": "sample.connector",
   "name": "Sample: connector",
-  "version": "1.0.0",
-  "apiVersion": "1.1",
-  "minHostVersion": "0.23.0",
+  "version": "2.0.0",
+  "apiVersion": "1.3",
+  "minHostVersion": "0.25.0",
   "entryAssembly": "Toucan.Sample.Connector.dll",
   "entryType": "Toucan.Sample.Connector.ConnectorPlugin",
   "author": "Toucan",
-  "description": "Pulls translations from a (fake, in-memory) service into the open project and pushes changes back.",
-  "capabilities": ["activation", "commands"]
+  "description": "A minimal content-source adapter over an in-memory service. Toucan supplies accounts, mapping, pull, push, conflicts and the Sources panel.",
+  "capabilities": ["sources"]
 }

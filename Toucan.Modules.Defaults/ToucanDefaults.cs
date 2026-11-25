@@ -19,6 +19,7 @@ public static class ToucanDefaults
             .AddToucanFormatsDataModule()
             .AddToucanFrameworksModule()
             .AddToucanProvidersModule()
-            .AddToucanValidationModule();
+            .AddToucanValidationModule()
+            .AddToucanSourcesModule();
     }
 }

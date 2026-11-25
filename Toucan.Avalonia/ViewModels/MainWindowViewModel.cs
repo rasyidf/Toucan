@@ -47,7 +47,11 @@ public sealed record MainWindowServices(
     INotificationCenter? Notifications = null, NotificationHistoryViewModel? History = null,
     IProjectDefaultsService? Defaults = null,
     WorkspaceService? Workspace = null,
-    WorkspaceDocumentRouter? DocumentRouter = null);
+    WorkspaceDocumentRouter? DocumentRouter = null,
+    Toucan.Core.Sources.SyncCoordinator? Sync = null,
+    Toucan.Core.Sources.ISourceConnectionService? SourceConnections = null,
+    Toucan.Core.Sources.SourceSignInService? SignIn = null,
+    Toucan.Core.Plugins.ISourceAdapterCatalog? SourceAdapters = null);
 
 /// <summary>
 /// State and commands for the main editor window. Split across partial files by concern:
@@ -133,6 +137,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _diagnostics = services.Diagnostics;
         _pluginCatalog = services.PluginCatalog;
         _defaultsService = services.Defaults;
+        InitializeSources(services);
         _inlineRuleDefaults = _defaultsService?.Load().ValidationRules ?? [];
 
         _translationStore.DirtyStateChanged += OnStoreDirtyStateChanged;
@@ -141,7 +146,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         editorLayout = Enum.TryParse<EditorLayout>(appOptions.EditorLayout, out var savedLayout) && Enum.IsDefined(savedLayout)
             ? savedLayout : EditorLayout.Cards;
         InitAi();
-        editorMode = PanelService.Instance.EditorMode;
+        editorMode = PanelService.Instance.IsPipelined ? PanelService.Instance.EditorMode : EditorMode.Editor;
 
         pagingController = new PaginationViewModel<LanguageGroupViewModel>(EffectivePageSize, [], EffectiveMaxItems);
 
@@ -317,9 +322,20 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             }));
     }
 
+    /// <summary>Translations whose approval was withdrawn and that wait for another review.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasNeedsReview), nameof(NeedsReviewSummary))]
+    private int needsReviewCount;
+    public bool HasNeedsReview => NeedsReviewCount > 0;
+    public string NeedsReviewSummary => NeedsReviewCount == 1 ? "1 translation needs another review" : $"{NeedsReviewCount} translations need another review";
+
+    /// <summary>Review actions taken in this session; written to the project's review history when it saves.</summary>
+    internal ReviewHistory ReviewHistory { get; } = new();
+
     internal void UpdateSummaryInfo()
     {
         SummaryInfo.Update(AllTranslation, PrimaryLanguage);
+        NeedsReviewCount = AllTranslation.Count(t => t.NeedsReview && !t.IsApproved);
         var parsable = AllTranslation.ForParse().ToList();
         var total = parsable.Count;
         var translated = parsable.Count(t => !string.IsNullOrEmpty(t.Value));
@@ -440,6 +456,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         if (!string.IsNullOrEmpty(item.Namespace)) SessionDirtyKeys.Add(item.Namespace);
         SessionDirtyCount = SessionDirtyKeys.Count;
         BumpWorkspaceRevision();
+        if (item.IsSource && Toucan.Core.Services.ReviewTracker.Reconcile(AllTranslation.Where(t => t.Namespace == item.Namespace), PrimaryLanguage) > 0)
+            foreach (var shown in PagingController.Data.SelectMany(g => g.AllItems).Where(v => v.Namespace == item.Namespace)) shown.Refresh();
         if (!_translationStore.IsItemDirty(item.Model))
         {
             // Approval-only changes are invisible to the store's baselines.
@@ -454,9 +472,12 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     internal TranslationItemViewModel CreateItemViewModel(TranslationItem item)
     {
         var resource = ProjectSettings?.ResourceDocuments.FirstOrDefault(d => d.Resource.Id == item.Identity?.ResourceId)?.Resource;
-        return new(item, _undoRedoService, _translationStore, OnTranslationItemChanged, CanApprove, _spellingSession, ValidateInlineItem)
+        var created = new TranslationItemViewModel(item, _undoRedoService, _translationStore, OnTranslationItemChanged, CanApprove, _spellingSession, ValidateInlineItem)
             { ResourcePath = resource?.RelativePath ?? "", IsArbResource = resource?.FormatId == FormatIds.Arb,
+              Reviewed = (model, approved) => ReviewHistory.Record(approved ? ReviewAction.Approved : ReviewAction.Unapproved, model),
               IsSource = string.Equals(item.Language, PrimaryLanguage, StringComparison.OrdinalIgnoreCase) };
+        ApplyDelivery(created);
+        return created;
     }
 
     private IReadOnlyList<ValidationResult> ValidateInlineItem(TranslationItemViewModel item)

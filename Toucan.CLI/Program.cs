@@ -27,7 +27,7 @@ namespace Toucan.CLI;
 ///   toucan set [folder] [key] [lang] [value] — Set a single translation
 ///   toucan plugins list|trust|revoke|enable|disable [id] — Manage plugins
 /// </summary>
-internal static class Program
+internal static partial class Program
 {
     /// <summary>Plugin IDs from <c>--allow-plugin</c>: trusted for this run only, nothing is saved.</summary>
     private static readonly HashSet<string> s_allowedPlugins = new(StringComparer.OrdinalIgnoreCase);
@@ -72,6 +72,15 @@ internal static class Program
             if (args[i] == "--allow-plugin") s_allowedPlugins.Add(args[i + 1]);
 
         if (command == "plugins") return RunPlugins(args);
+        if (command == "sources")
+        {
+            try { return RunSources(args); }
+            catch (Exception ex) when (ex is InvalidOperationException or IOException or UnauthorizedAccessException or Toucan.Plugins.Sources.SourceException or OperationCanceledException)
+            {
+                Console.Error.WriteLine(ex.Message);
+                return ex is Toucan.Plugins.Sources.SourceException { Error.Kind: Toucan.Plugins.Sources.SourceErrorKind.Authentication } ? SourcesExit.SignInRequired : 1;
+            }
+        }
 
         var folder = args.Length > 1 && !args[1].StartsWith('-') ? args[1] : Directory.GetCurrentDirectory();
 
@@ -157,6 +166,7 @@ internal static class Program
             Console.WriteLine($"  signature: {(p.Signature == PluginSignatureStatus.NotSigned ? "not signed" : p.Signature.ToString().ToLowerInvariant())}");
             if (p.ContentHash is { Length: > 0 } hash) Console.WriteLine($"  sha256:    {hash}");
             if (p.Registered is { Count: > 0 } reg) Console.WriteLine($"  provides:  {string.Join(", ", reg)}");
+            if (PluginNetworkText.Describe(p.Manifest) is { Length: > 0 } network) Console.WriteLine($"  network:   {network}");
             if (p.Error is { Length: > 0 } err) Console.WriteLine($"  note:      {err}");
             Console.WriteLine($"  folder:    {p.Directory}");
         }
@@ -524,11 +534,24 @@ internal static class Program
               plugins [list]              Show installed plugins and whether they are trusted
               plugins trust <id>          Trust a plugin's current files (it then loads)
               plugins revoke|enable|disable <id>
+              sources [list] [folder]     Show the project's content-source connections and their state
+              sources adapters            List the content-source adapters loaded plugins provide
+              sources accounts            List signed-in accounts; "sources accounts remove <id>" signs out
+              sources login <connection> [folder]  Sign in for a connection (device code, or --token-stdin)
+              sources test <connection> [folder]   Check that a connection's sign-in and remote project work
+              sources status <connection> [folder] [--json]   Last pull and push, bound translations, unconfirmed operations
+              sources pull|push|sync <connection> [folder] [--plan] [--yes] [--take remote|local] [--json]
+                                          Plan and apply changes; exit 0 done, 2 conflicts, 3 sign-in needed, 4 partly failed
 
             Plugins:
               Plugins live in Documents/Toucan/plugins (override: TOUCAN_PLUGINS_DIR). Only enabled, trusted
               plugins load; the CLI never prompts. Decisions are shared with the app (override the file with
               TOUCAN_PLUGIN_POLICY). --allow-plugin <id> trusts a plugin for one run without saving anything.
+
+            Sources:
+              login options: --method <id>, --token-stdin (read a token from standard input), --user <name> with
+              the password on standard input, --name <label>. In CI, set TOUCAN_SOURCE_TOKEN_<CONNECTION ID> instead
+              of signing in; the token is used for that run only. Exit codes: 0 ok, 3 sign-in required, 1 other.
 
             Translate options:
               -p, --provider <name>  Provider: mock, google, deepl, microsoft, ai, custom

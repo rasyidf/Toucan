@@ -22,6 +22,7 @@
         <ResourceInclude Source="avares://Toucan/Styles/Resources/Tokens.axaml"/>
       </ResourceDictionary.MergedDictionaries>
       <conv:LanguageNameConverter x:Key="LanguageName"/>
+      <conv:LanguageLabelConverter x:Key="LanguageLabel"/>
       <conv:SymbolConverter x:Key="Symbol"/>
       <conv:EqualsConverter x:Key="Equals"/>
       <conv:SeverityBrushConverter x:Key="SeverityBrush"/>

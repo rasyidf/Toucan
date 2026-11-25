@@ -37,7 +37,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
 
     private sealed record Unit(Guid Id, string Language, string Key, TranslationPath Namespace, TranslationPath KeyPath,
         string Value, string Comment, bool Approved, DateTime? Modified, DateTime? ApprovedAt, ChangeType ChangeType,
-        ImmutableDictionary<string, string>? FormatData, SourceBinding? Binding = null, string? Destination = null, ResourcePermissions? Permissions = null, ResourceEntryIdentity? Identity = null);
+        ImmutableDictionary<string, string>? FormatData, SourceBinding? Binding = null, string? Destination = null, ResourcePermissions? Permissions = null, ResourceEntryIdentity? Identity = null, bool NeedsReview = false, string? ReviewedSourceHash = null);
 
     public event EventHandler? Changed;
     public bool IsOpen { get { lock (_gate) return _settings is not null; } }
@@ -72,7 +72,8 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
                 _state = source.Units.ToImmutableDictionary(u => (u.EntryId.Value, u.Language), u => new Unit(u.EntryId.Value,
                     u.Language, string.Join('.', u.Namespace.Segments.Concat(u.KeyPath.Segments)), u.Namespace, u.KeyPath,
                     u.Value, u.Metadata?.Comment ?? string.Empty, u.Metadata?.Approved ?? false, u.Metadata?.Modified, u.Metadata?.ApprovedAt, u.Metadata?.ChangeType ?? ChangeType.DirectEdit,
-                    u.RawScalar is null ? null : ImmutableDictionary<string, string>.Empty.Add(NestedJsonParser.JsonScalarKey, u.RawScalar), u.Binding));
+                    u.RawScalar is null ? null : ImmutableDictionary<string, string>.Empty.Add(NestedJsonParser.JsonScalarKey, u.RawScalar), u.Binding,
+                    NeedsReview: (u.Metadata?.NeedsReview ?? false) && !(u.Metadata?.Approved ?? false), ReviewedSourceHash: u.Metadata?.ReviewedSourceHash));
                 PublishProjections();
                 store.Initialize(store.Translations.ToList());
             }
@@ -195,7 +196,9 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
                     if (!_state.TryGetValue(key, out var current)) continue;
                     _baseline.TryGetValue(key, out var previous);
                     _baseline = _baseline.SetItem(key, current with { Value = value, Comment = comment,
-                        Approved = previous?.Approved ?? current.Approved, ApprovedAt = previous?.ApprovedAt });
+                        Approved = previous?.Approved ?? current.Approved, ApprovedAt = previous?.ApprovedAt,
+                        NeedsReview = previous?.NeedsReview ?? current.NeedsReview,
+                        ReviewedSourceHash = previous is null ? current.ReviewedSourceHash : previous.ReviewedSourceHash });
                 }
             }
             _undo.Clear();
@@ -238,6 +241,22 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
     public IReadOnlyList<ValidationResult> Validate()
     {
         lock (_gate) return _settings is null ? [] : Validation(_state);
+    }
+
+    /// <summary>
+    /// Entry/language pairs that the strict validation policy (<see cref="ProjectSettings.RequireValidForApproval"/>)
+    /// keeps from being approved or delivered. Empty when the policy is off.
+    /// </summary>
+    public IReadOnlySet<(Guid EntryId, string Language)> PolicyBlockedUnits()
+    {
+        lock (_gate)
+        {
+            if (_settings is null || _closing || _settings.RequireValidForApproval != true) return new HashSet<(Guid, string)>();
+            var errors = Validation(_state).Where(r => r.Severity == ValidationSeverity.Error && r.Namespace is not null)
+                .Select(r => (r.Namespace!, r.Language)).ToHashSet();
+            return _state.Values.Where(u => errors.Contains((u.Key, u.Language)) || errors.Contains((u.Key, null)))
+                .Select(u => (u.Id, u.Language)).ToHashSet();
+        }
     }
 
     public IReadOnlyList<TranslationItem> ApprovalBlockers(IReadOnlyCollection<TranslationItem> items)
@@ -293,7 +312,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             RefreshContext();
             var snapshot = _settings is null ? null : new WorkspaceSnapshot(_settings.ProjectPath, _settings.ProjectPath,
                 PrimaryLanguage(), Languages(), _state.Values.Select(u => new UnitSnapshot(u.Key, u.Language, u.Value,
-                    u.Comment, u.Approved ? ReviewState.Approved : ReviewState.Draft, Dirty(u))).ToImmutableArray(), _revision);
+                    u.Comment, ReviewStateMapping.ToState(u.Approved, u.NeedsReview), Dirty(u))).ToImmutableArray(), _revision);
             return Task.FromResult(snapshot);
         }
     }
@@ -310,7 +329,14 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
         }
     }
 
-    public EditResult Apply(string pluginId, WorkspaceEdit edit, Guid? expectedSession = null, CancellationToken cancellationToken = default)
+    public EditResult Apply(string pluginId, WorkspaceEdit edit, Guid? expectedSession = null, CancellationToken cancellationToken = default) =>
+        ApplyCore(pluginId, WorkspaceChangeOrigin.Plugin, edit, expectedSession, cancellationToken);
+
+    /// <summary>Applies key-addressed edits pulled from a content source as one transaction with origin <see cref="WorkspaceChangeOrigin.Source"/>.</summary>
+    public EditResult ApplySource(string connectionId, WorkspaceEdit edit, Guid? expectedSession = null, CancellationToken cancellationToken = default) =>
+        ApplyCore(connectionId, WorkspaceChangeOrigin.Source, edit, expectedSession, cancellationToken);
+
+    private EditResult ApplyCore(string pluginId, WorkspaceChangeOrigin origin, WorkspaceEdit edit, Guid? expectedSession, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(edit);
         cancellationToken.ThrowIfCancellationRequested();
@@ -331,7 +357,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             var next = Capture(items, adoptProjection: false);
             var findings = Findings(next);
             cancellationToken.ThrowIfCancellationRequested();
-            Commit(next, WorkspaceChangeOrigin.Plugin, pluginId);
+            Commit(next, origin, pluginId);
             PublishProjections();
             result = new(true, plan.ChangedUnits, _revision, plan.Issues, findings);
         }
@@ -339,7 +365,14 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
         return result;
     }
 
-    public EditResult ApplyEntries(string pluginId, EntryEdit edit, CancellationToken cancellationToken = default)
+    public EditResult ApplyEntries(string pluginId, EntryEdit edit, CancellationToken cancellationToken = default) =>
+        ApplyEntriesCore(pluginId, WorkspaceChangeOrigin.Plugin, edit, cancellationToken);
+
+    /// <summary>Applies identified edits pulled from a content source as one transaction with origin <see cref="WorkspaceChangeOrigin.Source"/>.</summary>
+    public EditResult ApplySourceEntries(string connectionId, EntryEdit edit, CancellationToken cancellationToken = default) =>
+        ApplyEntriesCore(connectionId, WorkspaceChangeOrigin.Source, edit, cancellationToken);
+
+    private EditResult ApplyEntriesCore(string pluginId, WorkspaceChangeOrigin origin, EntryEdit edit, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(edit);
         cancellationToken.ThrowIfCancellationRequested();
@@ -389,8 +422,19 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
                         {
                             SetEntryValue value when value.Value != current.Value => current with { Value = value.Value, Modified = now, ChangeType = ChangeType.External },
                             SetEntryComment comment when comment.Comment != current.Comment => current with { Comment = comment.Comment, Modified = now },
-                            SetEntryReview review when current.Approved != (review.State == ReviewState.Approved) => current with { Approved = review.State == ReviewState.Approved,
-                                ApprovedAt = review.State == ReviewState.Approved ? now : null },
+                            SetEntryReview review when ReviewStateMapping.ToFlags(review.State) != (current.Approved, current.NeedsReview) => current with
+                            {
+                                Approved = review.State == ReviewState.Approved,
+                                NeedsReview = review.State == ReviewState.NeedsReview,
+                                ApprovedAt = review.State == ReviewState.Approved ? now : null,
+                                ReviewedSourceHash = review.State switch
+                                {
+                                    ReviewState.Approved => ReviewTracker.Hash(ReviewTracker.ResolveSourceLanguage(next.Keys.Where(k => k.Item1 == current.Id).Select(k => k.Item2), PrimaryLanguage()) is { } source
+                                        ? next[(current.Id, source)].Value : null),
+                                    ReviewState.NeedsReview => current.ReviewedSourceHash,
+                                    _ => null
+                                },
+                            },
                             _ => current
                         };
                         break;
@@ -406,7 +450,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             var changed = final.Count(p => !_state.TryGetValue(p.Key, out var old) || !Equivalent(old, p.Value)) + _state.Keys.Count(k => !final.ContainsKey(k));
             var findings = Findings(final);
             cancellationToken.ThrowIfCancellationRequested();
-            Commit(final, WorkspaceChangeOrigin.Plugin, pluginId);
+            Commit(final, origin, pluginId);
             PublishProjections();
             result = new(true, changed, _revision, [], findings);
         }
@@ -441,7 +485,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
     }
     private bool Dirty(Unit unit) => !_baseline.TryGetValue((unit.Id, unit.Language), out var saved) || !Equivalent(unit, saved);
     private static bool Equivalent(Unit a, Unit b) => a.Id == b.Id && a.Language == b.Language && a.Key == b.Key
-        && a.Namespace.Equals(b.Namespace) && a.KeyPath.Equals(b.KeyPath) && a.Value == b.Value && a.Comment == b.Comment && a.Approved == b.Approved && a.Binding == b.Binding && a.Destination == b.Destination
+        && a.Namespace.Equals(b.Namespace) && a.KeyPath.Equals(b.KeyPath) && a.Value == b.Value && a.Comment == b.Comment && a.Approved == b.Approved && a.NeedsReview == b.NeedsReview && a.ReviewedSourceHash == b.ReviewedSourceHash && a.Binding == b.Binding && a.Destination == b.Destination
         && (a.Permissions ?? ResourcePermissions.Editable) == (b.Permissions ?? ResourcePermissions.Editable) && a.Identity?.Address == b.Identity?.Address
         && a.Modified == b.Modified && a.ApprovedAt == b.ApprovedAt && a.ChangeType == b.ChangeType
         && (a.FormatData is null ? b.FormatData is null : b.FormatData is not null && a.FormatData.Count == b.FormatData.Count
@@ -497,7 +541,8 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             var unit = new Unit(id, item.Language, item.Namespace, ns, keyPath, item.Value ?? string.Empty,
                 item.Comment ?? string.Empty, item.IsApproved, item.LastModifiedUtc, item.ApprovedAtUtc, item.ChangeType,
                 item.FormatData?.ToImmutableDictionary(StringComparer.Ordinal), previous?.Binding, previous?.Destination, item.Permissions,
-                item.Identity is null ? null : item.Identity with { Path = item.Identity.Path.ToImmutableArray() });
+                item.Identity is null ? null : item.Identity with { Path = item.Identity.Path.ToImmutableArray() }, item.NeedsReview && !item.IsApproved,
+                item.ReviewedSourceHash);
             if (previous is null || !Equivalent(previous, unit)) result[key] = unit;
             if (adoptProjection) _projections[(id, item.Language)] = item;
         }
@@ -533,6 +578,8 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
         item.Value = unit.Value;
         item.Comment = unit.Comment;
         item.IsApproved = unit.Approved;
+        item.NeedsReview = unit.NeedsReview;
+        item.ReviewedSourceHash = unit.ReviewedSourceHash;
         item.LastModifiedUtc = unit.Modified;
         item.ApprovedAtUtc = unit.ApprovedAt;
         item.ChangeType = unit.ChangeType;
@@ -594,8 +641,12 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             case SetComment comment: Find(comment.Key, comment.Language).Comment = comment.Comment; break;
             case SetReview review:
                 var approved = Find(review.Key, review.Language);
-                approved.IsApproved = review.State == ReviewState.Approved;
+                (approved.IsApproved, approved.NeedsReview) = ReviewStateMapping.ToFlags(review.State);
                 approved.ApprovedAtUtc = approved.IsApproved ? now : null;
+                if (approved.IsApproved)
+                    approved.ReviewedSourceHash = ReviewTracker.Hash(ReviewTracker.ResolveSourceLanguage(items.Where(i => i.Namespace == review.Key).Select(i => i.Language), PrimaryLanguage()) is { } source
+                        ? items.First(i => i.Namespace == review.Key && i.Language == source).Value : null);
+                else if (!approved.NeedsReview) approved.ReviewedSourceHash = null;
                 break;
             case AddKey add:
                 var id = Guid.NewGuid();

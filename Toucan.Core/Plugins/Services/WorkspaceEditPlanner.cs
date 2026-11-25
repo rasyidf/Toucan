@@ -134,14 +134,15 @@ public static class WorkspaceEditPlanner
             case SetReview review:
             {
                 if (!sim.TryUnit(index, review.Key, review.Language, issues, out var unit)) return 0;
-                var approve = review.State == ReviewState.Approved;
-                if (unit.IsApproved == approve) return 0;
+                var (approve, needsReview) = ReviewStateMapping.ToFlags(review.State);
+                if (unit.IsApproved == approve && (unit.NeedsReview && !unit.IsApproved) == needsReview) return 0;
                 if (approve && string.IsNullOrEmpty(unit.Value))
                 {
                     issues.Add(new EditIssue(index, EditIssueKind.Empty, $"'{review.Key}' [{review.Language}] is empty and cannot be approved."));
                     return 0;
                 }
                 unit.IsApproved = approve;
+                unit.NeedsReview = needsReview;
                 return 1;
             }
 

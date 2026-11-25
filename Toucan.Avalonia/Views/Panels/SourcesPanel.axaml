@@ -1,0 +1,121 @@
+<UserControl x:Class="Toucan.Avalonia.Views.Panels.SourcesPanel"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:loc="using:Toucan.Avalonia.Locales"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:FluentAvalonia.UI.Controls">
+  <ScrollViewer>
+    <StackPanel Margin="12,10,12,14" Spacing="10">
+      <TextBlock Text="{Binding Sources.Summary}" Classes="caption" AutomationProperties.LiveSetting="Polite"/>
+
+      <Border Classes="card" Padding="16" IsVisible="{Binding Sources.HasNoConnections}">
+        <StackPanel Spacing="12">
+          <ui:FASymbolIcon Symbol="Sync" FontSize="22" HorizontalAlignment="Left" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+          <StackPanel Spacing="4">
+            <TextBlock Text="{loc:Loc 'No connections yet'}" FontWeight="SemiBold"/>
+            <TextBlock Classes="caption" TextWrapping="Wrap"
+                       Text="{loc:Loc 'Connect this project to a translation service or another place its translations live.'}"/>
+          </StackPanel>
+          <Button Classes="accent" Command="{Binding Sources.AddConnectionCommand}" HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <ui:FASymbolIcon Symbol="Add" FontSize="14"/>
+              <TextBlock Text="{loc:Loc 'Add connection…'}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </Border>
+
+      <ItemsControl ItemsSource="{Binding Sources.Connections}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border Classes="card" Padding="14" Margin="0,0,0,10" AutomationProperties.Name="{Binding AccessibleName}">
+              <StackPanel Spacing="10">
+                <!-- Title row: name and service, status pill -->
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                  <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource SelectedBackgroundBrush}" VerticalAlignment="Top">
+                    <ui:FASymbolIcon Symbol="Sync" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                     Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+                  </Border>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="{Binding AdapterName}" Classes="caption" TextTrimming="CharacterEllipsis"/>
+                  </StackPanel>
+                  <Border Grid.Column="2" Background="{DynamicResource BadgeBackgroundBrush}" CornerRadius="10" Padding="8,2" VerticalAlignment="Top">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <ui:FAProgressRing IsIndeterminate="True" Width="12" Height="12" VerticalAlignment="Center" IsVisible="{Binding IsBusy}"/>
+                      <Ellipse Classes="statusDot" Classes.good="{Binding IsStatusGood}" Classes.warn="{Binding IsStatusWarn}" Classes.bad="{Binding IsStatusBad}"
+                               IsVisible="{Binding !IsBusy}" VerticalAlignment="Center"/>
+                      <TextBlock Text="{Binding StateText}" FontSize="12" VerticalAlignment="Center"/>
+                    </StackPanel>
+                  </Border>
+                </Grid>
+
+                <ProgressBar IsIndeterminate="True" Height="3" MinHeight="0" IsVisible="{Binding IsBusy}" AutomationProperties.Name="{loc:Loc 'Syncing'}"/>
+
+                <!-- Last pull and push -->
+                <StackPanel Spacing="4">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <ui:FASymbolIcon Symbol="Download" FontSize="12" Opacity="0.7" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding LastPullText}" Classes="caption" VerticalAlignment="Center"/>
+                  </StackPanel>
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <ui:FASymbolIcon Symbol="Upload" FontSize="12" Opacity="0.7" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding LastPushText}" Classes="caption" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding PendingText}" Classes="caption" Foreground="{DynamicResource WarnBrush}" IsVisible="{Binding PendingCount}"/>
+                  </StackPanel>
+                </StackPanel>
+
+                <!-- Things that need the user -->
+                <ui:FAInfoBar Severity="Warning" IsOpen="{Binding NeedsSignIn}" IsClosable="False" Title="{loc:Loc 'Signed out'}" Message="{Binding SignInText}">
+                  <ui:FAInfoBar.ActionButton>
+                    <Button Content="{loc:Loc 'Sign in'}" Command="{Binding SignInCommand}"/>
+                  </ui:FAInfoBar.ActionButton>
+                </ui:FAInfoBar>
+                <ui:FAInfoBar Severity="Error" IsOpen="{Binding HasConflicts}" IsClosable="False" Title="{loc:Loc 'Conflicts'}" Message="{Binding ConflictsText}">
+                  <ui:FAInfoBar.ActionButton>
+                    <Button Content="{loc:Loc 'Review'}" Command="{Binding ConflictsCommand}" CommandParameter="{Binding}"/>
+                  </ui:FAInfoBar.ActionButton>
+                </ui:FAInfoBar>
+
+                <!-- Actions: Sync is the main one, Pull and Push the two halves, the rest in the menu -->
+                <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="6">
+                  <Button Classes="accent" HorizontalAlignment="Stretch" IsEnabled="{Binding CanSync}" Command="{Binding SyncCommand}" CommandParameter="{Binding}"
+                          AutomationProperties.Name="{loc:Loc 'Sync'}">
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                      <ui:FASymbolIcon Symbol="Sync" FontSize="14"/>
+                      <TextBlock Text="{loc:Loc 'Sync'}"/>
+                    </StackPanel>
+                  </Button>
+                  <Button Grid.Column="1" IsEnabled="{Binding CanSync}" Command="{Binding PullCommand}" CommandParameter="{Binding}" ToolTip.Tip="{loc:Loc 'Pull'}"
+                          AutomationProperties.Name="{loc:Loc 'Pull'}">
+                    <ui:FASymbolIcon Symbol="Download"/>
+                  </Button>
+                  <Button Grid.Column="2" IsEnabled="{Binding CanSync}" Command="{Binding PushCommand}" CommandParameter="{Binding}" ToolTip.Tip="{loc:Loc 'Push'}"
+                          AutomationProperties.Name="{loc:Loc 'Push'}">
+                    <ui:FASymbolIcon Symbol="Upload"/>
+                  </Button>
+                  <Button Grid.Column="3" ToolTip.Tip="{loc:Loc 'More'}" AutomationProperties.Name="{loc:Loc 'More'}">
+                    <ui:FASymbolIcon Symbol="More"/>
+                    <Button.Flyout>
+                      <MenuFlyout Placement="BottomEdgeAlignedRight">
+                        <MenuItem Header="{loc:Loc 'Test connection'}" Command="{Binding TestCommand}" CommandParameter="{Binding}">
+                          <MenuItem.Icon><ui:FASymbolIcon Symbol="Accept"/></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{loc:Loc 'Edit'}" Command="{Binding EditCommand}" CommandParameter="{Binding}">
+                          <MenuItem.Icon><ui:FASymbolIcon Symbol="Edit"/></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator/>
+                        <MenuItem Header="{loc:Loc 'Remove'}" Command="{Binding RemoveCommand}" CommandParameter="{Binding}">
+                          <MenuItem.Icon><ui:FASymbolIcon Symbol="Delete"/></MenuItem.Icon>
+                        </MenuItem>
+                      </MenuFlyout>
+                    </Button.Flyout>
+                  </Button>
+                </Grid>
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

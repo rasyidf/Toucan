@@ -52,6 +52,12 @@ public sealed record PluginManifest
     /// <summary>What the plugin registers; the host rejects registrations outside this set (see <see cref="PluginCapabilities"/>).</summary>
     public IReadOnlyList<string> Capabilities { get; init; } = [];
 
+    /// <summary>
+    /// The network hosts the plugin talks to, shown when the user decides whether to trust it. Optional for most plugins;
+    /// required with the <c>sources</c> capability (plugin API 1.3), where the host's source HTTP client refuses other hosts.
+    /// </summary>
+    public NetworkAccess? Network { get; init; }
+
     /// <summary>Parses and validates a manifest. Returns false with human-readable errors instead of throwing.</summary>
     public static bool TryParse(string json, out PluginManifest manifest, out IReadOnlyList<string> errors)
     {
@@ -117,6 +123,17 @@ public sealed record PluginManifest
 
         foreach (var capability in (Capabilities ?? []).Except(PluginCapabilities.All, StringComparer.OrdinalIgnoreCase))
             yield return $"Unknown capability '{capability}'. Known: {string.Join(", ", PluginCapabilities.All)}.";
+
+        if (Network is not null)
+            foreach (var problem in Network.Validate()) yield return $"'network': {problem}";
+
+        if ((Capabilities ?? []).Contains(PluginCapabilities.Sources, StringComparer.OrdinalIgnoreCase))
+        {
+            if (ParsedApiVersion is { } api && api < PluginCapabilities.SourcesSince)
+                yield return $"The '{PluginCapabilities.Sources}' capability needs 'apiVersion' {PluginCapabilities.SourcesSince} or newer.";
+            if (Network is null || (Network.Hosts.Count == 0 && !Network.UserDefinedHosts))
+                yield return $"The '{PluginCapabilities.Sources}' capability needs a 'network' block listing 'hosts' or allowing 'userDefinedHosts'.";
+        }
     }
 
     private static bool IsValidId(string id) =>
@@ -151,6 +168,49 @@ public sealed record DesktopEntry
     }
 }
 
+/// <summary>The <c>network</c> object of a manifest: where the plugin may connect.</summary>
+public sealed record NetworkAccess
+{
+    /// <summary>Host names such as <c>api.example.com</c>, or <c>*.example.com</c> for every subdomain. No scheme, port or path.</summary>
+    public IReadOnlyList<string> Hosts { get; init; } = [];
+
+    /// <summary>Whether an account may point the plugin at a host the user types in (self-hosted servers).</summary>
+    public bool UserDefinedHosts { get; init; }
+
+    /// <summary>Whether <paramref name="host"/> is one of <see cref="Hosts"/>. A wildcard matches subdomains, not the bare domain.</summary>
+    public bool Allows(string host)
+    {
+        ArgumentNullException.ThrowIfNull(host);
+        var candidate = host.TrimEnd('.').ToLowerInvariant();
+        foreach (var entry in Hosts ?? [])
+        {
+            var pattern = entry.ToLowerInvariant();
+            if (pattern.StartsWith("*.", StringComparison.Ordinal)
+                    ? candidate.EndsWith(pattern[1..], StringComparison.Ordinal) && candidate.Length > pattern.Length - 1
+                    : candidate == pattern)
+                return true;
+        }
+        return false;
+    }
+
+    internal IEnumerable<string> Validate()
+    {
+        foreach (var host in Hosts ?? [])
+            if (!IsValidHost(host)) yield return $"'{host}' is not a host name. Use names like api.example.com or *.example.com, without scheme, port or path.";
+    }
+
+    private static bool IsValidHost(string host)
+    {
+        if (string.IsNullOrWhiteSpace(host) || host.Length > 253) return false;
+        var name = host.StartsWith("*.", StringComparison.Ordinal) ? host[2..] : host;
+        var labels = name.Split('.');
+        // A wildcard needs at least a registrable domain under it (*.example.com, not *.com).
+        if (host.StartsWith('*') && labels.Length < 2) return false;
+        return labels.All(l => l.Length is > 0 and <= 63 && l[0] != '-' && l[^1] != '-'
+                               && l.All(c => c is (>= 'a' and <= 'z') or (>= '0' and <= '9') or '-'));
+    }
+}
+
 /// <summary>Capabilities a plugin may declare in its manifest.</summary>
 public static class PluginCapabilities
 {
@@ -162,7 +222,13 @@ public static class PluginCapabilities
     public const string Commands = "commands";
     public const string Desktop = "desktop";
 
-    public static IReadOnlyList<string> All { get; } = [Formats, Providers, Validation, Frameworks, Activation, Commands, Desktop];
+    /// <summary>Content-source adapters (plugin API 1.3). Needs a <c>network</c> block in the manifest.</summary>
+    public const string Sources = "sources";
+
+    /// <summary>The plugin API version that introduced <see cref="Sources"/>.</summary>
+    public static Version SourcesSince { get; } = new(1, 3);
+
+    public static IReadOnlyList<string> All { get; } = [Formats, Providers, Validation, Frameworks, Activation, Commands, Desktop, Sources];
 }
 
 /// <summary>Operating systems a plugin can name in its manifest <c>platforms</c>.</summary>

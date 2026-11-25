@@ -29,18 +29,25 @@ public interface IWorkspaceSubscriptionBackend : IIdentifiedWorkspaceBackend
     Task<IWorkspaceSubscription?> SubscribeAsync(int capacity = 128, CancellationToken cancellationToken = default);
 }
 
-/// <summary>A plugin's view of the host's workspace: the same backend, with the plugin's ID on its edits.</summary>
+/// <summary>
+/// A plugin's view of the host's workspace: the same backend, with the plugin's ID on its edits. Review states newer than
+/// the plugin's API version are shown as the closest state it knows (<see cref="ReviewState.NeedsReview"/> as Draft before 1.3).
+/// </summary>
 internal sealed class PluginWorkspaceApi : IWorkspaceSubscriptionApi
 {
     private readonly string _pluginId;
     private readonly PluginServicesBroker _broker;
+    private readonly Version _apiVersion;
     private IWorkspaceBackend? _backend;
 
-    public PluginWorkspaceApi(string pluginId, PluginServicesBroker broker)
+    public PluginWorkspaceApi(string pluginId, PluginServicesBroker broker, Version? apiVersion = null)
     {
         _pluginId = pluginId;
         _broker = broker;
+        _apiVersion = apiVersion ?? PluginApi.Current;
     }
+
+    private bool HidesNeedsReview => _apiVersion < ReviewStateMapping.NeedsReviewSince;
 
     private EventHandler? _changed;
 
@@ -74,8 +81,14 @@ internal sealed class PluginWorkspaceApi : IWorkspaceSubscriptionApi
 
     public bool IsOpen => Backend?.IsOpen == true;
 
-    public Task<WorkspaceSnapshot?> SnapshotAsync(CancellationToken cancellationToken = default) =>
-        Backend is { } backend ? backend.SnapshotAsync(cancellationToken) : Task.FromResult<WorkspaceSnapshot?>(null);
+    public async Task<WorkspaceSnapshot?> SnapshotAsync(CancellationToken cancellationToken = default)
+    {
+        if (Backend is not { } backend) return null;
+        var snapshot = await backend.SnapshotAsync(cancellationToken).ConfigureAwait(false);
+        if (snapshot is null || !HidesNeedsReview || !snapshot.Units.Any(u => u.Review == ReviewState.NeedsReview)) return snapshot;
+        return new WorkspaceSnapshot(snapshot.WorkspaceId, snapshot.ProjectPath, snapshot.PrimaryLanguage, snapshot.Languages,
+            [.. snapshot.Units.Select(u => u.Review == ReviewState.NeedsReview ? u with { Review = ReviewState.Draft } : u)], snapshot.Revision);
+    }
 
     public Task<EditResult> ApplyAsync(WorkspaceEdit edit, CancellationToken cancellationToken = default)
     {
@@ -85,8 +98,12 @@ internal sealed class PluginWorkspaceApi : IWorkspaceSubscriptionApi
             : Task.FromResult(EditResult.Refused(0, new EditIssue(-1, EditIssueKind.NoProject, "No project is open.")));
     }
 
-    public Task<IdentifiedWorkspaceSnapshot?> SnapshotEntriesAsync(CancellationToken cancellationToken = default) =>
-        Backend is IIdentifiedWorkspaceBackend backend ? backend.SnapshotEntriesAsync(cancellationToken) : Task.FromResult<IdentifiedWorkspaceSnapshot?>(null);
+    public async Task<IdentifiedWorkspaceSnapshot?> SnapshotEntriesAsync(CancellationToken cancellationToken = default)
+    {
+        if (Backend is not IIdentifiedWorkspaceBackend backend) return null;
+        var snapshot = await backend.SnapshotEntriesAsync(cancellationToken).ConfigureAwait(false);
+        return snapshot is null ? null : ForApi(snapshot);
+    }
 
     public Task<EditResult> ApplyEntriesAsync(EntryEdit edit, CancellationToken cancellationToken = default)
     {
@@ -95,6 +112,36 @@ internal sealed class PluginWorkspaceApi : IWorkspaceSubscriptionApi
             : Task.FromResult(EditResult.Refused(0, new EditIssue(-1, EditIssueKind.NoProject, "No identified workspace is available.")));
     }
 
-    public Task<IWorkspaceSubscription?> SubscribeAsync(int capacity = 128, CancellationToken cancellationToken = default) =>
-        Backend is IWorkspaceSubscriptionBackend backend ? backend.SubscribeAsync(capacity, cancellationToken) : Task.FromResult<IWorkspaceSubscription?>(null);
+    public async Task<IWorkspaceSubscription?> SubscribeAsync(int capacity = 128, CancellationToken cancellationToken = default)
+    {
+        if (Backend is not IWorkspaceSubscriptionBackend backend) return null;
+        var subscription = await backend.SubscribeAsync(capacity, cancellationToken).ConfigureAwait(false);
+        return subscription is null || !HidesNeedsReview ? subscription : new DowngradedSubscription(subscription, this);
+    }
+
+    private IdentifiedWorkspaceSnapshot ForApi(IdentifiedWorkspaceSnapshot snapshot) =>
+        !HidesNeedsReview || !snapshot.Units.Any(u => u.Review == ReviewState.NeedsReview) ? snapshot
+            : snapshot with { Units = [.. snapshot.Units.Select(ForApi)] };
+
+    private IdentifiedUnitSnapshot ForApi(IdentifiedUnitSnapshot unit) =>
+        unit.Review == ReviewState.NeedsReview && HidesNeedsReview ? unit with { Review = ReviewState.Draft } : unit;
+
+    private WorkspaceChange ForApi(WorkspaceChange change) =>
+        !change.Units.Any(u => u.Unit?.Review == ReviewState.NeedsReview) ? change
+            : change with { Units = [.. change.Units.Select(u => u.Unit is { } unit ? u with { Unit = ForApi(unit) } : u)] };
+
+    /// <summary>The backend's subscription with review states a pre-1.3 plugin knows.</summary>
+    private sealed class DowngradedSubscription(IWorkspaceSubscription inner, PluginWorkspaceApi api) : IWorkspaceSubscription
+    {
+        public IdentifiedWorkspaceSnapshot InitialSnapshot { get; } = api.ForApi(inner.InitialSnapshot);
+
+        public IAsyncEnumerable<WorkspaceChange> Changes => Map(inner.Changes);
+
+        private async IAsyncEnumerable<WorkspaceChange> Map(IAsyncEnumerable<WorkspaceChange> changes)
+        {
+            await foreach (var change in changes.ConfigureAwait(false)) yield return api.ForApi(change);
+        }
+
+        public ValueTask DisposeAsync() => inner.DisposeAsync();
+    }
 }

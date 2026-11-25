@@ -5,9 +5,10 @@ public partial class PromptDialog : DialogWindow
 {
     public PromptDialog() : this(string.Empty, string.Empty) { }
 
-    public PromptDialog(string title, string message, string defaultValue = "")
+    public PromptDialog(string title, string message, string defaultValue = "", bool secret = false)
     {
         InitializeComponent();
+        if (secret) Input.PasswordChar = '•';
         Title = title;
         TitleText.Text = title;
         MessageText.Text = message;

@@ -48,13 +48,13 @@ public sealed class BuiltInModulesPageTests
     }
 
     [AvaloniaFact]
-    public void TheRealCompositionListsAllEightShippedModules()
+    public void TheRealCompositionListsAllNineShippedModules()
     {
         var host = new TestHost();
         var vm = Options(host.Services.GetRequiredService<IPluginCatalog>());
 
         Assert.Equal(
-            ["toucan.compatibility.babeledit", "toucan.formats.data", "toucan.formats.json", "toucan.formats.text", "toucan.formats.xml", "toucan.frameworks", "toucan.providers", "toucan.validation"],
+            ["toucan.compatibility.babeledit", "toucan.formats.data", "toucan.formats.json", "toucan.formats.text", "toucan.formats.xml", "toucan.frameworks", "toucan.providers", "toucan.sources", "toucan.validation"],
             vm.BuiltInModules.Select(m => m.Id).Order(StringComparer.Ordinal));
         Assert.All(vm.BuiltInModules, m => Assert.True(m.HasVersion));
     }

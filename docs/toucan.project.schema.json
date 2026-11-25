@@ -21,6 +21,28 @@
       }
     },
     "primaryLanguage": {"type":"string"},
+    "sources": {
+      "description": "Connections to content sources. Never contains credentials; each user signs in with their own account.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {"type":"string","minLength":1},
+          "name": {"type":"string"},
+          "adapter": {"type":"string","description":"Content-source adapter ID, e.g. acme.lokalise.api"},
+          "plugin": {"type":"string","description":"Owning plugin for a plugin-managed connection without an adapter"},
+          "baseUrl": {"type":"string","format":"uri"},
+          "remoteProject": {"type":"object","required":["id"],"properties":{"id":{"type":"string"},"name":{"type":"string"}}},
+          "role": {"enum":["mirror","primary"]},
+          "languages": {"type":"object","additionalProperties":{"type":"string"},"description":"Project language to remote language code"},
+          "resources": {"type":"array","items":{"type":"object","required":["remote"],"properties":{"remote":{"type":"string"},"package":{"type":["string","null"]}}}},
+          "keys": {"type":"object","properties":{"separator":{"type":"string","minLength":1},"caseSensitive":{"type":"boolean"}}},
+          "policy": {"type":"object","properties":{"connectOnOpen":{"type":"boolean"},"pushStatuses":{"type":"boolean"},"pushComments":{"type":"boolean"},"deleteRemote":{"enum":["ask","never","always"]}}},
+          "settings": {"type":"object"}
+        }
+      }
+    },
     "embeddedSourceTexts": {"type":"boolean"},
     "editorConfiguration": {"type":"object"},
     "configuration": {"type":"object"},

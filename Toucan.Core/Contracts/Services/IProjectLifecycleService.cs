@@ -66,6 +66,9 @@ public interface IProjectLifecycleService
     /// <summary>Replaces a configured source connection within the open workspace, closing its connection scope and activating the replacement without restarting the workspace.</summary>
     Task<bool> ReplaceConnectionAsync(string oldConnectionId, string newConnectionId, CancellationToken ct = default);
 
+    /// <summary>The open project's content-source connections, or null in a host without them.</summary>
+    Sources.ISourceConnectionService? Sources => null;
+
     /// <summary>Raised when the project changes (open/close/save).</summary>
     event EventHandler<ProjectChangedEventArgs>? ProjectChanged;
 }

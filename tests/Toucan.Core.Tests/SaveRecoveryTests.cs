@@ -176,7 +176,7 @@ public sealed class SaveRecoveryTests : IDisposable
         await using var activation = new PluginActivationService([]);
         var session = await OpenAsync(activation: activation);
         var before = (await session.Workspace.SnapshotEntriesAsync())!;
-        await activation.OpenConnectionAsync(_project, "remote");
+        await activation.OpenConnectionAsync(_project, "remote", "sample.connector");
         var target = Path.Combine(_root, "copy");
         Assert.Equal(ProjectSaveStatus.Success, (await session.Lifecycle.SaveProjectAsAsync(target)).Status);
         var after = (await session.Workspace.SnapshotEntriesAsync())!;
@@ -490,7 +490,7 @@ public sealed class SaveRecoveryTests : IDisposable
     public async Task ConfiguredSourceConnectionsActivateAfterWorkspacePublicationAndUnwindOnFailure()
     {
         var settings = ProjectSettings.LoadFrom(_project)!;
-        settings.SourceConnections = ["ok-conn", "fail-conn"];
+        settings.Sources = [new() { Id = "ok-conn", Plugin = "p2" }, new() { Id = "fail-conn", Plugin = "p3" }];
         settings.Save();
 
         var events = new List<string>();
@@ -546,7 +546,7 @@ public sealed class SaveRecoveryTests : IDisposable
     public async Task SourceConnectionReplacementPreservesWorkspaceScopeAndReconcilesDirtyEdits()
     {
         var settings = ProjectSettings.LoadFrom(_project)!;
-        settings.SourceConnections = ["conn-a"];
+        settings.Sources = [new() { Id = "conn-a", Plugin = "pc" }];
         settings.Save();
 
         var events = new List<string>();
@@ -586,8 +586,8 @@ public sealed class SaveRecoveryTests : IDisposable
 
         await using var activation = new PluginActivationService([
             new("p1", "ws", workspaceProbe),
-            new("p2", "conn-a", connAProbe),
-            new("p3", "conn-b", connBProbe)]);
+            new("pc", "conn-a", connAProbe),
+            new("pc", "conn-b", connBProbe)]);
 
         var session = await OpenAsync(activation: activation);
         Assert.Contains("workspace-activated", events);
@@ -620,7 +620,7 @@ public sealed class SaveRecoveryTests : IDisposable
     public async Task HostShutdownOrderingDisposesConnectionsThenWorkspaceThenApplication()
     {
         var settings = ProjectSettings.LoadFrom(_project)!;
-        settings.SourceConnections = ["conn"];
+        settings.Sources = [new() { Id = "conn", Plugin = "p3" }];
         settings.Save();
 
         var teardownOrder = new List<string>();

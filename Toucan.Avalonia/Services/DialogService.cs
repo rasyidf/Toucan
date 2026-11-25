@@ -67,6 +67,9 @@ public sealed class DialogService(IServiceProvider services) : IDialogService
     public Task<string?> ShowPromptAsync(string title, string message, string defaultValue = "") =>
         new PromptDialog(title, message, defaultValue).ShowDialog<string?>(Owner);
 
+    public Task<string?> ShowSecretPromptAsync(string title, string message) =>
+        new PromptDialog(title, message, secret: true).ShowDialog<string?>(Owner);
+
     public Task<string?> ShowPickAsync(string title, string message, IReadOnlyList<string> options, string? selected = null) =>
         new PickDialog(title, message, options, selected).ShowDialog<string?>(Owner);
 
@@ -139,6 +142,27 @@ public sealed class DialogService(IServiceProvider services) : IDialogService
         var vm = new LanguageManagerViewModel(allTranslations, primaryLanguage);
         return await new ManageLanguagesDialog(vm).ShowDialog<bool>(Owner) ? vm : null;
     }
+
+    public async Task<bool> ShowSyncPlanAsync(SyncPlanViewModel vm)
+    {
+        var dialog = new SyncPlanDialog(vm);
+        await dialog.ShowDialog(Owner);
+        return vm.Confirmed;
+    }
+
+    public async Task<SourceConnectionSettings?> ShowAddConnectionAsync(AddConnectionViewModel vm)
+    {
+        await new AddConnectionDialog(vm).ShowDialog(Owner);
+        return vm.Saved;
+    }
+
+    public async Task<Toucan.Core.Sources.RemoteProjectResult?> ShowOpenFromServiceAsync(OpenFromServiceViewModel vm)
+    {
+        await new OpenFromServiceDialog(vm).ShowDialog(Owner);
+        return vm.Result;
+    }
+
+    public Task ShowAccountsAsync(AccountsViewModel vm) => new AccountsDialog(vm).ShowDialog(Owner);
 
     public Task ShowStatisticsAsync(IEnumerable<TranslationItem> translations) =>
         new StatisticsDialog(new StatisticsViewModel(translations)).ShowDialog(Owner);

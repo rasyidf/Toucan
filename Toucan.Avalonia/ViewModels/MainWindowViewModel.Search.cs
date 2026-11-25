@@ -201,8 +201,7 @@ public partial class MainWindowViewModel
         var changed = AllTranslation.Where(t => before.TryGetValue(t, out var old) && old != t.Value).ToList();
         foreach (var item in changed)
         {
-            item.IsApproved = false;
-            item.ApprovedAtUtc = null;
+            Toucan.Core.Services.ReviewTracker.Invalidate(item);
             item.LastModifiedUtc = DateTime.UtcNow;
             item.ChangeType = Toucan.Core.Contracts.Services.ChangeType.DirectEdit;
         }

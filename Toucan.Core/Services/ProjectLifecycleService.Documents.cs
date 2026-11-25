@@ -69,6 +69,7 @@ public partial class ProjectLifecycleService
                     ? u with { Binding = written.Binding, Destination = null, RawScalar = u.Value == written.Value ? written.RawScalar : u.RawScalar } : u).ToArray();
                 var autoSaving = autoSave.IsEnabled;
                 workspace.BeginClosing(); autoSave.Stop(); StopDraftTimer(); UnsubscribeFromFileWatcher(); fileWatcher.Stop();
+                await CloseSourcesAsync();
                 if (pluginActivation is not null) await pluginActivation.CloseWorkspaceAsync(oldSettings.ProjectPath);
                 workspace.Close();
                 _currentProject = oldSettings.CloneForRoot(receipt.Source.Root);
@@ -80,6 +81,7 @@ public partial class ProjectLifecycleService
                 fileWatcher.Watch(receipt.Source.Root); SubscribeToFileWatcher();
                 recentProjects.Add(receipt.Source.Root); recentProjects.Save(); UpdateLastSavedSnapshot(); StartDraftTimer();
                 if (pluginActivation is not null) await pluginActivation.OpenWorkspaceAsync(receipt.Source.Root, CancellationToken.None);
+                await OpenSourcesAsync(receipt.Source.Root, CancellationToken.None);
                 if (autoSaving) autoSave.Start(TimeSpan.FromSeconds(Math.Clamp(_currentProject.AutoSaveIntervalSeconds ?? 60, 10, 600)));
                 switched = true;
                 ProjectChanged?.Invoke(this, new() { ProjectPath = receipt.Source.Root, ChangeType = ProjectChangeType.Saved });

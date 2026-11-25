@@ -22,6 +22,9 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     private readonly ITranslationManagementService? _translationManagement;
     private readonly Action<TranslationItemViewModel>? _onChanged;
     private readonly Func<TranslationItem, bool>? _canApprove;
+
+    /// <summary>Called after the reviewer approves (true) or unapproves (false) this translation.</summary>
+    public Action<TranslationItem, bool>? Reviewed { get; init; }
     private readonly Func<TranslationItemViewModel, IReadOnlyList<ValidationResult>>? _validateInline;
 
     private string _value;
@@ -215,11 +218,38 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
                 OnPropertyChanged();
                 return;
             }
-            _model.IsApproved = value;
-            _model.ApprovedAtUtc = value ? DateTime.UtcNow : null;
+            if (value) Toucan.Core.Services.ReviewTracker.Approve(_model, SourceText);
+            else Toucan.Core.Services.ReviewTracker.Reset(_model);
+            Reviewed?.Invoke(_model, value);
             OnPropertyChanged();
+            OnPropertyChanged(nameof(NeedsReview));
             _onChanged?.Invoke(this);
         }
+    }
+
+    /// <summary>True when an earlier approval was withdrawn because the source or target changed.</summary>
+    public bool NeedsReview => _model.NeedsReview && !_model.IsApproved;
+
+    /// <summary>Where this translation stands with the content sources it is bound to; null when it is bound to none.</summary>
+    public Toucan.Plugins.SourceDeliveryState? Delivery { get; private set; }
+
+    public bool HasDeliveryBadge => Delivery is Toucan.Plugins.SourceDeliveryState.Pending or Toucan.Plugins.SourceDeliveryState.Sending
+        or Toucan.Plugins.SourceDeliveryState.Failed or Toucan.Plugins.SourceDeliveryState.Conflict;
+    public bool IsDeliveryPending => Delivery is Toucan.Plugins.SourceDeliveryState.Pending or Toucan.Plugins.SourceDeliveryState.Sending;
+    public bool IsDeliveryFailed => Delivery == Toucan.Plugins.SourceDeliveryState.Failed;
+    public bool IsDeliveryConflict => Delivery == Toucan.Plugins.SourceDeliveryState.Conflict;
+    public string DeliveryToolTip => SyncIndicators.BadgeText(Delivery);
+
+    public void SetDelivery(Toucan.Plugins.SourceDeliveryState? state)
+    {
+        if (Delivery == state) return;
+        Delivery = state;
+        OnPropertyChanged(nameof(Delivery));
+        OnPropertyChanged(nameof(HasDeliveryBadge));
+        OnPropertyChanged(nameof(IsDeliveryPending));
+        OnPropertyChanged(nameof(IsDeliveryFailed));
+        OnPropertyChanged(nameof(IsDeliveryConflict));
+        OnPropertyChanged(nameof(DeliveryToolTip));
     }
 
     /// <summary>True when the value came from machine translation and hasn't been edited since.</summary>
@@ -289,6 +319,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
             OnPropertyChanged(nameof(PlaceholderWarning));
         }
         OnPropertyChanged(nameof(IsApproved));
+        OnPropertyChanged(nameof(NeedsReview));
         OnPropertyChanged(nameof(Comment));
         OnPropertyChanged(nameof(HasComment));
         OnPropertyChanged(nameof(PlaceholderMetadata));
@@ -309,6 +340,8 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
             _undoRedoService?.Record(_model.Namespace, _model.Language, _valueBeforeEdit, _value);
             _model.LastModifiedUtc = DateTime.UtcNow;
             _model.ChangeType = ChangeType.DirectEdit;
+            // An approval covers the text that was reviewed; editing a target withdraws it.
+            if (!IsSource && Toucan.Core.Services.ReviewTracker.Invalidate(_model)) { OnPropertyChanged(nameof(IsApproved)); OnPropertyChanged(nameof(NeedsReview)); }
         }
 
         if (_translationManagement != null)

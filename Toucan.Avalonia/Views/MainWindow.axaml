@@ -63,12 +63,19 @@
         </Button>
 
         <StackPanel x:Name="TitleBarTrailing" Grid.Column="2" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="0">
-          <StackPanel x:Name="WorkspaceModes" Orientation="Horizontal" Spacing="2" Margin="0,0,10,0"
-                      IsVisible="{Binding !ShowStartScreen}">
+          <StackPanel x:Name="WorkspaceModes" Orientation="Horizontal" Spacing="2" Margin="0,0,10,0">
+            <StackPanel.IsVisible>
+              <MultiBinding Converter="{x:Static BoolConverters.And}">
+                <Binding Path="!ShowStartScreen"/>
+                <Binding Source="{x:Static svc:PanelService.Instance}" Path="IsPipelined"/>
+              </MultiBinding>
+            </StackPanel.IsVisible>
             <Button x:Name="ModeEditor" Classes="modeTab" Classes.active="{Binding IsEditorMode}" Content="{loc:Loc 'Editor'}"
                     ToolTip.Tip="{loc:Loc 'Edit translations'}"/>
+            <TextBlock Text="›" Foreground="{DynamicResource FaintTextBrush}" VerticalAlignment="Center" AutomationProperties.AccessibilityView="Raw"/>
             <Button x:Name="ModeReview" Classes="modeTab" Classes.active="{Binding IsReviewMode}" Content="{loc:Loc 'Review'}"
                     ToolTip.Tip="{loc:Loc 'Approve or reject unreviewed translations'}"/>
+            <TextBlock Text="›" Foreground="{DynamicResource FaintTextBrush}" VerticalAlignment="Center" AutomationProperties.AccessibilityView="Raw"/>
             <Button x:Name="ModeAudit" Classes="modeTab" Classes.active="{Binding IsAuditMode}" Content="{loc:Loc 'Audit'}"
                     ToolTip.Tip="{loc:Loc 'Read-only view with approval state and history'}"/>
           </StackPanel>

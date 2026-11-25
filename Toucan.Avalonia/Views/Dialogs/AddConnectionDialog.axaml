@@ -1,0 +1,195 @@
+<d:DialogWindow x:Class="Toucan.Avalonia.Views.Dialogs.AddConnectionDialog"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:loc="using:Toucan.Avalonia.Locales"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="using:Toucan.Avalonia.Views.Dialogs"
+                xmlns:ui="using:FluentAvalonia.UI.Controls"
+                xmlns:c="using:Toucan.Avalonia.Views.Components"
+                Title="{loc:Loc 'Connection'}" Width="760" Height="700" MinWidth="620" MinHeight="560">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <!-- Header: what this step is, and how far along the user is -->
+    <StackPanel Margin="24,22,24,14" Spacing="6">
+      <TextBlock Text="{Binding StepTitle}" Classes="dialogTitle"/>
+      <TextBlock Text="{Binding StepText}" Classes="caption"/>
+      <ProgressBar Value="{Binding StepProgress}" Maximum="100" Height="3" MinHeight="0" Margin="0,4,0,0" AutomationProperties.Name="{Binding StepText}"/>
+      <ui:FAInfoBar Severity="Error" IsOpen="{Binding HasProblems}" IsClosable="False" Margin="0,8,0,0" Title="{loc:Loc 'Check this step'}">
+        <ItemsControl ItemsSource="{Binding Problems}">
+          <ItemsControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding}" TextWrapping="Wrap"/></DataTemplate></ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ui:FAInfoBar>
+    </StackPanel>
+
+    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" IsEnabled="{Binding !IsBusy}">
+      <Panel Margin="24,0,24,20">
+        <!-- 1. Service -->
+        <StackPanel Spacing="18" IsVisible="{Binding IsService}">
+          <Border Classes="card" Padding="4">
+            <ListBox Classes="plain" ItemsSource="{Binding Services}" SelectedItem="{Binding SelectedService}" AutomationProperties.Name="{loc:Loc 'Services'}">
+              <ListBox.ItemTemplate><DataTemplate>
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="4,6">
+                  <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource SelectedBackgroundBrush}">
+                    <ui:FASymbolIcon Symbol="Sync" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+                  </Border>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Descriptor.DisplayName}" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Descriptor.Id}" Classes="caption"/>
+                  </StackPanel>
+                </Grid>
+              </DataTemplate></ListBox.ItemTemplate>
+            </ListBox>
+          </Border>
+          <c:SettingsGroup Header="{loc:Loc 'Settings'}" IsVisible="{Binding HasServiceSettings}">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Server address'}" Stacked="True" IsVisible="{Binding AllowsCustomAddress}">
+                <TextBox Watermark="https://…" Text="{Binding BaseUrlText}" AutomationProperties.Name="{loc:Loc 'Server address'}"/>
+              </c:SettingsRow>
+              <ItemsControl ItemsSource="{Binding Settings}">
+                <ItemsControl.ItemTemplate><DataTemplate>
+                  <c:SettingsRow Title="{Binding Label}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <TextBox Text="{Binding Text}" Width="280" AutomationProperties.Name="{Binding Label}"/>
+                      <Button Content="{loc:Loc 'Browse…'}" IsVisible="{Binding IsPath}"
+                              Command="{Binding $parent[ItemsControl].DataContext.ChooseFolderCommand}" CommandParameter="{Binding}"/>
+                    </StackPanel>
+                  </c:SettingsRow>
+                </DataTemplate></ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </c:SettingsGroup>
+        </StackPanel>
+
+        <!-- 2. Account -->
+        <StackPanel Spacing="12" IsVisible="{Binding IsAccount}">
+          <TextBlock Classes="caption" TextWrapping="Wrap" Text="{loc:Loc 'Choose the account to use, or sign in with a new one.'}"/>
+          <Border Classes="card" Padding="4">
+            <ListBox Classes="plain" ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" AutomationProperties.Name="{loc:Loc 'Accounts'}" MinHeight="80">
+              <ListBox.ItemTemplate><DataTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="10" Margin="4,6">
+                  <ui:FASymbolIcon Symbol="Contact" FontSize="16" VerticalAlignment="Center"/>
+                  <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                </StackPanel>
+              </DataTemplate></ListBox.ItemTemplate>
+            </ListBox>
+          </Border>
+          <Button Command="{Binding SignInCommand}" HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal" Spacing="8"><ui:FASymbolIcon Symbol="Add" FontSize="14"/><TextBlock Text="{loc:Loc 'Sign in with another account…'}"/></StackPanel>
+          </Button>
+        </StackPanel>
+
+        <!-- 3. Project -->
+        <StackPanel Spacing="18" IsVisible="{Binding IsProject}">
+          <Border Classes="card" Padding="4" IsVisible="{Binding CanDiscoverProjects}">
+            <ListBox Classes="plain" ItemsSource="{Binding Projects}" SelectedItem="{Binding SelectedProject}" MinHeight="120" MaxHeight="260" AutomationProperties.Name="{loc:Loc 'Remote projects'}">
+              <ListBox.ItemTemplate><DataTemplate>
+                <StackPanel Margin="4,4">
+                  <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                  <TextBlock Text="{Binding Description}" Classes="caption" IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                </StackPanel>
+              </DataTemplate></ListBox.ItemTemplate>
+            </ListBox>
+          </Border>
+          <c:SettingsGroup>
+            <c:SettingsRow Title="{loc:Loc 'Project ID'}" Description="{loc:Loc 'Filled in when you pick a project above.'}">
+              <TextBox Text="{Binding RemoteProjectId}" Width="240" AutomationProperties.Name="{loc:Loc 'Remote project ID'}"/>
+            </c:SettingsRow>
+          </c:SettingsGroup>
+        </StackPanel>
+
+        <!-- 4. Languages and resources -->
+        <StackPanel Spacing="18" IsVisible="{Binding IsMapping}">
+          <c:SettingsGroup Header="{loc:Loc 'Languages'}" Footer="{loc:Loc 'Only mapped languages are read from or sent to the service.'}">
+            <ItemsControl ItemsSource="{Binding Languages}">
+              <ItemsControl.ItemTemplate><DataTemplate>
+                <c:SettingsRow Title="{Binding Label}" Description="{Binding Hint}">
+                  <StackPanel Orientation="Horizontal" Spacing="10">
+                    <ui:FASymbolIcon Symbol="Accept" Foreground="{DynamicResource GoodBrush}" VerticalAlignment="Center" IsVisible="{Binding IsMatched}"/>
+                    <ui:FASymbolIcon Symbol="Important" Foreground="{DynamicResource WarnBrush}" VerticalAlignment="Center" IsVisible="{Binding NeedsCheck}"/>
+                    <ComboBox ItemsSource="{Binding Options}" SelectedItem="{Binding Remote}" Width="170" AutomationProperties.Name="{Binding Label}"/>
+                  </StackPanel>
+                </c:SettingsRow>
+              </DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </c:SettingsGroup>
+          <c:SettingsGroup Header="{loc:Loc 'Resources'}">
+            <ItemsControl ItemsSource="{Binding Resources}">
+              <ItemsControl.ItemTemplate><DataTemplate>
+                <c:SettingsRow Title="{Binding Name}" Description="{Binding RemoteId}">
+                  <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBox Text="{Binding Package}" Watermark="{loc:Loc 'Package'}" Width="140" AutomationProperties.Name="{loc:Loc 'Package for this resource'}"/>
+                    <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding Include}" AutomationProperties.Name="{Binding Name}"/>
+                  </StackPanel>
+                </c:SettingsRow>
+              </DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </c:SettingsGroup>
+          <c:SettingsGroup Header="{loc:Loc 'Keys'}">
+            <c:SettingsRow Title="{loc:Loc 'Key separator'}" Description="{loc:Loc 'Joins the parts of a key into the name the service uses.'}">
+              <TextBox Text="{Binding Separator}" Width="70" AutomationProperties.Name="{loc:Loc 'Key separator'}"/>
+            </c:SettingsRow>
+          </c:SettingsGroup>
+        </StackPanel>
+
+        <!-- 5. Role and policy -->
+        <StackPanel Spacing="18" IsVisible="{Binding IsPolicy}">
+          <c:SettingsGroup Header="{loc:Loc 'Connection'}">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Name'}">
+                <TextBox Text="{Binding ConnectionName}" Width="280" AutomationProperties.Name="{loc:Loc 'Connection name'}"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Role'}" Description="{loc:Loc 'Mirror: your files are the main copy and the service follows. Primary: the service is the main copy and Toucan keeps a local cache.'}">
+                <ComboBox ItemsSource="{Binding Roles}" SelectedItem="{Binding Role}" Width="170" AutomationProperties.Name="{loc:Loc 'Role'}"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Connect when the project opens'}">
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding ConnectOnOpen}"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+          <c:SettingsGroup Header="{loc:Loc 'What is sent'}">
+            <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Send review states'}">
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding PushStatuses}"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'Send comments'}">
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding PushComments}"/>
+              </c:SettingsRow>
+              <c:SettingsRow Title="{loc:Loc 'When you delete a key here'}" Description="{loc:Loc 'Ask lists it in the plan; Never keeps it at the service; Always deletes it there too.'}">
+                <ComboBox ItemsSource="{Binding DeletePolicies}" SelectedItem="{Binding DeletePolicy}" Width="170" AutomationProperties.Name="{loc:Loc 'Remote deletion policy'}"/>
+              </c:SettingsRow>
+            </StackPanel>
+          </c:SettingsGroup>
+        </StackPanel>
+
+        <!-- 6. Test -->
+        <StackPanel Spacing="18" IsVisible="{Binding IsTest}">
+          <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding IsBusy}">
+            <ui:FAProgressRing IsIndeterminate="True" Width="18" Height="18"/>
+            <TextBlock Text="{loc:Loc 'Testing the connection…'}" VerticalAlignment="Center"/>
+          </StackPanel>
+          <ui:FAInfoBar Severity="Success" IsOpen="{Binding TestSucceeded}" IsClosable="False" Title="{loc:Loc 'Connected'}" Message="{Binding TestResult}"/>
+          <c:SettingsGroup>
+            <c:SettingsRow Title="{loc:Loc 'Test again'}">
+              <Button Content="{loc:Loc 'Test'}" Command="{Binding RetryTestCommand}"/>
+            </c:SettingsRow>
+          </c:SettingsGroup>
+          <TextBlock Text="{Binding TestResult}" Foreground="{DynamicResource BadBrush}" TextWrapping="Wrap" IsVisible="{Binding !TestSucceeded}" AutomationProperties.LiveSetting="Polite"/>
+        </StackPanel>
+      </Panel>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Classes="dialogFooter">
+      <DockPanel>
+        <Button Content="{loc:Loc 'Cancel'}" Command="{Binding CancelCommand}" IsCancel="True"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Content="{loc:Loc 'Back'}" Command="{Binding BackCommand}" IsVisible="{Binding CanGoBack}"/>
+          <Button Classes="accent" Command="{Binding NextCommand}" IsDefault="True" IsVisible="{Binding !IsLastStep}" IsEnabled="{Binding !IsBusy}">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <ui:FAProgressRing IsIndeterminate="True" Width="14" Height="14" IsVisible="{Binding IsBusy}"/>
+              <TextBlock Text="{loc:Loc 'Next'}"/>
+            </StackPanel>
+          </Button>
+          <Button Content="{loc:Loc 'Save connection'}" Classes="accent" Command="{Binding FinishCommand}" IsVisible="{Binding IsLastStep}"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+  </Grid>
+</d:DialogWindow>

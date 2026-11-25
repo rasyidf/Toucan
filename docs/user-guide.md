@@ -54,7 +54,14 @@ The Toucan window consists of three main regions:
 
 ## 3. Editing Modes
 
-Toucan provides dedicated modes in the top navigation bar to match different stages of your localization workflow:
+Choose how a project moves from editing to sign-off under **View → Workflow**:
+
+- **Direct Editing:** edit and save, like any text editor. There are no Review or Audit stages and no approval markers.
+- **Pipelined (Edit › Review › Audit):** work in stages, like the review ribbon in a word processor. The stages appear in the title bar as Editor › Review › Audit. **View → Next Stage** (<kbd>Ctrl/Cmd+Alt+M</kbd>) moves to the next stage and returns to Editor after Audit.
+
+The choice is remembered between sessions. Existing installs start in the pipelined workflow. Switching to Direct Editing returns to Editor mode.
+
+In the pipelined workflow, Toucan provides dedicated modes in the top navigation bar to match each stage:
 
 ### Editor Mode
 Your primary working environment. All translated and untranslated strings are displayed. Focusing an empty target field automatically searches Translation Memory (TM) and displays the best matching suggestion as subtle ghost text. Press <kbd>Tab</kbd> to accept it immediately.
@@ -87,7 +94,8 @@ Routine editing and review require no mouse interaction:
 | <kbd>F11</kbd> (<kbd>Ctrl+Cmd+F</kbd> on macOS) | **Fullscreen** | Toggle fullscreen. |
 | <kbd>F7</kbd> | **Run Validation** | Validate the whole project. |
 | <kbd>Ctrl/Cmd+Shift+T</kbd> | **Pre-translate** | Open the pre-translate dialog. |
-| <kbd>Ctrl/Cmd+Alt+1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | **Editor / Review / Audit mode** | Switch application mode. |
+| <kbd>Ctrl/Cmd+Alt+1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | **Editor / Review / Audit mode** | Switch application mode (pipelined workflow only). |
+| <kbd>Ctrl/Cmd+Alt+M</kbd> | **Next Stage** | Cycle Editor → Review → Audit (pipelined workflow only). |
 
 Shortcuts can be customized in **Settings → Keyboard Shortcuts**, with automatic conflict detection and one-click reset to defaults.
 
@@ -103,6 +111,10 @@ Toucan checks your work as you type for the following issues:
 - **Spell Checking:** Powered by the offline Hunspell engine with user-managed dictionaries in **Settings → Options**. Misspelled words receive squiggly underlines with right-click suggestions.
 - **Issues Panel:** Displays all project findings in one place. Double-clicking any issue immediately jumps to and focuses the offending segment.
 
+Approvals track what was reviewed. If the source text or a translation changes after you approve it, the approval is withdrawn and the row shows a **Needs review** marker until you approve it again. This also applies to files changed outside Toucan. Quick filters › **Needs review** lists these; **Not approved** lists every translated value without an approval. The Issues panel shows the count.
+
+To send translations back, turn on multi-select, select keys and choose **Reject…**: their approvals are withdrawn and they show Needs review. **Approve with comment…** approves with a note. Both comments go into the review history, which is saved to `.toucan/review-history.jsonl` with the project and shown in the inspector with the time and local user name.
+
 Validation findings never block you from saving drafts, but strict policies (such as "Require valid translations to approve") can be enabled in **Project Properties → Saving**.
 
 ---
@@ -117,7 +129,7 @@ Pre-translate single keys, entire namespaces, or all project languages using Goo
 4. **Placeholder Safety:** Formatting tags and variables are shielded before sending and restored after translation.
 5. Click **Apply Preview** to commit the translations into your workspace with full undo support.
 
-API keys are stored securely in your operating system's native encrypted keystore (DPAPI on Windows, AES-GCM on macOS/Linux), never in your project files or version control.
+API keys are stored securely in your operating system's native encrypted keystore (DPAPI on Windows; on macOS and Linux AES-GCM with its key in the Keychain or Secret Service), never in your project files or version control.
 
 ---
 

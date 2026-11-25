@@ -161,6 +161,18 @@ public sealed class WorkspaceServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task PolicyBlockedUnitsListInvalidValuesOnlyUnderStrictValidation()
+    {
+        var snapshot = (await _workspace.SnapshotEntriesAsync())!;
+        var unit = snapshot.Units.Single(u => u.Key == "hello" && u.Language == "fr");
+        Assert.True((await _workspace.ApplyEntriesAsync("editor", new(snapshot.SessionId, snapshot.Revision,
+            [new SetEntryValue(unit.EntryId, "fr", "Broken {nom")]))).Applied);
+        Assert.Empty(_workspace.PolicyBlockedUnits());
+        _settings.RequireValidForApproval = true;
+        Assert.Equal([(unit.EntryId, "fr")], _workspace.PolicyBlockedUnits());
+    }
+
+    [Fact]
     public async Task NoOpAndCancelledIdentifiedEditsDoNotCreateHistory()
     {
         var snapshot = (await _workspace.SnapshotEntriesAsync())!;

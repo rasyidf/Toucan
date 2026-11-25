@@ -159,9 +159,15 @@ public partial class MainWindowViewModel
     private void ShowApproved() =>
         FilterAndDisplay(AllTranslation.Where(t => t.IsApproved).ToList(), "Approved", "No approved items found.");
 
+    /// <summary>Translations whose approval was withdrawn because their source or text changed.</summary>
     [RelayCommand]
     private void ShowNeedsReview() =>
-        FilterAndDisplay(AllTranslation.Where(t => !string.IsNullOrWhiteSpace(t.Value) && !t.IsApproved).ToList(), "Needs review", "Everything is approved.");
+        FilterAndDisplay(AllTranslation.Where(t => t.NeedsReview && !t.IsApproved).ToList(), "Needs review", "Nothing needs another review.");
+
+    /// <summary>Translated but never approved, including those that need another review.</summary>
+    [RelayCommand]
+    private void ShowNotApproved() =>
+        FilterAndDisplay(AllTranslation.Where(t => !string.IsNullOrWhiteSpace(t.Value) && !t.IsApproved).ToList(), "Not approved", "Everything is approved.");
 
     [RelayCommand]
     private void ShowChangedThisSession() =>
@@ -381,19 +387,50 @@ public partial class MainWindowViewModel
             AllTranslation.Where(t => string.IsNullOrWhiteSpace(t.Value) || !t.IsApproved).ToList(),
             "Review: unapproved or untranslated",
             "All items are approved and translated.");
+        if (NeedsReviewCount > 0) StatusText += $" · {NeedsReviewCount} need another review (Quick filters › Needs review)";
     }
 
     [RelayCommand] private void SwitchToEditorMode() => EditorMode = EditorMode.Editor;
-    [RelayCommand] private void SwitchToReviewMode() => EditorMode = EditorMode.Review;
-    [RelayCommand] private void SwitchToAuditMode() => EditorMode = EditorMode.Audit;
+    [RelayCommand] private void SwitchToReviewMode() => SwitchStage(EditorMode.Review);
+    [RelayCommand] private void SwitchToAuditMode() => SwitchStage(EditorMode.Audit);
 
+    /// <summary>True when the project uses the Edit › Review › Audit pipeline rather than direct editing.</summary>
+    public bool IsPipelinedWorkflow => PanelService.Instance.IsPipelined;
+
+    /// <summary>Review and Audit are stages of the pipelined workflow; direct editing never enters them.</summary>
+    private void SwitchStage(EditorMode stage)
+    {
+        if (!IsPipelinedWorkflow)
+        {
+            StatusText = "Review and Audit belong to the pipelined workflow. Switch workflow in the View menu.";
+            return;
+        }
+        EditorMode = stage;
+    }
+
+    /// <summary>Moves to the next stage: Edit → Review → Audit → Edit. Does nothing in direct editing.</summary>
     [RelayCommand]
-    private void CycleEditorMode() => EditorMode = EditorMode switch
+    private void CycleEditorMode() => SwitchStage(NextStage(EditorMode));
+
+    internal static EditorMode NextStage(EditorMode current) => current switch
     {
         EditorMode.Editor => EditorMode.Review,
         EditorMode.Review => EditorMode.Audit,
         _ => EditorMode.Editor
     };
+
+    /// <summary>Chooses direct editing or the pipelined workflow. Direct editing returns to Editor mode.</summary>
+    public void SetWorkflow(WorkflowMode workflow)
+    {
+        PanelService.Instance.Workflow = workflow;
+        if (workflow == WorkflowMode.Direct) EditorMode = EditorMode.Editor;
+        OnPropertyChanged(nameof(IsPipelinedWorkflow));
+        StatusText = workflow == WorkflowMode.Direct ? "Direct editing: edit and save." : "Pipelined workflow: Edit › Review › Audit.";
+    }
+
+    [RelayCommand] private void UseDirectWorkflow() => SetWorkflow(WorkflowMode.Direct);
+    [RelayCommand] private void UsePipelinedWorkflow() => SetWorkflow(WorkflowMode.Pipelined);
+    [RelayCommand] private void ToggleWorkflow() => SetWorkflow(IsPipelinedWorkflow ? WorkflowMode.Direct : WorkflowMode.Pipelined);
 
     // ───────────────────────── Zen / focused editor ─────────────────────────
 

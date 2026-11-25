@@ -21,6 +21,12 @@ public interface IPluginServices
 
     /// <summary>Read and change the open project. See <see cref="IWorkspaceApi"/>.</summary>
     IWorkspaceApi Workspace { get; }
+
+    /// <summary>
+    /// Sync state of the project's content-source connections (plugin API 1.3), or null when the host has none. A default
+    /// member, so implementations written for 1.0 to 1.2 keep compiling.
+    /// </summary>
+    Toucan.Plugins.Sources.ISourceSyncApi? SourceSync => null;
 }
 
 // ───────────────────────────── storage ─────────────────────────────
