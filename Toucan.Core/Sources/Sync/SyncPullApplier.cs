@@ -104,7 +104,17 @@ public sealed class SyncPullApplier(WorkspaceService workspace, TimeProvider? ti
             var latest = await workspace.SnapshotEntriesAsync(cancellationToken).ConfigureAwait(false);
             var review = workspace.ApplySourceEntries(connection.Id, new EntryEdit(latest!.SessionId, latest.Revision, [.. statusOperations.Select(o => o.Operation)], $"Pulled review states from {connection.Name ?? connection.Id}"), cancellationToken);
             if (review.Applied) { accepted.AddRange(statusOperations.Select(o => o.Change)); revision = review.Revision; }
-            else skipped.AddRange(statusOperations.Select(o => o.Change));
+            else
+            {
+                // One refused approval (for example a value with validation errors) must not drop the other review states.
+                foreach (var (operation, change) in statusOperations)
+                {
+                    var latestSingle = await workspace.SnapshotEntriesAsync(cancellationToken).ConfigureAwait(false);
+                    var single = workspace.ApplySourceEntries(connection.Id, new EntryEdit(latestSingle!.SessionId, latestSingle.Revision, [operation], $"Pulled review states from {connection.Name ?? connection.Id}"), cancellationToken);
+                    if (single.Applied) { accepted.Add(change); revision = single.Revision; }
+                    else skipped.Add(change);
+                }
+            }
         }
 
         // New keys are added in a second step; they cannot be expressed as identified edits.

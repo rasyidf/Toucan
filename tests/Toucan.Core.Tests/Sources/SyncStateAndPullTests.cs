@@ -218,6 +218,24 @@ public sealed class SyncStateAndPullTests : IDisposable
         Assert.Equal(ReviewState.Approved, (await SnapshotAsync()).Units.Single(u => u.EntryId == hello.EntryId && u.Language == "fr").Review);
     }
 
+    [Fact]
+    public async Task ARefusedPulledApprovalDoesNotDropTheOtherReviewStates()
+    {
+        Assert.True(_workspace.Apply("editor", new WorkspaceEdit().SetValue("bye", "fr", "")).Applied);
+        var units = (await SnapshotAsync()).Units;
+        var hello = units.Single(u => u.Key == "hello" && u.Language == "fr");
+        var bye = units.Single(u => u.Key == "bye" && u.Language == "fr");
+        PullChange Approve(IdentifiedUnitSnapshot unit) =>
+            Update(unit, "") with { Field = SyncField.Status, NewValue = null, LocalValue = null, NewStatus = SourceReviewMeaning.Approved };
+
+        var result = await new SyncPullApplier(_workspace).ApplyAsync(PlanOf(Approve(hello), Approve(bye)), _connection, _store);
+
+        var after = (await SnapshotAsync()).Units;
+        Assert.Equal(ReviewState.Approved, after.Single(u => u.EntryId == hello.EntryId && u.Language == "fr").Review);
+        Assert.NotEqual(ReviewState.Approved, after.Single(u => u.EntryId == bye.EntryId && u.Language == "fr").Review);
+        Assert.Contains(result.Skipped, c => c.EntryId == bye.EntryId);
+    }
+
     // ───────────── delivery ─────────────
 
     [Fact]
