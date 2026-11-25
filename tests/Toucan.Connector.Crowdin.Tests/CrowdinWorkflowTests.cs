@@ -329,4 +329,120 @@ public sealed class CrowdinWorkflowTests : IDisposable
         Assert.True(plan.RemoteReadComplete);
         Assert.DoesNotContain(plan.Pull, p => p.Kind == PullKind.Delete);
     }
+
+    // ───────────── interrupted and partial pushes (V1-15) ─────────────
+
+    private const string Source = "locales/en-US/common.json";
+    private const string French = "locales/fr-FR/common.json";
+
+    /// <summary>Source updates (PUT files/{id}) or translation imports (POST translations/{language}) sent so far.</summary>
+    private int Imports(string pathPart) => _crowdin.Requests.Count(r =>
+        r.Method == (pathPart.StartsWith("/files/", StringComparison.Ordinal) ? HttpMethod.Put : HttpMethod.Post) && r.Url.AbsolutePath.EndsWith(pathPart, StringComparison.Ordinal));
+
+    private async Task<SyncCoordinator> SyncedWithTwoLocalEditsAsync()
+    {
+        var coordinator = Open();
+        Assert.True((await RunAsync(coordinator)).Succeeded);
+        Write(Source, """{"title":"Welcome!"}""");
+        Write(French, """{"title":"Bienvenue !"}""");
+        return coordinator;
+    }
+
+    [Fact]
+    public async Task WhenOneFileFailsTheOtherIsRecordedAndOnlyTheFailedOneIsSentAgain()
+    {
+        var coordinator = await SyncedWithTwoLocalEditsAsync();
+        _crowdin.FailNext = ("translations/fr", System.Net.HttpStatusCode.InternalServerError, null);
+
+        var first = await coordinator.ApplyAsync(await coordinator.PlanAsync("crowdin", SyncPlanKind.Push));
+
+        Assert.False(first.Succeeded);
+        Assert.Equal(1, first.Push!.Confirmed);
+        Assert.Equal(1, first.Push.Unknown);
+        Assert.Equal("""{"title":"Welcome!"}""", Encoding.UTF8.GetString(_file.Remote.Source));
+        Assert.Equal("""{"title":"Bienvenue"}""", Encoding.UTF8.GetString(_file.Remote.Translations["fr"]));
+
+        var retry = await coordinator.PlanAsync("crowdin", SyncPlanKind.Push);
+        Assert.Equal([French], retry.Push.Select(c => c.Remote.Name));
+        Assert.True((await coordinator.ApplyAsync(retry)).Succeeded);
+        Assert.Equal("""{"title":"Bienvenue !"}""", Encoding.UTF8.GetString(_file.Remote.Translations["fr"]));
+        Assert.Equal(1, Imports("/files/" + _file.Remote.Id));
+    }
+
+    [Fact]
+    public async Task APermissionErrorIsReportedAndTheFileStaysPending()
+    {
+        var coordinator = await SyncedWithTwoLocalEditsAsync();
+        _crowdin.FailNext = ("translations/fr", System.Net.HttpStatusCode.Forbidden, null);
+
+        var result = await coordinator.ApplyAsync(await coordinator.PlanAsync("crowdin", SyncPlanKind.Push));
+
+        Assert.Equal(1, result.Push!.Confirmed);
+        Assert.Equal(1, result.Push.Failed);
+        Assert.Contains(result.Push.Errors, e => e.Contains(French, StringComparison.Ordinal));
+        Assert.Equal("""{"title":"Bienvenue"}""", Encoding.UTF8.GetString(_file.Remote.Translations["fr"]));
+        Assert.Equal([French], (await coordinator.PlanAsync("crowdin", SyncPlanKind.Push)).Push.Select(c => c.Remote.Name));
+    }
+
+    [Fact]
+    public async Task ATimeoutAfterCrowdinImportedTheFileIsConfirmedByReadingItBack()
+    {
+        var coordinator = await SyncedWithTwoLocalEditsAsync();
+        Write(Source, """{"title":"Welcome"}""");
+        _crowdin.DropAfterNextImport = true;
+
+        var result = await coordinator.ApplyAsync(await coordinator.PlanAsync("crowdin", SyncPlanKind.Push));
+
+        Assert.True(result.Succeeded);
+        Assert.Equal(1, result.Push!.Confirmed);
+        var again = await coordinator.PlanAsync("crowdin", SyncPlanKind.Sync);
+        Assert.False(again.HasChanges);
+        Assert.Equal(1, Imports("/translations/fr"));
+    }
+
+    [Fact]
+    public async Task ACrashAfterTheFirstUploadNeitherRepeatsItNorLosesTheSecond()
+    {
+        var coordinator = await SyncedWithTwoLocalEditsAsync();
+        using var crash = new CancellationTokenSource();
+        _crowdin.AfterImport = _ => crash.Cancel();
+
+        // The process stops right after Crowdin applied the source upload, before Toucan recorded it.
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => coordinator.ApplyAsync(coordinator.PlanAsync("crowdin", SyncPlanKind.Push).Result, crash.Token));
+        _crowdin.AfterImport = null;
+        coordinator.Dispose();
+        Assert.Equal("""{"title":"Welcome!"}""", Encoding.UTF8.GetString(_file.Remote.Source));
+        Assert.Equal("""{"title":"Bienvenue"}""", Encoding.UTF8.GetString(_file.Remote.Translations["fr"]));
+
+        // Restart: the source already matches, so it converges; only French is still to send.
+        var reopened = Open();
+        var plan = await reopened.PlanAsync("crowdin", SyncPlanKind.Push);
+        Assert.Empty(plan.Conflicts);
+        Assert.Equal([French], plan.Push.Select(c => c.Remote.Name));
+        Assert.True((await reopened.ApplyAsync(plan)).Succeeded);
+
+        Assert.Equal(1, Imports("/files/" + _file.Remote.Id));
+        Assert.Equal(1, Imports("/translations/fr"));
+        Assert.False((await reopened.PlanAsync("crowdin", SyncPlanKind.Sync)).HasChanges);
+    }
+
+    [Fact]
+    public async Task ACrashAfterCrowdinReformattedTheUploadIsAConflictNotASilentOverwrite()
+    {
+        var coordinator = await SyncedWithTwoLocalEditsAsync();
+        Write(Source, """{"title":"Welcome"}""");
+        _crowdin.NormalizeImport = bytes => [.. bytes, (byte)'\n'];
+        using var crash = new CancellationTokenSource();
+        _crowdin.AfterImport = _ => crash.Cancel();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => coordinator.ApplyAsync(coordinator.PlanAsync("crowdin", SyncPlanKind.Push).Result, crash.Token));
+        _crowdin.AfterImport = null;
+        coordinator.Dispose();
+
+        // Without a record of the upload, a reformatted export cannot be told from someone else's edit: the user chooses.
+        var plan = await Open().PlanAsync("crowdin", SyncPlanKind.Push);
+        Assert.Equal(French, Assert.Single(plan.Conflicts).Remote.Name);
+        Assert.Empty(plan.Push);
+        Assert.Equal(1, Imports("/translations/fr"));
+    }
 }

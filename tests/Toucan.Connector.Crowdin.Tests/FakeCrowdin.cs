@@ -39,6 +39,12 @@ internal sealed class FakeCrowdin : HttpMessageHandler
     /// <summary>The next upload is applied, then the connection drops before the answer arrives.</summary>
     public bool DropAfterNextImport { get; set; }
 
+    /// <summary>Runs after every import is applied and before Crowdin answers, e.g. to stop the client as a crash would.</summary>
+    public Action<string>? AfterImport { get; set; }
+
+    /// <summary>Rewrites imported translations the way Crowdin may reformat a file, so the export differs from the upload.</summary>
+    public Func<byte[], byte[]>? NormalizeImport { get; set; }
+
     /// <summary>Changes a translation just before the next export is built, as another translator would.</summary>
     public Action? BeforeNextExport { get; set; }
 
@@ -128,6 +134,7 @@ internal sealed class FakeCrowdin : HttpMessageHandler
         {
             var request = JsonDocument.Parse(body).RootElement;
             updated.Source = _storages[request.GetProperty("storageId").GetInt64()];
+            AfterImport?.Invoke(updated.Path);
             if (DropAfterNextImport) { DropAfterNextImport = false; throw new HttpRequestException("The connection was reset."); }
             return Json(HttpStatusCode.OK, new { data = new { id = updated.Id } });
         }
@@ -137,7 +144,9 @@ internal sealed class FakeCrowdin : HttpMessageHandler
             var request = JsonDocument.Parse(body).RootElement;
             var file = FindFile(request.GetProperty("fileId").GetInt64().ToString(CultureInfo.InvariantCulture));
             if (file is null) return Json(HttpStatusCode.NotFound, new { error = new { message = "File not found", code = 404 } });
-            file.Translations[language2] = _storages[request.GetProperty("storageId").GetInt64()];
+            var imported = _storages[request.GetProperty("storageId").GetInt64()];
+            file.Translations[language2] = NormalizeImport?.Invoke(imported) ?? imported;
+            AfterImport?.Invoke(file.Path + ":" + language2);
             if (DropAfterNextImport) { DropAfterNextImport = false; throw new HttpRequestException("The connection was reset."); }
             return Json(HttpStatusCode.Created, new { data = new { fileId = file.Id } });
         }
