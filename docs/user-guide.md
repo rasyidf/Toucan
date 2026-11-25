@@ -111,7 +111,9 @@ Toucan checks your work as you type for the following issues:
 - **Spell Checking:** Powered by the offline Hunspell engine with user-managed dictionaries in **Settings → Options**. Misspelled words receive squiggly underlines with right-click suggestions.
 - **Issues Panel:** Displays all project findings in one place. Double-clicking any issue immediately jumps to and focuses the offending segment.
 
-Approvals track what was reviewed. If the source text or a translation changes after you approve it, the approval is withdrawn and the row shows a **Needs review** marker until you approve it again. This also applies to files changed outside Toucan. Projects that use document persistence do not keep this check between sessions yet.
+Approvals track what was reviewed. If the source text or a translation changes after you approve it, the approval is withdrawn and the row shows a **Needs review** marker until you approve it again. This also applies to files changed outside Toucan. Quick filters › **Needs review** lists these; **Not approved** lists every translated value without an approval. The Issues panel shows the count.
+
+To send translations back, turn on multi-select, select keys and choose **Reject…**: their approvals are withdrawn and they show Needs review. **Approve with comment…** approves with a note. Both comments go into the review history, which is saved to `.toucan/review-history.jsonl` with the project and shown in the inspector with the time and local user name.
 
 Validation findings never block you from saving drafts, but strict policies (such as "Require valid translations to approve") can be enabled in **Project Properties → Saving**.
 

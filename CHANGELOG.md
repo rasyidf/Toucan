@@ -4,7 +4,11 @@
 
 ### Added
 - **Direct and pipelined workflows** — View → Workflow chooses Direct Editing (edit and save, no Review or Audit stages, no approval markers) or the Pipelined Edit › Review › Audit workflow, shown as a ribbon-style stage bar in the title bar. A new Next Stage command (`Ctrl/Cmd+Alt+M`) cycles the three stages. The choice is remembered; existing installs stay pipelined.
-- **Review state follows the text** — Approvals now record the source text they were given for. When the source or the translation changes, in the editor or in a file edited outside Toucan, the approval is withdrawn and the row shows a Needs review badge. Existing approvals are kept and tracked from the first open. Projects that use document persistence do not keep this across sessions yet.
+- **Review state follows the text** — Approvals now record the source text they were given for. When the source or the translation changes, in the editor or in a file edited outside Toucan, the approval is withdrawn and the row shows a Needs review badge. Existing approvals are kept and tracked from the first open.
+
+- **Needs review filter** — The Needs review quick filter now shows only approvals that were withdrawn because the text changed; the previous filter is kept as Not approved. The Issues panel shows how many translations need another review and opens the filter.
+- **Reject and approve with comment** — Multi-select adds Reject… (withdraw approval and mark Needs review) and Approve with comment…, each one undo step. Approvals still follow the validation policy.
+- **Review history** — Approve, unapprove and reject actions are saved with time, local user name and optional comment to `.toucan/review-history.jsonl` when the project saves, and shown in the inspector. Actions undone before saving are not recorded. The user name is the local account, not a verified identity.
 
 ### Changed
 - **Secrets key in the system keychain** — On macOS and Linux the key that encrypts saved API keys and tokens now lives in the login Keychain or the Secret Service (GNOME Keyring, KWallet) instead of a file next to them. An existing key moves there on first use. Without a usable store it stays in the file as before; `TOUCAN_SECRET_KEY_STORE=file` keeps it there. If the store is locked, saved secrets read as missing and saving one reports it, instead of creating a new key. Windows keeps using DPAPI.
@@ -15,6 +19,10 @@
 - **Sync with content sources (preview)** — Pull, push and sync against a connected service from a new Sources panel, the Sources menu, commands and `toucan sources status|pull|push|sync`. Every sync shows a plan first: changes coming in, changes going out and conflicts with the shared version, your text and theirs side by side. Differences on a first sync are never merged silently. Changes are written to a journal before they are sent, so a crash or a timeout cannot send one twice; unclear sends are read back first. Rows show whether a change reached the service, apart from whether the file is saved. Includes the Toucan source protocol, a built-in client for it, and a reference server in `samples/`.
 - **Crowdin connector (preview)** — A plugin in `connectors/` reads and writes a Crowdin project's source files and translations with a personal access token, through the same Sources panel and `toucan sources` commands. Files that store whole documents are compared one by one, and a conflict means taking your file or theirs. Creating and deleting files stays in Crowdin. It has been tested against a stand-in for Crowdin's API, and its connection, listing and reads against a real project; writes have not been tried on the real service. Toucan now sends a sign-in token only to the service's own address, never to other hosts a plugin declares.
 - **Open from a service** — Start screen and Sources menu: choose a service, an account and one of its projects, and Toucan makes a local folder (default under `Documents/Toucan/remote`, changeable), brings the files in and opens it. The recent list shows it as `crowdin:project-name`. Works for services that store files, such as the Crowdin connector.
+
+### Fixed
+- **Review state in document projects** — Projects that use document persistence now keep Needs review and the reviewed source across sessions, and a source changed between sessions withdraws the approval. Projects whose configured source language is a regional variant of their files (`en-US` with `en` files) no longer lose approvals on reopen.
+- **Pulled review states** — One remote approval the workspace refuses no longer drops the other review states in the same pull.
 
 ## [0.25.0] - 2026-11-05
 

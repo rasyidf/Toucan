@@ -80,11 +80,11 @@ The upstream release records its connector acceptance as passed. Revalidation of
 
 **Outcome:** approval reflects the actual source and target that were reviewed.
 
-- [ ] Persist Draft → Needs review → Approved per translation unit and target language, with migration from the existing approval flag.
-- [ ] Record the source revision/hash used for review; mark affected targets Needs review when the source changes, and invalidate approval after target edits.
-- [ ] Add status filters and row badges; extend existing batch approval/rejection with comments and consistent validation policy.
-- [ ] Persist review history with timestamp, action, and available local actor information; do not imply authenticated team identity.
-- [ ] Track delivery separately from review: pending, synchronized, failed, or included in an export, applying the `requireValidForApproval` policy to delivery as well; preserve review meaning when remote platforms have different status models.
+- [x] Persist Draft → Needs review → Approved per translation unit and target language, with migration from the existing approval flag. Manifest projects keep it in `toucan.tproj`, document projects in `.toucan/entries` sidecars.
+- [x] Record the source hash used for review; mark affected targets Needs review when the source changes, and invalidate approval after target edits. This holds across sessions and for files edited outside Toucan in both project kinds. See `ReviewTracker`.
+- [x] Add status filters and row badges; extend existing batch approval/rejection with comments and consistent validation policy. Quick filters separate Needs review from Not approved; the Issues panel links to Needs review; multi-select has Approve with comment and Reject.
+- [x] Persist review history with timestamp, action, and available local actor information; do not imply authenticated team identity. Saved to `.toucan/review-history.jsonl` and shown in the inspector. See `ReviewHistory`.
+- [ ] Track delivery separately from review: pending, synchronized, failed, or included in an export, applying the `requireValidForApproval` policy to delivery as well; preserve review meaning when remote platforms have different status models. Done: per-row delivery state (pending, sending, synced, failed, conflict) apart from review; remote review meanings map to local states; a refused pulled approval no longer drops the others. Open: whether strict validation also holds back pushes, and whether exports count as delivery.
 
 **Completion gate:** source and target changes cannot leave stale approvals, and review state survives save/reopen and project migration.
 
