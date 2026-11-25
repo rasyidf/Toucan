@@ -15,7 +15,7 @@ The order is **reliability → daily workflow → content sources → distributi
 
 ## Maintaining this roadmap
 
-This file lists open work only. Remove shipped tasks instead of ticking them. Add user-visible changes to `CHANGELOG.md` under `[Unreleased]`, regenerate the [website changelog](../changelog.html) with `python3 tools/generate-changelog.py`, lasting capabilities to [completed-features.md](../completed-features.md), and remove resolved issues from [known-bugs.md](../known-bugs.md). Keep the README roadmap and [website summary](../index.html) aligned, then refresh `docs/INDEX.md`.
+This file lists open work only. Remove shipped tasks instead of ticking them, except in the v1 checklist, where closed items are ticked until 1.0 ships so each gate shows its progress. Add user-visible changes to `CHANGELOG.md` under `[Unreleased]`, regenerate the [website changelog](../changelog.html) with `python3 tools/generate-changelog.py`, lasting capabilities to [completed-features.md](../completed-features.md), and remove resolved issues from [known-bugs.md](../known-bugs.md). Keep the README roadmap and [website summary](../index.html) aligned, then refresh `docs/INDEX.md`.
 
 Existing bugs are linked by ID instead of duplicated here. Completion gates describe acceptance criteria; checkboxes describe implementation work. The header counts release tasks, v1.0 gates, and deferred tasks separately.
 
@@ -117,8 +117,8 @@ Items marked **(you)** need the maintainer: a product decision, an account, mone
 
 #### 0. Housekeeping found while planning
 
-- [ ] V1-00 `v0.26.0` is tagged and published as a pre-release, but `Directory.Build.props` still says `0.25.0` and `CHANGELOG.md` still has everything under `[Unreleased]`. Cut a `[0.26.0] - 2026-11-25` section, bump the version for the next build, and have the tag workflow (V1-40) refuse a tag that does not match the version. The published v0.26.0 has no package assets.
-- [ ] V1-01 Remove the tracked `.DS_Store` and `samples/.DS_Store` (already in `.gitignore`).
+- [x] V1-00 `v0.26.0` is tagged and published as a pre-release, but `Directory.Build.props` still says `0.25.0` and `CHANGELOG.md` still has everything under `[Unreleased]`. Cut a `[0.26.0] - 2026-11-25` section, bump the version for the next build, and have the tag workflow (V1-40) refuse a tag that does not match the version. The published v0.26.0 has no package assets. Done: changelog cut as 0.26.0 and version set to 0.26.0 so builds from `main` stop offering 0.26.0 as an update; the tag check stays with V1-40.
+- [x] V1-01 Remove the tracked `.DS_Store` and `samples/.DS_Store` (already in `.gitignore`).
 
 #### 1. Correctness (G1, G2, G3)
 

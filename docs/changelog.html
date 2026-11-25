@@ -94,7 +94,7 @@
       <div class="sidebar-title">Jump to a release</div>
       <nav id="release-index" aria-label="Versions">
 <!-- RELEASE INDEX START -->
-<a href="#unreleased">Unreleased</a>
+<a href="#v0.26.0">v0.26.0</a>
 <a href="#v0.25.0">v0.25.0</a>
 <a href="#v0.24.0">v0.24.0</a>
 <a href="#v0.23.0">v0.23.0</a>
@@ -128,11 +128,11 @@
       <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
       <div id="releases">
 <!-- RELEASES START -->
-<article class="release" id="unreleased" aria-labelledby="heading-unreleased">
-<div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
-<div class="release-lead"><p>Changes waiting for the next release.</p></div>
+<article class="release" id="v0.26.0" aria-labelledby="heading-v0.26.0">
+<div class="release-heading"><h2 id="heading-v0.26.0"><a href="#v0.26.0">v0.26.0</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-11-25">Nov 25, 2026</time></div>
+<div class="release-lead"><p>Review state that follows the text, and content sources: accounts, a sync engine with plans and conflicts, the Sources panel, <code>toucan sources</code> commands and a Crowdin connector (preview).</p></div>
 <div class="release-counts"><span class="added">6 added</span><span class="changed">8 changed</span><span class="fixed">2 fixed</span></div>
-<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
+<details><summary>Read full release notes<span class="sr-only"> for v0.26.0</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
 <li><strong>Direct and pipelined workflows</strong> — View → Workflow chooses Direct Editing (edit and save, no Review or Audit stages, no approval markers) or the Pipelined Edit › Review › Audit workflow, shown as a ribbon-style stage bar in the title bar. A new Next Stage command (<code>Ctrl/Cmd+Alt+M</code>) cycles the three stages. The choice is remembered; existing installs stay pipelined.</li>
 <li><strong>Review state follows the text</strong> — Approvals now record the source text they were given for. When the source or the translation changes, in the editor or in a file edited outside Toucan, the approval is withdrawn and the row shows a Needs review badge. Existing approvals are kept and tracked from the first open.</li>
@@ -159,10 +159,10 @@
 <li><strong>Review state in document projects</strong> — Projects that use document persistence now keep Needs review and the reviewed source across sessions, and a source changed between sessions withdraws the approval. Projects whose configured source language is a regional variant of their files (<code>en-US</code> with <code>en</code> files) no longer lose approvals on reopen.</li>
 <li><strong>Pulled review states</strong> — One remote approval the workspace refuses no longer drops the other review states in the same pull.</li>
 </ul></div></details>
-<div class="release-links"><a href="#unreleased" aria-label="Permalink to Unreleased">Permalink</a></div>
+<div class="release-links"><a href="#v0.26.0" aria-label="Permalink to v0.26.0">Permalink</a><a href="https://github.com/rasyidf/Toucan/releases/tag/v0.26.0">Release on GitHub ↗</a></div>
 </article>
 <article class="release" id="v0.25.0" aria-labelledby="heading-v0.25.0">
-<div class="release-heading"><h2 id="heading-v0.25.0"><a href="#v0.25.0">v0.25.0</a></h2><span class="release-badge">Latest preview</span><time datetime="2026-11-05">Nov 05, 2026</time></div>
+<div class="release-heading"><h2 id="heading-v0.25.0"><a href="#v0.25.0">v0.25.0</a></h2><time datetime="2026-11-05">Nov 05, 2026</time></div>
 <div class="release-lead"><p>Glossary and message-aware validation, plus safer targeted saves for document projects.</p>
 <p>See <a href="release-v0.25.0.html">v0.25.0 release notes</a> for compatibility and known limits.</p></div>
 <div class="release-counts"><span class="added">5 added</span><span class="fixed">6 fixed</span></div>

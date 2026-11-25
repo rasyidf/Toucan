@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.26.0] - 2026-11-25
+
+Review state that follows the text, and content sources: accounts, a sync engine with plans and conflicts, the Sources panel, `toucan sources` commands and a Crowdin connector (preview).
+
 ### Added
 - **Direct and pipelined workflows** — View → Workflow chooses Direct Editing (edit and save, no Review or Audit stages, no approval markers) or the Pipelined Edit › Review › Audit workflow, shown as a ribbon-style stage bar in the title bar. A new Next Stage command (`Ctrl/Cmd+Alt+M`) cycles the three stages. The choice is remembered; existing installs stay pipelined.
 - **Review state follows the text** — Approvals now record the source text they were given for. When the source or the translation changes, in the editor or in a file edited outside Toucan, the approval is withdrawn and the row shows a Needs review badge. Existing approvals are kept and tracked from the first open.
