@@ -163,27 +163,74 @@ public class CommandRegistryTests
         Assert.Contains("boom", run.Error);
     }
 
+    /// <summary>Holds posted callbacks until <see cref="Pump"/>, like a UI thread that is busy.</summary>
+    private sealed class QueuedContext : SynchronizationContext
+    {
+        private readonly Queue<(SendOrPostCallback, object?)> _queue = new();
+        public override void Post(SendOrPostCallback d, object? state) { lock (_queue) _queue.Enqueue((d, state)); }
+
+        public void Pump()
+        {
+            while (true)
+            {
+                (SendOrPostCallback Callback, object? State) item;
+                lock (_queue) { if (!_queue.TryDequeue(out item)) return; }
+                item.Callback(item.State);
+            }
+        }
+    }
+
     [Fact]
     public async Task ProgressAndCompletionAreRaised()
     {
         var registry = Create();
         var seen = new List<CommandRunStatus>();
         var messages = new List<string?>();
+        var context = new QueuedContext();
         registry.RunChanged += (_, e) => { seen.Add(e.Run.Status); messages.Add(e.Run.Progress?.Message); };
         registry.Register(Def("toucan.x"), new Handler
         {
-            Run = async (inv, ct) =>
+            Run = (inv, _) =>
             {
                 inv.Progress.Report(new CommandProgressInfo("half", 0.5));
-                await Task.Delay(50, ct);
+                context.Pump();
+                return Task.CompletedTask;
             },
         });
 
-        await registry.ExecuteAsync("toucan.x", parameter: "p");
+        var previous = SynchronizationContext.Current;
+        SynchronizationContext.SetSynchronizationContext(context);
+        try { await registry.ExecuteAsync("toucan.x", parameter: "p"); }
+        finally { SynchronizationContext.SetSynchronizationContext(previous); }
 
-        Assert.Equal(CommandRunStatus.Running, seen[0]);
-        Assert.Equal(CommandRunStatus.Completed, seen[^1]);
-        Assert.Contains("half", messages);
+        Assert.Equal([CommandRunStatus.Running, CommandRunStatus.Running, CommandRunStatus.Completed], seen);
+        Assert.Equal("half", messages[1]);
+    }
+
+    [Fact]
+    public async Task ProgressReportedAfterTheRunEndedIsDropped()
+    {
+        var registry = Create();
+        var seen = new List<CommandRun>();
+        var context = new QueuedContext();
+        registry.RunChanged += (_, e) => seen.Add(e.Run);
+        registry.Register(Def("toucan.x"), new Handler
+        {
+            Run = (inv, _) =>
+            {
+                inv.Progress.Report(new CommandProgressInfo("late", 0.9));
+                return Task.CompletedTask;
+            },
+        });
+
+        var previous = SynchronizationContext.Current;
+        SynchronizationContext.SetSynchronizationContext(context);
+        try { await registry.ExecuteAsync("toucan.x"); }
+        finally { SynchronizationContext.SetSynchronizationContext(previous); }
+        context.Pump();
+
+        Assert.Equal(CommandRunStatus.Completed, seen[^1].Status);
+        Assert.DoesNotContain(seen, r => r.Progress?.Message == "late");
     }
 
     [Fact]

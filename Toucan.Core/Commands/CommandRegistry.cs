@@ -228,10 +228,15 @@ public sealed partial class CommandRegistry : ICommandRegistry, IDisposable
         var active = new ActiveRun(id, cts, new CommandRun(runId, id, CommandRunStatus.Running));
         _runs[runId] = active;
         Publish(active.Latest);
+        // Progress<T> posts reports to the captured context or the thread pool, so one can arrive after the run ended.
+        // Reports and the final status are published under the run's lock, and reports after the end are dropped.
         var progress = new Progress<CommandProgressInfo>(p =>
         {
-            if (cts.IsCancellationRequested) return;
-            active.Latest = Publish(active.Latest with { Progress = p });
+            lock (active)
+            {
+                if (active.Finished || cts.IsCancellationRequested) return;
+                active.Latest = Publish(active.Latest with { Progress = p });
+            }
         });
 
         CommandRun result;
@@ -255,7 +260,11 @@ public sealed partial class CommandRegistry : ICommandRegistry, IDisposable
         {
             _runs.TryRemove(runId, out _);
         }
-        return Publish(result);
+        lock (active)
+        {
+            active.Finished = true;
+            return Publish(result);
+        }
     }
 #pragma warning restore CA1031
 
@@ -398,6 +407,7 @@ public sealed partial class CommandRegistry : ICommandRegistry, IDisposable
         public string CommandId { get; } = commandId;
         public CancellationTokenSource Cts { get; } = cts;
         public CommandRun Latest { get; set; } = latest;
+        public bool Finished { get; set; }
     }
 
     private sealed record Invocation(ICommandContext Context, object? Parameter, IProgress<CommandProgressInfo> Progress) : ICommandInvocation;
