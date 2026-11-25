@@ -243,6 +243,22 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
         lock (_gate) return _settings is null ? [] : Validation(_state);
     }
 
+    /// <summary>
+    /// Entry/language pairs that the strict validation policy (<see cref="ProjectSettings.RequireValidForApproval"/>)
+    /// keeps from being approved or delivered. Empty when the policy is off.
+    /// </summary>
+    public IReadOnlySet<(Guid EntryId, string Language)> PolicyBlockedUnits()
+    {
+        lock (_gate)
+        {
+            if (_settings is null || _closing || _settings.RequireValidForApproval != true) return new HashSet<(Guid, string)>();
+            var errors = Validation(_state).Where(r => r.Severity == ValidationSeverity.Error && r.Namespace is not null)
+                .Select(r => (r.Namespace!, r.Language)).ToHashSet();
+            return _state.Values.Where(u => errors.Contains((u.Key, u.Language)) || errors.Contains((u.Key, null)))
+                .Select(u => (u.Id, u.Language)).ToHashSet();
+        }
+    }
+
     public IReadOnlyList<TranslationItem> ApprovalBlockers(IReadOnlyCollection<TranslationItem> items)
     {
         ArgumentNullException.ThrowIfNull(items);

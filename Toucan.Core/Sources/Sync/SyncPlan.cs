@@ -144,10 +144,33 @@ public enum SyncNoticeKind
     /// <summary>Pull first: the service cannot check revisions, so a push could overwrite.</summary>
     PullFirst,
     UnmappedLanguage,
+
+    /// <summary>Strict validation is on and the value has validation errors, so it is not sent.</summary>
+    HeldBackInvalid,
     Info,
 }
 
 public sealed record SyncNotice(SyncNoticeKind Kind, string Message, Guid? EntryId = null, string? Language = null);
+
+public static class SyncDeliveryPolicy
+{
+    /// <summary>
+    /// Takes the pushes of <paramref name="blocked"/> translations out of <paramref name="plan"/> and explains each in a
+    /// notice. Deletions still go out: removing a value never delivers an invalid one.
+    /// </summary>
+    public static SyncPlan HoldBackInvalid(SyncPlan plan, IReadOnlySet<(Guid EntryId, string Language)> blocked)
+    {
+        ArgumentNullException.ThrowIfNull(plan);
+        ArgumentNullException.ThrowIfNull(blocked);
+        if (blocked.Count == 0) return plan;
+        bool Held(PushChange c) => c.Kind is not (PushKind.DeleteKey or PushKind.DeleteTranslation) && blocked.Contains((c.EntryId, c.Language));
+        var held = plan.Push.Where(Held).ToList();
+        if (held.Count == 0) return plan;
+        var notices = held.GroupBy(c => (c.EntryId, c.Language)).Select(g => new SyncNotice(SyncNoticeKind.HeldBackInvalid,
+            $"{g.First().Remote.Name} [{g.Key.Language}] has validation errors and is not sent while strict validation is on.", g.Key.EntryId, g.Key.Language));
+        return plan with { Push = [.. plan.Push.Where(c => !Held(c))], Notices = [.. plan.Notices, .. notices] };
+    }
+}
 
 /// <summary>An immutable proposal, made from a captured workspace snapshot and a completed remote read.</summary>
 public sealed record SyncPlan(string ConnectionId, Guid PlanId, SyncPlanKind Kind, long WorkspaceRevision, DateTimeOffset RemoteReadAt,

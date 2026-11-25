@@ -328,6 +328,7 @@ public sealed class SyncCoordinator : IDisposable
         var snapshot = await _workspace.SnapshotEntriesAsync(ct).ConfigureAwait(false) ?? throw new InvalidOperationException("No project is open.");
         var plan = SyncPlanner.Plan(new(connection.Id, connection, kind, store.LoadBaseline(), SyncMapping.LocalUnits(snapshot, [.. connection.Languages.Keys]),
             remote, complete, caps, snapshot.Revision, _time.GetUtcNow()));
+        plan = SyncDeliveryPolicy.HoldBackInvalid(plan, _workspace.PolicyBlockedUnits());
         lock (_gate)
         {
             _lastPlan[connection.Id] = plan;

@@ -131,7 +131,7 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="added">5 added</span><span class="changed">8 changed</span><span class="fixed">2 fixed</span></div>
+<div class="release-counts"><span class="added">6 added</span><span class="changed">8 changed</span><span class="fixed">2 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
 <li><strong>Direct and pipelined workflows</strong> — View → Workflow chooses Direct Editing (edit and save, no Review or Audit stages, no approval markers) or the Pipelined Edit › Review › Audit workflow, shown as a ribbon-style stage bar in the title bar. A new Next Stage command (<code>Ctrl/Cmd+Alt+M</code>) cycles the three stages. The choice is remembered; existing installs stay pipelined.</li>
@@ -140,6 +140,7 @@
 <ul>
 <li><strong>Needs review filter</strong> — The Needs review quick filter now shows only approvals that were withdrawn because the text changed; the previous filter is kept as Not approved. The Issues panel shows how many translations need another review and opens the filter.</li>
 <li><strong>Reject and approve with comment</strong> — Multi-select adds Reject… (withdraw approval and mark Needs review) and Approve with comment…, each one undo step. Approvals still follow the validation policy.</li>
+<li><strong>Strict validation holds back pushes</strong> — With Require valid for approval on, pushing to a content source leaves out values with validation errors and the sync plan lists each one. Deletions still go out. Connectors that sync whole files, such as Crowdin, are not covered yet.</li>
 <li><strong>Review history</strong> — Approve, unapprove and reject actions are saved with time, local user name and optional comment to <code>.toucan/review-history.jsonl</code> when the project saves, and shown in the inspector. Actions undone before saving are not recorded. The user name is the local account, not a verified identity.</li>
 </ul>
 <h3>Changed</h3>

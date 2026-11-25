@@ -8,6 +8,7 @@
 
 - **Needs review filter** — The Needs review quick filter now shows only approvals that were withdrawn because the text changed; the previous filter is kept as Not approved. The Issues panel shows how many translations need another review and opens the filter.
 - **Reject and approve with comment** — Multi-select adds Reject… (withdraw approval and mark Needs review) and Approve with comment…, each one undo step. Approvals still follow the validation policy.
+- **Strict validation holds back pushes** — With Require valid for approval on, pushing to a content source leaves out values with validation errors and the sync plan lists each one. Deletions still go out. Connectors that sync whole files, such as Crowdin, are not covered yet.
 - **Review history** — Approve, unapprove and reject actions are saved with time, local user name and optional comment to `.toucan/review-history.jsonl` when the project saves, and shown in the inspector. Actions undone before saving are not recorded. The user name is the local account, not a verified identity.
 
 ### Changed
