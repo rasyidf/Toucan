@@ -58,6 +58,11 @@ public sealed class FormatConventionsTests : IDisposable
 
         var files = Strategy(FormatIds.Namespaced).LanguageFiles(_folder, "en");
 
+        Assert.Equal([Path.Combine(_folder, "locales", "en", "app.json")], files);
+
+        // Top-level keys that are not namespaces live in en.json, listed once it exists.
+        File.WriteAllText(Path.Combine(_folder, "en.json"), "{}");
+        files = Strategy(FormatIds.Namespaced).LanguageFiles(_folder, "en");
         Assert.Contains(Path.Combine(_folder, "en.json"), files);
         Assert.Contains(Path.Combine(_folder, "locales", "en", "app.json"), files);
     }

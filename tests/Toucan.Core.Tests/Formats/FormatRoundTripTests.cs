@@ -78,23 +78,42 @@ public sealed class FormatRoundTripTests : IDisposable
         Assert.Equal(expected, actual);
     }
 
-    [Fact]
-    public void NamespacedReloadCurrentlyDuplicatesItems()
+    private List<TranslationItem> SaveNamespacedAndReload(params TranslationItem[] items)
     {
-        // Known quirk, pinned so Phase 2 does not change it by accident: Namespaced writes both a merged
-        // {lang}.json and locales/{lang}/{ns}.json, and the loader reads both. The round-trip theory above
-        // compares distinct tuples for this reason. Fix separately, then flip this assertion.
-        var items = new List<TranslationItem> { new() { Language = "en", Namespace = "app.title", Value = "Hello" } };
         var context = new SaveContext
         {
-            LanguageDictionary = new() { ["en"] = items },
-            NsTreeItems = items.ToNsTree().ToList(),
+            LanguageDictionary = new() { ["en"] = [.. items] },
+            NsTreeItems = items.ToList().ToNsTree().ToList(),
             Languages = ["en"],
         };
         FormatTestHost.Factory.GetSaveStrategy(FormatIds.Namespaced)!.Save(_folder, context);
+        return FormatTestHost.Factory.GetLoadStrategy(FormatIds.Namespaced)!.Load(_folder).ToList();
+    }
 
-        var loaded = FormatTestHost.Factory.GetLoadStrategy(FormatIds.Namespaced)!.Load(_folder).ToList();
-        Assert.Equal(2, loaded.Count(i => i.Namespace == "app.title"));
+    [Fact]
+    public void NamespacedSaveWritesEachKeyOnceSoAReloadSeesItOnce()
+    {
+        var loaded = SaveNamespacedAndReload(
+            new() { Language = "en", Namespace = "app.title", Value = "Hello" },
+            new() { Language = "en", Namespace = "greeting", Value = "Hi" });
+
+        Assert.Single(loaded, i => i.Namespace == "app.title" && i.Value == "Hello");
+        Assert.Single(loaded, i => i.Namespace == "greeting" && i.Value == "Hi");
+        Assert.True(File.Exists(Path.Combine(_folder, "locales", "en", "app.json")));
+        Assert.DoesNotContain("app", File.ReadAllText(Path.Combine(_folder, "en.json")), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AnOlderMergedFileIsRewrittenWithoutTheNamespacedCopies()
+    {
+        // Saved by an older Toucan: the merged file repeats what locales/en/app.json holds.
+        File.WriteAllText(Path.Combine(_folder, "en.json"), """{"app":{"title":"Hello"}}""");
+        Directory.CreateDirectory(Path.Combine(_folder, "locales", "en"));
+        File.WriteAllText(Path.Combine(_folder, "locales", "en", "app.json"), """{"title":"Hello"}""");
+
+        var loaded = SaveNamespacedAndReload(new TranslationItem { Language = "en", Namespace = "app.title", Value = "Hello again" });
+
+        Assert.Equal("Hello again", Assert.Single(loaded, i => i.Namespace == "app.title").Value);
     }
 
     // Some formats encode locale as en_US / values-en; compare on the primary subtag only.

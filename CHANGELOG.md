@@ -6,6 +6,7 @@
 - **Strict validation covers whole-file connectors** — With Require valid for approval on, a sync with a service that stores whole files, such as Crowdin, no longer uploads a file whose saved values have validation errors. The plan lists each held file and the values to fix; other files and deletions still go out. The check follows the saved file, so fix and save before pushing again.
 
 ### Fixed
+- **Namespaced JSON keys no longer appear twice** — Saving a namespaced (i18next) project through Save As, the CLI or a new project wrote every key to both `<lang>.json` and `locales/<lang>/<ns>.json`, so reopening it showed each key twice. Namespaces are now written only under `locales/<lang>/`; `<lang>.json` keeps top-level keys that are not namespaces, and an older merged file is rewritten without the copies.
 - **Finished commands no longer look busy** — A progress update that arrived after a command finished could be shown after its completion, leaving the command reported as running. Late updates are now dropped.
 
 ## [0.26.0] - 2026-11-25
