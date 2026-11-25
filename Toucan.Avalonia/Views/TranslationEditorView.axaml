@@ -36,6 +36,7 @@
                 <Separator/>
                 <MenuItem Header="{loc:Loc 'Untranslated'}" Command="{Binding ShowUntranslatedCommand}"/>
                 <MenuItem Header="{loc:Loc 'Needs review'}" Command="{Binding ShowNeedsReviewCommand}"/>
+                <MenuItem Header="{loc:Loc 'Not approved'}" Command="{Binding ShowNotApprovedCommand}"/>
                 <MenuItem Header="{loc:Loc 'Approved'}" Command="{Binding ShowApprovedCommand}"/>
                 <MenuItem Header="{loc:Loc 'Translated'}" Command="{Binding ShowTranslatedCommand}"/>
                 <MenuItem Header="{loc:Loc 'Machine translated'}" Command="{Binding ShowMachineTranslatedCommand}"/>

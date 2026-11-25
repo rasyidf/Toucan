@@ -269,6 +269,7 @@ internal static class MainMenu
             Separator,
             new("Show Untranslated", vm.ShowUntranslatedCommand),
             new("Show Needs Review", vm.ShowNeedsReviewCommand),
+            new("Show Not Approved", vm.ShowNotApprovedCommand),
             new("Show Approved", vm.ShowApprovedCommand),
             new("Show Translated", vm.ShowTranslatedCommand),
             new("Show Machine Translated", vm.ShowMachineTranslatedCommand),

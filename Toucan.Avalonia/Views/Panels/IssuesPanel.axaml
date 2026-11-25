@@ -6,6 +6,13 @@
   <DockPanel>
     <StackPanel DockPanel.Dock="Top" Margin="10,8" Spacing="8">
       <TextBlock Text="{Binding ValidationSummary}" Classes="caption" TextWrapping="Wrap"/>
+      <Button Classes="row" Padding="0" IsVisible="{Binding HasNeedsReview}" Command="{Binding ShowNeedsReviewCommand}"
+              AutomationProperties.Name="{loc:Loc 'Show translations that need review'}">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <ui:FASymbolIcon Symbol="Flag" FontSize="14" Foreground="{DynamicResource WarnBrush}"/>
+          <TextBlock Text="{Binding NeedsReviewSummary}" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Button>
       <StackPanel Spacing="6">
         <Button Content="{loc:Loc 'Run validation'}" Classes="accent" Command="{Binding RunValidationCommand}"/>
         <Button Content="{loc:Loc 'Check spelling locally'}" Command="{Binding CheckProjectSpellingCommand}"/>

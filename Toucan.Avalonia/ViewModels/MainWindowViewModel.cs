@@ -322,9 +322,17 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             }));
     }
 
+    /// <summary>Translations whose approval was withdrawn and that wait for another review.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasNeedsReview), nameof(NeedsReviewSummary))]
+    private int needsReviewCount;
+    public bool HasNeedsReview => NeedsReviewCount > 0;
+    public string NeedsReviewSummary => NeedsReviewCount == 1 ? "1 translation needs another review" : $"{NeedsReviewCount} translations need another review";
+
     internal void UpdateSummaryInfo()
     {
         SummaryInfo.Update(AllTranslation, PrimaryLanguage);
+        NeedsReviewCount = AllTranslation.Count(t => t.NeedsReview && !t.IsApproved);
         var parsable = AllTranslation.ForParse().ToList();
         var total = parsable.Count;
         var translated = parsable.Count(t => !string.IsNullOrEmpty(t.Value));

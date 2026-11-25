@@ -159,9 +159,15 @@ public partial class MainWindowViewModel
     private void ShowApproved() =>
         FilterAndDisplay(AllTranslation.Where(t => t.IsApproved).ToList(), "Approved", "No approved items found.");
 
+    /// <summary>Translations whose approval was withdrawn because their source or text changed.</summary>
     [RelayCommand]
     private void ShowNeedsReview() =>
-        FilterAndDisplay(AllTranslation.Where(t => !string.IsNullOrWhiteSpace(t.Value) && !t.IsApproved).ToList(), "Needs review", "Everything is approved.");
+        FilterAndDisplay(AllTranslation.Where(t => t.NeedsReview && !t.IsApproved).ToList(), "Needs review", "Nothing needs another review.");
+
+    /// <summary>Translated but never approved, including those that need another review.</summary>
+    [RelayCommand]
+    private void ShowNotApproved() =>
+        FilterAndDisplay(AllTranslation.Where(t => !string.IsNullOrWhiteSpace(t.Value) && !t.IsApproved).ToList(), "Not approved", "Everything is approved.");
 
     [RelayCommand]
     private void ShowChangedThisSession() =>
@@ -381,6 +387,7 @@ public partial class MainWindowViewModel
             AllTranslation.Where(t => string.IsNullOrWhiteSpace(t.Value) || !t.IsApproved).ToList(),
             "Review: unapproved or untranslated",
             "All items are approved and translated.");
+        if (NeedsReviewCount > 0) StatusText += $" · {NeedsReviewCount} need another review (Quick filters › Needs review)";
     }
 
     [RelayCommand] private void SwitchToEditorMode() => EditorMode = EditorMode.Editor;
