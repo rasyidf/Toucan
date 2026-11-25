@@ -45,7 +45,8 @@ public sealed partial class WorkspaceService
                     var data = after.RawScalar is null ? null : ImmutableDictionary<string, string>.Empty.Add(NestedJsonParser.JsonScalarKey, after.RawScalar);
                     next[key] = new(key.Item1, after.Language, string.Join('.', after.Namespace.Segments.Concat(after.KeyPath.Segments)),
                         after.Namespace, after.KeyPath, after.Value, after.Metadata?.Comment ?? string.Empty, after.Metadata?.Approved ?? false,
-                        after.Metadata?.Modified, after.Metadata?.ApprovedAt, after.Metadata?.ChangeType ?? Contracts.Services.ChangeType.DirectEdit, data, after.Binding, after.Destination);
+                        after.Metadata?.Modified, after.Metadata?.ApprovedAt, after.Metadata?.ChangeType ?? Contracts.Services.ChangeType.DirectEdit, data, after.Binding, after.Destination,
+                        NeedsReview: (after.Metadata?.NeedsReview ?? false) && !(after.Metadata?.Approved ?? false), ReviewedSourceHash: after.Metadata?.ReviewedSourceHash);
                 }
                 applied++;
             }

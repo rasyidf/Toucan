@@ -93,6 +93,7 @@ public class ProjectService(
             Namespace = string.Join('.', u.Namespace.Segments.Concat(u.KeyPath.Segments)), Language = u.Language, Value = u.Value,
             Comment = u.Metadata?.Comment ?? string.Empty, IsApproved = u.Metadata?.Approved ?? false, LastModifiedUtc = u.Metadata?.Modified,
             ApprovedAtUtc = u.Metadata?.ApprovedAt, ChangeType = u.Metadata?.ChangeType ?? ChangeType.DirectEdit,
+            NeedsReview = (u.Metadata?.NeedsReview ?? false) && !(u.Metadata?.Approved ?? false), ReviewedSourceHash = u.Metadata?.ReviewedSourceHash,
             FormatData = u.RawScalar is null ? null : new Dictionary<string, string> { [NestedJsonParser.JsonScalarKey] = u.RawScalar }
         }).ToList() : (resourceAware ? LoadResources(settings, ct) : Load(folder, settings.SaveFormat, true, settings.InputEncoding));
 
@@ -125,6 +126,8 @@ public class ProjectService(
         if (resourceAware) ResourceJsonCodec.ResolveSelectors(translations);
         // Approvals follow the source text they were given for: withdraw those whose source changed outside Toucan.
         if (!string.IsNullOrEmpty(settings.PrimaryLanguage)) ReviewTracker.Reconcile(translations, settings.PrimaryLanguage);
+        // Document projects open the workspace from source units, so carry the reconciled review state back to them.
+        if (source is not null) source = WithReviewState(source, translations);
 
         // Backfill settings from loaded data if manifest was missing
         if (settings.Languages.Count == 0)
@@ -139,6 +142,31 @@ public class ProjectService(
                 + "You can edit and review, but saving is blocked to protect your files. Use Save As to write a copy.");
 
         return new ProjectLoadResult { Settings = settings, Translations = translations, Warnings = warnings, Source = source };
+    }
+
+    /// <summary>
+    /// Copies review flags from <paramref name="translations"/> (built from <paramref name="source"/>'s units, in the same
+    /// order) onto the units' metadata. Comments, timestamps and change types stay as the source recorded them.
+    /// </summary>
+    internal static WorkspaceSource WithReviewState(WorkspaceSource source, IReadOnlyList<TranslationItem> translations)
+    {
+        if (source.Units.Count != translations.Count)
+            throw new InvalidOperationException("Loaded translations no longer match the document units they were read from.");
+        var changed = false;
+        var units = source.Units.Select((unit, i) =>
+        {
+            var item = translations[i];
+            var current = unit.Metadata ?? new WorkspaceEntryMetadata(unit.EntryId, unit.Language, string.Empty, false, null, null, ChangeType.DirectEdit);
+            var next = current with
+            {
+                Approved = item.IsApproved, ApprovedAt = item.IsApproved ? current.ApprovedAt : null,
+                NeedsReview = item.NeedsReview && !item.IsApproved, ReviewedSourceHash = item.ReviewedSourceHash
+            };
+            if (next == current) return unit;
+            changed = true;
+            return unit with { Metadata = next.IsEmpty ? null : next };
+        }).ToArray();
+        return changed ? new(source.Root, source.FrameworkId, source.FormatId, source.Documents, units, source.IdentityCatalog, source.Artifacts) : source;
     }
 
     private WorkspaceSource ImportLegacyAnnotations(WorkspaceSource source, List<TranslationItem> translations)

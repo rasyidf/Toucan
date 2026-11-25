@@ -107,7 +107,8 @@ public sealed partial class WorkspaceService
 
     private static WorkspaceEntryMetadata? Metadata(Unit unit)
     {
-        var metadata = new WorkspaceEntryMetadata(new(unit.Id), unit.Language, unit.Comment, unit.Approved, unit.Modified, unit.ApprovedAt, unit.ChangeType);
+        var metadata = new WorkspaceEntryMetadata(new(unit.Id), unit.Language, unit.Comment, unit.Approved, unit.Modified, unit.ApprovedAt, unit.ChangeType,
+            unit.NeedsReview && !unit.Approved, unit.ReviewedSourceHash);
         return metadata.IsEmpty ? null : metadata;
     }
 }

@@ -37,7 +37,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
 
     private sealed record Unit(Guid Id, string Language, string Key, TranslationPath Namespace, TranslationPath KeyPath,
         string Value, string Comment, bool Approved, DateTime? Modified, DateTime? ApprovedAt, ChangeType ChangeType,
-        ImmutableDictionary<string, string>? FormatData, SourceBinding? Binding = null, string? Destination = null, ResourcePermissions? Permissions = null, ResourceEntryIdentity? Identity = null, bool NeedsReview = false);
+        ImmutableDictionary<string, string>? FormatData, SourceBinding? Binding = null, string? Destination = null, ResourcePermissions? Permissions = null, ResourceEntryIdentity? Identity = null, bool NeedsReview = false, string? ReviewedSourceHash = null);
 
     public event EventHandler? Changed;
     public bool IsOpen { get { lock (_gate) return _settings is not null; } }
@@ -72,7 +72,8 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
                 _state = source.Units.ToImmutableDictionary(u => (u.EntryId.Value, u.Language), u => new Unit(u.EntryId.Value,
                     u.Language, string.Join('.', u.Namespace.Segments.Concat(u.KeyPath.Segments)), u.Namespace, u.KeyPath,
                     u.Value, u.Metadata?.Comment ?? string.Empty, u.Metadata?.Approved ?? false, u.Metadata?.Modified, u.Metadata?.ApprovedAt, u.Metadata?.ChangeType ?? ChangeType.DirectEdit,
-                    u.RawScalar is null ? null : ImmutableDictionary<string, string>.Empty.Add(NestedJsonParser.JsonScalarKey, u.RawScalar), u.Binding));
+                    u.RawScalar is null ? null : ImmutableDictionary<string, string>.Empty.Add(NestedJsonParser.JsonScalarKey, u.RawScalar), u.Binding,
+                    NeedsReview: (u.Metadata?.NeedsReview ?? false) && !(u.Metadata?.Approved ?? false), ReviewedSourceHash: u.Metadata?.ReviewedSourceHash));
                 PublishProjections();
                 store.Initialize(store.Translations.ToList());
             }
@@ -196,7 +197,8 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
                     _baseline.TryGetValue(key, out var previous);
                     _baseline = _baseline.SetItem(key, current with { Value = value, Comment = comment,
                         Approved = previous?.Approved ?? current.Approved, ApprovedAt = previous?.ApprovedAt,
-                        NeedsReview = previous?.NeedsReview ?? current.NeedsReview });
+                        NeedsReview = previous?.NeedsReview ?? current.NeedsReview,
+                        ReviewedSourceHash = previous is null ? current.ReviewedSourceHash : previous.ReviewedSourceHash });
                 }
             }
             _undo.Clear();
@@ -409,6 +411,13 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
                                 Approved = review.State == ReviewState.Approved,
                                 NeedsReview = review.State == ReviewState.NeedsReview,
                                 ApprovedAt = review.State == ReviewState.Approved ? now : null,
+                                ReviewedSourceHash = review.State switch
+                                {
+                                    ReviewState.Approved => ReviewTracker.Hash(ReviewTracker.ResolveSourceLanguage(next.Keys.Where(k => k.Item1 == current.Id).Select(k => k.Item2), PrimaryLanguage()) is { } source
+                                        ? next[(current.Id, source)].Value : null),
+                                    ReviewState.NeedsReview => current.ReviewedSourceHash,
+                                    _ => null
+                                },
                             },
                             _ => current
                         };
@@ -460,7 +469,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
     }
     private bool Dirty(Unit unit) => !_baseline.TryGetValue((unit.Id, unit.Language), out var saved) || !Equivalent(unit, saved);
     private static bool Equivalent(Unit a, Unit b) => a.Id == b.Id && a.Language == b.Language && a.Key == b.Key
-        && a.Namespace.Equals(b.Namespace) && a.KeyPath.Equals(b.KeyPath) && a.Value == b.Value && a.Comment == b.Comment && a.Approved == b.Approved && a.NeedsReview == b.NeedsReview && a.Binding == b.Binding && a.Destination == b.Destination
+        && a.Namespace.Equals(b.Namespace) && a.KeyPath.Equals(b.KeyPath) && a.Value == b.Value && a.Comment == b.Comment && a.Approved == b.Approved && a.NeedsReview == b.NeedsReview && a.ReviewedSourceHash == b.ReviewedSourceHash && a.Binding == b.Binding && a.Destination == b.Destination
         && (a.Permissions ?? ResourcePermissions.Editable) == (b.Permissions ?? ResourcePermissions.Editable) && a.Identity?.Address == b.Identity?.Address
         && a.Modified == b.Modified && a.ApprovedAt == b.ApprovedAt && a.ChangeType == b.ChangeType
         && (a.FormatData is null ? b.FormatData is null : b.FormatData is not null && a.FormatData.Count == b.FormatData.Count
@@ -516,7 +525,8 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             var unit = new Unit(id, item.Language, item.Namespace, ns, keyPath, item.Value ?? string.Empty,
                 item.Comment ?? string.Empty, item.IsApproved, item.LastModifiedUtc, item.ApprovedAtUtc, item.ChangeType,
                 item.FormatData?.ToImmutableDictionary(StringComparer.Ordinal), previous?.Binding, previous?.Destination, item.Permissions,
-                item.Identity is null ? null : item.Identity with { Path = item.Identity.Path.ToImmutableArray() }, item.NeedsReview && !item.IsApproved);
+                item.Identity is null ? null : item.Identity with { Path = item.Identity.Path.ToImmutableArray() }, item.NeedsReview && !item.IsApproved,
+                item.ReviewedSourceHash);
             if (previous is null || !Equivalent(previous, unit)) result[key] = unit;
             if (adoptProjection) _projections[(id, item.Language)] = item;
         }
@@ -553,6 +563,7 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
         item.Comment = unit.Comment;
         item.IsApproved = unit.Approved;
         item.NeedsReview = unit.NeedsReview;
+        item.ReviewedSourceHash = unit.ReviewedSourceHash;
         item.LastModifiedUtc = unit.Modified;
         item.ApprovedAtUtc = unit.ApprovedAt;
         item.ChangeType = unit.ChangeType;
@@ -616,6 +627,10 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
                 var approved = Find(review.Key, review.Language);
                 (approved.IsApproved, approved.NeedsReview) = ReviewStateMapping.ToFlags(review.State);
                 approved.ApprovedAtUtc = approved.IsApproved ? now : null;
+                if (approved.IsApproved)
+                    approved.ReviewedSourceHash = ReviewTracker.Hash(ReviewTracker.ResolveSourceLanguage(items.Where(i => i.Namespace == review.Key).Select(i => i.Language), PrimaryLanguage()) is { } source
+                        ? items.First(i => i.Namespace == review.Key && i.Language == source).Value : null);
+                else if (!approved.NeedsReview) approved.ReviewedSourceHash = null;
                 break;
             case AddKey add:
                 var id = Guid.NewGuid();

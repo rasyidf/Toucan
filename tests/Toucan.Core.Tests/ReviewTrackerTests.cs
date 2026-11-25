@@ -36,6 +36,27 @@ public class ReviewTrackerTests
     }
 
     [Fact]
+    public void Reconcile_finds_the_source_by_base_language_like_the_desktop()
+    {
+        var source = Item("en", "k", "Hello");
+        var target = Item("de", "k", "Hallo");
+        ReviewTracker.Approve(target, "Hello");
+        Assert.Equal(0, ReviewTracker.Reconcile([source, target], "en-US"));
+        Assert.True(target.IsApproved);
+        source.Value = "Hello there";
+        Assert.Equal(1, ReviewTracker.Reconcile([source, target], "en-US"));
+    }
+
+    [Fact]
+    public void Reconcile_without_any_source_text_withdraws_nothing()
+    {
+        var target = Item("de", "k", "Hallo");
+        ReviewTracker.Approve(target, "Hello");
+        Assert.Equal(0, ReviewTracker.Reconcile([target], "fr"));
+        Assert.True(target.IsApproved);
+    }
+
+    [Fact]
     public void Invalidate_moves_an_approved_target_to_needs_review_and_ignores_drafts()
     {
         var approved = Item("id", "k", "Halo");

@@ -17,6 +17,19 @@ public static class ReviewTracker
         return Convert.ToHexString(bytes, 0, 8).ToLowerInvariant();
     }
 
+    /// <summary>
+    /// The language among <paramref name="languages"/> that holds the source text for <paramref name="configured"/>:
+    /// an exact match (ignoring case), else the first language with the same base (a configured <c>en-US</c> finds <c>en</c>).
+    /// Null when none matches. The desktop resolves its primary language the same way.
+    /// </summary>
+    public static string? ResolveSourceLanguage(IEnumerable<string> languages, string? configured)
+    {
+        if (string.IsNullOrEmpty(configured)) return null;
+        var list = languages as IReadOnlyCollection<string> ?? languages.ToList();
+        return list.FirstOrDefault(l => string.Equals(l, configured, StringComparison.OrdinalIgnoreCase))
+            ?? list.FirstOrDefault(l => l.StartsWith(configured.Split('-')[0], StringComparison.OrdinalIgnoreCase));
+    }
+
     /// <summary>Approves <paramref name="target"/> against the source text it was reviewed with.</summary>
     public static void Approve(TranslationItem target, string? sourceValue, DateTime? nowUtc = null)
     {
@@ -54,6 +67,9 @@ public static class ReviewTracker
     public static int Reconcile(IEnumerable<TranslationItem> items, string sourceLanguage)
     {
         var all = items as IReadOnlyList<TranslationItem> ?? items.ToList();
+        // Without source text there is nothing to compare against: leave approvals as they are.
+        if (ResolveSourceLanguage(all.Select(i => i.Language).Distinct(), sourceLanguage) is not { } resolved) return 0;
+        sourceLanguage = resolved;
         var sources = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var item in all)
             if (item.Language == sourceLanguage) sources[item.Namespace] = item.Value;

@@ -57,5 +57,6 @@ public sealed partial class WorkspaceService
     private static string? ArtifactVersion(WorkspaceSource source, string path) => source.Artifacts.SingleOrDefault(a => a.RelativePath == path)?.Version;
     private static Unit FromSource(WorkspaceSourceUnit u) => new(u.EntryId.Value, u.Language, string.Join('.', u.Namespace.Segments.Concat(u.KeyPath.Segments)),
         u.Namespace, u.KeyPath, u.Value, u.Metadata?.Comment ?? string.Empty, u.Metadata?.Approved ?? false, u.Metadata?.Modified, u.Metadata?.ApprovedAt,
-        u.Metadata?.ChangeType ?? ChangeType.DirectEdit, u.RawScalar is null ? null : ImmutableDictionary<string, string>.Empty.Add(NestedJsonParser.JsonScalarKey, u.RawScalar), u.Binding);
+        u.Metadata?.ChangeType ?? ChangeType.DirectEdit, u.RawScalar is null ? null : ImmutableDictionary<string, string>.Empty.Add(NestedJsonParser.JsonScalarKey, u.RawScalar), u.Binding,
+        NeedsReview: (u.Metadata?.NeedsReview ?? false) && !(u.Metadata?.Approved ?? false), ReviewedSourceHash: u.Metadata?.ReviewedSourceHash);
 }
