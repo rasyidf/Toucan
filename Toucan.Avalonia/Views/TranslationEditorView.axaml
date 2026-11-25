@@ -140,6 +140,8 @@
           <Button Classes="bulk" Content="{loc:Loc 'None'}" Command="{Binding BulkDeselectAllCommand}"/>
           <Button Classes="bulk" Content="{loc:Loc 'Translate…'}" Command="{Binding BulkTranslateCommand}"/>
           <Button Classes="bulk" Content="{loc:Loc 'Approve'}" Command="{Binding BulkApproveCommand}"/>
+          <Button Classes="bulk" Content="{loc:Loc 'Approve with comment…'}" Command="{Binding BulkApproveWithCommentCommand}"/>
+          <Button Classes="bulk" Content="{loc:Loc 'Reject…'}" Command="{Binding BulkRejectCommand}"/>
           <Button Classes="bulk" Content="{loc:Loc 'Copy to language…'}" Command="{Binding BulkCopyToLanguageCommand}"/>
           <Button Classes="bulk" Content="{loc:Loc 'Move…'}" Command="{Binding BulkMoveToNamespaceCommand}"/>
           <Button Classes="bulk" Content="{loc:Loc 'Delete…'}" Command="{Binding BulkDeleteCommand}" Foreground="{DynamicResource BadBrush}"/>

@@ -118,6 +118,55 @@ public partial class MainWindowViewModel
         ApproveItems(AllTranslation.Where(t => keys.Contains(t.Namespace) && !string.IsNullOrEmpty(t.Value) && !t.IsApproved).ToList());
     }
 
+    /// <summary>Translations of the selected keys a reviewer can act on: translated targets, not the source.</summary>
+    private List<TranslationItem> SelectedReviewTargets()
+    {
+        var keys = SelectedKeys.ToHashSet(StringComparer.Ordinal);
+        return AllTranslation.Where(t => keys.Contains(t.Namespace) && !string.IsNullOrEmpty(t.Value)
+            && !string.Equals(t.Language, PrimaryLanguage, StringComparison.OrdinalIgnoreCase) && t.Permissions.EditMetadata).ToList();
+    }
+
+    /// <summary>Approves the selected keys' translations with a comment kept in the review history.</summary>
+    [RelayCommand]
+    private async Task BulkApproveWithComment()
+    {
+        if (SelectedKeys.Count == 0 || IsAuditMode) return;
+        var items = SelectedReviewTargets().Where(t => !t.IsApproved).ToList();
+        if (items.Count == 0) { StatusText = "Nothing to approve."; return; }
+        var comment = await _dialogService.ShowPromptAsync("Approve with comment", $"Comment for approving {items.Count} translation(s):");
+        if (comment is null) return;
+        ApproveItems(items, comment);
+    }
+
+    /// <summary>Sends the selected keys' translations back for another review, with an optional comment.</summary>
+    [RelayCommand]
+    private async Task BulkReject()
+    {
+        if (SelectedKeys.Count == 0 || IsAuditMode) return;
+        var items = SelectedReviewTargets().Where(t => t.IsApproved || !t.NeedsReview).ToList();
+        if (items.Count == 0) { StatusText = "Nothing to reject."; return; }
+        var comment = await _dialogService.ShowPromptAsync("Reject", $"Why do {items.Count} translation(s) need another review? (optional)");
+        if (comment is null) return;
+        RejectItems(items, comment);
+    }
+
+    internal void RejectItems(List<TranslationItem> items, string? comment)
+    {
+        if (IsAuditMode || items.Count == 0) return;
+        FlushPendingEdits();
+        var before = CaptureEntries(items);
+        foreach (var t in items)
+        {
+            Toucan.Core.Services.ReviewTracker.Reject(t);
+            ReviewHistory.Record(Toucan.Core.Services.ReviewAction.Rejected, t, comment);
+        }
+        if (RecordEntryChanges(before) == 0) return;
+        NotifyBulkValueChanges(items);
+        foreach (var vm in PagingController.Data.SelectMany(g => g.AllItems)) vm.Refresh();
+        UpdateSummaryInfo();
+        StatusText = $"Sent {items.Count} translation(s) back for review.";
+    }
+
     [RelayCommand]
     private async Task BulkCopyToLanguage()
     {

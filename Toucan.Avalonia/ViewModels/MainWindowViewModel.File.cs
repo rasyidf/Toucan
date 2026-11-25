@@ -489,6 +489,12 @@ public partial class MainWindowViewModel
 
     private void AfterSuccessfulSave()
     {
+        if (ProjectSettings?.ProjectPath is { Length: > 0 } root)
+        {
+            try { ReviewHistory.Flush(root, AllTranslation); }
+            catch (IOException ex) { NotifyOutcome(Locales.Loc.T("Review history not saved"), ex.Message, Toucan.Plugins.NotificationSeverity.Warning); }
+            catch (UnauthorizedAccessException ex) { NotifyOutcome(Locales.Loc.T("Review history not saved"), ex.Message, Toucan.Plugins.NotificationSeverity.Warning); }
+        }
         RefreshDocumentNavigation();
         FeedTranslationMemory(SessionDirtyKeys);
         ClearSessionDirtyState();
@@ -549,6 +555,7 @@ public partial class MainWindowViewModel
 
     private void ResetUiAfterClose()
     {
+        ReviewHistory.Discard();
         RefreshDocumentNavigation();
         foreach (var g in PagingController.Data) g.Dispose();
         AllTranslation = [];

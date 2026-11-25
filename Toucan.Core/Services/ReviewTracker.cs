@@ -49,6 +49,17 @@ public static class ReviewTracker
         return true;
     }
 
+    /// <summary>
+    /// A reviewer sends <paramref name="target"/> back: it loses any approval and needs another review.
+    /// The recorded source fingerprint is kept so a later approval is compared with the same baseline.
+    /// </summary>
+    public static void Reject(TranslationItem target)
+    {
+        target.IsApproved = false;
+        target.ApprovedAtUtc = null;
+        target.NeedsReview = true;
+    }
+
     /// <summary>Clears the approval and review flags entirely (for example when a value is emptied or reset).</summary>
     public static void Reset(TranslationItem target)
     {

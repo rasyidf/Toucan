@@ -188,7 +188,9 @@ public partial class MainWindowViewModel
         return blocked;
     }
 
-    private void ApproveItems(List<TranslationItem> items)
+    private void ApproveItems(List<TranslationItem> items) => ApproveItems(items, null);
+
+    private void ApproveItems(List<TranslationItem> items, string? comment)
     {
         if (IsAuditMode) return;
         if (items.Count == 0) return;
@@ -203,6 +205,7 @@ public partial class MainWindowViewModel
         foreach (var t in items)
         {
             Toucan.Core.Services.ReviewTracker.Approve(t, AllTranslation.FirstOrDefault(s => s.Namespace == t.Namespace && s.Language == PrimaryLanguage)?.Value);
+            ReviewHistory.Record(ReviewAction.Approved, t, comment);
         }
         if (RecordEntryChanges(before) == 0) return;
         NotifyBulkValueChanges(items);
@@ -638,7 +641,7 @@ public partial class MainWindowViewModel
             SelectedKeyComment = items.FirstOrDefault(t => !string.IsNullOrEmpty(t.Comment))?.Comment ?? string.Empty;
             foreach (var item in items.OrderBy(t => t.Language == PrimaryLanguage ? 0 : 1).ThenBy(t => t.Language, StringComparer.Ordinal))
             {
-                var status = string.IsNullOrEmpty(item.Value) ? "empty" : item.IsApproved ? "approved" : item.ChangeType == ChangeType.Suggestion ? "machine" : "translated";
+                var status = string.IsNullOrEmpty(item.Value) ? "empty" : item.IsApproved ? "approved" : item.NeedsReview ? "needs review" : item.ChangeType == ChangeType.Suggestion ? "machine" : "translated";
                 SelectedKeyLanguages.Add(new KeyLanguageStatus(item.Language, status, item.Value));
             }
 
@@ -647,6 +650,13 @@ public partial class MainWindowViewModel
                 ? "No change history recorded."
                 : $"Last modified {audited.LastModifiedUtc!.Value.ToLocalTime():g} ({audited.ChangeType})"
                   + (audited.ApprovedAtUtc.HasValue ? $"\nApproved {audited.ApprovedAtUtc.Value.ToLocalTime():g}" : string.Empty);
+            if (ProjectSettings?.ProjectPath is { Length: > 0 } root && ns is not null)
+            {
+                var reviews = items.SelectMany(t => ReviewHistory.For(root, ns, t.Language)).OrderBy(e => e.Utc).TakeLast(10).ToList();
+                if (reviews.Count > 0)
+                    SelectedKeyAuditInfo += "\n\nReview history:\n" + string.Join("\n", reviews.Select(e =>
+                        $"{e.Utc.ToLocalTime():g} · {e.Language} · {e.Action} by {e.Actor}" + (e.Comment is null ? string.Empty : $": {e.Comment}")));
+            }
 
             // Keys whose primary value resembles this one — often reusable wording.
             var source = items.FirstOrDefault(t => t.Language == PrimaryLanguage && !string.IsNullOrWhiteSpace(t.Value));

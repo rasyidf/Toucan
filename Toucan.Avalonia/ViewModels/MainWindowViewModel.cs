@@ -329,6 +329,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     public bool HasNeedsReview => NeedsReviewCount > 0;
     public string NeedsReviewSummary => NeedsReviewCount == 1 ? "1 translation needs another review" : $"{NeedsReviewCount} translations need another review";
 
+    /// <summary>Review actions taken in this session; written to the project's review history when it saves.</summary>
+    internal ReviewHistory ReviewHistory { get; } = new();
+
     internal void UpdateSummaryInfo()
     {
         SummaryInfo.Update(AllTranslation, PrimaryLanguage);
@@ -471,6 +474,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         var resource = ProjectSettings?.ResourceDocuments.FirstOrDefault(d => d.Resource.Id == item.Identity?.ResourceId)?.Resource;
         var created = new TranslationItemViewModel(item, _undoRedoService, _translationStore, OnTranslationItemChanged, CanApprove, _spellingSession, ValidateInlineItem)
             { ResourcePath = resource?.RelativePath ?? "", IsArbResource = resource?.FormatId == FormatIds.Arb,
+              Reviewed = (model, approved) => ReviewHistory.Record(approved ? ReviewAction.Approved : ReviewAction.Unapproved, model),
               IsSource = string.Equals(item.Language, PrimaryLanguage, StringComparison.OrdinalIgnoreCase) };
         ApplyDelivery(created);
         return created;

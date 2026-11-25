@@ -22,6 +22,9 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     private readonly ITranslationManagementService? _translationManagement;
     private readonly Action<TranslationItemViewModel>? _onChanged;
     private readonly Func<TranslationItem, bool>? _canApprove;
+
+    /// <summary>Called after the reviewer approves (true) or unapproves (false) this translation.</summary>
+    public Action<TranslationItem, bool>? Reviewed { get; init; }
     private readonly Func<TranslationItemViewModel, IReadOnlyList<ValidationResult>>? _validateInline;
 
     private string _value;
@@ -217,6 +220,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
             }
             if (value) Toucan.Core.Services.ReviewTracker.Approve(_model, SourceText);
             else Toucan.Core.Services.ReviewTracker.Reset(_model);
+            Reviewed?.Invoke(_model, value);
             OnPropertyChanged();
             OnPropertyChanged(nameof(NeedsReview));
             _onChanged?.Invoke(this);
