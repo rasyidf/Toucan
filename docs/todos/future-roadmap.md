@@ -1,9 +1,9 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "37 release tasks; 6 stable gates; 26 deferred tasks"
-updated: 2026-11-15
-summary: "v0.25 terminology and validation shipped as 0.25.0 with one carried-over decision (ARB comments); v0.26 review correctness is next. Later review, content-source and distribution milestones remain planned."
+progress: "33 v1 checklist tasks; 8 v1 gates; 28 deferred tasks"
+updated: 2026-11-25
+summary: "v0.26 to v0.29 shipped in the v0.26.0 pre-release. Feature work is frozen; the v1 checklist maps each v1.0 gate to correctness, contract, evidence, distribution, performance and release tasks."
 ---
 # Toucan roadmap: v0.21 to v1.0
 
@@ -30,7 +30,7 @@ The [2026-10-25 source audit](../research/v0.24-roadmap-audit.md) distinguishes 
 | v0.23 | Extension platform: lifecycle, commands, desktop contributions, host services | v0.22 |
 | v0.24 | Comfortable editing and onboarding | v0.23 |
 | v0.25 | Glossary and message-aware validation | v0.24 |
-| v0.26 | Review state that follows source changes | v0.25 |
+| v0.26 | Review state that follows source changes (shipped 0.26.0) | v0.25 |
 | v0.27 | Content-source contracts and local snapshots | v0.23, v0.26 |
 | v0.28 | CRUD persistence and synchronization engine | v0.27 |
 | v0.29 | One complete online-source integration | v0.28 |
@@ -70,74 +70,21 @@ The upstream release records its connector acceptance as passed. Revalidation of
 
 **Outcome:** translations follow project vocabulary and preserve executable message syntax.
 
-**Status:** shipped as app version 0.25.0. Local verification is archived in [v0.25 readiness](../specs/v0.25-readiness.md); native Windows accessibility checks were run on a separate machine. Supported behavior and limits are in [terminology and validation](../specs/v0.25-terminology-validation.md). Open item carried forward:
-
-- [ ] Decide ARB comment handling (`@key.description` versus `.toucan` sidecars) before migrating more formats to document writes; tracked in [workspace sync engine](workspace-sync-engine.md).
+**Status:** shipped as app version 0.25.0. Local verification is archived in [v0.25 readiness](../specs/v0.25-readiness.md); native Windows accessibility checks were run on a separate machine. Supported behavior and limits are in [terminology and validation](../specs/v0.25-terminology-validation.md). The ARB comment decision moved to V1-10.
 
 **Completion gate:** glossary and message fixtures detect meaningful errors without blocking draft saves; accepting a suggestion follows normal undo and dirty tracking.
 
-### v0.26: Review correctness
+### v0.26 to v0.29: Review correctness and content sources
 
-**Outcome:** approval reflects the actual source and target that were reviewed.
+Shipped together in the v0.26.0 pre-release (2026-11-25): review state, Needs review filters, reject and approve with comment, review history, the strict-validation push hold-back for key/value services, plugin API 1.3, accounts, the local-folder source, the sync engine, the Sources panel, `toucan sources` commands, the Crowdin connector (preview) and Open from a service. Details are in [CHANGELOG.md](../../CHANGELOG.md) and [content-sources tasks](../specs/content-sources/tasks.md).
 
-- [x] Persist Draft → Needs review → Approved per translation unit and target language, with migration from the existing approval flag. Manifest projects keep it in `toucan.tproj`, document projects in `.toucan/entries` sidecars.
-- [x] Record the source hash used for review; mark affected targets Needs review when the source changes, and invalidate approval after target edits. This holds across sessions and for files edited outside Toucan in both project kinds. See `ReviewTracker`.
-- [x] Add status filters and row badges; extend existing batch approval/rejection with comments and consistent validation policy. Quick filters separate Needs review from Not approved; the Issues panel links to Needs review; multi-select has Approve with comment and Reject.
-- [x] Persist review history with timestamp, action, and available local actor information; do not imply authenticated team identity. Saved to `.toucan/review-history.jsonl` and shown in the inspector. See `ReviewHistory`.
-- [x] Track delivery separately from review: pending, sending, synchronized, failed or in conflict per row, apart from review state. With `requireValidForApproval` on, pushes leave out values with validation errors and the sync plan lists each one; remote review meanings map to local states, and a refused pulled approval no longer drops the others. Limits: the hold-back covers key/value services, not connectors that sync whole files (Crowdin); exports do not count as delivery (after v1.0).
-
-**Completion gate:** source and target changes cannot leave stale approvals, and review state survives save/reopen and project migration.
-
-### v0.27: Content sources and snapshot mode
-
-**Outcome:** a shared workspace can load and persist content through source adapters without changing translation engines.
-
-- [ ] Define content-source contracts separately from `ITranslationProvider` and AI backends; expose optional read, snapshot-write, CRUD, status, revision, and delta capabilities.
-- [ ] Add connection profiles with stable provider and connection IDs, project selection, secret references, permissions, and a connection test; support multiple profiles for one service.
-- [ ] Extend workspace identity and persistence (building on the v0.23 workspace API) for connection, package/resource scope, source/target locales and text, stable unit IDs, remote IDs/revisions, and preserved format metadata.
-- [ ] Implement the local-folder snapshot adapter over existing format strategies, preserving current projects and CLI behavior.
-- [ ] Support initial snapshot loading, cached opening, explicit refresh, and save-plan previews; keep loading policy separate from persistence mode.
-- [ ] Add contract and migration tests for read-only sources, unsupported capabilities, duplicate key names across packages, and existing plugin compatibility; version new public contracts deliberately.
-
-**Completion gate:** local projects work through the source boundary without fidelity regressions, credentials in project files, or changes to translation-engine responsibilities.
-
-### v0.28: CRUD and synchronization engine
-
-**Outcome:** local edits become durable, reviewable operations that can be reconciled with remote changes.
-
-- [ ] Define separate operations for key creation, translation creation/update, rename, translation deletion, and whole-key deletion; enforce provider capabilities and permissions.
-- [ ] Persist a synchronization baseline and pending-operation journal, isolated from local-save baselines; edit locally without issuing a request on each keystroke.
-- [ ] Extend three-way comparison to stable identity, source/target text, supported metadata and status; handle concurrent creation and edit-versus-delete conflicts.
-- [ ] Add a conflict-resolution view and explicit pull/push plans; preserve unrelated local edits during refresh and require deliberate inclusion of remote deletions.
-- [ ] Support conditional writes where available, per-operation results, partial success, safe retry/reconciliation, and asynchronous-job completion; disclose weaker concurrency guarantees where necessary.
-- [ ] Verify restart recovery, ambiguous network failures, duplicate-prevention, pagination completeness, and cancellation with a deterministic test adapter; never infer deletion from an incomplete read.
-
-**Completion gate:** failed or repeated synchronization preserves unsent work, avoids duplicate writes, and cannot silently overwrite detected concurrent edits.
-
-### v0.29: First online connector
-
-**Outcome:** users can complete one real online workflow from connection through delivery.
-
-- [ ] Select one service from actual user demand, such as Crowdin, Lokalise, or a documented custom REST service; specify whether its adapter uses snapshots, CRUD, or both.
-- [ ] Treat installation, trust, activation, and entitlement as separate states: add staged plugin installation with integrity checks and rollback, publisher signature verification for a commercial channel (keeping an explicit community/development path), and an entitlement check with defined offline and expiry behavior that keeps cached work and export available. Keep service authentication separate from Toucan licensing.
-- [ ] Implement authentication, project/resource/language mapping, complete paginated reads, and the supported write operations against that service.
-- [ ] Add bounded concurrency, timeout/cancellation, rate-limit handling and backoff, token-expiry handling, and actionable permission errors.
-- [ ] Expose connection settings and status in a Sources area, separate from translation engines and AI; show last successful sync, pending changes, and failures.
-- [ ] Support explicit pull/push, offline cached editing, restart recovery, and distinct Saved locally / Synced remotely indicators.
-- [ ] Run connector contract checks and controlled end-to-end tests covering changed remote content, partial failures, asynchronous jobs where applicable, and secret redaction in diagnostics.
-
-**Completion gate:** the selected connector passes a full offline/edit/reconnect/conflict/push/reopen workflow. If it cannot meet the safety gates, label it preview and exclude it from stable integration claims.
+Open items moved to the [v1 checklist](#v1-checklist): the hold-back for whole-file connectors (V1-13), live Crowdin writes and failure cases (V1-15, V1-16), the Sources accessibility pass (V1-52) and packaged keyring checks (V1-45, V1-60). Staged plugin installation, publisher signatures and entitlement checks from the v0.29 plan did not ship and move to 1.x with the plugin feed.
 
 ### v0.30: Distribution and updates
 
 **Outcome:** releases are repeatable, installable, and discoverable. **References:** REL-01, REL-02, REL-03, REL-04.
 
-- [ ] Add tag-triggered release builds with version checks, artifact checksums, and packaged-build smoke tests on supported platforms.
-- [ ] Validate and ship a Windows installer alongside the portable package; configure trusted signing for release artifacts where required.
-- [ ] Configure Developer ID signing and notarization for macOS; preserve a documented development-build path.
-- [ ] Script Linux packaging and document supported architectures, dependencies, desktop integration, and installation/removal.
-- [ ] Extend the existing manual update check and stable/preview channels with configurable startup checks, changelog previews, and a clear download/open-release action.
-- [ ] Verify clean install, upgrade, uninstall, and settings preservation; document signing costs or platform limitations that remain unresolved.
+Tasks are in the [v1 checklist](#v1-checklist).
 
 **Completion gate:** a release can be built from its tag and installed/upgraded on each supported platform, with explicit platform limitations and no manual artifact patching. Automatic in-app installation is deferred.
 
@@ -145,27 +92,84 @@ The upstream release records its connector acceptance as passed. Revalidation of
 
 **Outcome:** the complete workflow has measured limits and survives upgrade and failure scenarios. **Reference:** QA-02.
 
-- [ ] Profile open, edit, search, save, and sync on named hardware with representative fixtures, including 10,000 keys × 10 locales; record cold/warm timings and memory.
-- [ ] Address measured bottlenecks with virtualization, lazy loading, background persistence, indexed search, or memory changes as justified by profiling.
-- [ ] Verify editor responsiveness during save/sync and retain accurate cancellation, progress, and partial-result behavior.
-- [ ] Test project, settings, connection, review, and recovery migrations from supported preview versions; document backup and downgrade behavior.
-- [ ] Run packaged end-to-end checks for open → edit → validate → review → save/sync → close → reopen across supported platforms; repeat accessibility and visual checks for changed screens.
-- [ ] Publish a release candidate, document remaining limitations, and resolve release-blocking feedback before v1.0.
-
 **Proposed performance budgets:** usable editor within five seconds for the reference fixture, warm search within 200 ms, and responsive typing while persistence runs. Confirm or revise these budgets against named hardware before claiming them; they are not current measurements.
+
+Tasks are in the [v1 checklist](#v1-checklist).
 
 **Completion gate:** measured budgets are met or the supported scale is explicitly narrowed, migrations pass, and no unresolved data-loss or silent-overwrite issue remains.
 
 ## v1.0 release gates
 
-Version 1.0 follows v0.31 only when these acceptance checks pass. Freeze public contracts and persistence schemas after reviewing the supported migration policy.
+Version 1.0 ships only when every gate below is checked. Feature work is frozen: from here only correctness, contracts, distribution, verification and release work lands; everything else is 1.x (see [Future plan](#future-plan-after-v10)). The checklist below owns the remaining v0.30 and v0.31 tasks; those sections keep only their outcome and completion gate.
 
-- [ ] Every format advertised as editable preserves its documented semantics and metadata; unsupported constructs have safe, visible handling.
-- [ ] Failed saves, crashes, and interrupted synchronization preserve recoverable work and accurate pending state.
-- [ ] Daily editing and review workflows pass automated and packaged-build checks on Windows, macOS, and Linux, including source-change approval invalidation.
-- [ ] Stable online connectors handle concurrency, permissions, partial success, and retry/recovery; preview connectors are clearly identified.
-- [ ] Installation, update discovery, settings/project migrations, and stable plugin-contract compatibility are tested and documented.
-- [ ] Performance and accessibility have recorded verification, known limitations are published, and no release-blocking issue remains.
+- [ ] **G1 Formats.** Every format advertised as editable preserves its documented semantics and metadata; unsupported constructs have safe, visible handling. Tasks: V1-10 to V1-12.
+- [ ] **G2 Recovery.** Failed saves, crashes and interrupted synchronization preserve recoverable work and accurate pending state. Tasks: V1-13 to V1-15.
+- [ ] **G3 Connectors.** Stable online connectors handle concurrency, permissions, partial success and retry/recovery; preview connectors are clearly identified. Tasks: V1-15, V1-16.
+- [ ] **G4 Contracts.** Plugin API, project, account, sync-state and source-protocol contracts are frozen, with a written migration and downgrade policy and migration tests from every released preview. Tasks: V1-20 to V1-27.
+- [ ] **G5 Evidence.** Daily editing and review workflows pass automated and packaged-build checks on Windows, macOS and Linux, each backed by a machine-readable record for the release commit. Tasks: V1-30 to V1-32, V1-60.
+- [ ] **G6 Distribution.** Installation, update discovery, upgrade, uninstall and settings preservation are tested and documented per OS. Tasks: V1-40 to V1-46.
+- [ ] **G7 Performance and accessibility.** Both have recorded verification; budgets are met or the supported scale is narrowed and published. Tasks: V1-50 to V1-52.
+- [ ] **G8 Release.** A release candidate is published, known limitations are published, and no release-blocking issue remains. Tasks: V1-60 to V1-62.
+
+### v1 checklist
+
+Items marked **(you)** need the maintainer: a product decision, an account, money, a write to a real external service, or a run on a machine other than the macOS dev machine. Work stops at those items and asks.
+
+#### 0. Housekeeping found while planning
+
+- [ ] V1-00 `v0.26.0` is tagged and published as a pre-release, but `Directory.Build.props` still says `0.25.0` and `CHANGELOG.md` still has everything under `[Unreleased]`. Cut a `[0.26.0] - 2026-11-25` section, bump the version for the next build, and have the tag workflow (V1-40) refuse a tag that does not match the version. The published v0.26.0 has no package assets.
+- [ ] V1-01 Remove the tracked `.DS_Store` and `samples/.DS_Store` (already in `.gitignore`).
+
+#### 1. Correctness (G1, G2, G3)
+
+- [ ] V1-10 **(you)** Decide ARB comment handling: keep `@key.description` in the `.arb` file, or move comments to `.toucan` sidecars under document saving. Blocks V1-11 for ARB.
+- [ ] V1-11 For each of the 14 formats in [formats.md](../formats.md), either migrate it to document saving with fidelity fixtures (extend the verified list in `OnlyVerifiedBuiltInFormatsDeclareTargetedDocumentSaves`), or label it **Basic** or **Full rewrite** in the UI and in formats.md. Today only `json` and `namespaced` use document saving. Bring the per-format proposal before migrating.
+- [ ] V1-12 Fix or label the namespaced JSON save that writes both `<lang>.json` and `locales/<lang>/<ns>.json` so a reload sees each key twice (listed as a limitation in formats.md; it breaks G1 for an editable format).
+- [ ] V1-13 Extend the strict-validation hold-back (`requireValidForApproval`) to whole-file connectors: `DocumentSyncService` must not push a document carrying values with validation errors, and the plan must list what was held back. Remove the limit from the changelog and the v0.26 note.
+- [ ] V1-14 Find and fix the intermittent `EditorLayoutTests` failure at width 1280, dark theme. Record the cause, not a retry.
+- [ ] V1-15 Crowdin interrupted and partial sync: first add faults to `FakeCrowdin` (crash mid-push, timeout after commit, 403 permission error, partial success across files) and make the connector pass; then **(you)** approve and supply a throwaway Crowdin project for the same cases live. Live writes have never run.
+- [ ] V1-16 **(you)** Decide whether Crowdin ships stable or as clearly labelled preview, using V1-15 results. Covers APP-05.
+
+#### 2. Freeze contracts (G4)
+
+- [ ] V1-20 Review plugin API 1.3 (`Toucan.Plugins.Abstractions`, including `Sources/`) and add a public-API baseline test so any change fails CI.
+- [ ] V1-21 Review and freeze the `toucan.tproj` schema (`docs/toucan.project.schema.json`) with a schema version field.
+- [ ] V1-22 Review and freeze `accounts.json`.
+- [ ] V1-23 Review and freeze the sync state files (`baseline.json`, `journal.json`) and their schema version.
+- [ ] V1-24 Review and freeze the Toucan source protocol (`source-protocol.md`, OpenAPI) as 1.0.
+- [ ] V1-25 Write `docs/compatibility.md`: what is frozen, how each file migrates forward, what an older build does with a newer file (set aside, never overwritten), backup before migration, and the supported downgrade path.
+- [ ] V1-26 Migration tests from fixtures: projects and settings written by each released preview (0.23.0, 0.24.0, 0.25.0, 0.26.0). The v0.27–v0.29 milestones shipped inside the 0.26.0 tag, so 0.26.0 fixtures cover sources, accounts and sync state.
+- [ ] V1-27 Review state, review history and recovery files included in V1-26.
+
+#### 3. Portable verification evidence (G5)
+
+- [ ] V1-30 CI matrix: `ci.yml` `all` mode on Windows, macOS and Linux uploads TRX and JUnit per OS and writes a pass/fail summary per OS to the job summary. Runs on the release tag (V1-40).
+- [ ] V1-31 `tools/record-evidence.sh` and `tools/record-evidence.ps1`: write `docs/evidence/<version>/<os>-<check>-<date>.json` with commit, OS and version, architecture, command or check name, pass/fail/skip counts, date and who ran it, plus a JSON schema; commit the record. Used for hand checks (screen readers, Gatekeeper, installers, keyring). Existing v0.24/v0.25 JSONs stay as history.
+- [ ] V1-32 Release checklist (`docs/release-checklist.md`) and a `tools/check-evidence` step: a release needs a passing record per OS for the release commit. WSL counts for neither packaged builds nor the keyring. **(you)** run the Windows and Linux records on those machines. Closes QA-03.
+
+#### 4. Distribution (G6; REL-01 to REL-04)
+
+- [ ] V1-40 Tag-triggered release workflow: version check against the tag, build all packages, `SHA256SUMS`, packaged smoke test per OS, draft release with assets. Closes REL-01.
+- [ ] V1-41 macOS Developer ID signing and notarization in CI from secrets (`build-macos-app.sh` already supports `SIGN_IDENTITY` and `NOTARY_PROFILE`). **(you)** Apple Developer Program membership, a Developer ID Application certificate (.p12 and password), team ID, and a notary credential (App Store Connect API key). Keep the ad-hoc development path. Closes REL-02.
+- [ ] V1-42 Windows installer from `packaging/installer.iss`, built in the release workflow next to the portable zip. **(you)** decide whether to buy Windows code signing for 1.0 or ship unsigned with the SmartScreen warning documented. Closes REL-04.
+- [ ] V1-43 **(you)** choose the Linux package (proposal: `.tar.gz` plus `.deb` for x64 and arm64). Document dependencies, desktop entry, install and removal, and the Secret Service requirement (GNOME Keyring or KWallet; without it the key stays in a file).
+- [ ] V1-44 Notify-only update check on startup (Off / Notify, default Notify), using the existing `UpdateService` and channel; shows the version and opens the release page. No download or install. Closes REL-03.
+- [ ] V1-45 Install, upgrade from 0.26.0, uninstall and settings/accounts/secrets survival tested per OS on packaged builds, recorded with V1-31.
+- [ ] V1-46 Update README, packaging/README and the site for the new packages.
+
+#### 5. Performance and accessibility (G7; QA-02)
+
+- [ ] V1-50 Profile the 10,000 keys × 10 locales fixture in a Release build on named hardware: cold and warm open, search, edit, save, pull/plan/push, memory. Record with V1-31. Sync is partly measured in `SyncScaleTests` (Debug, memory not measured).
+- [ ] V1-51 Meet the proposed budgets (usable in 5 s, warm search under 200 ms, responsive typing during save/sync) or **(you)** approve a narrower supported scale; publish it. Closes QA-02.
+- [ ] V1-52 Content-sources task 5.8: keyboard, screen reader and visual review of the Sources panel, accounts, add-connection, plan, conflict and open-from-service screens. VoiceOver on macOS here; **(you)** Narrator/NVDA on Windows and Orca on Linux, recorded with V1-31.
+
+#### 6. Release candidate (G8)
+
+- [ ] V1-60 Packaged full flow on each OS (open, edit, validate, review, save/sync, close, reopen), recorded per OS for the RC commit.
+- [ ] V1-61 Known-limitations page (`docs/known-limitations.md`): preview features (AI, preview connectors), unsupported format constructs, platform limits, supported scale.
+- [ ] V1-62 **(you)** approve publishing the RC; resolve release-blocking feedback; close G1 to G8 here and in known-bugs.md and CHANGELOG.md.
+
+Not v1: QA-04 (AI stays labelled preview and is listed in V1-61), APP-01, and everything under [Future plan](#future-plan-after-v10).
 
 ## Feature-group cross-reference
 
@@ -214,6 +218,7 @@ These remain visible backlog items, not prerequisites for the first stable relea
 ### Editor, glossary, and reporting
 
 - [ ] Add Markdown preview for translation values.
+- [ ] Add a syntax-highlighted value editor.
 - [ ] Add glossary TBX import/export.
 - [ ] Export translation-progress reports as HTML/PDF and missing/unused-key reports per language.
 - [ ] Export changes since a selected date and add a statistics dashboard with trends.
