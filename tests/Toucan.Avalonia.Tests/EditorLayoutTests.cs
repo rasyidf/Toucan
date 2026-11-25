@@ -81,20 +81,24 @@ public class EditorLayoutTests
             Dispatcher.UIThread.RunJobs();
             var cards = window.GetVisualDescendants().OfType<TranslationCard>().Where(c => c.IsEffectivelyVisible).ToList();
             Assert.NotEmpty(cards);
+            // Layout facts for a failure message: this case has failed intermittently somewhere without a recorded cause (V1-14).
+            string Describe(TranslationCard c) =>
+                $"window {window.Bounds.Width}x{window.Bounds.Height}, theme {window.ActualThemeVariant}, card {c.Bounds.Width:0.#} wide, classes [{string.Join(' ', c.Classes)}], " +
+                $"boxes [{string.Join(", ", c.GetVisualDescendants().OfType<TextBox>().Where(b => b.Classes.Contains("translation")).Select(b => $"{(b.DataContext as TranslationItemViewModel)?.Language}:{b.Bounds.Width:0.#}{(b.IsEffectivelyVisible ? "" : " hidden")}"))}]";
             foreach (var card in cards)
             {
-                Assert.Equal(width == 1280, card.Classes.Contains("columns"));
+                Assert.True((width == 1280) == card.Classes.Contains("columns"), Describe(card));
                 var boxes = card.GetVisualDescendants().OfType<TextBox>().Where(b => b.Classes.Contains("translation") && b.IsEffectivelyVisible).ToList();
                 foreach (var box in boxes)
                 {
                     var point = Assert.NotNull(box.TranslatePoint(default, card));
-                    Assert.True(box.Bounds.Width >= 150);
-                    Assert.True(point.X >= 0 && point.X + box.Bounds.Width <= card.Bounds.Width + 1);
+                    Assert.True(box.Bounds.Width >= 150, Describe(card));
+                    Assert.True(point.X >= 0 && point.X + box.Bounds.Width <= card.Bounds.Width + 1, Describe(card));
                 }
                 var first = Assert.NotNull(boxes[0].TranslatePoint(default, card));
                 var second = Assert.NotNull(boxes[1].TranslatePoint(default, card));
-                if (width == 1280) Assert.True(second.X > first.X + 100);
-                else Assert.True(second.Y > first.Y);
+                if (width == 1280) Assert.True(second.X > first.X + 100, Describe(card));
+                else Assert.True(second.Y > first.Y, Describe(card));
             }
             var directory = Environment.GetEnvironmentVariable("TOUCAN_TEST_SCREENSHOTS");
             if (!string.IsNullOrEmpty(directory))
@@ -114,7 +118,7 @@ public class EditorLayoutTests
             Dispatcher.UIThread.RunJobs();
             var visible = Assert.Single(ordinary.GetVisualDescendants().OfType<TextBox>(), b => b.Classes.Contains("translation") && b.IsEffectivelyVisible);
             Assert.Equal("en", Assert.IsType<TranslationItemViewModel>(visible.DataContext).Language);
-            if (width == 1280) Assert.True(visible.Bounds.Width > previousWidth * 1.5);
+            if (width == 1280) Assert.True(visible.Bounds.Width > previousWidth * 1.5, $"{visible.Bounds.Width:0.#} after hiding fr, {previousWidth:0.#} before; {Describe(ordinary)}");
             Assert.True(ordinary.FocusEditor());
             vm.SwitchToAuditModeCommand.Execute(null);
             Dispatcher.UIThread.RunJobs();
