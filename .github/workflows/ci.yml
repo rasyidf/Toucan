@@ -44,13 +44,13 @@ jobs:
         with:
           global-json-file: global.json
       - name: Build
-        run: dotnet build Toucan.CrossPlatform.slnx --configuration Release
+        run: dotnet build Toucan.slnx --configuration Release
       - name: Test
         if: ${{ !inputs.coverage }}
-        run: dotnet test Toucan.CrossPlatform.slnx --configuration Release --no-build --results-directory TestResults --logger trx
+        run: dotnet test Toucan.slnx --configuration Release --no-build --results-directory TestResults --logger trx
       - name: Test with coverage
         if: ${{ inputs.coverage }}
-        run: dotnet test Toucan.CrossPlatform.slnx --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults --logger trx
+        run: dotnet test Toucan.slnx --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults --logger trx
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -105,7 +105,7 @@ jobs:
       - name: Windows portable ZIP
         if: runner.os == 'Windows'
         shell: pwsh
-        run: ./publish.ps1 portable
+        run: ./packaging/publish.ps1 portable
       - name: macOS app and DMG
         if: runner.os == 'macOS'
         shell: bash

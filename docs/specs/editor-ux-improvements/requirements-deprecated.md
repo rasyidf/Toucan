@@ -1,5 +1,5 @@
 ---
-title: "editor-ux-improvements — requirements"
+title: "editor-ux-improvements: requirements"
 status: deprecated
 progress: "0/21 tasks"
 updated: 2026-07-06
@@ -61,7 +61,7 @@ Improve the translation editor UX across five areas: editor mode visual differen
 2. WHILE the Editor_Mode is Audit, THE Translation_Item_View SHALL display a comment button on each Language_Row allowing the user to view existing comments.
 3. WHILE the Editor_Mode is Review, THE Translation_Item_View SHALL display an approve toggle button on each Language_Row that sets the IsApproved state of the Translation_Item_ViewModel.
 4. WHILE the Editor_Mode is Review, THE Translation_Item_View SHALL display a needs-review button on each Language_Row that clears the IsApproved state of the Translation_Item_ViewModel.
-5. THE Translation_Item_View SHALL ensure the approve toggle button visual state always matches the IsApproved state — WHEN IsApproved is True, THE button SHALL render with a checkmark icon and accent-colored background.
+5. THE Translation_Item_View SHALL ensure the approve toggle button visual state always matches the IsApproved state: WHEN IsApproved is True, THE button SHALL render with a checkmark icon and accent-colored background.
 6. WHEN the IsApproved state of a Translation_Item_ViewModel is False, THE approve toggle button SHALL render with a neutral icon and no accent background.
 
 ### Requirement 4: Language Visibility Checkboxes

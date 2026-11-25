@@ -44,7 +44,7 @@ public sealed class SourcesCliTests : IAsyncLifetime
     private static string CliDll()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Toucan.CrossPlatform.slnx"))) dir = dir.Parent;
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Toucan.slnx"))) dir = dir.Parent;
         var configuration = AppContext.BaseDirectory.Contains($"{Path.DirectorySeparatorChar}Release{Path.DirectorySeparatorChar}", StringComparison.Ordinal) ? "Release" : "Debug";
         return Path.Combine(dir!.FullName, "build", "Toucan.CLI", configuration, "net10.0", "toucan.dll");
     }

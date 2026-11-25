@@ -1,12 +1,12 @@
 ---
 title: "v0.24 acceptance evidence"
 status: active
-updated: 2026-10-25
-summary: "v0.24 Windows automated evidence, two editor regression fixes and remaining native Windows/external connector gates. macOS/Linux are assumed passed for the user's readiness review."
+updated: 2026-11-15
+summary: "v0.24 Windows automated evidence, two editor regression fixes and remaining native Windows/external connector gates. macOS/Linux readiness was assumed without execution artifacts."
 ---
 # v0.24 acceptance evidence
 
-The v0.24.0 preview implements the editor comfort work and is merged into `main`. Its [named release draft](../../release-notes/v0.24.0.md) is being prepared; it is not yet a published or fully accepted cross-platform release. The following evidence describes historical verification snapshots. Work was performed on `release/v0.23.0`, starting from compatibility commit `bf7d51e` and preserving the 18 pending UI/test edits. The initial verification preceded the commits and push requested afterward; no branch switch or release publication was performed.
+The following evidence describes historical verification snapshots for the v0.24 editor-comfort work. Work was performed on `release/v0.23.0`, starting from compatibility commit `bf7d51e` and preserving the 18 pending UI/test edits. The initial verification preceded the implementation commits.
 
 ## Implemented and verified behavior
 
@@ -22,7 +22,7 @@ The v0.24.0 preview implements the editor comfort work and is merged into `main`
 
 | Check | Result / evidence |
 |---|---|
-| Solution build | `dotnet build Toucan.CrossPlatform.slnx --no-restore -m:1` passes. A clean rebuild may emit the existing AVLN3001 runtime-loader warning for the injected MainWindow constructor. |
+| Solution build | `dotnet build Toucan.slnx --no-restore -m:1` passes. A clean rebuild may emit the existing AVLN3001 runtime-loader warning for the injected MainWindow constructor. |
 | Core suite | 1,087 passed, zero skipped. `build/v0.24-readiness/full-core-accepted.xml`. |
 | Avalonia suite | 298 passed, zero skipped, including the 100-target keyboard session and shared notification composition. `build/v0.24-readiness/full-avalonia-accepted.xml`. |
 | SDK harness | 11 passed, zero skipped. `build/v0.24-readiness/full-harness-accepted.xml`. |
@@ -40,7 +40,7 @@ The standard VSTest bridge stalled without a result in this environment. Direct 
 $env:MSBuildEnableWorkloadResolver='false'
 $env:TEMP="$PWD/build/v0.24-readiness/temp"
 $env:TMP=$env:TEMP
-dotnet build Toucan.CrossPlatform.slnx --no-restore -m:1
+dotnet build Toucan.slnx --no-restore -m:1
 dotnet build/Toucan.Core.Tests/Debug/net10.0/Toucan.Core.Tests.dll -xml build/v0.24-readiness/full-core-accepted.xml
 dotnet build/Toucan.Avalonia.Tests/Debug/net10.0/Toucan.Avalonia.Tests.dll -xml build/v0.24-readiness/full-avalonia-accepted.xml
 dotnet build/Toucan.Plugins.Testing.Tests/Debug/net10.0/Toucan.Plugins.Testing.Tests.dll -xml build/v0.24-readiness/full-harness-accepted.xml
@@ -53,11 +53,11 @@ The Core boundary test and framework scanner check create temporary Windows junc
 | Gate | State and required evidence |
 |---|---|
 | Native Windows workflow/accessibility | Not executed: native desktop control is unavailable through the enabled tools. Run packaged-app editing, screen-reader announcements, OS text scaling, focus/caret/selection, dialogs and mixed RTL/LTR acceptance. Headless results are not native input evidence. |
-| Linux/macOS | Assumed passed for the 2026-10-25 readiness decision at the user's request. Not independently executed on this Windows host; preserve external OS/build/artifact evidence separately. |
+| Linux/macOS | Assumed passed for the 2026-10-25 readiness decision without independent execution artifacts; preserve external OS/build/artifact evidence separately. |
 | Compatibility M7c | Remains open until its native/platform rows are executed. Do not convert committed M3–M7 implementation into a claim of complete framework/platform parity. |
 | External connector | The separate `toucan-plugins` repository is not present. Its package-only sample desktop/CLI gate remains open. Core connection activation exists, but no production desktop/CLI connection-management caller was found; adding that UI remains an inherited integration gap (APP-05). |
 
-These gates are tracked in [known issues](../../known-bugs.md) and the [roadmap](../../todos/future-roadmap.md). They require another execution environment or the missing external project; they cannot be accepted from this host's test counts.
+These gates are tracked in [known issues](../../known-bugs.md) and the [roadmap](../../todos/future-roadmap.md). They require another execution environment or the missing external project; the automated Windows test counts do not establish acceptance.
 
 The final test and package hashes, application hash, base commit and SHA-256 of each changed working file are recorded in `build/v0.24-readiness/verification-manifest.json`. That manifest records the pre-commit editor snapshot. The editor, shared dialog chrome and contextual start-screen/menu follow-ups are committed together; Git history records the final revision.
 
@@ -69,11 +69,11 @@ Shared dialog chrome and project-aware menu/palette visibility were added after 
 
 On 2026-10-25, the documentation commit `2c2c7f6` and local editor/compatibility changes were reconciled with upstream `6204332`, preserving both histories. The merged implementation includes placeholder rename and warnings, inspector context, the feature tour and accessibility improvements alongside the local shell and metadata-preserving undo workflows.
 
-Every project listed in `Toucan.CrossPlatform.slnx` builds individually with `--no-restore -m:1 -c Review`; the solution itself only defines its default configurations. Direct xUnit execution passed 1,087 Core tests, 337 UI tests and 11 SDK harness tests (1,435 passed total). The UI suite's external connector test was skipped because `TOUCAN_EXTERNAL_CONNECTOR_DIST` is not configured. Evidence: `build/v0.24-readiness/merged-full-core.xml`, `merged-full-ui.xml` and `merged-full-harness.xml`. Documentation status validation also passes. These checks retain all remaining native/platform and external connector release gates above.
+Every project listed in `Toucan.slnx` builds individually with `--no-restore -m:1 -c Review`; the solution itself only defines its default configurations. Direct xUnit execution passed 1,087 Core tests, 337 UI tests and 11 SDK harness tests (1,435 passed total). The UI suite's external connector test was skipped because `TOUCAN_EXTERNAL_CONNECTOR_DIST` is not configured. Evidence: `build/v0.24-readiness/merged-full-core.xml`, `merged-full-ui.xml` and `merged-full-harness.xml`. Documentation status validation also passes. These checks retain all remaining native/platform and external connector release gates above.
 
 ## v0.24 branch regression follow-up
 
-The active branch is now `release/v0.24.0`, created from the merged v0.23 branch. Older branch names and counts above describe historical snapshots. v0.23.0 remains a published pre-release; its superseded development branch was removed under the beta policy of one active minor-version branch.
+This verification snapshot used `release/v0.24.0`, created from the merged v0.23 branch. Branch names and counts above describe historical snapshots.
 
 On 2026-10-25, two reproduced regressions were fixed: target placeholder context now follows source edits/rename/undo/redo (including plural variants), and refreshing project/validation totals no longer restores a seen notification badge. The retained history count and validation summary remain independent of the unseen count. All 33 focused behavior checks pass. The full UI suite passes 340 tests, with only the external connector gate skipped; evidence is `build/v0.24-readiness/v24-fixes-focused.xml` and `v24-fixes-full-ui.xml`. The build passes with the existing injected-window AVLN3001 warning. Core/SDK implementations were unchanged from the passing merged baseline.
 

@@ -81,14 +81,14 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="release-v0.25.0.html">Toucan v0.25.0 — Terminology and message-aware validation</a>
-<a href="release-v0.24.0.html">Toucan v0.24.0 — Editor comfort and resource compatibility</a>
+<a href="release-v0.25.0.html">Toucan v0.25.0: Terminology and message-aware validation</a>
+<a href="release-v0.24.0.html">Toucan v0.24.0: Editor comfort and resource compatibility</a>
 <a href="user-guide.html">Toucan User Guide</a>
 <a href="translator-guide.html">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
 <a href="ai-integration.html" aria-current="page">AI Integration</a>
 <a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
-<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="pretranslation-preview.html">Pretranslation: Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
 <a href="architecture.html">Toucan architecture</a>
 <a href="core-architecture.html">Toucan.Core interop architecture</a>
@@ -143,7 +143,7 @@
 <h3 id="the-reply-contract"><a class="anchor" href="#the-reply-contract" aria-label="Link to this section">#</a>The reply contract</h3>
 <p>The prompt is free text, but Toucan reads the reply in the format in the last column of the Features table. The built-in prompts end with those format instructions. If you rewrite a prompt, keep them, or results come back empty ("No translation returned", no findings). Replies wrapped in a Markdown code fence, or with a sentence before the JSON, are still read.</p>
 <h2 id="secret-store"><a class="anchor" href="#secret-store" aria-label="Link to this section">#</a>Secret store</h2>
-<p><code>ISecretService</code> (<code>Toucan.Core/Services/SecretService.cs</code>) keeps every secret in <code>secrets.json</code> in the per-user application-data folder, next to <code>secret.key</code>. That folder is <code>%APPDATA%\Toucan</code> on Windows, <code>~/Library/Application Support/Toucan</code> on macOS and <code>~/.config/Toucan</code> on Linux. Values are encrypted with DPAPI on Windows, or AES-GCM with the per-user key elsewhere. Key names are stored in clear so they can be listed.</p>
+<p><code>ISecretService</code> (<code>Toucan.Core/Services/SecretService.cs</code>) keeps every secret in <code>secrets.json</code> in the per-user application-data folder, next to <code>secret.key</code>. That folder is <code>%APPDATA%\Toucan</code> on Windows, <code>~/Library/Application Support/Toucan</code> on macOS and <code>~/.config/Toucan</code> on Linux. Values are encrypted with DPAPI on Windows, or AES-GCM with a per-user key elsewhere, kept in the macOS Keychain or the Linux Secret Service when available (see <a href="provider-settings.html">provider settings</a>). Key names are stored in clear so they can be listed.</p>
 <div class="table-wrap"><table><thead><tr><th>Key</th><th>Holds</th></tr></thead><tbody><tr><td><code>ai/&lt;service&gt;/api_key</code></td><td>An AI service's key, e.g. <code>ai/anthropic/api_key</code></td></tr><tr><td><code>mt/&lt;provider&gt;/&lt;field&gt;</code></td><td>A translation provider's secret, e.g. <code>mt/deepl/api_key</code></td></tr><tr><td><code>project/&lt;id&gt;/mt/&lt;provider&gt;/&lt;field&gt;</code></td><td>A project's own provider secret. <code>&lt;id&gt;</code> is a hash of the project folder, so the path is not stored.</td></tr></tbody></table></div>
 <p>Settings → Data &amp; privacy lists the stored names (never values) and removes them one by one or all at once. The CLI and the app share the store.</p>
 <h2 id="cli"><a class="anchor" href="#cli" aria-label="Link to this section">#</a>CLI</h2>

@@ -36,10 +36,10 @@ The Linux-only sampler reads `/proc` every 100 ms. Aggregate process-tree RSS ca
 Restore dependencies before measuring compilation:
 
 ```bash
-dotnet restore Toucan.CrossPlatform.slnx
+dotnet restore Toucan.slnx
 python3 tools/Measure-ProcessMemory.py \
   --output build/build-memory.json --log build/build-memory.log -- \
-  dotnet build Toucan.CrossPlatform.slnx -c Release -t:Rebuild \
+  dotnet build Toucan.slnx -c Release -t:Rebuild \
   --no-restore -m:1 -p:UseSharedCompilation=false -nr:false
 ```
 

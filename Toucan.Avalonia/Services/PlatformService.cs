@@ -13,6 +13,9 @@ internal static class PlatformService
     public static bool IsMacOS => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
+    /// <summary>Running as a Linux GUI app through WSLg, whose window manager draws its own frame and shadow around X11 borders.</summary>
+    public static bool IsWslg => OperatingSystem.IsLinux() && Environment.GetEnvironmentVariable("WSL_DISTRO_NAME") is not null;
+
     /// <summary>
     /// How much of the title bar the system window controls cover: only macOS has any (the traffic lights, on the left).
     /// Windows and Linux use Toucan's own minimize, maximize and close buttons inside the top bar. Nothing is covered in fullscreen.

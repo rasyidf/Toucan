@@ -4,7 +4,7 @@ status: active
 updated: 2026-10-21
 summary: "Windows dialog surface defects, responsive welcome layout, screenshot coverage and remaining validation."
 ---
-# Windows UI review — 21 October 2026
+# Windows UI review: 21 October 2026
 
 The Windows UI had real surface and theme defects. It should not have been considered ready based only on the macOS and Linux results. The working tree already contained a partial dialog backplate fix when this review started; that fix still produced white dialog bodies with white headings in dark mode.
 

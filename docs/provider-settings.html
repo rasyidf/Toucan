@@ -81,14 +81,14 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="release-v0.25.0.html">Toucan v0.25.0 — Terminology and message-aware validation</a>
-<a href="release-v0.24.0.html">Toucan v0.24.0 — Editor comfort and resource compatibility</a>
+<a href="release-v0.25.0.html">Toucan v0.25.0: Terminology and message-aware validation</a>
+<a href="release-v0.24.0.html">Toucan v0.24.0: Editor comfort and resource compatibility</a>
 <a href="user-guide.html">Toucan User Guide</a>
 <a href="translator-guide.html">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
 <a href="ai-integration.html">AI Integration</a>
 <a href="provider-settings.html" aria-current="page">Provider Settings (App-level and Project-level)</a>
-<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="pretranslation-preview.html">Pretranslation: Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
 <a href="architecture.html">Toucan architecture</a>
 <a href="core-architecture.html">Toucan.Core interop architecture</a>
@@ -116,7 +116,8 @@
 <p>Files written by 0.19 and earlier have encrypted keys inline. Those are still read, and they move to the secret store the next time the provider settings are saved. Removing a provider (or a secret field) in the dialog removes its stored secret too.</p>
 <h2 id="built-in-providers"><a class="anchor" href="#built-in-providers" aria-label="Link to this section">#</a>Built-in providers</h2>
 <p>All built-in providers are pre-populated with sensible default values when no saved settings exist:</p>
-<div class="table-wrap"><table><thead><tr><th>Provider</th><th>Options</th><th>Secrets</th><th>Default Values</th></tr></thead><tbody><tr><td>Google</td><td>—</td><td>api_key</td><td>—</td></tr><tr><td>DeepL</td><td>endpoint</td><td>api_key</td><td>endpoint=https://api.deepl.com/v2/translate</td></tr><tr><td>Microsoft</td><td>endpoint, region</td><td>api_key</td><td>endpoint=https://api.cognitive.microsofttranslator.com</td></tr><tr><td>AI</td><td>— (Settings → AI)</td><td>— (secret store <code>ai/&lt;service&gt;/api_key</code>)</td><td>—</td></tr><tr><td>Custom</td><td>endpoint, header_name</td><td>api_key</td><td>—</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Provider</th><th>Options</th><th>Secrets</th><th>Default Values</th></tr></thead><tbody><tr><td>Google</td><td>None</td><td>api_key</td><td>None</td></tr><tr><td>DeepL</td><td>endpoint</td><td>api_key</td><td>endpoint=https://api.deepl.com/v2/translate</td></tr><tr><td>Microsoft</td><td>endpoint, region</td><td>api_key</td><td>endpoint=https://api.cognitive.microsofttranslator.com</td></tr><tr><td>AI</td><td>Configure in Settings → AI</td><td>Secret store <code>ai/&lt;service&gt;/api_key</code></td><td>None</td></tr><tr><td>Custom</td><td>endpoint, header_name</td><td>api_key</td><td>None</td></tr></tbody></table></div>
+<p>The Custom provider falls back to the <code>TOUCAN_CUSTOM_ENDPOINT</code> environment variable when no <code>endpoint</code> option is set, which suits CI runs of the CLI.</p>
 <p>The Custom provider falls back to the <code>TOUCAN_CUSTOM_ENDPOINT</code> environment variable when no <code>endpoint</code> option is set, which suits CI runs of the CLI.</p>
 <p>Each provider declares its own schema through <code>ITranslationProvider.Definition</code>; <code>TranslationProviderRegistry</code> collects the definitions of all registered providers and exposes them via <code>ITranslationProviderRegistry</code>. Plugin providers appear in the same list (they are not marked built-in). Providers without a definition, such as the mock provider, work but are not listed.</p>
 <h3 id="deepl"><a class="anchor" href="#deepl" aria-label="Link to this section">#</a>DeepL</h3>
@@ -128,7 +129,9 @@
 <ul>
 <li>All secrets (provider keys and AI service keys) are in one file, <code>secrets.json</code>, in the user's application-data folder (<code>%APPDATA%\Toucan</code>, <code>~/Library/Application Support/Toucan</code>, <code>~/.config/Toucan</code>), written with owner-only (0600) permissions on macOS and Linux. Key names are in clear, values encrypted. Settings → Data &amp; privacy lists the names and removes secrets.</li>
 <li>Windows: values are encrypted with the current user's DPAPI key, so they can only be read by that account on that machine.</li>
-<li>macOS and Linux: values are encrypted with AES-GCM using a random per-user key stored as <code>secret.key</code> next to <code>secrets.json</code>, with owner-only (0600) permissions. Encrypted values start with <code>aesgcm1:</code>. Anyone who can read both that key file and <code>secrets.json</code> can decrypt the secrets.</li>
+<li>macOS and Linux: values are encrypted with AES-GCM using a random per-user key. Encrypted values start with <code>aesgcm1:</code>. The key is kept in the system credential store: the login Keychain on macOS (a generic password with service <code>Toucan</code>), and the Secret Service (GNOME Keyring, KWallet) through <code>secret-tool</code> on Linux. An existing <code>secret.key</code> moves there on first use, and <code>secret.key.store</code> records where it went. Without a usable store (no <code>secret-tool</code>, no desktop session) the key stays in <code>secret.key</code> next to <code>secrets.json</code> with owner-only (0600) permissions, and anyone who can read both files can decrypt the secrets.</li>
+<li>Content-source sign-ins (plugin API 1.3) use the same store: each account's credential is one secret under <code>sources/&lt;account id&gt;/credential</code>, and the accounts themselves (service, address, sign-in method, name, and which account each project connection uses, by a hash of the project folder) are in <code>accounts.json</code> next to <code>secrets.json</code>. In CI, <code>TOUCAN_SOURCE_TOKEN_&lt;CONNECTION ID&gt;</code> supplies a token for one run without storing it.</li>
+<li>After the key has moved, Toucan reads it only from that store. If the store is locked or cannot ask for permission (for example the CLI over SSH), saved secrets read as missing and saving a new one fails; Toucan never creates a second key that would make the saved ones unreadable. Unlock the Keychain or keyring and try again. Set <code>TOUCAN_SECRET_KEY_STORE=file</code> before first use to keep the key in a file (useful for unsigned development builds, which macOS may ask about after each rebuild).</li>
 <li>If DPAPI was unavailable, old builds stored secrets base64-encoded inline in <code>providers.json</code>. Toucan still reads those values and moves them, encrypted, to the secret store the next time the provider settings are saved.</li>
 <li>For automated / CI scenarios you can still opt to use application-level settings or supply provider credentials in environment-specific locations; consider using OS-level secret stores for advanced scenarios.</li>
 </ul>

@@ -1,9 +1,9 @@
 # publish.ps1 — Build and package Toucan for distribution
 # Usage:
-#   .\publish.ps1 portable    # Option 1: Single-file EXE
-#   .\publish.ps1 installer   # Option 2: Inno Setup installer
-#   .\publish.ps1 msix        # Option 3: MSIX package
-#   .\publish.ps1 all         # All three
+#   .\packaging\publish.ps1 portable    # Option 1: Single-file EXE
+#   .\packaging\publish.ps1 installer   # Option 2: Inno Setup installer
+#   .\packaging\publish.ps1 msix        # Option 3: MSIX package
+#   .\packaging\publish.ps1 all         # All three
 
 param(
     [Parameter(Position = 0)]
@@ -12,7 +12,9 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$Version = ([xml](Get-Content "$PSScriptRoot\Directory.Build.props")).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+# The script lives in packaging/; every path below is relative to the repository root.
+$Root = Split-Path $PSScriptRoot -Parent
+$Version = ([xml](Get-Content "$Root\Directory.Build.props")).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
 $Project = "Toucan.Avalonia\Toucan.Avalonia.csproj"
 $Config = "Release"
 $Runtime = "win-x64"
@@ -24,7 +26,7 @@ Write-Host ""
 function Clear-PublishDirectory {
     param([string]$Path)
     $resolved = [IO.Path]::GetFullPath($Path)
-    $stageRoot = [IO.Path]::GetFullPath("$PSScriptRoot\build\publish") + [IO.Path]::DirectorySeparatorChar
+    $stageRoot = [IO.Path]::GetFullPath("$Root\build\publish") + [IO.Path]::DirectorySeparatorChar
     if (-not $resolved.StartsWith($stageRoot, [StringComparison]::OrdinalIgnoreCase)) {
         throw "Refusing to clear a directory outside build/publish: $resolved"
     }
@@ -54,7 +56,7 @@ function Publish-App {
     & dotnet @args
     if ($LASTEXITCODE -ne 0) { throw "Publish failed" }
 
-    & python "$PSScriptRoot\tools\Verify-SpellingArtifacts.py" --folder $OutputDir $(if ($SingleFile) { "--bundled" })
+    & python "$Root\tools\Verify-SpellingArtifacts.py" --folder $OutputDir $(if ($SingleFile) { "--bundled" })
     if ($LASTEXITCODE -ne 0) { throw "Spelling source/notices verification failed" }
 
     # Avalonia's native packages ship ~100 MB of .pdb files that DebugType=none does not remove.
@@ -66,13 +68,13 @@ function Publish-App {
 # =============================================================
 function Build-Portable {
     Write-Host "[1/3] Building portable single-file..." -ForegroundColor Green
-    $outDir = "$PSScriptRoot\build\publish\portable"
+    $outDir = "$Root\build\publish\portable"
     Clear-PublishDirectory $outDir
 
     Publish-App -OutputDir $outDir -SingleFile
 
     # Create ZIP
-    $zipPath = "$PSScriptRoot\dist\Toucan-$Version-portable-x64.zip"
+    $zipPath = "$Root\dist\Toucan-$Version-portable-x64.zip"
     if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
     Compress-Archive -Path "$outDir\*" -DestinationPath $zipPath -CompressionLevel Optimal
 
@@ -88,7 +90,7 @@ function Build-Installer {
     Write-Host "[2/3] Building Inno Setup installer..." -ForegroundColor Green
 
     # Publish the self-contained application and required sidecars.
-    $outDir = "$PSScriptRoot\build\publish\win-x64"
+    $outDir = "$Root\build\publish\win-x64"
     Clear-PublishDirectory $outDir
 
     Publish-App -OutputDir $outDir
@@ -104,12 +106,12 @@ function Build-Installer {
     if (-not $isccPath) { throw "Inno Setup 6/7 not found. Published files are at $outDir" }
 
     # Build installer
-    $issFile = "installer.iss"
+    $issFile = "$PSScriptRoot\installer.iss"
     Write-Host "  Running ISCC..." -ForegroundColor DarkGray
     & $isccPath "/DAppVersion=$Version" $issFile
     if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed" }
 
-    $installerPath = "$PSScriptRoot\dist\ToucanSetup-$Version.exe"
+    $installerPath = "$Root\dist\ToucanSetup-$Version.exe"
     $size = [math]::Round((Get-Item $installerPath).Length / 1MB, 1)
     Write-Host "  -> $installerPath ($size MB)" -ForegroundColor Yellow
     Write-Host ""
@@ -119,7 +121,7 @@ function Build-Installer {
 # Option 3: MSIX package
 # =============================================================
 function Build-Msix {
-    & "$PSScriptRoot\packaging\Build-Msix.ps1" -Configuration $Config
+    & "$PSScriptRoot\Build-Msix.ps1" -Configuration $Config
 }
 
 # =============================================================
@@ -127,9 +129,9 @@ function Build-Msix {
 # =============================================================
 $startTime = Get-Date
 
-Push-Location $PSScriptRoot
+Push-Location $Root
 try {
-    New-Item -ItemType Directory -Path "$PSScriptRoot\dist" -Force | Out-Null
+    New-Item -ItemType Directory -Path "$Root\dist" -Force | Out-Null
     switch ($Target) {
         "portable"  { Build-Portable }
         "installer" { Build-Installer }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Toucan · Pretranslation — Preview &amp; Progress</title>
+<title>Toucan · Pretranslation: Preview &amp; Progress</title>
 <meta name="description" content="How pre-translation previews, reports progress, cancels and commits with Apply Preview; includes a provider privacy note.">
 <link rel="canonical" href="https://toucan.rasyid.dev/pretranslation-preview.html">
 <meta name="robots" content="index, follow">
@@ -14,19 +14,19 @@
 <meta name="theme-color" content="#171B22" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Toucan · Pretranslation — Preview &amp; Progress">
+<meta property="og:title" content="Toucan · Pretranslation: Preview &amp; Progress">
 <meta property="og:description" content="How pre-translation previews, reports progress, cancels and commits with Apply Preview; includes a provider privacy note.">
 <meta property="og:url" content="https://toucan.rasyid.dev/pretranslation-preview.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Toucan · Pretranslation — Preview &amp; Progress">
+<meta name="twitter:title" content="Toucan · Pretranslation: Preview &amp; Progress">
 <meta name="twitter:description" content="How pre-translation previews, reports progress, cancels and commits with Apply Preview; includes a provider privacy note.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
-  "headline": "Toucan \u00b7 Pretranslation \u2014 Preview & Progress",
+  "headline": "Toucan \u00b7 Pretranslation: Preview & Progress",
   "description": "How pre-translation previews, reports progress, cancels and commits with Apply Preview; includes a provider privacy note.",
   "url": "https://toucan.rasyid.dev/pretranslation-preview.html",
   "publisher": {
@@ -81,14 +81,14 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="release-v0.25.0.html">Toucan v0.25.0 — Terminology and message-aware validation</a>
-<a href="release-v0.24.0.html">Toucan v0.24.0 — Editor comfort and resource compatibility</a>
+<a href="release-v0.25.0.html">Toucan v0.25.0: Terminology and message-aware validation</a>
+<a href="release-v0.24.0.html">Toucan v0.24.0: Editor comfort and resource compatibility</a>
 <a href="user-guide.html">Toucan User Guide</a>
 <a href="translator-guide.html">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
 <a href="ai-integration.html">AI Integration</a>
 <a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
-<a href="pretranslation-preview.html" aria-current="page">Pretranslation — Preview &amp; Progress</a>
+<a href="pretranslation-preview.html" aria-current="page">Pretranslation: Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
 <a href="architecture.html">Toucan architecture</a>
 <a href="core-architecture.html">Toucan.Core interop architecture</a>
@@ -101,7 +101,7 @@
     <article class="doc">
       <header class="doc-head">
         <div class="kicker">Documentation</div>
-        <h1>Pretranslation — Preview &amp; Progress</h1>
+        <h1>Pretranslation: Preview &amp; Progress</h1>
         <p class="lead">How pre-translation previews, reports progress, cancels and commits with Apply Preview; includes a provider privacy note.</p>
         <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-07-02</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/pretranslation-preview.md">Edit on GitHub ↗</a></div>
       </header>
@@ -109,7 +109,7 @@
 <p>Toucan's pretranslation engine now supports safe preview runs with progress reporting and an explicit commit step.</p>
 <p>Key behaviors:</p>
 <ul>
-<li>PreviewOnly mode: Providers can be asked to perform a dry-run (PreviewOnly) — the result is returned as a list of proposed translations but the project files are not modified.</li>
+<li>PreviewOnly mode: Providers can be asked to perform a dry-run (PreviewOnly); the result is returned as a list of proposed translations but the project files are not modified.</li>
 <li>Progress reporting: Pretranslation providers implement progress/reporting via IProgress&amp;lt;PretranslationProgress&amp;gt; so the UI can show completed/total counts and a progress-bar.</li>
 <li>Cancellation: Long-running preview runs or provider calls can be cancelled via a CancellationToken.</li>
 <li>Commit step: After previewing translations, the UI shows a summarized list and lets the user Apply Preview (commit) to update the local translations.</li>

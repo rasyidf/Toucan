@@ -7,6 +7,9 @@ namespace Toucan.Core.Services;
 /// <summary>JSON document state and typed paths shared by folder and exact-file entry points.</summary>
 public static class ResourceJsonCodec
 {
+    /// <summary>Set when the original file ends with a line break, so a save keeps it.</summary>
+    public const string FinalNewlineKey = "json.finalNewline";
+
     public static ResourceReadResult Read(string content, ResourceDescriptor resource, ResourceOptions? projectOptions = null, CancellationToken cancellationToken = default)
     {
         var options = ResourceOptions.Resolve(resource.Options, projectOptions, null, null);
@@ -19,7 +22,9 @@ public static class ResourceJsonCodec
         ResolveSelectors(entries);
         return new ResourceReadResult(entries, new ResourceDocumentState
         {
-            Resource = resource, Data = new() { ["json"] = json.RootElement.Clone() },
+            Resource = resource, Data = content.EndsWith('\n')
+                ? new() { ["json"] = json.RootElement.Clone(), [FinalNewlineKey] = JsonSerializer.SerializeToElement(true) }
+                : new() { ["json"] = json.RootElement.Clone() },
             DetectedOptions = ResourceText.Detect(content)
         }, []);
 
@@ -117,8 +122,11 @@ public static class ResourceJsonCodec
         }
         root = ApplyArrays(root, options.Arrays)!;
         if (options.Order == ResourceOrder.Alphabetical) root = Sort(root)!;
-        var jsonOptions = ResourceText.JsonOptions(options);
-        var text = root.ToJsonString(jsonOptions);
+        // Preserve follows the escapes detected in the original; without a detection, keep the historical Always.
+        var escapes = options.UnicodeEscapes is null or ResourceUnicodeEscapes.Preserve
+            ? document.DetectedOptions.UnicodeEscapes ?? ResourceUnicodeEscapes.Always : options.UnicodeEscapes;
+        var text = ResourceText.ToJsonString(root, options with { UnicodeEscapes = escapes });
+        if (document.Data.ContainsKey(FinalNewlineKey)) text += "\n";
         return options.Newline == ResourceNewline.CrLf ? text.ReplaceLineEndings("\r\n") : text.ReplaceLineEndings("\n");
     }
 

@@ -11,8 +11,8 @@ public partial class JsonLoadStrategy : IDocumentLoadStrategy
     {
         cancellationToken.ThrowIfCancellationRequested();
         using var document = JsonDocument.Parse(content);
-        if (document.RootElement.ValueKind != JsonValueKind.Object)
-            throw new JsonException("A translation document must have an object root.");
+        if (document.RootElement.ValueKind is not (JsonValueKind.Object or JsonValueKind.Array))
+            throw new JsonException("A translation document must have an object or array root.");
         var units = new List<DocumentTranslation>();
         Walk(document.RootElement, [], units, cancellationToken);
         return units.AsReadOnly();

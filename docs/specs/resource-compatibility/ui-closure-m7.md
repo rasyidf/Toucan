@@ -27,7 +27,7 @@ Reuse Project Properties, the import/open lifecycle, resource adapters, command 
 
 Implement U1 → U2 → U3 → U4 → U5 → M7a → M7b → M7c as reviewable, buildable changes. Engine evaluation may precede UI work, but does not authorize adding an unevaluated dependency. Automatic dictionary downloads, a full ICU editor and automatic deletion of source-unused keys are outside this delivery.
 
-## U1 — Resource inventory and serialization settings
+## U1: Resource inventory and serialization settings
 
 - [x] Add a Resources section to Project Properties listing exact path, stable ID, package, locale, format/dialect, ownership and provider restrictions, including empty documents. Show entry details that distinguish literal keys, nested paths and array indices without changing their persistence identity.
 - [x] Add detached project defaults and per-resource overrides for the supported subset of layout, delimiter, arrays, indentation, order, Unicode escaping, input/output encoding including BOM, newline and empty values. Show effective value and its origin, with an explicit Inherit choice. Preserve unknown fields.
@@ -36,7 +36,7 @@ Implement U1 → U2 → U3 → U4 → U5 → M7a → M7b → M7c as reviewable, 
 
 Acceptance: users can configure supported settings without manifest edits; inheritance and explicit false values survive Save As/reopen. Invalid settings cannot mutate files. Preview uses no destination writes. Tests cover supported format differences, empty documents, unknown fields, cancellation and recovery of settings changes.
 
-## U2 — Resource mappings and editable targets
+## U2: Resource mappings and editable targets
 
 - [x] Add validated add/edit/remove mapping actions for exact paths, locale and package, with format/dialect choices restricted to registered supported providers. Preserve stable resource IDs when changing destinations. Offer an explicit conversion flow when changing format semantics; a label change alone cannot convert a document.
 - [x] Make the effect on existing entries explicit. Validate destination collisions, duplicate mappings, package identity, file existence and physical path boundaries before applying. Removal distinguishes detaching a mapping from deleting its file; never delete implicitly. Moves/conversions use existing save transactions and recovery.
@@ -45,7 +45,7 @@ Acceptance: users can configure supported settings without manifest edits; inher
 
 Acceptance: add a target locale to a FormatJS project, edit it, undo/redo, save/reopen and Save As without changing generated source bytes. Cover package collisions, last-entry/empty documents, cancelled changes, stale dialogs, unsafe paths and injected save failure. No arbitrary file is overwritten by remapping.
 
-## U3 — ARB placeholder metadata
+## U3: ARB placeholder metadata
 
 - [x] Add an ARB-specific metadata section alongside the existing description/comment editor. Edit placeholder names and supported fields such as type/example with validation; preserve unknown nested properties. Offer a validated JSON view for additional supported metadata rather than silently dropping it.
 - [x] Define clear/remove behavior and show mismatches between message placeholders and metadata. Keep ICU messages as whole strings; unsupported transformations receive diagnostics instead of restructuring the message automatically.
@@ -53,7 +53,7 @@ Acceptance: add a target locale to a FormatJS project, edit it, undo/redo, save/
 
 Acceptance: metadata-only edits, explicit removal, rename, cancellation, undo/redo, recovery and native save/reopen preserve unrelated per-key and document metadata through the production UI composition.
 
-## U4 — Migration preview and retained report
+## U4: Migration preview and retained report
 
 - [x] Split migration into read/validate, detached preview and explicit application through the existing lifecycle. Show source project, intended native manifest, packages/locales, exact destinations, generated roles, adapted/ignored settings and structured warnings/errors. Revalidate file changes before Apply.
 - [x] Retain a reopenable report with severity, code, resource and field context; offer copy/export. Preserve unknown compatibility data. Avoid duplicating full source payloads or automatically including translation text in exported reports.
@@ -61,7 +61,7 @@ Acceptance: metadata-only edits, explicit removal, rename, cancellation, undo/re
 
 Acceptance: preview/cancel/validation failure leave active workspace and all files unchanged; successful migration preserves the original .babel file and reopens natively without it. Test multiple candidate files, changed inputs and partial save failure. Existing spreadsheet preview remains a separate, working exchange flow.
 
-## U5 — Restriction explanations and scan findings
+## U5: Restriction explanations and scan findings
 
 - [x] Display generated-source/read-only badges, the provider's reason and source path in editor/resource details. Explain unavailable structural commands accessibly, including keyboard and command-palette routes, while retaining backend enforcement.
 - [x] Show scan diagnostic code, severity where supplied, file and line/column; make available locations navigable with the same safe path/editor handling as references. Findings without locations remain readable. Add clear complete/partial/cancelled status and a reason when unused filtering is disabled.
@@ -69,7 +69,7 @@ Acceptance: preview/cancel/validation failure leave active workspace and all fil
 
 Acceptance: users can identify why a catalog is protected and navigate a dynamic-key finding to its source. Cancellation, project switches and stale scans cannot navigate or update the wrong project. Existing partial references remain visible; unresolved scans never enable unsafe unused classification.
 
-## M7a — Local spelling engine and pack registry
+## M7a: Local spelling engine and pack registry
 
 - [x] Compare exact engine releases using authoritative upstream documentation: .NET/platform support, Hunspell compatibility, thread/cancellation behavior, maintenance and exact license/transitive artifacts. Record the decision and packaging implications before adding a dependency. No dependency is approved by this plan.
 - [x] Implement a local registry for user-imported or individually approved .aff/.dic packs and optional .xcu DICT_SPELL records. Use deterministic locale aliases and visible fallback rules. Disable XML external entities; bound input sizes and reject paths outside the selected pack. If archives are supported, reject traversal, duplicate destinations and excessive expansion.
@@ -77,7 +77,7 @@ Acceptance: users can identify why a catalog is protected and navigate a dynamic
 
 Acceptance: original fixtures cover aliases, fallback, malformed packs, encoding, exclusions, limits, cancellation, locale/text changes and list persistence. Checking works offline without BabelEdit; no automatic installation-directory discovery occurs.
 
-## M7b — Spelling settings and editor corrections
+## M7b: Spelling settings and editor corrections
 
 - [x] Add dictionary import/remove/replace, locale assignment, fallback visibility, pack provenance/status and user/project word-list management using existing settings patterns. Keep local imports available independently of any future download catalog.
 - [x] Add editor underlines and keyboard-accessible correction menus for suggestions, ignore and add-to-list. Respect generated-source permissions. Apply corrections through the same normal edit transaction so undo/redo, dirty state, validation and recovery agree.
@@ -85,7 +85,7 @@ Acceptance: original fixtures cover aliases, fallback, malformed packs, encoding
 
 Acceptance: correct a word, undo/redo, save/reopen and recover after restart; change language while checking; remove a pack while suggestions are pending. No stale underline or suggestion applies to new text/project. Generated sources stay protected and saving works without dictionaries.
 
-## M7c — Provenance and integrated release gate
+## M7c: Provenance and integrated release gate
 
 - [ ] For each exact engine/dictionary artifact, record upstream URL, pinned version, hash, chosen grant, notices, modifications and required source/compliance materials under the [component-specific policy](../../research/babeledit-resource-integration.md#resource-reuse-and-license-policy). Assess actual packaging modes and replacement requirements separately; a plugin boundary is not evidence by itself. User imports are not approved for redistribution automatically.
 - [x] Generate notices from the inventory and verify release contents/hashes. Missing provenance excludes the affected distributed component; keep unrelated editing usable. Provide no BabelEdit proprietary code, assets or dictionary copies in fixtures or packages.

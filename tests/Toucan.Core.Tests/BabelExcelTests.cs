@@ -60,7 +60,7 @@ public sealed class BabelExcelTests : IDisposable
     public void ActualBabelEditExportImportsWithoutPseudoLanguages()
     {
         var root = AppContext.BaseDirectory;
-        while (!File.Exists(Path.Combine(root, "Toucan.CrossPlatform.slnx"))) root = Path.GetDirectoryName(root)!;
+        while (!File.Exists(Path.Combine(root, "Toucan.slnx"))) root = Path.GetDirectoryName(root)!;
         var items = ExcelService.Import(Path.Combine(root, "samples", "babeledit-parity", "babeledit-export.xlsx"));
         Assert.Equal(22, items.Count);
         Assert.Equal(new[] { "de-DE", "en-US" }, items.Select(i => i.Language).Distinct().Order().ToArray());

@@ -10,7 +10,7 @@ reason: "Never started; targeted WPF XAML and the WPF app was removed"
 # RC Phase 4: UX & UI Polish Plan
 
 > Goal: Standardize all dialogs/windows, extract reusable components, reduce repetition.
-> All windows already use `ui:FluentWindow` ✅ — focus is on internal consistency.
+> All windows already use `ui:FluentWindow` ✅; focus is on internal consistency.
 
 ---
 
@@ -18,20 +18,20 @@ reason: "Never started; targeted WPF XAML and the WPF app was removed"
 
 | File | Lines | Issue |
 |------|-------|-------|
-| LanguagesView.xaml | 412 | Largest component — inline templates, repeated button styles |
-| OptionsDialog.xaml | 304 | 7 pages inline — each page should be a UserControl |
+| LanguagesView.xaml | 412 | Largest component: inline templates, repeated button styles |
+| OptionsDialog.xaml | 304 | 7 pages inline; each page should be a UserControl |
 | PreTranslateWindow.xaml | 252 | Complex layout, repeated progress/result patterns |
-| MainMenu.xaml | 225 | Long menu tree — could extract submenus |
+| MainMenu.xaml | 225 | Long menu tree; could extract submenus |
 | ProviderSettingsWindow.xaml | 206 | Repeated card+textbox patterns for each provider field |
 | ManageLanguagesDialog.xaml | 203 | Inline templates for language items |
-| ToolBarView.xaml | 176 | OK — toolbar buttons are inherently repetitive |
-| NewProjectPromp.xaml | 172 | 2-step wizard inline — each step should be a component |
+| ToolBarView.xaml | 176 | OK: toolbar buttons are inherently repetitive |
+| NewProjectPromp.xaml | 172 | 2-step wizard inline; each step should be a component |
 
 **Repeated patterns across dialogs:**
-- `ui:TitleBar` (15 instances) — all identical with minor title differences
-- `ui:CardControl` (36 instances) — same Header+Content structure everywhere
-- Footer button bar (OK/Cancel, right-aligned) — repeated in 8+ dialogs
-- Panel header (title + action buttons in border) — repeated in 4 components
+- `ui:TitleBar` (15 instances): all identical with minor title differences
+- `ui:CardControl` (36 instances): same Header+Content structure everywhere
+- Footer button bar (OK/Cancel, right-aligned): repeated in 8+ dialogs
+- Panel header (title + action buttons in border): repeated in 4 components
 
 ---
 
@@ -108,8 +108,8 @@ OptionsDialog.xaml becomes ~50 lines (nav list + ContentPresenter).
 - `Views/NewProject/LanguagesStep.xaml` (language list + add/remove)
 
 #### LanguagesView → Extract Inline Templates
-- `Views/Components/LanguageGroupCard.xaml` — the expandable group per language
-- `Views/Components/TranslationRow.xaml` — single key/value edit row
+- `Views/Components/LanguageGroupCard.xaml`: the expandable group per language
+- `Views/Components/TranslationRow.xaml`: single key/value edit row
 
 ### 3. Dialog Standardization Rules
 
@@ -171,15 +171,15 @@ Create/verify in `Resources/DesignTokens.xaml`:
 
 ## Execution Order
 
-1. ✅ **Extract `DialogFooter`** — reusable UserControl (8 dialogs)
-2. ✅ **Extract `SettingsCard`** — reduces OptionsDialog significantly
-3. ✅ **Extract `PanelHeader`** — used in 4 components
-4. ✅ **Split OptionsDialog into page UserControls** — 8 pages in Views/Settings/
-5. ✅ **Split NewProjectPrompt into step UserControls** — 2 steps in Views/NewProject/
-6. ✅ **Extract `LanguageChip`** — reusable badge (LanguageCode DP)
-7. ✅ **Verify design tokens** — DesignTokens.xaml updated with all spacing/typography tokens
-8. ✅ **Accessibility pass** — tooltips, AutomationProperties.Name, FocusManager, window properties standardized
-9. ✅ **Extract LanguagesView templates** — LanguageGroupCard + TranslationRow (92 lines from 400+)
+1. ✅ **Extract `DialogFooter`**: reusable UserControl (8 dialogs)
+2. ✅ **Extract `SettingsCard`**: reduces OptionsDialog by extracting its repeated card layout
+3. ✅ **Extract `PanelHeader`**: used in 4 components
+4. ✅ **Split OptionsDialog into page UserControls**: 8 pages in Views/Settings/
+5. ✅ **Split NewProjectPrompt into step UserControls**: 2 steps in Views/NewProject/
+6. ✅ **Extract `LanguageChip`**: reusable badge (LanguageCode DP)
+7. ✅ **Verify design tokens**: DesignTokens.xaml updated with all spacing/typography tokens
+8. ✅ **Accessibility pass**: tooltips, AutomationProperties.Name, FocusManager, window properties standardized
+9. ✅ **Extract LanguagesView templates**: LanguageGroupCard + TranslationRow (92 lines from 400+)
 
 ---
 

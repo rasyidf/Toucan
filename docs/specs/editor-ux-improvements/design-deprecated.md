@@ -1,5 +1,5 @@
 ---
-title: "editor-ux-improvements — design"
+title: "editor-ux-improvements: design"
 status: deprecated
 progress: "0/21 tasks"
 updated: 2026-07-06
@@ -11,7 +11,7 @@ reason: "Never started; targeted WPF views and the WPF app was removed"
 
 ## Overview
 
-Five focused improvements to the translation editor UX, all implementable within the existing MVVM + WPF-UI architecture. No new infrastructure or services are introduced — changes are localized to existing ViewModels, XAML views, and PanelService.
+Five focused improvements to the translation editor UX, all implementable within the existing MVVM + WPF-UI architecture. No new infrastructure or services are introduced; changes are localized to existing ViewModels, XAML views, and PanelService.
 
 **Approach:** Minimal diff per requirement. Reuse existing patterns (DataTriggers on `PanelService.Instance.EditorMode`, `ObservableProperty`, `RelayCommand`, `BooleanToVisibilityConverter`). No new NuGet dependencies.
 
@@ -106,7 +106,7 @@ private void ViewComment()
 private void ClearApproved() => IsApproved = false;
 ```
 
-**XAML layout change** — expand Grid columns in the language row:
+**XAML layout change**: expand Grid columns in the language row:
 
 ```
 Col 0: Language label (32)
@@ -122,7 +122,7 @@ Col 6: Approve toggle (Auto, Review only)
 
 ### Requirement 4: Language Visibility Checkboxes
 
-**Design choice — filtering approach:** Use a `Visibility` binding on each Language_Row inside the DataTemplate, driven by a lookup into a dictionary of visible languages on the ViewModel. This avoids rebuilding the `Translations` ObservableCollection (which would break focus/selection state). The filter lives on `MainWindowViewModel` as a session-scoped dictionary.
+**Design choice (filtering approach):** Use a `Visibility` binding on each Language_Row inside the DataTemplate, driven by a lookup into a dictionary of visible languages on the ViewModel. This avoids rebuilding the `Translations` ObservableCollection (which would break focus/selection state). The filter lives on `MainWindowViewModel` as a session-scoped dictionary.
 
 **New types:**
 
@@ -146,10 +146,10 @@ public partial class LanguageVisibilityItem : ObservableObject
 For simplicity and minimal diff, the approach is:
 
 1. `MainWindowViewModel` exposes a `HashSet<string> VisibleLanguagesSet` (not observable, recalculated when checkboxes change).
-2. `MainWindowViewModel` exposes an `int LanguageVisibilityVersion` (`[ObservableProperty]`) that increments on any checkbox toggle — this triggers re-render.
+2. `MainWindowViewModel` exposes an `int LanguageVisibilityVersion` (`[ObservableProperty]`) that increments on any checkbox toggle, triggering a re-render.
 3. In the `TranslationItemView.xaml` DataTemplate, each `LangRow` Grid binds its `Visibility` to a converter that checks the language against the set. The converter takes `Language` + `LanguageVisibilityVersion` as inputs (the version forces re-evaluation).
 
-**Alternative (chosen — simpler):** Since `LanguageGroupViewModel.LoadTranslations` already filters by primary language ordering, add a `IsLanguageVisible(string lang)` method on the ViewModel, and have each row's Visibility use a DataTrigger on a computed `IsVisible` property on `TranslationItemViewModel`.
+**Chosen alternative (simpler):** Since `LanguageGroupViewModel.LoadTranslations` already filters by primary language ordering, add a `IsLanguageVisible(string lang)` method on the ViewModel, and have each row's Visibility use a DataTrigger on a computed `IsVisible` property on `TranslationItemViewModel`.
 
 **Final approach:** Add `[ObservableProperty] private bool isLanguageVisible = true;` to `TranslationItemViewModel`. When `LanguageVisibilityFilter` changes, iterate all displayed groups and set `IsLanguageVisible` on each translation VM. Bind row `Visibility="{Binding IsLanguageVisible, Converter={StaticResource BoolToVis}}"`.
 
@@ -276,7 +276,7 @@ New members:
 
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+*A property states a behavior that should hold across all valid executions of a system. The properties below express the specification as conditions that tests can verify.*
 
 ### Property 1: Language visibility filter count matches project languages
 

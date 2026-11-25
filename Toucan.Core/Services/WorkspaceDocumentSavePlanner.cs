@@ -113,8 +113,10 @@ public sealed class WorkspaceDocumentSavePlanner(WorkspaceDocumentRouter router,
                 ?? throw new FormatUnavailableException(document.FormatId);
             if (serializer is not IDocumentSaveStrategy writer)
                 throw new NotSupportedException($"Format '{document.FormatId}' does not support document-aware serialization.");
-            var content = writer.SerializeDocument(document.Content, changes.AsReadOnly(), cancellationToken);
             var isNew = !source.Documents.Any(d => d.Id == document.Id);
+            var options = isNew && snapshot.Options.UnicodeEscapes is null or ResourceUnicodeEscapes.Preserve
+                ? snapshot.Options with { UnicodeEscapes = ResourceUnicodeEscapes.Always } : snapshot.Options;
+            var content = writer.SerializeDocument(document.Content, changes.AsReadOnly(), options, cancellationToken);
             if (!isNew && content == document.Content) continue;
             targets.Add(new(document.Id, document.RelativePath, document.FormatId,
                 isNew ? WorkspaceDocumentSaveOperation.Create : WorkspaceDocumentSaveOperation.Update,

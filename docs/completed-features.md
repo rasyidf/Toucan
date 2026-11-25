@@ -1,19 +1,16 @@
 ---
 title: "Shipped Features"
 status: active
-updated: 2026-11-05
-summary: "Implemented capabilities through v0.25.0, including terminology and validation. Publication and candidate acceptance remain tracked separately."
+updated: 2026-11-15
+summary: "Editor, translation, terminology, validation and plugin capabilities."
 ---
 # Shipped Features
 
-> Current preview: **v0.25.0**, merged into `main` ([release notes](release-notes/v0.25.0.md)). Public downloads remain on v0.23.0 until a release is published. Toucan targets Windows, macOS and Linux. The WPF app was retired after v0.17.3. Release notes are in [CHANGELOG.md](../CHANGELOG.md);
-> open work is in [todos/future-roadmap.md](todos/future-roadmap.md) and open bugs in [known-bugs.md](known-bugs.md).
-> This file lists shipped and implemented features only: when something ships, add it here and delete it from the roadmap.
-> Unless a line says otherwise, a feature is in the Avalonia app, the app on every platform.
+See the [changelog](../CHANGELOG.md) for release history, the [roadmap](todos/future-roadmap.md) for planned work and [known issues](known-bugs.md) for open bugs.
 
-## Unreleased terminology and validation
+## Terminology and validation
 
-Project glossary, CSV exchange, Dictionary matches and explicit insertion, effective per-rule validation policy, nested ICU structural checks, AI analysis strictness and finding re-translation are implemented. See [behavior and syntax limits](specs/v0.25-terminology-validation.md) and [candidate verification](specs/v0.25-readiness.md). These additions are not yet a published release.
+Project glossary, CSV exchange, Dictionary matches and explicit insertion, effective per-rule validation policy, nested ICU structural checks, AI analysis strictness and finding re-translation are implemented. See [behavior and syntax limits](specs/v0.25-terminology-validation.md) and [candidate verification](specs/v0.25-readiness.md).
 
 ## Core Editor
 
@@ -143,8 +140,6 @@ Project glossary, CSV exchange, Dictionary matches and explicit insertion, effec
 - [x] Keyboard shortcut sheet (Cmd/Ctrl+/)
 - [x] Compact pagination controls
 - [x] Editor, Review, and Audit modes; Zen mode (J/K navigation)
-- [x] Direct Editing and Pipelined (Edit › Review › Audit) workflows with a Next Stage command (`Ctrl/Cmd+Alt+M`), remembered between sessions
-- [x] Review state follows the text: approvals record their source, are withdrawn when the source or translation changes, and show a Needs review marker (manifest-backed projects)
 - [x] Activity bar with side panels: Explorer, Source Code, Search, Issues, Languages, Inspector, Translation, Memory (Dictionary panel is a placeholder)
 - [x] Panel layout saved between sessions
 
@@ -174,7 +169,7 @@ Project glossary, CSV exchange, Dictionary matches and explicit insertion, effec
 ## Distribution & Platform
 
 - [x] Avalonia app for macOS (`Toucan.app`) and Linux (tarball), preview since v0.18.0
-- [x] Windows packaging scripts: portable EXE, Inno Setup installer, MSIX (`publish.ps1`)
+- [x] Windows packaging scripts: portable EXE, Inno Setup installer, MSIX (`packaging/publish.ps1`)
 - [x] File association (`.tproj` → open app)
 - [x] macOS native menu bar with registry commands, project-aware visibility and native shortcut ownership
 - [x] Translation file locations configurable per language
@@ -194,11 +189,7 @@ Project glossary, CSV exchange, Dictionary matches and explicit insertion, effec
 
 - [x] Plugins add file formats, translation providers, validation rules, and framework profiles from `.dll` assemblies
 - [x] Trust model: a plugin loads only when enabled and trusted (SHA-256 of its files)
-- [x] `Toucan.Plugins.Abstractions` contract package (plugin API 1.3) and a sample plugin
-- [x] Plugin API 1.3: `ReviewState.NeedsReview` (older plugins see Draft), `sources` capability, manifest `network` hosts shown on trust, connection activation for the owning plugin only
-- [x] Secrets key kept in the macOS Keychain or Linux Secret Service, migrated from the key file, with a file fallback
-- [x] Content-source accounts, sign-in (token, password, device code, browser OAuth with PKCE, custom), credential refresh shared across processes, host-limited HTTP clients for adapters, connection records in `toucan.tproj`, and `toucan sources` CLI commands
-- [x] Content-source adapter contracts (API 1.3) with registration checks, a source adapter catalog, and a fake service, reference adapter and conformance suite in `Toucan.Plugins.Testing`
+- [x] `Toucan.Plugins.Abstractions` contract package (plugin API 1.2) and a sample plugin
 - [x] Built-in formats, providers, rules and profiles load as compiled-in modules, listed in Settings → Plugins and `toucan plugins list`
 - [x] Extension platform: registration vs activation split (application, workspace, and connection scopes)
 - [x] Command registry (`ICommandRegistry`) with stable IDs, states, async execution, cancellation, progress, and user shortcuts

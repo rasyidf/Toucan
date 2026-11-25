@@ -81,14 +81,14 @@
     <aside class="doc-side" aria-label="Documentation">
       <div class="side-title"><a href="docs.html">All docs</a></div>
       <nav class="guides" aria-label="Guides">
-<a href="release-v0.25.0.html">Toucan v0.25.0 — Terminology and message-aware validation</a>
-<a href="release-v0.24.0.html">Toucan v0.24.0 — Editor comfort and resource compatibility</a>
+<a href="release-v0.25.0.html">Toucan v0.25.0: Terminology and message-aware validation</a>
+<a href="release-v0.24.0.html">Toucan v0.24.0: Editor comfort and resource compatibility</a>
 <a href="user-guide.html">Toucan User Guide</a>
 <a href="translator-guide.html">Toucan for Professional Translators</a>
 <a href="formats.html">Format support matrix</a>
 <a href="ai-integration.html">AI Integration</a>
 <a href="provider-settings.html">Provider Settings (App-level and Project-level)</a>
-<a href="pretranslation-preview.html">Pretranslation — Preview &amp; Progress</a>
+<a href="pretranslation-preview.html">Pretranslation: Preview &amp; Progress</a>
 <a href="plugins.html">Writing Toucan plugins</a>
 <a href="architecture.html">Toucan architecture</a>
 <a href="core-architecture.html">Toucan.Core interop architecture</a>
@@ -103,10 +103,9 @@
         <div class="kicker">Documentation</div>
         <h1>Toucan roadmap: v0.21 to v1.0</h1>
         <p class="lead">v0.25 terminology and validation shipped as 0.25.0 with one carried-over decision (ARB comments); v0.26 review correctness is next. Later review, content-source and distribution milestones remain planned.</p>
-        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-11-05</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
+        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-11-15</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
-<blockquote><p>Current preview: <strong>v0.25.0</strong>, merged into <code>main</code> (<a href="release-v0.25.0.html">release notes</a>). v0.23.0 remains the public download until a release is published. Toucan targets Windows, macOS and Linux; every build before v1.0 is a preview.</p></blockquote>
 <h2 id="product-goal"><a class="anchor" href="#product-goal" aria-label="Link to this section">#</a>Product goal</h2>
 <p>Open a localization project, understand what needs work, translate with context, review confidently, and save or synchronize without losing information. Local files remain a first-class workflow; online connections are optional.</p>
 <p>The order is <strong>reliability → daily workflow → content sources → distribution → stabilization</strong>. Each release has one main outcome and a completion gate. Versions describe the intended sequence, not dates or a promise to ship unfinished work. Split a milestone further if its scope grows; do not move unresolved safety work into v1.0 merely to keep the version schedule.</p>
@@ -138,10 +137,10 @@
 <p><strong>Completion gate:</strong> glossary and message fixtures detect meaningful errors without blocking draft saves; accepting a suggestion follows normal undo and dirty tracking.</p>
 <h3 id="v026-review-correctness"><a class="anchor" href="#v026-review-correctness" aria-label="Link to this section">#</a>v0.26: Review correctness</h3>
 <p><strong>Outcome:</strong> approval reflects the actual source and target that were reviewed.</p>
-<p><strong>Done in the working tree:</strong> folder projects store a Draft / Needs review / Approved state and the source fingerprint per target in the <code>toucan.tproj</code> translation states, migrate existing approvals on first open, withdraw approvals when the source or target changes (in the editor and when files change outside Toucan), and show a Needs review badge on the row. See <code>ReviewTracker</code>.</p>
 <ul class="tasks">
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist the same review state and source fingerprint for document-aware projects (the <code>.toucan/entries</code> sidecars); today only manifest-backed projects keep them across sessions.</li>
-<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add status filters (a Needs review filter in Review mode and the Issues panel); extend existing batch approval/rejection with comments and consistent validation policy.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist Draft → Needs review → Approved per translation unit and target language, with migration from the existing approval flag.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Record the source revision/hash used for review; mark affected targets Needs review when the source changes, and invalidate approval after target edits.</li>
+<li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Add status filters and row badges; extend existing batch approval/rejection with comments and consistent validation policy.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Persist review history with timestamp, action, and available local actor information; do not imply authenticated team identity.</li>
 <li class="task"><span class="box" aria-hidden="true">☐</span><span class="sr-only">To do: </span>Track delivery separately from review: pending, synchronized, failed, or included in an export, applying the <code>requireValidForApproval</code> policy to delivery as well; preserve review meaning when remote platforms have different status models.</li>
 </ul>

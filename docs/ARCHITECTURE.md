@@ -1,7 +1,7 @@
 ---
 title: Toucan architecture
 status: active
-updated: 2026-11-05
+updated: 2026-10-25
 summary: Current project boundaries, Core workspace commands/subscriptions, desktop projections, plugin lifecycle ordering, persistence, and AI integration, with implementation links and diagrams.
 ---
 
@@ -25,7 +25,6 @@ flowchart TD
     Defaults --> Formats["Formats.Json / Xml / Text / Data"]
     Defaults --> Providers["Modules.Providers"]
     Defaults --> Validation["Modules.Validation"]
-    Defaults --> Sources["Modules.Sources"]
     Defaults --> Frameworks["Modules.Frameworks"]
     Defaults --> Compatibility["Modules.Compatibility.BabelEdit"]
     Core --> Common["Toucan.Core.Common"]
@@ -34,13 +33,11 @@ flowchart TD
     Formats --> Common
     Providers --> Common
     Validation --> Common
-    Sources --> Common
     Frameworks --> Common
     Compatibility --> Common
     Formats --> Contracts
     Providers --> Contracts
     Validation --> Contracts
-    Sources --> Contracts
     Frameworks --> Contracts
     Compatibility --> Contracts
     Common --> Contracts
@@ -210,7 +207,7 @@ flowchart TD
 
 The eight panels are registered in `App.RegisterSidePanels`. `SidePanelRegistry` tracks active panels and slot visibility; [PanelService](../Toucan.Avalonia/Services/PanelService.cs) provides commands and persists layout. These are process-wide singleton bridges rather than dynamically injected plugin views. Adding an ordinary panel requires both registry registration and a corresponding view mapping in `MainWindow.GetPanel`.
 
-Editor/Review/Audit are application modes selected in the top navigation, or stepped with Next Stage; they are stages of the Pipelined workflow, and Direct Editing stays in Editor mode. Audit disables editing; Review changes the working set and review actions. One-key focused editing is a separate presentation of the current filtered data: navigation clamps to the data bounds, synchronizes selection, and returns to the page containing the current card. Zen uses its own overlay and hides surrounding layout. These states are not interchangeable.
+Editor/Review/Audit are application modes selected in the top navigation. Audit disables editing; Review changes the working set and review actions. One-key focused editing is a separate presentation of the current filtered data: navigation clamps to the data bounds, synchronizes selection, and returns to the page containing the current card. Zen uses its own overlay and hides surrounding layout. These states are not interchangeable.
 
 The status bar combines registered panels with desktop behavior. Encoding and LF/CRLF menus modify project settings used on save; the notification menu combines untranslated entries with validation results. Settings use reusable `SettingsGroup`, `SettingsRow`, and `SettingsList` controls, with shared styles in [AppStyles](../Toucan.Avalonia/Styles/AppStyles.axaml). UI labels use the [locale resources](../Toucan.Avalonia/Locales), while translation values belong to the project data.
 
@@ -249,12 +246,12 @@ Paths using `Documents` and application data resolve through .NET special folder
 
 | Location | Owner and purpose |
 |---|---|
-| `<project>/toucan.tproj` | `ProjectSettings`: format, languages, aliases, packages, source/editor/provider preferences, auto-save, output encoding and line endings. Legacy `saveStyle` values migrate to a string `saveFormat`. Translation states also hold per-target review state (`approved`, `needsReview`, `reviewedSourceHash`); `ReviewTracker` withdraws an approval when the source or target changes. |
+| `<project>/toucan.tproj` | `ProjectSettings`: format, languages, aliases, packages, source/editor/provider preferences, auto-save, output encoding and line endings. Legacy `saveStyle` values migrate to a string `saveFormat`. |
 | Translation files | Format strategies: serialized translation resources. |
 | Format-relative `*.comments.json` | `CommentPersistenceService`: comments for formats without inline storage. |
 | `<project>/.toucan-metadata.json` | `AuditService`: persisted translation metadata. |
 | `Documents/Toucan/settings.json` | `AppOptions` and preference services: global desktop preferences. |
-| `Documents/Toucan/layout.json` | `PanelService`: panel visibility, widths, active IDs, status visibility, editor mode and workflow (Direct or Pipelined; Direct always opens in Editor mode). Zen is not restored as a persisted active mode. |
+| `Documents/Toucan/layout.json` | `PanelService`: panel visibility, widths, active IDs, status visibility, and editor mode. Zen is not restored as a persisted active mode. |
 | `Documents/Toucan/ai.json` and `prompts/` | AI configuration and user prompt overrides. |
 | Per-user application-data secret store | `SecretService` and `SecureStorageService`: encrypted API keys, shared across relevant features. |
 | `Documents/Toucan/plugins/` and `plugin-policy.json` | External plugin payloads and enable/trust decisions; the CLI supports root/policy overrides. |

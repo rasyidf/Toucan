@@ -1,15 +1,26 @@
 """Which repo docs are published as pages on the website, shared by build-docs.py and generate-changelog.py."""
 from html import escape
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 import posixpath
 from urllib.parse import urlsplit
 
 REPO = 'https://github.com/rasyidf/Toucan'
 
+ROOT = Path(__file__).resolve().parents[1]
+RELEASE_NOTES = sorted(
+    (path for path in (ROOT / 'docs/release-notes').glob('v*.md')
+     if all(part.isdigit() for part in path.stem[1:].split('.'))),
+    key=lambda path: tuple(int(part) for part in path.stem[1:].split('.')),
+    reverse=True,
+)
+RELEASE_PAGES = {
+    path.relative_to(ROOT).as_posix(): f'release-{path.stem}.html'
+    for path in RELEASE_NOTES
+}
+
 # Repo path (relative to the repo root) -> page file in docs/.
 PAGES = {
-    'docs/release-notes/v0.25.0.md': 'release-v0.25.0.html',
-    'docs/release-notes/v0.24.0.md': 'release-v0.24.0.html',
+    **RELEASE_PAGES,
     'docs/user-guide.md': 'user-guide.html',
     'docs/translator-guide.md': 'translator-guide.html',
     'docs/plugins.md': 'plugins.html',

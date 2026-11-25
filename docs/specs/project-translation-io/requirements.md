@@ -1,5 +1,5 @@
 ---
-title: "project-translation-io — requirements"
+title: "project-translation-io: requirements"
 status: done
 progress: "45/64 tasks"
 updated: 2026-06-28
@@ -11,7 +11,7 @@ reason: "Required tasks complete; the remaining 19 are optional property and uni
 
 ## Introduction
 
-This document defines requirements for a unified and robust Project and Translation IO layer in Toucan — a WPF/C# translation management application. The scope covers the full project lifecycle (New, Open, Save, Save As, Close), translation change tracking with dirty-state management, comment persistence, audit metadata, configurable save strategies (auto-save and on-demand), language management with disk cleanup, and an external file-change detection system with diff/merge capabilities.
+This document defines requirements for a unified Project and Translation IO layer in Toucan, a WPF/C# translation management application. The scope covers the full project lifecycle (New, Open, Save, Save As, Close), translation change tracking with dirty-state management, comment persistence, audit metadata, configurable save strategies (auto-save and on-demand), language management with disk cleanup, and an external file-change detection system with diff/merge capabilities.
 
 ## Glossary
 
@@ -24,10 +24,10 @@ This document defines requirements for a unified and robust Project and Translat
 - **Diff_Merge_Engine**: The component that computes differences between in-memory state and on-disk state, presenting conflicts for user resolution.
 - **Language_Manager**: The component responsible for adding and removing languages, including disk artifact cleanup.
 - **Audit_Service**: The component that records change metadata (timestamps, change type) on translation items.
-- **ITranslationManagementService**: New service to be introduced — encapsulates translation CRUD, per-item dirty tracking, debounce coordination, and dirty-item queries. Replaces inline logic in TranslationItemViewModel and MainWindowViewModel.Translation.cs.
-- **ILanguageManagementService**: New service to be introduced — encapsulates language add/remove (including disk cleanup), language reordering, and manifest language-list updates. Replaces inline logic in MainWindowViewModel.Edit.cs and LanguageManagerViewModel.
+- **ITranslationManagementService**: New service to be introduced; encapsulates translation CRUD, per-item dirty tracking, debounce coordination, and dirty-item queries. Replaces inline logic in TranslationItemViewModel and MainWindowViewModel.Translation.cs.
+- **ILanguageManagementService**: New service to be introduced; encapsulates language add/remove (including disk cleanup), language reordering, and manifest language-list updates. Replaces inline logic in MainWindowViewModel.Edit.cs and LanguageManagerViewModel.
 - **IProjectService**: Existing core service (ProjectService) responsible for Load/Save operations. To be extended with explicit lifecycle methods (OpenProject, CloseProject, SaveProject, SaveProjectAs).
-- **IFileWatcherService**: New interface for the existing FileWatcherService — enables DI registration and testability.
+- **IFileWatcherService**: New interface for the existing FileWatcherService; enables DI registration and testability.
 - **IValidationPipeline**: Existing validation service that runs pre-save validation rules against translation data.
 - **UndoRedoService**: Existing singleton service managing undo/redo stacks for translation edits (max 200 actions). Currently uses static Instance; to be moved into DI.
 - **Project_Manifest**: The `toucan.project` JSON file that stores project configuration, language list, and editor preferences.
@@ -198,7 +198,7 @@ This document defines requirements for a unified and robust Project and Translat
 1. THE Toucan_App SHALL introduce an ITranslationManagementService (registered as singleton in DI) responsible for: maintaining the in-memory translation collection, per-item dirty tracking (an item is dirty when its Value property differs from the last-persisted value), debounced write coordination with a debounce interval of 300 milliseconds, and exposing a method to query all dirty items for the Save_Engine.
 2. THE Toucan_App SHALL introduce an ILanguageManagementService (registered as singleton in DI) responsible for: adding a language (creating empty-value TranslationItem entries for every existing namespace and writing the corresponding language file to disk), removing a language (removing all TranslationItem entries for that language from memory, deleting the language file from disk, and removing the language entry from the toucan.project manifest), and reordering languages (updating the language order in the toucan.project manifest).
 3. THE existing IProjectService SHALL be extended with explicit lifecycle methods (OpenProject, CloseProject, SaveProject, SaveProjectAs) where each method orchestrates its steps in the following order: validation, persistence, manifest update, and File_Watcher_Service snapshot refresh, returning a result indicating success or failure with associated validation errors.
-4. THE MainWindowViewModel partial files (File.cs, Edit.cs, Translation.cs) SHALL delegate all data manipulation and persistence logic to ITranslationManagementService, ILanguageManagementService, and IProjectService, retaining only RelayCommand declarations, UI property bindings, and view-navigation logic — with no file I/O, collection mutation, or validation invocation remaining in ViewModel code.
+4. THE MainWindowViewModel partial files (File.cs, Edit.cs, Translation.cs) SHALL delegate all data manipulation and persistence logic to ITranslationManagementService, ILanguageManagementService, and IProjectService, retaining only RelayCommand declarations, UI property bindings, and view-navigation logic, with no file I/O, collection mutation, or validation invocation remaining in ViewModel code.
 5. THE UndoRedoService SHALL remain a singleton but be registered in the DI ServiceCollection (removing the static Lazy<UndoRedoService> Instance property) so that ITranslationManagementService can receive it via constructor injection.
 6. THE File_Watcher_Service SHALL be refactored behind an IFileWatcherService interface exposing Watch, Stop, TakeSnapshot methods and a FilesChanged event, and registered as a singleton in DI, enabling constructor-injection into IProjectService and removing direct instantiation from the ViewModel.
 7. IF IValidationPipeline returns one or more errors with ValidationSeverity.Error during the IProjectService SaveProject flow, THEN THE IProjectService SHALL abort persistence, return the validation errors to the caller, and leave the project state unchanged.

@@ -1,5 +1,5 @@
 ---
-title: "rc-phase1-code-health — tasks"
+title: "rc-phase1-code-health: tasks"
 status: done
 progress: "36/40 tasks"
 updated: 2026-06-27
@@ -7,7 +7,7 @@ summary: "RC Phase 1 task list. All required tasks done; the 4 left are optional
 archived: 2026-10-07
 reason: "Required tasks complete; the remaining four are optional tests"
 ---
-# Implementation Plan: RC Phase 1 — Code Health
+# Implementation Plan: RC Phase 1: Code Health
 
 ## Overview
 
@@ -33,7 +33,7 @@ This plan implements the full code health pass for Toucan's release-candidate ph
     - Verify zero vulnerabilities remain
     - _Requirements: 4.6, 9.1, 9.3, 9.4_
 
-- [x] 2. Checkpoint — Build and test after dependency cleanup
+- [x] 2. Checkpoint: Build and test after dependency cleanup
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 3. Newtonsoft.Json removal and System.Text.Json migration
@@ -68,16 +68,16 @@ This plan implements the full code health pass for Toucan's release-candidate ph
     - _Requirements: 3.1_
 
   - [ ]* 3.6 Write property tests for JSON round-trip correctness
-    - **Property 1: JSON serialization round-trip** — For any valid ProviderSettings object, serializing with System.Text.Json and deserializing SHALL produce an equal object
-    - **Property 2: Backward-compatible JSON deserialization** — For any valid JSON string previously produced by Newtonsoft.Json, deserializing with System.Text.Json SHALL produce a correctly populated object
+    - **Property 1: JSON serialization round-trip**: For any valid ProviderSettings object, serializing with System.Text.Json and deserializing SHALL produce an equal object
+    - **Property 2: Backward-compatible JSON deserialization**: For any valid JSON string previously produced by Newtonsoft.Json, deserializing with System.Text.Json SHALL produce a correctly populated object
     - **Validates: Requirements 3.4, 3.5, 3.6, 3.7, 10.4**
 
   - [ ]* 3.7 Write unit tests for project manifest read-write round-trip
-    - **Property 3: Project manifest read-write round-trip** — Reading and writing back without modification SHALL preserve structure and values
+    - **Property 3: Project manifest read-write round-trip**: Reading and writing back without modification SHALL preserve structure and values
     - Test edge cases: empty objects, null values, nested arrays, special characters
     - **Validates: Requirements 3.4, 10.3**
 
-- [x] 4. Checkpoint — Build and test after JSON migration
+- [x] 4. Checkpoint: Build and test after JSON migration
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 5. Analyzer warning resolution and nullable enablement
@@ -100,7 +100,7 @@ This plan implements the full code health pass for Toucan's release-candidate ph
     - Add justification comments for any null-forgiving operator (`!`) usage
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [x] 6. Checkpoint — Build and test after static analysis cleanup
+- [x] 6. Checkpoint: Build and test after static analysis cleanup
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 7. Interface consolidation in Toucan.Core
@@ -148,7 +148,7 @@ This plan implements the full code health pass for Toucan's release-candidate ph
     - Verify XAML bindings still resolve to generated ICommand properties
     - _Requirements: 5.6, 5.7, 5.8_
 
-- [x] 9. Checkpoint — Build and test after ViewModel decomposition
+- [x] 9. Checkpoint: Build and test after ViewModel decomposition
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 10. Static service locator elimination and DI migration
@@ -200,7 +200,7 @@ This plan implements the full code health pass for Toucan's release-candidate ph
     - Verify JSON backward compatibility with Newtonsoft-serialized data
     - _Requirements: 10.3, 10.4, 10.5_
 
-- [x] 12. Final checkpoint — All tests pass, code health targets met
+- [x] 12. Final checkpoint: All tests pass, code health targets met
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
@@ -211,7 +211,7 @@ This plan implements the full code health pass for Toucan's release-candidate ph
 - Property tests validate universal correctness properties from the design document
 - The ordering (dependency cleanup → JSON migration → analyzers → architecture) minimizes conflicts
 - Always verify the build after each partial class move to catch source generator issues early
-- System.Text.Json is already available as a framework reference — no new package needed
+- System.Text.Json is already available as a framework reference; no new package needed
 
 ## Task Dependency Graph
 

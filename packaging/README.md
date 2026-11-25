@@ -8,14 +8,14 @@ summary: "Manual native draft packages, Windows packaging, verified macOS bundle
 
 ## Supported entry points
 
-Open `Toucan.CrossPlatform.slnx` for the maintained application, CLI, modules, SDK, samples and tests. The older `ToucanProject.slnx` was removed because it omitted maintained projects.
+Open `Toucan.slnx` for the maintained application, CLI, modules, SDK, samples and tests. The older `ToucanProject.slnx` was removed because it omitted maintained projects.
 
 Run Windows packaging through one of these commands (Python 3.9+ and the .NET SDK from `global.json` are required):
 
 ```powershell
-.\publish.ps1 portable
-.\publish.ps1 installer
-.\publish.ps1 msix
+.\packaging\publish.ps1 portable
+.\packaging\publish.ps1 installer
+.\packaging\publish.ps1 msix
 ```
 
 `portable` creates `dist/Toucan-<version>-portable-x64.zip`, containing the self-contained executable and required spelling-engine source/license sidecars. Distribute the complete ZIP; an EXE alone is incomplete.
@@ -34,7 +34,7 @@ Run regression CI separately; packaging success is not a native accessibility, i
 
 ## MSIX
 
-Both `publish.ps1 msix` and `packaging/Build-Msix.ps1` use the same implementation and `packaging/msix/AppxManifest.xml`. The manifest keeps the `rasyid.dev.Toucan` identity and `.tproj` association from the former root publish path. The retired standalone manifest used a different identity (`rasyidf.Toucan`) and `.toucan` association; installations made with that experimental manifest need separate migration testing.
+Both `packaging/publish.ps1 msix` and `packaging/Build-Msix.ps1` use the same implementation and `packaging/msix/AppxManifest.xml`. The manifest keeps the `rasyid.dev.Toucan` identity and `.tproj` association from the former root publish path. The retired standalone manifest used a different identity (`rasyidf.Toucan`) and `.toucan` association; installations made with that experimental manifest need separate migration testing.
 
 ```powershell
 .\packaging\Build-Msix.ps1

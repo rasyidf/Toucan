@@ -1,5 +1,5 @@
 ; Toucan Inno Setup Installer Script
-; Build with: iscc installer.iss (after running publish.ps1)
+; Build with: iscc packaging\installer.iss (after running packaging\publish.ps1)
 
 #define AppName "Toucan"
 ; publish.ps1 passes /DAppVersion from Directory.Build.props; this is the fallback.
@@ -22,6 +22,8 @@ AppUpdatesURL={#AppURL}/releases
 DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
+; Paths below are relative to the repository root, one level up from this script.
+SourceDir=..
 LicenseFile=LICENSE.txt
 OutputDir=dist
 OutputBaseFilename=ToucanSetup-{#AppVersion}

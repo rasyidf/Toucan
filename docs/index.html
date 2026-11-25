@@ -33,7 +33,6 @@
   "description": "Open-source desktop editor for translation files",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Windows 10+, macOS, Linux",
-  "softwareVersion": "0.25.0",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "license": "https://opensource.org/licenses/MIT",
   "url": "https://toucan.rasyid.dev/",
@@ -99,7 +98,7 @@
 <section class="hero" id="top">
   <div class="wrap hero-grid">
     <div class="intro">
-      <a class="eyebrow" href="release-v0.24.0.html"><span class="ver">v0.24.0</span><span class="pre">preview</span> · open source · MIT</a>
+      <a class="eyebrow" href="https://github.com/rasyidf/Toucan/releases">Open source · MIT</a>
       <h1>Every language, <span class="hl">side by side.</span></h1>
       <div class="tagline-i18n" aria-hidden="true">
         <span class="lang" id="tl-lang">id-ID</span>
@@ -113,7 +112,7 @@
         </a>
         <a class="btn btn-ghost" href="https://github.com/rasyidf/Toucan">View source</a>
       </div>
-      <p class="hero-note">v0.24.0 preview draft · Windows 10+, macOS and Linux. <a href="release-v0.24.0.html">Release notes and package status</a>. Public downloads remain on v0.23.0 until publication.</p>
+      <p class="hero-note">Windows 10+, macOS and Linux. <a href="https://github.com/rasyidf/Toucan/releases">Downloads and release notes</a>.</p>
     </div>
 
     <!-- Interactive demo: a small model of the editor, driven by the data in the script below. -->
@@ -161,7 +160,7 @@
     <div class="sec-head reveal">
       <div class="kicker">three modes</div>
       <h2>Translate, review, and audit in the same window.</h2>
-      <p>Real captures of Toucan v0.24.0 with the same sample project in each mode. Switch tabs to see the editing controls, review queue and read-only audit view. Screenshots follow your light or dark theme.</p>
+      <p>Switch tabs to see the editing controls, review queue and read-only audit view.</p>
     </div>
 
     <div class="tabs reveal" role="tablist" aria-label="Editor modes">
@@ -185,9 +184,9 @@
       <figure class="shot">
         <picture data-theme-picture>
           <source media="(prefers-color-scheme: dark)" srcset="assets/screenshots/mode-editor-dark.png">
-          <img src="assets/screenshots/mode-editor-light.png" width="1280" height="800" loading="lazy" decoding="async" alt="Toucan v0.24.0 Editor mode showing source and target translation fields, the key explorer and inspector">
+          <img src="assets/screenshots/mode-editor-light.png" width="1280" height="800" loading="lazy" decoding="async" alt="Toucan Editor mode showing source and target translation fields, the key explorer and inspector">
         </picture>
-        <figcaption>v0.24.0 · Editor mode · Sample project <span>Full size: <a href="assets/screenshots/mode-editor-light.png">Light</a> · <a href="assets/screenshots/mode-editor-dark.png">Dark</a></span></figcaption>
+        <figcaption>Editor mode · Sample project <span>Full size: <a href="assets/screenshots/mode-editor-light.png">Light</a> · <a href="assets/screenshots/mode-editor-dark.png">Dark</a></span></figcaption>
       </figure>
     </div>
 
@@ -204,9 +203,9 @@
       <figure class="shot">
         <picture data-theme-picture>
           <source media="(prefers-color-scheme: dark)" srcset="assets/screenshots/mode-review-dark.png">
-          <img src="assets/screenshots/mode-review-light.png" width="1280" height="800" loading="lazy" decoding="async" alt="Toucan v0.24.0 Review mode showing unapproved translations and approval controls">
+          <img src="assets/screenshots/mode-review-light.png" width="1280" height="800" loading="lazy" decoding="async" alt="Toucan Review mode showing unapproved translations and approval controls">
         </picture>
-        <figcaption>v0.24.0 · Review mode · Sample project <span>Full size: <a href="assets/screenshots/mode-review-light.png">Light</a> · <a href="assets/screenshots/mode-review-dark.png">Dark</a></span></figcaption>
+        <figcaption>Review mode · Sample project <span>Full size: <a href="assets/screenshots/mode-review-light.png">Light</a> · <a href="assets/screenshots/mode-review-dark.png">Dark</a></span></figcaption>
       </figure>
     </div>
 
@@ -223,9 +222,9 @@
       <figure class="shot">
         <picture data-theme-picture>
           <source media="(prefers-color-scheme: dark)" srcset="assets/screenshots/mode-audit-dark.png">
-          <img src="assets/screenshots/mode-audit-light.png" width="1280" height="800" loading="lazy" decoding="async" alt="Toucan v0.24.0 Audit mode showing read-only translations, approval states and the inspector history">
+          <img src="assets/screenshots/mode-audit-light.png" width="1280" height="800" loading="lazy" decoding="async" alt="Toucan Audit mode showing read-only translations, approval states and the inspector history">
         </picture>
-        <figcaption>v0.24.0 · Audit mode · Sample project <span>Full size: <a href="assets/screenshots/mode-audit-light.png">Light</a> · <a href="assets/screenshots/mode-audit-dark.png">Dark</a></span></figcaption>
+        <figcaption>Audit mode · Sample project <span>Full size: <a href="assets/screenshots/mode-audit-light.png">Light</a> · <a href="assets/screenshots/mode-audit-dark.png">Dark</a></span></figcaption>
       </figure>
     </div>
   </div>
@@ -426,15 +425,12 @@ Languages: 4
       <h2>Your files stay on your machine.</h2>
       <p>No account, no upload, no server. Text leaves your machine only when you run a translation provider or turn AI on. API keys live in one secret store in your user profile, encrypted at rest: DPAPI on Windows, AES-GCM with a per-user key on macOS and Linux.</p>
     </div>
-    <div class="preview-note reveal" role="note">
-      <strong>Preview software.</strong> Toucan v0.25.0 targets Windows, macOS and Linux, and every build is a preview until 1.0. Settings and project files can change between releases, so keep your locales in version control and <a href="https://github.com/rasyidf/Toucan/issues">report what breaks</a>.
-    </div>
     <div class="platforms">
       <div class="platform reveal">
         <span class="chip warn">preview</span>
         <h3>Windows, macOS and Linux</h3>
         <p>One app on the same core everywhere, so formats, validation, and providers behave the same, with the modes, Zen, command palette, AI Integration, side panels, and plugins. Windows 10 and later as a portable zip for now, macOS as a DMG, Linux as a tarball.</p>
-        <a href="release-v0.24.0.html">v0.24.0 release notes →</a>
+        <a href="https://github.com/rasyidf/Toucan/releases">Downloads and release notes →</a>
       </div>
       <div class="platform reveal" style="--d:80ms">
         <span class="chip warn">preview</span>
@@ -457,7 +453,7 @@ Languages: 4
     <ol class="timeline reveal">
       <li>
         <div class="ver">v0.25.0</div>
-        <span class="when">current preview</span>
+        <span class="when">Implemented</span>
         <h3>Terminology and validation</h3>
         <ul>
           <li>Project glossary with a Dictionary panel and CSV exchange</li>

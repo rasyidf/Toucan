@@ -209,7 +209,7 @@ public sealed class WorkspaceDocumentSaveTests : IDisposable
         const string content = "{ \"é\": [\"old\", null, 1e+02, true], \"empty\":{} }\n";
         var path = new TranslationPath(["é", "0"]);
         var serialized = Writer.SerializeDocument(content, [new(path, new(path, "New 🎉"))]);
-        Assert.Equal(content.Replace("\"old\"", JsonSerializer.Serialize("New 🎉"), StringComparison.Ordinal), serialized);
+        Assert.Equal(content.Replace("\"old\"", "\"New 🎉\"", StringComparison.Ordinal), serialized);
     }
 
     [Fact]
@@ -234,7 +234,7 @@ public sealed class WorkspaceDocumentSaveTests : IDisposable
 
     [Theory]
     [InlineData("{\"key\":\"a\",\"key\":\"b\"}")]
-    [InlineData("[]")]
+    [InlineData("null")]
     [InlineData("{\"key\":\"a\"} {}")]
     public void InvalidDocumentsAreRefusedEvenForNoChanges(string content) =>
         Assert.ThrowsAny<JsonException>(() => Writer.SerializeDocument(content, []));

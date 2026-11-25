@@ -84,11 +84,11 @@ public sealed class WorkspaceDocumentExecutionTests : IDisposable
         Assert.Contains("Saved", Read("locales/en/common.json"), StringComparison.Ordinal);
         foreach (var (path, expected) in untouched)
         {
-            Assert.Equal(expected.Version, SaveTransaction.Fingerprint([Path.Combine(_root, path)])[Path.Combine(_root, path)]);
+            Assert.Equal(expected.Version, SaveTransaction.Fingerprint([Path.GetFullPath(Path.Combine(_root, path))])[Path.GetFullPath(Path.Combine(_root, path))]);
             Assert.Equal(expected.Item2, File.GetLastWriteTimeUtc(Path.Combine(_root, path)));
         }
         Assert.Equal(result.Receipt.Source.Documents.Single(d => d.RelativePath == "locales/en/common.json").Version,
-            SaveTransaction.Fingerprint([Path.Combine(_root, "locales/en/common.json")])[Path.Combine(_root, "locales/en/common.json")]);
+            SaveTransaction.Fingerprint([Path.GetFullPath(Path.Combine(_root, "locales/en/common.json"))])[Path.GetFullPath(Path.Combine(_root, "locales/en/common.json"))]);
         Assert.False(File.Exists(PendingJournal));
     }
 

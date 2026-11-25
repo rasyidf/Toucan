@@ -1,5 +1,5 @@
 ---
-title: "rc-phase1-code-health — design"
+title: "rc-phase1-code-health: design"
 status: done
 progress: "36/40 tasks"
 updated: 2026-06-27
@@ -7,13 +7,13 @@ summary: "RC Phase 1 code-health design: package cleanup, interface consolidatio
 archived: 2026-10-07
 reason: "Required tasks complete; the remaining four are optional tests"
 ---
-# Design Document: RC Phase 1 — Code Health
+# Design Document: RC Phase 1: Code Health
 
 ## Overview
 
 This phase transforms the Toucan codebase from its current v0.7 state into release-candidate quality by eliminating all analyzer warnings, removing dead dependencies, decomposing the monolithic MainWindowViewModel, centralizing interface contracts in Core, and replacing static service locator patterns with proper constructor injection. The work targets three pillars: Static Analysis Cleanup (zero warnings, nullable annotations, Newtonsoft removal), Architecture Hygiene (ViewModel split, interface consolidation, DI migration), and Dependency Audit (pinned versions, vulnerability scan, .NET version documentation).
 
-The guiding constraint is **no new features** — only restructuring, cleanup, and hardening of existing functionality. All changes must preserve current behavior while improving maintainability and correctness guarantees.
+The guiding constraint is **no new features**, with changes limited to restructuring, cleanup, and hardening of existing functionality. All changes must preserve current behavior while improving maintainability and correctness guarantees.
 
 ## Architecture
 
@@ -251,10 +251,10 @@ public partial class App : Application
 **Purpose**: Consolidate all JSON handling to `System.Text.Json`, removing the `Newtonsoft.Json` package dependency.
 
 **Affected Files**:
-- `Services/RecentProjectServices.cs` — serialization of recent project list
-- `Services/ProviderSettingsService.cs` — provider settings persistence
-- `ViewModels/OptionsViewModel.cs` — project manifest reading/writing
-- `ViewModels/MainWindowViewModel.cs` — project manifest parsing (line 1191)
+- `Services/RecentProjectServices.cs`: serialization of recent project list
+- `Services/ProviderSettingsService.cs`: provider settings persistence
+- `ViewModels/OptionsViewModel.cs`: project manifest reading/writing
+- `ViewModels/MainWindowViewModel.cs`: project manifest parsing (line 1191)
 
 ## Data Models
 
@@ -610,7 +610,7 @@ File.WriteAllText(manifestPath, root.ToJsonString(options));
 
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+*A property states a behavior that should hold across all valid executions of a system. The properties below express the specification as conditions that tests can verify.*
 
 ### Property 1: JSON serialization round-trip
 
@@ -703,7 +703,7 @@ File.WriteAllText(manifestPath, root.ToJsonString(options));
 | `Avalonia.Desktop 12.0.5` | Wrong project |
 | `System.Data.DataSetExtensions 4.6.0-preview3` | Unused preview package |
 | `Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers 0.4.421302` | One-time migration tool, no longer needed |
-| `xunit.v3 3.2.2` | Test framework in non-test project — move to test projects only |
+| `xunit.v3 3.2.2` | Test framework in non-test project: move to test projects only |
 
 ### Packages to Keep (Pinned)
 
@@ -718,6 +718,6 @@ File.WriteAllText(manifestPath, root.ToJsonString(options));
 
 ### Tools Required
 
-- `dotnet list package --vulnerable` — vulnerability scanning
-- `dotnet build /warnaserror` — verify zero warnings
+- `dotnet list package --vulnerable`: vulnerability scanning
+- `dotnet build /warnaserror`: verify zero warnings
 - .NET 10 SDK (current target framework: `net10.0-windows7.0`)

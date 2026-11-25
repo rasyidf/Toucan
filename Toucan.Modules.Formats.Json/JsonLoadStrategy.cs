@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Toucan.Core.Contracts.Services;
 using Toucan.Core.Models;
+using Toucan.Core.Services.SaveStrategies;
 
 namespace Toucan.Core.Services.LoadStrategies;
 
@@ -73,7 +74,7 @@ public partial class JsonLoadStrategy(IFileService fileService, ILogger<JsonLoad
         var content = ResourceText.Read(request, out var encoding);
         FormatJsTarget.Validate(content, request.Resource);
         var loaded = ResourceJsonCodec.Read(content, request.Resource, request.ProjectOptions, request.CancellationToken);
-        loaded.Document!.DetectedOptions = ResourceText.Detect(content, encoding);
+        loaded.Document!.DetectedOptions = JsonSaveStrategy.Detect(content, encoding, request.Resource);
         return loaded;
     }
 

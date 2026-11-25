@@ -10,7 +10,7 @@ using Toucan.Modules;
 // A baseline observer, not a suite that requires known bugs to remain broken.
 // Each run retains independently authored inputs/outputs in a fresh directory.
 var root = Path.GetFullPath(args.Length > 0 ? args[0] : ".");
-if (!File.Exists(Path.Combine(root, "Toucan.CrossPlatform.slnx")))
+if (!File.Exists(Path.Combine(root, "Toucan.slnx")))
     throw new ArgumentException("Pass the Toucan repository root.");
 var run = Path.Combine(root, "build", "resource-compatibility", "m0", "probes", DateTime.UtcNow.ToString("yyyyMMddTHHmmssfffZ"));
 Directory.CreateDirectory(run);

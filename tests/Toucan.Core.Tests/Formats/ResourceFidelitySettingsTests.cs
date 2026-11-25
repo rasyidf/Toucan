@@ -227,6 +227,44 @@ public sealed class ResourceFidelitySettingsTests : IDisposable
     }
 
     [Theory]
+    [InlineData("{\"key\":\"old\"}", ResourceUnicodeEscapes.Minimal, "\"key\": \"é ü <b> & 'x' 👍\u00A0\\\"\\n\"")]
+    [InlineData("{\"key\":\"old\"}", ResourceUnicodeEscapes.Always, "\"key\": \"\\u00E9 \\u00FC \\u003Cb\\u003E \\u0026 \\u0027x\\u0027 \\uD83D\\uDC4D\\u00A0\\u0022\\n\"")]
+    [InlineData("{\"key\":\"old\"}", null, "\"key\": \"é ü <b> & 'x' 👍\u00A0\\\"\\n\"")]
+    [InlineData("{\"key\":\"old\",\"other\":\"\\u00FC\"}", null, "\"key\": \"\\u00E9 \\u00FC")]
+    [InlineData("{\"key\":\"old\",\"other\":\"\\u00FC\"}", ResourceUnicodeEscapes.Preserve, "\"key\": \"\\u00E9 \\u00FC")]
+    [InlineData("{\"key\":\"old\",\"other\":\"\\uD83D\\uDC4D\"}", null, "\"key\": \"\\u00E9 \\u00FC")]
+    [InlineData("{\"key\":\"old\",\"other\":\"tab\\u0009\"}", null, "\"key\": \"é ü")]
+    public void JsonUnicodeEscapePolicyMatchesTheSelectionOrTheOriginal(string content, ResourceUnicodeEscapes? escapes, string expected)
+    {
+        var loaded = Open("json", content, new() { UnicodeEscapes = escapes });
+        loaded.Translations.Single(i => i.Namespace == "key").Value = "é ü <b> & 'x' 👍\u00A0\"\n";
+        Save(loaded);
+        Assert.Contains(expected, Text(loaded));
+        Assert.Equal("é ü <b> & 'x' 👍\u00A0\"\n", Service().LoadProject(_root).Translations.Single(i => i.Namespace == "key").Value);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("\n")]
+    public void JsonNoOpSaveKeepsRawUnicodeHtmlCharactersAndFinalNewlineByteForByte(string end)
+    {
+        var content = "{\n  \"app\": {\n    \"title\": \"Café naïve résumé <b> & 'x' – “quote” 👍\u202F°\",\n    \"umlauts\": \"Größe ändern – „Über uns“\",\n    \"quote\": \"\\\"a\\\\b\\\"\\n\\t\",\n    \"line\": \"\\u2028\"\n  },\n  \"z\": \"End\"\n}" + end;
+        var loaded = Open("json", content);
+        Save(loaded);
+        Assert.Equal(content, Text(loaded));
+        Save(Service().LoadProject(_root));
+        Assert.Equal(content, Text(loaded));
+    }
+
+    [Fact]
+    public void FormatJsTargetsKeepEscapingUnicode()
+    {
+        var loaded = Open("json", "{\"key\":\"Café\"}", dialect: "formatjs-target");
+        Save(loaded);
+        Assert.Contains("Caf\\u00E9", Text(loaded));
+    }
+
+    [Theory]
     [InlineData("json", "{\"title\":\"Original\"}")]
     [InlineData("yaml", "title: Original\n")]
     [InlineData("arb", "{\"title\":\"Original\"}")]

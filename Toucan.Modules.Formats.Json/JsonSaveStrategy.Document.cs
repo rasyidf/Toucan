@@ -9,20 +9,28 @@ namespace Toucan.Core.Services.SaveStrategies;
 public partial class JsonSaveStrategy : IDocumentSaveStrategy
 {
     public string SerializeDocument(string originalContent, IReadOnlyList<DocumentTranslationEdit> edits,
-        CancellationToken cancellationToken = default) => JsonDocumentSerializer.Serialize(originalContent, edits, cancellationToken);
+        CancellationToken cancellationToken = default) => SerializeDocument(originalContent, edits, new ResourceOptions(), cancellationToken);
+
+    public string SerializeDocument(string originalContent, IReadOnlyList<DocumentTranslationEdit> edits,
+        ResourceOptions options, CancellationToken cancellationToken = default)
+    {
+        var escapes = options.UnicodeEscapes is null or ResourceUnicodeEscapes.Preserve
+            ? ResourceText.DetectJsonEscapes(originalContent) : options.UnicodeEscapes;
+        return JsonDocumentSerializer.Serialize(originalContent, edits, cancellationToken, options with { UnicodeEscapes = escapes });
+    }
 }
 
 internal static class JsonDocumentSerializer
 {
-    public static string Serialize(string content, IReadOnlyList<DocumentTranslationEdit> edits, CancellationToken ct)
+    public static string Serialize(string content, IReadOnlyList<DocumentTranslationEdit> edits, CancellationToken ct, ResourceOptions? resourceOptions = null)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(edits);
         ct.ThrowIfCancellationRequested();
         var bytes = Encoding.UTF8.GetBytes(content);
         var reader = new Utf8JsonReader(bytes);
-        if (!reader.Read() || reader.TokenType != JsonTokenType.StartObject)
-            throw new JsonException("A translation document must have an object root.");
+        if (!reader.Read() || reader.TokenType is not (JsonTokenType.StartObject or JsonTokenType.StartArray))
+            throw new JsonException("A translation document must have an object or array root.");
         var spans = new Dictionary<TranslationPath, (int Start, int Length)>();
         Index(ref reader, [], spans, ct);
         if (reader.Read()) throw new JsonException("Unexpected content after the document root.");
@@ -47,7 +55,7 @@ internal static class JsonDocumentSerializer
             {
                 ct.ThrowIfCancellationRequested();
                 var (start, length) = spans[edit.OriginalPath!];
-                var replacement = Encoding.UTF8.GetBytes(Scalar(edit.Translation!));
+                var replacement = Encoding.UTF8.GetBytes(Scalar(edit.Translation!, resourceOptions));
                 result.Write(bytes.AsSpan(cursor, start - cursor));
                 result.Write(replacement);
                 cursor = start + length;
@@ -55,7 +63,7 @@ internal static class JsonDocumentSerializer
             result.Write(bytes.AsSpan(cursor));
             return Encoding.UTF8.GetString(result.ToArray());
         }
-        var root = JsonNode.Parse(content)!.AsObject();
+        var root = JsonNode.Parse(content)!;
         // Remove first so swaps and multiple renames are evaluated as one transaction.
         foreach (var edit in edits.Where(e => e.OriginalPath is not null))
         {
@@ -75,18 +83,18 @@ internal static class JsonDocumentSerializer
                 throw new NotSupportedException("Structural edits of array slots require an explicit array operation.");
             var key = translation.KeyPath.Segments[^1];
             if (obj.ContainsKey(key)) throw new InvalidOperationException($"Destination '{translation.KeyPath.EscapedPath}' already exists.");
-            obj.Add(key, JsonNode.Parse(Scalar(translation)));
+            obj.Add(key, JsonNode.Parse(Scalar(translation, resourceOptions)));
         }
         var whitespace = content.Split('\n').Skip(1).Select(l => new string(l.TakeWhile(c => c is ' ' or '\t').ToArray())).FirstOrDefault(s => s.Length > 0);
         var options = new JsonSerializerOptions { WriteIndented = content.Contains('\n'),
             IndentCharacter = whitespace?.Contains('\t') == true ? '\t' : ' ', IndentSize = Math.Clamp(whitespace?.Length ?? 2, 1, 127) };
-        var output = root.ToJsonString(options);
+        var output = ResourceText.ToJsonString(root, resourceOptions ?? new(), options);
         if (content.Contains("\r\n", StringComparison.Ordinal)) output = output.Replace("\n", "\r\n", StringComparison.Ordinal);
         if (content.EndsWith('\n')) output += content.EndsWith("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         return output;
     }
 
-    private static string Scalar(DocumentTranslation translation)
+    private static string Scalar(DocumentTranslation translation, ResourceOptions? options)
     {
         if (translation.RawScalar is { } raw)
         {
@@ -96,10 +104,10 @@ internal static class JsonDocumentSerializer
             // Editing a typed scalar produces a string; unchanged values retain their original raw representation.
             if (scalar.RootElement.ToString() == translation.Value) return raw;
         }
-        return JsonSerializer.Serialize(translation.Value);
+        return ResourceText.ToJsonString(JsonValue.Create(translation.Value)!, options ?? new());
     }
 
-    private static JsonNode Parent(JsonObject root, TranslationPath path, bool create)
+    private static JsonNode Parent(JsonNode root, TranslationPath path, bool create)
     {
         JsonNode node = root;
         foreach (var segment in path.Segments.Take(path.Segments.Count - 1))

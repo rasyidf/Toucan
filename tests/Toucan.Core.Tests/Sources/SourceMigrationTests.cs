@@ -111,7 +111,7 @@ public sealed class SourceMigrationTests : IDisposable
     public void ProjectJsonSchemaDescribesTheSourcesBlock()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Toucan.CrossPlatform.slnx"))) dir = dir.Parent;
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Toucan.slnx"))) dir = dir.Parent;
         var schema = Directory.GetFiles(dir!.FullName, "toucan.project.schema.json", SearchOption.AllDirectories).First(f => !f.Contains("/build/", StringComparison.Ordinal));
         var text = File.ReadAllText(schema);
         Assert.Contains("\"sources\"", text, StringComparison.Ordinal);

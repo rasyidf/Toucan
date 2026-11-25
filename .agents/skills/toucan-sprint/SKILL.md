@@ -1,7 +1,8 @@
 ---
-title: Toucan Feature Sprint
-inclusion: manual
+name: toucan-sprint
+description: "Run a Toucan development session end to end: plan, implement, build, test, document, version, commit and push. USE FOR: 'next sprint', 'continue roadmap', 'bugbash', 'fix known bugs', 'improvements', 'implement and ship'. DO NOT USE FOR: one-off questions or quick fixes the user asked not to commit."
 ---
+
 
 # Toucan Feature Sprint
 
@@ -56,10 +57,10 @@ Focus: Quick fixes without version/commit ceremony. Skip steps 4-8.
   - Fix root cause, not symptoms — grep all callers
 
 ### 3. Build & Verify
-- Run: `dotnet build Toucan.CrossPlatform.slnx`
+- Run: `dotnet build Toucan.slnx`
 - Must be 0 errors, 0 warnings before proceeding
 - Fix any errors immediately
-- Run tests: `dotnet test Toucan.CrossPlatform.slnx` (Core and Avalonia tests)
+- Run tests: `dotnet test Toucan.slnx` (Core and Avalonia tests)
 - **Important**: Quit a running Toucan app first if the build fails with file-lock errors
 
 ### 4. Update Known Bugs
@@ -102,12 +103,7 @@ Focus: Quick fixes without version/commit ceremony. Skip steps 4-8.
 ### 8. Commit & Push
 - Create a branch: `fix/vX.Y.Z-description` or `feat/vX.Y.Z-description`
 - Stage specific files (not `git add .`)
-- Commit message format:
-  ```
-  fix: short summary (vX.Y.Z)
-  
-  - bullet points of key changes
-  ```
+- Write each commit message with the [conventional-commits](../conventional-commits/SKILL.md) skill; add `(vX.Y.Z)` to the release commit's summary
 - Push with tracking: `git push -u origin <branch>`
 - Do NOT push directly to main
 
