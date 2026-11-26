@@ -1,0 +1,1013 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://toucan.rasyid.dev/toucan.tproj.schema.json",
+  "title": "Toucan project (toucan.tproj)",
+  "description": "Generated from ProjectSettings by ContractFileTests; manifest version 1. Unknown fields are kept by older builds. Do not edit by hand.",
+  "type": "object",
+  "properties": {
+    "manifestVersion": {
+      "type": "integer"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "babelImport": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "sourceFile": {
+          "type": "string"
+        },
+        "jsonLayout": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "configuration": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "concepts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "package": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "comment": {
+                "type": "string"
+              },
+              "approved": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "resourceSchemaVersion": {
+      "type": "integer"
+    },
+    "resourceDocuments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "resource": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "package": {
+                "type": "string"
+              },
+              "language": {
+                "type": "string"
+              },
+              "relativePath": {
+                "type": "string"
+              },
+              "formatId": {
+                "type": "string"
+              },
+              "dialect": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "ownership": {
+                "type": "integer"
+              },
+              "selectorPrefix": {
+                "type": "string"
+              },
+              "options": {
+                "type": "object",
+                "properties": {
+                  "layout": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "delimiter": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "arrays": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "indent": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "order": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "unicodeEscapes": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "inputEncoding": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "outputEncoding": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "newline": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "saveEmptyTranslations": {
+                    "type": [
+                      "boolean",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "detectedOptions": {
+            "type": "object",
+            "properties": {
+              "layout": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "delimiter": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "arrays": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "indent": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "order": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "unicodeEscapes": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "inputEncoding": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "outputEncoding": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "newline": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "saveEmptyTranslations": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              }
+            }
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "resourceOptions": {
+      "type": "object",
+      "properties": {
+        "layout": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "delimiter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "arrays": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "indent": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "order": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "unicodeEscapes": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "inputEncoding": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "outputEncoding": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "newline": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "saveEmptyTranslations": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      }
+    },
+    "lastMigrationReport": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "createdAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "nativeManifest": {
+          "type": "string"
+        },
+        "framework": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "package": {
+                "type": "string"
+              },
+              "language": {
+                "type": "string"
+              },
+              "relativePath": {
+                "type": "string"
+              },
+              "formatId": {
+                "type": "string"
+              },
+              "dialect": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "ownership": {
+                "type": "integer"
+              },
+              "selectorPrefix": {
+                "type": "string"
+              },
+              "options": {
+                "$ref": "#/properties/resourceDocuments/items/properties/resource/properties/options"
+              }
+            }
+          }
+        },
+        "projectOptions": {
+          "type": "object",
+          "properties": {
+            "layout": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "delimiter": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "arrays": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "indent": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "order": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "unicodeEscapes": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "inputEncoding": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "outputEncoding": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "newline": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "saveEmptyTranslations": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "severity": {
+                "type": "integer"
+              },
+              "relativePath": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "default": null
+              },
+              "field": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "default": null
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "severity"
+            ]
+          }
+        },
+        "inputHashes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "summary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer"
+          },
+          "source": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "translationStates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "identity": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "entryId": {
+                "type": "string"
+              },
+              "resourceId": {
+                "type": "string"
+              },
+              "package": {
+                "type": "string"
+              },
+              "path": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "property": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "default": null
+                    },
+                    "index": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "default": null
+                    }
+                  }
+                }
+              },
+              "selector": {
+                "type": "string"
+              },
+              "packagePrefix": {
+                "type": "string"
+              }
+            }
+          },
+          "language": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "approved": {
+            "type": "boolean"
+          },
+          "needsReview": {
+            "type": "boolean"
+          },
+          "reviewedSourceHash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "primaryLanguage": {
+      "type": "string"
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "saveFormat": {
+      "type": "string"
+    },
+    "saveStyle": true,
+    "textEncoding": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "inputEncoding": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lineEnding": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "framework": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "glossary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "term": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "forbidden": {
+            "type": "boolean"
+          },
+          "translations": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "analysisConfidenceThreshold": {
+      "type": "number"
+    },
+    "spelling": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "assignments": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "fallbacks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "words": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "frameworkOptions": {
+      "type": "object",
+      "properties": {
+        "defaultPackage": {
+          "type": "string"
+        },
+        "resolveNamespaces": {
+          "type": "boolean"
+        },
+        "keyPrefix": {
+          "type": "string"
+        }
+      }
+    },
+    "translationPackages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "translationUrls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "language": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "adapter": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "plugin": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "baseUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          "remoteProject": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "role": {
+            "type": "string"
+          },
+          "languages": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "remote": {
+                  "type": "string"
+                },
+                "package": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "keys": {
+            "type": "object",
+            "properties": {
+              "separator": {
+                "type": "string"
+              },
+              "caseSensitive": {
+                "type": "boolean"
+              }
+            }
+          },
+          "policy": {
+            "type": "object",
+            "properties": {
+              "connectOnOpen": {
+                "type": "boolean"
+              },
+              "pushStatuses": {
+                "type": "boolean"
+              },
+              "pushComments": {
+                "type": "boolean"
+              },
+              "deleteRemote": {
+                "type": "string"
+              }
+            }
+          },
+          "settings": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "sourceConnections": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "saveEmptyTranslations": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "translationOrder": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "copyTemplates": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "commentsEnabled": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "requireValidForApproval": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "defaultProvider": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "context": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "formality": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "preservePlaceholders": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "previewBeforeApply": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "hiddenNamespaces": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "languageAliases": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "languageFilePaths": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "sourceRoots": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "externalEditor": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scanExtensions": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "scanIncludes": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "excludedDirectories": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "autoScanOnOpen": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "validateOnSave": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "validationRules": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "severity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "enabled",
+          "severity"
+        ]
+      }
+    },
+    "autoSaveEnabled": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "autoSaveIntervalSeconds": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  }
+}

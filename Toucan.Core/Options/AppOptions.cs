@@ -80,6 +80,10 @@ public class AppOptions
 
     private static readonly JsonSerializerOptions s_options = new() { WriteIndented = true };
 
+    /// <summary>Settings this build does not know (added by a newer Toucan), written back unchanged.</summary>
+    [System.Text.Json.Serialization.JsonExtensionData]
+    public Dictionary<string, JsonElement>? UnknownSettings { get; set; }
+
     public static AppOptions LoadFromDisk()
     {
         var file = Path.Combine(s_path, "settings.json");
@@ -95,12 +99,20 @@ public class AppOptions
             if (options.RecentProjectsLimit <= 0) options.RecentProjectsLimit = 10;
             return options;
         }
-        catch { return new AppOptions(); }
+        catch (JsonException)
+        {
+            // Unreadable: set it aside so the defaults saved next do not replace it without a trace.
+            var aside = $"{file}.corrupt-{DateTime.UtcNow:yyyyMMddHHmmss}";
+            try { File.Move(file, File.Exists(aside) ? aside + "-" + Guid.NewGuid().ToString("N")[..6] : aside); }
+            catch (IOException) { }
+            return new AppOptions();
+        }
+        catch (IOException) { return new AppOptions(); }
     }
 
     public void ToDisk()
     {
         Directory.CreateDirectory(s_path);
-        File.WriteAllText(Path.Combine(s_path, "settings.json"), JsonSerializer.Serialize(this, s_options));
+        Toucan.Core.Services.AtomicFile.WriteAllText(Path.Combine(s_path, "settings.json"), JsonSerializer.Serialize(this, s_options));
     }
 }

@@ -17,6 +17,15 @@ public class ProjectSettings
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
+    /// <summary>
+    /// The manifest format this build writes. It goes up only for a change an older build would misread; added fields do not
+    /// change it (older builds keep unknown fields). A file with a higher version is refused, never overwritten. See docs/compatibility.md.
+    /// </summary>
+    public const int CurrentManifestVersion = 1;
+
+    /// <summary>The manifest format of this file; files written before 1.0 have none and are version 1.</summary>
+    public int ManifestVersion { get; set; } = CurrentManifestVersion;
+
     // --- Project identity ---
     public string? Name { get; set; }
     public string? Description { get; set; }
@@ -161,26 +170,34 @@ public class ProjectSettings
         var folder = Path.GetDirectoryName(Path.GetFullPath(file))!;
         if (!File.Exists(file)) return null;
 
+        var json = File.ReadAllText(file);
+        ProjectSettings settings;
         try
         {
-            var json = File.ReadAllText(file);
-            var settings = JsonSerializer.Deserialize<ProjectSettings>(json, s_options) ?? new ProjectSettings();
-            settings.Spelling ??= new();
-            settings.Spelling.Assignments ??= []; settings.Spelling.Fallbacks ??= []; settings.Spelling.Words ??= [];
-            settings.ProjectPath = folder;
-            settings.MigrateLegacyFormat(json);
-            settings.MigrateLegacySourceConnections();
-            if (settings.BabelImport is null && settings.Compatibility.TryGetValue("babeledit", out var envelope) && envelope.Version == 1 && envelope.Data.TryGetValue("project", out var imported))
-                settings.BabelImport = imported.Deserialize<BabelImportData>();
-            if (settings.BabelImport is { } legacy && !settings.Compatibility.ContainsKey("babeledit"))
-            {
-                var migrated = new CompatibilityEnvelope { Source = "babeledit" };
-                migrated.Data["project"] = JsonSerializer.SerializeToElement(legacy);
-                settings.Compatibility["babeledit"] = migrated;
-            }
-            return settings;
+            settings = JsonSerializer.Deserialize<ProjectSettings>(json, s_options) ?? throw new JsonException("The file is empty.");
         }
-        catch { return null; }
+        catch (JsonException ex)
+        {
+            // Never treat a damaged manifest as missing: the next save would replace it, with its approvals and settings.
+            throw new FormatException($"{Path.GetFileName(file)} could not be read ({ex.Message}). Toucan will not overwrite it; fix or remove the file.", ex);
+        }
+        if (settings.ManifestVersion > CurrentManifestVersion)
+            throw new FormatException($"{Path.GetFileName(file)} was saved by a newer Toucan (project format {settings.ManifestVersion}; this version reads {CurrentManifestVersion}). Update Toucan to open it.");
+        settings.ManifestVersion = CurrentManifestVersion;
+        settings.Spelling ??= new();
+        settings.Spelling.Assignments ??= []; settings.Spelling.Fallbacks ??= []; settings.Spelling.Words ??= [];
+        settings.ProjectPath = folder;
+        settings.MigrateLegacyFormat(json);
+        settings.MigrateLegacySourceConnections();
+        if (settings.BabelImport is null && settings.Compatibility.TryGetValue("babeledit", out var envelope) && envelope.Version == 1 && envelope.Data.TryGetValue("project", out var imported))
+            settings.BabelImport = imported.Deserialize<BabelImportData>();
+        if (settings.BabelImport is { } legacy && !settings.Compatibility.ContainsKey("babeledit"))
+        {
+            var migrated = new CompatibilityEnvelope { Source = "babeledit" };
+            migrated.Data["project"] = JsonSerializer.SerializeToElement(legacy);
+            settings.Compatibility["babeledit"] = migrated;
+        }
+        return settings;
     }
 
     private void MigrateLegacyFormat(string json)

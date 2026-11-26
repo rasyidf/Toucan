@@ -16,6 +16,9 @@
     </PackageReference>
     <PackageReference Include="xunit.v3" Version="3.2.2" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Shared\PublicApi.cs" Link="Shared\PublicApi.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

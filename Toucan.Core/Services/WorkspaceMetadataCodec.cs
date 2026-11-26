@@ -14,6 +14,7 @@ internal static class WorkspaceMetadataCodec
     internal static IReadOnlyList<WorkspaceEntryIdentity> ReadIdentities(string content, string framework, string format)
     {
         var file = JsonSerializer.Deserialize<IdentityFile>(content) ?? throw new JsonException("Invalid workspace identity file.");
+        if (file.SchemaVersion > 1) throw new InvalidOperationException($"{IdentityPath} was saved by a newer Toucan (schema {file.SchemaVersion}). Update Toucan to open this project.");
         if (file.SchemaVersion != 1 || file.FrameworkId != framework || !FormatIds.Comparer.Equals(file.FormatId, format) || file.Entries is null)
             throw new InvalidOperationException("Identity checkpoint schema or source capabilities do not match this workspace.");
         if (file.Entries.Any(e => e.Id.Value == Guid.Empty || e.Namespace is null || e.KeyPath is null || string.IsNullOrEmpty(e.Resource)))
@@ -24,6 +25,7 @@ internal static class WorkspaceMetadataCodec
     internal static IReadOnlyList<WorkspaceEntryMetadata> ReadEntries(string content, DocumentId document)
     {
         var file = JsonSerializer.Deserialize<MetadataFile>(content) ?? throw new JsonException("Invalid workspace metadata file.");
+        if (file.SchemaVersion > 1) throw new InvalidOperationException($"{EntryPath(document)} was saved by a newer Toucan (schema {file.SchemaVersion}). Update Toucan to open this project.");
         if (file.SchemaVersion != 1 || file.DocumentId != document || file.Entries is null)
             throw new InvalidOperationException("Entry metadata schema or document identity does not match.");
         if (file.Entries.Any(e => e.EntryId.Value == Guid.Empty || string.IsNullOrWhiteSpace(e.Language) || e.Comment is null || !Enum.IsDefined(e.ChangeType)))

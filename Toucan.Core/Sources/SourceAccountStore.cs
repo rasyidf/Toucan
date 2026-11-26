@@ -74,9 +74,12 @@ public static class SourceAccounts
 /// </summary>
 public sealed class SourceAccountStore : ISourceAccountStore
 {
+    /// <summary>The <c>accounts.json</c> format this build reads and writes. A higher one is left untouched; see docs/compatibility.md.</summary>
+    public const int CurrentVersion = 1;
+
     private sealed class AccountFile
     {
-        [JsonPropertyName("version")] public int Version { get; set; } = 1;
+        [JsonPropertyName("version")] public int Version { get; set; } = CurrentVersion;
         [JsonPropertyName("accounts")] public List<SourceAccount> Accounts { get; set; } = [];
 
         /// <summary><c>{project id}/{connection id}</c> → account ID.</summary>
@@ -88,6 +91,7 @@ public sealed class SourceAccountStore : ISourceAccountStore
     private readonly string _file;
     private AccountFile _data = new();
     private DateTime _stamp = DateTime.MinValue;
+    private int? _newerVersion;
 
     public SourceAccountStore() : this(Path.Combine(SecureStorageService.DefaultFolder, "accounts.json")) { }
 
@@ -204,25 +208,41 @@ public sealed class SourceAccountStore : ISourceAccountStore
         if (stamp == _stamp) return;
         _stamp = stamp;
         _data = new AccountFile();
+        _newerVersion = null;
         if (stamp == DateTime.MinValue) return;
+        string text;
+        try { text = File.ReadAllText(_file); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return; }
         try
         {
-            var read = JsonSerializer.Deserialize<AccountFile>(File.ReadAllText(_file), s_json);
-            if (read is { Version: 1 })
-            {
-                _data = read;
-                _data.Accounts ??= [];
-                _data.Bindings ??= new(StringComparer.Ordinal);
-            }
+            // The version first: a newer format may not parse as this one.
+            using (var probe = JsonDocument.Parse(text))
+                if (probe.RootElement.ValueKind == JsonValueKind.Object && probe.RootElement.TryGetProperty("version", out var v)
+                    && v.TryGetInt32(out var version) && version > CurrentVersion)
+                {
+                    // Written by a newer Toucan: shown as having no accounts here, and never replaced.
+                    _newerVersion = version;
+                    return;
+                }
+            var read = JsonSerializer.Deserialize<AccountFile>(text, s_json) ?? throw new JsonException("The file is empty.");
+            _data = read;
+            _data.Accounts ??= [];
+            _data.Bindings ??= new(StringComparer.Ordinal);
         }
-        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
+        catch (JsonException)
         {
-            // An unreadable file behaves as empty and is replaced on the next change.
+            // Unreadable: set it aside (the credentials it names stay in the secret store), then start empty.
+            var aside = $"{_file}.corrupt-{DateTime.UtcNow:yyyyMMddHHmmss}";
+            try { File.Move(_file, File.Exists(aside) ? aside + "-" + Guid.NewGuid().ToString("N")[..6] : aside); }
+            catch (IOException) { }
+            _stamp = DateTime.MinValue;
         }
     }
 
     private void Write()
     {
+        if (_newerVersion is { } version)
+            throw new InvalidOperationException($"accounts.json was saved by a newer Toucan (version {version}; this version writes {CurrentVersion}). Update Toucan to change accounts.");
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(_file))!);
         var temp = _file + ".tmp";
         File.WriteAllText(temp, JsonSerializer.Serialize(_data, s_json));

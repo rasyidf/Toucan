@@ -1,14 +1,14 @@
 ---
 title: "Toucan source protocol"
-status: draft
-updated: 2026-11-05
+status: active
+updated: 2026-11-26
 summary: "A small REST contract for a string service Toucan can sync with: ETag revisions, cursor pagination, idempotent operations, a delta endpoint and one error format."
 ---
 # Toucan source protocol
 
 This is the contract behind the built-in `toucan.sources.rest` adapter. A team with its own string service implements the server side and needs no plugin. The machine-readable form is [source-protocol.openapi.yaml](source-protocol.openapi.yaml). A runnable reference server is in `samples/Toucan.Sample.SourceServer`; the conformance suite in `Toucan.Plugins.Testing` runs against it in CI.
 
-Version: `v1`. All paths start with `/v1`. Bodies are JSON in UTF-8. Every request carries `Authorization: Bearer <token>`. Toucan sends HTTPS only (HTTP to a loopback address is allowed for local servers).
+Version: `v1`, frozen with Toucan 1.0 (see [compatibility](compatibility.md)). All paths start with `/v1`. Bodies are JSON in UTF-8. Every request carries `Authorization: Bearer <token>`. Toucan sends HTTPS only (HTTP to a loopback address is allowed for local servers).
 
 ## Model
 

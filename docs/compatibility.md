@@ -1,0 +1,61 @@
+---
+title: "Compatibility, migration and downgrade policy"
+status: active
+updated: 2026-11-26
+summary: "What Toucan 1.0 freezes (plugin API, project and user files, sync state, source protocol), how files move forward, and what an older Toucan does with a file from a newer one."
+---
+# Compatibility, migration and downgrade policy
+
+Toucan 1.0 freezes the contracts below. Within 1.x they only grow: fields, members and endpoints may be added, nothing is removed or changes meaning. A change that an older build would misread raises that file's version, and older builds then refuse the file instead of overwriting it.
+
+## Frozen contracts
+
+| Contract | Where | Version marker | Guarded by |
+|---|---|---|---|
+| Plugin API | `Toucan.Plugins.Abstractions` 1.3, `Toucan.Plugins.Testing` 1.3, `Toucan.Plugins.Avalonia` 1.0 | package version, `PluginApi.Current` | `docs/api/*.txt` baselines, `PublicApiTests` |
+| Project manifest | `toucan.tproj` | `manifestVersion` (1; absent means 1) | [toucan.tproj.schema.json](toucan.tproj.schema.json), `ContractFileTests` |
+| Workspace sidecars | `.toucan/workspace-identities.json`, `.toucan/entries/*.json` | `SchemaVersion` (1) | `WorkspaceMetadataCodec` |
+| Review history | `.toucan/review-history.jsonl` | one JSON event per line; unknown fields ignored | `ReviewHistoryTests` |
+| Accounts | `accounts.json` in the user's Toucan folder | `version` (1) | `ContractFileTests` |
+| Sync state | `.toucan/local/sources/<connection>/baseline.json`, `journal.json` | `Schema` (1) | `ContractFileTests`, `SourceMigrationTests` |
+| App settings | `settings.json` in the user's Toucan folder | none; unknown settings are kept | `AppOptions` |
+| Source protocol | `/v1` REST contract | path prefix | [source-protocol.md](source-protocol.md), the conformance suite |
+
+The BabelEdit-shaped manifest written by the BabelEdit converters is a separate, older contract described by [toucan.project.schema.json](toucan.project.schema.json); it is read for import and not frozen further.
+
+## Plugin API
+
+- Within 1.x: new types, new members with default implementations on interfaces, new optional parameters only through new overloads, and new enum values at the end. Plugins built against any 1.x package keep loading.
+- Not within 1.x: removing or renaming anything public, changing a signature, or changing what a member means. Such a change is 2.0.
+- Every change to the public surface updates the baseline in `docs/api/` in the same commit (`TOUCAN_UPDATE_DOCS=1`), bumps the package's minor version and `PluginApi.Current`, and gets a changelog line.
+- Some contract types live in `Toucan.Core.*` namespaces for historical reasons. They are part of the frozen surface under those names.
+
+## Files: moving forward
+
+- Toucan reads every file version it ever wrote and upgrades it in memory. It writes the new version only when it saves that file for another reason, so opening a project never rewrites it.
+- Fields added within a version are optional. An older build ignores them and, for `toucan.tproj` and `settings.json`, keeps them when it saves.
+- Projects that used the full-rewrite save move to document saving (only edited entries change) when Toucan recognizes their framework and the languages they saved approvals for match the files' languages. Otherwise they keep saving as before, so approvals and comments stay attached.
+
+## Files: going back (downgrade)
+
+An older Toucan never overwrites a file a newer Toucan wrote in a format it does not understand:
+
+| File | What an older build does |
+|---|---|
+| `toucan.tproj` with a higher `manifestVersion` | Refuses to open the project and says to update Toucan. |
+| `.toucan/` sidecars with a higher schema | Refuses to open the project and says to update Toucan. |
+| `accounts.json` with a higher `version` | Shows no accounts and refuses to change them; the file stays as it is. |
+| Sync baseline or journal with a higher schema | Sets the file aside as `*.corrupt-<time>` and plans the next sync as a first sync, which asks before merging anything. |
+| `settings.json` | Uses the settings it knows and keeps the rest. |
+
+A damaged file is never treated as missing. `toucan.tproj` is reported and left untouched; `accounts.json`, `settings.json` and sync state are set aside as `*.corrupt-<time>` before a new one is written. Credentials stay in the system keychain or secret store.
+
+Before trying an older version on a real project, commit it or copy the folder: downgrade is protected against overwrites, not tested as a supported workflow.
+
+## Source protocol
+
+`/v1` is frozen. Responses may gain optional fields, and clients must ignore what they do not know. New operation types appear only behind a new `permissions` flag. A breaking change gets a new path prefix (`/v2`) and Toucan keeps speaking `/v1`.
+
+## Supported upgrade paths
+
+Projects and settings from 0.23.0, 0.24.0, 0.25.0 and 0.26.0 open in 1.0 with their approvals, comments, review state and connections. The milestones 0.27 to 0.29 shipped inside 0.26.0. Fixtures written by those releases are in `tests/fixtures/releases/` and the migration tests open each one.

@@ -132,12 +132,12 @@ Items marked **(you)** need the maintainer: a product decision, an account, mone
 
 #### 2. Freeze contracts (G4)
 
-- [ ] V1-20 Review plugin API 1.3 (`Toucan.Plugins.Abstractions`, including `Sources/`) and add a public-API baseline test so any change fails CI.
-- [ ] V1-21 Review and freeze the `toucan.tproj` schema (`docs/toucan.project.schema.json`) with a schema version field.
-- [ ] V1-22 Review and freeze `accounts.json`.
-- [ ] V1-23 Review and freeze the sync state files (`baseline.json`, `journal.json`) and their schema version.
-- [ ] V1-24 Review and freeze the Toucan source protocol (`source-protocol.md`, OpenAPI) as 1.0.
-- [ ] V1-25 Write `docs/compatibility.md`: what is frozen, how each file migrates forward, what an older build does with a newer file (set aside, never overwritten), backup before migration, and the supported downgrade path.
+- [x] V1-20 Review plugin API 1.3 (`Toucan.Plugins.Abstractions`, including `Sources/`) and add a public-API baseline test so any change fails CI. Done: baselines for the three plugin packages in `docs/api/` (`PublicApiTests`). Review notes: 238 public types in Abstractions; 98 of them sit in `Toucan.Core.*` namespaces for historical reasons and are frozen under those names; nothing is obsolete. **(you)** confirm the content-source types (`Toucan.Plugins.Sources`, 94 types, one preview connector so far) are frozen with the rest rather than kept as preview in 1.x.
+- [x] V1-21 Review and freeze the `toucan.tproj` schema (`docs/toucan.project.schema.json`) with a schema version field. Done: `manifestVersion` (absent = 1); a newer version is refused; a damaged manifest is reported instead of being treated as missing and overwritten (it was); the app manifest's schema is generated as `docs/toucan.tproj.schema.json`. The older `toucan.project.schema.json` describes the BabelEdit-shaped manifest and stays.
+- [x] V1-22 Review and freeze `accounts.json`. Done: a newer `version` is left untouched and read-only (it used to be emptied on the next change); a damaged file is set aside. `settings.json` got the same protection and keeps unknown settings.
+- [x] V1-23 Review and freeze the sync state files (`baseline.json`, `journal.json`) and their schema version. Already safe: a newer or damaged file is set aside and the next sync is planned as a first sync. They use PascalCase keys unlike the other files; frozen as they are.
+- [x] V1-24 Review and freeze the Toucan source protocol (`source-protocol.md`, OpenAPI) as 1.0. Done: `/v1` marked frozen; its additive-only rule already covered compatibility.
+- [x] V1-25 Write `docs/compatibility.md`: what is frozen, how each file migrates forward, what an older build does with a newer file (set aside, never overwritten), backup before migration, and the supported downgrade path.
 - [ ] V1-26 Migration tests from fixtures: projects and settings written by each released preview (0.23.0, 0.24.0, 0.25.0, 0.26.0). The v0.27–v0.29 milestones shipped inside the 0.26.0 tag, so 0.26.0 fixtures cover sources, accounts and sync state.
 - [ ] V1-27 Review state, review history and recovery files included in V1-26.
 
