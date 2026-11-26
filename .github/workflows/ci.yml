@@ -43,6 +43,9 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Build
         run: dotnet build Toucan.slnx --configuration Release
       - name: Test
@@ -51,9 +54,32 @@ jobs:
       - name: Test with coverage
         if: ${{ inputs.coverage }}
         run: dotnet test Toucan.slnx --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults --logger trx
-      - uses: actions/setup-python@v5
+      # Test reports for every OS, also when a test failed: JUnit XML, a table in the job summary, and an evidence record
+      # (docs/evidence/README.md) written by the same script people run by hand, which also keeps that script working on each OS.
+      - name: Report test results
+        if: ${{ always() }}
+        shell: bash
+        run: python tools/trx_report.py TestResults --junit TestResults/junit.xml --json TestResults/counts.json --markdown "$GITHUB_STEP_SUMMARY" --title "Tests on ${{ matrix.os }}"
+      - name: Write evidence record (macOS, Linux)
+        if: ${{ always() && runner.os != 'Windows' }}
+        shell: bash
+        run: tools/record-evidence.sh tests --from-results TestResults --no-commit --notes "CI ${{ github.workflow }} run ${{ github.run_id }}"
+      - name: Write evidence record (Windows)
+        if: ${{ always() && runner.os == 'Windows' }}
+        shell: pwsh
+        run: ./tools/record-evidence.ps1 tests -FromResults TestResults -NoCommit -Notes "CI ${{ github.workflow }} run ${{ github.run_id }}"
+      - name: Upload test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
         with:
-          python-version: '3.12'
+          name: test-results-${{ matrix.os }}
+          path: |
+            TestResults/**/*.trx
+            TestResults/junit.xml
+            TestResults/counts.json
+            docs/evidence/*/*.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Publish and verify spelling source and notices
         run: |
           dotnet publish Toucan.Avalonia/Toucan.Avalonia.csproj --configuration Release --no-restore -p:UseAppHost=false -o build/release-gate -m:1
@@ -69,7 +95,6 @@ jobs:
           path: |
             build/spelling-artifacts.json
             build/macos/spelling-artifacts.json
-            TestResults/**/*.trx
           if-no-files-found: ignore
           retention-days: 3
       - name: Upload coverage

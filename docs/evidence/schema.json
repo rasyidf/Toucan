@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Toucan verification record",
+  "description": "One check of one commit on one machine, written by tools/record-evidence. See docs/evidence/README.md.",
+  "type": "object",
+  "required": ["schema", "check", "kind", "result", "commit", "version", "os", "environment", "recordedAt", "recordedBy"],
+  "properties": {
+    "schema": { "const": 1 },
+    "check": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "description": "tests, or a hand check such as screen-reader, gatekeeper, installer, keyring, packaged-flow" },
+    "kind": { "enum": ["automated", "manual"] },
+    "result": { "enum": ["passed", "failed"] },
+    "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$", "description": "The commit that was checked" },
+    "dirty": { "type": "boolean", "description": "The working tree had changes outside docs/evidence when the check ran" },
+    "version": { "type": "string", "description": "App version from Directory.Build.props" },
+    "os": {
+      "type": "object",
+      "required": ["family", "version", "arch"],
+      "properties": {
+        "family": { "enum": ["macOS", "Windows", "Linux"] },
+        "version": { "type": "string" },
+        "arch": { "type": "string" }
+      }
+    },
+    "environment": { "enum": ["native", "wsl", "vm", "ci"], "description": "WSL does not count for packaged builds or the keyring" },
+    "packaged": { "type": "boolean", "description": "The check ran against an installed or packaged build" },
+    "command": { "type": ["string", "null"] },
+    "counts": {
+      "type": ["object", "null"],
+      "properties": {
+        "total": { "type": "integer" }, "passed": { "type": "integer" }, "failed": { "type": "integer" }, "skipped": { "type": "integer" }
+      }
+    },
+    "notes": { "type": "string" },
+    "recordedAt": { "type": "string", "format": "date-time" },
+    "recordedBy": { "type": "string" },
+    "ciRun": { "type": ["string", "null"], "format": "uri" }
+  }
+}
