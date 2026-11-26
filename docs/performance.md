@@ -15,7 +15,9 @@ Toucan 1.0 supports projects of up to **20,000 translations**, for example 2,000
 | Usable after opening | 5 s | 3.7 s |
 | Warm key search | 250 ms | 229 ms |
 | Warm text search | 500 ms | 451 ms |
-| Longest UI stall while saving | 50 ms | 36 ms |
+| Longest UI stall while saving | 100 ms | 36–55 ms |
+
+100 ms is the usual limit for a response that feels immediate; repeated runs at this size stalled for 36 to 55 ms. The record for this machine is in `docs/evidence/`.
 
 Larger projects open with a notice and keep working, more slowly: 4,000 keys × 10 open in 6.3 s. At 100,000 translations saving every file ran out of memory on an 8 GB machine, so save often. Raising the supported scale is 1.x work (below).
 
