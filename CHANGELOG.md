@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+- **Update notice on startup** — Toucan looks for a newer release on your channel when it starts (at most once a day) and says so, with a button that opens the release page. Nothing is downloaded or installed. Turn it off in Settings → About. A release candidate is now told when its final release is out.
+- **Installers and Linux packages** — Releases are built from their tag with a Windows installer next to the portable ZIP, `.deb` and `.rpm` packages and a tarball for Linux on x64 and arm64, and DMGs for Apple silicon and Intel Macs, each with SHA-256 checksums. See [installing Toucan](docs/install.md).
+- **`Toucan --self-check`** — Checks without opening a window that an installed Toucan starts and reads a project; used on every package before a release.
+
 ### Changed
 - **Flutter ARB files keep their layout** — Saving a Flutter project now changes only the messages, descriptions and placeholders you edited; key order, indentation, `@@` headers and unknown `@key` fields stay as they were. Descriptions stay in `@key.description`, so `gen-l10n` keeps them as doc comments, and an `.arb` edited outside Toucan wins over what Toucan remembered. Renaming a message moves its `@key` block with it. Folders with `.arb` files open this way on their own, and projects saved by earlier versions keep their approvals. New language files follow the project's naming (`intl_de.arb` beside `intl_en.arb`).
 - **Java .properties files keep their layout** — Java resource bundles (`messages.properties`, `messages_fr.properties`, `messages_fr_CA.properties`) now open as a Java (ResourceBundle) project and save only the entries you edited: comments, blank lines, separators, line continuations and escapes stay. ISO-8859-1 files stay ISO-8859-1, with characters it cannot hold written as `\uXXXX`. Locales come from the file names (`fr-CA`), and the base bundle is the `default` language. Projects saved by earlier versions whose language names differ (the base bundle as `messages`, `fr_CA` as `CA`) keep the previous saving, so their approvals stay attached.

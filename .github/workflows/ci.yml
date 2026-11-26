@@ -20,6 +20,18 @@ on:
         description: Build all platform packages and attach them to the existing draft (does not publish)
         type: boolean
         default: false
+  # The release workflow runs the same test matrix before it builds packages.
+  workflow_call:
+    inputs:
+      platform:
+        type: string
+        default: all
+      coverage:
+        type: boolean
+        default: false
+      release_packages:
+        type: boolean
+        default: false
 
 permissions:
   contents: read

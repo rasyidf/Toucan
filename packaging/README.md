@@ -1,7 +1,7 @@
 ---
 title: "Toucan Packaging"
 status: active
-updated: 2026-10-26
+updated: 2026-11-26
 summary: "Manual native draft packages, Windows packaging, verified macOS bundle resources and signing, output layout and build evidence retention."
 ---
 # Toucan Packaging
@@ -23,6 +23,16 @@ Run Windows packaging through one of these commands (Python 3.9+ and the .NET SD
 `installer` needs Inno Setup 6 or 7 and creates `dist/ToucanSetup-<version>.exe`. Missing packaging tools cause failure rather than a successful-looking skipped package. `all` runs all three targets and requires both Inno Setup and the Windows SDK.
 
 Windows staging folders live in ignored `build/publish/`; final Windows packages live in ignored `dist/`. App and installer versions come from `Directory.Build.props`.
+
+## Releases from a tag
+
+Pushing a tag `v<version>` (matching `Directory.Build.props`) runs `.github/workflows/release.yml`: it checks the evidence records ([release checklist](../docs/release-checklist.md)), runs the CI test matrix, builds every package below, runs `Toucan --self-check` on each, and attaches them with `SHA256SUMS.txt` to a draft release. A tag with a pre-release label (`v1.0.0-rc.1`) needs only the test records and may be ad-hoc signed on macOS; a final release needs every record and the signing secrets in [release signing](../docs/release-signing.md).
+
+| Package | Built by |
+|---|---|
+| `Toucan-<v>-portable-x64.zip`, `ToucanSetup-<v>.exe` | `packaging/publish.ps1 portable` and `installer` (Inno Setup) |
+| `Toucan-<v>-linux-{x64,arm64}.tar.gz`, `toucan_<v>_{amd64,arm64}.deb`, `toucan-<v>-1.{x86_64,aarch64}.rpm` | `packaging/build-linux-packages.sh linux-x64` and `linux-arm64` (needs `dpkg-deb` and `rpmbuild`) |
+| `Toucan-<v>-osx-{arm64,x64}.dmg` | `packaging/build-macos-app.sh` |
 
 ## Build the existing release draft on native runners
 

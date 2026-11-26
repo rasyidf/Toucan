@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Toucan
+GenericName=Translation Editor
+Comment=Edit, review and sync localization files
+Exec=toucan %F
+Icon=toucan
+Terminal=false
+Categories=Development;Translation;
+MimeType=application/x-toucan-project;
+Keywords=localization;translation;i18n;l10n;
+StartupWMClass=Toucan

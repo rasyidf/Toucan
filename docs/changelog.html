@@ -132,8 +132,14 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="changed">7 changed</span><span class="fixed">8 fixed</span></div>
-<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Changed</h3>
+<div class="release-counts"><span class="added">3 added</span><span class="changed">7 changed</span><span class="fixed">8 fixed</span></div>
+<details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
+<ul>
+<li><strong>Update notice on startup</strong> — Toucan looks for a newer release on your channel when it starts (at most once a day) and says so, with a button that opens the release page. Nothing is downloaded or installed. Turn it off in Settings → About. A release candidate is now told when its final release is out.</li>
+<li><strong>Installers and Linux packages</strong> — Releases are built from their tag with a Windows installer next to the portable ZIP, <code>.deb</code> and <code>.rpm</code> packages and a tarball for Linux on x64 and arm64, and DMGs for Apple silicon and Intel Macs, each with SHA-256 checksums. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/install.md">installing Toucan</a>.</li>
+<li><strong><code>Toucan --self-check</code></strong> — Checks without opening a window that an installed Toucan starts and reads a project; used on every package before a release.</li>
+</ul>
+<h3>Changed</h3>
 <ul>
 <li><strong>Flutter ARB files keep their layout</strong> — Saving a Flutter project now changes only the messages, descriptions and placeholders you edited; key order, indentation, <code>@@</code> headers and unknown <code>@key</code> fields stay as they were. Descriptions stay in <code>@key.description</code>, so <code>gen-l10n</code> keeps them as doc comments, and an <code>.arb</code> edited outside Toucan wins over what Toucan remembered. Renaming a message moves its <code>@key</code> block with it. Folders with <code>.arb</code> files open this way on their own, and projects saved by earlier versions keep their approvals. New language files follow the project&#x27;s naming (<code>intl_de.arb</code> beside <code>intl_en.arb</code>).</li>
 <li><strong>Java .properties files keep their layout</strong> — Java resource bundles (<code>messages.properties</code>, <code>messages_fr.properties</code>, <code>messages_fr_CA.properties</code>) now open as a Java (ResourceBundle) project and save only the entries you edited: comments, blank lines, separators, line continuations and escapes stay. ISO-8859-1 files stay ISO-8859-1, with characters it cannot hold written as <code>\uXXXX</code>. Locales come from the file names (<code>fr-CA</code>), and the base bundle is the <code>default</code> language. Projects saved by earlier versions whose language names differ (the base bundle as <code>messages</code>, <code>fr_CA</code> as <code>CA</code>) keep the previous saving, so their approvals stay attached.</li>

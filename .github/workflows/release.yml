@@ -1,0 +1,254 @@
+name: Release
+
+# Pushing a tag v<version> builds every package from that commit, checks each one starts (--self-check), and attaches them
+# with SHA256SUMS.txt to a draft GitHub release. Publishing the draft stays a manual step. See docs/release-checklist.md.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify version and evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Tag matches the build version
+        id: version
+        shell: bash
+        run: |
+          version=$(python -c "import xml.etree.ElementTree as E; print(E.parse('Directory.Build.props').findtext('.//Version'))")
+          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match Directory.Build.props version ${version}."
+            exit 1
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          if [[ "$version" == *-* ]]; then echo "prerelease=true" >> "$GITHUB_OUTPUT"; else echo "prerelease=false" >> "$GITHUB_OUTPUT"; fi
+          echo "Releasing ${version}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Evidence for this commit
+        shell: bash
+        run: |
+          # A release candidate needs the test records per OS; a release needs every record in docs/release-checklist.md.
+          if [ "${{ steps.version.outputs.prerelease }}" = "true" ]; then scope=--only-tests; else scope=; fi
+          python tools/check-evidence.py --commit "$GITHUB_SHA" $scope | tee -a "$GITHUB_STEP_SUMMARY"
+
+  test:
+    needs: verify
+    uses: ./.github/workflows/ci.yml
+    with:
+      platform: all
+
+  package-windows:
+    needs: [verify, test]
+    name: Package (win-x64)
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          if (-not (Get-Command iscc -ErrorAction SilentlyContinue) -and -not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) {
+            choco install innosetup --no-progress -y
+          }
+      - name: Portable ZIP and installer
+        shell: pwsh
+        run: |
+          ./packaging/publish.ps1 portable
+          ./packaging/publish.ps1 installer
+      # Unsigned for 1.0 (decided 2026-11-26); SmartScreen asks once, see docs/install.md. A signing step would go here.
+      - name: Self-check the published app
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath build/publish/win-x64/Toucan.exe -ArgumentList '--self-check' -Wait -PassThru -NoNewWindow -RedirectStandardOutput self-check.txt
+          Get-Content self-check.txt
+          if ($p.ExitCode -ne 0) { throw "Self-check failed ($($p.ExitCode))." }
+      - name: Install, self-check and uninstall
+        shell: pwsh
+        run: |
+          $version = '${{ needs.verify.outputs.version }}'
+          $setup = Start-Process -FilePath "dist/ToucanSetup-$version.exe" -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/CURRENTUSER', '/DIR=C:\ToucanTest' -Wait -PassThru
+          if ($setup.ExitCode -ne 0) { throw "Installer failed ($($setup.ExitCode))." }
+          $p = Start-Process -FilePath C:\ToucanTest\Toucan.exe -ArgumentList '--self-check' -Wait -PassThru -NoNewWindow -RedirectStandardOutput installed.txt
+          Get-Content installed.txt
+          if ($p.ExitCode -ne 0) { throw "Installed self-check failed ($($p.ExitCode))." }
+          $u = Start-Process -FilePath C:\ToucanTest\unins000.exe -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES' -Wait -PassThru
+          if ($u.ExitCode -ne 0) { throw "Uninstall failed ($($u.ExitCode))." }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-win-x64
+          path: |
+            dist/Toucan-*-portable-x64.zip
+            dist/ToucanSetup-*.exe
+          if-no-files-found: error
+          retention-days: 7
+
+  package-linux:
+    needs: [verify, test]
+    name: Package (${{ matrix.rid }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-24.04, rid: linux-x64, deb: amd64 }
+          - { os: ubuntu-24.04-arm, rid: linux-arm64, deb: arm64 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Packaging tools
+        run: sudo apt-get update -q && sudo apt-get install -y -q rpm
+      - name: Tarball, .deb and .rpm
+        run: bash packaging/build-linux-packages.sh ${{ matrix.rid }} dist
+      - name: Install the .deb, self-check and remove
+        run: |
+          sudo apt-get install -y -q ./dist/toucan_${{ needs.verify.outputs.version }}_${{ matrix.deb }}.deb
+          toucan --self-check
+          test -f /usr/share/applications/toucan.desktop
+          sudo apt-get remove -y -q toucan
+          test ! -e /usr/bin/toucan
+      - name: Check the .rpm contents
+        run: |
+          rpm -qip dist/toucan-*.rpm
+          rpm -qlp dist/toucan-*.rpm | grep -qx /usr/bin/toucan
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.rid }}
+          path: |
+            dist/Toucan-*-${{ matrix.rid }}.tar.gz
+            dist/toucan_*_${{ matrix.deb }}.deb
+            dist/toucan-*.rpm
+          if-no-files-found: error
+          retention-days: 7
+
+  package-macos:
+    needs: [verify, test]
+    name: Package (${{ matrix.rid }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-latest, rid: osx-arm64 }
+          - { os: macos-15-intel, rid: osx-x64 }
+    env:
+      HAS_SIGNING: ${{ secrets.MACOS_CERTIFICATE_P12 != '' && secrets.APPLE_API_KEY_P8 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Final releases are signed and notarized
+        if: ${{ needs.verify.outputs.prerelease != 'true' && env.HAS_SIGNING != 'true' }}
+        run: |
+          echo "::error::A final release needs the macOS signing secrets (docs/release-signing.md)."
+          exit 1
+      # Developer ID certificate in a throwaway keychain, and an App Store Connect API key for notarytool.
+      - name: Signing keychain
+        if: ${{ env.HAS_SIGNING == 'true' }}
+        env:
+          MACOS_CERTIFICATE_P12: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: |
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          password="$(uuidgen)"
+          security create-keychain -p "$password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          echo "$MACOS_CERTIFICATE_P12" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          security import "$RUNNER_TEMP/certificate.p12" -k "$keychain" -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          rm "$RUNNER_TEMP/certificate.p12"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$keychain" >/dev/null
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          security default-keychain -s "$keychain"
+          echo "$APPLE_API_KEY_P8" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
+          xcrun notarytool store-credentials toucan-notary --key "$RUNNER_TEMP/AuthKey.p8" --key-id "$APPLE_API_KEY_ID" --issuer "$APPLE_API_ISSUER" --keychain "$keychain"
+          rm "$RUNNER_TEMP/AuthKey.p8"
+      - name: App and DMG
+        env:
+          RID: ${{ matrix.rid }}
+          SIGN_IDENTITY: ${{ env.HAS_SIGNING == 'true' && secrets.MACOS_SIGN_IDENTITY || '' }}
+          NOTARY_PROFILE: ${{ env.HAS_SIGNING == 'true' && 'toucan-notary' || '' }}
+        run: |
+          bash packaging/build-macos-app.sh "$PWD/build/macos" "$RID"
+          mkdir -p dist
+          cp build/macos/*.dmg dist/
+      - name: Self-check the app
+        run: build/macos/Toucan.app/Contents/MacOS/Toucan --self-check
+      - name: Gatekeeper accepts the app
+        if: ${{ env.HAS_SIGNING == 'true' }}
+        run: |
+          spctl --assess --type execute --verbose=2 build/macos/Toucan.app
+          xcrun stapler validate build/macos/Toucan.app
+      - name: Remove the signing keychain
+        if: ${{ always() && env.HAS_SIGNING == 'true' }}
+        run: security delete-keychain "$RUNNER_TEMP/signing.keychain-db" || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.rid }}
+          path: dist/*.dmg
+          if-no-files-found: error
+          retention-days: 7
+
+  draft:
+    needs: [verify, package-windows, package-linux, package-macos]
+    name: Draft release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+      - name: Check the package set and write checksums
+        run: python tools/release_assets.py dist "${{ needs.verify.outputs.version }}" --notes "$RUNNER_TEMP/notes.md"
+      - name: Create the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          flags=(--draft --title "Toucan ${{ needs.verify.outputs.version }}" --notes-file "$RUNNER_TEMP/notes.md" --verify-tag)
+          if [ "${{ needs.verify.outputs.prerelease }}" = "true" ]; then flags+=(--prerelease); fi
+          gh release create "$GITHUB_REF_NAME" "${flags[@]}" dist/*
+          echo "Draft release created for $GITHUB_REF_NAME; publish it on GitHub after the checklist." >> "$GITHUB_STEP_SUMMARY"

@@ -15,10 +15,9 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | ID | Severity | Area | Problem | Checked |
 |----|----------|------|---------|---------|
 | [MIG-02](#mig-02) | Low | Migration | A project from an earlier version opens with unsaved changes, so closing it asks to save | Reproduced |
-| [REL-01](#rel-01) | Medium | Release | No tag-triggered release pipeline; draft packaging requires manual dispatch | Reproduced |
+| [REL-01](#rel-01) | Medium | Release | Tag-triggered release workflow is written but has not run yet | From workflow |
 | [REL-02](#rel-02) | Medium | Release | macOS app is ad-hoc signed and not notarized | From docs and script |
-| [REL-03](#rel-03) | Low | Release | Update check is manual only: no check on startup, no download or install | From code |
-| [REL-04](#rel-04) | Low | Release | Windows ships as a portable zip; no installer or MSIX in releases | From docs |
+| [REL-04](#rel-04) | Low | Release | Windows installer is built by the release workflow, which has not run yet; it is unsigned for 1.0 | From workflow |
 | [APP-01](#app-01) | Low | App | Source Control panel does not exist | Reproduced |
 | [APP-05](#app-05) | Medium | Integration | External connector and connection lifecycle acceptance remains unverified | From code and available environment |
 | [QA-03](#qa-03) | Medium | Release acceptance | Native Windows accessibility checked on another machine; evidence not in repo. macOS/Linux assumed passed | Recorded by maintainer |
@@ -51,12 +50,11 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 ## Release and distribution
 
 <a id="rel-01"></a>
-### REL-01: No tag-triggered release pipeline
+### REL-01: Tag-triggered release not run yet
 
-- **Severity:** Medium · **Checked:** `.github/workflows/ci.yml` builds and tests on manual dispatch only. Linux is the default; select `all` for Windows, macOS and Linux. Documentation deployment is a separate manual workflow. Its explicit `release_packages` mode builds native packages and attaches a complete set to an existing preview draft.
-- **State:** CI has an opt-in manual packaging mode using `packaging/publish.ps1`, `packaging/build-macos-app.sh` and Linux `dotnet publish`. All four packages must succeed before draft attachment; the release stays unpublished. Tag-triggered release automation remains planned for v0.30.
-- **Impact:** maintainers must dispatch packaging, run regression CI separately, and review acceptance evidence before publishing. No tag automatically prepares or publishes a release.
-- **Fix direction:** FG-01 and FG-16 in [docs/todos/future-roadmap.md](todos/future-roadmap.md): CI is complete; the remaining work is the v0.30 tag-triggered release workflow that builds all packages and attaches them to the GitHub release.
+- **Severity:** Medium · **Checked:** `.github/workflows/release.yml` (2026-11-26).
+- **State:** pushing a tag `v<version>` checks the tag against `Directory.Build.props` and the evidence records, runs the CI test matrix, builds the Windows ZIP and installer, Linux `.tar.gz`, `.deb` and `.rpm` (x64 and arm64) and macOS DMGs (arm64 and x64), runs `--self-check` on each (the Windows installer and the `.deb` are installed, checked and removed), and attaches everything with `SHA256SUMS.txt` to a draft release. It has not run on GitHub yet, and `packaging/build-linux-packages.sh` has not run anywhere.
+- **Fix direction:** push a release-candidate tag (`v1.0.0-rc.1`) once the test records exist, and fix what the first run finds.
 
 <a id="rel-02"></a>
 ### REL-02: macOS app is not notarized
@@ -64,21 +62,14 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 - **Severity:** Medium · **Checked:** README and `packaging/build-macos-app.sh`.
 - **State:** the build is ad-hoc signed. The script already signs with a Developer ID and notarizes when `SIGN_IDENTITY` and `NOTARY_PROFILE` are set, but no such identity is configured.
 - **Impact:** Gatekeeper blocks the first launch ("could not verify"). Users must use Open Anyway or clear the quarantine flag. This is documented in the README but costs installs.
-- **Fix direction:** an Apple Developer ID and a notary profile stored as CI secrets (needs REL-01).
-
-<a id="rel-03"></a>
-### REL-03: No auto-updater; the update check is manual
-
-- **Severity:** Low · **Checked:** since v0.20.0, Settings → About has a release channel (Stable or Preview) and a Check for updates button (`UpdateService`, GitHub Releases API). Nothing checks on startup, and nothing downloads or installs.
-- **Impact:** users who never open About may miss updates.
-- **Fix direction:** FG-02, planned for v0.30: check on startup (off / notify / auto-install), then download and apply. Depends on REL-01 and signing (REL-02).
+- **Fix direction:** the release workflow signs and notarizes when the secrets in [release signing](release-signing.md) exist, and refuses a final release without them. Waiting on the maintainer's Apple Developer account.
 
 <a id="rel-04"></a>
-### REL-04: Windows has no installer
+### REL-04: Windows installer not built by CI yet
 
-- **Severity:** Low · **Checked:** v0.24.0 packaging scripts and local ZIP/MSIX output; GitHub draft asset preparation.
-- **State:** Windows portable ZIP and unsigned MSIX packaging output exist for v0.24.0. The portable ZIP is the distributable package; MSIX signing/trusted installation and the Inno Setup installer still need acceptance. See [packaging](../packaging/README.md).
-- **Fix direction:** run both against the current build, fix what breaks, then publish an installer with each release (part of REL-01).
+- **Severity:** Low · **Checked:** release workflow and `packaging/installer.iss`.
+- **State:** the release workflow builds the Inno Setup installer next to the portable ZIP, installs it silently, runs `--self-check` and uninstalls it. Toucan 1.0 ships unsigned on Windows (decided 2026-11-26), so SmartScreen asks once; [install.md](install.md) shows the steps. MSIX is not part of releases.
+- **Fix direction:** confirm on the first release-candidate run; record `install-upgrade@Windows` by hand.
 
 ---
 
