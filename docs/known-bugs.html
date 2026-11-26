@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Known Issues &amp; Unfinished Features</title>
-<meta name="description" content="Open issues in release distribution, Source Control, external connectors and platform acceptance.">
+<meta name="description" content="Open issues in migration from earlier versions, release distribution, Source Control, external connectors and platform acceptance.">
 <link rel="canonical" href="https://toucan.rasyid.dev/known-bugs.html">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,19 +15,19 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Known Issues &amp; Unfinished Features">
-<meta property="og:description" content="Open issues in release distribution, Source Control, external connectors and platform acceptance.">
+<meta property="og:description" content="Open issues in migration from earlier versions, release distribution, Source Control, external connectors and platform acceptance.">
 <meta property="og:url" content="https://toucan.rasyid.dev/known-bugs.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Known Issues &amp; Unfinished Features">
-<meta name="twitter:description" content="Open issues in release distribution, Source Control, external connectors and platform acceptance.">
+<meta name="twitter:description" content="Open issues in migration from earlier versions, release distribution, Source Control, external connectors and platform acceptance.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Toucan \u00b7 Known Issues & Unfinished Features",
-  "description": "Open issues in release distribution, Source Control, external connectors and platform acceptance.",
+  "description": "Open issues in migration from earlier versions, release distribution, Source Control, external connectors and platform acceptance.",
   "url": "https://toucan.rasyid.dev/known-bugs.html",
   "publisher": {
     "@type": "Organization",
@@ -96,25 +96,43 @@
 <a href="completed-features.html">Shipped Features</a>
 <a href="known-bugs.html" aria-current="page">Known Issues &amp; Unfinished Features</a>
       </nav>
-      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#open-issues">Open issues</a><a class="l2" href="#format-bugs">Format bugs</a><a class="l2" href="#release-and-distribution">Release and distribution</a><a class="l2" href="#app-gaps">App gaps</a><a class="l2" href="#quality">Quality</a><a class="l2" href="#where-the-old-fixes-went">Where the old fixes went</a></nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#open-issues">Open issues</a><a class="l2" href="#format-bugs">Format bugs</a><a class="l2" href="#migration">Migration</a><a class="l2" href="#release-and-distribution">Release and distribution</a><a class="l2" href="#app-gaps">App gaps</a><a class="l2" href="#quality">Quality</a><a class="l2" href="#where-the-old-fixes-went">Where the old fixes went</a></nav>
     </aside>
     <article class="doc">
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Known Issues &amp; Unfinished Features</h1>
-        <p class="lead">Open issues in release distribution, Source Control, external connectors and platform acceptance.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-11-15</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/known-bugs.md">Edit on GitHub ↗</a></div>
+        <p class="lead">Open issues in migration from earlier versions, release distribution, Source Control, external connectors and platform acceptance.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-11-26</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/known-bugs.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <p>This file lists what is wrong <em>now</em>. Fixed bugs are not kept here: they are in <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md">CHANGELOG.md</a> (see <a href="#where-the-old-fixes-went">Where the old fixes went</a>). When a bug is fixed, delete its row and section here and add a <code>### Fixed</code> line to the changelog <code>[Unreleased]</code> section. Planned work for an ID is linked from <a href="roadmap.html">the roadmap</a> (REL, APP, QA); the roadmap does not describe it again. The WPF app is gone from <code>main</code> (source: branch <code>legacy/wpf</code>), so nothing here is about WPF.</p>
 <p><strong>How each issue was checked.</strong> "Reproduced" means the case was run through the real load and save strategies and the output is quoted. "From code" means the cause was identified in the source without running the case. Run the same cases again before fixing, and turn each repro into a test in <code>tests/Toucan.Core.Tests/Formats/</code>.</p>
 <h2 id="open-issues"><a class="anchor" href="#open-issues" aria-label="Link to this section">#</a>Open issues</h2>
-<div class="table-wrap"><table><thead><tr><th>ID</th><th>Severity</th><th>Area</th><th>Problem</th><th>Checked</th></tr></thead><tbody><tr><td><a href="#rel-01">REL-01</a></td><td>Medium</td><td>Release</td><td>No tag-triggered release pipeline; draft packaging requires manual dispatch</td><td>Reproduced</td></tr><tr><td><a href="#rel-02">REL-02</a></td><td>Medium</td><td>Release</td><td>macOS app is ad-hoc signed and not notarized</td><td>From docs and script</td></tr><tr><td><a href="#rel-03">REL-03</a></td><td>Low</td><td>Release</td><td>Update check is manual only: no check on startup, no download or install</td><td>From code</td></tr><tr><td><a href="#rel-04">REL-04</a></td><td>Low</td><td>Release</td><td>Windows ships as a portable zip; no installer or MSIX in releases</td><td>From docs</td></tr><tr><td><a href="#app-01">APP-01</a></td><td>Low</td><td>App</td><td>Source Control panel does not exist</td><td>Reproduced</td></tr><tr><td><a href="#app-05">APP-05</a></td><td>Medium</td><td>Integration</td><td>External connector and connection lifecycle acceptance remains unverified</td><td>From code and available environment</td></tr><tr><td><a href="#qa-03">QA-03</a></td><td>Medium</td><td>Release acceptance</td><td>Native Windows accessibility checked on another machine; evidence not in repo. macOS/Linux assumed passed</td><td>Recorded by maintainer</td></tr><tr><td><a href="#qa-04">QA-04</a></td><td>Low</td><td>Release acceptance</td><td>AI providers tested against stubbed HTTP only; no live-service run recorded</td><td>From tests</td></tr><tr><td><a href="#qa-02">QA-02</a></td><td>Info</td><td>Perf</td><td>Large-project performance has never been profiled</td><td>Not checked</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>Severity</th><th>Area</th><th>Problem</th><th>Checked</th></tr></thead><tbody><tr><td><a href="#mig-01">MIG-01</a></td><td>High</td><td>Migration</td><td>YAML and <code>.properties</code> projects saved by 0.23 do not open since 0.25</td><td>Reproduced</td></tr><tr><td><a href="#mig-02">MIG-02</a></td><td>Low</td><td>Migration</td><td>A project from an earlier version opens with unsaved changes, so closing it asks to save</td><td>Reproduced</td></tr><tr><td><a href="#rel-01">REL-01</a></td><td>Medium</td><td>Release</td><td>No tag-triggered release pipeline; draft packaging requires manual dispatch</td><td>Reproduced</td></tr><tr><td><a href="#rel-02">REL-02</a></td><td>Medium</td><td>Release</td><td>macOS app is ad-hoc signed and not notarized</td><td>From docs and script</td></tr><tr><td><a href="#rel-03">REL-03</a></td><td>Low</td><td>Release</td><td>Update check is manual only: no check on startup, no download or install</td><td>From code</td></tr><tr><td><a href="#rel-04">REL-04</a></td><td>Low</td><td>Release</td><td>Windows ships as a portable zip; no installer or MSIX in releases</td><td>From docs</td></tr><tr><td><a href="#app-01">APP-01</a></td><td>Low</td><td>App</td><td>Source Control panel does not exist</td><td>Reproduced</td></tr><tr><td><a href="#app-05">APP-05</a></td><td>Medium</td><td>Integration</td><td>External connector and connection lifecycle acceptance remains unverified</td><td>From code and available environment</td></tr><tr><td><a href="#qa-03">QA-03</a></td><td>Medium</td><td>Release acceptance</td><td>Native Windows accessibility checked on another machine; evidence not in repo. macOS/Linux assumed passed</td><td>Recorded by maintainer</td></tr><tr><td><a href="#qa-04">QA-04</a></td><td>Low</td><td>Release acceptance</td><td>AI providers tested against stubbed HTTP only; no live-service run recorded</td><td>From tests</td></tr><tr><td><a href="#qa-02">QA-02</a></td><td>Info</td><td>Perf</td><td>Large-project performance has never been profiled</td><td>Not checked</td></tr></tbody></table></div>
 <p>Severity: <strong>High</strong> loses or corrupts user data; <strong>Medium</strong> gives wrong results or blocks a release goal; <strong>Low</strong> is a gap or a cosmetic problem; <strong>Info</strong> is a known unknown.</p>
 <p>Suggested order: release work first (REL-01), then the rest.</p>
 <hr>
 <h2 id="format-bugs"><a class="anchor" href="#format-bugs" aria-label="Link to this section">#</a>Format bugs</h2>
 <p>None are tracked. What each format keeps and drops on save is in <a href="formats.html">formats.md</a>; the tests that guard it are <code>FormatFidelityFixtureTests</code>, <code>FormatStabilityTests</code>, <code>FormatBugRegressionTests</code> and <code>YamlFidelityTests</code> in <code>tests/Toucan.Core.Tests/Formats/</code>.</p>
+<hr>
+<h2 id="migration"><a class="anchor" href="#migration" aria-label="Link to this section">#</a>Migration</h2>
+<a id="mig-01"></a>
+<h3 id="mig-01-023-yaml-and-properties-projects-do-not-open"><a class="anchor" href="#mig-01-023-yaml-and-properties-projects-do-not-open" aria-label="Link to this section">#</a>MIG-01: 0.23 YAML and .properties projects do not open</h3>
+<ul>
+<li><strong>Severity:</strong> High · <strong>Checked:</strong> reproduced with projects saved by the real 0.23.0 code (<code>tests/fixtures/releases/0.23.0/projects/yaml</code> and <code>properties</code>, <code>ReleaseMigrationTests</code>).</li>
+<li><strong>State:</strong> 0.23 saved each language to a second file at the project root (<code>en.yaml</code> beside <code>config/locales/en.yml</code>, <code>en.properties</code> beside <code>src/main/resources/messages_en.properties</code>) and wrote edits only to that copy. Since 0.25 the workspace refuses an entry that appears twice in one language, so the project does not open ("A projection contains the same entry/language more than once"). 0.23 is the current public download.</li>
+<li><strong>Impact:</strong> users who saved such a project in 0.23 cannot open it in 0.25, 0.26 or 1.0. Nothing is lost: the files are untouched.</li>
+<li><strong>Workaround:</strong> keep the root copy (it has the edits made in 0.23), copy its values into the original file, delete the root copies, and open again.</li>
+<li><strong>Fix direction:</strong> detect the duplicated copies on open and offer to merge them into the original files, keeping the newer value per key and showing a preview. Needs a decision on which value wins when both changed.</li>
+</ul>
+<a id="mig-02"></a>
+<h3 id="mig-02-earlier-projects-open-with-unsaved-changes"><a class="anchor" href="#mig-02-earlier-projects-open-with-unsaved-changes" aria-label="Link to this section">#</a>MIG-02: Earlier projects open with unsaved changes</h3>
+<ul>
+<li><strong>Severity:</strong> Low · <strong>Checked:</strong> reproduced with the 0.23.0 JSON fixture.</li>
+<li><strong>State:</strong> opening a project from an earlier version upgrades it in memory (exact-resource mapping, comment sidecars) and marks it changed, so closing asks whether to save although nothing was edited. Opening itself writes nothing.</li>
+<li><strong>Fix direction:</strong> keep migration-only changes out of the unsaved state, or say in the prompt that the project format was updated.</li>
+</ul>
 <hr>
 <h2 id="release-and-distribution"><a class="anchor" href="#release-and-distribution" aria-label="Link to this section">#</a>Release and distribution</h2>
 <a id="rel-01"></a>

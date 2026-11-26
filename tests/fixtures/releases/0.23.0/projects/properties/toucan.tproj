@@ -1,0 +1,33 @@
+﻿{
+  "name": "properties",
+  "primaryLanguage": "en-US",
+  "languages": [
+    "fr",
+    "en"
+  ],
+  "saveFormat": "java-properties",
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "fr",
+          "path": "fr.properties"
+        },
+        {
+          "language": "en",
+          "path": "en.properties"
+        }
+      ]
+    }
+  ],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

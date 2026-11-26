@@ -101,6 +101,17 @@ public class CommentPersistenceService(ILogger<CommentPersistenceService> logger
     {
         if (!RequiresSidecar(formatId))
             return;
+        LoadSidecars(folder, formatId, translations);
+    }
+
+    /// <summary>
+    /// Reads comment sidecars an older Toucan wrote, even for a format that now keeps comments in its files (0.23 wrote
+    /// <c>app_fr.arb.comments.json</c> for ARB). Used once, when a project moves to document saving.
+    /// </summary>
+    public void LoadOlderSidecars(string folder, string formatId, IEnumerable<TranslationItem> translations) => LoadSidecars(folder, formatId, translations);
+
+    private void LoadSidecars(string folder, string formatId, IEnumerable<TranslationItem> translations)
+    {
 
         // Build a lookup of valid (language, namespace) pairs from translations
         var translationList = translations as IList<TranslationItem> ?? translations.ToList();

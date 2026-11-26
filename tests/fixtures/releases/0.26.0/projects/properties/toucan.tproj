@@ -1,0 +1,97 @@
+﻿{
+  "name": "properties",
+  "resourceSchemaVersion": 1,
+  "resourceDocuments": [],
+  "resourceOptions": {},
+  "compatibility": {},
+  "translationStates": [
+    {
+      "language": "en",
+      "key": "greeting",
+      "comment": "",
+      "approved": false,
+      "needsReview": false,
+      "data": {
+        "properties.encoding": "ISO-8859-1",
+        "properties.file": "src/main/resources/messages_en.properties"
+      }
+    },
+    {
+      "language": "fr",
+      "key": "farewell",
+      "comment": "Checked by Lea",
+      "approved": false,
+      "needsReview": false,
+      "data": {
+        "properties.encoding": "ISO-8859-1",
+        "properties.file": "src/main/resources/messages_fr.properties"
+      }
+    },
+    {
+      "language": "en",
+      "key": "farewell",
+      "comment": "",
+      "approved": false,
+      "needsReview": false,
+      "data": {
+        "properties.encoding": "ISO-8859-1",
+        "properties.file": "src/main/resources/messages_en.properties"
+      }
+    },
+    {
+      "language": "fr",
+      "key": "greeting",
+      "comment": "",
+      "approved": true,
+      "needsReview": false,
+      "data": {
+        "properties.encoding": "ISO-8859-1",
+        "properties.file": "src/main/resources/messages_fr.properties"
+      }
+    }
+  ],
+  "primaryLanguage": "en-US",
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "saveFormat": "java-properties",
+  "glossary": [],
+  "analysisConfidenceThreshold": 0.6,
+  "spelling": {
+    "enabled": true,
+    "assignments": {},
+    "fallbacks": {},
+    "words": {}
+  },
+  "frameworkOptions": {
+    "defaultPackage": "main",
+    "resolveNamespaces": true,
+    "keyPrefix": ""
+  },
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "en",
+          "path": "en.properties"
+        },
+        {
+          "language": "fr",
+          "path": "fr.properties"
+        }
+      ]
+    }
+  ],
+  "sources": [],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

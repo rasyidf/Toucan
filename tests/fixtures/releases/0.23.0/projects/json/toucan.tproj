@@ -1,0 +1,33 @@
+﻿{
+  "name": "json",
+  "primaryLanguage": "en-US",
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "saveFormat": "json",
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "en",
+          "path": "en.json"
+        },
+        {
+          "language": "fr",
+          "path": "fr.json"
+        }
+      ]
+    }
+  ],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

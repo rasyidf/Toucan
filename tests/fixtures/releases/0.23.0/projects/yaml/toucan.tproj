@@ -1,0 +1,33 @@
+﻿{
+  "name": "yaml",
+  "primaryLanguage": "en-US",
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "saveFormat": "yaml",
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "en",
+          "path": "en.yaml"
+        },
+        {
+          "language": "fr",
+          "path": "fr.yaml"
+        }
+      ]
+    }
+  ],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

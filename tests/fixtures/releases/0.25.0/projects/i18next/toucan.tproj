@@ -1,0 +1,52 @@
+﻿{
+  "resourceSchemaVersion": 1,
+  "resourceDocuments": [],
+  "resourceOptions": {},
+  "compatibility": {},
+  "translationStates": [],
+  "primaryLanguage": "en",
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "saveFormat": "namespaced",
+  "framework": "i18next",
+  "glossary": [],
+  "analysisConfidenceThreshold": 0.6,
+  "spelling": {
+    "enabled": true,
+    "assignments": {},
+    "fallbacks": {},
+    "words": {}
+  },
+  "frameworkOptions": {
+    "defaultPackage": "main",
+    "resolveNamespaces": true,
+    "keyPrefix": ""
+  },
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "en",
+          "path": "en.json"
+        },
+        {
+          "language": "fr",
+          "path": "fr.json"
+        }
+      ]
+    }
+  ],
+  "sourceConnections": [],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

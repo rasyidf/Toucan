@@ -132,7 +132,7 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="changed">7 changed</span><span class="fixed">5 fixed</span></div>
+<div class="release-counts"><span class="changed">7 changed</span><span class="fixed">7 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Changed</h3>
 <ul>
 <li><strong>Flutter ARB files keep their layout</strong> — Saving a Flutter project now changes only the messages, descriptions and placeholders you edited; key order, indentation, <code>@@</code> headers and unknown <code>@key</code> fields stay as they were. Descriptions stay in <code>@key.description</code>, so <code>gen-l10n</code> keeps them as doc comments, and an <code>.arb</code> edited outside Toucan wins over what Toucan remembered. Renaming a message moves its <code>@key</code> block with it. Folders with <code>.arb</code> files open this way on their own, and projects saved by earlier versions keep their approvals. New language files follow the project&#x27;s naming (<code>intl_de.arb</code> beside <code>intl_en.arb</code>).</li>
@@ -145,6 +145,8 @@
 </ul>
 <h3>Fixed</h3>
 <ul>
+<li><strong>Approvals and comments from 0.24 i18next projects</strong> — Projects saved by 0.24 kept approvals and comments keyed by an exact-resource identity, which the document saving used for i18next since 0.25 did not match, so they were lost on open. They are now matched by language and key.</li>
+<li><strong>ARB comments from 0.23</strong> — Comments 0.23 kept in <code>app_&lt;lang&gt;.arb.comments.json</code> beside an ARB project are read again and written into <code>@key.description</code> on the next save.</li>
 <li><strong>A damaged project file is no longer replaced</strong> — If <code>toucan.tproj</code> could not be read, Toucan opened the folder as a new project and the next save replaced the file, with its approvals and settings. It now reports the problem and leaves the file alone.</li>
 <li><strong>Accounts and settings survive a damaged or newer file</strong> — An unreadable <code>accounts.json</code> or <code>settings.json</code> is set aside as <code>*.corrupt-&lt;time&gt;</code> before a new one is written, and an <code>accounts.json</code> from a newer Toucan is left untouched instead of being emptied.</li>
 <li><strong>Non-UTF-8 files in document projects</strong> — A document read in document saving that is not valid UTF-8 is now read as ISO-8859-1 and written back in it, instead of having its accented bytes replaced.</li>

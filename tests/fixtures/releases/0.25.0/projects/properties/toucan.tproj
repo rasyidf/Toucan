@@ -1,0 +1,93 @@
+﻿{
+  "name": "properties",
+  "resourceSchemaVersion": 1,
+  "resourceDocuments": [],
+  "resourceOptions": {},
+  "compatibility": {},
+  "translationStates": [
+    {
+      "language": "fr",
+      "key": "greeting",
+      "comment": "",
+      "approved": true,
+      "data": {
+        "properties.encoding": "ISO-8859-1",
+        "properties.file": "src/main/resources/messages_fr.properties"
+      }
+    },
+    {
+      "language": "en",
+      "key": "greeting",
+      "comment": "",
+      "approved": false,
+      "data": {
+        "properties.encoding": "ISO-8859-1",
+        "properties.file": "src/main/resources/messages_en.properties"
+      }
+    },
+    {
+      "language": "en",
+      "key": "farewell",
+      "comment": "",
+      "approved": false,
+      "data": {
+        "properties.encoding": "ISO-8859-1",
+        "properties.file": "src/main/resources/messages_en.properties"
+      }
+    },
+    {
+      "language": "fr",
+      "key": "farewell",
+      "comment": "Checked by Lea",
+      "approved": false,
+      "data": {
+        "properties.encoding": "ISO-8859-1",
+        "properties.file": "src/main/resources/messages_fr.properties"
+      }
+    }
+  ],
+  "primaryLanguage": "en-US",
+  "languages": [
+    "fr",
+    "en"
+  ],
+  "saveFormat": "java-properties",
+  "glossary": [],
+  "analysisConfidenceThreshold": 0.6,
+  "spelling": {
+    "enabled": true,
+    "assignments": {},
+    "fallbacks": {},
+    "words": {}
+  },
+  "frameworkOptions": {
+    "defaultPackage": "main",
+    "resolveNamespaces": true,
+    "keyPrefix": ""
+  },
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "fr",
+          "path": "fr.properties"
+        },
+        {
+          "language": "en",
+          "path": "en.properties"
+        }
+      ]
+    }
+  ],
+  "sourceConnections": [],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

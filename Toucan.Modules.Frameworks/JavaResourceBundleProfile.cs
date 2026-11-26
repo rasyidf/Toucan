@@ -7,7 +7,8 @@ namespace Toucan.Core.Services.Frameworks;
 
 /// <summary>
 /// Java ResourceBundle: <c>messages.properties</c> (the base bundle, language <c>default</c>), <c>messages_fr.properties</c>,
-/// <c>messages_fr_CA.properties</c>. Files of one folder with the same base name are the languages of one resource.
+/// <c>messages_fr_CA.properties</c>, or files named only by their locale (<c>fr.properties</c>). Files of one folder with the same
+/// base name are the languages of one resource.
 /// </summary>
 public partial class JavaResourceBundleProfile : IFrameworkDocumentLayout
 {
@@ -67,6 +68,8 @@ public partial class JavaResourceBundleProfile : IFrameworkDocumentLayout
     internal static (string BaseName, string Language) Split(string name)
     {
         var parts = name.Split('_');
+        // A file named only by its locale (fr.properties, fr_CA.properties), as Toucan itself creates them.
+        if (LanguageCode().IsMatch(parts[0]) && parts.Skip(1).All(p => ScriptOrRegion().IsMatch(p))) return ("", string.Join('-', parts));
         for (var i = 1; i < parts.Length; i++)
         {
             if (!LanguageCode().IsMatch(parts[i])) continue;

@@ -1,0 +1,33 @@
+{
+  "Release": "0.26.0",
+  "Entries": [
+    {
+      "Language": "en",
+      "Key": "common.farewell",
+      "Value": "Goodbye",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "en",
+      "Key": "common.greeting",
+      "Value": "Hello",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "fr",
+      "Key": "common.farewell",
+      "Value": "Salut",
+      "Comment": "Checked by Lea",
+      "Approved": false
+    },
+    {
+      "Language": "fr",
+      "Key": "common.greeting",
+      "Value": "Bonjour",
+      "Comment": "",
+      "Approved": true
+    }
+  ]
+}

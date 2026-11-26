@@ -1,0 +1,13 @@
+﻿{
+  "@@locale": "en",
+  "farewell": "Goodbye",
+  "greeting": "Hello {name}",
+  "@greeting": {
+    "description": "Home title",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
+}

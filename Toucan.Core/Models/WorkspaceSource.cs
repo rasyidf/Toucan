@@ -36,7 +36,8 @@ public sealed record WorkspaceSourceUnit(EntryId EntryId, string Language, Trans
     /// <summary>Format-owned entry metadata read from the document (see <see cref="DocumentTranslation.FormatData"/>).</summary>
     public IReadOnlyDictionary<string, string>? FormatData { get; init; }
 
-    public string Comment => FormatComment ?? Metadata?.Comment ?? string.Empty;
+    /// <summary>The document's comment; when it has none, a remembered one (imported from an older project) until the next save writes it.</summary>
+    public string Comment => FormatComment is { Length: > 0 } inDocument ? inDocument : Metadata?.Comment ?? string.Empty;
 }
 
 /// <summary>Source snapshot, independent of UI state, plugin activation, or a save strategy.</summary>

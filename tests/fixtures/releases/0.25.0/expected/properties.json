@@ -1,0 +1,33 @@
+{
+  "Release": "0.25.0",
+  "Entries": [
+    {
+      "Language": "en",
+      "Key": "farewell",
+      "Value": "Goodbye",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "en",
+      "Key": "greeting",
+      "Value": "Hello",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "fr",
+      "Key": "farewell",
+      "Value": "Salut",
+      "Comment": "Checked by Lea",
+      "Approved": false
+    },
+    {
+      "Language": "fr",
+      "Key": "greeting",
+      "Value": "Bonjour",
+      "Comment": "",
+      "Approved": true
+    }
+  ]
+}

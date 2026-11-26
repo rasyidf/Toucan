@@ -1,0 +1,9 @@
+﻿msgid ""
+msgstr "Language: en\n"
+
+msgid "greeting"
+msgstr "Hello"
+
+msgid "farewell"
+msgstr "Goodbye"
+

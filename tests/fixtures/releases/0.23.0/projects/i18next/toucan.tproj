@@ -1,0 +1,43 @@
+﻿{
+  "primaryLanguage": "en",
+  "languages": [
+    "en",
+    ".toucan-metadata",
+    "fr.json.comments",
+    "fr"
+  ],
+  "saveFormat": "namespaced",
+  "framework": "i18next",
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "en",
+          "path": "en.json"
+        },
+        {
+          "language": ".toucan-metadata",
+          "path": ".toucan-metadata.json"
+        },
+        {
+          "language": "fr.json.comments",
+          "path": "fr.json.comments.json"
+        },
+        {
+          "language": "fr",
+          "path": "fr.json"
+        }
+      ]
+    }
+  ],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

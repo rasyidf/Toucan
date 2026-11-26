@@ -1,0 +1,30 @@
+{
+  "SchemaVersion": 1,
+  "DocumentId": {
+    "Value": "607abab5-9fc5-1c5e-f3f6-c89afaa624fa"
+  },
+  "Entries": [
+    {
+      "EntryId": {
+        "Value": "487dc0fd-00cb-ae47-d090-bd7bb4aea4f1"
+      },
+      "Language": "fr",
+      "Comment": "",
+      "Approved": true,
+      "Modified": null,
+      "ApprovedAt": "2026-01-02T03:04:05Z",
+      "ChangeType": 0
+    },
+    {
+      "EntryId": {
+        "Value": "b626b92c-b82a-1654-4869-23600a8915c5"
+      },
+      "Language": "fr",
+      "Comment": "Checked by Lea",
+      "Approved": false,
+      "Modified": null,
+      "ApprovedAt": null,
+      "ChangeType": 0
+    }
+  ]
+}

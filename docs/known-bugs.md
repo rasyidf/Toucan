@@ -1,8 +1,8 @@
 ---
 title: "Known Issues & Unfinished Features"
 status: active
-updated: 2026-11-15
-summary: "Open issues in release distribution, Source Control, external connectors and platform acceptance."
+updated: 2026-11-26
+summary: "Open issues in migration from earlier versions, release distribution, Source Control, external connectors and platform acceptance."
 ---
 # Known Issues & Unfinished Features
 
@@ -14,6 +14,8 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 
 | ID | Severity | Area | Problem | Checked |
 |----|----------|------|---------|---------|
+| [MIG-01](#mig-01) | High | Migration | YAML and `.properties` projects saved by 0.23 do not open since 0.25 | Reproduced |
+| [MIG-02](#mig-02) | Low | Migration | A project from an earlier version opens with unsaved changes, so closing it asks to save | Reproduced |
 | [REL-01](#rel-01) | Medium | Release | No tag-triggered release pipeline; draft packaging requires manual dispatch | Reproduced |
 | [REL-02](#rel-02) | Medium | Release | macOS app is ad-hoc signed and not notarized | From docs and script |
 | [REL-03](#rel-03) | Low | Release | Update check is manual only: no check on startup, no download or install | From code |
@@ -33,6 +35,26 @@ Suggested order: release work first (REL-01), then the rest.
 ## Format bugs
 
 None are tracked. What each format keeps and drops on save is in [formats.md](formats.md); the tests that guard it are `FormatFidelityFixtureTests`, `FormatStabilityTests`, `FormatBugRegressionTests` and `YamlFidelityTests` in `tests/Toucan.Core.Tests/Formats/`.
+
+---
+
+## Migration
+
+<a id="mig-01"></a>
+### MIG-01: 0.23 YAML and .properties projects do not open
+
+- **Severity:** High · **Checked:** reproduced with projects saved by the real 0.23.0 code (`tests/fixtures/releases/0.23.0/projects/yaml` and `properties`, `ReleaseMigrationTests`).
+- **State:** 0.23 saved each language to a second file at the project root (`en.yaml` beside `config/locales/en.yml`, `en.properties` beside `src/main/resources/messages_en.properties`) and wrote edits only to that copy. Since 0.25 the workspace refuses an entry that appears twice in one language, so the project does not open ("A projection contains the same entry/language more than once"). 0.23 is the current public download.
+- **Impact:** users who saved such a project in 0.23 cannot open it in 0.25, 0.26 or 1.0. Nothing is lost: the files are untouched.
+- **Workaround:** keep the root copy (it has the edits made in 0.23), copy its values into the original file, delete the root copies, and open again.
+- **Fix direction:** detect the duplicated copies on open and offer to merge them into the original files, keeping the newer value per key and showing a preview. Needs a decision on which value wins when both changed.
+
+<a id="mig-02"></a>
+### MIG-02: Earlier projects open with unsaved changes
+
+- **Severity:** Low · **Checked:** reproduced with the 0.23.0 JSON fixture.
+- **State:** opening a project from an earlier version upgrades it in memory (exact-resource mapping, comment sidecars) and marks it changed, so closing asks whether to save although nothing was edited. Opening itself writes nothing.
+- **Fix direction:** keep migration-only changes out of the unsaved state, or say in the prompt that the project format was updated.
 
 ---
 

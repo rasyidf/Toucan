@@ -34,7 +34,8 @@ The BabelEdit-shaped manifest written by the BabelEdit converters is a separate,
 
 - Toucan reads every file version it ever wrote and upgrades it in memory. It writes the new version only when it saves that file for another reason, so opening a project never rewrites it.
 - Fields added within a version are optional. An older build ignores them and, for `toucan.tproj` and `settings.json`, keeps them when it saves.
-- Projects that used the full-rewrite save move to document saving (only edited entries change) when Toucan recognizes their framework and the languages they saved approvals for match the files' languages. Otherwise they keep saving as before, so approvals and comments stay attached.
+- Projects that used the full-rewrite save move to document saving (only edited entries change) when Toucan recognizes their framework, the languages they saved approvals for match the files' languages, and each language has one file. Otherwise they keep saving as before, so approvals and comments stay attached. Comments that older versions kept beside the files move into the file on the first save for formats that store comments themselves (ARB).
+- Opening an older project upgrades it in memory and writes nothing. It is then marked changed, so closing asks whether to save (MIG-02).
 
 ## Files: going back (downgrade)
 
@@ -58,4 +59,6 @@ Before trying an older version on a real project, commit it or copy the folder: 
 
 ## Supported upgrade paths
 
-Projects and settings from 0.23.0, 0.24.0, 0.25.0 and 0.26.0 open in 1.0 with their approvals, comments, review state and connections. The milestones 0.27 to 0.29 shipped inside 0.26.0. Fixtures written by those releases are in `tests/fixtures/releases/` and the migration tests open each one.
+Projects and settings from 0.23.0, 0.24.0, 0.25.0 and 0.26.0 open in 1.0 with their approvals, comments, review state and connections. The milestones 0.27 to 0.29 shipped inside 0.26.0. Fixtures written by the real code of those releases (JSON, i18next, ARB, Java `.properties`, YAML and PO projects, and user settings) are in `tests/fixtures/releases/`; `ReleaseMigrationTests` opens each one and compares it with what that release itself read. How they were made is in `tools/release-fixtures/`.
+
+Exception: YAML and `.properties` projects saved by 0.23, which wrote each language to a second copy of its file, do not open yet (MIG-01 in [known bugs](known-bugs.md), with a workaround).

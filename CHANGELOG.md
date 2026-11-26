@@ -12,6 +12,8 @@
 - **Strict validation covers whole-file connectors** — With Require valid for approval on, a sync with a service that stores whole files, such as Crowdin, no longer uploads a file whose saved values have validation errors. The plan lists each held file and the values to fix; other files and deletions still go out. The check follows the saved file, so fix and save before pushing again.
 
 ### Fixed
+- **Approvals and comments from 0.24 i18next projects** — Projects saved by 0.24 kept approvals and comments keyed by an exact-resource identity, which the document saving used for i18next since 0.25 did not match, so they were lost on open. They are now matched by language and key.
+- **ARB comments from 0.23** — Comments 0.23 kept in `app_<lang>.arb.comments.json` beside an ARB project are read again and written into `@key.description` on the next save.
 - **A damaged project file is no longer replaced** — If `toucan.tproj` could not be read, Toucan opened the folder as a new project and the next save replaced the file, with its approvals and settings. It now reports the problem and leaves the file alone.
 - **Accounts and settings survive a damaged or newer file** — An unreadable `accounts.json` or `settings.json` is set aside as `*.corrupt-<time>` before a new one is written, and an `accounts.json` from a newer Toucan is left untouched instead of being emptied.
 - **Non-UTF-8 files in document projects** — A document read in document saving that is not valid UTF-8 is now read as ISO-8859-1 and written back in it, instead of having its accented bytes replaced.

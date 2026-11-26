@@ -1,0 +1,90 @@
+﻿{
+  "name": "po",
+  "resourceSchemaVersion": 1,
+  "resourceDocuments": [],
+  "resourceOptions": {},
+  "compatibility": {},
+  "translationStates": [
+    {
+      "language": "fr",
+      "key": "greeting",
+      "comment": "",
+      "approved": true,
+      "data": {
+        "po.file": "fr.po",
+        "po.flags": ""
+      }
+    },
+    {
+      "language": "fr",
+      "key": "farewell",
+      "comment": "Checked by Lea",
+      "approved": true,
+      "data": {
+        "po.file": "fr.po",
+        "po.flags": ""
+      }
+    },
+    {
+      "language": "en",
+      "key": "greeting",
+      "comment": "",
+      "approved": true,
+      "data": {
+        "po.file": "en.po",
+        "po.flags": ""
+      }
+    },
+    {
+      "language": "en",
+      "key": "farewell",
+      "comment": "",
+      "approved": true,
+      "data": {
+        "po.file": "en.po",
+        "po.flags": ""
+      }
+    }
+  ],
+  "primaryLanguage": "en-US",
+  "languages": [
+    "fr",
+    "en"
+  ],
+  "saveFormat": "po",
+  "spelling": {
+    "enabled": true,
+    "assignments": {},
+    "fallbacks": {},
+    "words": {}
+  },
+  "frameworkOptions": {
+    "defaultPackage": "main",
+    "resolveNamespaces": true,
+    "keyPrefix": ""
+  },
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "fr",
+          "path": "fr.po"
+        },
+        {
+          "language": "en",
+          "path": "en.po"
+        }
+      ]
+    }
+  ],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

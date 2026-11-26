@@ -1,0 +1,33 @@
+﻿{
+  "name": "arb",
+  "primaryLanguage": "en-US",
+  "languages": [
+    "fr",
+    "en"
+  ],
+  "saveFormat": "arb",
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "fr",
+          "path": "app_fr.arb"
+        },
+        {
+          "language": "en",
+          "path": "app_en.arb"
+        }
+      ]
+    }
+  ],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

@@ -51,7 +51,7 @@ public class ProjectService(
     internal static readonly IReadOnlySet<string> DocumentSavingOnDetection = new HashSet<string>(FormatIds.Comparer) { FormatIds.Arb, FormatIds.JavaProperties, FormatIds.Namespaced };
 
     /// <param name="saved">Settings read from a manifest. Such a project switches only when every language it saved state for is a
-    /// language the framework discovers, so approvals and comments keyed by the old names are not orphaned.</param>
+    /// language the framework discovers, each in one document, so approvals and comments keyed by the old names are not orphaned.</param>
     private string? DocumentFramework(string? format, string folder, ProjectSettings? saved)
     {
         if (format is null || !DocumentSavingOnDetection.Contains(format) || capabilities is null) return null;
@@ -59,9 +59,13 @@ public class ProjectService(
             .OrderByDescending(p => p.DetectionScore(folder))
             .FirstOrDefault(p => capabilities.Resolve(p.Id, format).UsesDocumentPersistence);
         if (profile is null || saved is null) return profile?.Id;
-        var discovered = profile.DiscoverFiles(folder).Select(f => f.Language).ToHashSet(StringComparer.Ordinal);
+        var files = profile.DiscoverFiles(folder).ToList();
+        var discovered = files.Select(f => f.Language).ToHashSet(StringComparer.Ordinal);
         var used = saved.Languages.Concat(saved.TranslationStates.Select(s => s.Language)).Distinct(StringComparer.Ordinal);
-        return used.All(discovered.Contains) ? profile.Id : null;
+        // Older Toucan versions wrote extra copies of language files (en.properties beside messages_en.properties); with two
+        // documents for one language, saved approvals and comments cannot be tied to one of them, so such a project keeps its saving.
+        var oneDocumentPerLanguage = files.GroupBy(f => f.Language, StringComparer.Ordinal).All(g => g.Count() == 1);
+        return oneDocumentPerLanguage && used.All(discovered.Contains) ? profile.Id : null;
     }
 
     public ProjectLoadResult LoadProject(string folder, IProgress<ScanProgress>? progress = null, CancellationToken ct = default)
@@ -201,7 +205,7 @@ public class ProjectService(
         if (source.Artifacts.Any(a => a.RelativePath == WorkspaceMetadataCodec.IdentityPath)) return source;
         var comments = new CommentPersistenceService(Microsoft.Extensions.Logging.Abstractions.NullLogger<CommentPersistenceService>.Instance, strategyFactory);
         var legacy = translations.Select(t => new TranslationItem { Namespace = t.Namespace, Language = t.Language, Value = t.Value }).ToList();
-        comments.LoadComments(source.Root, source.FormatId, legacy);
+        comments.LoadOlderSidecars(source.Root, source.FormatId, legacy);
         var audit = new AuditService(Microsoft.Extensions.Logging.Abstractions.NullLogger<AuditService>.Instance);
         audit.LoadFromSidecar(source.Root);
         var lookup = legacy.GroupBy(t => (t.Namespace, t.Language)).ToDictionary(g => g.Key, g => g.ToArray());
@@ -231,9 +235,11 @@ public class ProjectService(
             .GroupBy(s => (s.Language, s.Identity!.Address)).ToDictionary(g => g.Key, g => g.First());
         foreach (var item in translations)
             if ((item.Identity != null && identities.TryGetValue((item.Language, item.Identity.Address), out var state)) ||
-                (states.TryGetValue((item.Language, item.Namespace), out state) && state.Identity is null))
+                // An entry without an identity (document projects) takes a state by language and key, even one saved with an
+                // identity by an exact-resource project (0.24 i18next projects, which open through document saving since 0.25).
+                (states.TryGetValue((item.Language, item.Namespace), out state) && (state.Identity is null || item.Identity is null)))
             {
-                if (state.Identity is { } identity)
+                if (state.Identity is { } identity && item.Identity is not null)
                 {
                     item.Identity = identity;
                     item.Namespace = identity.Selector;

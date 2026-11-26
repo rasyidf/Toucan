@@ -103,7 +103,7 @@ public sealed class WorkspaceDocumentSavePlanner(WorkspaceDocumentRouter router,
                 Edit(document.Id, new(null, replacement));
             }
             else if (!old.Binding.Location.Equals(unit.KeyPath) || old.Value != unit.Value || old.RawScalar != unit.RawScalar
-                || comment is not null && comment != old.Comment || inDocument && !SameData(old.FormatData, data))
+                || comment is not null && comment != (old.FormatComment ?? string.Empty) || inDocument && !SameData(old.FormatData, data))
                 Edit(document.Id, new(old.Binding.Location, replacement));
         }
 

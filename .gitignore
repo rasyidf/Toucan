@@ -16,6 +16,8 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+# Projects saved by released versions, for migration tests (not build output).
+!tests/fixtures/releases/
 x64/
 x86/
 bld/

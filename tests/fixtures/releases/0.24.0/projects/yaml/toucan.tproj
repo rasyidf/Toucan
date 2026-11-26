@@ -1,0 +1,90 @@
+﻿{
+  "name": "yaml",
+  "resourceSchemaVersion": 1,
+  "resourceDocuments": [],
+  "resourceOptions": {},
+  "compatibility": {},
+  "translationStates": [
+    {
+      "language": "en",
+      "key": "greeting",
+      "comment": "",
+      "approved": false,
+      "data": {
+        "yaml.file": "config/locales/en.yml",
+        "yaml.locale": "en"
+      }
+    },
+    {
+      "language": "en",
+      "key": "farewell",
+      "comment": "",
+      "approved": false,
+      "data": {
+        "yaml.file": "config/locales/en.yml",
+        "yaml.locale": "en"
+      }
+    },
+    {
+      "language": "fr",
+      "key": "greeting",
+      "comment": "",
+      "approved": true,
+      "data": {
+        "yaml.file": "config/locales/fr.yml",
+        "yaml.locale": "fr"
+      }
+    },
+    {
+      "language": "fr",
+      "key": "farewell",
+      "comment": "Checked by Lea",
+      "approved": false,
+      "data": {
+        "yaml.file": "config/locales/fr.yml",
+        "yaml.locale": "fr"
+      }
+    }
+  ],
+  "primaryLanguage": "en-US",
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "saveFormat": "yaml",
+  "spelling": {
+    "enabled": true,
+    "assignments": {},
+    "fallbacks": {},
+    "words": {}
+  },
+  "frameworkOptions": {
+    "defaultPackage": "main",
+    "resolveNamespaces": true,
+    "keyPrefix": ""
+  },
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "en",
+          "path": "en.yaml"
+        },
+        {
+          "language": "fr",
+          "path": "fr.yaml"
+        }
+      ]
+    }
+  ],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

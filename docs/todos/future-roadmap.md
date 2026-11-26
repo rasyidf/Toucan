@@ -138,8 +138,8 @@ Items marked **(you)** need the maintainer: a product decision, an account, mone
 - [x] V1-23 Review and freeze the sync state files (`baseline.json`, `journal.json`) and their schema version. Already safe: a newer or damaged file is set aside and the next sync is planned as a first sync. They use PascalCase keys unlike the other files; frozen as they are.
 - [x] V1-24 Review and freeze the Toucan source protocol (`source-protocol.md`, OpenAPI) as 1.0. Done: `/v1` marked frozen; its additive-only rule already covered compatibility.
 - [x] V1-25 Write `docs/compatibility.md`: what is frozen, how each file migrates forward, what an older build does with a newer file (set aside, never overwritten), backup before migration, and the supported downgrade path.
-- [ ] V1-26 Migration tests from fixtures: projects and settings written by each released preview (0.23.0, 0.24.0, 0.25.0, 0.26.0). The v0.27–v0.29 milestones shipped inside the 0.26.0 tag, so 0.26.0 fixtures cover sources, accounts and sync state.
-- [ ] V1-27 Review state, review history and recovery files included in V1-26.
+- [x] V1-26 Migration tests from fixtures: projects and settings written by each released preview (0.23.0, 0.24.0, 0.25.0, 0.26.0). The v0.27–v0.29 milestones shipped inside the 0.26.0 tag, so 0.26.0 fixtures cover sources, accounts and sync state.
+- [x] V1-27 Review state, review history and recovery files included in V1-26. Done: fixtures written by the real 0.23.0–0.26.0 code (`tools/release-fixtures/`) for JSON, i18next, ARB, `.properties`, YAML, PO and user settings; `ReleaseMigrationTests` opens each through the lifecycle service and compares with what that release read. Found and fixed: approvals and comments from 0.24 i18next projects were lost; 0.23 ARB sidecar comments were lost; my new detection mis-read 0.23's root-level `en.properties` and switched projects with two files per language. Open: MIG-01 (0.23 YAML and `.properties` projects with duplicated files do not open since 0.25, High) and MIG-02 (older projects open as changed).
 
 #### 3. Portable verification evidence (G5)
 

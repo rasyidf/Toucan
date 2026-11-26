@@ -1,0 +1,91 @@
+﻿{
+  "name": "arb",
+  "resourceSchemaVersion": 1,
+  "resourceDocuments": [],
+  "resourceOptions": {},
+  "compatibility": {},
+  "translationStates": [
+    {
+      "language": "en",
+      "key": "greeting",
+      "comment": "Home title",
+      "approved": false,
+      "data": {
+        "arb.metadata": "{\u0022description\u0022: \u0022Home title\u0022, \u0022placeholders\u0022: {\u0022name\u0022: {\u0022type\u0022: \u0022String\u0022}}}",
+        "arb.file": "lib/l10n/app_en.arb",
+        "arb.placeholders": "{\u0022name\u0022: {\u0022type\u0022: \u0022String\u0022}}"
+      }
+    },
+    {
+      "language": "fr",
+      "key": "greeting",
+      "comment": "",
+      "approved": true,
+      "data": {
+        "arb.file": "lib/l10n/app_fr.arb"
+      }
+    },
+    {
+      "language": "fr",
+      "key": "farewell",
+      "comment": "Checked by Lea",
+      "approved": false,
+      "data": {
+        "arb.file": "lib/l10n/app_fr.arb"
+      }
+    },
+    {
+      "language": "en",
+      "key": "farewell",
+      "comment": "",
+      "approved": false,
+      "data": {
+        "arb.file": "lib/l10n/app_en.arb"
+      }
+    }
+  ],
+  "primaryLanguage": "en-US",
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "saveFormat": "arb",
+  "glossary": [],
+  "analysisConfidenceThreshold": 0.6,
+  "spelling": {
+    "enabled": true,
+    "assignments": {},
+    "fallbacks": {},
+    "words": {}
+  },
+  "frameworkOptions": {
+    "defaultPackage": "main",
+    "resolveNamespaces": true,
+    "keyPrefix": ""
+  },
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "en",
+          "path": "app_en.arb"
+        },
+        {
+          "language": "fr",
+          "path": "app_fr.arb"
+        }
+      ]
+    }
+  ],
+  "sourceConnections": [],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

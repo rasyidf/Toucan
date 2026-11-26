@@ -1,0 +1,61 @@
+{
+  "Release": "0.24.0",
+  "Entries": [
+    {
+      "Language": ".toucan-metadata",
+      "Key": "schemaVersion",
+      "Value": "1.0",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "en",
+      "Key": "",
+      "Value": "",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "en",
+      "Key": "common.farewell",
+      "Value": "Bye",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "en",
+      "Key": "common.greeting",
+      "Value": "Hello",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "fr",
+      "Key": "common.farewell",
+      "Value": "Salut",
+      "Comment": "Checked by Lea",
+      "Approved": false
+    },
+    {
+      "Language": "fr",
+      "Key": "common.greeting",
+      "Value": "Bonjour",
+      "Comment": "",
+      "Approved": true
+    },
+    {
+      "Language": "fr.json.comments",
+      "Key": "comments.common.farewell",
+      "Value": "Checked by Lea",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "fr.json.comments",
+      "Key": "schemaVersion",
+      "Value": "1.0",
+      "Comment": "",
+      "Approved": false
+    }
+  ]
+}

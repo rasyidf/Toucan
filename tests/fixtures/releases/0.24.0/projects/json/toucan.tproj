@@ -1,0 +1,185 @@
+﻿{
+  "name": "json",
+  "resourceSchemaVersion": 1,
+  "resourceDocuments": [
+    {
+      "resource": {
+        "id": "en.json",
+        "package": "main",
+        "language": "en",
+        "relativePath": "en.json",
+        "formatId": "json",
+        "ownership": 0,
+        "selectorPrefix": "",
+        "options": {}
+      },
+      "detectedOptions": {
+        "indent": 1,
+        "order": 0,
+        "inputEncoding": "UTF-8",
+        "outputEncoding": "UTF-8",
+        "newline": 0
+      },
+      "data": {
+        "json": {
+          "greeting": "Hello",
+          "farewell": "Goodbye"
+        }
+      }
+    },
+    {
+      "resource": {
+        "id": "fr.json",
+        "package": "main",
+        "language": "fr",
+        "relativePath": "fr.json",
+        "formatId": "json",
+        "ownership": 0,
+        "selectorPrefix": "",
+        "options": {}
+      },
+      "detectedOptions": {
+        "indent": 1,
+        "order": 0,
+        "inputEncoding": "UTF-8",
+        "outputEncoding": "UTF-8",
+        "newline": 0
+      },
+      "data": {
+        "json": {
+          "greeting": "Bonjour",
+          "farewell": "Salut"
+        }
+      }
+    }
+  ],
+  "resourceOptions": {},
+  "compatibility": {},
+  "translationStates": [
+    {
+      "identity": {
+        "entryId": "4CCEBDD9A20BFE5B23383C07F61877946311EF9E80D8802CAD1665335A8D73B5",
+        "resourceId": "en.json",
+        "package": "main",
+        "path": [
+          {
+            "property": "greeting"
+          }
+        ],
+        "selector": "greeting",
+        "packagePrefix": ""
+      },
+      "language": "en",
+      "key": "greeting",
+      "comment": "",
+      "approved": false,
+      "data": {
+        "json.file": "en.json"
+      }
+    },
+    {
+      "identity": {
+        "entryId": "E116D607D81F9A1351144D0178BB99DDB4255342A6A3D27A7C8B21F965E615B7",
+        "resourceId": "en.json",
+        "package": "main",
+        "path": [
+          {
+            "property": "farewell"
+          }
+        ],
+        "selector": "farewell",
+        "packagePrefix": ""
+      },
+      "language": "en",
+      "key": "farewell",
+      "comment": "",
+      "approved": false,
+      "data": {
+        "json.file": "en.json"
+      }
+    },
+    {
+      "identity": {
+        "entryId": "A7E67C58A9B537B7BA4E2024A46862FED0EC2A04FE43F44C08A392C5E5D29521",
+        "resourceId": "fr.json",
+        "package": "main",
+        "path": [
+          {
+            "property": "greeting"
+          }
+        ],
+        "selector": "greeting",
+        "packagePrefix": ""
+      },
+      "language": "fr",
+      "key": "greeting",
+      "comment": "",
+      "approved": true,
+      "data": {
+        "json.file": "fr.json"
+      }
+    },
+    {
+      "identity": {
+        "entryId": "8B06E7AFC694356C76DFF5CB3C2ABCBDCC3F45E1354E699EB777C086F504373D",
+        "resourceId": "fr.json",
+        "package": "main",
+        "path": [
+          {
+            "property": "farewell"
+          }
+        ],
+        "selector": "farewell",
+        "packagePrefix": ""
+      },
+      "language": "fr",
+      "key": "farewell",
+      "comment": "Checked by Lea",
+      "approved": false,
+      "data": {
+        "json.file": "fr.json"
+      }
+    }
+  ],
+  "primaryLanguage": "en-US",
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "saveFormat": "json",
+  "spelling": {
+    "enabled": true,
+    "assignments": {},
+    "fallbacks": {},
+    "words": {}
+  },
+  "frameworkOptions": {
+    "defaultPackage": "main",
+    "resolveNamespaces": true,
+    "keyPrefix": ""
+  },
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "en",
+          "path": "en.json"
+        },
+        {
+          "language": "fr",
+          "path": "fr.json"
+        }
+      ]
+    }
+  ],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

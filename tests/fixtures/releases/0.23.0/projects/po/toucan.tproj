@@ -1,0 +1,33 @@
+﻿{
+  "name": "po",
+  "primaryLanguage": "en-US",
+  "languages": [
+    "fr",
+    "en"
+  ],
+  "saveFormat": "po",
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "fr",
+          "path": "fr.po"
+        },
+        {
+          "language": "en",
+          "path": "en.po"
+        }
+      ]
+    }
+  ],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

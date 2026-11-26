@@ -1,0 +1,46 @@
+{
+  "DefaultLanguage": "en-US",
+  "Theme": "System",
+  "BackdropType": "Mica",
+  "ColorScheme": "Toucan",
+  "AccentColor": null,
+  "SchemeColors": {},
+  "UpdateChannel": "Stable",
+  "AppLanguage": "en-US",
+  "FontSize": 13,
+  "PageSize": 250,
+  "MaxItems": 5000,
+  "TruncateResultsOver": 5000,
+  "LoadingDepth": 1,
+  "Formality": "Default",
+  "Context": "",
+  "LastProvider": "Google",
+  "CopyTemplates": [
+    "%1",
+    "{ this.props.t(\u0027%1\u0027) }",
+    "{ t(\u0027%1\u0027) }"
+  ],
+  "CustomShortcuts": {},
+  "PlainTextKeys": false,
+  "FilterHistory": [],
+  "SuggestedLanguages": [
+    "en-US",
+    "id-ID",
+    "zh-CN",
+    "fr-FR",
+    "es-ES"
+  ],
+  "TmSimilarityThreshold": 0.7,
+  "TmGlobalScope": true,
+  "TmAutoSuggest": true,
+  "TmMaxSuggestions": 5,
+  "RecentProjectsLimit": 7,
+  "ClearRecentKeepsPinned": true,
+  "DetectLanguageFromRecent": false,
+  "DefaultProjectLanguages": [
+    "en-US"
+  ],
+  "OnboardingVersion": 0,
+  "LastProjectPath": null,
+  "OpenLastProjectOnStartup": true
+}

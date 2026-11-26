@@ -1,0 +1,61 @@
+{
+  "Release": "0.23.0",
+  "Entries": [
+    {
+      "Language": "en",
+      "Key": "en.farewell",
+      "Value": "Goodbye",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "en",
+      "Key": "en.farewell",
+      "Value": "Bye",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "en",
+      "Key": "en.greeting",
+      "Value": "Hello",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "en",
+      "Key": "en.greeting",
+      "Value": "Hello",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "fr",
+      "Key": "fr.farewell",
+      "Value": "Salut",
+      "Comment": "Checked by Lea",
+      "Approved": false
+    },
+    {
+      "Language": "fr",
+      "Key": "fr.farewell",
+      "Value": "Salut",
+      "Comment": "Checked by Lea",
+      "Approved": false
+    },
+    {
+      "Language": "fr",
+      "Key": "fr.greeting",
+      "Value": "Bonjour",
+      "Comment": "",
+      "Approved": false
+    },
+    {
+      "Language": "fr",
+      "Key": "fr.greeting",
+      "Value": "Bonjour",
+      "Comment": "",
+      "Approved": false
+    }
+  ]
+}

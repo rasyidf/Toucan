@@ -1,0 +1,5 @@
+﻿{
+  "@@locale": "fr",
+  "farewell": "Salut",
+  "greeting": "Bonjour {name}"
+}

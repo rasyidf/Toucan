@@ -1,0 +1,99 @@
+﻿{
+  "name": "po",
+  "resourceSchemaVersion": 1,
+  "resourceDocuments": [],
+  "resourceOptions": {},
+  "compatibility": {},
+  "translationStates": [
+    {
+      "language": "fr",
+      "key": "farewell",
+      "comment": "Checked by Lea",
+      "approved": true,
+      "needsReview": false,
+      "reviewedSourceHash": "128901223aac8df3",
+      "data": {
+        "po.flags": "",
+        "po.file": "fr.po"
+      }
+    },
+    {
+      "language": "en",
+      "key": "greeting",
+      "comment": "",
+      "approved": true,
+      "needsReview": false,
+      "data": {
+        "po.flags": "",
+        "po.file": "en.po"
+      }
+    },
+    {
+      "language": "en",
+      "key": "farewell",
+      "comment": "",
+      "approved": true,
+      "needsReview": false,
+      "data": {
+        "po.flags": "",
+        "po.file": "en.po"
+      }
+    },
+    {
+      "language": "fr",
+      "key": "greeting",
+      "comment": "",
+      "approved": true,
+      "needsReview": false,
+      "reviewedSourceHash": "185f8db32271fe25",
+      "data": {
+        "po.flags": "",
+        "po.file": "fr.po"
+      }
+    }
+  ],
+  "primaryLanguage": "en-US",
+  "languages": [
+    "fr",
+    "en"
+  ],
+  "saveFormat": "po",
+  "glossary": [],
+  "analysisConfidenceThreshold": 0.6,
+  "spelling": {
+    "enabled": true,
+    "assignments": {},
+    "fallbacks": {},
+    "words": {}
+  },
+  "frameworkOptions": {
+    "defaultPackage": "main",
+    "resolveNamespaces": true,
+    "keyPrefix": ""
+  },
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "fr",
+          "path": "fr.po"
+        },
+        {
+          "language": "en",
+          "path": "en.po"
+        }
+      ]
+    }
+  ],
+  "sources": [],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

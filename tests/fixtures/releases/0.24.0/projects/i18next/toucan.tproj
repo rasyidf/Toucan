@@ -1,0 +1,134 @@
+﻿{
+  "resourceSchemaVersion": 1,
+  "resourceDocuments": [],
+  "resourceOptions": {},
+  "compatibility": {},
+  "translationStates": [
+    {
+      "identity": {
+        "entryId": "37233BCBC3CDFD2503B24936338671BAEFA95619F5B5100255365BB7A9CF414F",
+        "resourceId": "locales/en/common.json",
+        "package": "common",
+        "path": [
+          {
+            "property": "greeting"
+          }
+        ],
+        "selector": "common.greeting",
+        "packagePrefix": "common."
+      },
+      "language": "en",
+      "key": "common.greeting",
+      "comment": "",
+      "approved": false,
+      "data": {
+        "json.file": "locales/en/common.json"
+      }
+    },
+    {
+      "identity": {
+        "entryId": "0692444524C9DCD22A39D5867ED89232ED572E2F11F0F2AD25F8ACD097F4E459",
+        "resourceId": "locales/en/common.json",
+        "package": "common",
+        "path": [
+          {
+            "property": "farewell"
+          }
+        ],
+        "selector": "common.farewell",
+        "packagePrefix": "common."
+      },
+      "language": "en",
+      "key": "common.farewell",
+      "comment": "",
+      "approved": false,
+      "data": {
+        "json.file": "locales/en/common.json"
+      }
+    },
+    {
+      "identity": {
+        "entryId": "B4F2AE254B050BEB04BA4F3244BA70606C37D8F092590E5D6540DDE7D6C3E49B",
+        "resourceId": "locales/fr/common.json",
+        "package": "common",
+        "path": [
+          {
+            "property": "greeting"
+          }
+        ],
+        "selector": "common.greeting",
+        "packagePrefix": "common."
+      },
+      "language": "fr",
+      "key": "common.greeting",
+      "comment": "",
+      "approved": true,
+      "data": {
+        "json.file": "locales/fr/common.json"
+      }
+    },
+    {
+      "identity": {
+        "entryId": "C83E9D3FD4845B0622ADB0E64A0B2CFEB961DAC9AC76F101B66BC3CB142084FB",
+        "resourceId": "locales/fr/common.json",
+        "package": "common",
+        "path": [
+          {
+            "property": "farewell"
+          }
+        ],
+        "selector": "common.farewell",
+        "packagePrefix": "common."
+      },
+      "language": "fr",
+      "key": "common.farewell",
+      "comment": "Checked by Lea",
+      "approved": false,
+      "data": {
+        "json.file": "locales/fr/common.json"
+      }
+    }
+  ],
+  "primaryLanguage": "en",
+  "languages": [
+    "en",
+    "fr"
+  ],
+  "saveFormat": "namespaced",
+  "framework": "i18next",
+  "spelling": {
+    "enabled": true,
+    "assignments": {},
+    "fallbacks": {},
+    "words": {}
+  },
+  "frameworkOptions": {
+    "defaultPackage": "main",
+    "resolveNamespaces": true,
+    "keyPrefix": ""
+  },
+  "translationPackages": [
+    {
+      "name": "main",
+      "translationUrls": [
+        {
+          "language": "en",
+          "path": "en.json"
+        },
+        {
+          "language": "fr",
+          "path": "fr.json"
+        }
+      ]
+    }
+  ],
+  "saveEmptyTranslations": true,
+  "translationOrder": "alphabetical",
+  "copyTemplates": [
+    "%1"
+  ],
+  "commentsEnabled": true,
+  "hiddenNamespaces": [],
+  "sourceRoots": [],
+  "autoSaveIntervalSeconds": 60
+}

@@ -1,0 +1,10 @@
+﻿msgid ""
+msgstr "Language: fr\n"
+
+# Checked by Lea
+msgid "farewell"
+msgstr "Salut"
+
+msgid "greeting"
+msgstr "Bonjour"
+
