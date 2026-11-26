@@ -82,11 +82,11 @@ Release: 1
 Summary: $summary
 License: See /usr/share/doc/toucan/copyright
 URL: https://github.com/rasyidf/Toucan
-BuildArch: $rpm_arch
 AutoReqProv: no
 Requires: libicu, fontconfig
 Recommends: libsecret
-%global __strip /bin/true
+# The app is self-contained .NET: no stripping, compression or debug-info scripts over it.
+%global __os_install_post %{nil}
 %global _build_id_links none
 
 %description
@@ -113,8 +113,9 @@ command -v update-mime-database >/dev/null && update-mime-database /usr/share/mi
 /usr/share/mime/packages/toucan.xml
 %doc /usr/share/doc/toucan/copyright
 SPEC
+# --target sets the architecture; nothing is compiled, so either can be packaged on any host.
 rpmbuild --quiet --define "_topdir $rpmtop" --target "$rpm_arch" -bb "$rpmtop/SPECS/toucan.spec"
 cp "$rpmtop/RPMS/$rpm_arch/"*.rpm "$out/"
 
 echo "Built in $out:"
-ls -1 "$out" | grep -E "($rid|_${deb_arch}\.deb|\.${rpm_arch}\.rpm)$"
+ls -1 "$out" | grep -E "(-$rid\.tar\.gz|_${deb_arch}\.deb|\.${rpm_arch}\.rpm)$"
