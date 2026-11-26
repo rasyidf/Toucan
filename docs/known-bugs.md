@@ -53,7 +53,7 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 ### REL-01: Tag-triggered release not run yet
 
 - **Severity:** Medium · **Checked:** `.github/workflows/release.yml` (2026-11-26).
-- **State:** pushing a tag `v<version>` checks the tag against `Directory.Build.props` and the evidence records, runs the CI test matrix, builds the Windows ZIP and installer, Linux `.tar.gz`, `.deb` and `.rpm` (x64 and arm64) and macOS DMGs (arm64 and x64), runs `--self-check` on each (the Windows installer and the `.deb` are installed, checked and removed), and attaches everything with `SHA256SUMS.txt` to a draft release. It has not run on GitHub yet, and `packaging/build-linux-packages.sh` has not run anywhere.
+- **State:** pushing a tag `v<version>` checks the tag against `Directory.Build.props` and the evidence records, runs the CI test matrix, builds the Windows ZIP and installer, Linux `.tar.gz`, `.deb` and `.rpm` (x64 and arm64) and macOS DMGs (arm64 and x64), runs `--self-check` on each (the Windows installer and the `.deb` are installed, checked and removed), and attaches everything with `SHA256SUMS.txt` to a draft release. It has not run on GitHub yet. `packaging/build-linux-packages.sh` was run on 2026-11-26 in a .NET SDK container (arm64 host): all six Linux packages build, and the arm64 `.deb` and `.rpm` install on clean Ubuntu 24.04 and Fedora 41, pass `toucan --self-check` and remove cleanly. x64 packages were built but not run there.
 - **Fix direction:** push a release-candidate tag (`v1.0.0-rc.1`) once the test records exist, and fix what the first run finds.
 
 <a id="rel-02"></a>
