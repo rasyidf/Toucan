@@ -48,7 +48,7 @@ public class ProjectService(
     /// Formats whose folders open through document saving when no framework is set, so only edited values change in the file.
     /// Add a format here only with document fidelity fixtures and migration tests from its full-rewrite projects.
     /// </summary>
-    internal static readonly IReadOnlySet<string> DocumentSavingOnDetection = new HashSet<string>(FormatIds.Comparer) { FormatIds.Arb, FormatIds.JavaProperties };
+    internal static readonly IReadOnlySet<string> DocumentSavingOnDetection = new HashSet<string>(FormatIds.Comparer) { FormatIds.Arb, FormatIds.JavaProperties, FormatIds.Namespaced };
 
     /// <param name="saved">Settings read from a manifest. Such a project switches only when every language it saved state for is a
     /// language the framework discovers, so approvals and comments keyed by the old names are not orphaned.</param>

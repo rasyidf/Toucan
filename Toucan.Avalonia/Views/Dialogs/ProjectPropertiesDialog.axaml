@@ -73,6 +73,10 @@
                   <Border Classes="badge" IsVisible="{Binding FormatEditingLabel, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
                     <TextBlock Text="{Binding FormatEditingLabel}" FontSize="11"/>
                   </Border>
+                  <Border Classes="badge" IsVisible="{Binding SaveModeLabel, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                          ToolTip.Tip="{Binding SaveModeExplanation}" AutomationProperties.HelpText="{Binding SaveModeExplanation}">
+                    <TextBlock Text="{Binding SaveModeLabel}" FontSize="11"/>
+                  </Border>
                 </StackPanel>
               </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Not kept when saving'}" Stacked="True" IsVisible="{Binding HasFormatLimitations}">

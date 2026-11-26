@@ -67,7 +67,7 @@ public sealed class FormatSupportTests : IDisposable
         sb.AppendLine("---");
         sb.AppendLine("title: \"Format support matrix\"");
         sb.AppendLine("status: active");
-        sb.AppendLine("updated: 2026-10-22");
+        sb.AppendLine("updated: 2026-11-26");
         sb.AppendLine("summary: \"Which file formats Toucan edits safely, what survives a save, and what does not.\"");
         sb.AppendLine("---");
         sb.AppendLine("# Format support matrix");
@@ -77,14 +77,17 @@ public sealed class FormatSupportTests : IDisposable
         sb.AppendLine("**Full**: everything listed under *Kept* survives load and save. **Limited**: strings are editable, but the items under *Not supported* are dropped or rewritten on save. ");
         sb.AppendLine("Where a format can lose content that is already in the project's files (Android XML and RESX), Toucan checks the files when the project opens and again before saving: it warns, and refuses to overwrite them. Use Save As to write a copy.");
         sb.AppendLine();
-        sb.AppendLine("| Format | ID | Editing | Versions | Kept | Not supported |");
-        sb.AppendLine("|---|---|---|---|---|---|");
+        sb.AppendLine("**Saving** says what a save does to the files. **Edits in place**: only the entries you edited change; comments, order and formatting stay. This applies when Toucan opens the folder through the format's framework (ARB, Java ResourceBundle, i18next) or maps its files exactly (JSON); Project Properties shows which way the open project saves. **Rewrites the file**: the file is written again from the project, keeping what is listed under *Kept*; comments and formatting in the file may change. **Export only** and **Read only** formats are written but not read back, or read but not written.");
+        sb.AppendLine();
+        sb.AppendLine("| Format | ID | Editing | Saving | Versions | Kept | Not supported |");
+        sb.AppendLine("|---|---|---|---|---|---|---|");
         foreach (var s in BuiltIns.OrderBy(s => s.DisplayName, StringComparer.Ordinal))
         {
             var f = s.Support!;
             static string Escape(string x) => x.Replace("|", "\\|").Replace("<", "&lt;").Replace(">", "&gt;").Replace("*", "\\*");
             string Cell(IReadOnlyList<string> xs) => string.Join("<br>", xs.Select(Escape));
-            sb.AppendLine($"| {s.DisplayName} | `{s.FormatId}` | {f.Editing} | {Escape(f.Versions)} | {Cell(f.Preserved)} | {Cell(f.Unsupported)} |");
+            var saving = Toucan.Core.Services.FormatSaving.Label(Toucan.Core.Services.FormatSaving.Best(s, FormatTestHost.Factory.GetLoadStrategy(s.FormatId)));
+            sb.AppendLine($"| {s.DisplayName} | `{s.FormatId}` | {f.Editing} | {saving} | {Escape(f.Versions)} | {Cell(f.Preserved)} | {Cell(f.Unsupported)} |");
         }
         return sb.ToString();
     }

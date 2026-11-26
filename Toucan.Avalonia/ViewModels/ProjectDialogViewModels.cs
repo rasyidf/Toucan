@@ -378,6 +378,7 @@ public partial class ProjectPropertiesViewModel : ObservableObject
     public bool PersistOnSave { get; set; } = true;
     public string ProjectPath => _settings.ProjectPath;
     public string SaveStyleName => _format?.DisplayName ?? _settings.SaveFormat;
+    public ISaveStrategy? Format => _format;
 
     /// <summary>How safely the project's format saves: "Full" or "Limited", or empty when the format does not say (plugins).</summary>
     public string FormatEditingLabel => _format?.Support?.Editing.ToString() ?? string.Empty;
@@ -388,6 +389,11 @@ public partial class ProjectPropertiesViewModel : ObservableObject
         : string.Empty;
 
     public bool HasFormatLimitations => FormatLimitations.Length > 0;
+
+    /// <summary>How saving treats this project's files; set by the caller, which knows how the project was opened.</summary>
+    public FormatSaveMode? SaveMode { get; set; }
+    public string SaveModeLabel => SaveMode is { } mode ? Locales.Loc.T(FormatSaving.Label(mode)) : string.Empty;
+    public string SaveModeExplanation => SaveMode is { } mode ? Locales.Loc.T(FormatSaving.Explain(mode)) : string.Empty;
 
     /// <summary>The project's languages as a short list, shown next to the Manage languages button.</summary>
     public string LanguageSummary => Languages.Count == 0 ? "—" : string.Join(", ", Languages);

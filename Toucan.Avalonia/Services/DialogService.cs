@@ -129,6 +129,13 @@ public sealed class DialogService(IServiceProvider services) : IDialogService
         var vm = new ProjectPropertiesViewModel(settings, this, discoveredLanguages, services.GetService<IProjectDefaultsService>(),
             services.GetServices<ISaveStrategy>().FirstOrDefault(f => FormatIds.Comparer.Equals(f.FormatId, settings.SaveFormat)));
         vm.PersistOnSave = false;
+        if (vm.Format is { } writer)
+        {
+            var source = services.GetService<Toucan.Core.Services.WorkspaceService>()?.Source;
+            var factory = services.GetRequiredService<ITranslationStrategyFactory>();
+            vm.SaveMode = Toucan.Core.Services.FormatSaving.ForProject(writer, factory.GetLoadStrategy(writer.FormatId),
+                source is not null && Path.GetFullPath(source.Root) == Path.GetFullPath(settings.ProjectPath), settings.ResourceDocuments.Count > 0);
+        }
         if (settings.ResourceDocuments.Count > 0)
             vm.ResourceSettings = new ResourceSettingsViewModel(settings, services.GetRequiredService<ITranslationStrategyFactory>(),
                 services.GetRequiredService<ITranslationManagementService>().Translations, settings.IsDirty || services.GetRequiredService<ITranslationManagementService>().IsDirty);
