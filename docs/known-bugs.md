@@ -103,7 +103,7 @@ Toolbar contributions now render and follow registry state. Core connection acti
 <a id="qa-03"></a>
 ### QA-03: Native and supported-platform acceptance
 
-Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements and text scaling were checked on a separate Windows machine; that evidence is not stored in this repository, and the compatibility M7c rows should be updated from it. The 2026-10-25 readiness review records macOS/Linux testing as assumed passed, without execution artifacts. See the [acceptance record](specs/editor-comfort/acceptance.md).
+Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements and text scaling were checked on a separate Windows machine; that evidence is not stored in this repository, and the compatibility M7c rows should be updated from it. The 2026-10-25 readiness review records macOS/Linux testing as assumed passed, without execution artifacts. See the [acceptance record](specs/editor-comfort/acceptance.md). Since 2026-11-26 results become committed records: run `tools/record-evidence.sh tests` (or `pwsh tools/record-evidence.ps1 tests`) and the hand checks on each machine, and `tools/check-evidence.py` shows what is missing (see the [release checklist](release-checklist.md)). macOS has a passing test record; Windows and Linux records and all hand checks are still to be recorded.
 
 
 <a id="qa-04"></a>
