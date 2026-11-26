@@ -48,6 +48,12 @@ public class ProjectService(
     /// Formats whose folders open through document saving when no framework is set, so only edited values change in the file.
     /// Add a format here only with document fidelity fixtures and migration tests from its full-rewrite projects.
     /// </summary>
+    /// <summary>
+    /// The largest project Toucan 1.0 is measured to handle within its performance budgets (docs/performance.md); a larger one
+    /// opens with a notice. Raise it with new measurements.
+    /// </summary>
+    public const int SupportedTranslations = 20_000;
+
     internal static readonly IReadOnlySet<string> DocumentSavingOnDetection = new HashSet<string>(FormatIds.Comparer) { FormatIds.Arb, FormatIds.JavaProperties, FormatIds.Namespaced };
 
     /// <param name="saved">Settings read from a manifest. Such a project switches only when every language it saved state for is a
@@ -175,6 +181,10 @@ public class ProjectService(
 
         var warnings = settings.ImportDiagnostics.Select(d => $"{d.RelativePath} [{d.Field}]: {d.Message}").Concat(settings.ResourceDocuments.Where(d => d.Data.TryGetValue("yaml.unsafe", out var unsafeInput) && unsafeInput.ValueKind == System.Text.Json.JsonValueKind.String)
             .Select(d => $"{d.Resource.RelativePath}: saving is blocked: {d.Data["yaml.unsafe"].GetString()}")).ToList();
+        if (translations.Count > SupportedTranslations)
+            warnings.Add($"This project has {translations.Count:N0} translations. Toucan 1.0 is tested up to {SupportedTranslations:N0} "
+                + "(for example 2,000 keys in 10 languages); larger projects open, but searching, editing and saving get slower, "
+                + "and saving a very large project can run out of memory. Save often. See the performance page.");
         if (settings.MergedLegacyCopies.Count > 0)
             warnings.Insert(0, $"Toucan 0.23 saved copies of your language files ({string.Join(", ", settings.MergedLegacyCopies)}). "
                 + "They are merged into the original files, and the next save moves the copies to .toucan/backup."

@@ -6,9 +6,20 @@ summary: "Measured editor performance at 1,000 to 10,000 keys in 10 languages on
 ---
 # Performance
 
-## Budgets
+## Supported scale for 1.0
 
-From the roadmap (QA-02): the editor is usable within **5 seconds** of opening the reference project, a **warm search** answers within **200 ms**, and **typing stays responsive** while saving or syncing. The reference project is 10,000 keys in 10 languages (100,000 translations).
+Toucan 1.0 supports projects of up to **20,000 translations**, for example 2,000 keys in 10 languages (decided 2026-11-26). Within that scale, on a MacBook Air M1:
+
+| Budget | Limit | Measured at 2,000 keys × 10 |
+|---|---|---|
+| Usable after opening | 5 s | 3.7 s |
+| Warm key search | 250 ms | 229 ms |
+| Warm text search | 500 ms | 451 ms |
+| Longest UI stall while saving | 50 ms | 36 ms |
+
+Larger projects open with a notice and keep working, more slowly: 4,000 keys × 10 open in 6.3 s. At 100,000 translations saving every file ran out of memory on an 8 GB machine, so save often. Raising the supported scale is 1.x work (below).
+
+The roadmap's original budgets were 5 s, 200 ms and responsive typing for 10,000 keys × 10 languages; they are not met at that size.
 
 ## Measurements
 
@@ -25,7 +36,7 @@ Typing stays responsive while saving at every measured size (the UI thread never
 
 **Fixed while profiling:** every editor row validated itself, against the whole project, as its card was built. Opening grew with the square of the project size: 4.6 s at 500 keys, 263 s at 4,000, about an hour projected at 10,000. Rows are now validated when their page is shown, from their own card.
 
-**Still over budget:**
+**Still over budget at 10,000 keys (1.x):**
 - The editor builds a card and rows for every key, not only the page on screen, so opening and searching grow with the whole project.
 - Every edit through the workspace copies and re-validates the whole project (about 2 s per edit at 10,000 keys).
 - Saving through the desktop takes about three times as long as the save itself, and saving all files at 10,000 keys ran out of memory on this 8 GB machine.

@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- **Supported project size** — Toucan 1.0 is measured and supported up to 20,000 translations (for example 2,000 keys in 10 languages). Larger projects open with a notice; they work, more slowly. See [performance](docs/performance.md).
 - **Update notice on startup** — Toucan looks for a newer release on your channel when it starts (at most once a day) and says so, with a button that opens the release page. Nothing is downloaded or installed. Turn it off in Settings → About. A release candidate is now told when its final release is out.
 - **Installers and Linux packages** — Releases are built from their tag with a Windows installer next to the portable ZIP, `.deb` and `.rpm` packages and a tarball for Linux on x64 and arm64, and DMGs for Apple silicon and Intel Macs, each with SHA-256 checksums. See [installing Toucan](docs/install.md).
 - **`Toucan --self-check`** — Checks without opening a window that an installed Toucan starts and reads a project; used on every package before a release.
