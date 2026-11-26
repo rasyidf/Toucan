@@ -51,7 +51,7 @@ public sealed class BuiltInModuleTests : IDisposable
         Assert.Equal(["formats"], modules.Single(m => m.Id == "toucan.formats.json").Capabilities);
         // Together the families are the 14 formats Toucan ships (INI saves but has no loader).
         Assert.Equal(15, modules.Where(m => m.Id.StartsWith("toucan.formats.", StringComparison.Ordinal)).Sum(m => int.Parse(m.Registered[0].Split(':')[1], System.Globalization.CultureInfo.InvariantCulture)));
-        Assert.Equal(["profiles:12"], modules.Single(m => m.Id == "toucan.frameworks").Registered);
+        Assert.Equal(["profiles:13"], modules.Single(m => m.Id == "toucan.frameworks").Registered);
         Assert.Equal(["providers:6", "ai-services:3"], modules.Single(m => m.Id == "toucan.providers").Registered);
         Assert.Equal(["rules:7"], modules.Single(m => m.Id == "toucan.validation").Registered);
         Assert.Empty(modules.Single(m => m.Id == "toucan.sources").Registered);

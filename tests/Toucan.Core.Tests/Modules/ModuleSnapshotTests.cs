@@ -103,7 +103,7 @@ public class ModuleSnapshotTests
     {
         using var sp = Build();
         Assert.Equal(
-            ["generic-json", "i18next", "android", "flutter-arb", "dotnet-resx", "ios-strings", "gettext", "rails-yaml", "formatjs", "angular-transloco", "vue-json", "react-json"],
+            ["generic-json", "i18next", "android", "flutter-arb", "dotnet-resx", "ios-strings", "gettext", "rails-yaml", "formatjs", "angular-transloco", "vue-json", "react-json", "java-resourcebundle"],
             sp.GetServices<IFrameworkProfile>().Select(p => p.Id));
     }
 }

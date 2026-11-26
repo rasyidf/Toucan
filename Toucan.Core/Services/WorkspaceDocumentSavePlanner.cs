@@ -125,6 +125,9 @@ public sealed class WorkspaceDocumentSavePlanner(WorkspaceDocumentRouter router,
             var isNew = !source.Documents.Any(d => d.Id == document.Id);
             var options = isNew && snapshot.Options.UnicodeEscapes is null or ResourceUnicodeEscapes.Preserve
                 ? snapshot.Options with { UnicodeEscapes = ResourceUnicodeEscapes.Always } : snapshot.Options;
+            // A document read as ISO-8859-1 is written back in it, so writers must escape what it cannot hold.
+            if (options.OutputEncoding is null && document.TextFormat.EncodingName == System.Text.Encoding.Latin1.WebName)
+                options = options with { OutputEncoding = "ISO-8859-1" };
             var content = writer.SerializeDocument(document.Content, changes.AsReadOnly(), options, cancellationToken);
             if (!isNew && content == document.Content) continue;
             targets.Add(new(document.Id, document.RelativePath, document.FormatId,

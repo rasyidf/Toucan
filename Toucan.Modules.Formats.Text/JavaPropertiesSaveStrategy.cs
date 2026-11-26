@@ -6,17 +6,28 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy, IResourceOptionsProvider
+public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy, IResourceOptionsProvider, IDocumentSaveStrategy
 {
     public IReadOnlySet<string> SupportedOptions(ResourceDescriptor resource) => ResourceOptionFields.With("UnicodeEscapes");
 
     public string FormatId => FormatIds.JavaProperties;
 
+    public string SerializeDocument(string originalContent, IReadOnlyList<DocumentTranslationEdit> edits, CancellationToken cancellationToken = default) =>
+        SerializeDocument(originalContent, edits, new ResourceOptions(), cancellationToken);
+
+    public string SerializeDocument(string originalContent, IReadOnlyList<DocumentTranslationEdit> edits, ResourceOptions options, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(originalContent);
+        ArgumentNullException.ThrowIfNull(edits);
+        cancellationToken.ThrowIfCancellationRequested();
+        return PropertiesDocumentCodec.Serialize(originalContent, edits, options);
+    }
+
     public FormatSupport Support { get; } = new(
         FormatEditing.Full,
         "Java .properties (UTF-8 or ISO-8859-1 with \\uXXXX escapes); line continuations",
-        ["Escapes", "unicode", "leading spaces", "line continuations", "multiline text", "exact-resource comments/order/original escapes", "selected output encoding and Unicode escape policy"],
-        ["Folder-only saves sort keys and omit source comments; exact resources preserve document presentation"]);
+        ["Only edited entries change in the file: comments, order, separators, continuations and escapes stay", "escapes", "unicode", "leading spaces", "line continuations", "multiline text", "ISO-8859-1 files stay ISO-8859-1", "selected Unicode escape policy"],
+        ["Comments are not edited in Toucan; Toucan's own comments are kept beside the project", "A key repeated in one file is read as its last value"]);
     public string DisplayName => "Java .properties";
     public IReadOnlyList<string> FileExtensions => [".properties"];
     public string DefaultFilePath(string language) => $"{language}.properties";

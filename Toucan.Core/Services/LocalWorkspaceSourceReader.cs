@@ -12,12 +12,7 @@ public sealed class LocalWorkspaceSourceReader : IWorkspaceSourceReader
     {
         var path = WorkspaceDocumentRouter.WithinRoot(root, relativePath);
         var bytes = await File.ReadAllBytesAsync(path, cancellationToken).ConfigureAwait(false);
-        using var stream = new MemoryStream(bytes, writable: false);
-        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-        var content = await reader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
-        var encoding = reader.CurrentEncoding;
-        var preamble = encoding.GetPreamble();
-        return new(content, Convert.ToHexString(SHA256.HashData(bytes)),
-            new(encoding.WebName, preamble.Length > 0 && bytes.AsSpan().StartsWith(preamble)));
+        var (content, format) = WorkspaceText.Decode(bytes);
+        return new(content, Convert.ToHexString(SHA256.HashData(bytes)), format);
     }
 }

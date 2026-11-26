@@ -29,12 +29,8 @@ public sealed class RemoteWorkspaceSourceReader(IDocumentSourceSession session, 
             throw new FileNotFoundException($"'{relativePath}' does not exist in the source.", relativePath, ex);
         }
         var bytes = remote.Bytes.ToArray();
-        using var stream = new MemoryStream(bytes, writable: false);
-        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-        var content = await reader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
-        var encoding = reader.CurrentEncoding;
-        var preamble = encoding.GetPreamble();
-        return new(content, Convert.ToHexString(SHA256.HashData(bytes)),
-            new(encoding.WebName, preamble.Length > 0 && bytes.AsSpan().StartsWith(preamble)));
+        cancellationToken.ThrowIfCancellationRequested();
+        var (content, format) = Services.WorkspaceText.Decode(bytes);
+        return new(content, Convert.ToHexString(SHA256.HashData(bytes)), format);
     }
 }

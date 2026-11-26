@@ -48,14 +48,20 @@ public class ProjectService(
     /// Formats whose folders open through document saving when no framework is set, so only edited values change in the file.
     /// Add a format here only with document fidelity fixtures and migration tests from its full-rewrite projects.
     /// </summary>
-    internal static readonly IReadOnlySet<string> DocumentSavingOnDetection = new HashSet<string>(FormatIds.Comparer) { FormatIds.Arb };
+    internal static readonly IReadOnlySet<string> DocumentSavingOnDetection = new HashSet<string>(FormatIds.Comparer) { FormatIds.Arb, FormatIds.JavaProperties };
 
-    private string? DocumentFramework(string? format, string folder)
+    /// <param name="saved">Settings read from a manifest. Such a project switches only when every language it saved state for is a
+    /// language the framework discovers, so approvals and comments keyed by the old names are not orphaned.</param>
+    private string? DocumentFramework(string? format, string folder, ProjectSettings? saved)
     {
         if (format is null || !DocumentSavingOnDetection.Contains(format) || capabilities is null) return null;
-        return (frameworkProfiles ?? []).Where(p => FormatIds.Comparer.Equals(p.DefaultFormatId, format) && p.DetectionScore(folder) > 0)
+        var profile = (frameworkProfiles ?? []).Where(p => FormatIds.Comparer.Equals(p.DefaultFormatId, format) && p.DetectionScore(folder) > 0)
             .OrderByDescending(p => p.DetectionScore(folder))
-            .FirstOrDefault(p => capabilities.Resolve(p.Id, format).UsesDocumentPersistence)?.Id;
+            .FirstOrDefault(p => capabilities.Resolve(p.Id, format).UsesDocumentPersistence);
+        if (profile is null || saved is null) return profile?.Id;
+        var discovered = profile.DiscoverFiles(folder).Select(f => f.Language).ToHashSet(StringComparer.Ordinal);
+        var used = saved.Languages.Concat(saved.TranslationStates.Select(s => s.Language)).Distinct(StringComparer.Ordinal);
+        return used.All(discovered.Contains) ? profile.Id : null;
     }
 
     public ProjectLoadResult LoadProject(string folder, IProgress<ScanProgress>? progress = null, CancellationToken ct = default)
@@ -68,6 +74,7 @@ public class ProjectService(
         var selectedImporter = selectedFile == null ? null : (compatibilityImporters ?? []).FirstOrDefault(i => i.FindProjects(folder).Any(f => Path.GetFullPath(f).Equals(selectedFile, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)));
         var settings = selectedImporter != null ? FromCompatibility(selectedImporter.Read(selectedFile!)) :
             selectedFile != null ? ProjectSettings.LoadFile(selectedFile) ?? throw new FormatException("The selected native project is invalid.") : ProjectSettings.LoadFrom(folder);
+        var fromManifest = true;
         if (settings == null)
         {
             var projects = (compatibilityImporters ?? []).SelectMany(importer => importer.FindProjects(folder).Select(file => (Importer: importer, File: file))).ToList();
@@ -77,6 +84,7 @@ public class ProjectService(
             {
                 settings = ProjectSettings.CreateDefault(folder);
                 DetectFramework(settings, folder);
+                fromManifest = false;
             }
         }
         settings.ProjectPath = folder;
@@ -85,7 +93,7 @@ public class ProjectService(
         if (settings.ResourceSchemaVersion != 1) throw new FormatException($"Resource schema {settings.ResourceSchemaVersion} is not supported.");
 
         if (settings.ResourceDocuments.Count == 0 && string.IsNullOrWhiteSpace(settings.Framework))
-            settings.Framework = DocumentFramework(settings.SaveFormat, folder) ?? settings.Framework;
+            settings.Framework = DocumentFramework(settings.SaveFormat, folder, fromManifest ? settings : null) ?? settings.Framework;
 
         WorkspaceSource? source = null;
         // Explicit resource mappings keep exact-file IO; convention discovery must not replace their locales or paths.

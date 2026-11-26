@@ -27,5 +27,6 @@ public static class FrameworksModule
             s.AddSingleton<IFrameworkProfile>(new ScriptFrameworkProfile("angular-transloco", "Transloco", "transloco"));
             s.AddSingleton<IFrameworkProfile>(new ScriptFrameworkProfile("vue-json", "Vue i18n", "vue"));
             s.AddSingleton<IFrameworkProfile>(new ScriptFrameworkProfile("react-json", "React Intl / FormatJS", "formatjs"));
+            s.AddSingleton<IFrameworkProfile, JavaResourceBundleProfile>();
         });
 }

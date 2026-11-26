@@ -5,9 +5,16 @@ using Toucan.Core.Models;
 
 namespace Toucan.Core.Services.LoadStrategies;
 
-public class JavaPropertiesLoadStrategy : ILoadStrategy, IResourceLoadStrategy
+public class JavaPropertiesLoadStrategy : ILoadStrategy, IResourceLoadStrategy, IDocumentLoadStrategy
 {
     public string FormatId => FormatIds.JavaProperties;
+
+    /// <summary>One document's entries. Keys are literal (dots are part of the key), and a repeated key's last value wins.</summary>
+    public IReadOnlyList<DocumentTranslation> LoadDocument(string content, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return PropertiesDocumentCodec.Read(content);
+    }
 
     public IEnumerable<TranslationItem> Load(string folder) => Load(folder, null);
 
