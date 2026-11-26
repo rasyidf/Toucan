@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "check": "performance",
+  "kind": "manual",
+  "result": "passed",
+  "commit": "6e487e079a7ab37090517d206ae3c96d8a4ff458",
+  "dirty": false,
+  "version": "0.26.0",
+  "os": {
+    "family": "macOS",
+    "version": "27.2.1",
+    "arch": "arm64"
+  },
+  "environment": "native",
+  "packaged": false,
+  "command": null,
+  "counts": null,
+  "notes": "2,000 keys x 10 languages, Release, MacBook Air M1 8 GB: open 4.0 s (warm 1.8 s), key search 195 ms, text search 402 ms, edit 24 ms, save all files 3.3 s, longest UI stall while saving 55 ms, managed memory 185 MB. All within docs/performance.md budgets.",
+  "recordedAt": "2026-11-26T08:02:17Z",
+  "recordedBy": "rasyidf",
+  "ciRun": null
+}
