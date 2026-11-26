@@ -132,7 +132,7 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="changed">7 changed</span><span class="fixed">7 fixed</span></div>
+<div class="release-counts"><span class="changed">7 changed</span><span class="fixed">8 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Changed</h3>
 <ul>
 <li><strong>Flutter ARB files keep their layout</strong> — Saving a Flutter project now changes only the messages, descriptions and placeholders you edited; key order, indentation, <code>@@</code> headers and unknown <code>@key</code> fields stay as they were. Descriptions stay in <code>@key.description</code>, so <code>gen-l10n</code> keeps them as doc comments, and an <code>.arb</code> edited outside Toucan wins over what Toucan remembered. Renaming a message moves its <code>@key</code> block with it. Folders with <code>.arb</code> files open this way on their own, and projects saved by earlier versions keep their approvals. New language files follow the project&#x27;s naming (<code>intl_de.arb</code> beside <code>intl_en.arb</code>).</li>
@@ -145,6 +145,7 @@
 </ul>
 <h3>Fixed</h3>
 <ul>
+<li><strong>YAML and .properties projects from 0.23 open again</strong> — 0.23 saved each language to a second file at the project root (<code>en.yaml</code> beside <code>config/locales/en.yml</code>, <code>en.properties</code> beside <code>messages_en.properties</code>), sometimes with your edits only there, and such projects have not opened since 0.25. They now open with the copies merged into the original files, keeping the copy&#x27;s value where the two differ, and Toucan lists each difference. Opening changes nothing; the next save writes the merged files and moves the copies to <code>.toucan/backup/0.23-copies/</code>. Comments 0.23 kept for these keys are found again.</li>
 <li><strong>Approvals and comments from 0.24 i18next projects</strong> — Projects saved by 0.24 kept approvals and comments keyed by an exact-resource identity, which the document saving used for i18next since 0.25 did not match, so they were lost on open. They are now matched by language and key.</li>
 <li><strong>ARB comments from 0.23</strong> — Comments 0.23 kept in <code>app_&lt;lang&gt;.arb.comments.json</code> beside an ARB project are read again and written into <code>@key.description</code> on the next save.</li>
 <li><strong>A damaged project file is no longer replaced</strong> — If <code>toucan.tproj</code> could not be read, Toucan opened the folder as a new project and the next save replaced the file, with its approvals and settings. It now reports the problem and leaves the file alone.</li>

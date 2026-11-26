@@ -156,7 +156,8 @@ public class CommentPersistenceService(ILogger<CommentPersistenceService> logger
             // Restore comments onto matching items
             foreach (var item in languageGroup)
             {
-                if (comments.TryGetValue(item.Namespace, out var comment))
+                // 0.23 keyed Rails YAML comments with the locale root ("fr.farewell"); keys are read without it now.
+                if (comments.TryGetValue(item.Namespace, out var comment) || comments.TryGetValue($"{language}.{item.Namespace}", out comment))
                 {
                     item.Comment = comment;
                 }

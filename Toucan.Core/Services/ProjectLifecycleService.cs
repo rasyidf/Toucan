@@ -348,6 +348,12 @@ public partial class ProjectLifecycleService(
             UpdateManifestTranslationPackages(_currentProject);
             _currentProject.Save();
             transaction.Commit();
+            // MIG-01: the merged 0.23 copies are replaced by the files just written.
+            if (_currentProject.MergedLegacyCopies.Count > 0)
+            {
+                LegacyCopyMerge.MoveCopiesToBackup(projectPath, _currentProject.MergedLegacyCopies, DateTimeOffset.Now);
+                _currentProject.MergedLegacyCopies.Clear();
+            }
 
             // 5. Everything is on disk: only now do the unsaved edits count as saved
             if (workspace is null) translationManagement.MarkAllSaved();

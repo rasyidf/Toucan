@@ -163,6 +163,9 @@ public class ProjectSettings
     [JsonIgnore] public Dictionary<string, string> ExpectedResourceFiles { get; set; } = [];
     [JsonIgnore] public bool IsDirty { get; set; }
 
+    /// <summary>Copies of language files written by 0.23 and merged on open (MIG-01); moved to a backup by the next save.</summary>
+    [JsonIgnore] public List<string> MergedLegacyCopies { get; set; } = [];
+
     public static ProjectSettings? LoadFrom(string folder) => LoadFile(Path.Combine(folder, "toucan.tproj"));
 
     public static ProjectSettings? LoadFile(string file)

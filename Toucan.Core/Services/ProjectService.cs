@@ -126,6 +126,15 @@ public class ProjectService(
             FormatData = WorkspaceService.FormatDataOf(u)?.ToDictionary(p => p.Key, p => p.Value)
         }).ToList() : (resourceAware ? LoadResources(settings, ct) : Load(folder, settings.SaveFormat, true, settings.InputEncoding));
 
+        IReadOnlyList<string> mergeNotes = [];
+        if (source is null && !resourceAware && strategyFactory.GetSaveStrategy(settings.SaveFormat) is { } legacyWriter
+            && LegacyCopyMerge.Apply(legacyWriter, translations) is { } merged)
+        {
+            translations = merged.Items;
+            settings.MergedLegacyCopies = [.. merged.Copies];
+            mergeNotes = merged.Changes;
+        }
+
         if (source is not null && settings.LanguageAliases is { Count: > 0 })
             throw new NotSupportedException("Document-aware projects require source language codes; alias migration must be explicit.");
 
@@ -166,6 +175,10 @@ public class ProjectService(
 
         var warnings = settings.ImportDiagnostics.Select(d => $"{d.RelativePath} [{d.Field}]: {d.Message}").Concat(settings.ResourceDocuments.Where(d => d.Data.TryGetValue("yaml.unsafe", out var unsafeInput) && unsafeInput.ValueKind == System.Text.Json.JsonValueKind.String)
             .Select(d => $"{d.Resource.RelativePath}: saving is blocked: {d.Data["yaml.unsafe"].GetString()}")).ToList();
+        if (settings.MergedLegacyCopies.Count > 0)
+            warnings.Insert(0, $"Toucan 0.23 saved copies of your language files ({string.Join(", ", settings.MergedLegacyCopies)}). "
+                + "They are merged into the original files, and the next save moves the copies to .toucan/backup."
+                + (mergeNotes.Count == 0 ? " Both had the same values." : " Differences:\n" + string.Join("\n", mergeNotes)));
         var strategy = strategyFactory.GetSaveStrategy(settings.SaveFormat);
         var unsupported = (source is null && settings.ResourceDocuments.Count == 0) ? strategy?.FindUnsupportedConstructs(folder) ?? [] : [];
         if (unsupported.Count > 0)

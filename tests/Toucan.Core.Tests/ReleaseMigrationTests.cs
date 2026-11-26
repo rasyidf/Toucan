@@ -45,7 +45,8 @@ public sealed class ReleaseMigrationTests : IDisposable
             var data = new TheoryData<string, string>();
             foreach (var release in Directory.GetDirectories(Fixtures).Select(Path.GetFileName).Order(StringComparer.Ordinal))
                 foreach (var project in Directory.GetDirectories(Path.Combine(Fixtures, release!, "projects")).Select(Path.GetFileName).Order(StringComparer.Ordinal))
-                    data.Add(release!, project!);
+                    // 0.23 duplicated YAML and .properties files; these open merged (MIG-01), see the tests below.
+                    if (!(release == "0.23.0" && project is "yaml" or "properties")) data.Add(release!, project!);
             return data;
         }
     }
@@ -85,8 +86,6 @@ public sealed class ReleaseMigrationTests : IDisposable
     [MemberData(nameof(Projects))]
     public async Task AProjectFromAReleasedPreviewOpensWithWhatThatReleaseSaw(string release, string project)
     {
-        if (release == "0.23.0" && project is "yaml" or "properties")
-            Assert.Skip("MIG-01: 0.23 wrote each language to a second copy of its file; such projects do not open since 0.25 (see docs/known-bugs.md).");
         var expected = JsonSerializer.Deserialize<Expected>(File.ReadAllText(Path.Combine(Fixtures, release, "expected", project + ".json")))!;
         var folder = Copy(release, project);
         var before = Directory.GetFiles(folder, "*", SearchOption.AllDirectories).ToDictionary(f => f, File.ReadAllBytes);
@@ -132,6 +131,44 @@ public sealed class ReleaseMigrationTests : IDisposable
             return (ProjectLifecycleService)ctor.Invoke([.. ctor.GetParameters().Select(p => sp.GetService(p.ParameterType) ?? (p.HasDefaultValue ? p.DefaultValue : null))]);
         });
         return services.BuildServiceProvider();
+    }
+
+    [Theory]
+    [InlineData("yaml", "config/locales/en.yml", "en.yaml", "en.farewell", "Bye", "farewell: Bye")]
+    [InlineData("properties", "src/main/resources/messages_en.properties", "en.properties", "farewell", "Goodbye", "farewell=Goodbye")]
+    public async Task A023ProjectWithCopiedFilesOpensMergedAndTheNextSaveSetsTheCopiesAside(string project, string original, string copy,
+        string key, string value, string savedLine)
+    {
+        var folder = Copy("0.23.0", project);
+        using var provider = Provider();
+        var lifecycle = provider.GetRequiredService<IProjectLifecycleService>();
+        var opened = await lifecycle.OpenProjectAsync(folder);
+        Assert.True(opened.Status == ProjectOpenStatus.Success, $"{opened.Status}: {opened.ErrorMessage}");
+        Assert.Contains(opened.Warnings ?? [], w => w.Contains("Toucan 0.23 saved copies", StringComparison.Ordinal) && w.Contains(copy, StringComparison.Ordinal));
+        var store = provider.GetRequiredService<ITranslationManagementService>();
+        Assert.Equal(4, store.Translations.Count);
+        // 0.23 named Rails keys with their locale root (en.farewell); this build reads them without it.
+        Assert.Equal(value, store.Translations.Single(t => t.Language == "en" && (t.Namespace == key || key.EndsWith("." + t.Namespace, StringComparison.Ordinal))).Value);
+        Assert.Equal("Checked by Lea", store.Translations.Single(t => t.Language == "fr" && t.Namespace.EndsWith("farewell", StringComparison.Ordinal)).Comment);
+        // Opening writes nothing; the copies stay until a save has replaced them.
+        Assert.True(File.Exists(Path.Combine(folder, copy)));
+
+        Assert.Equal(ProjectSaveStatus.Success, (await lifecycle.SaveProjectAsync()).Status);
+        await lifecycle.CloseProjectAsync();
+        Assert.Contains(savedLine, File.ReadAllText(Path.Combine(folder, original)));
+        Assert.False(File.Exists(Path.Combine(folder, copy)));
+        var backup = Assert.Single(Directory.GetFiles(Path.Combine(folder, ".toucan", "backup", "0.23-copies"), copy, SearchOption.AllDirectories));
+        Assert.Contains(value == "Goodbye" ? "Goodbye" : "Bye", File.ReadAllText(backup));
+
+        using var again = Provider();
+        var reopened = again.GetRequiredService<IProjectLifecycleService>();
+        var second = await reopened.OpenProjectAsync(folder);
+        Assert.DoesNotContain(second.Warnings ?? [], w => w.Contains("Toucan 0.23 saved copies", StringComparison.Ordinal));
+        var entries = again.GetRequiredService<ITranslationManagementService>().Translations;
+        Assert.Equal(4, entries.Count);
+        Assert.Equal(value, entries.Single(t => t.Language == "en" && t.Namespace.EndsWith("farewell", StringComparison.Ordinal)).Value);
+        Assert.Equal("Checked by Lea", entries.Single(t => t.Language == "fr" && t.Namespace.EndsWith("farewell", StringComparison.Ordinal)).Comment);
+        await reopened.CloseProjectAsync();
     }
 
     [Fact]
