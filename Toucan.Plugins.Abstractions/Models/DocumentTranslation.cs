@@ -27,7 +27,21 @@ public sealed class TranslationPath : IEquatable<TranslationPath>
 
 /// <summary>One parsed unit; source identity and language are assigned by the host.</summary>
 public sealed record DocumentTranslation(TranslationPath KeyPath, string Value,
-    string? RawScalar = null);
+    string? RawScalar = null)
+{
+    /// <summary>
+    /// The entry's comment, for formats that keep comments in the document itself (their reader and writer implement
+    /// <c>IResourceMetadataAuthority</c> with <c>CommentsInResource</c>). Null when the format keeps none; empty when the entry has none.
+    /// </summary>
+    public string? Comment { get; init; }
+
+    /// <summary>
+    /// Entry metadata the format keeps in the document beside the value (ARB <c>@key</c> placeholders and unknown fields), under keys
+    /// the reader's <c>IResourceMetadataAuthority.OwnsMetadata</c> accepts. The host keeps it with the entry and passes it back on
+    /// write, so an editor can change it. Null when the format keeps none.
+    /// </summary>
+    public IReadOnlyDictionary<string, string>? FormatData { get; init; }
+}
 
 /// <summary>Explicit grouping of language documents belonging to the same logical resource.</summary>
 /// <param name="Family">Stable, source-relative resource identity, excluding language. Null keeps documents separate.</param>

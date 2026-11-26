@@ -25,7 +25,19 @@ public sealed record SourceBinding(DocumentId DocumentId, TranslationPath Locati
 
 /// <summary>Immutable unit. Rename changes its address, not its EntryId or document ownership.</summary>
 public sealed record WorkspaceSourceUnit(EntryId EntryId, string Language, TranslationPath Namespace,
-    TranslationPath KeyPath, string Value, SourceBinding Binding, string? RawScalar = null, WorkspaceEntryMetadata? Metadata = null);
+    TranslationPath KeyPath, string Value, SourceBinding Binding, string? RawScalar = null, WorkspaceEntryMetadata? Metadata = null)
+{
+    /// <summary>
+    /// The comment as the document holds it, for formats that keep comments in the file (ARB <c>@key.description</c>). Null for
+    /// other formats, whose comments live in <see cref="Metadata"/>. When set, it wins over the sidecar's comment.
+    /// </summary>
+    public string? FormatComment { get; init; }
+
+    /// <summary>Format-owned entry metadata read from the document (see <see cref="DocumentTranslation.FormatData"/>).</summary>
+    public IReadOnlyDictionary<string, string>? FormatData { get; init; }
+
+    public string Comment => FormatComment ?? Metadata?.Comment ?? string.Empty;
+}
 
 /// <summary>Source snapshot, independent of UI state, plugin activation, or a save strategy.</summary>
 public sealed class WorkspaceSource

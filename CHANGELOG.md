@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 ### Changed
+- **Flutter ARB files keep their layout** — Saving a Flutter project now changes only the messages, descriptions and placeholders you edited; key order, indentation, `@@` headers and unknown `@key` fields stay as they were. Descriptions stay in `@key.description`, so `gen-l10n` keeps them as doc comments, and an `.arb` edited outside Toucan wins over what Toucan remembered. Renaming a message moves its `@key` block with it. Folders with `.arb` files open this way on their own, and projects saved by earlier versions keep their approvals. New language files follow the project's naming (`intl_de.arb` beside `intl_en.arb`).
+- **Plugin API 1.3: comments and metadata in documents** — `DocumentTranslation` gains `Comment` and `FormatData` for formats that keep comments and entry metadata in the file. Existing document formats are unaffected.
 - **Strict validation covers whole-file connectors** — With Require valid for approval on, a sync with a service that stores whole files, such as Crowdin, no longer uploads a file whose saved values have validation errors. The plan lists each held file and the values to fix; other files and deletions still go out. The check follows the saved file, so fix and save before pushing again.
 
 ### Fixed

@@ -31,6 +31,7 @@ public sealed class WorkspaceSourceLoader(IEnumerable<IFrameworkProfile> profile
             ?? throw new FormatUnavailableException(format);
         if (loader is not IDocumentLoadStrategy reader)
             throw new NotSupportedException($"Format '{format}' does not support document-aware loading.");
+        var commentsInDocument = reader is IResourceMetadataAuthority { CommentsInResource: true };
 
         IWorkspaceSourceReader access = sourceReader ?? new LocalWorkspaceSourceReader();
         var artifacts = new List<WorkspaceSourceArtifact>();
@@ -87,7 +88,7 @@ public sealed class WorkspaceSourceLoader(IEnumerable<IFrameworkProfile> profile
                 if (!seenUnits.Add((id, file.Language)))
                     throw new InvalidOperationException($"Ambiguous resource family for '{relative}' at '{parsed.KeyPath.EscapedPath}'.");
                 units.Add(new(id, file.Language, layout.Namespace, parsed.KeyPath, parsed.Value,
-                    new(documentId, parsed.KeyPath), parsed.RawScalar));
+                    new(documentId, parsed.KeyPath), parsed.RawScalar) { FormatComment = commentsInDocument ? parsed.Comment ?? string.Empty : null, FormatData = parsed.FormatData });
             }
         }
         var byUnit = units.Select((unit, index) => (unit, index)).ToDictionary(p => (p.unit.EntryId, p.unit.Language));

@@ -71,8 +71,8 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
             {
                 _state = source.Units.ToImmutableDictionary(u => (u.EntryId.Value, u.Language), u => new Unit(u.EntryId.Value,
                     u.Language, string.Join('.', u.Namespace.Segments.Concat(u.KeyPath.Segments)), u.Namespace, u.KeyPath,
-                    u.Value, u.Metadata?.Comment ?? string.Empty, u.Metadata?.Approved ?? false, u.Metadata?.Modified, u.Metadata?.ApprovedAt, u.Metadata?.ChangeType ?? ChangeType.DirectEdit,
-                    u.RawScalar is null ? null : ImmutableDictionary<string, string>.Empty.Add(NestedJsonParser.JsonScalarKey, u.RawScalar), u.Binding,
+                    u.Value, u.Comment, u.Metadata?.Approved ?? false, u.Metadata?.Modified, u.Metadata?.ApprovedAt, u.Metadata?.ChangeType ?? ChangeType.DirectEdit,
+                    FormatDataOf(u), u.Binding,
                     NeedsReview: (u.Metadata?.NeedsReview ?? false) && !(u.Metadata?.Approved ?? false), ReviewedSourceHash: u.Metadata?.ReviewedSourceHash));
                 PublishProjections();
                 store.Initialize(store.Translations.ToList());
@@ -247,6 +247,14 @@ public sealed partial class WorkspaceService(ITranslationManagementService store
     /// Entry/language pairs that the strict validation policy (<see cref="ProjectSettings.RequireValidForApproval"/>)
     /// keeps from being approved or delivered. Empty when the policy is off.
     /// </summary>
+    /// <summary>The unit's format data in the workspace: the raw-scalar key for typed JSON values plus metadata the format keeps.</summary>
+    internal static ImmutableDictionary<string, string>? FormatDataOf(WorkspaceSourceUnit unit)
+    {
+        var data = unit.FormatData?.ToImmutableDictionary(StringComparer.Ordinal) ?? ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal);
+        if (unit.RawScalar is not null) data = data.SetItem(NestedJsonParser.JsonScalarKey, unit.RawScalar);
+        return data.IsEmpty ? null : data;
+    }
+
     public IReadOnlySet<(Guid EntryId, string Language)> PolicyBlockedUnits()
     {
         lock (_gate)

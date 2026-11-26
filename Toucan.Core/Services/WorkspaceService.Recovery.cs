@@ -12,9 +12,7 @@ public sealed partial class WorkspaceService
         lock (_gate)
         {
             if (_settings is null || _settings.ProjectPath != source.Root) throw new InvalidOperationException("Recovery source is not the active workspace.");
-            WorkspaceDocumentUnit Convert(Unit unit) => new(new(unit.Id), unit.Language, unit.Namespace, unit.KeyPath, unit.Value, unit.Binding,
-                unit.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey), Metadata(unit), unit.Destination);
-            return new(source.Root, source.FrameworkId, source.FormatId, _baseline.Values.Select(Convert).ToArray(), _state.Values.Select(Convert).ToArray(),
+            return new(source.Root, source.FrameworkId, source.FormatId, _baseline.Values.Select(DocumentUnit).ToArray(), _state.Values.Select(DocumentUnit).ToArray(),
                 new(source.Root, source.IdentityCatalog)) { RemovedLanguages = _removedLanguages.Order(StringComparer.Ordinal).ToArray() };
         }
     }
@@ -42,10 +40,11 @@ public sealed partial class WorkspaceService
                 {
                     if (after.EntryId.Value == Guid.Empty || after.KeyPath.Segments.Count == 0 || after.Metadata is { } metadata &&
                         (metadata.EntryId != after.EntryId || metadata.Language != after.Language)) throw new InvalidOperationException("Invalid recovery entry.");
-                    var data = after.RawScalar is null ? null : ImmutableDictionary<string, string>.Empty.Add(NestedJsonParser.JsonScalarKey, after.RawScalar);
+                    var data = (after.FormatData ?? new Dictionary<string, string>()).ToImmutableDictionary(StringComparer.Ordinal);
+                    if (after.RawScalar is not null) data = data.SetItem(NestedJsonParser.JsonScalarKey, after.RawScalar);
                     next[key] = new(key.Item1, after.Language, string.Join('.', after.Namespace.Segments.Concat(after.KeyPath.Segments)),
                         after.Namespace, after.KeyPath, after.Value, after.Metadata?.Comment ?? string.Empty, after.Metadata?.Approved ?? false,
-                        after.Metadata?.Modified, after.Metadata?.ApprovedAt, after.Metadata?.ChangeType ?? Contracts.Services.ChangeType.DirectEdit, data, after.Binding, after.Destination,
+                        after.Metadata?.Modified, after.Metadata?.ApprovedAt, after.Metadata?.ChangeType ?? Contracts.Services.ChangeType.DirectEdit, data.IsEmpty ? null : data, after.Binding, after.Destination,
                         NeedsReview: (after.Metadata?.NeedsReview ?? false) && !(after.Metadata?.Approved ?? false), ReviewedSourceHash: after.Metadata?.ReviewedSourceHash);
                 }
                 applied++;
@@ -64,8 +63,5 @@ public sealed partial class WorkspaceService
         return new(applied, conflicts.ToArray());
     }
 
-    private static bool Matches(Unit? unit, WorkspaceDocumentUnit? draft) => unit is null ? draft is null : draft is not null
-        && unit.Id == draft.EntryId.Value && unit.Language == draft.Language && unit.Namespace.Equals(draft.Namespace) && unit.KeyPath.Equals(draft.KeyPath)
-        && unit.Value == draft.Value && unit.Binding == draft.Binding && unit.Destination == draft.Destination && Metadata(unit) == draft.Metadata
-        && unit.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey) == draft.RawScalar;
+    private static bool Matches(Unit? unit, WorkspaceDocumentUnit? draft) => unit is null ? draft is null : draft is not null && DocumentUnit(unit) == draft;
 }

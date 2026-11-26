@@ -172,7 +172,7 @@ public sealed class WorkspaceSourceLifecycleTests : IDisposable
     public void OnlyVerifiedBuiltInFormatsDeclareTargetedDocumentSaves()
     {
         // Adding a format here requires fidelity fixtures for its document reader and writer (see the sync engine tracker).
-        var verified = new[] { FormatIds.Json, FormatIds.Namespaced };
+        var verified = new[] { FormatIds.Json, FormatIds.Namespaced, FormatIds.Arb };
         foreach (var writer in _services.GetServices<ISaveStrategy>())
         {
             var expected = verified.Contains(writer.FormatId, FormatIds.Comparer) ? FormatSaveScope.DeclaredDocuments : FormatSaveScope.Project;

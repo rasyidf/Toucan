@@ -9,7 +9,7 @@ namespace Toucan.Core.Services.Frameworks;
 /// Convention: lib/l10n/app_{lang}.arb or {lang}.arb
 /// Metadata: @-prefixed keys for descriptions/placeholders
 /// </summary>
-public class FlutterArbProfile : IFrameworkProfile
+public class FlutterArbProfile : IFrameworkProfile, IFrameworkDocumentLayout
 {
     public string Id => "flutter-arb";
     public string DisplayName => "Flutter (ARB)";
@@ -43,7 +43,34 @@ public class FlutterArbProfile : IFrameworkProfile
     {
         var dir = FindArbDirs(rootFolder).FirstOrDefault() ?? Path.Combine(rootFolder, "lib", "l10n");
         var langCode = language.Replace('-', '_');
-        return Path.Combine(dir, $"app_{langCode}.arb");
+        // Follow the files already there: intl_en.arb gives intl_fr.arb, en.arb gives fr.arb.
+        var existing = Directory.Exists(dir) ? Directory.GetFiles(dir, "*.arb").Select(Path.GetFileNameWithoutExtension).OrderBy(n => n, StringComparer.Ordinal).FirstOrDefault() : null;
+        var prefix = existing is null ? "app_" : Prefix(existing);
+        return Path.Combine(dir, $"{prefix}{langCode}.arb");
+    }
+
+    /// <summary>The ARB files of one folder that share a prefix (app_en.arb, app_fr.arb) are the languages of one resource.</summary>
+    public FrameworkDocumentLayout GetDocumentLayout(DiscoveredFile file)
+    {
+        var relative = file.RelativePath.Replace('\\', '/');
+        var slash = relative.LastIndexOf('/');
+        var folder = slash < 0 ? "" : relative[..slash];
+        return new(folder + "/@arb/" + Prefix(Path.GetFileNameWithoutExtension(relative)), TranslationPath.Empty);
+    }
+
+    public DiscoveredFile? DescribeDestination(string rootFolder, string relativePath)
+    {
+        var normalized = relativePath.Replace('\\', '/');
+        if (!normalized.EndsWith(".arb", StringComparison.Ordinal) || normalized.Split('/').Any(p => p is "" or "." or "..")) return null;
+        var language = ExtractLanguage(normalized);
+        return string.IsNullOrWhiteSpace(language) ? null
+            : new(Path.Combine(rootFolder, normalized.Replace('/', Path.DirectorySeparatorChar)), normalized, language);
+    }
+
+    private static string Prefix(string fileName)
+    {
+        var idx = fileName.IndexOf('_');
+        return idx < 0 ? "" : fileName[..(idx + 1)];
     }
 
     public int DetectionScore(string rootFolder)

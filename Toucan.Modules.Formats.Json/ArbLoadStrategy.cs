@@ -11,7 +11,7 @@ namespace Toucan.Core.Services.LoadStrategies;
 /// message and the other <c>@@</c> header entries go in <see cref="TranslationItem.FormatData"/> under the
 /// <see cref="ArbFormat"/> keys so the save strategy can write them back.
 /// </summary>
-public class ArbLoadStrategy : ILoadStrategy, IResourceLoadStrategy, IResourceMetadataAuthority
+public class ArbLoadStrategy : ILoadStrategy, IResourceLoadStrategy, IResourceMetadataAuthority, IDocumentLoadStrategy
 {
     private static readonly Regex s_scriptOrRegion = new("^([A-Z][a-z]{3}|[A-Z]{2}|[0-9]{3})$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
     private static readonly Regex s_languageCode = new("^[a-z]{2,3}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -20,6 +20,37 @@ public class ArbLoadStrategy : ILoadStrategy, IResourceLoadStrategy, IResourceMe
     public bool OwnsMetadata(string key) => key.StartsWith("arb.", StringComparison.Ordinal);
 
     public string FormatId => FormatIds.Arb;
+
+    /// <summary>
+    /// One ARB document: each top-level string message, with its <c>@key.description</c> as the comment. <c>@@</c> header entries,
+    /// other <c>@key</c> fields and non-string values are not translations and stay in the file untouched.
+    /// </summary>
+    public IReadOnlyList<DocumentTranslation> LoadDocument(string content, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var doc = JsonDocument.Parse(content);
+        if (doc.RootElement.ValueKind != JsonValueKind.Object) throw new JsonException("An ARB document must have an object root.");
+        var result = new List<DocumentTranslation>();
+        foreach (var prop in doc.RootElement.EnumerateObject())
+        {
+            if (prop.Name.StartsWith('@') || prop.Value.ValueKind != JsonValueKind.String) continue;
+            string? comment = null;
+            Dictionary<string, string>? data = null;
+            if (doc.RootElement.TryGetProperty("@" + prop.Name, out var meta))
+            {
+                if (meta.ValueKind != JsonValueKind.Object) throw new JsonException($"ARB metadata '@{prop.Name}' must be an object.");
+                if (meta.TryGetProperty("description", out var description) && description.ValueKind == JsonValueKind.String) comment = description.GetString();
+                data = new(StringComparer.Ordinal) { [ArbFormat.Metadata] = meta.GetRawText() };
+                if (meta.TryGetProperty("placeholders", out var placeholders))
+                {
+                    if (placeholders.ValueKind != JsonValueKind.Object) throw new JsonException($"ARB placeholders of '{prop.Name}' must be an object.");
+                    data[ArbFormat.Placeholders] = placeholders.GetRawText();
+                }
+            }
+            result.Add(new(new([prop.Name]), prop.Value.GetString() ?? string.Empty) { Comment = comment ?? string.Empty, FormatData = data });
+        }
+        return result;
+    }
 
     public IEnumerable<TranslationItem> Load(string folder)
     {

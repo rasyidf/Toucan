@@ -15,7 +15,21 @@ public sealed record WorkspaceSourceContent(string Content, string Version, Sour
 /// </summary>
 public sealed record WorkspaceDocumentUnit(EntryId EntryId, string Language, TranslationPath Namespace,
     TranslationPath KeyPath, string Value, SourceBinding? Binding, string? RawScalar = null, WorkspaceEntryMetadata? Metadata = null,
-    string? Destination = null);
+    string? Destination = null)
+{
+    /// <summary>The entry's format-owned metadata as edited, without the host's raw-scalar key.</summary>
+    public IReadOnlyDictionary<string, string>? FormatData { get; init; }
+
+    // Value equality includes the metadata's contents; recovery drafts compare units to find what changed.
+    public bool Equals(WorkspaceDocumentUnit? other) => other is not null && EntryId == other.EntryId && Language == other.Language
+        && Namespace.Equals(other.Namespace) && KeyPath.Equals(other.KeyPath) && Value == other.Value && Binding == other.Binding
+        && RawScalar == other.RawScalar && Metadata == other.Metadata && Destination == other.Destination && SameData(FormatData, other.FormatData);
+
+    public override int GetHashCode() => HashCode.Combine(EntryId, Language, KeyPath, Value);
+
+    internal static bool SameData(IReadOnlyDictionary<string, string>? a, IReadOnlyDictionary<string, string>? b) =>
+        (a?.Count ?? 0) == (b?.Count ?? 0) && (a is null || a.All(p => b!.TryGetValue(p.Key, out var v) && v == p.Value));
+}
 
 /// <summary>Immutable content-only snapshot. Comments/review sidecars are planned separately before save execution.</summary>
 public sealed class WorkspaceDocumentSnapshot(string root, Guid sessionId, long revision, IEnumerable<WorkspaceDocumentUnit> units)

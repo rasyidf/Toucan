@@ -36,6 +36,10 @@ public sealed class WorkspaceDocumentSavePlanner(WorkspaceDocumentRouter router,
         var plannedUnits = new List<WorkspaceSourceUnit>();
         var addresses = new HashSet<(DocumentId, TranslationPath)>();
 
+        // Formats that keep comments in the file (ARB) get the comment with each translation; others keep it in sidecars.
+        bool CommentsInDocument(string formatId) =>
+            serializers.SingleOrDefault(s => FormatIds.Comparer.Equals(s.FormatId, formatId)) is IResourceMetadataAuthority { CommentsInResource: true };
+
         void Edit(DocumentId id, DocumentTranslationEdit edit)
         {
             if (!edits.TryGetValue(id, out var list)) edits.Add(id, list = []);
@@ -86,15 +90,20 @@ public sealed class WorkspaceDocumentSavePlanner(WorkspaceDocumentRouter router,
             if (deletions.Contains(document.Id)) throw new InvalidOperationException("A deleted document still owns translations.");
             if (!addresses.Add((document.Id, unit.KeyPath))) throw new InvalidOperationException("Multiple entries target the same document location.");
             var binding = new SourceBinding(document.Id, unit.KeyPath);
-            plannedUnits.Add(new(unit.EntryId, unit.Language, unit.Namespace, unit.KeyPath, unit.Value, binding, unit.RawScalar, unit.Metadata));
-            var replacement = new DocumentTranslation(unit.KeyPath, unit.Value, unit.RawScalar);
+            var inDocument = CommentsInDocument(document.FormatId);
+            var comment = inDocument ? unit.Metadata?.Comment ?? string.Empty : null;
+            var metadata = inDocument && unit.Metadata is { } m ? m with { Comment = string.Empty } is { IsEmpty: false } stripped ? stripped : null : unit.Metadata;
+            var data = inDocument ? unit.FormatData : null;
+            plannedUnits.Add(new(unit.EntryId, unit.Language, unit.Namespace, unit.KeyPath, unit.Value, binding, unit.RawScalar, metadata) { FormatComment = comment, FormatData = data });
+            var replacement = new DocumentTranslation(unit.KeyPath, unit.Value, unit.RawScalar) { Comment = comment, FormatData = data };
             if (old is null) Edit(document.Id, new(null, replacement));
             else if (old.Binding.DocumentId != document.Id)
             {
                 Edit(old.Binding.DocumentId, new(old.Binding.Location, null));
                 Edit(document.Id, new(null, replacement));
             }
-            else if (!old.Binding.Location.Equals(unit.KeyPath) || old.Value != unit.Value || old.RawScalar != unit.RawScalar)
+            else if (!old.Binding.Location.Equals(unit.KeyPath) || old.Value != unit.Value || old.RawScalar != unit.RawScalar
+                || comment is not null && comment != old.Comment || inDocument && !SameData(old.FormatData, data))
                 Edit(document.Id, new(old.Binding.Location, replacement));
         }
 
@@ -172,6 +181,9 @@ public sealed class WorkspaceDocumentSavePlanner(WorkspaceDocumentRouter router,
         }
         return result;
     }
+
+    private static bool SameData(IReadOnlyDictionary<string, string>? a, IReadOnlyDictionary<string, string>? b) =>
+        (a?.Count ?? 0) == (b?.Count ?? 0) && (a is null || a.All(p => b!.TryGetValue(p.Key, out var v) && v == p.Value));
 
     private static string Normalize(string root, string path) =>
         Path.GetRelativePath(root, WorkspaceDocumentRouter.WithinRoot(root, path)).Replace(Path.DirectorySeparatorChar, '/');

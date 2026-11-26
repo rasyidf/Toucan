@@ -75,7 +75,10 @@ public sealed class UiClosureFlowTests
         Assert.Null(item.ApplyPlaceholderMetadata("{\"name\":{\"type\":\"String\",\"example\":\"Ada\",\"custom\":{\"keep\":true}}}", before));
         Assert.True(vm.IsDirty);
         ((ProjectLifecycleService)host.Services.GetRequiredService<IProjectLifecycleService>()).FlushRecoveryDraft();
-        Assert.Single(host.Services.GetRequiredService<IRecoveryDraftService>().TryRead(folder)!.Entries);
+        // ARB folders open through document saving, so the draft records workspace units; the placeholder edit is in it.
+        var draft = host.Services.GetRequiredService<IRecoveryDraftService>().TryRead(folder)!;
+        Assert.Equal(1, draft.ChangeCount);
+        Assert.Contains("Ada", Assert.Single(draft.Workspace!.Units).FormatData!["arb.placeholders"]);
         vm.UndoCommand.Execute(null); Assert.Equal(before, vm.AllTranslation.Single().FormatData!["arb.placeholders"]);
         vm.RedoCommand.Execute(null); await vm.SaveCommand.ExecuteAsync(null); await vm.OpenProjectAsync(folder);
         Assert.Contains("Ada", vm.AllTranslation.Single().FormatData!["arb.placeholders"]);

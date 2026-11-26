@@ -44,6 +44,20 @@ public class ProjectService(
         }
     }
 
+    /// <summary>
+    /// Formats whose folders open through document saving when no framework is set, so only edited values change in the file.
+    /// Add a format here only with document fidelity fixtures and migration tests from its full-rewrite projects.
+    /// </summary>
+    internal static readonly IReadOnlySet<string> DocumentSavingOnDetection = new HashSet<string>(FormatIds.Comparer) { FormatIds.Arb };
+
+    private string? DocumentFramework(string? format, string folder)
+    {
+        if (format is null || !DocumentSavingOnDetection.Contains(format) || capabilities is null) return null;
+        return (frameworkProfiles ?? []).Where(p => FormatIds.Comparer.Equals(p.DefaultFormatId, format) && p.DetectionScore(folder) > 0)
+            .OrderByDescending(p => p.DetectionScore(folder))
+            .FirstOrDefault(p => capabilities.Resolve(p.Id, format).UsesDocumentPersistence)?.Id;
+    }
+
     public ProjectLoadResult LoadProject(string folder, IProgress<ScanProgress>? progress = null, CancellationToken ct = default)
     {
         using var _ = ScanContext.Begin(ct, progress);
@@ -70,6 +84,9 @@ public class ProjectService(
         settings.DefaultPathResolver = ResolveDefaultPath;
         if (settings.ResourceSchemaVersion != 1) throw new FormatException($"Resource schema {settings.ResourceSchemaVersion} is not supported.");
 
+        if (settings.ResourceDocuments.Count == 0 && string.IsNullOrWhiteSpace(settings.Framework))
+            settings.Framework = DocumentFramework(settings.SaveFormat, folder) ?? settings.Framework;
+
         WorkspaceSource? source = null;
         // Explicit resource mappings keep exact-file IO; convention discovery must not replace their locales or paths.
         if (settings.ResourceDocuments.Count == 0 && capabilities is not null && sourceLoader is not null && !string.IsNullOrWhiteSpace(settings.Framework))
@@ -91,10 +108,10 @@ public class ProjectService(
         var translations = source is not null ? source.Units.Select(u => new TranslationItem
         {
             Namespace = string.Join('.', u.Namespace.Segments.Concat(u.KeyPath.Segments)), Language = u.Language, Value = u.Value,
-            Comment = u.Metadata?.Comment ?? string.Empty, IsApproved = u.Metadata?.Approved ?? false, LastModifiedUtc = u.Metadata?.Modified,
+            Comment = u.Comment, IsApproved = u.Metadata?.Approved ?? false, LastModifiedUtc = u.Metadata?.Modified,
             ApprovedAtUtc = u.Metadata?.ApprovedAt, ChangeType = u.Metadata?.ChangeType ?? ChangeType.DirectEdit,
             NeedsReview = (u.Metadata?.NeedsReview ?? false) && !(u.Metadata?.Approved ?? false), ReviewedSourceHash = u.Metadata?.ReviewedSourceHash,
-            FormatData = u.RawScalar is null ? null : new Dictionary<string, string> { [NestedJsonParser.JsonScalarKey] = u.RawScalar }
+            FormatData = WorkspaceService.FormatDataOf(u)?.ToDictionary(p => p.Key, p => p.Value)
         }).ToList() : (resourceAware ? LoadResources(settings, ct) : Load(folder, settings.SaveFormat, true, settings.InputEncoding));
 
         if (source is not null && settings.LanguageAliases is { Count: > 0 })
@@ -105,7 +122,9 @@ public class ProjectService(
         IResourceMetadataAuthority? MetadataAuthority(TranslationItem item)
         {
             var resource = settings.ResourceDocuments.FirstOrDefault(d => d.Resource.Id == item.Identity?.ResourceId)?.Resource;
-            return resource == null ? null : strategyFactory.GetResourceLoadStrategy(resource.FormatId) as IResourceMetadataAuthority;
+            // Document projects: a format that keeps comments in the file (ARB) owns them over saved project states.
+            if (resource == null) return source is null ? null : strategyFactory.GetLoadStrategy(source.FormatId) as IResourceMetadataAuthority;
+            return strategyFactory.GetResourceLoadStrategy(resource.FormatId) as IResourceMetadataAuthority;
         }
         var inlineComments = settings.TranslationStates.Count > 0
             ? translations.Where(i => MetadataAuthority(i)?.CommentsInResource == true).ToDictionary(i => i, i => i.Comment) : [];

@@ -8,7 +8,7 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class ArbSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy, IResourceOptionsProvider
+public partial class ArbSaveStrategy(IFileService fileService) : ISaveStrategy, IResourceSaveStrategy, IResourceOptionsProvider
 {
     public IReadOnlySet<string> SupportedOptions(ResourceDescriptor resource) => ResourceOptionFields.With("Indent");
 
@@ -17,7 +17,7 @@ public class ArbSaveStrategy(IFileService fileService) : ISaveStrategy, IResourc
     public FormatSupport Support { get; } = new(
         FormatEditing.Full,
         "Flutter ARB (intl_*.arb, app_*.arb), region and script locales",
-        ["Editable descriptions and structured placeholders", "unknown @key metadata", "@@ header entries", "ICU plural and select messages kept as text", "@@locale"],
+        ["Only edited messages, descriptions and placeholders change in the file", "descriptions in @key.description", "structured placeholders", "unknown @key metadata", "@@ header entries", "ICU plural and select messages kept as text", "@@locale"],
         ["ICU messages are edited as one string, not as separate plural forms"]);
     public string DisplayName => "Flutter ARB";
     public IReadOnlyList<string> FileExtensions => [".arb"];

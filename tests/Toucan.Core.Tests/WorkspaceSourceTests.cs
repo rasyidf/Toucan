@@ -155,7 +155,7 @@ public sealed class WorkspaceSourceTests : IDisposable
         var loader = _services.GetRequiredService<WorkspaceSourceLoader>();
         await Assert.ThrowsAsync<InvalidOperationException>(() => loader.LoadAsync(_root, "missing-framework"));
         await Assert.ThrowsAsync<FormatUnavailableException>(() => loader.LoadAsync(_root, "i18next", "missing-format"));
-        await Assert.ThrowsAsync<NotSupportedException>(() => loader.LoadAsync(_root, "i18next", FormatIds.Arb));
+        await Assert.ThrowsAsync<NotSupportedException>(() => loader.LoadAsync(_root, "i18next", FormatIds.Yaml));
         await Assert.ThrowsAsync<DirectoryNotFoundException>(() => loader.LoadAsync(Path.Combine(_root, "missing"), "i18next"));
         using var cancelled = new CancellationTokenSource();
         await cancelled.CancelAsync();

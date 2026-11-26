@@ -28,7 +28,8 @@ public sealed class WorkspaceDocumentSaveExecutor(IWorkspaceDocumentStore store,
                 throw new NotSupportedException($"Format '{target.FormatId}' does not support document-aware reads.");
             var parsed = parser.LoadDocument(target.Content!, cancellationToken).ToDictionary(u => u.KeyPath);
             var expected = plan.Units.Where(u => u.Binding.DocumentId == target.DocumentId).ToList();
-            if (parsed.Count != expected.Count || expected.Any(u => !parsed.TryGetValue(u.Binding.Location, out var actual) || actual.Value != u.Value))
+            if (parsed.Count != expected.Count || expected.Any(u => !parsed.TryGetValue(u.Binding.Location, out var actual) || actual.Value != u.Value
+                || u.FormatComment is { } comment && (actual.Comment ?? string.Empty) != comment))
                 throw new InvalidOperationException("Serialized document does not round-trip its declared translations.");
             foreach (var unit in expected) units[(unit.EntryId, unit.Language)] = unit with { RawScalar = parsed[unit.Binding.Location].RawScalar };
             var encoding = Encoding.GetEncoding(target.TextFormat.EncodingName, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);

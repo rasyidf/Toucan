@@ -17,9 +17,7 @@ public sealed partial class WorkspaceService
         {
             if (_settings is null) return null;
             RefreshContext();
-            return new(_settings.ProjectPath, _session, _revision, _state.Values.Select(u =>
-                new WorkspaceDocumentUnit(new(u.Id), u.Language, u.Namespace, u.KeyPath, u.Value, u.Binding,
-                    u.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey), Metadata(u), u.Destination)))
+            return new(_settings.ProjectPath, _session, _revision, _state.Values.Select(DocumentUnit))
             { Manifest = _settings.SerializeForPersistence(), Options = _settings.ResourceOptions with { }, DeletedDocuments = RemovedLanguageDocumentsLocked(), Capture = new DocumentCapture(this, _state, _sessionLifetime?.Token ?? CancellationToken.None) };
         }
     }
@@ -104,6 +102,13 @@ public sealed partial class WorkspaceService
         RaiseChanged();
         return true;
     }
+
+    /// <summary>A unit as document saving and recovery see it: the raw scalar apart from the metadata the format keeps.</summary>
+    private static WorkspaceDocumentUnit DocumentUnit(Unit u) =>
+        new(new(u.Id), u.Language, u.Namespace, u.KeyPath, u.Value, u.Binding, u.FormatData?.GetValueOrDefault(NestedJsonParser.JsonScalarKey), Metadata(u), u.Destination)
+        {
+            FormatData = u.FormatData?.Where(p => p.Key != NestedJsonParser.JsonScalarKey).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) is { Count: > 0 } d ? d : null,
+        };
 
     private static WorkspaceEntryMetadata? Metadata(Unit unit)
     {

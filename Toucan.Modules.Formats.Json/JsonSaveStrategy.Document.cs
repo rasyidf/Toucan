@@ -85,6 +85,12 @@ internal static class JsonDocumentSerializer
             if (obj.ContainsKey(key)) throw new InvalidOperationException($"Destination '{translation.KeyPath.EscapedPath}' already exists.");
             obj.Add(key, JsonNode.Parse(Scalar(translation, resourceOptions)));
         }
+        return Format(root, content, resourceOptions);
+    }
+
+    /// <summary>Writes a rebuilt document in the original's indentation, line endings and final newline.</summary>
+    internal static string Format(JsonNode root, string content, ResourceOptions? resourceOptions)
+    {
         var whitespace = content.Split('\n').Skip(1).Select(l => new string(l.TakeWhile(c => c is ' ' or '\t').ToArray())).FirstOrDefault(s => s.Length > 0);
         var options = new JsonSerializerOptions { WriteIndented = content.Contains('\n'),
             IndentCharacter = whitespace?.Contains('\t') == true ? '\t' : ' ', IndentSize = Math.Clamp(whitespace?.Length ?? 2, 1, 127) };
