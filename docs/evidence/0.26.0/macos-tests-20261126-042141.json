@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "check": "tests",
+  "kind": "automated",
+  "result": "passed",
+  "commit": "e298b27a35a6dd2e08997929b958fd72b8531f6e",
+  "dirty": false,
+  "version": "0.26.0",
+  "os": {
+    "family": "macOS",
+    "version": "27.2.1",
+    "arch": "arm64"
+  },
+  "environment": "native",
+  "packaged": false,
+  "command": "dotnet test Toucan.slnx --configuration Release --logger trx",
+  "counts": {
+    "total": 2188,
+    "passed": 2185,
+    "failed": 0,
+    "skipped": 3
+  },
+  "notes": "MacBook Air, release/v1.0 step 3",
+  "recordedAt": "2026-11-26T04:21:41Z",
+  "recordedBy": "rasyidf",
+  "ciRun": null
+}
