@@ -66,6 +66,12 @@ public partial class App : Application
             var notifications = new NotificationPresenter(window, _services.GetRequiredService<INotificationCenter>(),
                 _services.GetRequiredService<global::Toucan.Core.Commands.ICommandRegistry>());
             window.Closed += (_, _) => notifications.Dispose();
+            // Notify-only update check (V1-44), after the window is up so it never delays startup.
+            window.Opened += async (_, _) =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(3));
+                await vm.CheckForUpdatesOnStartupAsync();
+            };
             desktop.ShutdownMode = global::Avalonia.Controls.ShutdownMode.OnMainWindowClose;
 
             var messages = _services.GetRequiredService<IAsyncMessageService>();

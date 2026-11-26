@@ -699,6 +699,9 @@
           </StackPanel>
           <c:SettingsGroup Header="{loc:Loc 'Updates'}" Footer="{loc:Loc 'Checking contacts github.com. No project data is sent, and nothing is downloaded or installed automatically.'}">
             <StackPanel>
+              <c:SettingsRow Title="{loc:Loc 'Check when Toucan starts'}" Description="{loc:Loc 'At most once a day. Toucan tells you about a newer release; you download it yourself.'}">
+                <ToggleSwitch Classes="settingsToggle" IsChecked="{Binding CheckForUpdatesOnStartup}"/>
+              </c:SettingsRow>
               <c:SettingsRow Title="{loc:Loc 'Release channel'}" Description="{loc:Loc 'Preview includes pre-releases.'}">
                 <ComboBox ItemsSource="{x:Static vm:OptionsViewModel.UpdateChannelOptions}" SelectedItem="{Binding UpdateChannel}"/>
               </c:SettingsRow>

@@ -47,7 +47,7 @@ public sealed class AppearanceAndUpdateTests
     public void Pick_PreviewChannelSeesPreReleases_AndUpToDateIsNotNewer()
     {
         using var doc = JsonDocument.Parse(Releases);
-        Assert.Equal("0.25.0", UpdateService.Pick(doc.RootElement, true, new Version(0, 24, 0)).Version);
+        Assert.Equal("0.25.0-preview.1", UpdateService.Pick(doc.RootElement, true, new Version(0, 24, 0)).Version);
         Assert.False(UpdateService.Pick(doc.RootElement, false, new Version(0, 24, 0)).IsNewer);
     }
 
@@ -86,5 +86,70 @@ public sealed class AppearanceAndUpdateTests
         vm.RevertSchemePreview();
         Assert.True(Application.Current.TryGetResource("ChromeBackgroundBrush", ThemeVariant.Light, out var back));
         Assert.Equal(ColorSchemeService.DefaultColor(ThemeVariant.Light, "ChromeBackgroundBrush"), ((ISolidColorBrush)back!).Color);
+    }
+
+    [Theory]
+    [InlineData("1.0.0", "1.0.0-rc.2", 1)]
+    [InlineData("1.0.0-rc.10", "1.0.0-rc.2", 1)]
+    [InlineData("1.0.0-rc.1", "1.0.0-beta.3", 1)]
+    [InlineData("1.0.1-rc.1", "1.0.0", 1)]
+    [InlineData("v1.0.0", "1.0.0", 0)]
+    public void ReleaseVersionsOrderPreReleasesBeforeTheirRelease(string newer, string older, int sign)
+    {
+        Assert.True(ReleaseVersion.TryParse(newer, out var a));
+        Assert.True(ReleaseVersion.TryParse(older, out var b));
+        Assert.Equal(sign, Math.Sign(a.CompareTo(b)));
+    }
+
+    [Fact]
+    public void AReleaseCandidateIsToldAboutItsFinalRelease()
+    {
+        using var doc = JsonDocument.Parse("""[ { "tag_name": "v1.0.0", "prerelease": false, "draft": false, "html_url": "https://example.com/v1" } ]""");
+        var result = UpdateService.Pick(doc.RootElement, includePreview: false, "1.0.0-rc.2");
+        Assert.True(result.IsNewer);
+        Assert.Equal("1.0.0", result.Version);
+        Assert.False(UpdateService.Pick(doc.RootElement, includePreview: false, "1.0.0").IsNewer);
+    }
+
+    [AvaloniaFact]
+    public async Task TheStartupCheckNotifiesOnceADayAndOnlyWhenEnabled()
+    {
+        using var host = new TestHost();
+        var vm = host.CreateViewModel();
+        var center = host.Services.GetRequiredService<Toucan.Core.Plugins.INotificationCenter>();
+        var calls = 0;
+        Task<UpdateCheckResult> Newer(string channel, string current)
+        {
+            calls++;
+            return Task.FromResult(new UpdateCheckResult(false, true, "9.9.9", new Uri("https://example.com/v9.9.9"), false));
+        }
+        var time = new Clock(new DateTimeOffset(2026, 11, 26, 9, 0, 0, TimeSpan.Zero));
+
+        vm.AppOptions.CheckForUpdatesOnStartup = false;
+        await vm.CheckForUpdatesOnStartupAsync(time, Newer);
+        Assert.Equal(0, calls);
+
+        vm.AppOptions.CheckForUpdatesOnStartup = true;
+        vm.AppOptions.LastUpdateCheckUtc = null;
+        await vm.CheckForUpdatesOnStartupAsync(time, Newer);
+        var notice = Assert.Single(center.History, n => n.Content.Title.Contains("9.9.9", StringComparison.Ordinal));
+        Assert.Equal(BuiltInCommands.IdFor("Help", "Download Update"), notice.Content.ActionCommandId);
+        Assert.Equal(time.GetUtcNow().UtcDateTime, vm.AppOptions.LastUpdateCheckUtc);
+
+        time.Advance(TimeSpan.FromHours(2));
+        await vm.CheckForUpdatesOnStartupAsync(time, Newer);
+        Assert.Equal(1, calls);
+
+        time.Advance(TimeSpan.FromDays(1));
+        await vm.CheckForUpdatesOnStartupAsync(time, (_, _) => { calls++; return Task.FromResult(new UpdateCheckResult(true, false, null, null, false)); });
+        Assert.Equal(2, calls);
+        Assert.Single(center.History, n => n.Content.Title.Contains("is available", StringComparison.Ordinal));
+    }
+
+    private sealed class Clock(DateTimeOffset now) : TimeProvider
+    {
+        private DateTimeOffset _now = now;
+        public override DateTimeOffset GetUtcNow() => _now;
+        public void Advance(TimeSpan by) => _now += by;
     }
 }

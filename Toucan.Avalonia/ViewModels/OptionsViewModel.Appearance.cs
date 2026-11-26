@@ -47,6 +47,7 @@ public partial class OptionsViewModel
         RebuildSchemeItems();
         if (!firstLoad) PreviewScheme(); // "Reset all settings" shows the defaults live; Cancel still restores the saved scheme
         UpdateChannel = UpdateChannelOptions.Contains(opts.UpdateChannel) ? opts.UpdateChannel : "Stable";
+        CheckForUpdatesOnStartup = opts.CheckForUpdatesOnStartup;
     }
 
     private void SaveSchemeToOptions()
@@ -55,6 +56,7 @@ public partial class OptionsViewModel
         AppOptions.AccentColor = AccentHex;
         AppOptions.SchemeColors = new Dictionary<string, string>(_schemeOverrides);
         AppOptions.UpdateChannel = UpdateChannel;
+        AppOptions.CheckForUpdatesOnStartup = CheckForUpdatesOnStartup;
         _savedScheme = (AppOptions.ColorScheme, AppOptions.AccentColor, new Dictionary<string, string>(_schemeOverrides));
     }
 
@@ -146,6 +148,7 @@ public partial class OptionsViewModel
     // ----- Updates -----
 
     [ObservableProperty] private string updateChannel = "Stable";
+    [ObservableProperty] private bool checkForUpdatesOnStartup = true;
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasUpdateStatus))] private string updateStatus = string.Empty;
     [ObservableProperty] private string? updateUrl;
     [ObservableProperty] private bool hasUpdate;
@@ -161,8 +164,7 @@ public partial class OptionsViewModel
         UpdateStatus = Locales.Loc.T("Checking for updates…");
         try
         {
-            var current = Assembly.GetEntryAssembly()?.GetName().Version ?? new Version(0, 0);
-            var result = await UpdateService.CheckAsync(UpdateChannel, current);
+            var result = await UpdateService.CheckAsync(UpdateChannel, UpdateService.CurrentVersion);
             UpdateUrl = result.Url?.ToString();
             HasUpdate = result.IsNewer;
             UpdateStatus = result switch

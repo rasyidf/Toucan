@@ -69,6 +69,7 @@ internal static class BuiltInCommands
             B("Translate", "Accept Suggestion", "Mod+Alt+Enter", vm => vm.AcceptSuggestionCommand),
             B("Help", "Migration Report", null, vm => vm.ShowMigrationReportCommand),
             B("Help", "Show Editing Guide", null, vm => vm.ShowWorkflowGuideCommand),
+            B("Help", "Download Update", null, vm => vm.DownloadUpdateCommand),
             B("Translate", "Check Spelling Locally", null, vm => vm.CheckProjectSpellingCommand),
             B("Translate", "Run Validation", "F7", vm => vm.RunValidationCommand),
             B("Review", "Approve and Next", null, vm => vm.ApproveAndNextCommand),

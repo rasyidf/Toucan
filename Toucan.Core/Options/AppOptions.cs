@@ -22,6 +22,9 @@ public class AppOptions
     public Dictionary<string, string> SchemeColors { get; set; } = [];
     /// <summary>"Stable" or "Preview": which GitHub releases "Check for updates" considers.</summary>
     public string UpdateChannel { get; set; } = "Stable";
+    /// <summary>Look for a newer release when Toucan starts (at most daily) and say so; nothing is downloaded or installed.</summary>
+    public bool CheckForUpdatesOnStartup { get; set; } = true;
+    public DateTime? LastUpdateCheckUtc { get; set; }
     public string AppLanguage { get; set; } = "en-US";
     public double FontSize { get; set; } = 13;
     public int PageSize { get; set; } = 15;

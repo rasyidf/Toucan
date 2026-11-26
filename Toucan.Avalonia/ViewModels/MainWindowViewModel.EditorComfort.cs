@@ -32,6 +32,30 @@ public partial class MainWindowViewModel
         string? action = null, string? label = null) => _notifications.Publish("toucan", new Toucan.Plugins.PluginNotification
         { Title = title, Message = message, Severity = severity, ActionCommandId = action, ActionLabel = label });
 
+    private string? _availableUpdateUrl;
+
+    /// <summary>
+    /// At startup, at most once a day and when enabled: looks for a newer release on the chosen channel and, if there is one,
+    /// says so with a Download button that opens the release page. Never downloads or installs; failures stay silent.
+    /// </summary>
+    public async Task CheckForUpdatesOnStartupAsync(TimeProvider? time = null, Func<string, string, Task<Services.UpdateCheckResult>>? check = null)
+    {
+        var now = (time ?? TimeProvider.System).GetUtcNow().UtcDateTime;
+        if (!AppOptions.CheckForUpdatesOnStartup || AppOptions.LastUpdateCheckUtc is { } last && now - last < TimeSpan.FromHours(20)) return;
+        var result = await (check ?? ((channel, current) => Services.UpdateService.CheckAsync(channel, current)))(AppOptions.UpdateChannel, Services.UpdateService.CurrentVersion);
+        if (result.Failed) return;
+        AppOptions.LastUpdateCheckUtc = now;
+        _preferenceService.Save(AppOptions);
+        if (!result.IsNewer) return;
+        _availableUpdateUrl = result.Url?.ToString();
+        NotifyOutcome(Locales.Loc.T("Toucan {0} is available").Replace("{0}", result.Version, StringComparison.Ordinal),
+            Locales.Loc.T("You have {0}. Download the new version from its release page.").Replace("{0}", Services.UpdateService.CurrentVersion, StringComparison.Ordinal),
+            Toucan.Plugins.NotificationSeverity.Info, Services.BuiltInCommands.IdFor("Help", "Download Update"), Locales.Loc.T("Download"));
+    }
+
+    [RelayCommand]
+    private void DownloadUpdate() => Services.PlatformService.OpenUrl(_availableUpdateUrl ?? Services.UpdateService.ReleasesUrl);
+
     [RelayCommand]
     private void ShowIssues() => Toucan.Core.Services.SidePanelRegistry.Instance.Activate("issues");
     public bool WorkflowGuideVisible => !AppOptions.WorkflowGuideDismissed;
