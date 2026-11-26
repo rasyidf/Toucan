@@ -18,7 +18,21 @@ public partial class TranslationItemViewModel
     public bool SpellingActive
     {
         get => _spellingActive;
-        set { _spellingActive = value; if (value) QueueSpelling(); else { _spellingCancellation?.Cancel(); ClearSpelling(); } }
+        set
+        {
+            _spellingActive = value;
+            ListenToSpelling(value && !_spellingDisposed);
+            if (value) QueueSpelling(); else { _spellingCancellation?.Cancel(); ClearSpelling(); }
+        }
+    }
+
+    private bool _listeningToSpelling;
+
+    private void ListenToSpelling(bool listen)
+    {
+        if (_spelling is null || listen == _listeningToSpelling) return;
+        if (listen) _spelling.Changed += OnSpellingChanged; else _spelling.Changed -= OnSpellingChanged;
+        _listeningToSpelling = listen;
     }
     private void OnSpellingChanged(object? sender, EventArgs e) => Dispatcher.UIThread.Post(QueueSpelling);
     private void ClearSpelling()

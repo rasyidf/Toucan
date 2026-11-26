@@ -268,6 +268,22 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(ZenCurrentItem));
         OnPropertyChanged(nameof(FocusedPositionText));
         OnPropertyChanged(nameof(IsEditorEmpty));
+        ScheduleShownValidation();
+    }
+
+    private bool _shownValidationQueued;
+
+    /// <summary>Validates the rows of the page being shown that have not been validated yet, once, after the page settles.</summary>
+    private void ScheduleShownValidation()
+    {
+        if (_shownValidationQueued) return;
+        _shownValidationQueued = true;
+        global::Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            _shownValidationQueued = false;
+            foreach (var row in PagingController.PageData.SelectMany(g => g.AllItems).Where(r => r.NeedsInlineValidation).ToList())
+                row.RefreshInlineValidation();
+        }, global::Avalonia.Threading.DispatcherPriority.Background);
     }
 
     /// <summary>True when the current filter matches nothing (drives the empty state).</summary>
@@ -484,11 +500,17 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     {
         var id = Workspace.GetProjectionEntryId(item.Model);
         bool SameEntry(TranslationItem model) => HasDocumentNavigation ? Workspace.GetProjectionEntryId(model) == id : model.Namespace == item.Namespace;
-        var live = PagingController.Data.SelectMany(g => g.AllItems).Where(t => SameEntry(t.Model))
+        // The key's other languages are in the row's own card; look there first, so validating a page does not scan the whole
+        // project for every row. A row on no shown card (rare) falls back to the project.
+        var card = PagingController.PageData.FirstOrDefault(g => g.AllItems.Contains(item))
+            ?? PagingController.Data.FirstOrDefault(g => g.AllItems.Contains(item));
+        var rows = card?.AllItems.ToList() ?? PagingController.Data.SelectMany(g => g.AllItems).ToList();
+        var live = rows.Where(t => SameEntry(t.Model))
             .GroupBy(t => t.Language).ToDictionary(g => g.Key, g => g.First().Value, StringComparer.Ordinal);
         live[item.Language] = item.Value;
         if (item.SourceText is not null) live[PrimaryLanguage] = item.SourceText;
-        var snapshots = AllTranslation.Where(SameEntry).Select(t => new TranslationItem
+        var entryItems = card is not null ? rows.Select(r => r.Model).Where(SameEntry) : AllTranslation.Where(SameEntry);
+        var snapshots = entryItems.Select(t => new TranslationItem
         {
             Namespace = t.Namespace, Language = t.Language, Value = live.GetValueOrDefault(t.Language, t.Value),
             Comment = t.Comment, IsApproved = t.IsApproved, FormatData = t.FormatData,

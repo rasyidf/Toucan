@@ -22,7 +22,7 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [APP-05](#app-05) | Medium | Integration | External connector and connection lifecycle acceptance remains unverified | From code and available environment |
 | [QA-03](#qa-03) | Medium | Release acceptance | Native Windows accessibility checked on another machine; evidence not in repo. macOS/Linux assumed passed | Recorded by maintainer |
 | [QA-04](#qa-04) | Low | Release acceptance | AI providers tested against stubbed HTTP only; no live-service run recorded | From tests |
-| [QA-02](#qa-02) | Info | Perf | Large-project performance has never been profiled | Not checked |
+| [QA-02](#qa-02) | Medium | Perf | At 10,000 keys × 10 languages opening takes 10.6 s, search about 0.8 s, edits 2.2 s, and saving all files runs out of memory on 8 GB | Reproduced |
 
 Severity: **High** loses or corrupts user data; **Medium** gives wrong results or blocks a release goal; **Low** is a gap or a cosmetic problem; **Info** is a known unknown.
 
@@ -106,9 +106,11 @@ Windows headless tests cover a 100-target keyboard session, paging, save/reopen,
 - **Fix direction:** an opt-in test run with real keys from CI secrets, recording one translation, one analysis and one re-translation per provider.
 
 <a id="qa-02"></a>
-### QA-02: Performance not profiled
+### QA-02: Large projects are over the performance budgets
 
-- **Severity:** Info · **Checked:** no. Loading depth, paging and `MaxItems` exist as mitigations, but there are no measurements for projects with tens of thousands of keys. Profile open, search and save before 1.0.
+- **Severity:** Medium · **Checked:** `PerformanceProfileTests` in Release on a MacBook Air M1, 8 GB (2026-11-26); numbers in [performance](performance.md).
+- **State:** budgets hold for opening up to about 2,000 keys × 10 languages; text search is over 200 ms from 1,000 keys. At 10,000 keys × 10 languages: opening 10.6 s, search about 0.8 s, each edit 2.2 s, saving one file 13.5 s, and saving all ten files ran out of memory. Typing stays responsive during saves up to 4,000 keys.
+- **Fix direction:** build editor cards only for the shown page, validate edits incrementally instead of re-validating the project, and find what the desktop save holds on to. Or narrow the supported scale for 1.0.
 
 ---
 

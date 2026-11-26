@@ -652,4 +652,86 @@ public sealed class SourcesUiTests : IDisposable
         Assert.Contains(Visual<TextBlock>(panel), t => t.Text == "Ready");
         window.Close();
     }
+
+    // ───────────── accessibility (content-sources task 5.8) ─────────────
+
+    /// <summary>
+    /// Controls a keyboard or screen-reader user meets on <paramref name="root"/> that have no announceable name (an explicit
+    /// name, a label link, visible text or a tooltip) or cannot be reached with Tab. Parts of a control's own template, such
+    /// as scrollbar buttons, are left to that control's automation peer.
+    /// </summary>
+    private static List<string> AccessibilityGaps(Control root, string screen)
+    {
+        static bool Named(Control c)
+        {
+            if (!string.IsNullOrWhiteSpace(AutomationProperties.GetName(c)) || AutomationProperties.GetLabeledBy(c) is not null) return true;
+            if (ToolTip.GetTip(c) is string { Length: > 0 }) return true;
+            return c is ContentControl { Content: string text } && !string.IsNullOrWhiteSpace(text)
+                || c is ContentControl { Content: Control content } && content.GetVisualDescendants().Prepend(content).OfType<TextBlock>().Any(t => !string.IsNullOrWhiteSpace(t.Text));
+        }
+        var interactive = root.GetVisualDescendants().OfType<Control>()
+            .Where(c => c is Button or global::Avalonia.Controls.Primitives.ToggleButton or TextBox or ComboBox or ListBox)
+            .Where(c => c.IsEffectivelyVisible && c.IsEffectivelyEnabled)
+            .Where(c => c.TemplatedParent is not global::Avalonia.Controls.Primitives.TemplatedControl || c.TemplatedParent is ContentControl { Content: not null } && c.TemplatedParent is not ListBoxItem and not ComboBoxItem and not TabItem and not Expander);
+        var gaps = new List<string>();
+        foreach (var c in interactive)
+        {
+            if (c.TemplatedParent is global::Avalonia.Controls.Primitives.TemplatedControl && (c.Name?.StartsWith("PART_", StringComparison.Ordinal) ?? false)) continue;
+            var label = c.Name ?? (c as ContentControl)?.Content?.ToString() ?? c.GetType().Name;
+            if (!Named(c)) gaps.Add($"{screen}: {c.GetType().Name} '{label}' has no accessible name");
+            // A list is reached through its items: Tab moves focus to the selected (or first) item.
+            var reachable = c is ListBox list
+                ? list.GetVisualDescendants().OfType<ListBoxItem>().All(i => i.Focusable) && list.ItemCount > 0 || list.ItemCount == 0
+                : c.Focusable && global::Avalonia.Input.KeyboardNavigation.GetIsTabStop(c);
+            if (!reachable) gaps.Add($"{screen}: {c.GetType().Name} '{label}' is not reachable with Tab");
+        }
+        return gaps;
+    }
+
+    [AvaloniaFact]
+    public async Task EverySourcesScreenIsNamedAndReachableByKeyboard()
+    {
+        var gaps = new List<string>();
+
+        var vm = await OpenProjectAsync();
+        await ConnectAsync(vm);
+        var window = new Window { Content = new SourcesPanel { DataContext = vm }, Width = 420, Height = 700 };
+        window.Show();
+        Pump();
+        gaps.AddRange(AccessibilityGaps(window, "Sources panel"));
+        window.Close();
+
+        var wizardVm = Wizard(vm);
+        var wizard = new AddConnectionDialog(wizardVm);
+        wizard.Show();
+        foreach (var step in Enum.GetValues<ConnectionStep>())
+        {
+            wizardVm.Step = step;
+            Pump();
+            gaps.AddRange(AccessibilityGaps(wizard, $"Add connection ({step})"));
+        }
+        wizard.Close();
+
+        var signIn = _host.Services.GetRequiredService<SourceSignInService>();
+        var accounts = new AccountsDialog(new AccountsViewModel(signIn, _host.Services.GetRequiredService<ISourceAdapterCatalog>(),
+            _host.Services.GetRequiredService<IRecentProjectService>(), _host.Dialogs, _host.Messages, null));
+        accounts.Show();
+        Pump();
+        gaps.AddRange(AccessibilityGaps(accounts, "Accounts"));
+        accounts.Close();
+
+        var planVm = new SyncPlanViewModel(PlanWith([Pull("a", "x")], [Push("c", "z")], [Conflict()]), "Memory");
+        var plan = new SyncPlanDialog(planVm);
+        plan.Show();
+        var tabs = Visual<TabControl>(plan).Single();
+        for (var i = 0; i < tabs.ItemCount; i++)
+        {
+            tabs.SelectedIndex = i;
+            Pump();
+            gaps.AddRange(AccessibilityGaps(plan, $"Sync plan (tab {i + 1})"));
+        }
+        plan.Close();
+
+        Assert.True(gaps.Count == 0, "Accessibility gaps:\n" + string.Join("\n", gaps.Distinct()));
+    }
 }

@@ -64,7 +64,7 @@ Requirements: [requirements.md](requirements.md). Design: [design.md](design.md)
 - [x] 5.5 Conflict view with base, local and remote columns, Take local, Take remote, Edit merged, Defer; reachable from row badges. Written: the conflict tab with base, local and remote and the four choices; reachable from the row badge, the status bar and `Sources → Show Conflicts`.
 - [x] 5.6 Row delivery badges and separate Saved locally / Synced status bar indicators. (R8.5) Written: row delivery badge and the separate `Saved locally` / `Synced` status bar items.
 - [x] 5.7 Built-in `sources.*` commands in palette and menus with reassignable shortcuts; notifications for expired sign-in, partial failure, remote changes available. (R9.2) Written: `toucan.sources.pull|push|sync|show-conflicts|add-connection|accounts` commands (no default shortcuts, so users assign their own), and notifications for expired sign-in, partial failure and remote changes.
-- [ ] 5.8 (not done: only automation names, keyboard-reachable controls and live regions are in place; the screen reader and visual review need a run) Keyboard, screen reader and visual review checks for all new screens. (R9.3)
+- [ ] 5.8 (automated names and keyboard reachability checked by `EverySourcesScreenIsNamedAndReachableByKeyboard`; the screen reader and visual review still need a run) Keyboard, screen reader and visual review checks for all new screens. (R9.3)
 
 ## Phase 6: Reference REST adapter, sample port and full CLI (v0.28) — written 2026-11-05, tested
 

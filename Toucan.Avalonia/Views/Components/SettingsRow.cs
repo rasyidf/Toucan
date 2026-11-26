@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 
 namespace Toucan.Avalonia.Views.Components;
@@ -6,6 +7,7 @@ namespace Toucan.Avalonia.Views.Components;
 /// <summary>
 /// One row of a <see cref="SettingsGroup"/>: title and optional description on the left, the control (content) on the right.
 /// Set <see cref="Stacked"/> for wide controls such as text boxes, which then sit under the title at full width.
+/// The control is announced to screen readers with the row's title and description, unless it has a name of its own.
 /// </summary>
 public class SettingsRow : ContentControl
 {
@@ -29,11 +31,36 @@ public class SettingsRow : ContentControl
     public static readonly StyledProperty<bool> IsMatchProperty = AvaloniaProperty.Register<SettingsRow, bool>(nameof(IsMatch), true);
     public bool IsMatch { get => GetValue(IsMatchProperty); set => SetValue(IsMatchProperty, value); }
 
+    private string? _givenName;
+    private string? _givenHelp;
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
         if (change.Property == StackedProperty) PseudoClasses.Set(":stacked", Stacked);
         else if (change.Property == CompactProperty) PseudoClasses.Set(":compact", Compact);
+        else if (change.Property == TitleProperty || change.Property == DescriptionProperty || change.Property == ContentProperty) NameContent();
+    }
+
+    /// <summary>
+    /// A switch or combo box in a row has no text of its own, so without this a screen reader says only "switch, off". The row
+    /// gives it its title as the name and its description as help text, and updates them only while they are still the ones it gave.
+    /// </summary>
+    private void NameContent()
+    {
+        if (Content is not Control control) return;
+        var name = AutomationProperties.GetName(control);
+        if (string.IsNullOrEmpty(name) || name == _givenName)
+        {
+            _givenName = Title;
+            AutomationProperties.SetName(control, Title);
+        }
+        var help = AutomationProperties.GetHelpText(control);
+        if (string.IsNullOrEmpty(help) || help == _givenHelp)
+        {
+            _givenHelp = Description;
+            AutomationProperties.SetHelpText(control, Description);
+        }
     }
 }
 

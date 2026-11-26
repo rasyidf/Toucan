@@ -132,7 +132,7 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="added">3 added</span><span class="changed">7 changed</span><span class="fixed">8 fixed</span></div>
+<div class="release-counts"><span class="added">3 added</span><span class="changed">7 changed</span><span class="fixed">10 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
 <li><strong>Update notice on startup</strong> — Toucan looks for a newer release on your channel when it starts (at most once a day) and says so, with a button that opens the release page. Nothing is downloaded or installed. Turn it off in Settings → About. A release candidate is now told when its final release is out.</li>
@@ -151,6 +151,8 @@
 </ul>
 <h3>Fixed</h3>
 <ul>
+<li><strong>Large projects open in seconds</strong> — Every editor row validated itself against the whole project as it was built, so opening grew with the square of the project size: about 4 minutes at 4,000 keys in 10 languages. Rows are now validated when their page is shown, from their own card; the same project opens in 6 seconds. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/performance.md">performance</a>.</li>
+<li><strong>Settings switches are announced with their label</strong> — A switch or list in a settings row was announced by screen readers without the row&#x27;s title (&quot;switch, off&quot;). The row now names its control and describes it with the row&#x27;s description, everywhere in the app.</li>
 <li><strong>YAML and .properties projects from 0.23 open again</strong> — 0.23 saved each language to a second file at the project root (<code>en.yaml</code> beside <code>config/locales/en.yml</code>, <code>en.properties</code> beside <code>messages_en.properties</code>), sometimes with your edits only there, and such projects have not opened since 0.25. They now open with the copies merged into the original files, keeping the copy&#x27;s value where the two differ, and Toucan lists each difference. Opening changes nothing; the next save writes the merged files and moves the copies to <code>.toucan/backup/0.23-copies/</code>. Comments 0.23 kept for these keys are found again.</li>
 <li><strong>Approvals and comments from 0.24 i18next projects</strong> — Projects saved by 0.24 kept approvals and comments keyed by an exact-resource identity, which the document saving used for i18next since 0.25 did not match, so they were lost on open. They are now matched by language and key.</li>
 <li><strong>ARB comments from 0.23</strong> — Comments 0.23 kept in <code>app_&lt;lang&gt;.arb.comments.json</code> beside an ARB project are read again and written into <code>@key.description</code> on the next save.</li>

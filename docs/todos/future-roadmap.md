@@ -159,9 +159,9 @@ Items marked **(you)** need the maintainer: a product decision, an account, mone
 
 #### 5. Performance and accessibility (G7; QA-02)
 
-- [ ] V1-50 Profile the 10,000 keys × 10 locales fixture in a Release build on named hardware: cold and warm open, search, edit, save, pull/plan/push, memory. Record with V1-31. Sync is partly measured in `SyncScaleTests` (Debug, memory not measured).
-- [ ] V1-51 Meet the proposed budgets (usable in 5 s, warm search under 200 ms, responsive typing during save/sync) or **(you)** approve a narrower supported scale; publish it. Closes QA-02.
-- [ ] V1-52 Content-sources task 5.8: keyboard, screen reader and visual review of the Sources panel, accounts, add-connection, plan, conflict and open-from-service screens. VoiceOver on macOS here; **(you)** Narrator/NVDA on Windows and Orca on Linux, recorded with V1-31.
+- [x] V1-50 Profile the 10,000 keys × 10 locales fixture in a Release build on named hardware: cold and warm open, search, edit, save, pull/plan/push, memory. Record with V1-31. Sync is partly measured in `SyncScaleTests` (Debug, memory not measured). Done: `PerformanceProfileTests` (opt-in, Release) and [performance](../performance.md) with 1,000 to 10,000 keys on a MacBook Air M1. Found and fixed: per-row validation against the whole project made opening quadratic (about an hour at 10,000 keys, now 10.6 s).
+- [ ] V1-51 Meet the proposed budgets (usable in 5 s, warm search under 200 ms, responsive typing during save/sync) or **(you)** approve a narrower supported scale; publish it. Closes QA-02. Measured: budgets hold up to about 2,000 keys × 10 languages for opening (3.7 s), not for text search (451 ms); at 10,000 keys open is 10.6 s, search about 0.8 s, edits 2.2 s and saving all files runs out of memory. **(you)** narrow the supported scale or fund the remaining work (see performance.md).
+- [ ] V1-52 Content-sources task 5.8: keyboard, screen reader and visual review of the Sources panel, accounts, add-connection, plan, conflict and open-from-service screens. VoiceOver on macOS here; **(you)** Narrator/NVDA on Windows and Orca on Linux, recorded with V1-31. Automated part done: `EverySourcesScreenIsNamedAndReachableByKeyboard` checks every control on the Sources panel, the six wizard pages, Accounts and the three plan tabs; it found unnamed switches, now named by their settings row for the whole app. Screen-reader runs still to do.
 
 #### 6. Release candidate (G8)
 

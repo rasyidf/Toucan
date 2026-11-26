@@ -40,8 +40,9 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         Func<TranslationItem, bool>? canApprove = null, SpellingSession? spelling = null,
         Func<TranslationItemViewModel, IReadOnlyList<ValidationResult>>? validateInline = null)
     {
+        // Subscribed to spelling changes only while spelling is active (see SpellingActive): every row subscribing to the one
+        // shared event made building and disposing a large project's rows quadratic, since each += and -= copies the list.
         _spelling = spelling;
-        if (_spelling != null) _spelling.Changed += OnSpellingChanged;
         _validateInline = validateInline;
         _canApprove = canApprove;
         _model = model;
@@ -147,7 +148,29 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     public bool HasInlineIssues => InlineIssues.Count > 0;
     public bool HasInlineErrors => InlineIssues.Any(i => i.Severity == ValidationSeverity.Error);
 
-    partial void OnSourceTextChanged(string? value) => QueueInlineValidation();
+    private bool _loadingSource;
+    private bool _inlineStale;
+
+    /// <summary>True until this row is validated for the first time; the editor validates rows when their page is shown.</summary>
+    public bool NeedsInlineValidation => _inlineStale;
+
+    /// <summary>
+    /// Sets the source shown beside a row while its card is built, without starting the per-row validation timer: a project
+    /// builds a row for every translation, and validating each one as it loads made opening 100,000 translations take minutes.
+    /// The row is validated when its page is shown.
+    /// </summary>
+    internal void SetLoadedSourceText(string? text)
+    {
+        _loadingSource = true;
+        try { SourceText = text; }
+        finally { _loadingSource = false; }
+        _inlineStale = _validateInline is not null;
+    }
+
+    partial void OnSourceTextChanged(string? value)
+    {
+        if (!_loadingSource) QueueInlineValidation();
+    }
 
     private void QueueInlineValidation()
     {
@@ -166,6 +189,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
     public void RefreshInlineValidation()
     {
         _validationTimer?.Stop();
+        _inlineStale = false;
         InlineIssues = _validateInline?.Invoke(this) ?? [];
     }
 
@@ -372,7 +396,7 @@ public partial class TranslationItemViewModel : ObservableObject, IDisposable
         _spellingDisposed = true;
         _spellingCancellation?.Cancel();
         _spellingCancellation = null;
-        if (_spelling != null) _spelling.Changed -= OnSpellingChanged;
+        ListenToSpelling(false);
         _validationTimer?.Stop();
         if (_validationTimer is not null) _validationTimer.Tick -= OnValidationTick;
         _validationTimer = null;

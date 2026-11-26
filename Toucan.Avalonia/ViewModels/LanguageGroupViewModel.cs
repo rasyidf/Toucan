@@ -64,7 +64,7 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
         Translations.Clear();
         foreach (var t in OrderByPrimary(items))
             Translations.Add(CreateRow(t));
-        ApplySourceText(Translations);
+        ApplySourceText(Translations, loading: true);
         ObserveRows(Translations);
     }
 
@@ -81,7 +81,7 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
             };
             foreach (var t in OrderByPrimary(group))
                 variant.Translations.Add(CreateRow(t));
-            ApplySourceText(variant.Translations);
+            ApplySourceText(variant.Translations, loading: true);
             ObserveRows(variant.Translations);
             PluralVariants.Add(variant);
         }
@@ -92,7 +92,7 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
     /// Give each target the current primary value. Source edits and model refreshes reuse this path,
     /// keeping placeholder warnings current without refreshing target editor values or caret positions.
     /// </summary>
-    private void ApplySourceText(IReadOnlyList<TranslationItemViewModel> rows)
+    private void ApplySourceText(IReadOnlyList<TranslationItemViewModel> rows, bool loading = false)
     {
         var primary = _primaryLanguage ?? StatusBarService.Instance.ViewModel?.DefaultLanguage;
         if (rows.Count == 0) return;
@@ -101,7 +101,11 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
             ? rows[0]
             : rows.FirstOrDefault(r => string.Equals(r.Language, primary, StringComparison.OrdinalIgnoreCase)) ?? rows[0];
         foreach (var row in rows)
-            row.SourceText = ReferenceEquals(row, source) ? null : source.Value;
+        {
+            var text = ReferenceEquals(row, source) ? null : source.Value;
+            if (loading) row.SetLoadedSourceText(text);
+            else row.SourceText = text;
+        }
     }
 
     private TranslationItemViewModel CreateRow(TranslationItem item)
@@ -131,11 +135,9 @@ public partial class LanguageGroupViewModel : ObservableObject, IDisposable
 
     private void ObserveRows(IEnumerable<TranslationItemViewModel> rows)
     {
-        foreach (var row in rows)
-        {
-            row.PropertyChanged += OnRowChanged;
-            row.RefreshInlineValidation();
-        }
+        // Rows are validated when their page is shown (MainWindowViewModel.ScheduleShownValidation), not here: a project
+        // builds a card for every key, and validating every row as it was built made opening large projects quadratic.
+        foreach (var row in rows) row.PropertyChanged += OnRowChanged;
     }
 
     private void OnRowChanged(object? sender, PropertyChangedEventArgs e)
