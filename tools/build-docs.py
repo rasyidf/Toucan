@@ -24,7 +24,7 @@ SITE = 'https://toucan.rasyid.dev'
 GROUPS = [
     ('Release notes', 'Changes, compatibility and known limits by release.', list(RELEASE_PAGES)),
     ('Using Toucan', 'Guides for translators, editors, and localization managers.', [
-        'docs/user-guide.md', 'docs/translator-guide.md', 'docs/formats.md', 'docs/ai-integration.md', 'docs/provider-settings.md', 'docs/pretranslation-preview.md']),
+        'docs/user-guide.md', 'docs/translator-guide.md', 'docs/known-limitations.md', 'docs/formats.md', 'docs/ai-integration.md', 'docs/provider-settings.md', 'docs/pretranslation-preview.md']),
     ('Plugin Development & Extensibility', 'Extend Toucan with custom formats, translation providers, validation rules, and desktop UI contributions.', [
         'docs/plugins.md', 'docs/ARCHITECTURE.md']),
     ('Specifications & Reference', 'Architecture reference, release roadmaps, and technical tracking.', [

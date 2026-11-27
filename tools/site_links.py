@@ -33,6 +33,7 @@ PAGES = {
     'Toucan.Core/ARCHITECTURE.md': 'core-architecture.html',
     'docs/todos/future-roadmap.md': 'roadmap.html',
     'docs/known-bugs.md': 'known-bugs.html',
+    'docs/known-limitations.md': 'known-limitations.html',
     'docs/completed-features.md': 'completed-features.html',
     'docs/branding.md': 'branding.html',
 }

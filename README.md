@@ -109,7 +109,7 @@ The WPF app was retired after v0.17.3 and remains on the [`legacy/wpf`](https://
 ## Documentation and roadmap
 
 - [User guide](docs/user-guide.md) and [translator guide](docs/translator-guide.md)
-- [Format support](docs/formats.md), [known issues](docs/known-bugs.md) and [changelog](CHANGELOG.md)
+- [Format support](docs/formats.md), [known limitations](docs/known-limitations.md), [known issues](docs/known-bugs.md) and [changelog](CHANGELOG.md)
 - [Documentation index](docs/INDEX.md)
 - [Roadmap](docs/todos/future-roadmap.md) and [completed features](docs/completed-features.md)
 

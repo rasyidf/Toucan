@@ -166,7 +166,7 @@ Items marked **(you)** need the maintainer: a product decision, an account, mone
 #### 6. Release candidate (G8)
 
 - [ ] V1-60 Packaged full flow on each OS (open, edit, validate, review, save/sync, close, reopen), recorded per OS for the RC commit.
-- [ ] V1-61 Known-limitations page (`docs/known-limitations.md`): preview features (AI, preview connectors), unsupported format constructs, platform limits, supported scale.
+- [x] V1-61 Known-limitations page (`docs/known-limitations.md`): preview features (AI, preview connectors), unsupported format constructs, platform limits, supported scale. Done: [known limitations](../known-limitations.md), linked from the README and the documentation page. It lists Crowdin as a preview until V1-15's live run and V1-16 decide otherwise; update it then.
 - [ ] V1-62 **(you)** approve publishing the RC; resolve release-blocking feedback; close G1 to G8 here and in known-bugs.md and CHANGELOG.md.
 
 Not v1: QA-04 (AI stays labelled preview and is listed in V1-61), APP-01, and everything under [Future plan](#future-plan-after-v10).
