@@ -30,7 +30,7 @@ tools/record-evidence.sh check screen-reader --result passed --packaged --notes 
 
 Options: `--notes TEXT`, `--packaged` (the check used an installed build), `--no-commit` (write the file only), `--allow-dirty` (record although the tree has uncommitted changes; the record says so and the release check ignores it).
 
-The record names the checked commit. Committing the record makes a new commit on top; the release check accepts it as long as only `docs/evidence/`, the evidence tools (`tools/record-evidence.*`, `tools/check-evidence.py`) and Markdown files changed in between (no build or test reads a `.md` file), so the release can be tagged on the commit that holds its own evidence.
+The record names the checked commit. Committing the record makes a new commit on top; the release check accepts it as long as only `docs/evidence/`, the evidence tools (`tools/record-evidence.*`, `tools/check-evidence.py`) Markdown files and the website pages generated from them (`docs/*.html`, `docs/sitemap.xml`) changed in between (no build or test reads them), so the release can be tagged on the commit that holds its own evidence.
 
 ## What counts
 

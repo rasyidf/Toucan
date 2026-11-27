@@ -6,7 +6,7 @@ summary: "What must be true and recorded before a Toucan release is tagged: test
 ---
 # Release checklist
 
-A release is tagged only when `python3 tools/check-evidence.py` passes for the release commit. It reads the records in [docs/evidence](evidence/README.md); each one is written with `tools/record-evidence.sh` or `tools/record-evidence.ps1` on the machine that ran the check. A record counts for the release commit when it names that commit, or an earlier one that differs from it only in `docs/evidence/`, the evidence tools or Markdown files. Any other change, code or not, needs new records. The latest record for a requirement decides, so re-running after a failure replaces it.
+A release is tagged only when `python3 tools/check-evidence.py` passes for the release commit. It reads the records in [docs/evidence](evidence/README.md); each one is written with `tools/record-evidence.sh` or `tools/record-evidence.ps1` on the machine that ran the check. A record counts for the release commit when it names that commit, or an earlier one that differs from it only in `docs/evidence/`, the evidence tools, Markdown files or the website pages generated from them (`docs/*.html`, `docs/sitemap.xml`). Any other change, code or not, needs new records. The latest record for a requirement decides, so re-running after a failure replaces it.
 
 ## Before recording
 

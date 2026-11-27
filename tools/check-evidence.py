@@ -3,7 +3,7 @@
 
 A requirement is <check>@<OS>, optionally :packaged (the check used an installed build) or :native (not WSL). A record counts for
 the release commit when it names that commit, or an ancestor whose difference to it lies only in docs/evidence/, the evidence
-tools and Markdown files (committing a record makes a new commit). Records made with uncommitted changes never count. When a requirement has several records, the latest
+tools, Markdown files and the generated website pages (committing a record makes a new commit). Records made with uncommitted changes never count. When a requirement has several records, the latest
 decides, so a later failure is not hidden by an earlier pass. Exits 1 when a requirement is missing or failed.
 """
 from __future__ import annotations
@@ -19,9 +19,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs" / "evidence"
-# Paths that never reach a build or a test: the records, the tools that write and check them, and Markdown (no project or
-# test reads a .md file; release notes come from CHANGELOG.md at packaging time, after the tests).
-EVIDENCE_ONLY = ("docs/evidence/", "tools/record-evidence.", "tools/check-evidence.py")
+# Paths that never reach a build or a test: the records, the tools that write and check them, Markdown (no project or
+# test reads a .md file; release notes come from CHANGELOG.md at packaging time, after the tests) and the website pages
+# generated from it (tools/build-docs.py, tools/generate-changelog.py).
+EVIDENCE_ONLY = ("docs/evidence/", "tools/record-evidence.", "tools/check-evidence.py", "docs/sitemap.xml")
+
+
+def doc_only(path: str) -> bool:
+    website_page = path.startswith("docs/") and path.count("/") == 1 and path.endswith(".html")
+    return path.startswith(EVIDENCE_ONLY) or path.endswith(".md") or website_page
 
 # The release checklist (docs/release-checklist.md) lists the same requirements with what each check covers.
 TESTS = ["tests@macOS", "tests@Windows", "tests@Linux"]
@@ -66,7 +72,7 @@ def counts_for(commit: str, target: str) -> bool:
         changed = [p for p in git("diff", "--name-only", commit, target).splitlines() if p]
     except subprocess.CalledProcessError:
         return False
-    return all(p.startswith(EVIDENCE_ONLY) or p.endswith(".md") for p in changed)
+    return all(doc_only(p) for p in changed)
 
 
 def records() -> list[dict]:
