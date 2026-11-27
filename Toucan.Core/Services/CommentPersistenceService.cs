@@ -87,7 +87,7 @@ public class CommentPersistenceService(ILogger<CommentPersistenceService> logger
                     Directory.CreateDirectory(directory);
 
                 var json = JsonSerializer.Serialize(document, s_writeOptions);
-                AtomicFile.WriteAllText(sidecarPath, json);
+                AtomicFile.WriteAllText(sidecarPath, LineEndings.ForFile(sidecarPath, json));
             }
             catch (IOException ex)
             {

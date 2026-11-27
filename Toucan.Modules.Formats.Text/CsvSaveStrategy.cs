@@ -5,7 +5,7 @@ using Toucan.Extensions;
 
 namespace Toucan.Core.Services.SaveStrategies;
 
-public class CsvSaveStrategy(IFileService fileService) : ISaveStrategy
+public class CsvSaveStrategy : ISaveStrategy
 {
     public string FormatId => FormatIds.Csv;
 
@@ -26,9 +26,13 @@ public class CsvSaveStrategy(IFileService fileService) : ISaveStrategy
         var allItems = context.LanguageDictionary.SelectMany(kv => kv.Value).ToList();
         var namespaces = allItems.ToNamespaces().OrderBy(n => n).ToList();
 
+        // Rows end with the file's line ending (LineEndings); a line break inside a quoted value is written as the value
+        // holds it, as spreadsheets do, so the whole text is not converted.
+        var file = Path.Combine(path, "translations.csv");
+        var newline = LineEndings.For(file);
         var sb = new StringBuilder();
         // Header: key,lang1,lang2,...
-        sb.AppendLine("key," + string.Join(',', languages));
+        sb.Append("key," + string.Join(',', languages)).Append(newline);
 
         foreach (var ns in namespaces)
         {
@@ -38,10 +42,11 @@ public class CsvSaveStrategy(IFileService fileService) : ISaveStrategy
                 var value = allItems.FirstOrDefault(i => i.Namespace == ns && i.Language == lang)?.Value ?? "";
                 sb.Append(',' + CsvEscape(value));
             }
-            sb.AppendLine();
+            sb.Append(newline);
         }
 
-        fileService.SaveText(path, "translations.csv", sb.ToString());
+        Directory.CreateDirectory(path);
+        AtomicFile.WriteAllText(file, sb.ToString(), Encoding.UTF8);
     }
 
     private static string CsvEscape(string s) =>

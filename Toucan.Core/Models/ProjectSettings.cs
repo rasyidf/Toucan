@@ -261,7 +261,9 @@ public class ProjectSettings
         }
 
         var json = JsonSerializer.Serialize(this, s_options);
-        Toucan.Core.Services.AtomicFile.WriteAllText(Path.Combine(ProjectPath, "toucan.tproj"), json);
+        var manifest = Path.Combine(ProjectPath, "toucan.tproj");
+        // Keeps the line endings the file has, so saving on another OS does not rewrite every line (LineEndings).
+        Toucan.Core.Services.AtomicFile.WriteAllText(manifest, Toucan.Core.Services.LineEndings.ForFile(manifest, json));
         IsDirty = false;
     }
 

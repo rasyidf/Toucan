@@ -57,7 +57,8 @@ public class LaravelPhpSaveStrategy : ISaveStrategy, IResourceSaveStrategy
 
                 sb.AppendLine("];");
 
-                Toucan.Core.Services.AtomicFile.WriteAllText(Path.Combine(langDir, file + ".php"), sb.ToString(), new UTF8Encoding(false));
+                var target = Path.Combine(langDir, file + ".php");
+                Toucan.Core.Services.AtomicFile.WriteAllText(target, Toucan.Core.Services.LineEndings.ForFile(target, sb.ToString()), new UTF8Encoding(false));
             }
         }
     }

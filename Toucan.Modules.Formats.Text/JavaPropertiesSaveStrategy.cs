@@ -65,7 +65,7 @@ public class JavaPropertiesSaveStrategy(IFileService fileService) : ISaveStrateg
                 if (!target.StartsWith(Path.TrimEndingDirectorySeparator(Path.GetFullPath(path)) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
                     throw new InvalidOperationException("Properties output must stay inside the project.");
                 Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-                Toucan.Core.Services.AtomicFile.WriteAllText(target, sb.ToString(), utf8 ? new UTF8Encoding(false) : Encoding.Latin1);
+                Toucan.Core.Services.AtomicFile.WriteAllText(target, Toucan.Core.Services.LineEndings.ForFile(target, sb.ToString()), utf8 ? new UTF8Encoding(false) : Encoding.Latin1);
             }
         }
     }

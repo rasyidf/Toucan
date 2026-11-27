@@ -58,7 +58,8 @@ public static class ResourceText
         return new ResourceOptions
         {
             InputEncoding = encoding, OutputEncoding = encoding, Order = ResourceOrder.Preserve,
-            Newline = content.Contains("\r\n", StringComparison.Ordinal) ? ResourceNewline.CrLf : ResourceNewline.Lf,
+            // A file with no line break says nothing; its writer then follows LineEndings (neighbours, then the OS).
+            Newline = LineEndings.Detect(content) switch { LineEndings.CrLf => ResourceNewline.CrLf, LineEndings.Lf => ResourceNewline.Lf, _ => null },
             Indent = content.Contains("\n\t", StringComparison.Ordinal) ? ResourceIndent.Tab : indentation >= 4 ? ResourceIndent.Space4 : content.Contains('\n') ? ResourceIndent.Space2 : null
         };
     }
@@ -123,7 +124,12 @@ public static class ResourceText
         var options = Options(request);
         var path = ResourceFilePath.Resolve(request.ProjectRoot, request.Document.Resource.RelativePath);
         var encoding = EncodingFor(options.OutputEncoding, request.Document.Resource.RelativePath, "outputEncoding", latin);
-        content = content.ReplaceLineEndings(options.Newline == ResourceNewline.CrLf ? "\r\n" : "\n");
+        content = options.Newline switch
+        {
+            ResourceNewline.CrLf => LineEndings.Apply(content, LineEndings.CrLf),
+            ResourceNewline.Lf => LineEndings.Apply(content, LineEndings.Lf),
+            _ => LineEndings.ForFile(path, content),
+        };
         request.CancellationToken.ThrowIfCancellationRequested();
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         AtomicFile.WriteAllText(path, content, encoding);

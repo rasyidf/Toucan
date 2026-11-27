@@ -35,10 +35,10 @@ public class FileService(ILogger<FileService> logger) : IFileService
         Directory.CreateDirectory(folderPath);
         var path = Path.Combine(folderPath, fileName);
 
-        if (content is string text) { AtomicFile.WriteAllBytes(path, AtomicFile.GetBytes(text, Encoding.UTF8)); return; }
+        if (content is string text) { AtomicFile.WriteAllBytes(path, AtomicFile.GetBytes(LineEndings.ForFile(path, text), Encoding.UTF8)); return; }
         if (content is byte[] bytes) { AtomicFile.WriteAllBytes(path, bytes); return; }
 
-        AtomicFile.WriteAllBytes(path, AtomicFile.GetBytes(JsonSerializer.Serialize(content, s_options), Encoding.UTF8));
+        AtomicFile.WriteAllBytes(path, AtomicFile.GetBytes(LineEndings.ForFile(path, JsonSerializer.Serialize(content, s_options)), Encoding.UTF8));
     }
 
     public string ReadText(string folderPath, string fileName)
@@ -50,7 +50,8 @@ public class FileService(ILogger<FileService> logger) : IFileService
     public void SaveText(string folderPath, string fileName, string content)
     {
         Directory.CreateDirectory(folderPath);
-        AtomicFile.WriteAllBytes(Path.Combine(folderPath, fileName), AtomicFile.GetBytes(content, Encoding.UTF8));
+        var path = Path.Combine(folderPath, fileName);
+        AtomicFile.WriteAllBytes(path, AtomicFile.GetBytes(LineEndings.ForFile(path, content), Encoding.UTF8));
     }
 
     public byte[] ReadBytes(string folderPath, string fileName)
@@ -91,10 +92,10 @@ public class FileService(ILogger<FileService> logger) : IFileService
         Directory.CreateDirectory(folderPath);
         var path = Path.Combine(folderPath, fileName);
 
-        if (content is string text) { await AtomicFile.WriteAllBytesAsync(path, AtomicFile.GetBytes(text, Encoding.UTF8)).ConfigureAwait(false); return; }
+        if (content is string text) { await AtomicFile.WriteAllBytesAsync(path, AtomicFile.GetBytes(LineEndings.ForFile(path, text), Encoding.UTF8)).ConfigureAwait(false); return; }
         if (content is byte[] bytes) { await AtomicFile.WriteAllBytesAsync(path, bytes).ConfigureAwait(false); return; }
 
-        await AtomicFile.WriteAllBytesAsync(path, AtomicFile.GetBytes(JsonSerializer.Serialize(content, s_options), Encoding.UTF8)).ConfigureAwait(false);
+        await AtomicFile.WriteAllBytesAsync(path, AtomicFile.GetBytes(LineEndings.ForFile(path, JsonSerializer.Serialize(content, s_options)), Encoding.UTF8)).ConfigureAwait(false);
     }
 
     public Task<string> ReadTextAsync(string folderPath, string fileName)
@@ -106,7 +107,8 @@ public class FileService(ILogger<FileService> logger) : IFileService
     public Task SaveTextAsync(string folderPath, string fileName, string content)
     {
         Directory.CreateDirectory(folderPath);
-        return AtomicFile.WriteAllBytesAsync(Path.Combine(folderPath, fileName), AtomicFile.GetBytes(content, Encoding.UTF8));
+        var path = Path.Combine(folderPath, fileName);
+        return AtomicFile.WriteAllBytesAsync(path, AtomicFile.GetBytes(LineEndings.ForFile(path, content), Encoding.UTF8));
     }
 
     public Task<byte[]> ReadBytesAsync(string folderPath, string fileName)

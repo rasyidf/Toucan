@@ -170,6 +170,23 @@ public sealed class WorkspaceDestinationTests : IDisposable
             reopened.Units.Single(u => u.Language == "de" && u.KeyPath.Segments[0] == "title").EntryId);
     }
 
+    [Theory]
+    [InlineData("\r\n")]
+    [InlineData("\n")]
+    public async Task ANewLanguageDocumentIsWrittenWithTheProjectsLineEndings(string newline)
+    {
+        // A project checked out on another OS: the new language must not arrive with this machine's line endings.
+        Write("locales/en/checkout.json", "{\n  \"title\": \"Checkout\",\n  \"pay\": \"Pay\"\n}\n".ReplaceLineEndings(newline));
+        await Open("en");
+        Assert.True(_workspace.AddDocumentLanguage("de", Families("de")).Applied);
+        await Save();
+
+        var created = Read("locales/de/checkout.json");
+        Assert.Contains("title", created, StringComparison.Ordinal);
+        Assert.Equal(newline, LineEndings.Detect(created));
+        Assert.Equal(created.Count(c => c == '\n'), newline == "\r\n" ? created.Split("\r\n").Length - 1 : created.Count(c => c == '\n'));
+    }
+
     [Fact]
     public async Task AddingALanguageToSelectedEntriesLeavesOtherEntriesAndDocumentsAlone()
     {

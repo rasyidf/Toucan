@@ -79,6 +79,8 @@ public sealed class FormatSupportTests : IDisposable
         sb.AppendLine();
         sb.AppendLine("**Saving** says what a save does to the files. **Edits in place**: only the entries you edited change; comments, order and formatting stay. This applies when Toucan opens the folder through the format's framework (ARB, Java ResourceBundle, i18next) or maps its files exactly (JSON); Project Properties shows which way the open project saves. **Rewrites the file**: the file is written again from the project, keeping what is listed under *Kept*; comments and formatting in the file may change. **Export only** and **Read only** formats are written but not read back, or read but not written.");
         sb.AppendLine();
+        sb.AppendLine("**Line endings.** Every save keeps each file's line endings (LF or CRLF), so a project moved between Windows, macOS and Linux does not change whole. A new file, such as a new language, takes the line endings of the project's files next to it; with none to copy, it uses the operating system's (CRLF on Windows, LF elsewhere). Toucan's own files in the project (`toucan.tproj`, `.toucan/`, comment and audit sidecars) follow the same rule. **Line ending** in Project Properties overrides this for the translation files. In CSV, only the rows follow the file's line endings: a line break inside a quoted value is written as the value holds it, as spreadsheets do.");
+        sb.AppendLine();
         sb.AppendLine("| Format | ID | Editing | Saving | Versions | Kept | Not supported |");
         sb.AppendLine("|---|---|---|---|---|---|---|");
         foreach (var s in BuiltIns.OrderBy(s => s.DisplayName, StringComparer.Ordinal))

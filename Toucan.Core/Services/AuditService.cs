@@ -135,7 +135,7 @@ public class AuditService(ILogger<AuditService> logger) : IAuditService
         }
 
         var json = JsonSerializer.Serialize(sidecar, s_jsonOptions);
-        AtomicFile.WriteAllText(filePath, json);
+        AtomicFile.WriteAllText(filePath, LineEndings.ForFile(filePath, json));
     }
 
     public void Clear()

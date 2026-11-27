@@ -129,6 +129,13 @@ public sealed class WorkspaceDocumentSavePlanner(WorkspaceDocumentRouter router,
             if (options.OutputEncoding is null && document.TextFormat.EncodingName == System.Text.Encoding.Latin1.WebName)
                 options = options with { OutputEncoding = "ISO-8859-1" };
             var content = writer.SerializeDocument(document.Content, changes.AsReadOnly(), options, cancellationToken);
+            // A new document (a new language) is written like the project's other documents (LineEndings); an existing
+            // one keeps its own line endings through its writer.
+            if (isNew) content = LineEndings.Apply(content, options.Newline switch
+            {
+                ResourceNewline.CrLf => LineEndings.CrLf, ResourceNewline.Lf => LineEndings.Lf,
+                _ => ProjectNewline(source),
+            });
             if (!isNew && content == document.Content) continue;
             targets.Add(new(document.Id, document.RelativePath, document.FormatId,
                 isNew ? WorkspaceDocumentSaveOperation.Create : WorkspaceDocumentSaveOperation.Update,
@@ -164,6 +171,8 @@ public sealed class WorkspaceDocumentSavePlanner(WorkspaceDocumentRouter router,
         {
             previous.TryGetValue(path, out var old);
             if (old is null && content is null) return;
+            // Toucan's own files keep the line endings they have; new ones follow the project's documents.
+            if (content is not null) content = LineEndings.Apply(content, LineEndings.Detect(old?.Content) ?? ProjectNewline(source));
             result.Add(new(path, content is null ? WorkspaceDocumentSaveOperation.Delete : old is null
                 ? WorkspaceDocumentSaveOperation.Create : WorkspaceDocumentSaveOperation.Update, old?.Version, content, old?.TextFormat ?? SourceTextFormat.Utf8));
         }
@@ -184,6 +193,10 @@ public sealed class WorkspaceDocumentSavePlanner(WorkspaceDocumentRouter router,
         }
         return result;
     }
+
+    /// <summary>The line ending most of the project's documents use, or the OS newline when none has a line break.</summary>
+    private static string ProjectNewline(WorkspaceSource source) =>
+        source.Documents.Select(d => LineEndings.Detect(d.Content)).FirstOrDefault(n => n is not null) ?? LineEndings.Default;
 
     private static bool SameData(IReadOnlyDictionary<string, string>? a, IReadOnlyDictionary<string, string>? b) =>
         (a?.Count ?? 0) == (b?.Count ?? 0) && (a is null || a.All(p => b!.TryGetValue(p.Key, out var v) && v == p.Value));
