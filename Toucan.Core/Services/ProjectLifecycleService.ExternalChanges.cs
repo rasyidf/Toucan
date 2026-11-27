@@ -196,10 +196,7 @@ public partial class ProjectLifecycleService
                 return;
             }
 
-            // Re-initialize the translation management service (clears dirty and sets new baselines)
-            translationManagement.Initialize(translations);
-
-            // Reload comments
+            // Reload comments first: they are part of the baseline the store records
             try
             {
                 if (loadResult.Source is null) commentPersistence.LoadComments(folderPath, _currentProject.SaveFormat, translations);
@@ -208,6 +205,9 @@ public partial class ProjectLifecycleService
             {
                 logger.LogWarning(ex, "Failed to reload comments after external change");
             }
+
+            // Re-initialize the translation management service (clears dirty and sets new baselines)
+            translationManagement.Initialize(translations);
 
             // Update the file watcher snapshot
             workspace?.ReloadProjection(saved: true);

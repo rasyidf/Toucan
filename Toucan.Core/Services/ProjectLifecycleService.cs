@@ -183,28 +183,8 @@ public partial class ProjectLifecycleService(
         var settings = loadResult!.Settings;
         var translations = loadResult.Translations;
 
-        // 4. Initialize ITranslationManagementService with loaded translations
-        translationManagement.Initialize(translations);
-
-        // 5. Start IFileWatcherService on the folder
-        fileWatcher.Watch(folderPath);
-        SubscribeToFileWatcher();
-
-        // 6. Add to recent projects
-        recentProjects.Add(folderPath);
-        recentProjects.Save();
-
-        // 7. Load audit metadata
-        try
-        {
-            auditService.LoadFromSidecar(folderPath);
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "Failed to load audit metadata from sidecar for: {FolderPath}", folderPath);
-        }
-
-        // 8. Load comments via ICommentPersistenceService
+        // 4. Comments from the sidecar belong to what is on disk, so they are read before the store records its baseline;
+        // read after, every saved comment would count as an unsaved edit (MIG-02).
         try
         {
             if (loadResult.Source is null) commentPersistence.LoadComments(folderPath, settings.SaveFormat, translations);
@@ -212,6 +192,30 @@ public partial class ProjectLifecycleService(
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Failed to load comments for: {FolderPath}", folderPath);
+        }
+
+        // 5. Initialize ITranslationManagementService with loaded translations
+        translationManagement.Initialize(translations);
+        // 0.23 copies merged in memory are not in the original files yet: the project has something to save, and the open
+        // warning says the next save sets the copies aside.
+        if (settings.MergedLegacyCopies.Count > 0) translationManagement.NotifyConfigurationChanged(true);
+
+        // 6. Start IFileWatcherService on the folder
+        fileWatcher.Watch(folderPath);
+        SubscribeToFileWatcher();
+
+        // 7. Add to recent projects
+        recentProjects.Add(folderPath);
+        recentProjects.Save();
+
+        // 8. Load audit metadata
+        try
+        {
+            auditService.LoadFromSidecar(folderPath);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to load audit metadata from sidecar for: {FolderPath}", folderPath);
         }
 
         // 9. Set current project and configure language management

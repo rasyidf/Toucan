@@ -1,7 +1,7 @@
 ---
 title: "Known Issues & Unfinished Features"
 status: active
-updated: 2026-11-26
+updated: 2026-11-27
 summary: "Open issues in migration from earlier versions, release distribution, Source Control, external connectors and platform acceptance."
 ---
 # Known Issues & Unfinished Features
@@ -14,7 +14,6 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 
 | ID | Severity | Area | Problem | Checked |
 |----|----------|------|---------|---------|
-| [MIG-02](#mig-02) | Low | Migration | A project from an earlier version opens with unsaved changes, so closing it asks to save | Reproduced |
 | [REL-01](#rel-01) | Medium | Release | Tag-triggered release workflow is written but has not run yet | From workflow |
 | [REL-02](#rel-02) | Medium | Release | macOS app is ad-hoc signed and not notarized | From docs and script |
 | [REL-04](#rel-04) | Low | Release | Windows installer is built by the release workflow, which has not run yet; it is unsigned for 1.0 | From workflow |
@@ -37,13 +36,6 @@ None are tracked. What each format keeps and drops on save is in [formats.md](fo
 ---
 
 ## Migration
-
-<a id="mig-02"></a>
-### MIG-02: Earlier projects open with unsaved changes
-
-- **Severity:** Low · **Checked:** reproduced with the 0.23.0 JSON fixture.
-- **State:** opening a project from an earlier version upgrades it in memory (exact-resource mapping, comment sidecars) and marks it changed, so closing asks whether to save although nothing was edited. Opening itself writes nothing.
-- **Fix direction:** keep migration-only changes out of the unsaved state, or say in the prompt that the project format was updated.
 
 ---
 

@@ -132,7 +132,7 @@
 <article class="release" id="unreleased" aria-labelledby="heading-unreleased">
 <div class="release-heading"><h2 id="heading-unreleased"><a href="#unreleased">Unreleased</a></h2><span class="release-badge pending">Not released</span></div>
 <div class="release-lead"><p>Changes waiting for the next release.</p></div>
-<div class="release-counts"><span class="added">4 added</span><span class="changed">7 changed</span><span class="fixed">10 fixed</span></div>
+<div class="release-counts"><span class="added">4 added</span><span class="changed">7 changed</span><span class="fixed">11 fixed</span></div>
 <details><summary>Read full release notes<span class="sr-only"> for Unreleased</span></summary><div class="release-notes"><h3>Added</h3>
 <ul>
 <li><strong>Supported project size</strong> — Toucan 1.0 is measured and supported up to 20,000 translations (for example 2,000 keys in 10 languages). Larger projects open with a notice; they work, more slowly. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/performance.md">performance</a>.</li>
@@ -152,6 +152,7 @@
 </ul>
 <h3>Fixed</h3>
 <ul>
+<li><strong>Projects no longer open with unsaved changes</strong> — In projects that keep comments in a <code>*.comments.json</code> file beside the language files, every comment counted as an unsaved edit on open, so closing an untouched project asked to save. This hit projects from earlier versions in particular. Comments are now read as part of what is saved. A 0.23 project with merged file copies still opens with changes, since the merged values are not in the files until you save.</li>
 <li><strong>Large projects open in seconds</strong> — Every editor row validated itself against the whole project as it was built, so opening grew with the square of the project size: about 4 minutes at 4,000 keys in 10 languages. Rows are now validated when their page is shown, from their own card; the same project opens in 6 seconds. See <a href="https://github.com/rasyidf/Toucan/blob/main/docs/performance.md">performance</a>.</li>
 <li><strong>Settings switches are announced with their label</strong> — A switch or list in a settings row was announced by screen readers without the row&#x27;s title (&quot;switch, off&quot;). The row now names its control and describes it with the row&#x27;s description, everywhere in the app.</li>
 <li><strong>YAML and .properties projects from 0.23 open again</strong> — 0.23 saved each language to a second file at the project root (<code>en.yaml</code> beside <code>config/locales/en.yml</code>, <code>en.properties</code> beside <code>messages_en.properties</code>), sometimes with your edits only there, and such projects have not opened since 0.25. They now open with the copies merged into the original files, keeping the copy&#x27;s value where the two differ, and Toucan lists each difference. Opening changes nothing; the next save writes the merged files and moves the copies to <code>.toucan/backup/0.23-copies/</code>. Comments 0.23 kept for these keys are found again.</li>

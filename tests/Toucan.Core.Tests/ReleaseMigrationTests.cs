@@ -105,8 +105,20 @@ public sealed class ReleaseMigrationTests : IDisposable
             foreach (var (file, bytes) in before.Where(p => !p.Value.AsSpan().SequenceEqual(File.ReadAllBytes(p.Key))))
             { File.WriteAllBytes(Path.Combine(dump, "before-" + Path.GetFileName(file)), bytes); File.Copy(file, Path.Combine(dump, "after-" + Path.GetFileName(file)), true); }
         foreach (var (file, bytes) in before) Assert.True(bytes.AsSpan().SequenceEqual(File.ReadAllBytes(file)), $"Opening changed {Path.GetRelativePath(folder, file)}.");
+        // Nothing was edited, so closing must not ask to save (MIG-02).
+        AssertUnchanged(provider, lifecycle);
         await lifecycle.CloseProjectAsync();
 
+    }
+
+
+
+    private static void AssertUnchanged(ServiceProvider provider, IProjectLifecycleService lifecycle)
+    {
+        var store = provider.GetRequiredService<ITranslationManagementService>();
+        Assert.False(store.IsDirty, "Opened with unsaved changes: " + string.Join(", ", store.GetDirtyItems().Select(t => $"{t.Language}:{t.Namespace}")));
+        Assert.False(provider.GetRequiredService<WorkspaceService>().IsDirty, "The workspace opened with unsaved changes.");
+        Assert.False(lifecycle.CurrentProject!.IsDirty, "The project settings opened with unsaved changes.");
     }
 
     /// <summary>The services the desktop app wires for opening and saving; the lifecycle also reads older comment and audit sidecars.</summary>
@@ -152,6 +164,8 @@ public sealed class ReleaseMigrationTests : IDisposable
         Assert.Equal("Checked by Lea", store.Translations.Single(t => t.Language == "fr" && t.Namespace.EndsWith("farewell", StringComparison.Ordinal)).Comment);
         // Opening writes nothing; the copies stay until a save has replaced them.
         Assert.True(File.Exists(Path.Combine(folder, copy)));
+        // The merged values are not in the original files yet, so the project opens with something to save.
+        Assert.True(store.IsDirty);
 
         Assert.Equal(ProjectSaveStatus.Success, (await lifecycle.SaveProjectAsync()).Status);
         await lifecycle.CloseProjectAsync();

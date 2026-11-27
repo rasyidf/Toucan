@@ -35,7 +35,7 @@ The BabelEdit-shaped manifest written by the BabelEdit converters is a separate,
 - Toucan reads every file version it ever wrote and upgrades it in memory. It writes the new version only when it saves that file for another reason, so opening a project never rewrites it.
 - Fields added within a version are optional. An older build ignores them and, for `toucan.tproj` and `settings.json`, keeps them when it saves.
 - Projects that used the full-rewrite save move to document saving (only edited entries change) when Toucan recognizes their framework, the languages they saved approvals for match the files' languages, and each language has one file. Otherwise they keep saving as before, so approvals and comments stay attached. Comments that older versions kept beside the files move into the file on the first save for formats that store comments themselves (ARB).
-- Opening an older project upgrades it in memory and writes nothing. It is then marked changed, so closing asks whether to save (MIG-02).
+- Opening an older project upgrades it in memory and writes nothing, and it opens with nothing to save. The exception is a 0.23 project whose language files were saved twice: it opens merged and with changes, because the merged values are not in the original files until it is saved.
 
 ## Files: going back (downgrade)
 

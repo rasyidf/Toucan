@@ -369,7 +369,8 @@ public partial class MainWindowViewModel
         }
 
         ClearSessionDirtyState();
-        IsDirty = Workspace.IsDirty;
+        // The store can open with something to save, such as 0.23 file copies merged in memory.
+        IsDirty = Workspace.IsDirty || _translationStore.IsDirty;
         ValidationIssues.Clear();
         ValidationLastChecked = null;
         OnPropertyChanged(nameof(ValidationSummary));
