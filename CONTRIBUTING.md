@@ -17,6 +17,12 @@ dotnet build Toucan.slnx -c Release
 dotnet test Toucan.slnx -c Release --no-build
 ```
 
+The repository stores and checks out every text file with LF on every OS (`.gitattributes`, `.editorconfig`), so scripts and test fixtures have the same bytes on Windows, macOS, Linux and WSL. A Windows clone made before this rule may still have CRLF files; with no uncommitted changes, refresh it once:
+
+```sh
+git rm -r --cached -q . && git reset -q --hard
+```
+
 Follow nearby code. Keep UI code in `Toucan.Avalonia`, shared logic in Core and format/provider integrations in the relevant module. Add regression tests for behavior changes and update documentation when needed. Packaging instructions are in [packaging/README.md](packaging/README.md).
 
 ## Pull Requests
