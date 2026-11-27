@@ -65,7 +65,9 @@ def check():
         if meta.get("updated") and not re.fullmatch(r"\d{4}-\d\d-\d\d", meta["updated"]):
             bad.append(f"{rel}: 'updated' must be YYYY-MM-DD")
         body = f.read_text(encoding="utf-8")
-        if rel.startswith(OPEN_ONLY) and re.search(r"^\s*- \[[xX]\]", body, re.M):
+        # The roadmap keeps closed v1 items ticked under its release gates until 1.0 ships.
+        tracked = re.sub(r"^## [^\n]*release gates.*?(?=^## )", "", body, flags=re.M | re.S | re.I)
+        if rel.startswith(OPEN_ONLY) and re.search(r"^\s*- \[[xX]\]", tracked, re.M):
             bad.append(f"{rel}: tracker lists open work only; delete ticked '- [x]' items (changelog and completed-features keep them)")
         if rel in SHIPPED_ONLY and re.search(r"^\s*- \[ \]", body, re.M):
             bad.append(f"{rel}: lists shipped features only; move unchecked '- [ ]' items to the roadmap")
