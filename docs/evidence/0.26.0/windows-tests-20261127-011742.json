@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "check": "tests",
+  "kind": "automated",
+  "result": "failed",
+  "commit": "817fea0a3594b02e0cc056b2adc699dd0141c2c0",
+  "dirty": false,
+  "version": "0.26.0",
+  "os": {
+    "family": "Windows",
+    "version": "Microsoft Windows 11 Pro 10.0.26300",
+    "arch": "x64"
+  },
+  "environment": "native",
+  "packaged": false,
+  "command": "dotnet test Toucan.slnx --configuration Release --logger trx",
+  "counts": {
+    "total": 2199,
+    "passed": 2192,
+    "failed": 2,
+    "skipped": 5
+  },
+  "notes": "",
+  "recordedAt": "2026-11-27T01.17.42Z",
+  "recordedBy": "rasyidf",
+  "ciRun": null
+}
