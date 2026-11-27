@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "check": "tests",
+  "kind": "automated",
+  "result": "passed",
+  "commit": "0ee6d92a573d2974b19ced601499352fd7edcf25",
+  "dirty": false,
+  "version": "1.0.0-rc.1",
+  "os": {
+    "family": "macOS",
+    "version": "27.2.1",
+    "arch": "arm64"
+  },
+  "environment": "native",
+  "packaged": false,
+  "command": "dotnet test Toucan.slnx --configuration Release --logger trx",
+  "counts": {
+    "total": 2201,
+    "passed": 2197,
+    "failed": 0,
+    "skipped": 4
+  },
+  "notes": "",
+  "recordedAt": "2026-11-27T01:54:07Z",
+  "recordedBy": "rasyidf",
+  "ciRun": null
+}
