@@ -30,10 +30,12 @@ tools/record-evidence.sh check screen-reader --result passed --packaged --notes 
 
 Options: `--notes TEXT`, `--packaged` (the check used an installed build), `--no-commit` (write the file only), `--allow-dirty` (record although the tree has uncommitted changes; the record says so and the release check ignores it).
 
-The record names the checked commit. Committing the record makes a new commit on top; the release check accepts it as long as only `docs/evidence/` changed in between, so the release can be tagged on the commit that holds its own evidence.
+The record names the checked commit. Committing the record makes a new commit on top; the release check accepts it as long as only `docs/evidence/`, the release checklist and the evidence tools (`tools/record-evidence.*`, `tools/check-evidence.py`) changed in between, so the release can be tagged on the commit that holds its own evidence.
 
 ## What counts
 
 - `environment` is `native`, `vm`, `ci` or `wsl`. WSL counts for Linux tests but not for packaged builds or the keyring.
 - A record with `dirty: true` does not count for a release.
 - `recordedBy` is the git user name of whoever ran it; no e-mail address is stored.
+
+`recordedAt` must be `yyyy-MM-ddTHH:mm:ssZ`; the check ignores a record with any other form, since the latest record decides.

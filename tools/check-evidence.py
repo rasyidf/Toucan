@@ -2,8 +2,8 @@
 """Checks that docs/evidence/ has a passing record for every release requirement: python3 tools/check-evidence.py [--commit REF].
 
 A requirement is <check>@<OS>, optionally :packaged (the check used an installed build) or :native (not WSL). A record counts for
-the release commit when it names that commit, or an ancestor whose difference to it lies only in docs/evidence/ (committing a
-record makes a new commit). Records made with uncommitted changes never count. When a requirement has several records, the latest
+the release commit when it names that commit, or an ancestor whose difference to it lies only in docs/evidence/ and the evidence
+tools (committing a record makes a new commit). Records made with uncommitted changes never count. When a requirement has several records, the latest
 decides, so a later failure is not hidden by an earlier pass. Exits 1 when a requirement is missing or failed.
 """
 from __future__ import annotations
@@ -13,11 +13,14 @@ import json
 import subprocess
 import sys
 from dataclasses import dataclass
+from datetime import datetime
 from functools import cache
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs" / "evidence"
+# Paths that never reach a build or a test: the records, the checklist and the tools that write and check them.
+EVIDENCE_ONLY = ("docs/evidence/", "docs/release-checklist.md", "tools/record-evidence.", "tools/check-evidence.py")
 
 # The release checklist (docs/release-checklist.md) lists the same requirements with what each check covers.
 TESTS = ["tests@macOS", "tests@Windows", "tests@Linux"]
@@ -62,7 +65,7 @@ def counts_for(commit: str, target: str) -> bool:
         changed = [p for p in git("diff", "--name-only", commit, target).splitlines() if p]
     except subprocess.CalledProcessError:
         return False
-    return all(p.startswith("docs/evidence/") for p in changed)
+    return all(p.startswith(EVIDENCE_ONLY) for p in changed)
 
 
 def records() -> list[dict]:
@@ -76,6 +79,12 @@ def records() -> list[dict]:
             continue
         if isinstance(data, dict) and data.get("schema") == 1:
             data["_path"] = path.relative_to(ROOT).as_posix()
+            try:
+                # "Latest decides" compares these, so a time that is not ISO 8601 UTC would sort wrongly.
+                data["_at"] = datetime.strptime(data.get("recordedAt", ""), "%Y-%m-%dT%H:%M:%SZ")
+            except ValueError:
+                print(f"  ignored {data['_path']}: recordedAt {data.get('recordedAt')!r} is not yyyy-MM-ddTHH:mm:ssZ", file=sys.stderr)
+                continue
             found.append(data)
     return found
 
@@ -100,7 +109,7 @@ def main() -> int:
     missing = 0
     print(f"Evidence for {target[:12]} ({len(all_records)} records in docs/evidence):")
     for requirement in requirements:
-        matches = sorted((r for r in all_records if satisfies(r, requirement, target)), key=lambda r: r.get("recordedAt", ""))
+        matches = sorted((r for r in all_records if satisfies(r, requirement, target)), key=lambda r: r["_at"])
         if not matches:
             print(f"  MISSING {requirement}")
             missing += 1

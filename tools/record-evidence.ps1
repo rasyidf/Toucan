@@ -74,7 +74,7 @@ if ($Mode -eq 'tests') {
 $who = (git config user.name)
 if (-not $who) { $who = $env:USERNAME }
 if (-not $who) { $who = $env:USER }
-$stamp = (Get-Date).ToUniversalTime().ToString('yyyyMMdd-HHmmss')
+$stamp = (Get-Date).ToUniversalTime().ToString('yyyyMMdd-HHmmss', [cultureinfo]::InvariantCulture)
 $folder = Join-Path 'docs/evidence' $version
 New-Item -ItemType Directory -Force -Path $folder | Out-Null
 $relative = "docs/evidence/$version/$($family.ToLowerInvariant())-$Check-$stamp.json"
@@ -84,7 +84,7 @@ $record = [ordered]@{
     commit = $commit; dirty = $dirty; version = $version
     os = [ordered]@{ family = $family; version = $osVersion; arch = $arch }
     environment = $environment; packaged = [bool]$Packaged; command = $command; counts = $counts; notes = $Notes
-    recordedAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ"); recordedBy = $who; ciRun = $ciRun
+    recordedAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", [cultureinfo]::InvariantCulture); recordedBy = $who; ciRun = $ciRun
 }
 # LF line endings, as the shell script writes, so records diff the same on every OS.
 $json = ($record | ConvertTo-Json -Depth 5) -replace "`r`n", "`n"
