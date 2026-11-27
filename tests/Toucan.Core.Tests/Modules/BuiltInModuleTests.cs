@@ -66,7 +66,8 @@ public sealed class BuiltInModuleTests : IDisposable
 
         foreach (var module in sp.GetRequiredService<IPluginCatalog>().BuiltInModules)
         {
-            Assert.True(Version.TryParse(module.Version, out _), $"{module.Id} has version '{module.Version}'");
+            // A release candidate's modules report 1.0.0-rc.1: a numeric version with an optional prerelease suffix.
+            Assert.True(Version.TryParse(module.Version.Split('-')[0], out _), $"{module.Id} has version '{module.Version}'");
             Assert.Equal(module.Version, ExpectedVersionOf(module.Id));
         }
     }
