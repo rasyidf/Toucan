@@ -20,7 +20,7 @@ This file lists what is wrong *now*. Fixed bugs are not kept here: they are in [
 | [REL-04](#rel-04) | Low | Release | Windows installer is built by the release workflow, which has not run yet; it is unsigned for 1.0 | From workflow |
 | [APP-01](#app-01) | Low | App | Source Control panel does not exist | Reproduced |
 | [APP-05](#app-05) | Medium | Integration | External connector and connection lifecycle acceptance remains unverified | From code and available environment |
-| [QA-03](#qa-03) | Medium | Release acceptance | Native Windows accessibility checked on another machine; evidence not in repo. macOS/Linux assumed passed | Recorded by maintainer |
+| [QA-03](#qa-03) | Medium | Release acceptance | Test records pass on all three OSes; packaged, keyring and screen-reader hand checks not recorded yet | Recorded by maintainer |
 | [QA-04](#qa-04) | Low | Release acceptance | AI providers tested against stubbed HTTP only; no live-service run recorded | From tests |
 | [QA-02](#qa-02) | Low | Perf | Projects above the supported 20,000 translations are slow, and saving 100,000 can run out of memory | Reproduced |
 
@@ -94,7 +94,7 @@ Toolbar contributions now render and follow registry state. Core connection acti
 <a id="qa-03"></a>
 ### QA-03: Native and supported-platform acceptance
 
-Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements and text scaling were checked on a separate Windows machine; that evidence is not stored in this repository, and the compatibility M7c rows should be updated from it. The 2026-10-25 readiness review records macOS/Linux testing as assumed passed, without execution artifacts. See the [acceptance record](specs/editor-comfort/acceptance.md). Since 2026-11-26 results become committed records: run `tools/record-evidence.sh tests` (or `pwsh tools/record-evidence.ps1 tests`) and the hand checks on each machine, and `tools/check-evidence.py` shows what is missing (see the [release checklist](release-checklist.md)). macOS has a passing test record; Windows and Linux records and all hand checks are still to be recorded.
+Windows headless tests cover a 100-target keyboard session, paging, save/reopen, light/dark layouts, narrow windows, RTL and generated restrictions. Native Windows input, screen-reader announcements and text scaling were checked on a separate Windows machine; that evidence is not stored in this repository, and the compatibility M7c rows should be updated from it. The 2026-10-25 readiness review records macOS/Linux testing as assumed passed, without execution artifacts. See the [acceptance record](specs/editor-comfort/acceptance.md). Since 2026-11-26 results become committed records: run `tools/record-evidence.sh tests` (or `pwsh tools/record-evidence.ps1 tests`) and the hand checks on each machine, and `tools/check-evidence.py` shows what is missing (see the [release checklist](release-checklist.md)). Automated test records pass on all three OSes for the current commit (2026-11-27: macOS, Windows 11 native, Ubuntu 24.04 under WSL). The hand checks (packaged flow, install/upgrade, Gatekeeper, keyring, screen readers) are still to be recorded; WSL does not count for those.
 
 
 <a id="qa-04"></a>
