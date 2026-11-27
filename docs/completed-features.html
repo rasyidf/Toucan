@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Toucan · Shipped Features</title>
-<meta name="description" content="Editor, translation, terminology, validation and plugin capabilities.">
+<meta name="description" content="Editor, formats, review, translation, validation, content sources, packaging and plugin capabilities shipped so far.">
 <link rel="canonical" href="https://toucan.rasyid.dev/completed-features.html">
 <meta name="robots" content="index, follow">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -15,19 +15,19 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Toucan · Shipped Features">
-<meta property="og:description" content="Editor, translation, terminology, validation and plugin capabilities.">
+<meta property="og:description" content="Editor, formats, review, translation, validation, content sources, packaging and plugin capabilities shipped so far.">
 <meta property="og:url" content="https://toucan.rasyid.dev/completed-features.html">
 <meta property="og:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Toucan · Shipped Features">
-<meta name="twitter:description" content="Editor, translation, terminology, validation and plugin capabilities.">
+<meta name="twitter:description" content="Editor, formats, review, translation, validation, content sources, packaging and plugin capabilities shipped so far.">
 <meta name="twitter:image" content="https://toucan.rasyid.dev/assets/icons/icon-512.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Toucan \u00b7 Shipped Features",
-  "description": "Editor, translation, terminology, validation and plugin capabilities.",
+  "description": "Editor, formats, review, translation, validation, content sources, packaging and plugin capabilities shipped so far.",
   "url": "https://toucan.rasyid.dev/completed-features.html",
   "publisher": {
     "@type": "Organization",
@@ -97,14 +97,14 @@
 <a href="completed-features.html" aria-current="page">Shipped Features</a>
 <a href="known-bugs.html">Known Issues &amp; Unfinished Features</a>
       </nav>
-      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#terminology-and-validation">Terminology and validation</a><a class="l2" href="#core-editor">Core Editor</a><a class="l2" href="#editor-modes">Editor Modes</a><a class="l2" href="#file-io">File I/O</a><a class="l2" href="#machine-translation">Machine Translation</a><a class="l2" href="#ai-integration-since-v0200">AI Integration (since v0.20.0)</a><a class="l2" href="#ui--ux">UI / UX</a><a class="l2" href="#search-bulk-edits-validation">Search, Bulk Edits, Validation</a><a class="l2" href="#translation-memory">Translation Memory</a><a class="l2" href="#advanced-data-model">Advanced Data Model</a><a class="l2" href="#distribution--platform">Distribution &amp; Platform</a><a class="l2" href="#source-code-integration">Source Code Integration</a><a class="l2" href="#plugins-since-v0180-avalonia-app-and-cli">Plugins (since v0.18.0; Avalonia app and CLI)</a><a class="l2" href="#command-line">Command Line</a><a class="l2" href="#website">Website</a></nav>
+      <div class="side-title">On this page</div><nav class="toc" aria-label="On this page"><a class="l2" href="#terminology-and-validation">Terminology and validation</a><a class="l2" href="#core-editor">Core Editor</a><a class="l2" href="#editor-modes">Editor Modes</a><a class="l2" href="#file-io">File I/O</a><a class="l2" href="#machine-translation">Machine Translation</a><a class="l2" href="#ai-integration-since-v0200">AI Integration (since v0.20.0)</a><a class="l2" href="#ui--ux">UI / UX</a><a class="l2" href="#search-bulk-edits-validation">Search, Bulk Edits, Validation</a><a class="l2" href="#translation-memory">Translation Memory</a><a class="l2" href="#advanced-data-model">Advanced Data Model</a><a class="l2" href="#distribution--platform">Distribution &amp; Platform</a><a class="l2" href="#source-code-integration">Source Code Integration</a><a class="l2" href="#plugins-since-v0180-avalonia-app-and-cli">Plugins (since v0.18.0; Avalonia app and CLI)</a><a class="l2" href="#content-sources-preview-connectors">Content sources (preview connectors)</a><a class="l2" href="#command-line">Command Line</a><a class="l2" href="#website">Website</a></nav>
     </aside>
     <article class="doc">
       <header class="doc-head">
         <div class="kicker">Documentation</div>
         <h1>Shipped Features</h1>
-        <p class="lead">Editor, translation, terminology, validation and plugin capabilities.</p>
-        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-11-15</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/completed-features.md">Edit on GitHub ↗</a></div>
+        <p class="lead">Editor, formats, review, translation, validation, content sources, packaging and plugin capabilities shipped so far.</p>
+        <div class="doc-meta"><span class="doc-status">active</span><span>Updated 2026-11-27</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/completed-features.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <p>See the <a href="https://github.com/rasyidf/Toucan/blob/main/CHANGELOG.md">changelog</a> for release history, the <a href="roadmap.html">roadmap</a> for planned work and <a href="known-bugs.html">known issues</a> for open bugs.</p>
@@ -177,6 +177,9 @@
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Document projects: new keys, duplicates, and language creation/removal choose a destination document; files are created or deleted only on save</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Formats declare their save scope; only verified formats write targeted documents</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>File watcher (reload changed files from disk)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Edits in place for Flutter ARB, Java <code>.properties</code> (ISO-8859-1 kept) and i18next folders: a save changes only the entries you edited; Project Properties shows whether the open project edits in place or rewrites its files</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Line endings kept per file, so a project moved between Windows, macOS and Linux does not change whole on save; new files follow the files next to them</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Projects from 0.23 to 0.26 open with their approvals, comments and review state and nothing to save; a damaged or newer <code>toucan.tproj</code>, <code>accounts.json</code> or <code>settings.json</code> is never overwritten</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Skip unchanged files on reload</li>
 </ul>
 <h2 id="machine-translation"><a class="anchor" href="#machine-translation" aria-label="Link to this section">#</a>Machine Translation</h2>
@@ -238,6 +241,8 @@
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Keyboard shortcut sheet (Cmd/Ctrl+/)</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Compact pagination controls</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Editor, Review, and Audit modes; Zen mode (J/K navigation)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Direct editing or the pipelined Edit › Review › Audit workflow (View → Workflow)</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Review state follows the text: an approval is withdrawn and marked Needs review when the source or translation changes; review history in <code>.toucan/review-history.jsonl</code></li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Activity bar with side panels: Explorer, Source Code, Search, Issues, Languages, Inspector, Translation, Memory (Dictionary panel is a placeholder)</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Panel layout saved between sessions</li>
 </ul>
@@ -272,6 +277,10 @@
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>macOS native menu bar with registry commands, project-aware visibility and native shortcut ownership</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Translation file locations configurable per language</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Encoding (UTF-8, UTF-8 BOM) and line endings (LF, CRLF) per project, from the status bar</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Release packages built from the tag: Windows installer and portable ZIP, <code>.deb</code>, <code>.rpm</code> and tarball for Linux (x64, arm64), DMGs for Apple silicon and Intel, with SHA-256 checksums</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Update notice on startup, at most once a day (Settings → About); opens the release page, never installs</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span><code>Toucan --self-check</code> starts and reads a project without a window, for checking installed packages</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Supported scale: 20,000 translations (2,000 keys in 10 languages) within measured budgets; larger projects open with a notice</li>
 </ul>
 <h2 id="source-code-integration"><a class="anchor" href="#source-code-integration" aria-label="Link to this section">#</a>Source Code Integration</h2>
 <ul class="tasks">
@@ -287,7 +296,7 @@
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Plugins add file formats, translation providers, validation rules, and framework profiles from <code>.dll</code> assemblies</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Trust model: a plugin loads only when enabled and trusted (SHA-256 of its files)</li>
-<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span><code>Toucan.Plugins.Abstractions</code> contract package (plugin API 1.2) and a sample plugin</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span><code>Toucan.Plugins.Abstractions</code> contract package (plugin API 1.3, frozen for 1.x) and a sample plugin</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Built-in formats, providers, rules and profiles load as compiled-in modules, listed in Settings → Plugins and <code>toucan plugins list</code></li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Extension platform: registration vs activation split (application, workspace, and connection scopes)</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Command registry (<code>ICommandRegistry</code>) with stable IDs, states, async execution, cancellation, progress, and user shortcuts</li>
@@ -307,6 +316,14 @@
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Workspace API: readable snapshots and all-or-nothing edit transactions for values, comments, review state and keys, routed through normal undo (one step), dirty tracking, validation and persistence</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Compatibility checks before any plugin code loads: plugin API version, <code>minHostVersion</code>, desktop-contract version and platform support, each with an actionable message</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span><code>Toucan.Plugins.Testing</code> SDK harness (registration, activation, workspace edits, cancellation, CLI-without-desktop check) and a sample REST connector built outside the repository from the published SDK packages only</li>
+</ul>
+<h2 id="content-sources-preview-connectors"><a class="anchor" href="#content-sources-preview-connectors" aria-label="Link to this section">#</a>Content sources (preview connectors)</h2>
+<ul class="tasks">
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Accounts and connections per project, credentials in the system secret store, sign-in by token, password, device code or browser OAuth</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Pull, push and sync with a plan first, conflicts side by side, and a journal so a crash or timeout never sends a change twice</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Sources panel, Sources menu and <code>toucan sources</code> commands; open a project from a service into a local folder</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Toucan source protocol <code>/v1</code> (frozen), a built-in client and a reference server; local-folder source</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>Crowdin connector (preview)</li>
 </ul>
 <h2 id="command-line"><a class="anchor" href="#command-line" aria-label="Link to this section">#</a>Command Line</h2>
 <ul class="tasks">

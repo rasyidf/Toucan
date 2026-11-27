@@ -1,8 +1,8 @@
 ---
 title: "Shipped Features"
 status: active
-updated: 2026-11-15
-summary: "Editor, translation, terminology, validation and plugin capabilities."
+updated: 2026-11-27
+summary: "Editor, formats, review, translation, validation, content sources, packaging and plugin capabilities shipped so far."
 ---
 # Shipped Features
 
@@ -79,6 +79,9 @@ Project glossary, CSV exchange, Dictionary matches and explicit insertion, effec
 - [x] Document projects: new keys, duplicates, and language creation/removal choose a destination document; files are created or deleted only on save
 - [x] Formats declare their save scope; only verified formats write targeted documents
 - [x] File watcher (reload changed files from disk)
+- [x] Edits in place for Flutter ARB, Java `.properties` (ISO-8859-1 kept) and i18next folders: a save changes only the entries you edited; Project Properties shows whether the open project edits in place or rewrites its files
+- [x] Line endings kept per file, so a project moved between Windows, macOS and Linux does not change whole on save; new files follow the files next to them
+- [x] Projects from 0.23 to 0.26 open with their approvals, comments and review state and nothing to save; a damaged or newer `toucan.tproj`, `accounts.json` or `settings.json` is never overwritten
 - [x] Skip unchanged files on reload
 
 ## Machine Translation
@@ -140,6 +143,8 @@ Project glossary, CSV exchange, Dictionary matches and explicit insertion, effec
 - [x] Keyboard shortcut sheet (Cmd/Ctrl+/)
 - [x] Compact pagination controls
 - [x] Editor, Review, and Audit modes; Zen mode (J/K navigation)
+- [x] Direct editing or the pipelined Edit › Review › Audit workflow (View → Workflow)
+- [x] Review state follows the text: an approval is withdrawn and marked Needs review when the source or translation changes; review history in `.toucan/review-history.jsonl`
 - [x] Activity bar with side panels: Explorer, Source Code, Search, Issues, Languages, Inspector, Translation, Memory (Dictionary panel is a placeholder)
 - [x] Panel layout saved between sessions
 
@@ -174,6 +179,10 @@ Project glossary, CSV exchange, Dictionary matches and explicit insertion, effec
 - [x] macOS native menu bar with registry commands, project-aware visibility and native shortcut ownership
 - [x] Translation file locations configurable per language
 - [x] Encoding (UTF-8, UTF-8 BOM) and line endings (LF, CRLF) per project, from the status bar
+- [x] Release packages built from the tag: Windows installer and portable ZIP, `.deb`, `.rpm` and tarball for Linux (x64, arm64), DMGs for Apple silicon and Intel, with SHA-256 checksums
+- [x] Update notice on startup, at most once a day (Settings → About); opens the release page, never installs
+- [x] `Toucan --self-check` starts and reads a project without a window, for checking installed packages
+- [x] Supported scale: 20,000 translations (2,000 keys in 10 languages) within measured budgets; larger projects open with a notice
 
 ## Source Code Integration
 
@@ -189,7 +198,7 @@ Project glossary, CSV exchange, Dictionary matches and explicit insertion, effec
 
 - [x] Plugins add file formats, translation providers, validation rules, and framework profiles from `.dll` assemblies
 - [x] Trust model: a plugin loads only when enabled and trusted (SHA-256 of its files)
-- [x] `Toucan.Plugins.Abstractions` contract package (plugin API 1.2) and a sample plugin
+- [x] `Toucan.Plugins.Abstractions` contract package (plugin API 1.3, frozen for 1.x) and a sample plugin
 - [x] Built-in formats, providers, rules and profiles load as compiled-in modules, listed in Settings → Plugins and `toucan plugins list`
 - [x] Extension platform: registration vs activation split (application, workspace, and connection scopes)
 - [x] Command registry (`ICommandRegistry`) with stable IDs, states, async execution, cancellation, progress, and user shortcuts
@@ -209,6 +218,14 @@ Project glossary, CSV exchange, Dictionary matches and explicit insertion, effec
 - [x] Workspace API: readable snapshots and all-or-nothing edit transactions for values, comments, review state and keys, routed through normal undo (one step), dirty tracking, validation and persistence
 - [x] Compatibility checks before any plugin code loads: plugin API version, `minHostVersion`, desktop-contract version and platform support, each with an actionable message
 - [x] `Toucan.Plugins.Testing` SDK harness (registration, activation, workspace edits, cancellation, CLI-without-desktop check) and a sample REST connector built outside the repository from the published SDK packages only
+
+## Content sources (preview connectors)
+
+- [x] Accounts and connections per project, credentials in the system secret store, sign-in by token, password, device code or browser OAuth
+- [x] Pull, push and sync with a plan first, conflicts side by side, and a journal so a crash or timeout never sends a change twice
+- [x] Sources panel, Sources menu and `toucan sources` commands; open a project from a service into a local folder
+- [x] Toucan source protocol `/v1` (frozen), a built-in client and a reference server; local-folder source
+- [x] Crowdin connector (preview)
 
 ## Command Line
 

@@ -1,7 +1,7 @@
 ---
 title: "Writing a content-source adapter"
-status: draft
-updated: 2026-11-05
+status: active
+updated: 2026-11-27
 summary: "A walkthrough for plugin authors: the unit model with the sample connector, the document model with the Crowdin connector, testing with the kit, and what Toucan does for you."
 ---
 # Writing a content-source adapter

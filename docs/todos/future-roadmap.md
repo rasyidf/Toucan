@@ -1,8 +1,8 @@
 ---
 title: "Toucan roadmap: v0.21 to v1.0"
 status: in-progress
-progress: "33 v1 checklist tasks; 8 v1 gates; 30 deferred tasks"
-updated: 2026-11-26
+progress: "34 v1 checklist tasks; 8 v1 gates; 30 deferred tasks"
+updated: 2026-11-27
 summary: "v0.26 to v0.29 shipped in the v0.26.0 pre-release. Feature work is frozen; the v1 checklist maps each v1.0 gate to correctness, contract, evidence, distribution, performance and release tasks."
 ---
 # Toucan roadmap: v0.21 to v1.0
@@ -119,6 +119,7 @@ Items marked **(you)** need the maintainer: a product decision, an account, mone
 
 - [x] V1-00 `v0.26.0` is tagged and published as a pre-release, but `Directory.Build.props` still says `0.25.0` and `CHANGELOG.md` still has everything under `[Unreleased]`. Cut a `[0.26.0] - 2026-11-25` section, bump the version for the next build, and have the tag workflow (V1-40) refuse a tag that does not match the version. The published v0.26.0 has no package assets. Done: changelog cut as 0.26.0 and version set to 0.26.0 so builds from `main` stop offering 0.26.0 as an update; the tag check stays with V1-40.
 - [x] V1-01 Remove the tracked `.DS_Store` and `samples/.DS_Store` (already in `.gitignore`).
+- [x] V1-02 Line endings changed whole files when a project moved between Windows and macOS: rewrite formats and Toucan's own files were written with the saving machine's newline. Decided 2026-11-27: each file keeps its endings, new files follow their neighbours, else the OS default. Done: `LineEndings` in Core, used by every writer and the save planner (`FormatLineEndingTests`); the repository checks out every text file with LF (`.gitattributes`, `.editorconfig`).
 
 #### 1. Correctness (G1, G2, G3)
 

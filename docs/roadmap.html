@@ -104,7 +104,7 @@
         <div class="kicker">Documentation</div>
         <h1>Toucan roadmap: v0.21 to v1.0</h1>
         <p class="lead">v0.26 to v0.29 shipped in the v0.26.0 pre-release. Feature work is frozen; the v1 checklist maps each v1.0 gate to correctness, contract, evidence, distribution, performance and release tasks.</p>
-        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-11-26</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
+        <div class="doc-meta"><span class="doc-status">in-progress</span><span>Updated 2026-11-27</span><a href="https://github.com/rasyidf/Toucan/blob/main/docs/todos/future-roadmap.md">Edit on GitHub ↗</a></div>
       </header>
       <div class="prose">
 <h2 id="product-goal"><a class="anchor" href="#product-goal" aria-label="Link to this section">#</a>Product goal</h2>
@@ -163,6 +163,7 @@
 <ul class="tasks">
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>V1-00 <code>v0.26.0</code> is tagged and published as a pre-release, but <code>Directory.Build.props</code> still says <code>0.25.0</code> and <code>CHANGELOG.md</code> still has everything under <code>[Unreleased]</code>. Cut a <code>[0.26.0] - 2026-11-25</code> section, bump the version for the next build, and have the tag workflow (V1-40) refuse a tag that does not match the version. The published v0.26.0 has no package assets. Done: changelog cut as 0.26.0 and version set to 0.26.0 so builds from <code>main</code> stop offering 0.26.0 as an update; the tag check stays with V1-40.</li>
 <li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>V1-01 Remove the tracked <code>.DS_Store</code> and <code>samples/.DS_Store</code> (already in <code>.gitignore</code>).</li>
+<li class="task"><span class="box" aria-hidden="true">☑</span><span class="sr-only">Done: </span>V1-02 Line endings changed whole files when a project moved between Windows and macOS: rewrite formats and Toucan's own files were written with the saving machine's newline. Decided 2026-11-27: each file keeps its endings, new files follow their neighbours, else the OS default. Done: <code>LineEndings</code> in Core, used by every writer and the save planner (<code>FormatLineEndingTests</code>); the repository checks out every text file with LF (<code>.gitattributes</code>, <code>.editorconfig</code>).</li>
 </ul>
 <h4 id="1-correctness-g1-g2-g3"><a class="anchor" href="#1-correctness-g1-g2-g3" aria-label="Link to this section">#</a>1. Correctness (G1, G2, G3)</h4>
 <ul class="tasks">
