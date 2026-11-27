@@ -48,7 +48,7 @@ cp -R "$stage" "$deb"
 mkdir -p "$deb/DEBIAN"
 cat > "$deb/DEBIAN/control" <<CONTROL
 Package: toucan
-Version: $version
+Version: $(echo "$version" | tr '-' '~')
 Section: devel
 Priority: optional
 Architecture: $deb_arch

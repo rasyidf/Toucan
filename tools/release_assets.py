@@ -34,13 +34,24 @@ def expected(version: str) -> set[str]:
     }
 
 
+REPO = "https://github.com/rasyidf/Toucan"
+
+
+def absolute_links(markdown: str, version: str) -> str:
+    """CHANGELOG.md links are relative to the repository; on the release page they must point into the tagged tree."""
+    return re.sub(r"\]\((?!https?:|#|mailto:)([^)\s]+)\)", lambda m: f"]({REPO}/blob/v{version}/{m.group(1)})", markdown)
+
+
 def notes(version: str) -> str:
     text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    body = f"Toucan {version}.\n"
     for heading in (re.escape(f"[{version}]"), re.escape("[Unreleased]")):
         match = re.search(rf"^## {heading}[^\n]*\n(.*?)(?=^## \[|\Z)", text, re.S | re.M)
         if match and match.group(1).strip():
-            return match.group(1).strip() + "\n"
-    return f"Toucan {version}.\n"
+            body = match.group(1).strip() + "\n"
+            break
+    limits = f"See [known limitations](docs/known-limitations.md) for what this version does not do yet.\n\n"
+    return absolute_links(limits + body, version)
 
 
 def main() -> int:

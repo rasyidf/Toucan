@@ -16,6 +16,8 @@ OUT="${1:-$ROOT/build/macos}"
 RID="${2:-osx-$([ "$(uname -m)" = arm64 ] && echo arm64 || echo x64)}"
 PROJ="$ROOT/Toucan.Avalonia/Toucan.Avalonia.csproj"
 VERSION="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' "$ROOT/Directory.Build.props" | head -1)"
+# macOS wants up to three numbers in the bundle version, so a release candidate (1.0.0-rc.1) is 1.0.0 there.
+BUNDLE_VERSION="${VERSION%%-*}"; BUNDLE_VERSION="${BUNDLE_VERSION:-0.0.0}"
 APP="$OUT/Toucan.app"
 
 rm -rf "$OUT/publish" "$APP"
@@ -49,8 +51,8 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 <key>CFBundleIdentifier</key><string>dev.toucan.avalonia</string>
 <key>CFBundleExecutable</key><string>Toucan</string>
 <key>CFBundleIconFile</key><string>AppIcon</string>
-<key>CFBundleVersion</key><string>${VERSION:-0.0.0}</string>
-<key>CFBundleShortVersionString</key><string>${VERSION:-0.0.0}</string>
+<key>CFBundleVersion</key><string>${BUNDLE_VERSION}</string>
+<key>CFBundleShortVersionString</key><string>${BUNDLE_VERSION}</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>NSHighResolutionCapable</key><true/>
 <key>UTExportedTypeDeclarations</key><array><dict>

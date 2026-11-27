@@ -108,7 +108,7 @@ function Build-Installer {
     # Build installer
     $issFile = "$PSScriptRoot\installer.iss"
     Write-Host "  Running ISCC..." -ForegroundColor DarkGray
-    & $isccPath "/DAppVersion=$Version" $issFile
+    & $isccPath "/DAppVersion=$Version" "/DAppFileVersion=$($Version.Split('-')[0])" $issFile
     if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed" }
 
     $installerPath = "$Root\dist\ToucanSetup-$Version.exe"

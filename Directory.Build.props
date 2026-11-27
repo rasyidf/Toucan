@@ -7,7 +7,7 @@
   <!-- The app version. packaging/publish.ps1, Build-Msix.ps1 and build-macos-app.sh read it from here.
        Toucan.Plugins.Abstractions sets its own version: that one is the plugin API version. -->
   <PropertyGroup>
-    <Version>0.26.0</Version>
+    <Version>1.0.0-rc.1</Version>
   </PropertyGroup>
 
   <PropertyGroup>

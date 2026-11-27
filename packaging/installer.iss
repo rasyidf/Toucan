@@ -15,6 +15,10 @@ AppId={{B7A3F2E1-8C4D-4F5A-9B6E-2D1C3A4F5B6E}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}
+#ifdef AppFileVersion
+; Windows file versions are numbers only, so a release candidate (1.0.0-rc.1) is 1.0.0 here.
+VersionInfoVersion={#AppFileVersion}
+#endif
 AppPublisher={#AppPublisher}
 AppPublisherURL={#AppURL}
 AppSupportURL={#AppURL}/issues
