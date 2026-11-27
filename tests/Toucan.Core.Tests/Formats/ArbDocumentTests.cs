@@ -79,8 +79,9 @@ public class ArbDocumentTests
         Assert.Equal("Footer text", plain.Comment);
         Assert.Equal("Logout toast", Current(saved, "bye").Comment);
         var greeting = Current(saved, "greeting");
-        Assert.Equal(Current(Sample, "greeting").FormatData![ArbFormat.Metadata].Replace(" ", "").Replace("\n", ""),
-            greeting.FormatData![ArbFormat.Metadata].Replace(" ", "").Replace("\n", ""));
+        Assert.Equal(Current(Sample, "greeting").FormatData![ArbFormat.Metadata].Replace(" ", "").ReplaceLineEndings(""),
+            greeting.FormatData![ArbFormat.Metadata].Replace(" ", "").ReplaceLineEndings(""));
+        Assert.DoesNotContain("\r\r", saved);
         Assert.True(saved.IndexOf("\"@bye\"", StringComparison.Ordinal) > saved.IndexOf("\"bye\"", StringComparison.Ordinal));
         Assert.True(saved.IndexOf("\"@bye\"", StringComparison.Ordinal) < saved.IndexOf("\"count\"", StringComparison.Ordinal));
         Assert.Contains("\"@@x-generated\": true", saved);

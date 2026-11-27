@@ -93,7 +93,7 @@ internal static class JsonDocumentSerializer
     {
         var whitespace = content.Split('\n').Skip(1).Select(l => new string(l.TakeWhile(c => c is ' ' or '\t').ToArray())).FirstOrDefault(s => s.Length > 0);
         var options = new JsonSerializerOptions { WriteIndented = content.Contains('\n'),
-            IndentCharacter = whitespace?.Contains('\t') == true ? '\t' : ' ', IndentSize = Math.Clamp(whitespace?.Length ?? 2, 1, 127) };
+            IndentCharacter = whitespace?.Contains('\t') == true ? '\t' : ' ', IndentSize = Math.Clamp(whitespace?.Length ?? 2, 1, 127), NewLine = "\n" };
         var output = ResourceText.ToJsonString(root, resourceOptions ?? new(), options);
         if (content.Contains("\r\n", StringComparison.Ordinal)) output = output.Replace("\n", "\r\n", StringComparison.Ordinal);
         if (content.EndsWith('\n')) output += content.EndsWith("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";

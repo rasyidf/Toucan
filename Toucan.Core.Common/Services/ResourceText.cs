@@ -68,6 +68,7 @@ public static class ResourceText
         WriteIndented = options.Indent != ResourceIndent.None,
         IndentCharacter = options.Indent == ResourceIndent.Tab ? '\t' : ' ',
         IndentSize = options.Indent == ResourceIndent.Space4 ? 4 : options.Indent == ResourceIndent.Tab ? 1 : 2,
+        NewLine = "\n",
         Encoder = options.UnicodeEscapes == ResourceUnicodeEscapes.Minimal ? JavaScriptEncoder.UnsafeRelaxedJsonEscaping : null
     };
 

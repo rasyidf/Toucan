@@ -47,7 +47,7 @@ public sealed class ContractFileTests : IDisposable
             ["description"] = $"Generated from ProjectSettings by ContractFileTests; manifest version {ProjectSettings.CurrentManifestVersion}. Unknown fields are kept by older builds. Do not edit by hand.",
         };
         foreach (var (key, value) in schema.AsObject().ToList()) root[key] = value?.DeepClone();
-        var text = root.ToJsonString(new JsonSerializerOptions { WriteIndented = true }) + "\n";
+        var text = root.ToJsonString(new JsonSerializerOptions { WriteIndented = true, NewLine = "\n" }) + "\n";
         var path = RepoFile("docs", "toucan.tproj.schema.json");
         if (Environment.GetEnvironmentVariable("TOUCAN_UPDATE_DOCS") == "1") File.WriteAllText(path, text);
         Assert.True(File.Exists(path), "docs/toucan.tproj.schema.json is missing. Run the tests with TOUCAN_UPDATE_DOCS=1 to generate it.");
